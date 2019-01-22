@@ -64,7 +64,7 @@ $(document).ready(function () {
       <ul class="chartlist">
         {% for page, count in page_list %}
           <li>
-            <a href="{% doc_url project project.default_version page %}?analytics=True">{{ page }}</a> 
+            <a href="{% doc_url project project.default_version page %}?analytics=True">{{ page }}</a>
             <span class="count">{{ count }}</span>
             <span class="index" style="width: {{ analytics.scaled_page|key:page }}%">({{ analytics.scaled_page|key:page }}%)</span>
           </li>
@@ -77,7 +77,7 @@ $(document).ready(function () {
       <ul class="chartlist">
         {% for version, count in version_list %}
         <li>
-          <a href="{% doc_url project version %}?analytics=True">{{ version }}</a> 
+          <a href="{% doc_url project version %}?analytics=True">{{ version }}</a>
           <span class="count">{{ count }}</span>
           <span class="index" style="width: {{ analytics.scaled_version|key:version }}%">({{ analytics.scaled_version|key:version }}%)</span>
         </li>

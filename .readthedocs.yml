@@ -3,4 +3,4 @@ formats: all
 sphinx:
   configuration: docs/conf.py
 python:
-  requirements: requirements.txt
+  requirements: requirements/local-docs-build.txt

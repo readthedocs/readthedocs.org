@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Celery worker application instantiation"""
 
-from __future__ import absolute_import, unicode_literals
+"""Celery worker application instantiation."""
 
 import os
 

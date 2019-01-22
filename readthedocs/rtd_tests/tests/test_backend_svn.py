@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Tests For SVN"""
+"""Tests For SVN."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
-from mock import patch
 from django_dynamic_fixture import get
 
-from readthedocs.rtd_tests.base import RTDTestCase
-from readthedocs.projects.models import Project
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.vcs_support.backends.svn import Backend as SvnBackend
+
 
 class TestSvnBackend(RTDTestCase):
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Project model QuerySet classes."""
 
-from __future__ import absolute_import
+"""Project model QuerySet classes."""
 
 from django.db import models
 from django.db.models import Q
@@ -45,7 +44,9 @@ class ProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def protected(self, user=None):
-        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        queryset = self.filter(
+            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
+        )
         if user:
             return self._add_user_repos(queryset, user)
         return queryset
@@ -62,6 +63,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
         The check consists on,
           * the Project shouldn't be marked as skipped.
+          * any of the project's owners is banned.
 
         :param project: project to be checked
         :type project: readthedocs.projects.models.Project
@@ -69,7 +71,8 @@ class ProjectQuerySetBase(models.QuerySet):
         :returns: whether or not the project is active
         :rtype: bool
         """
-        if project.skip:
+        any_owner_banned = any(u.profile.banned for u in project.users.all())
+        if project.skip or any_owner_banned:
             return False
 
         return True
@@ -91,9 +94,11 @@ class ProjectQuerySet(SettingsOverrideObject):
 class RelatedProjectQuerySetBase(models.QuerySet):
 
     """
-    A manager for things that relate to Project and need to get their perms from the project.
+    Useful for objects that relate to Project and its permissions.
 
-    This shouldn't be used as a subclass.
+    Objects get the permissions from the project itself.
+
+    ..note:: This shouldn't be used as a subclass.
     """
 
     use_for_related_fields = True
@@ -122,7 +127,10 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def protected(self, user=None, project=None):
         kwargs = {
-            '%s__privacy_level__in' % self.project_field: [constants.PUBLIC, constants.PROTECTED]
+            '%s__privacy_level__in' % self.project_field: [
+                constants.PUBLIC,
+                constants.PROTECTED,
+            ],
         }
         queryset = self.filter(**kwargs)
         if user:
@@ -177,5 +185,5 @@ class FeatureQuerySet(models.QuerySet):
     def for_project(self, project):
         return self.filter(
             Q(projects=project) |
-            Q(default_true=True, add_date__gt=project.pub_date)
+            Q(default_true=True, add_date__gt=project.pub_date),
         ).distinct()
