@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import random
 import string
 from random import shuffle
@@ -6,8 +7,14 @@ import pytest
 from django_dynamic_fixture import G
 
 from readthedocs.projects.models import Project
-from readthedocs.search.indexes import Index, ProjectIndex, PageIndex, SectionIndex
-from .dummy_data import DUMMY_PAGE_JSON, ALL_PROJECTS
+from readthedocs.search.indexes import (
+    Index,
+    PageIndex,
+    ProjectIndex,
+    SectionIndex,
+)
+
+from .dummy_data import ALL_PROJECTS, DUMMY_PAGE_JSON
 
 
 @pytest.fixture(autouse=True)

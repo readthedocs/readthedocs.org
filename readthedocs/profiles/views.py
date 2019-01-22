@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
-"""Views for creating, editing and viewing site-specific user profiles."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Views for creating, editing and viewing site-specific user profiles."""
 
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
@@ -22,8 +16,12 @@ from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
 
 @login_required
 def edit_profile(
-        request, form_class, success_url=None,
-        template_name='profiles/private/edit_profile.html', extra_context=None):
+        request,
+        form_class,
+        success_url=None,
+        template_name='profiles/private/edit_profile.html',
+        extra_context=None,
+):
     """
     Edit the current user's profile.
 
@@ -70,10 +68,14 @@ def edit_profile(
     if success_url is None:
         success_url = reverse(
             'profiles_profile_detail',
-            kwargs={'username': request.user.username})
+            kwargs={'username': request.user.username},
+        )
     if request.method == 'POST':
         form = form_class(
-            data=request.POST, files=request.FILES, instance=profile_obj)
+            data=request.POST,
+            files=request.FILES,
+            instance=profile_obj,
+        )
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(success_url)
@@ -114,9 +116,12 @@ def delete_account(request):
 
 
 def profile_detail(
-        request, username, public_profile_field=None,
+        request,
+        username,
+        public_profile_field=None,
         template_name='profiles/public/profile_detail.html',
-        extra_context=None):
+        extra_context=None,
+):
     """
     Detail view of a user's profile.
 

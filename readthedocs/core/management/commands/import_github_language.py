@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 """
-Import a project's programming language from GitHub
+Import a project's programming language from GitHub.
 
 This builds a basic management command that will set
 a projects language to the most used one in GitHub.
@@ -8,16 +10,15 @@ Requires a ``GITHUB_AUTH_TOKEN`` to be set in the environment,
 which should contain a proper GitHub Oauth Token for rate limiting.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
 import os
+
 import requests
-
-from django.core.management.base import BaseCommand
 from django.core.cache import cache
+from django.core.management.base import BaseCommand
 
-from readthedocs.projects.models import Project
 from readthedocs.projects.constants import GITHUB_REGEXS, PROGRAMMING_LANGUAGES
+from readthedocs.projects.models import Project
+
 
 PL_DICT = {}
 
@@ -36,11 +37,7 @@ class Command(BaseCommand):
             print('Invalid GitHub token, exiting')
             return
 
-        for project in Project.objects.filter(
-            programming_language__in=['none', '', 'words']
-        ).filter(
-            repo__contains='github'
-        ):
+        for project in Project.objects.filter(programming_language__in=['none', '', 'words']).filter(repo__contains='github'):  # noqa
             user = repo = ''
             repo_url = project.repo
             for regex in GITHUB_REGEXS:
@@ -53,7 +50,7 @@ class Command(BaseCommand):
                 print('No GitHub repo for %s' % repo_url)
                 continue
 
-            cache_key = '%s-%s' % (user, repo)
+            cache_key = '{}-{}'.format(user, repo)
             top_lang = cache.get(cache_key, None)
             if not top_lang:
                 url = 'https://api.github.com/repos/{user}/{repo}/languages'.format(
@@ -66,15 +63,21 @@ class Command(BaseCommand):
                 languages = resp.json()
                 if not languages:
                     continue
-                sorted_langs = sorted(list(languages.items()), key=lambda x: x[1], reverse=True)
+                sorted_langs = sorted(
+                    list(languages.items()),
+                    key=lambda x: x[1],
+                    reverse=True,
+                )
                 print('Sorted langs: %s ' % sorted_langs)
                 top_lang = sorted_langs[0][0]
             else:
                 print('Cached top_lang: %s' % top_lang)
             if top_lang in PL_DICT:
                 slug = PL_DICT[top_lang]
-                print('Setting %s to %s' % (repo_url, slug))
-                Project.objects.filter(pk=project.pk).update(programming_language=slug)
+                print('Setting {} to {}'.format(repo_url, slug))
+                Project.objects.filter(
+                    pk=project.pk,
+                ).update(programming_language=slug)
             else:
                 print('Language unknown: %s' % top_lang)
             cache.set(cache_key, top_lang, 60 * 600)

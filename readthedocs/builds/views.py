@@ -2,17 +2,9 @@
 
 """Views for builds app."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import textwrap
 
-from builtins import object
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import (
@@ -37,7 +29,7 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
-class BuildBase(object):
+class BuildBase:
     model = Build
 
     def get_queryset(self):
@@ -47,13 +39,14 @@ class BuildBase(object):
             slug=self.project_slug,
         )
         queryset = Build.objects.public(
-            user=self.request.user, project=self.project
+            user=self.request.user,
+            project=self.project,
         )
 
         return queryset
 
 
-class BuildTriggerMixin(object):
+class BuildTriggerMixin:
 
     @method_decorator(login_required)
     def post(self, request, project_slug):
@@ -69,7 +62,10 @@ class BuildTriggerMixin(object):
             slug=version_slug,
         )
 
-        update_docs_task, build = trigger_build(project=project, version=version)
+        update_docs_task, build = trigger_build(
+            project=project,
+            version=version,
+        )
         if (update_docs_task, build) == (None, None):
             # Build was skipped
             messages.add_message(
@@ -89,15 +85,17 @@ class BuildTriggerMixin(object):
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
     def get_context_data(self, **kwargs):
-        context = super(BuildList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
-        active_builds = self.get_queryset().exclude(state='finished'
-                                                    ).values('id')
+        active_builds = self.get_queryset().exclude(
+            state='finished',
+        ).values('id')
 
         context['project'] = self.project
         context['active_builds'] = active_builds
         context['versions'] = Version.objects.public(
-            user=self.request.user, project=self.project
+            user=self.request.user,
+            project=self.project,
         )
         context['build_qs'] = self.get_queryset()
 
@@ -108,7 +106,7 @@ class BuildDetail(BuildBase, DetailView):
     pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
-        context = super(BuildDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['project'] = self.project
 
         build = self.get_object()
@@ -161,11 +159,11 @@ class BuildDetail(BuildBase, DetailView):
 
 def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
     return HttpResponsePermanentRedirect(
-        reverse('builds_project_list', args=[project_slug])
+        reverse('builds_project_list', args=[project_slug]),
     )
 
 
 def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
     return HttpResponsePermanentRedirect(
-        reverse('builds_detail', args=[project_slug, pk])
+        reverse('builds_detail', args=[project_slug, pk]),
     )

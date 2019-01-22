@@ -1,27 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals, division, print_function
-import mock
-from mock import patch, mock_open
 import django_dynamic_fixture as fixture
-import pytest
-import six
-
+import mock
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.http import Http404
-from django.conf import settings
 from django.urls import reverse
+from mock import mock_open, patch
 
-from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.core.views.serve import _serve_symlink_docs
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-from readthedocs.core.views.serve import _serve_symlink_docs
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
 
 @override_settings(
-    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False
+    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False,
 )
 class BaseDocServing(RequestFactoryTestMixin, TestCase):
 
@@ -50,7 +46,7 @@ class TestPrivateDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/private_web_root/private'
+                    settings.SITE_ROOT + '/private_web_root/private',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -60,7 +56,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -70,7 +66,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/úñíčódé.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -116,7 +112,7 @@ class TestPublicDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/public_web_root/public'
+                    settings.SITE_ROOT + '/public_web_root/public',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -126,7 +122,7 @@ class TestPublicDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html', privacy_level='public')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -164,7 +160,6 @@ class TestPublicDocs(BaseDocServing):
         read_data='My own robots.txt',
     )
     @patch('readthedocs.core.views.serve.os')
-    @pytest.mark.skipif(six.PY2, reason='In Python2 the mock is __builtins__.open')
     def test_custom_robots_txt(self, os_mock, open_mock):
         os_mock.path.exists.return_value = True
         self.public.versions.update(active=True, built=True)
