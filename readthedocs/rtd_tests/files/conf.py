@@ -23,6 +23,6 @@ htmlhelp_basename = 'pip'
 html_theme = 'sphinx_rtd_theme'
 file_insertion_enabled = False
 latex_documents = [
-  ('index', 'pip.tex', 'Pip Documentation',
+  ('index', 'pip.tex', u'Pip Documentation',
    u'', 'manual'),
 ]
