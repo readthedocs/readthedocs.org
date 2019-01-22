@@ -256,22 +256,22 @@ class TestCeleryBuilding(RTDTestCase):
     def test_sync_files_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.sync_files(project_pk=None, version_pk=345343)
-        mock_logger.warning.assert_called_with('Version not found for the pk = 345343')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.builds.managers.log')
     def test_move_files_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.move_files(version_pk=345343, hostname=None)
-        mock_logger.warning.assert_called_with('Version not found for the pk = 345343')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.builds.managers.log')
     def test_update_search_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.update_search(version_pk=345343, commit=None)
-        mock_logger.warning.assert_called_with('Version not found for the pk = 345343')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.fileify(version_pk=345343, commit=None)
-        mock_logger.warning.assert_called_with('Version not found for the pk = 345343')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")

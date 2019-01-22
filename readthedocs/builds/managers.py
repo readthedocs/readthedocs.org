@@ -73,10 +73,16 @@ class VersionManagerBase(models.Manager):
         return self.create(**defaults)
 
     def get_object_or_log(self, **kwargs):
+        """
+        Returns Version object or log.
+
+        It will return the Version object if found for the given kwargs,
+        otherwise it will log a warning along with all provided kwargs.
+        """
         try:
-            return super(VersionManagerBase, self).get(**kwargs)
+            return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for the pk = {pk}'.format(pk=kwargs.get('pk')))
+            log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
 class VersionManager(SettingsOverrideObject):
