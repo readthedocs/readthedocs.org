@@ -9,6 +9,7 @@ from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from messages_extends.models import Message as PersistentMessage
+from allauth.account.models import EmailAddress
 
 from readthedocs.builds.models import Build
 from readthedocs.notifications import Notification, SiteNotification
@@ -166,6 +167,9 @@ class NotificationBackendTests(TestCase):
             success_level = INFO_NON_PERSISTENT
 
         user = fixture.get(User)
+        # Setting the primary and verified email address of the user
+        email = fixture.get(EmailAddress, user=user, primary=True, verified=True)
+
         n = TestNotification(user, True)
         backend = SiteBackend(request=None)
 
