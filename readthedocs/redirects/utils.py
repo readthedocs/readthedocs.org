@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Redirection view support.
 
@@ -12,8 +10,6 @@ handlers, so that redirects only take effect if no other view matches.
 import logging
 import re
 from urllib.parse import urlparse, urlunparse
-
-from django.http import HttpResponseRedirect
 
 from django.http import HttpResponseRedirect
 
