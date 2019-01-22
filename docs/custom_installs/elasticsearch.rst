@@ -12,9 +12,11 @@ Installing Java
 Elasticsearch requires Java 8 or later. Use `Oracle official documentation <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_. 
 or opensource distribution like `OpenJDK <http://openjdk.java.net/install/>`_.
 
-After installing java, verify the installation by,::
+After installing java, verify the installation by,:
 
-    $ java -version
+.. prompt:: bash $
+
+    java -version
 
 The result should be something like this::
 
@@ -31,52 +33,68 @@ Elasticsearch can be downloaded directly from elastic.co. For Ubuntu, it's best 
 RTD currently uses elasticsearch 1.x which can be easily downloaded and installed from `elastic.co 
 <https://www.elastic.co/downloads/past-releases/elasticsearch-1-3-8/>`_.
 
-Install the downloaded package by following command::
+Install the downloaded package by following command:
 
-    $ sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
+.. prompt:: bash $
+
+    sudo apt install .{path-to-downloaded-file}/elasticsearch-1.3.8.deb
 
 Custom setup
 ------------
 
-You need the icu plugin::
+You need the icu plugin:
 
-    $ elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
+.. prompt:: bash $
+
+    elasticsearch/bin/plugin -install elasticsearch/elasticsearch-analysis-icu/2.3.0
 
 Running Elasticsearch from command line
 ---------------------------------------
 
-Elasticsearch is not started automatically after installation. How to start and stop Elasticsearch depends on whether your system uses SysV init or systemd (used by newer distributions). You can tell which is being used by running this command::
+Elasticsearch is not started automatically after installation. How to start and stop Elasticsearch depends on whether your system uses SysV init or systemd (used by newer distributions). You can tell which is being used by running this command:
 
-    $ ps -p 1   
+.. prompt:: bash $
+
+    ps -p 1   
 
 **Running Elasticsearch with SysV init**
 
-Use the ``update-rc.d command`` to configure Elasticsearch to start automatically when the system boots up::
+Use the ``update-rc.d command`` to configure Elasticsearch to start automatically when the system boots up:
 
-    $ sudo update-rc.d elasticsearch defaults 95 10
+.. prompt:: bash $
 
-Elasticsearch can be started and stopped using the service command::
+    sudo update-rc.d elasticsearch defaults 95 10
 
-    $ sudo -i service elasticsearch start
-    $ sudo -i service elasticsearch stop
+Elasticsearch can be started and stopped using the service command:
+
+.. prompt:: bash $
+
+    sudo -i service elasticsearch start
+    sudo -i service elasticsearch stop
 
 If Elasticsearch fails to start for any reason, it will print the reason for failure to STDOUT. Log files can be found in /var/log/elasticsearch/.
 
 **Running Elasticsearch with systemd**
 
-To configure Elasticsearch to start automatically when the system boots up, run the following commands::
+To configure Elasticsearch to start automatically when the system boots up, run the following commands:
 
-    $ sudo /bin/systemctl daemon-reload
-    $ sudo /bin/systemctl enable elasticsearch.service
+.. prompt:: bash $
 
-Elasticsearch can be started and stopped as follows::
+    sudo /bin/systemctl daemon-reload
+    sudo /bin/systemctl enable elasticsearch.service
 
-    $ sudo systemctl start elasticsearch.service
-    $ sudo systemctl stop elasticsearch.service
+Elasticsearch can be started and stopped as follows:
 
-To verify run::
+.. prompt:: bash $
 
-    $ curl http://localhost:9200
+    sudo systemctl start elasticsearch.service
+    sudo systemctl stop elasticsearch.service
+
+To verify run:
+
+.. prompt:: bash $
+
+    curl http://localhost:9200
 
 
 You should get something like::
@@ -97,12 +115,16 @@ You should get something like::
 Index the data available at RTD database
 ----------------------------------------
 
-You need to create the indexes::
+You need to create the indexes:
 
-    $ python manage.py provision_elasticsearch
+.. prompt:: bash $
 
-In order to search through the RTD database, you need to index it into the elasticsearch index:: 
+    python manage.py provision_elasticsearch
 
-    $ python manage.py reindex_elasticsearch
+In order to search through the RTD database, you need to index it into the elasticsearch index:
+
+.. prompt:: bash $ 
+
+    python manage.py reindex_elasticsearch
 
 You are ready to go!

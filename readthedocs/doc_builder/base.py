@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Base classes for Builders."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""Base classes for Builders."""
 
 import logging
 import os
 import shutil
-from builtins import object
 from functools import wraps
+
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ def restoring_chdir(fn):
     return decorator
 
 
-class BaseBuilder(object):
+class BaseBuilder:
 
     """
     The Base for all Builders. Defines the API for subclasses.
@@ -49,7 +47,9 @@ class BaseBuilder(object):
         self.config = python_env.config if python_env else None
         self._force = force
         self.target = self.project.artifact_path(
-            version=self.version.slug, type_=self.type)
+            version=self.version.slug,
+            type_=self.type,
+        )
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
@@ -70,7 +70,7 @@ class BaseBuilder(object):
             shutil.copytree(
                 self.old_artifact_path,
                 self.target,
-                ignore=shutil.ignore_patterns(*self.ignore_patterns)
+                ignore=shutil.ignore_patterns(*self.ignore_patterns),
             )
         else:
             log.warning('Not moving docs, because the build dir is unknown.')
@@ -99,10 +99,14 @@ class BaseBuilder(object):
         docs_dir = self.docs_dir()
 
         index_filename = os.path.join(
-            docs_dir, 'index.{ext}'.format(ext=extension))
+            docs_dir,
+            'index.{ext}'.format(ext=extension),
+        )
         if not os.path.exists(index_filename):
             readme_filename = os.path.join(
-                docs_dir, 'README.{ext}'.format(ext=extension))
+                docs_dir,
+                'README.{ext}'.format(ext=extension),
+            )
             if os.path.exists(readme_filename):
                 return 'README'
 
