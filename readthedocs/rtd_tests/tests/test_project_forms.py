@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
+from django.core.exceptions import ValidationError
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
@@ -24,6 +25,8 @@ from readthedocs.projects.forms import (
     ProjectExtraForm,
     TranslationForm,
     UpdateProjectForm,
+    WebHookForm,
+    EmailHookForm
 )
 from readthedocs.projects.models import EnvironmentVariable, Project
 
@@ -505,6 +508,72 @@ class TestTranslationForms(TestCase):
             instance=self.project_b_en,
         )
         self.assertTrue(form.is_valid())
+
+
+class TestNotificationForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        
+    def test_webhookform(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'http://www.example.com/'
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+    def test_wrong_inputs_in_webhookform(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': ''
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'url': ['This field is required.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'wrong-url'
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'url': ['Enter a valid URL.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+    def test_emailhookform(self):
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
+
+        data = {
+            'email': 'test@email.com'
+        }
+        form = EmailHookForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 1)
+
+    def test_wrong_inputs_in_emailhookform(self):
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
+
+        data = {
+            'email': 'wrong_email@'
+        }
+        form = EmailHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'email': ['Enter a valid email address.']})
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
+
+        data = {
+            'email': ''
+        }
+        form = EmailHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'email': ['This field is required.']})
+        self.assertEqual(self.project.emailhook_notifications.all().count(), 0)
 
 
 class TestProjectEnvironmentVariablesForm(TestCase):

@@ -1200,7 +1200,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk],
+            args=[self.project.pk, self.domain],
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -1208,7 +1208,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk, True],
+            args=[self.project.pk, self.domain, True],
         )
         super().delete(*args, **kwargs)
 

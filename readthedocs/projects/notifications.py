@@ -5,6 +5,7 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpRequest
+from django.urls import reverse
 from messages_extends.constants import ERROR_PERSISTENT
 
 from readthedocs.notifications import Notification, SiteNotification
@@ -41,6 +42,20 @@ class AbandonedProjectNotification(SiteNotification):
             'proj_name': project.name,
             'proj_url': proj_url
         })
+        return context
+
+
+class EmailConfirmNotification(SiteNotification):
+
+    failure_level = ERROR_PERSISTENT
+    failure_message = _(
+        'Your primary email address is not verified. '
+        'Please <a href="{{account_email_url}}">verify it here</a>.',
+    )
+
+    def get_context_data(self):
+        context = super(EmailConfirmNotification, self).get_context_data()
+        context.update({'account_email_url': reverse('account_email')})
         return context
 
 
