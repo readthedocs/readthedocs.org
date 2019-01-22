@@ -12,8 +12,6 @@ buildpyversions
     Read the Docs build image.
 """
 
-from __future__ import division, print_function, unicode_literals
-
 from django.conf import settings
 from docutils import nodes, utils
 
