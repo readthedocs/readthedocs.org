@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 import json
 import os
+
 
 _DATA_FILES = {
     'pipeline': ['installation.json', 'signals.json'],
@@ -14,7 +16,7 @@ def _get_dummy_json():
         data = []
         for file_name in value:
             current_path = os.path.abspath(os.path.dirname(__file__))
-            path = os.path.join(current_path, "data", key, file_name)
+            path = os.path.join(current_path, 'data', key, file_name)
             with open(path) as f:
                 content = json.load(f)
                 data.append(content)

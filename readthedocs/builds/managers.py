@@ -1,14 +1,23 @@
-"""Build and Version class model Managers"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Build and Version class model Managers."""
 
 from django.db import models
 
-from .constants import (BRANCH, TAG, LATEST, LATEST_VERBOSE_NAME, STABLE,
-                        STABLE_VERBOSE_NAME)
+from readthedocs.core.utils.extend import (
+    SettingsOverrideObject,
+    get_override_class,
+)
+
+from .constants import (
+    BRANCH,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from .querysets import VersionQuerySet
-from readthedocs.core.utils.extend import (SettingsOverrideObject,
-                                           get_override_class)
 
 
 __all__ = ['VersionManager']
@@ -30,9 +39,9 @@ class VersionManagerBase(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class  # pylint: disable=protected-access
+            VersionQuerySet._default_class,  # pylint: disable=protected-access
         )
-        return super(VersionManagerBase, cls).from_queryset(queryset_class, class_name)
+        return super().from_queryset(queryset_class, class_name)
 
     def create_stable(self, **kwargs):
         defaults = {
