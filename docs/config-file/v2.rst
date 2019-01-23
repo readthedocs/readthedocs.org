@@ -24,7 +24,7 @@ Supported settings
 .. note::
    
    The presence of any other key that isn't documented here will make the build to fail.
-   This is to avoid common errors.
+   This is to avoid typos and provide feedback on invalid configurations.
 
 version
 ~~~~~~~
