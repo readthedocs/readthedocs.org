@@ -6,6 +6,8 @@ import copy
 import os
 from contextlib import contextmanager
 
+from django.conf import settings
+
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
@@ -62,28 +64,16 @@ SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-DOCKER_DEFAULT_VERSION = '2.0'
+DOCKER_DEFAULT_IMAGE = getattr(settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build')
+DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
-DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-DOCKER_IMAGE_SETTINGS = {
-    'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-    },
-    'readthedocs/build:2.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-    },
-    'readthedocs/build:3.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:stable': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:latest': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-}
+DOCKER_IMAGE = getattr(
+    settings,
+    'DOCKER_IMAGE',
+    '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+)
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
 
 class ConfigError(Exception):

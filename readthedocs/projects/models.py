@@ -654,11 +654,11 @@ class Project(models.Model):
 
     def full_json_path(self, version=LATEST):
         """The path to the build json docs in the project."""
-        if 'sphinx' in self.documentation_type:
-            return os.path.join(self.conf_dir(version), '_build', 'json')
-
-        if 'mkdocs' in self.documentation_type:
-            return os.path.join(self.checkout_path(version), '_build', 'json')
+        json_path = os.path.join(
+            self.conf_dir(version),
+            '_build', 'json'
+        )
+        return json_path
 
     def full_singlehtml_path(self, version=LATEST):
         """The path to the build singlehtml docs in the project."""

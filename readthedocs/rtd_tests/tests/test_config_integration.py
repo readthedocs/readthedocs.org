@@ -27,6 +27,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
+from doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -87,30 +88,34 @@ class LoadConfigTests(TestCase):
         self.project.enable_pdf_build = True
         self.project.save()
         config = load_yaml_config(self.version)
-        self.assertEqual(load_config.call_count, 1)
-        load_config.assert_has_calls([
-            mock.call(
+
+        expected_env_config = {
+            'allow_v2': mock.ANY,
+            'build': {'image': 'readthedocs/build:1.0'},
+            'defaults': {
+                'install_project': self.project.install_project,
+                'formats': [
+                    'htmlzip',
+                    'epub',
+                    'pdf'
+                ],
+                'use_system_packages': self.project.use_system_packages,
+                'requirements_file': self.project.requirements_file,
+                'python_version': 2,
+                'sphinx_configuration': mock.ANY,
+                'build_image': 'readthedocs/build:1.0',
+                'doctype': self.project.documentation_type,
+            },
+        }
+
+        img_settings = DOCKER_IMAGE_SETTINGS.get(self.project.container_image, None)
+        if img_settings:
+            expected_env_config.update(img_settings)
+
+        load_config.assert_called_once_with(
                 path=mock.ANY,
-                env_config={
-                    'allow_v2': mock.ANY,
-                    'build': {'image': 'readthedocs/build:1.0'},
-                    'defaults': {
-                        'install_project': self.project.install_project,
-                        'formats': [
-                            'htmlzip',
-                            'epub',
-                            'pdf',
-                        ],
-                        'use_system_packages': self.project.use_system_packages,
-                        'requirements_file': self.project.requirements_file,
-                        'python_version': 2,
-                        'sphinx_configuration': mock.ANY,
-                        'build_image': 'readthedocs/build:1.0',
-                        'doctype': self.project.documentation_type,
-                    },
-                },
-            ),
-        ])
+                env_config=expected_env_config,
+        )
         self.assertEqual(config.python.version, 2)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
