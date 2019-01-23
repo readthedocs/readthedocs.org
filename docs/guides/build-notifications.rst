@@ -9,8 +9,8 @@ This makes sure you know when your builds have failed.
 
 Take these steps to enable build notifications using email:
 
-* Go to **Admin > Notifications** in your project.
-* Fill in the **Email** field under the **New Email Notifications** heading
+* Go to :guilabel:`Admin` > :guilabel:`Notifications` in your project.
+* Fill in the **Email** field under the :guilabel:`New Email Notifications` heading
 * Submit the form
 
 You should now get notified by email when your builds fail!
@@ -22,8 +22,8 @@ Read the Docs can also send webhooks when builds fail.
 
 Take these steps to enable build notifications using a webhook:
 
-* Go to **Admin > Notifications** in your project.
-* Fill in the **URL** field under the **New Webhook Notifications** heading
+* Go to :guilabel:`Admin` > :guilabel:`Notifications` in your project.
+* Fill in the **URL** field under the :guilabel:`New Webhook Notifications` heading
 * Submit the form
 
 The project name, slug and its details for the build that failed will be sent as POST request to your webhook URL:

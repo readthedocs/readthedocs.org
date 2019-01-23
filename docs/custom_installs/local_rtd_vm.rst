@@ -160,7 +160,7 @@ Log into ``http://[VM IP ADDRESS]:[PORT]`` using the django superuser creds and 
 For a new project
 `````````````````
 
-1. Select **<username> > Add Project** from the user menu.
+1. Select :guilabel:`<username>` > :guilabel:`Add Project` from the user menu.
 2. Click **Manually Import Project**.
 3. Provide the following information in the **Project Details** page:
 
@@ -174,7 +174,7 @@ For a new project
 For an existing project
 ```````````````````````
 
-1. Select **<username> > Projects** from the user menu.
+1. Select :guilabel:`<username>` > :guilabel:`Projects` from the user menu.
 2. Select the relevant project from the **Projects** list.
 3. Select latest from the **Build a version** dropdown.
 4. Click **Build**. This will take you to the Builds tab where the progress status is displayed. This may take some time.
