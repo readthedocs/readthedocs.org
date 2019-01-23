@@ -1,7 +1,9 @@
 Version 3.0.0
 -------------
 
-**Read the Docs now only supported Python 3.5+**
+**Read the Docs now only supports Python 3.6+**.
+This is for people running the software on their own servers,
+builds continue to work across all supported Python versions.
 
 :Date: January 23, 2019
 
