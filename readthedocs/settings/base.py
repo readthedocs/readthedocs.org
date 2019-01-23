@@ -295,9 +295,6 @@ class CommunityBaseSettings(Settings):
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:testing': {  # 5.0rc1
-            'python': {'supported_versions': [2, 2.7, 3, 3.6, 3.7]},
-        },
     })
 
     # All auth
