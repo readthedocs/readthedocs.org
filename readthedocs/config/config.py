@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
-from __future__ import division, print_function, unicode_literals
 
 import copy
 import os
-import re
 from contextlib import contextmanager
-
-import six
 
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
@@ -40,6 +34,7 @@ from .validation import (
     validate_string,
 )
 
+
 __all__ = (
     'ALL',
     'load',
@@ -59,12 +54,8 @@ CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
-BASE_INVALID = 'base-invalid'
-BASE_NOT_A_DIR = 'base-not-a-directory'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
 CONFIG_REQUIRED = 'config-required'
-NAME_REQUIRED = 'name-required'
-NAME_INVALID = 'name-invalid'
 CONF_FILE_REQUIRED = 'conf-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
@@ -101,7 +92,7 @@ class ConfigError(Exception):
 
     def __init__(self, message, code):
         self.code = code
-        super(ConfigError, self).__init__(message)
+        super().__init__(message)
 
 
 class ConfigOptionNotSupportedError(ConfigError):
@@ -113,9 +104,9 @@ class ConfigOptionNotSupportedError(ConfigError):
         template = (
             'The "{}" configuration option is not supported in this version'
         )
-        super(ConfigOptionNotSupportedError, self).__init__(
+        super().__init__(
             template.format(self.configuration),
-            CONFIG_NOT_SUPPORTED
+            CONFIG_NOT_SUPPORTED,
         )
 
 
@@ -134,10 +125,10 @@ class InvalidConfig(ConfigError):
             code=code,
             error=error_message,
         )
-        super(InvalidConfig, self).__init__(message, code=code)
+        super().__init__(message, code=code)
 
 
-class BuildConfigBase(object):
+class BuildConfigBase:
 
     """
     Config that handles the build of one particular documentation.
@@ -156,9 +147,15 @@ class BuildConfigBase(object):
     """
 
     PUBLIC_ATTRIBUTES = [
-        'version', 'formats', 'python',
-        'conda', 'build', 'doctype',
-        'sphinx', 'mkdocs', 'submodules',
+        'version',
+        'formats',
+        'python',
+        'conda',
+        'build',
+        'doctype',
+        'sphinx',
+        'mkdocs',
+        'submodules',
     ]
     version = None
 
@@ -245,7 +242,7 @@ class BuildConfigBase(object):
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        return 'python{0}'.format(ver)
+        return 'python{}'.format(ver)
 
     @property
     def python_full_version(self):
@@ -276,12 +273,6 @@ class BuildConfigV1(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
-    BASE_INVALID_MESSAGE = 'Invalid value for base: {base}'
-    BASE_NOT_A_DIR_MESSAGE = '"base" is not a directory: {base}'
-    NAME_REQUIRED_MESSAGE = 'Missing key "name"'
-    NAME_INVALID_MESSAGE = (
-        'Invalid name "{name}". Valid values must match {name_re}'
-    )
     CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
@@ -319,62 +310,16 @@ class BuildConfigV1(BuildConfigBase):
           ``readthedocs.yml`` config file if not set
         """
         # Validate env_config.
-        # TODO: this isn't used
-        self._config['output_base'] = self.validate_output_base()
-
         # Validate the build environment first
         # Must happen before `validate_python`!
         self._config['build'] = self.validate_build()
 
         # Validate raw_config. Order matters.
-        # TODO: this isn't used
-        self._config['name'] = self.validate_name()
-        # TODO: this isn't used
-        self._config['base'] = self.validate_base()
         self._config['python'] = self.validate_python()
         self._config['formats'] = self.validate_formats()
 
         self._config['conda'] = self.validate_conda()
         self._config['requirements_file'] = self.validate_requirements_file()
-
-    def validate_output_base(self):
-        """Validates that ``output_base`` exists and set its absolute path."""
-        assert 'output_base' in self.env_config, (
-               '"output_base" required in "env_config"')
-        output_base = os.path.abspath(
-            os.path.join(
-                self.env_config.get('output_base', self.base_path),
-            )
-        )
-        return output_base
-
-    def validate_name(self):
-        """Validates that name exists."""
-        name = self.raw_config.get('name', None)
-        if not name:
-            name = self.env_config.get('name', None)
-        if not name:
-            self.error('name', self.NAME_REQUIRED_MESSAGE, code=NAME_REQUIRED)
-        name_re = r'^[-_.0-9a-zA-Z]+$'
-        if not re.match(name_re, name):
-            self.error(
-                'name',
-                self.NAME_INVALID_MESSAGE.format(
-                    name=name,
-                    name_re=name_re),
-                code=NAME_INVALID)
-
-        return name
-
-    def validate_base(self):
-        """Validates that path is a valid directory."""
-        if 'base' in self.raw_config:
-            base = self.raw_config['base']
-        else:
-            base = self.base_path
-        with self.catch_validation_error('base'):
-            base = validate_directory(base, self.base_path)
-        return base
 
     def validate_build(self):
         """
@@ -411,19 +356,11 @@ class BuildConfigV1(BuildConfigBase):
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
                     DOCKER_DEFAULT_IMAGE,
-                    build['image']
+                    build['image'],
                 )
         # Update docker default settings from image name
         if build['image'] in DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(
-                DOCKER_IMAGE_SETTINGS[build['image']]
-            )
-        # Update docker settings from user config
-        if 'DOCKER_IMAGE_SETTINGS' in self.env_config and \
-                build['image'] in self.env_config['DOCKER_IMAGE_SETTINGS']:
-            self.env_config.update(
-                self.env_config['DOCKER_IMAGE_SETTINGS'][build['image']]
-            )
+            self.env_config.update(DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -450,20 +387,22 @@ class BuildConfigV1(BuildConfigBase):
                 self.error(
                     'python',
                     self.PYTHON_INVALID_MESSAGE,
-                    code=PYTHON_INVALID)
+                    code=PYTHON_INVALID,
+                )
 
             # Validate use_system_site_packages.
             if 'use_system_site_packages' in raw_python:
-                with self.catch_validation_error(
-                        'python.use_system_site_packages'):
+                with self.catch_validation_error('python.use_system_site_packages'):
                     python['use_system_site_packages'] = validate_bool(
-                        raw_python['use_system_site_packages'])
+                        raw_python['use_system_site_packages'],
+                    )
 
             # Validate pip_install.
             if 'pip_install' in raw_python:
                 with self.catch_validation_error('python.pip_install'):
                     python['install_with_pip'] = validate_bool(
-                        raw_python['pip_install'])
+                        raw_python['pip_install'],
+                    )
 
             # Validate extra_requirements.
             if 'extra_requirements' in raw_python:
@@ -472,29 +411,30 @@ class BuildConfigV1(BuildConfigBase):
                     self.error(
                         'python.extra_requirements',
                         self.PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE,
-                        code=PYTHON_INVALID)
+                        code=PYTHON_INVALID,
+                    )
                 if not python['install_with_pip']:
                     python['extra_requirements'] = []
                 else:
                     for extra_name in raw_extra_requirements:
-                        with self.catch_validation_error(
-                                'python.extra_requirements'):
+                        with self.catch_validation_error('python.extra_requirements'):
                             python['extra_requirements'].append(
-                                validate_string(extra_name)
+                                validate_string(extra_name),
                             )
 
             # Validate setup_py_install.
             if 'setup_py_install' in raw_python:
                 with self.catch_validation_error('python.setup_py_install'):
                     python['install_with_setup'] = validate_bool(
-                        raw_python['setup_py_install'])
+                        raw_python['setup_py_install'],
+                    )
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
                     # Try to convert strings to an int first, to catch '2', then
                     # a float, to catch '2.7'
                     version = raw_python['version']
-                    if isinstance(version, six.string_types):
+                    if isinstance(version, str):
                         try:
                             version = int(version)
                         except ValueError:
@@ -521,7 +461,8 @@ class BuildConfigV1(BuildConfigBase):
             if 'file' in raw_conda:
                 with self.catch_validation_error('conda.file'):
                     conda_environment = validate_file(
-                        raw_conda['file'], self.base_path
+                        raw_conda['file'],
+                        self.base_path,
                     )
             conda['environment'] = conda_environment
 
@@ -556,21 +497,6 @@ class BuildConfigV1(BuildConfigBase):
                 validate_choice(format_, self.get_valid_formats())
 
         return formats
-
-    @property
-    def name(self):
-        """The project name."""
-        return self._config['name']
-
-    @property
-    def base(self):
-        """The base directory."""
-        return self._config['base']
-
-    @property
-    def output_base(self):
-        """The output base."""
-        return self._config['output_base']
 
     @property
     def formats(self):
@@ -774,7 +700,7 @@ class BuildConfigV2(BuildConfigBase):
         python = {}
         with self.catch_validation_error('python.version'):
             version = self.pop_config('python.version', 3)
-            if isinstance(version, six.string_types):
+            if isinstance(version, str):
                 try:
                     version = int(version)
                 except ValueError:
@@ -999,7 +925,8 @@ class BuildConfigV2(BuildConfigBase):
             if not configuration:
                 configuration = None
             configuration = self.pop_config(
-                'sphinx.configuration', configuration
+                'sphinx.configuration',
+                configuration,
             )
             if configuration is not None:
                 configuration = validate_file(configuration, self.base_path)
@@ -1015,9 +942,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates that the doctype is the same as the admin panel.
 
-        This a temporal validation, as the configuration file
-        should support per version doctype, but we need to
-        adapt the rtd code for that.
+        This a temporal validation, as the configuration file should support per
+        version doctype, but we need to adapt the rtd code for that.
         """
         dashboard_doctype = self.defaults.get('doctype', 'sphinx')
         if self.doctype != dashboard_doctype:
@@ -1027,7 +953,7 @@ class BuildConfigV2(BuildConfigBase):
 
             if dashboard_doctype == 'mkdocs' or not self.sphinx:
                 error_msg += ' but there is no "{}" key specified.'.format(
-                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx'
+                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx',
                 )
             else:
                 error_msg += ' but your "sphinx.builder" key does not match.'
@@ -1089,8 +1015,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Checks that we don't have extra keys (invalid ones).
 
-        This should be called after all the validations are done
-        and all keys are popped from `self.raw_config`.
+        This should be called after all the validations are done and all keys
+        are popped from `self.raw_config`.
         """
         msg = (
             'Invalid configuration option: {}. '
@@ -1199,10 +1125,7 @@ def load(path, env_config):
     filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        raise ConfigError(
-            'No configuration file found',
-            code=CONFIG_REQUIRED
-        )
+        raise ConfigError('No configuration file found', code=CONFIG_REQUIRED)
     with open(filename, 'r') as configuration_file:
         try:
             config = parse(configuration_file.read())

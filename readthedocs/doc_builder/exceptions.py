@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Exceptions raised when building documentation."""
 
-from __future__ import division, print_function, unicode_literals
+"""Exceptions raised when building documentation."""
 
 from django.utils.translation import ugettext_noop
 
@@ -11,9 +10,12 @@ class BuildEnvironmentException(Exception):
     status_code = None
 
     def __init__(self, message=None, **kwargs):
-        self.status_code = kwargs.pop('status_code', None) or self.status_code or 1
+        self.status_code = kwargs.pop(
+            'status_code',
+            None,
+        ) or self.status_code or 1
         message = message or self.get_default_message()
-        super(BuildEnvironmentException, self).__init__(message, **kwargs)
+        super().__init__(message, **kwargs)
 
     def get_default_message(self):
         return self.message
@@ -58,4 +60,14 @@ class BuildEnvironmentWarning(BuildEnvironmentException):
 class MkDocsYAMLParseError(BuildEnvironmentError):
     GENERIC_WITH_PARSE_EXCEPTION = ugettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
+    )
+
+    INVALID_DOCS_DIR_CONFIG = ugettext_noop(
+        'The "docs_dir" config from your MkDocs YAML config file has to be a '
+        'string with relative or absolute path.',
+    )
+
+    INVALID_EXTRA_CONFIG = ugettext_noop(
+        'The "{config}" config from your MkDocs YAML config file has to be a '
+        'a list of relative paths.',
     )

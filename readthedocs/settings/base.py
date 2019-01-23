@@ -43,7 +43,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
-    PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
+    PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -266,6 +266,9 @@ class CommunityBaseSettings(Settings):
         },
     }
 
+    # Sentry
+    SENTRY_CELERY_IGNORE_EXPECTED = True
+
     # Docker
     DOCKER_ENABLE = False
     DOCKER_IMAGE = 'readthedocs/build:2.0'
@@ -365,7 +368,7 @@ class CommunityBaseSettings(Settings):
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
-    SILENCED_SYSTEM_CHECKS = ['fields.W342']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'
