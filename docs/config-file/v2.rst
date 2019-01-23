@@ -321,7 +321,11 @@ This means that the build stops at the first warning and exits with exit status 
 submodules
 ~~~~~~~~~~
 
-Git submodules configuration.
+VCS submodules configuration.
+
+.. note::
+
+   Only Git is supported at the moment.
 
 .. note::
    
