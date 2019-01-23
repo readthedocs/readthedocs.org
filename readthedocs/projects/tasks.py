@@ -903,7 +903,9 @@ def sync_files(
     synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     if not pdf:
         remove_dirs([
             version.project.get_production_media_path(
@@ -965,7 +967,9 @@ def move_files(
     :param epub: Sync ePub files
     :type epub: bool
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
@@ -1040,7 +1044,9 @@ def update_search(version_pk, commit, delete_non_commit_files=True):
     :param commit: Commit that updated index
     :param delete_non_commit_files: Delete files not in commit from index
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
 
     page_list = process_all_json_files(version, build_dir=False)
 
@@ -1135,7 +1141,9 @@ def fileify(version_pk, commit):
 
     This is so we have an idea of what files we have in the database.
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     project = version.project
 
     if not commit:
@@ -1225,7 +1233,9 @@ def _manage_imported_files(version, path, commit):
 
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
