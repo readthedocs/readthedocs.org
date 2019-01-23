@@ -1,74 +1,94 @@
 # Base packages
-pip==9.0.1
+pip==18.1
 appdirs==1.4.3
-virtualenv==15.0.1
-docutils==0.11
-Sphinx==1.5.3
-sphinx_rtd_theme==0.2.5b1
-Pygments==2.2.0
-mkdocs==0.14.0
-django==1.9.12
-six==1.10.0
-future==0.16.0
-readthedocs-build<2.1
+virtualenv==16.2.0
 
-django-tastypie==0.13.0
-django-haystack==2.6.0
-celery-haystack==0.10
-django-guardian==1.4.6
-django-extensions==1.7.4
-djangorestframework==3.5.4
-django-vanilla-views==1.0.4
-jsonfield==1.0.3
+django==1.11.18
+django-tastypie==0.14.2
+django-guardian==1.4.9
+django-extensions==2.1.4
 
-requests==2.9.1
+djangorestframework==3.9.1
+
+# Filtering for the REST API
+# When Python2 gets deprecated we can upgrade django-filter
+# >   from .filterset import FilterSet
+# E     File "/home/travis/build/rtfd/readthedocs.org/.tox/py27/lib/python2.7/site-packages/django_filters/filterset.py", line 184
+# E       def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
+# E                                                     ^
+# E   SyntaxError: invalid syntax
+django-filter<2.0.0
+
+django-vanilla-views==1.0.6
+jsonfield==2.0.2
+
+requests==2.21.0
+requests-toolbelt==0.8.0
 slumber==0.7.1
-lxml==3.3.5
+lxml==4.3.0
 defusedxml==0.5.0
+pyyaml==3.13
+Pygments==2.3.1
 
 # Basic tools
+# Redis 3.x has an incompatible change and fails
+# https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
+# https://github.com/sebleier/django-redis-cache/pull/162
 redis==2.10.6
-celery==4.1.0
-django-allauth==0.32.0
-dnspython==1.15.0
+# Celery 4.2 is incompatible with our code
+# when ALWAYS_EAGER = True
+celery==4.1.1
+
+django-allauth==0.38.0
+
+dnspython==1.16.0
 
 # VCS
-httplib2==0.7.7
+httplib2==0.12.0
+
+# GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
+# of an UnicodeError
+# This commit,
+# https://github.com/gitpython-developers/GitPython/commit/7f08b7730438bde34ae55bc3793fa524047bb804,
+# introduces the usage of ``str`` which behaves differently in Py2 and
+# Py3 We should check if all the tests pass again when we drop Py2
+# support and we should be able to upgrade
+GitPython==2.1.10
 
 # Search
 elasticsearch==1.5.0
 pyelasticsearch==0.7.1
-pyquery==1.2.2
+pyquery==1.4.0
 
 # Utils
-django-gravatar2==1.4.0
-pytz==2013b
-beautifulsoup4==4.1.3
+django-gravatar2==1.4.2
+pytz==2018.9
+beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
-mimeparse==0.1.3
-mock==1.0.1
-stripe==1.20.2
-django-formtools==1.0
-django-dynamic-fixture==1.8.5
-docker-py==1.3.1
-django-textclassifier==1.0
-django-annoying==0.10.1
-django-messages-extends==0.5
-djangorestframework-jsonp==1.0.2
-django-taggit==0.22.2
+mock==2.0.0
+stripe==2.18.0
 
-# Docs
-sphinxcontrib-httpdomain==1.4.0
-commonmark==0.5.5
-recommonmark==0.4.0
+django-formtools==2.1
+
+# docker is pinned to 3.1.3 because we found some strange behavior
+# related to timeouts on EXEC with 3.2.1 and 3.3.0 that's not present
+# with 3.1.3
+# https://github.com/rtfd/readthedocs.org/issues/3999
+docker==3.1.3
+
+django-textclassifier==1.0
+django-annoying==0.10.4
+django-messages-extends==0.6.0
+djangorestframework-jsonp==1.0.2
+django-taggit==0.23.0
+dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==16.8
+packaging==19.0
 
 # Commenting stuff
 django-cors-middleware==1.3.1
-nilsimsa==0.3.7
 
-# Pegged git requirements
-git+https://github.com/zyga/django-pagination.git@86caf15#egg=django_pagination-dev
+# User agent parsing - used for analytics purposes
+user-agents<1.2.0

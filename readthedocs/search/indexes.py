@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Search indexing classes to index into Elasticsearch.
 
@@ -12,19 +14,14 @@ Django settings that should be defined:
 
 
 TODO: Handle page removal case in Page.
-
 """
-from __future__ import absolute_import
-from builtins import object
-import datetime
-
+from django.conf import settings
+from django.utils import timezone
 from elasticsearch import Elasticsearch, exceptions
 from elasticsearch.helpers import bulk_index
 
-from django.conf import settings
 
-
-class Index(object):
+class Index:
 
     """Base class to define some common methods across indexes."""
 
@@ -40,9 +37,8 @@ class Index(object):
         """
         Returns settings to be passed to ES create_index.
 
-        If `settings_override` is provided, this will use `settings_override`
-        to override the defaults defined here.
-
+        If `settings_override` is provided, this will use `settings_override` to
+        override the defaults defined here.
         """
         default_settings = {
             'number_of_replicas': settings.ES_DEFAULT_NUM_REPLICAS,
@@ -66,7 +62,6 @@ class Index(object):
         define the stopwords for that language.
 
         For all languages we've customized we're using the ICU plugin.
-
         """
         analyzers = {}
         filters = {}
@@ -91,15 +86,16 @@ class Index(object):
         }
 
     def timestamped_index(self):
-        return '{0}-{1}'.format(
-            self._index, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
+        return '{}-{}'.format(
+            self._index,
+            timezone.now().strftime('%Y%m%d%H%M%S'),
+        )
 
     def create_index(self, index=None):
         """
         Creates index.
 
         This uses `get_settings` and `get_mappings` to define the index.
-
         """
         index = index or self._index
         body = {
@@ -107,12 +103,22 @@ class Index(object):
         }
         self.es.indices.create(index=index, body=body)
 
+    def refresh_index(self, index=None):
+        index = index or self._index
+        self.es.indices.refresh(index=index)
+
     def put_mapping(self, index=None):
         index = index or self._index
         self.es.indices.put_mapping(self._type, self.get_mapping(), index)
 
-    def bulk_index(self, data, index=None, chunk_size=500, parent=None,
-                   routing=None):
+    def bulk_index(
+            self,
+            data,
+            index=None,
+            chunk_size=500,
+            parent=None,
+            routing=None,
+    ):
         """
         Given a list of documents, uses Elasticsearch bulk indexing.
 
@@ -120,7 +126,6 @@ class Index(object):
 
         `chunk_size` defaults to the elasticsearch lib's default. Override per
         your document size as needed.
-
         """
         index = index or self._index
         docs = []
@@ -147,13 +152,17 @@ class Index(object):
             'index': index or self._index,
             'doc_type': self._type,
             'body': doc,
-            'id': doc['id']
+            'id': doc['id'],
         }
         if parent:
             kwargs['parent'] = parent
         if routing:
             kwargs['routing'] = routing
         self.es.index(**kwargs)
+
+    def delete_index(self, index_name):
+
+        self.es.indices.delete(index=index_name)
 
     def delete_document(self, body, index=None, parent=None, routing=None):
         kwargs = {
@@ -193,8 +202,12 @@ class Index(object):
 
         actions = []
         if old_index:
-            actions.append({'remove': {'index': old_index,
-                                       'alias': self._index}})
+            actions.append({
+                'remove': {
+                    'index': old_index,
+                    'alias': self._index,
+                },
+            })
         actions.append({'add': {'index': new_index, 'alias': self._index}})
 
         self.es.indices.update_aliases(body={'actions': actions})
@@ -204,13 +217,14 @@ class Index(object):
             self.es.indices.delete(index=old_index)
 
     def search(self, body, **kwargs):
-        return self.es.search(index=self._index, doc_type=self._type,
-                              body=body, **kwargs)
+        return self.es.search(
+            index=self._index, doc_type=self._type, body=body, **kwargs
+        )
 
 
 class ProjectIndex(Index):
 
-    """Search index configuration for Projects"""
+    """Search index configuration for Projects."""
 
     _type = 'project'
 
@@ -222,8 +236,10 @@ class ProjectIndex(Index):
                 'properties': {
                     'id': {'type': 'long'},
                     'name': {'type': 'string', 'analyzer': 'default_icu'},
-                    'description': {'type': 'string', 'analyzer': 'default_icu'},
-
+                    'description': {
+                        'type': 'string',
+                        'analyzer': 'default_icu',
+                    },
                     'slug': {'type': 'string', 'index': 'not_analyzed'},
                     'lang': {'type': 'string', 'index': 'not_analyzed'},
                     'tags': {'type': 'string', 'index': 'not_analyzed'},
@@ -241,8 +257,8 @@ class ProjectIndex(Index):
                     'url': {'type': 'string', 'index': 'not_analyzed'},
                     # Add a weight field to enhance relevancy scoring.
                     'weight': {'type': 'float'},
-                }
-            }
+                },
+            },
         }
 
         return mapping
@@ -250,7 +266,16 @@ class ProjectIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'name', 'slug', 'description', 'lang', 'tags', 'author', 'url')
+        attrs = (
+            'id',
+            'name',
+            'slug',
+            'description',
+            'lang',
+            'tags',
+            'author',
+            'url',
+        )
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
@@ -262,7 +287,7 @@ class ProjectIndex(Index):
 
 class PageIndex(Index):
 
-    """Search index configuration for Pages"""
+    """Search index configuration for Pages."""
 
     _type = 'page'
     _parent = 'project'
@@ -282,14 +307,13 @@ class PageIndex(Index):
                     'path': {'type': 'string', 'index': 'not_analyzed'},
                     'taxonomy': {'type': 'string', 'index': 'not_analyzed'},
                     'commit': {'type': 'string', 'index': 'not_analyzed'},
-
                     'title': {'type': 'string', 'analyzer': 'default_icu'},
                     'headers': {'type': 'string', 'analyzer': 'default_icu'},
                     'content': {'type': 'string', 'analyzer': 'default_icu'},
                     # Add a weight field to enhance relevancy scoring.
                     'weight': {'type': 'float'},
-                }
-            }
+                },
+            },
         }
 
         return mapping
@@ -297,8 +321,17 @@ class PageIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'headers', 'version', 'path',
-                 'content', 'taxonomy', 'commit')
+        attrs = (
+            'id',
+            'project',
+            'title',
+            'headers',
+            'version',
+            'path',
+            'content',
+            'taxonomy',
+            'commit',
+        )
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 
@@ -310,7 +343,7 @@ class PageIndex(Index):
 
 class SectionIndex(Index):
 
-    """Search index configuration for Sections"""
+    """Search index configuration for Sections."""
 
     _type = 'section'
     _parent = 'page'
@@ -341,13 +374,16 @@ class SectionIndex(Index):
                     'blocks': {
                         'type': 'object',
                         'properties': {
-                            'code': {'type': 'string', 'analyzer': 'default_icu'}
-                        }
+                            'code': {
+                                'type': 'string',
+                                'analyzer': 'default_icu',
+                            },
+                        },
                     },
                     # Add a weight field to enhance relevancy scoring.
                     'weight': {'type': 'float'},
-                }
-            }
+                },
+            },
         }
 
         return mapping
@@ -355,7 +391,16 @@ class SectionIndex(Index):
     def extract_document(self, data):
         doc = {}
 
-        attrs = ('id', 'project', 'title', 'page_id', 'version', 'path', 'content', 'commit')
+        attrs = (
+            'id',
+            'project',
+            'title',
+            'page_id',
+            'version',
+            'path',
+            'content',
+            'commit',
+        )
         for attr in attrs:
             doc[attr] = data.get(attr, '')
 

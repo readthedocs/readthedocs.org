@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""OAuth utility functions."""
 
-from __future__ import division, print_function, unicode_literals
+"""OAuth utility functions."""
 
 import json
 import logging
@@ -9,13 +8,16 @@ import re
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.integrations.models import Integration
+from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service
+
 
 try:
     from urlparse import urljoin, urlparse
@@ -39,7 +41,27 @@ class GitLabService(Service):
     # Just use the network location to determine if it's a GitLab project
     # because private repos have another base url, eg. git@gitlab.example.com
     url_pattern = re.compile(
-        re.escape(urlparse(adapter.provider_base_url).netloc))
+        re.escape(urlparse(adapter.provider_base_url).netloc),
+    )
+
+    def _get_repo_id(self, project):
+        # The ID or URL-encoded path of the project
+        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
+        try:
+            repo_id = json.loads(project.remote_repository.json).get('id')
+        except Project.remote_repository.RelatedObjectDoesNotExist:
+            # Handle "Manual Import" when there is no RemoteRepository
+            # associated with the project. It only works with gitlab.com at the
+            # moment (doesn't support custom gitlab installations)
+            username, repo = get_gitlab_username_repo(project.repo)
+            if (username, repo) == (None, None):
+                return None
+
+            repo_id = '{username}%2F{repo}'.format(
+                username=username,
+                repo=repo,
+            )
+        return repo_id
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
@@ -73,7 +95,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab repositories')
             raise Exception(
                 'Could not sync your GitLab repositories, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def sync_organizations(self):
         orgs = self.paginate(
@@ -103,7 +126,8 @@ class GitLabService(Service):
             log.exception('Error syncing GitLab organizations')
             raise Exception(
                 'Could not sync your GitLab organization, try reconnecting '
-                'your account')
+                'your account',
+            )
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id
@@ -140,9 +164,8 @@ class GitLabService(Service):
                     fields['name'],
                 )
                 return None
-            else:
-                repo.organization = organization
 
+            repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
@@ -210,7 +233,7 @@ class GitLabService(Service):
         organization.save()
         return organization
 
-    def get_webhook_data(self, repo_id, integration, project):
+    def get_webhook_data(self, repo_id, project, integration):
         """
         Get webhook JSON data to post to the API.
 
@@ -249,17 +272,17 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        session = self.get_session()
         integration, _ = Integration.objects.get_or_create(
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
         )
 
-        # The ID or URL-encoded path of the project
-        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
-        repo_id = json.loads(project.remote_repository.json).get('id')
+        repo_id = self._get_repo_id(project)
+        if repo_id is None:
+            return (False, None)
 
-        data = self.get_webhook_data(repo_id, integration, project)
+        data = self.get_webhook_data(repo_id, project, integration)
+        session = self.get_session()
         resp = None
         try:
             resp = session.post(
@@ -284,7 +307,7 @@ class GitLabService(Service):
                 project,
             )
         else:
-            log.exception(
+            log.error(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
@@ -307,9 +330,9 @@ class GitLabService(Service):
         """
         session = self.get_session()
 
-        # The ID or URL-encoded path of the project
-        # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
-        repo_id = json.loads(project.remote_repository.json).get('id')
+        repo_id = self._get_repo_id(project)
+        if repo_id is None:
+            return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
@@ -329,14 +352,27 @@ class GitLabService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitLab webhook update successful for project: %s', project)
+                    'GitLab webhook update successful for project: %s',
+                    project,
+                )
                 return (True, resp)
+
+            # GitLab returns 404 when the webhook doesn't exist. In this case,
+            # we call ``setup_webhook`` to re-configure it from scratch
+            if resp.status_code == 404:
+                return self.setup_webhook(project)
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitLab webhook update failed for project: %s', project)
+                'GitLab webhook update failed for project: %s',
+                project,
+            )
         else:
-            log.error('GitLab webhook update failed for project: %s', project)
+            log.error(
+                'GitLab webhook update failed for project: %s',
+                project,
+            )
             try:
                 debug_data = resp.json()
             except ValueError:

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Base classes for Builders."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""Base classes for Builders."""
 
 import logging
 import os
 import shutil
-from builtins import object
 from functools import wraps
+
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ def restoring_chdir(fn):
     return decorator
 
 
-class BaseBuilder(object):
+class BaseBuilder:
 
     """
     The Base for all Builders. Defines the API for subclasses.
@@ -37,6 +35,8 @@ class BaseBuilder(object):
 
     _force = False
 
+    ignore_patterns = []
+
     # old_artifact_path = ..
 
     def __init__(self, build_env, python_env, force=False):
@@ -44,9 +44,12 @@ class BaseBuilder(object):
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
+        self.config = python_env.config if python_env else None
         self._force = force
         self.target = self.project.artifact_path(
-            version=self.version.slug, type_=self.type)
+            version=self.version.slug,
+            type_=self.type,
+        )
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
@@ -63,7 +66,12 @@ class BaseBuilder(object):
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
             log.info('Copying %s on the local filesystem', self.type)
-            shutil.copytree(self.old_artifact_path, self.target)
+            log.info('Ignoring patterns %s', self.ignore_patterns)
+            shutil.copytree(
+                self.old_artifact_path,
+                self.target,
+                ignore=shutil.ignore_patterns(*self.ignore_patterns),
+            )
         else:
             log.warning('Not moving docs, because the build dir is unknown.')
 
@@ -91,15 +99,19 @@ class BaseBuilder(object):
         docs_dir = self.docs_dir()
 
         index_filename = os.path.join(
-            docs_dir, 'index.{ext}'.format(ext=extension))
+            docs_dir,
+            'index.{ext}'.format(ext=extension),
+        )
         if not os.path.exists(index_filename):
             readme_filename = os.path.join(
-                docs_dir, 'README.{ext}'.format(ext=extension))
+                docs_dir,
+                'README.{ext}'.format(ext=extension),
+            )
             if os.path.exists(readme_filename):
                 return 'README'
-            else:
-                index_file = open(index_filename, 'w+')
-                index_text = """
+
+            index_file = open(index_filename, 'w+')
+            index_text = """
 
 Welcome to Read the Docs
 ------------------------
@@ -115,8 +127,8 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+            index_file.write(index_text.format(dir=docs_dir, ext=extension))
+            index_file.close()
         return 'index'
 
     def run(self, *args, **kwargs):

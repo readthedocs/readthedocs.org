@@ -6,7 +6,6 @@ import os
 import sys
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
@@ -21,32 +20,32 @@ django.setup()
 
 sys.path.append(os.path.abspath('_ext'))
 extensions = [
+    'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinxcontrib.httpdomain',
     'djangodocs',
     'doc_extensions',
+    'sphinx_tabs.tabs',
+    'sphinx-prompt',
+    'recommonmark',
 ]
 templates_path = ['_templates']
 
 source_suffix = ['.rst', '.md']
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 
 master_doc = 'index'
 project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '1.0'
-release = '1.0'
+version = '2.7'
+release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
-pygments_style = 'sphinx'
 intersphinx_mapping = {
     'python': ('http://python.readthedocs.io/en/latest/', None),
-    'django': ('http://django.readthedocs.io/en/1.8.x/', None),
+    'django': ('http://django.readthedocs.io/en/1.9.x/', None),
     'sphinx': ('http://sphinx.readthedocs.io/en/latest/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
@@ -79,6 +78,9 @@ html_theme_options = {
     'display_version': False,
 }
 
+# Activate autosectionlabel plugin
+autosectionlabel_prefix_document = True
+
 
 def setup(app):
-    app.add_stylesheet('custom.css')
+    app.add_stylesheet('css/sphinx_prompt_css.css')

@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 from django.test import TestCase
 
 from readthedocs.projects.models import Project
@@ -87,13 +84,13 @@ class TestRepoParsing(TestCase):
         self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.gitbucket.io/src/master/foo/bar/file.rst')
 
         self.pip.repo = 'https://bitbucket.org/user/repo.git'
-        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.git/src/master/foo/bar/file.rst')
+        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo/src/master/foo/bar/file.rst')
 
         self.pip.repo = 'https://bitbucket.org/user/repo.gitbucket.io.git'
-        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.gitbucket.io.git/src/master/foo/bar/file.rst')
+        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.gitbucket.io/src/master/foo/bar/file.rst')
 
         self.pip.repo = 'https://bitbucket.org/user/repo.git.git'
-        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.git.git/src/master/foo/bar/file.rst')
+        self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.git/src/master/foo/bar/file.rst')
 
     def test_bitbucket_https(self):
         self.pip.repo = 'https://user@bitbucket.org/user/repo.git'

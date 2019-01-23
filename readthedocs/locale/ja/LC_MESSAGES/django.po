@@ -3,17 +3,22 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
+# Inoue Keisuke <kskinoue@gmail.com>, 2017
 # Jonas Obrist <ojiidotch@gmail.com>, 2012
-# Kentaro Hori <kentaro0919@gmail.com>, 2016
-# shirou - しろう <shirou.faw@gmail.com>, 2016
+# Kengo TODA <skypencil@gmail.com>, 2018
+# Kentaro Matsuzaki <kentaro0919@gmail.com>, 2016
+# NULL Coding <null.coding.jp@gmail.com>, 2018
+# nob-kun <nobb.hero@gmail.com>, 2017
+# shirou - しろう <shirou.faw@gmail.com>, 2016-2018
+# TAKAHASHI Shuuji <shuuji3@gmail.com>, 2017
 # shirou - しろう <shirou.faw@gmail.com>, 2014-2015
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 15:31-0700\n"
-"PO-Revision-Date: 2016-07-11 02:16+0000\n"
-"Last-Translator: shirou - しろう <shirou.faw@gmail.com>\n"
+"POT-Creation-Date: 2018-09-17 17:55-0600\n"
+"PO-Revision-Date: 2018-09-17 09:35+0000\n"
+"Last-Translator: Kengo TODA <skypencil@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/readthedocs/readthedocs/"
 "language/ja/)\n"
 "Language: ja\n"
@@ -22,639 +27,375 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: api/utils.py:97
-msgid "Sorry, no results on that page."
-msgstr "Sorry　そのページの結果がありません。"
-
-#: api/utils.py:183
+#: api/utils.py:47
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "無効なリソース検索データです(種類の不整合): %(error)s"
 
-#: bookmarks/models.py:19 core/models.py:21 donate/models.py:33
-#: gold/models.py:36 projects/models.py:84
-msgid "User"
-msgstr "ユーザー"
-
-#: bookmarks/models.py:21 builds/models.py:43 builds/models.py:309
-#: builds/models.py:329 comments/models.py:72 projects/models.py:837
-#: redirects/models.py:53
-msgid "Project"
-msgstr "プロジェクト"
-
-#: bookmarks/models.py:23 builds/models.py:331 comments/models.py:74
-#: projects/models.py:99 projects/models.py:839
-msgid "Version"
-msgstr "バージョン"
-
-#: bookmarks/models.py:25
-#, fuzzy
-#| msgid "Home Page"
-msgid "Page"
-msgstr "ホームページ"
-
-#: bookmarks/models.py:27 builds/models.py:337 comments/models.py:163
-#: comments/models.py:228 donate/models.py:185 integrations/models.py:123
-msgid "Date"
-msgstr "日付"
-
-#: bookmarks/models.py:28
-msgid "URL"
-msgstr "URL"
-
-#: bookmarks/models.py:35
-#, python-format
-msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr "ブックマークする %(url)s  %(user)s (%(pk)s)"
-
-#: builds/constants.py:13
+#: builds/constants.py:14
 msgid "Triggered"
 msgstr "トリガーされた"
 
-#: builds/constants.py:14
+#: builds/constants.py:15
 msgid "Cloning"
 msgstr "clone中"
 
-#: builds/constants.py:15
+#: builds/constants.py:16
 msgid "Installing"
 msgstr "インストール中"
 
-#: builds/constants.py:16
+#: builds/constants.py:17
 msgid "Building"
 msgstr "ビルドしています"
 
-#: builds/constants.py:17
+#: builds/constants.py:18
 msgid "Finished"
 msgstr "完了"
 
-#: builds/constants.py:21
+#: builds/constants.py:22
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:22
+#: builds/constants.py:23
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:23
+#: builds/constants.py:24
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:27
+#: builds/constants.py:28
 msgid "Manpage"
 msgstr "Manpage"
 
-#: builds/constants.py:28
+#: builds/constants.py:29
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:36
+#: builds/constants.py:37
 msgid "Branch"
 msgstr "ブランチ"
 
-#: builds/constants.py:37
+#: builds/constants.py:38
 msgid "Tag"
 msgstr "タグ"
 
-#: builds/constants.py:38
+#: builds/constants.py:39
 msgid "Unknown"
 msgstr "不明"
 
-#: builds/models.py:46 builds/models.py:333
+#: builds/models.py:50 builds/models.py:413 builds/models.py:434
+#: projects/models.py:925 redirects/models.py:57
+msgid "Project"
+msgstr "プロジェクト"
+
+#: builds/models.py:54 builds/models.py:438
 msgid "Type"
 msgstr "種類"
 
-#: builds/models.py:55
+#: builds/models.py:65
 msgid "Identifier"
 msgstr "識別子"
 
-#: builds/models.py:61
+#: builds/models.py:71
 msgid "Verbose Name"
 msgstr "長い名前"
 
-#: builds/models.py:67 oauth/models.py:45 projects/models.py:87
-#: projects/models.py:842
+#: builds/models.py:78 oauth/models.py:46 projects/models.py:84
+#: projects/models.py:930
 msgid "Slug"
 msgstr "スラグ"
 
-#: builds/models.py:70
+#: builds/models.py:80
 msgid "Supported"
 msgstr "サポートされている"
 
-#: builds/models.py:71 oauth/models.py:43 oauth/models.py:90
+#: builds/models.py:81 oauth/models.py:44 oauth/models.py:92
 #: redirects/models.py:26 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "有効"
 
-#: builds/models.py:72 templates/projects/includes/icon_built.html:4
+#: builds/models.py:82 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "ビルド済み"
 
-#: builds/models.py:73 templates/projects/includes/icon_built.html:7
+#: builds/models.py:83 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "アップロード"
 
-#: builds/models.py:75 projects/models.py:213
+#: builds/models.py:85 projects/models.py:222
 msgid "Privacy Level"
 msgstr "プライバシーレベル"
 
-#: builds/models.py:76
+#: builds/models.py:89
 msgid "Level of privacy for this Version."
 msgstr "このバージョンのプライバシーレベル"
 
-#: builds/models.py:79
+#: builds/models.py:92
 msgid "Machine Created"
-msgstr ""
+msgstr "マシンが作成されました"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:89
+#: builds/models.py:102
 msgid "View Version"
 msgstr "バージョンを見る"
 
-#: builds/models.py:93
-#, python-format
-msgid "Version %(version)s of %(project)s (%(pk)s)"
-msgstr "%(project)s (%(pk)s)　のバージョン %(version)s"
+#: builds/models.py:106
+#, python-brace-format
+msgid "Version {version} of {project} ({pk})"
+msgstr "{project}の{version} ({pk})"
 
-#: builds/models.py:311
+#: builds/models.py:414
 msgid "From slug"
 msgstr "スラグから"
 
-#: builds/models.py:312
+#: builds/models.py:416
 msgid "To slug"
 msgstr "スラグへ"
 
-#: builds/models.py:314
+#: builds/models.py:417
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:317
-#, python-format
-msgid "Alias for %(project)s: %(from)s -> %(to)s"
-msgstr "%(project)s の別名: %(from)s -> %(to)s"
+#: builds/models.py:421
+#, python-brace-format
+msgid "Alias for {project}: {_from} -> {to}"
+msgstr "{project}のエイリアス: {_from} -> {to}"
 
-#: builds/models.py:335
+#: builds/models.py:436 projects/models.py:97 projects/models.py:927
+#: templates/base.html:213
+msgid "Version"
+msgstr "バージョン"
+
+#: builds/models.py:440
 msgid "State"
 msgstr "状態"
 
-#: builds/models.py:338
+#: builds/models.py:441 integrations/models.py:128
+msgid "Date"
+msgstr "日付"
+
+#: builds/models.py:442
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:340
+#: builds/models.py:444
 msgid "Setup"
 msgstr "設定"
 
-#: builds/models.py:341
+#: builds/models.py:445
 msgid "Setup error"
 msgstr "設定エラー"
 
-#: builds/models.py:342
+#: builds/models.py:446
 msgid "Output"
 msgstr "出力"
 
-#: builds/models.py:343 templates/builds/build_detail.html:130
+#: builds/models.py:447 templates/builds/build_detail.html:175
 msgid "Error"
 msgstr "エラー"
 
-#: builds/models.py:344
+#: builds/models.py:448
 msgid "Exit code"
 msgstr "終了コード"
 
-#: builds/models.py:345 projects/models.py:845
+#: builds/models.py:450 projects/models.py:933
 msgid "Commit"
 msgstr "コミット"
 
-#: builds/models.py:347
-#, fuzzy
-#| msgid "Building"
+#: builds/models.py:452
 msgid "Build Length"
-msgstr "ビルドしています"
+msgstr "ビルドの長さ"
 
-#: builds/models.py:349
-#, fuzzy
-#| msgid "Build"
+#: builds/models.py:455
 msgid "Builder"
-msgstr "ビルド"
+msgstr "ビルダ"
 
-#: builds/models.py:363
-#, python-format
-msgid "Build %(project)s for %(usernames)s (%(pk)s)"
-msgstr "%(usernames)s (%(pk)s)  の %(project)s をビルドする"
+#: builds/models.py:458
+msgid "Cold Storage"
+msgstr "コールドストレージ"
 
-#: builds/models.py:407 templates/core/project_details.html:68
+#: builds/models.py:471
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr ""
+
+#: builds/models.py:519
 msgid "Build"
 msgstr "ビルド"
 
-#: builds/models.py:410
-#, fuzzy
-#| msgid "Commit"
+#: builds/models.py:521
 msgid "Command"
-msgstr "コミット"
+msgstr "コマンド"
 
-#: builds/models.py:411 oauth/models.py:97 projects/models.py:88
-#: templates/core/project_details.html:77
+#: builds/models.py:522 oauth/models.py:104 projects/models.py:85
+#: templates/core/project_details.html:80
 msgid "Description"
 msgstr "説明"
 
-#: builds/models.py:412
+#: builds/models.py:523
 msgid "Command output"
-msgstr ""
+msgstr "コマンド出力"
 
-#: builds/models.py:413
-#, fuzzy
-#| msgid "Exit code"
+#: builds/models.py:524
 msgid "Command exit code"
-msgstr "終了コード"
+msgstr "コマンド終了コード"
 
-#: builds/models.py:415
+#: builds/models.py:526
 msgid "Start time"
-msgstr ""
+msgstr "開始時間"
 
-#: builds/models.py:416
+#: builds/models.py:527
 msgid "End time"
-msgstr ""
+msgstr "終了時間"
 
-#: builds/models.py:425
+#: builds/models.py:537
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
-msgstr ""
-
-#: comments/models.py:76 projects/models.py:175 projects/models.py:843
-msgid "Path"
-msgstr "パス"
-
-#: comments/models.py:78
-msgid "Raw Source"
-msgstr ""
-
-#: comments/models.py:123
-msgid "Hash"
-msgstr ""
-
-#: comments/models.py:164
-msgid "Rating"
-msgstr ""
-
-#: comments/models.py:165 donate/models.py:59
-msgid "Text"
-msgstr ""
+msgstr "ビルド{build} 用のビルドコマンド{pk}"
 
 #: core/admin.py:28
-#, fuzzy
-#| msgid "Browse projects"
 msgid "user projects"
-msgstr "プロジェクトを見る"
+msgstr "ユーザープロジェクト"
 
 #: core/admin.py:36
-#, fuzzy
-#| msgid "Related projects"
 msgid "has active project"
-msgstr "関連するプロジェクト"
+msgstr "有効なプロジェクトあり"
 
 #: core/admin.py:37
-#, fuzzy
-#| msgid "Edit Project"
 msgid "has built project"
-msgstr "プロジェクトの編集"
+msgstr "ビルドプロジェクトあり"
 
 #: core/admin.py:38
 msgid "has project with recent builds"
-msgstr ""
+msgstr "最近ビルドしたプロジェクト在り"
 
-#: core/forms.py:19
+#: core/forms.py:21
 msgid "First name"
 msgstr "名"
 
-#: core/forms.py:20
+#: core/forms.py:22
 msgid "Last name"
 msgstr "姓"
 
-#: core/middleware.py:119 core/middleware.py:126
+#: core/forms.py:51
+msgid "Username"
+msgstr "ユーザー名"
+
+#: core/forms.py:52
+msgid "Please type your username to confirm."
+msgstr "確認のため、ユーザー名を入力してください。"
+
+#: core/forms.py:63
+msgid "Username does not match!"
+msgstr "ユーザー名が一致しません!"
+
+#: core/middleware.py:121 core/middleware.py:128
 msgid "Invalid hostname"
 msgstr "不正なホスト名"
 
-#: core/models.py:23
+#: core/models.py:25 gold/models.py:36 projects/models.py:81
+msgid "User"
+msgstr "ユーザー"
+
+#: core/models.py:26
 msgid "Whitelisted"
 msgstr "ホワイトリスト"
 
-#: core/models.py:24
+#: core/models.py:27
 msgid "Banned"
-msgstr ""
+msgstr "BANされた"
 
-#: core/models.py:25
+#: core/models.py:28
 msgid "Homepage"
 msgstr "ホームページ"
 
-#: core/models.py:26
-#, fuzzy
-#| msgid "Documentation type"
-msgid "See paid advertising"
-msgstr "ドキュメントの種類"
-
-#: core/models.py:27
-msgid "If unchecked, you will still see community ads."
-msgstr ""
-
 #: core/models.py:30
+msgid "See paid advertising"
+msgstr "有料広告を見る"
+
+#: core/models.py:31
+msgid "If unchecked, you will still see community ads."
+msgstr "チェックを外すと、コミュニティ広告が表示されます。"
+
+#: core/models.py:35
 msgid "Allow email"
 msgstr "メールアドレスを許可"
 
-#: core/models.py:31
+#: core/models.py:36
 msgid "Show your email on VCS contributions."
 msgstr "VCSの貢献者にメールアドレスを公開する"
 
-#: core/models.py:36
+#: core/models.py:42
 #, python-format
 msgid "%(username)s's profile"
 msgstr "%(username)s のプロファイル"
 
-#: core/validators.py:23
-msgid "Enter a valid plain or internationalized domain name value"
-msgstr ""
-
-#: core/validators.py:31
-msgid "Enter a valid domain name value"
-msgstr ""
-
-#: doc_builder/environments.py:231
+#: doc_builder/environments.py:273
 msgid "Command killed due to excessive memory consumption\n"
-msgstr ""
+msgstr "コマンドはメモリ使用量が多かったため殺されました\n"
 
-#: doc_builder/environments.py:236
+#: doc_builder/environments.py:278
 msgid "Command exited abnormally"
-msgstr ""
+msgstr "コマンドが不正に終了しました"
 
-#: doc_builder/environments.py:425
-msgid "An unexpected error occurred"
-msgstr ""
-
-#: doc_builder/environments.py:497
+#: doc_builder/environments.py:719
 msgid "A build environment is currently running for this version"
-msgstr ""
+msgstr "このバージョンで現在動作しているビルド環境"
 
-#: doc_builder/environments.py:603 projects/tasks.py:215
+#: doc_builder/environments.py:901 doc_builder/exceptions.py:56
 msgid "Build exited due to time out"
-msgstr ""
+msgstr "タイムアウトでビルドが終了しました"
 
-#: doc_builder/environments.py:606
+#: doc_builder/environments.py:905
 msgid "Build exited due to excessive memory consumption"
-msgstr ""
+msgstr "ビルドがメモリ消費量が多かったため終了しました"
 
-#: doc_builder/environments.py:609
+#: doc_builder/environments.py:909
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
+msgstr "ビルドが予期しないエラーで終了しました: {0}"
+
+#: doc_builder/exceptions.py:26
+#, python-brace-format
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please report this to us with your build id ({build_id})."
+msgstr ""
+"ドキュメントをビルドする時に問題が発生しました。我々にビルドID ({build_id}) "
+"を連絡してください。"
+
+#: doc_builder/exceptions.py:33
+msgid "Build environment creation failed"
+msgstr "ビルド環境の作成に失敗しました"
+
+#: doc_builder/exceptions.py:38
+msgid "Version locked, retrying in 5 minutes."
 msgstr ""
 
-#: donate/forms.py:39
-msgid "Make this donation public"
+#: doc_builder/exceptions.py:44
+msgid "Builds for this project are temporarily disabled"
+msgstr "このプロジェクトのビルドは一時的に無効です"
+
+#: doc_builder/exceptions.py:50
+#, python-brace-format
+msgid "Problem parsing YAML configuration. {exception}"
 msgstr ""
 
-#: donate/forms.py:42
-msgid "Your name and image will be displayed on the donation page"
-msgstr ""
-
-#: donate/forms.py:43
-msgid "Your email is used for Gravatar and so we can send you a receipt"
-msgstr ""
-
-#: donate/forms.py:44
-msgid "URL of your company's logo, images should be 300x300 pixels or less"
-msgstr ""
-
-#: donate/forms.py:45
-msgid "Companies donating over $400 can specify a logo URL and site link"
-msgstr ""
-
-#: donate/forms.py:110
-msgid "Your email is used so we can send you a receipt"
-msgstr ""
-
-#: donate/models.py:27 donate/models.py:54 gold/models.py:33 oauth/models.py:35
-#: oauth/models.py:78 projects/models.py:80
+#: gold/models.py:33 oauth/models.py:36 oauth/models.py:80
+#: projects/models.py:77
 msgid "Publication date"
 msgstr "公開時刻"
 
-#: donate/models.py:28 donate/models.py:55 gold/models.py:34 oauth/models.py:36
-#: oauth/models.py:79 projects/models.py:81
+#: gold/models.py:34 oauth/models.py:37 oauth/models.py:81
+#: projects/models.py:78
 msgid "Modified date"
 msgstr "変更時刻"
 
-#: donate/models.py:29 projects/constants.py:90
-msgid "Public"
-msgstr "公開"
-
-#: donate/models.py:31
-#, fuzzy
-#| msgid "Last name"
-msgid "name"
-msgstr "姓"
-
-#: donate/models.py:32 oauth/models.py:47
-msgid "Email"
-msgstr "メールアドレス"
-
-#: donate/models.py:35
-msgid "Amount"
-msgstr ""
-
-#: donate/models.py:36
-#, fuzzy
-#| msgid "To URL"
-msgid "Logo URL"
-msgstr "URLへ"
-
-#: donate/models.py:38
-#, fuzzy
-#| msgid "Git URL"
-msgid "Site URL"
-msgstr "Git URL"
-
-#: donate/models.py:57 oauth/models.py:46 oauth/models.py:95
-#: projects/models.py:86 projects/models.py:841
-msgid "Name"
-msgstr "名前"
-
-#: donate/models.py:58
-#, fuzzy
-#| msgid "Analytics code"
-msgid "Analytics ID"
-msgstr "Analyticsのコード"
-
-#: donate/models.py:60
-#, fuzzy
-#| msgid "Git URL"
-msgid "Link URL"
-msgstr "Git URL"
-
-#: donate/models.py:61
-msgid "Image URL"
-msgstr ""
-
-#: donate/models.py:62
-#, fuzzy
-#| msgid "Build Type"
-msgid "Display Type"
-msgstr "ビルド種類"
-
-#: donate/models.py:64
-msgid "Sold Impressions"
-msgstr ""
-
-#: donate/models.py:65
-msgid "Sold Days"
-msgstr ""
-
-#: donate/models.py:66
-#, fuzzy
-#| msgid "Clicks"
-msgid "Sold Clicks"
-msgstr "クリック"
-
-#: donate/models.py:67 projects/models.py:237
-msgid "Programming Language"
-msgstr ""
-
-#: donate/models.py:70 projects/models.py:105
-msgid "Theme"
-msgstr "テーマ"
-
-#: donate/models.py:73
-#, fuzzy
-#| msgid "Commit"
-msgid "Community Ad"
-msgstr "コミット"
-
-#: donate/models.py:74 projects/constants.py:69
-msgid "Live"
-msgstr "ライブ"
-
-#: donate/models.py:186
-msgid "Offer"
-msgstr ""
-
-#: donate/models.py:188
-msgctxt "View"
-msgid "Number of display on a screen that were sold"
-msgstr ""
-
-#: donate/models.py:189
-msgid "Clicks"
-msgstr "クリック"
-
-#: donate/models.py:262
-#, fuzzy
-#| msgid "Filtered by"
-msgid "Filter Type"
-msgstr "絞り込み"
-
-#: donate/templates/donate/create.html:6 donate/templates/donate/list.html:6
-#: donate/templates/donate/success.html:6
-msgid "Sustainability"
-msgstr ""
-
-#: donate/templates/donate/create.html:75
-#: donate/templates/donate/ethicalads.html:70
-msgid "Custom amount"
-msgstr ""
-
-#: donate/templates/donate/create.html:79
-msgid "1 Hour"
-msgstr ""
-
-#: donate/templates/donate/create.html:80
-msgid "2 Hours"
-msgstr ""
-
-#: donate/templates/donate/create.html:81
-msgid "4 Hours"
-msgstr ""
-
-#: donate/templates/donate/create.html:82
-msgid "1 Day"
-msgstr ""
-
-#: donate/templates/donate/create.html:83
-msgid "2 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:84
-msgid "3 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:85
-msgid "4 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:86
-msgid "5 Days"
-msgstr ""
-
-#: donate/templates/donate/create.html:87
-msgid "2 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:88
-msgid "3 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:89
-msgid "4 Weeks"
-msgstr ""
-
-#: donate/templates/donate/create.html:100
-msgid "Donate"
-msgstr "寄付"
-
-#: donate/templates/donate/ethicalads-success.html:6
-msgid "Sponsorship"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:6
-msgid "Pay for your ad"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:85
-msgid "Pay"
-msgstr ""
-
-#: donate/templates/donate/list.html:77
-#: donate/templates/donate/progress.html:63
-#, fuzzy
-#| msgid "Donate"
-msgid "Donate Now"
-msgstr "寄付"
-
-#: donate/templates/donate/progress.html:25
-msgid "Read More"
-msgstr ""
-
-#: donate/templates/donate/promo_404.html:6 templates/401.html:6
-#: templates/404.html:6
-msgid "Maze Found"
-msgstr "迷宮に迷い込んでしまいました"
-
-#: donate/templates/donate/promo_500.html:5 templates/500.html:5
-msgid "Server Error"
-msgstr "サーバーエラー"
-
-#: donate/templates/donate/promo_detail.html:6
-#, fuzzy
-#| msgid "Project Alias"
-msgid "Promo Detail"
-msgstr "プロジェクトの別名"
-
-#: donate/views.py:36
-msgid "Your payment has been received"
-msgstr ""
-
-#: donate/views.py:52
-msgid "Your contribution has been received"
-msgstr ""
-
 #: gold/models.py:37 gold/templates/gold/subscription_detail.html:40
 msgid "Level"
-msgstr ""
+msgstr "レベル"
 
 #: gold/models.py:39 gold/templates/gold/subscription_detail.html:57
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -664,611 +405,613 @@ msgstr ""
 msgid "Projects"
 msgstr "プロジェクト"
 
-#: gold/templates/gold/projects.html:24
+#: gold/templates/gold/projects.html:15
 msgid ""
 "Choose projects that will have all promos removed, and extra features added "
 "to them. You get to pick one for every $5/mo you support Read the Docs with."
 msgstr ""
 
-#: gold/templates/gold/projects.html:27
-#, fuzzy
-#| msgid "Existing Subprojects"
+#: gold/templates/gold/projects.html:18
 msgid "Existing Projects"
-msgstr "今あるサブプロジェクト"
+msgstr "既存のプロジェクト"
 
-#: gold/templates/gold/projects.html:29
+#: gold/templates/gold/projects.html:20
+#: gold/templates/gold/subscription_detail.html:59
 #, python-format
-msgid ""
-"\n"
-"      You can adopt one project with your subscription.\n"
-"    "
-msgid_plural ""
-"\n"
-"      You can adopt %(projects)s projects with your subscription.\n"
-"    "
+msgid "You can adopt one project with your subscription."
+msgid_plural "You can adopt %(projects)s projects with your subscription."
 msgstr[0] ""
 
-#: gold/templates/gold/projects.html:42 templates/account/email.html:39
-#: templates/projects/domain_list.html:27
+#: gold/templates/gold/projects.html:33 templates/account/email.html:39
+#: templates/projects/domain_list.html:30
 #: templates/projects/project_notifications.html:56
-#: templates/projects/project_redirects.html:93
-#: templates/projects/project_translations.html:26
+#: templates/projects/project_redirects.html:98
+#: templates/projects/project_translations.html:43
+#: templates/projects/project_users.html:39
 msgid "Remove"
 msgstr "削除"
 
-#: gold/templates/gold/projects.html:48
-#, fuzzy
-#| msgid "Edit Project"
+#: gold/templates/gold/projects.html:39
 msgid "Add a project"
-msgstr "プロジェクトの編集"
+msgstr "新しいプロジェクト"
 
-#: gold/templates/gold/projects.html:50
-#, fuzzy
-#| msgid "Choose which user you would like to add."
+#: gold/templates/gold/projects.html:41
 msgid "Choose which project you would like to add."
-msgstr "追加したいユーザーを選んでください"
+msgstr "追加したいプロジェクトを選んでください"
 
-#: gold/templates/gold/projects.html:55 templates/projects/domain_form.html:32
-#: templates/projects/domain_list.html:38
-#: templates/projects/project_advanced.html:33
-#: templates/projects/project_edit.html:36
-#: templates/projects/project_notifications.html:69
-#: templates/projects/project_notifications.html:80
-#: templates/projects/project_redirects.html:109
-#: templates/projects/project_translations.html:36
-#: templates/projects/project_users.html:51
-#: templates/projects/project_versions.html:53
+#: gold/templates/gold/projects.html:46 templates/projects/domain_form.html:40
 msgid "Submit"
 msgstr "登録"
 
 #: gold/templates/gold/subscription_confirm_delete.html:12
-msgid ""
-"\n"
-"      Are you sure you want to cancel your subscription?\n"
-"    "
+msgid "Are you sure you want to cancel your subscription?"
 msgstr ""
 
 #: gold/templates/gold/subscription_confirm_delete.html:19
 #: gold/templates/gold/subscription_detail.html:54
-#, fuzzy
-#| msgid "Description"
 msgid "Cancel Subscription"
-msgstr "説明"
+msgstr "サブスクリプションを取り消し"
 
 #: gold/templates/gold/subscription_detail.html:7
 #: gold/templates/gold/subscription_detail.html:31
-#, fuzzy
-#| msgid "Description"
 msgid "Gold Subscription"
-msgstr "説明"
+msgstr "Gold Subscription"
 
 #: gold/templates/gold/subscription_detail.html:34
-msgid ""
-"\n"
-"        Thanks for supporting Read the Docs! It really means a lot to us.\n"
-"      "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        Thanks for supporting Read the Docs! It really means a lot to "
+#| "us.\n"
+#| "      "
+msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
+"\n"
+"Read the Docsのサポートありがとうございます！大変感謝いたします。"
 
 #: gold/templates/gold/subscription_detail.html:45
 msgid "Card"
-msgstr ""
+msgstr "カード"
 
 #: gold/templates/gold/subscription_detail.html:50
-#: gold/templates/gold/subscription_form.html:135
-#, fuzzy
-#| msgid "Description"
+#: gold/templates/gold/subscription_form.html:138
 msgid "Update Subscription"
-msgstr "説明"
-
-#: gold/templates/gold/subscription_detail.html:59
-#, python-format
-msgid ""
-"\n"
-"        You can adopt one project with your subscription.\n"
-"      "
-msgid_plural ""
-"\n"
-"        You can adopt %(projects)s projects with your subscription.\n"
-"      "
-msgstr[0] ""
+msgstr "サブスクリプションを更新"
 
 #: gold/templates/gold/subscription_detail.html:67
-#, fuzzy
-#| msgid "Sub Projects"
 msgid "Select Projects"
-msgstr "サブプロジェクト"
+msgstr "プロジェクトを選択"
 
 #: gold/templates/gold/subscription_form.html:40
 msgid ""
-"\n"
-"      Supporting Read the Docs lets us work more on features that people "
-"love.\n"
-"      Your money will go directly to maintenance and development of the\n"
-"      product.\n"
-"    "
+"Supporting Read the Docs lets us work more on features that people love. "
+"Your money will go directly to maintenance and development of the product."
 msgstr ""
 
 #: gold/templates/gold/subscription_form.html:47
 msgid ""
-"\n"
-"      If you are an individual,\n"
-"      feel free to give whatever feels right for the value you get out of "
-"Read the Docs.\n"
-"    "
+"If you are an individual, feel free to give whatever feels right for the "
+"value you get out of Read the Docs."
 msgstr ""
 
 #: gold/templates/gold/subscription_form.html:53
 msgid ""
-"\n"
-"      If you are a company using Read the Docs,\n"
-"      please consider getting a <a href=\"https://readthedocs.com/services/"
-"#open-source-support\">commercial support contract</a>.\n"
-"      This will help us cover our costs,\n"
-"      and provide you with a better experience on the site.\n"
-"      If you aren't able to do that,\n"
-"      we suggest giving at least $20/month to help cover our support and "
-"operations costs.\n"
-"    "
+"If you are a company using Read the Docs, please consider getting a <a href="
+"\"https://readthedocs.com/services/#open-source-support\">commercial support "
+"contract</a>. This will help us cover our costs, and provide you with a "
+"better experience on the site. If you aren't able to do that, we suggest "
+"giving at least $20/month to help cover our support and operations costs."
 msgstr ""
 
 #: gold/templates/gold/subscription_form.html:63
 msgid ""
-"\n"
-"      You can also make one-time donations on our <a href=\"https://"
-"readthedocs.org/sustainability/\">sustainability</a> page.\n"
-"    "
+"Becoming a Gold Member also makes Read the Docs ad-free for as long as you "
+"are logged-in."
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:71
+#: gold/templates/gold/subscription_form.html:66
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      You can also make one-time donations on our <a href=\"https://"
+#| "readthedocs.org/sustainability/\">sustainability</a> page.\n"
+#| "    "
 msgid ""
+"You can also make one-time donations on our <a href=\"https://readthedocs."
+"org/sustainability/\">sustainability</a> page."
+msgstr ""
 "\n"
-"    We ask that folks who use custom Domains give Read the Docs $5 per "
-"domain they are using.\n"
-"    This is optional, but it really does help us maintain the site going "
-"forward.\n"
+"一度だけの寄付もできます。<a href=\"https://readthedocs.org/sustainability/"
+"\">sustainability</a> ページを見てください。\n"
 "    "
+
+#: gold/templates/gold/subscription_form.html:74
+msgid ""
+"We ask that folks who use custom Domains give Read the Docs $5 per domain "
+"they are using. This is optional, but it really does help us maintain the "
+"site going forward."
 msgstr ""
 
-#: gold/templates/gold/subscription_form.html:89
+#: gold/templates/gold/subscription_form.html:92
 msgid "Become a Gold Member"
-msgstr ""
+msgstr "Gold メンバーになる"
 
-#: gold/templates/gold/subscription_form.html:91
+#: gold/templates/gold/subscription_form.html:94
 msgid "Update Your Subscription"
-msgstr ""
+msgstr "サブスクリプションを更新"
 
-#: gold/templates/gold/subscription_form.html:106
+#: gold/templates/gold/subscription_form.html:109
 msgid "Current card"
-msgstr ""
+msgstr "現在のカード"
 
-#: gold/templates/gold/subscription_form.html:117
-#, fuzzy
-#| msgid "Credit Card"
+#: gold/templates/gold/subscription_form.html:120
 msgid "Edit Card"
-msgstr "クレジットカード"
+msgstr "カードを編集"
 
-#: gold/templates/gold/subscription_form.html:133
-#, fuzzy
-#| msgid "Sign up"
+#: gold/templates/gold/subscription_form.html:136
+#: templates/account/signup.html:10 templates/account/signup.html:22
 msgid "Sign Up"
-msgstr "登録"
+msgstr "サインアップ"
 
-#: gold/templates/gold/subscription_form.html:139
+#: gold/templates/gold/subscription_form.html:142
 msgid "All information is submitted directly to Stripe."
 msgstr ""
 
-#: gold/views.py:72
+#: gold/views.py:76
 msgid "Your subscription has been updated"
-msgstr ""
+msgstr "購読を更新しました"
 
-#: gold/views.py:84
+#: gold/views.py:89
 msgid "Your subscription has been cancelled"
-msgstr ""
+msgstr "購読をキャンセルしました"
 
-#: integrations/models.py:125 integrations/models.py:128
+#: integrations/models.py:130 integrations/models.py:133
 msgid "Request headers"
-msgstr ""
+msgstr "リクエストヘッダ"
 
-#: integrations/models.py:126
+#: integrations/models.py:131
 msgid "Request body"
-msgstr ""
+msgstr "リクエストボディ"
 
-#: integrations/models.py:129
+#: integrations/models.py:134
 msgid "Response body"
-msgstr ""
+msgstr "レスポンスボディ"
 
-#: integrations/models.py:132
-#, fuzzy
-#| msgid "Status Code:"
+#: integrations/models.py:137
 msgid "Status code"
-msgstr "ステータスコード:"
+msgstr "ステータスコード"
 
-#: integrations/models.py:141
+#: integrations/models.py:147
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr ""
 
-#: integrations/models.py:236
-msgid "GitHub incoming webhook"
-msgstr ""
-
-#: integrations/models.py:237
-msgid "Bitbucket incoming webhook"
-msgstr ""
-
-#: integrations/models.py:238
-msgid "GitLab incoming webhook"
-msgstr ""
-
-#: integrations/models.py:239
-msgid "Generic API incoming webhook"
-msgstr ""
-
 #: integrations/models.py:246
-#, fuzzy
-#| msgid "Documentation type"
-msgid "Integration type"
-msgstr "ドキュメントの種類"
+msgid "GitHub incoming webhook"
+msgstr "GitHubからのwebhook"
 
-#: integrations/models.py:250
+#: integrations/models.py:247
+msgid "Bitbucket incoming webhook"
+msgstr "Bitbucketからのwebhook"
+
+#: integrations/models.py:248
+msgid "GitLab incoming webhook"
+msgstr "GitLabからのwebhook"
+
+#: integrations/models.py:249
+msgid "Generic API incoming webhook"
+msgstr "一般的なAPIからのwebhook"
+
+#: integrations/models.py:256
+msgid "Integration type"
+msgstr ""
+
+#: integrations/models.py:260
 msgid "Provider data"
 msgstr ""
 
-#: integrations/models.py:262
+#: integrations/models.py:273
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr ""
 
-#: notifications/forms.py:27
-#, fuzzy
-#| msgid "Notifications"
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "通知"
 
-#: oauth/models.py:38 oauth/models.py:82
+#: oauth/models.py:40 oauth/models.py:85
 msgid "Users"
 msgstr "ユーザー"
 
-#: oauth/models.py:41 oauth/models.py:85
+#: oauth/models.py:42 oauth/models.py:87
 msgid "Connected account"
-msgstr ""
+msgstr "接続されたアカウント"
 
-#: oauth/models.py:48
-msgid "Avatar image URL"
-msgstr ""
+#: oauth/models.py:47 oauth/models.py:101 projects/models.py:83
+#: projects/models.py:929
+msgid "Name"
+msgstr "名前"
+
+#: oauth/models.py:48 templates/base.html:134
+msgid "Email"
+msgstr "メールアドレス"
 
 #: oauth/models.py:49
-#, fuzzy
-#| msgid "Organization"
-msgid "URL to organization page"
-msgstr "組織"
+msgid "Avatar image URL"
+msgstr "アバターの画像URL"
 
-#: oauth/models.py:52 oauth/models.py:117
+#: oauth/models.py:51
+msgid "URL to organization page"
+msgstr "組織ページへのURL"
+
+#: oauth/models.py:53 oauth/models.py:140
 msgid "Serialized API response"
 msgstr ""
 
-#: oauth/models.py:88
+#: oauth/models.py:90
 msgid "Organization"
 msgstr "組織"
 
-#: oauth/models.py:96
+#: oauth/models.py:102
 msgid "Full Name"
 msgstr "フルネーム"
 
-#: oauth/models.py:98
-#, fuzzy
-#| msgid "The reStructuredText description of the project"
+#: oauth/models.py:107
 msgid "Description of the project"
-msgstr "このプロジェクトの説明をreStructuredTextで書きます。"
-
-#: oauth/models.py:99
-msgid "Owner avatar image URL"
 msgstr ""
 
-#: oauth/models.py:102
+#: oauth/models.py:110
+msgid "Owner avatar image URL"
+msgstr "オーナーのアバター画像のURL"
+
+#: oauth/models.py:116
 msgid "SSH URL"
 msgstr "SSH URL"
 
-#: oauth/models.py:105
-#, fuzzy
-#| msgid "Repository URL"
+#: oauth/models.py:122
 msgid "Repository clone URL"
-msgstr "リポジトリURL"
+msgstr "リポジトリをcloneするためのURL"
 
-#: oauth/models.py:110
+#: oauth/models.py:129
 msgid "HTML URL"
 msgstr "HTML URL"
 
-#: oauth/models.py:112
-#, fuzzy
-#| msgid "Repository"
+#: oauth/models.py:131
 msgid "Private repository"
-msgstr "リポジトリ"
+msgstr "プライベートリポジトリ"
 
-#: oauth/models.py:113
+#: oauth/models.py:132
 msgid "Has admin privilege"
-msgstr ""
+msgstr "管理者権限のある"
 
-#: oauth/models.py:114
+#: oauth/models.py:134
 msgid "vcs"
+msgstr "vcs"
+
+#: oauth/notifications.py:18
+msgid "Webhook successfully added."
 msgstr ""
 
-#: oauth/utils.py:34
+#: oauth/notifications.py:20
 msgid ""
-"Webhook activation failed. There are no connected services for this project."
+"Could not add webhook for {{ project.name }}. Make sure <a href="
+"\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"permissions</a>."
 msgstr ""
 
-#: oauth/utils.py:43 oauth/utils.py:73
+#: oauth/notifications.py:21
+msgid ""
+"Could not add webhook for {{ project.name }}. Please <a href="
+"\"{{ url_connect_account }}\">connect your {{ provider.name }} account</a>."
+msgstr ""
+
+#: oauth/notifications.py:42
+msgid ""
+"The project {{ project.name }} doesn't have a valid webhook set up, commits "
+"won't trigger new builds for this project. See <a "
+"href='{{ url_integrations }}'>the project integrations</a> for more "
+"information."
+msgstr ""
+
+#: oauth/utils.py:47
 msgid "Webhook activated"
-msgstr ""
+msgstr "Webhookを有効化しました"
 
-#: oauth/utils.py:51
-msgid "Webhook activation failed. Make sure you have permissions to set it."
-msgstr ""
-
-#: oauth/utils.py:56
-#, python-brace-format
-msgid ""
-"No accounts available to set webhook on. Please connect your {network} "
-"account."
-msgstr ""
-
-#: oauth/utils.py:79
+#: oauth/utils.py:54
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
 
-#: payments/forms.py:84
+#: payments/forms.py:85
 msgid "Card number"
-msgstr ""
+msgstr "カード番号"
 
-#: payments/forms.py:93
+#: payments/forms.py:94
 msgid "Card expiration"
-msgstr ""
+msgstr "カード有効期限"
 
-#: payments/forms.py:102
+#: payments/forms.py:103
 msgid "Card CVV"
-msgstr ""
+msgstr "カードCVV"
 
-#: payments/forms.py:170
+#: payments/forms.py:171
 msgid "There was a problem communicating with Stripe"
+msgstr "Stripeとの通信で問題が起きました"
+
+#: profiles/views.py:301
+msgid "Updated your advertising preferences"
 msgstr ""
 
-#: projects/constants.py:21
+#: projects/admin.py:91
+msgid "Yes"
+msgstr "はい"
+
+#: projects/constants.py:25
 msgid "Automatically Choose"
-msgstr ""
+msgstr "自動で選択"
 
-#: projects/constants.py:22
+#: projects/constants.py:26
 msgid "Sphinx Html"
 msgstr "Sphinx Html"
 
-#: projects/constants.py:23
+#: projects/constants.py:27
 msgid "Mkdocs (Markdown)"
-msgstr ""
+msgstr "Mkdocs(Markdown)"
 
-#: projects/constants.py:24
+#: projects/constants.py:28
 msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
-#: projects/constants.py:25
+#: projects/constants.py:29
 msgid "Sphinx Single Page HTML"
 msgstr "Sphinx 単一ページ HTML"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:30
+#: projects/constants.py:34
 msgid "Default"
 msgstr "初期設定"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:32
+#: projects/constants.py:36
 msgid "Sphinx Docs"
 msgstr "Sphinx Docs"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:36
+#: projects/constants.py:40
 msgid "Traditional"
 msgstr "Traditional"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:38
+#: projects/constants.py:42
 msgid "Nature"
 msgstr "Nature"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:40
+#: projects/constants.py:44
 msgid "Haiku"
 msgstr "Haiku"
 
-#: projects/constants.py:70
+#: projects/constants.py:73
+msgid "Live"
+msgstr "ライブ"
+
+#: projects/constants.py:74
 msgid "Deleted"
 msgstr "削除済み"
 
-#: projects/constants.py:79
+#: projects/constants.py:83
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:80
+#: projects/constants.py:84
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:81
+#: projects/constants.py:85
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:82
+#: projects/constants.py:86
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:91
+#: projects/constants.py:94
+msgid "Public"
+msgstr "公開"
+
+#: projects/constants.py:95
 msgid "Protected"
 msgstr "非公開"
 
-#: projects/constants.py:92
+#: projects/constants.py:96
 msgid "Private"
 msgstr "プライベート"
 
-#: projects/constants.py:103
+#: projects/constants.py:107
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:104
+#: projects/constants.py:108
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/forms.py:92
-#, fuzzy
-#| msgid "Edit Advanced Project Settings"
-msgid "Edit advanced project options"
-msgstr "高度なプロジェクト設定を編集"
+#: projects/exceptions.py:17
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr ""
 
-#: projects/forms.py:115
+#: projects/exceptions.py:22
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+
+#: projects/exceptions.py:33
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+
+#: projects/exceptions.py:37
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+
+#: projects/exceptions.py:43
+msgid "One or more submodule URLs are not valid."
+msgstr ""
+
+#: projects/exceptions.py:47
+msgid "You can not have two versions with the name latest or stable."
+msgstr ""
+
+#: projects/forms.py:97
+msgid "Edit advanced project options"
+msgstr ""
+
+#: projects/forms.py:120
 msgid "Invalid project name, a project already exists with that name"
 msgstr ""
 
-#: projects/forms.py:122
-msgid "Invalid character in repo name"
-msgstr "リポジトリ名に不正な文字が含まれています"
-
-#: projects/forms.py:125
-msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
-msgstr ""
-"プライベートリポジトリを指定されています。パブリック(http:// か git://) な"
-"clone URLを指定してください。"
-
-#: projects/forms.py:139
-#, fuzzy
-#| msgid "Repository"
+#: projects/forms.py:133
 msgid "Repository invalid"
-msgstr "リポジトリ"
+msgstr ""
 
-#: projects/forms.py:181 projects/models.py:201
-msgid "(Beta) The Python interpreter used to create the virtual environment."
+#: projects/forms.py:176 projects/models.py:210
+#, fuzzy
+#| msgid ""
+#| "(Beta) The Python interpreter used to create the virtual environment."
+msgid "The Python interpreter used to create the virtual environment."
 msgstr "(Beta) virtual環境を作成する時に使うPythonの種類。"
 
-#: projects/forms.py:212
+#: projects/forms.py:209
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "不正な設定ファイルです。conf.pyが含まれているかどうか確認して下さい。"
 
-#: projects/forms.py:261
-#, fuzzy
-#| msgid "Edit Project Versions"
-msgid "Subproject nesting is not supported"
-msgstr "プロジェクトのバージョンを編集"
+#: projects/forms.py:237
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr ""
 
-#: projects/forms.py:339 templates/core/project_detail_right.html:118
+#: projects/forms.py:289
+msgid "Subproject nesting is not supported"
+msgstr ""
+
+#: projects/forms.py:296
+msgid "A project can not be a subproject of itself"
+msgstr ""
+
+#: projects/forms.py:384 templates/core/project_detail_right.html:133
 msgid "Default Version"
 msgstr "デフォルトのバージョン"
 
-#: projects/forms.py:366
+#: projects/forms.py:414
 msgid "Zip file of HTML"
 msgstr "HTMLのZipファイル"
 
-#: projects/forms.py:368
+#: projects/forms.py:416
 msgid "Overwrite existing HTML?"
 msgstr "既存のHTMLを上書きしますか？"
 
-#: projects/forms.py:381
+#: projects/forms.py:429
 msgid "That version is already active!"
 msgstr "そのバージョンはすでに有効化されています!"
 
-#: projects/forms.py:383
+#: projects/forms.py:431
 msgid "Must upload a zip file."
 msgstr "zipファイルをアップロードしてください"
 
-#: projects/forms.py:398
+#: projects/forms.py:446
 msgid "Version of the project you are uploading HTML for"
 msgstr "HTMLをアップロードするプロジェクトのバージョン"
 
-#: projects/forms.py:418
-#, python-format
-msgid "User %(name)s does not exist"
-msgstr "%(name)s というユーザーは存在しません"
-
-#: projects/forms.py:484
-#, python-format
-msgid "Project %(name)s does not exist"
-msgstr "プロジェクト %(name)s はありません"
-
-#: projects/forms.py:556
-msgid "Only 1 Domain can be canonical at a time."
+#: projects/forms.py:467
+#, python-brace-format
+msgid "User {name} does not exist"
 msgstr ""
 
-#: projects/models.py:53
+#: projects/forms.py:661
+msgid "Only 1 Domain can be canonical at a time."
+msgstr "canonicalには1つのドメインしか指定できません"
+
+#: projects/models.py:50
 msgid "Parent"
 msgstr "親"
 
-#: projects/models.py:55
+#: projects/models.py:52
 msgid "Child"
 msgstr "子"
 
-#: projects/models.py:57
-#, fuzzy
-#| msgid "Aliases"
+#: projects/models.py:54
 msgid "Alias"
-msgstr "別名"
+msgstr "エイリアス"
 
-#: projects/models.py:89
+#: projects/models.py:86
 msgid "The reStructuredText description of the project"
 msgstr "このプロジェクトの説明をreStructuredTextで書きます。"
 
-#: projects/models.py:91
+#: projects/models.py:88
 msgid "Repository URL"
 msgstr "リポジトリURL"
 
-#: projects/models.py:92
+#: projects/models.py:90
 msgid "Hosted documentation repository URL"
 msgstr ""
 
-#: projects/models.py:93
+#: projects/models.py:91
 msgid "Repository type"
 msgstr "リポジトリの種類"
 
-#: projects/models.py:95
-#, fuzzy
-#| msgid "The project's homepage"
+#: projects/models.py:93
 msgid "Project homepage"
-msgstr "プロジェクトのホームページ"
+msgstr ""
 
-#: projects/models.py:96
+#: projects/models.py:94
 msgid "The project's homepage"
 msgstr "プロジェクトのホームページ"
 
-#: projects/models.py:97
+#: projects/models.py:95
 msgid "Canonical URL"
 msgstr "Canonical URL"
 
-#: projects/models.py:98
+#: projects/models.py:96
 msgid "URL that documentation is expected to serve from"
 msgstr ""
 
-#: projects/models.py:100
+#: projects/models.py:98
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "ドキュメントに適用するプロジェクトのバージョン 例: 1.0a"
 
-#: projects/models.py:102
+#: projects/models.py:100
 msgid "Copyright"
 msgstr "コピーライト"
 
-#: projects/models.py:103
+#: projects/models.py:101
 msgid "Project copyright information"
 msgstr "プロジェクトのコピーライト情報"
 
-#: projects/models.py:108
+#: projects/models.py:103
+msgid "Theme"
+msgstr "テーマ"
+
+#: projects/models.py:106
 msgid "Examples"
 msgstr "例"
 
-#: projects/models.py:109
+#: projects/models.py:107
 msgid "Suffix"
 msgstr "接尾辞"
 
-#: projects/models.py:112
+#: projects/models.py:110
 msgid "Single version"
 msgstr "単一バージョン"
 
-#: projects/models.py:113
+#: projects/models.py:111
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -1278,99 +1021,77 @@ msgstr ""
 "す。もし、<b>今後ずっと</b>複数バージョンのファイルを持つことがない場合のみ、"
 "これを有効にしてください。十分に注意して使用してください。"
 
-#: projects/models.py:118
+#: projects/models.py:116
 msgid "Default version"
 msgstr "初期設定のバージョン"
 
-#: projects/models.py:119
+#: projects/models.py:117
 msgid "The version of your project that / redirects to"
 msgstr "リダイレクト先のプロジェクトのバージョン"
 
-#: projects/models.py:123
+#: projects/models.py:121
 msgid "Default branch"
 msgstr "デフォルトブランチ"
 
-#: projects/models.py:124
-#, fuzzy
-#| msgid ""
-#| "What branch \"latest\" points to. Leave empty to use the default value "
-#| "for your VCS (eg. trunk or master)."
+#: projects/models.py:122
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. <code>trunk</code> or <code>master</code>)."
 msgstr ""
-"\"latest\"ブランチが指し示す先です。VCSのデフォルト値(例: trunkやmaster)を使"
-"う場合、空白のままにしてください。"
 
-#: projects/models.py:128
+#: projects/models.py:126
 msgid "Requirements file"
 msgstr "Requirements ファイル"
 
-#: projects/models.py:130
-#, fuzzy
-#| msgid ""
-#| "Requires Virtualenv. A <a href=\"http://www.pip-installer.org/en/latest/"
-#| "cookbook.html#requirements-files\">pip requirements file</a> needed to "
-#| "build your documentation. Path from the root of your project."
+#: projects/models.py:128
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
 "\">pip requirements file</a> needed to build your documentation. Path from "
 "the root of your project."
 msgstr ""
-"virtualenvが必要です。このドキュメントをビルドするには<a href=\"http://www."
-"pip-installer.org/en/latest/cookbook.html#requirements-files\">PIP "
-"requirementsファイル</a>が必要です。プロジェクトのrootからのパスを入力してく"
-"ださい。"
 
-#: projects/models.py:135
+#: projects/models.py:133
 msgid "Documentation type"
 msgstr "ドキュメントの種類"
 
-#: projects/models.py:137
+#: projects/models.py:135
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info</a>."
 msgstr ""
-"作成しようとしているドキュメントの種類です。 <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">詳細</a>"
 
-#: projects/models.py:142
+#: projects/models.py:141
 msgid "Allow Comments"
-msgstr ""
+msgstr "コメントを許可"
 
 #: projects/models.py:143
-#, fuzzy
-#| msgid "Settings"
 msgid "Comment Moderation"
-msgstr "設定"
+msgstr ""
 
 #: projects/models.py:144
 msgid "CDN Enabled"
-msgstr ""
+msgstr "CDNが有効"
 
 #: projects/models.py:146
 msgid "Analytics code"
 msgstr "Analyticsのコード"
 
 #: projects/models.py:147
-#, fuzzy
-#| msgid ""
-#| "Google Analytics Tracking ID (ex. UA-22345342-1). This may slow down your "
-#| "page loads."
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
 msgstr ""
-"Google AnalyticsのトラッキングID(例: UA-22345342-1)。 これはページの読み込み"
-"を遅くする場合があります。"
+"Google AnalyticsのトラッキングID(例: <code>UA-22345342-1</code>)。 これはペー"
+"ジの読み込みを遅くする場合があります。"
 
 #: projects/models.py:151
 msgid "Alternative container image"
-msgstr ""
+msgstr "代わりのコンテナイメージ"
 
 #: projects/models.py:153
 msgid "Container memory limit"
-msgstr ""
+msgstr "コンテナに対するメモリ制限"
 
 #: projects/models.py:154
 msgid ""
@@ -1384,7 +1105,7 @@ msgstr ""
 
 #: projects/models.py:159
 msgid "Alternate build queue id"
-msgstr ""
+msgstr "代わりのビルドキューID"
 
 #: projects/models.py:161
 msgid "Allow paid advertising"
@@ -1394,263 +1115,341 @@ msgstr ""
 msgid "If unchecked, users will still see community ads."
 msgstr ""
 
-#: projects/models.py:166
-msgid "Enable EPUB build"
+#: projects/models.py:164
+msgid "Ad-free"
 msgstr ""
 
-#: projects/models.py:168
-msgid "Create a EPUB version of your documentation with each build."
+#: projects/models.py:169
+msgid "Show version warning"
 msgstr ""
 
 #: projects/models.py:170
-msgid "Enable PDF build"
+msgid "Show warning banner in non-stable nor latest versions."
 msgstr ""
 
-#: projects/models.py:172
-msgid "Create a PDF version of your documentation with each build."
-msgstr ""
+#: projects/models.py:175
+msgid "Enable EPUB build"
+msgstr "EPUBのビルドを有効化"
 
-#: projects/models.py:176
-#, fuzzy
-#| msgid "The directory where conf.py lives"
-msgid "The directory where <code>conf.py</code> lives"
-msgstr "conf.pyがあるディレクトリ"
+#: projects/models.py:177
+msgid "Create a EPUB version of your documentation with each build."
+msgstr "それぞれのビルドに対しドキュメントのEPUB版を作成"
 
 #: projects/models.py:179
+msgid "Enable PDF build"
+msgstr "PDFのビルドを有効化"
+
+#: projects/models.py:181
+msgid "Create a PDF version of your documentation with each build."
+msgstr "それぞれのビルドに対しドキュメントのPDF版を作成"
+
+#: projects/models.py:184 projects/models.py:931
+msgid "Path"
+msgstr "パス"
+
+#: projects/models.py:185
+msgid "The directory where <code>conf.py</code> lives"
+msgstr ""
+
+#: projects/models.py:188
 msgid "Python configuration file"
 msgstr "Python設定ファイル"
 
-#: projects/models.py:180
-#, fuzzy
-#| msgid ""
-#| "Path from project root to conf.py file (ex. docs/conf.py). Leave blank if "
-#| "you want us to find it for you."
+#: projects/models.py:189
 msgid ""
 "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
 "code>). Leave blank if you want us to find it for you."
 msgstr ""
-"プロジェクトのrootからconf.pyへのパスです(例: docs/conf.py)。 自動で検索する"
-"場合は空白のままにしてください。"
 
-#: projects/models.py:184
+#: projects/models.py:193
 msgid "Featured"
 msgstr "注目"
 
-#: projects/models.py:185
+#: projects/models.py:194
 msgid "Skip"
 msgstr "飛ばす"
 
-#: projects/models.py:186
+#: projects/models.py:195
 msgid "Mirror"
 msgstr "ミラー"
 
-#: projects/models.py:188
-#, fuzzy
-#| msgid "(All Projects)"
+#: projects/models.py:197
 msgid "Install Project"
-msgstr "(すべてのプロジェクト)"
+msgstr "プロジェクトをインストール"
 
-#: projects/models.py:189
-#, fuzzy
-#| msgid "Install your project inside a virtualenv using setup.py install"
+#: projects/models.py:198
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr ""
-"setup.py installでvirtualenv環境の内部にこのプロジェクトをインストールする"
+"<code>setup.py install</code>でvirtualenv環境にあなたのプロジェクトをインス"
+"トールします"
 
-#: projects/models.py:197
+#: projects/models.py:206
 msgid "Python Interpreter"
 msgstr "Python"
 
-#: projects/models.py:205
+#: projects/models.py:214
 msgid "Use system packages"
 msgstr "システムパッケージを使う"
 
-#: projects/models.py:206
+#: projects/models.py:215
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "グローバルのsite packagesディレクトリに対してvirtual environmentのアクセスを"
 "与える"
 
-#: projects/models.py:210
+#: projects/models.py:219
 msgid "Django Packages URL"
 msgstr "DjangoパッケージURL"
 
-#: projects/models.py:215
+#: projects/models.py:224
+#, fuzzy
+#| msgid ""
+#| "(Beta) Level of privacy that you want on the repository. Protected means "
+#| "public but not in listings."
 msgid ""
-"(Beta) Level of privacy that you want on the repository. Protected means "
-"public but not in listings."
+"Level of privacy that you want on the repository. Protected means public but "
+"not in listings."
 msgstr ""
 "(Beta) リポジトリに対するプライバシーのレベルです. 非公開とは公開されているけ"
 "れども、リストには出ていない状態です。"
 
-#: projects/models.py:218
+#: projects/models.py:227
 msgid "Version Privacy Level"
 msgstr "バージョンのプライバシーレベル"
 
-#: projects/models.py:221
-msgid ""
-"(Beta) Default level of privacy you want on built versions of documentation."
+#: projects/models.py:230
+#, fuzzy
+#| msgid ""
+#| "(Beta) Default level of privacy you want on built versions of "
+#| "documentation."
+msgid "Default level of privacy you want on built versions of documentation."
 msgstr ""
 "(Beta) ドキュメントのビルドしたバージョンに設定する初期プライバシーレベル"
 
-#: projects/models.py:226
+#: projects/models.py:235
 msgid "Related projects"
 msgstr "関連するプロジェクト"
 
-#: projects/models.py:230
+#: projects/models.py:239
 msgid "Language"
 msgstr "言語"
 
-#: projects/models.py:231
+#: projects/models.py:240
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 "プロジェクトが描画される言語です。注意: プロジェクトのURLに影響します。"
 
-#: projects/models.py:240
-msgid "The primary programming language the project is written in."
-msgstr ""
+#: projects/models.py:246
+msgid "Programming Language"
+msgstr "プログラミング言語"
 
 #: projects/models.py:250
+msgid "The primary programming language the project is written in."
+msgstr "このプロジェクトの主要なプログラミング言語"
+
+#: projects/models.py:260
 msgid "Number of Major versions"
 msgstr "メジャーバージョンの数"
 
-#: projects/models.py:254
+#: projects/models.py:264
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr ""
 "例えば2を指定した場合、3.X.Xと2.X.Xをサポートしますが、1.X.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:257
+#: projects/models.py:267
 msgid "Number of Minor versions"
 msgstr "マイナーバージョンの数"
 
-#: projects/models.py:261
+#: projects/models.py:271
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr ""
 "例えば2を指定した場合、2.2.Xと2.1.Xをサポートしますが、2.0.Xはサポートしませ"
 "ん"
 
-#: projects/models.py:264
+#: projects/models.py:274
 msgid "Number of Point versions"
 msgstr "ポイントバージョンの数"
 
-#: projects/models.py:268
+#: projects/models.py:278
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr ""
 "例えば2を指定した場合、2.2.2と2.2.1をサポートしますが、2.2.0はサポートしませ"
 "ん"
 
-#: projects/models.py:272
+#: projects/models.py:282
 msgid "This project has been built with a webhook"
-msgstr ""
+msgstr "このプロジェクトはWebhookでビルドされました。"
 
-#: projects/models.py:275
+#: projects/models.py:285
 msgid "This project has been successfully cloned"
-msgstr ""
+msgstr "プロジェクトのcloneに成功しました"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:287
+#: projects/models.py:297
 msgid "View Project"
 msgstr "プロジェクトを見る"
 
-#: projects/models.py:309
+#: projects/models.py:320
 msgid "Model must have slug"
 msgstr "モデルはスラグを持つ必要があります。"
 
-#: projects/models.py:844
+#: projects/models.py:932
 msgid "MD5 checksum"
 msgstr "MD5チェックサム"
 
-#: projects/models.py:874
+#: projects/models.py:962
 msgid "URL to send the webhook to"
 msgstr "webhookを送るURL"
 
-#: projects/models.py:886
+#: projects/models.py:974
 msgid "Domain"
-msgstr ""
+msgstr "ドメイン"
 
-#: projects/models.py:889
+#: projects/models.py:977
 msgid "This Domain was auto-created"
-msgstr ""
+msgstr "このドメインは自動生成です"
 
-#: projects/models.py:892
-#, fuzzy
-#| msgid "There are no builds for this project"
+#: projects/models.py:980
 msgid "This Domain is a CNAME for the project"
-msgstr "このプロジェクトのビルドはありません"
+msgstr "このドメインはCNAMEです"
 
-#: projects/models.py:896
+#: projects/models.py:985
 msgid "This Domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:899
+#: projects/models.py:989
 msgid "Use HTTPS"
-msgstr ""
+msgstr "HTTPSを使用"
 
-#: projects/models.py:901
-msgid "SSL is enabled for this domain"
-msgstr ""
+#: projects/models.py:991
+#, fuzzy
+#| msgid "SSL is enabled for this domain"
+msgid "Always use HTTPS for this domain"
+msgstr "このドメインではSSLが有効です"
 
-#: projects/models.py:903
+#: projects/models.py:994
 msgid "Number of times this domain has been hit"
 msgstr ""
 
-#: projects/tasks.py:143
-msgid "Builds for this project are temporarily disabled"
+#: projects/models.py:1050
+msgid "Use latest version of Sphinx"
+msgstr "最新バージョンのSphinxを使用する"
+
+#: projects/models.py:1051
+msgid "Use latest version of setuptools"
+msgstr "最新バージョンのsetuptoolsを使用する"
+
+#: projects/models.py:1052
+msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/tasks.py:816
+#: projects/models.py:1053
+msgid "Always run pip install --upgrade"
+msgstr "常に pip install --upgrade を実行する"
+
+#: projects/models.py:1054
+msgid "Skip git submodule checkout"
+msgstr "git submodule checkout を実行しない"
+
+#: projects/models.py:1056
+msgid "Do not overwrite context vars in conf.py with Read the Docs context"
+msgstr ""
+
+#: projects/models.py:1058
+#, fuzzy
+#| msgid "Python configuration file"
+msgid "Allow to use the v2 of the configuration file"
+msgstr "Python設定ファイル"
+
+#: projects/models.py:1068
+msgid "Feature identifier"
+msgstr ""
+
+#: projects/models.py:1073
+msgid "Date feature was added"
+msgstr ""
+
+#: projects/models.py:1077
+msgid "Historical default is True"
+msgstr ""
+
+#: projects/tasks.py:101
 #, python-brace-format
-msgid "Failed: {project.name} ({commit})"
+msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: projects/tasks.py:818
+#: projects/tasks.py:1132
 #, python-brace-format
-msgid "Failed: {project.name} ({version.verbose_name})"
+msgid "Failed: {project[name]} ({commit})"
 msgstr ""
 
-#: projects/views/private.py:103 projects/views/private.py:119
+#: projects/tasks.py:1134
+#, python-brace-format
+msgid "Failed: {project[name]} ({version[verbose_name]})"
+msgstr ""
+
+#: projects/tasks.py:1298
+#, python-brace-format
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({0})."
+msgstr ""
+
+#: projects/validators.py:25
+msgid "Enter a valid plain or internationalized domain name value"
+msgstr "有効なプレーンまたは国際化ドメイン名の値を入力してください"
+
+#: projects/validators.py:33
+msgid "Enter a valid domain name value"
+msgstr "有効なドメイン名を入力してください"
+
+#: projects/validators.py:72
+msgid "Invalid character in the URL"
+msgstr "URLに不正な文字があります"
+
+#: projects/validators.py:93
+msgid "Invalid scheme for URL"
+msgstr "URL Schemeが不正です"
+
+#: projects/views/private.py:84 projects/views/private.py:100
 msgid "Project settings updated"
-msgstr ""
+msgstr "プロジェクト設定を更新しました"
 
-#: projects/views/private.py:151
-#, fuzzy
-#| msgid "Edit Project Versions"
+#: projects/views/private.py:133
 msgid "Project versions updated"
-msgstr "プロジェクトのバージョンを編集"
+msgstr "プロジェクトのバージョンを更新しました"
 
-#: projects/views/private.py:204
-#, fuzzy
-#| msgid "Project Alias"
+#: projects/views/private.py:185
 msgid "Project deleted"
-msgstr "プロジェクトの別名"
+msgstr "プロジェクトを削除しました"
 
-#: projects/views/private.py:289
-#, fuzzy
-#| msgid "That version is already active!"
+#: projects/views/private.py:281
 msgid "The demo project is already imported!"
-msgstr "そのバージョンはすでに有効化されています!"
+msgstr "デモプロジェクトがすでにimportされています!"
 
-#: projects/views/private.py:298
+#: projects/views/private.py:290
 msgid "Your demo project is currently being imported"
-msgstr ""
+msgstr "デモプロジェクトをimport中です"
 
-#: projects/views/private.py:303
+#: projects/views/private.py:294
 msgid "There was a problem adding the demo project"
-msgstr ""
+msgstr "デモプロジェクトを追加中に問題が起きました"
 
-#: projects/views/private.py:350
+#: projects/views/private.py:347
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
 "account on your <a href=\"{url}\">connected services page</a>."
 msgstr ""
+"あなたの {service} アカウントに問題が起きました。<a href=\"{url}\">接続中の"
+"サービスページ</a>でアカウントの再接続をしてください。"
 
-#: projects/views/private.py:794
+#: projects/views/private.py:808
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -1675,10 +1474,8 @@ msgid "Page Redirect"
 msgstr "ページ リダイレクト"
 
 #: redirects/models.py:33
-#, fuzzy
-#| msgid "Edit Redirects"
 msgid "Exact Redirect"
-msgstr "リダイレクトを編集"
+msgstr ""
 
 #: redirects/models.py:34
 msgid "Sphinx HTMLDir -> HTML"
@@ -1688,136 +1485,128 @@ msgstr "Sphinx HTMLDir -> HTML"
 msgid "Sphinx HTML -> HTMLDir"
 msgstr "Sphinx HTML -> HTMLDir"
 
-#: redirects/models.py:39
-#, fuzzy
-#| msgid ""
-#| "Absolute path, excluding the domain.Example: <b>/docs/</b>  or <b>/"
-#| "install.html</b>."
+#: redirects/models.py:43
 msgid ""
 "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
 "html</b>"
-msgstr ""
-"ドメインを除いた絶対パスです。例: <b>/docs/</b> や <b>/install.html</b>."
+msgstr "ドメインを含まない絶対パス。例: <b>/docs/</b> や <b>/install.html</b>"
 
-#: redirects/models.py:42
+#: redirects/models.py:46
 #, fuzzy
-#| msgid "Absolute or relative url. Examples: <b>/tutorial/install.html.</b>"
-msgid "Absolute or relative URL. Examples: <b>/tutorial/install.html</b>"
-msgstr "絶対あるいは相対URLです。 例: <b>/tutorial/install.html</b>"
+#| msgid ""
+#| "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/"
+#| "install.html</b>"
+msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
+msgstr "ドメインを含まない絶対パス。例: <b>/docs/</b> や <b>/install.html</b>"
 
-#: redirects/models.py:45
+#: redirects/models.py:49
 msgid "The type of redirect you wish to use."
 msgstr "使いたいリダイレクトの種類です。"
 
-#: redirects/models.py:56
+#: redirects/models.py:60
 msgid "Redirect Type"
 msgstr "リダイレクトタイプ"
 
-#: redirects/models.py:59
+#: redirects/models.py:63
 msgid "From URL"
 msgstr "URLから"
 
-#: redirects/models.py:62
+#: redirects/models.py:66
 msgid "To URL"
 msgstr "URLへ"
 
-#: redirects/models.py:65
+#: redirects/models.py:69
 msgid "HTTP Status"
 msgstr "HTTPステータス"
 
-#: redirects/models.py:76
+#: redirects/models.py:80
 msgid "redirect"
 msgstr "リダイレクト"
 
-#: redirects/models.py:77
+#: redirects/models.py:81
 msgid "redirects"
 msgstr "リダイレクト"
 
-#: redirects/models.py:82
-#, fuzzy
-#| msgid "Prefix Redirect"
-msgid "Prefix Redirect:"
-msgstr "プレフィックス  リダイレクト"
-
-#: redirects/models.py:84
-#, fuzzy
-#| msgid "Page Redirect"
-msgid "Page Redirect:"
-msgstr "ページ リダイレクト"
-
-#: redirects/models.py:87
-#, python-format
-msgid "Redirect: %s"
-msgstr "リダイレクト: %s"
-
-#: settings/base.py:197
-msgid "Catalan"
+#: redirects/models.py:91
+msgid "Redirect: {}"
 msgstr ""
 
-#: settings/base.py:198
+#: settings/base.py:221
+msgid "Catalan"
+msgstr "カタルーニャ語"
+
+#: settings/base.py:222
 msgid "English"
 msgstr "英語"
 
-#: settings/base.py:199
+#: settings/base.py:223
 msgid "Spanish"
 msgstr "スペイン語"
 
-#: settings/base.py:200
+#: settings/base.py:224
 msgid "Brazilian Portuguese"
-msgstr ""
+msgstr "ブラジルポルトガル語"
 
-#: settings/base.py:201
+#: settings/base.py:225
 msgid "Norwegian Bokmål"
 msgstr "ノルウェー語"
 
-#: settings/base.py:202
+#: settings/base.py:226
 msgid "French"
 msgstr "フランス語"
 
-#: settings/base.py:203
+#: settings/base.py:227
 msgid "Russian"
 msgstr "ロシア語"
 
-#: settings/base.py:204
+#: settings/base.py:228
 msgid "German"
 msgstr "ドイツ語"
 
-#: settings/base.py:205
+#: settings/base.py:229
 msgid "Galician"
 msgstr "ガリシア語"
 
-#: settings/base.py:206
+#: settings/base.py:230
 msgid "Vietnamese"
 msgstr "ベトナム語"
 
-#: settings/base.py:207
-msgid "Chinese"
-msgstr "中国語"
+#: settings/base.py:231
+msgid "Simplified Chinese"
+msgstr "中国語（簡体字）"
 
-#: settings/base.py:208
-msgid "Taiwanese"
-msgstr "台湾語"
+#: settings/base.py:232
+msgid "Traditional Chinese"
+msgstr "中国語（繁体字）"
 
-#: settings/base.py:209
+#: settings/base.py:233
 msgid "Japanese"
 msgstr "日本語"
 
-#: settings/base.py:210
+#: settings/base.py:234
 msgid "Ukrainian"
 msgstr "ウクライナ語"
 
-#: settings/base.py:211
+#: settings/base.py:235
 msgid "Italian"
-msgstr ""
+msgstr "イタリア語"
 
-#: settings/base.py:212
+#: settings/base.py:236
 msgid "Korean"
-msgstr ""
+msgstr "韓国語"
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr "迷宮に迷い込んでしまいました"
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "サーバーエラー"
 
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
 msgid "Change Email"
-msgstr ""
+msgstr "メールアドレスを変更"
 
 #: templates/account/email.html:13
 msgid "The following email addresses are associated with your account:"
@@ -1825,29 +1614,27 @@ msgstr ""
 
 #: templates/account/email.html:27
 msgid "Verified"
-msgstr ""
+msgstr "確認済み"
 
 #: templates/account/email.html:29
 msgid "Unverified"
-msgstr ""
+msgstr "未確認"
 
 #: templates/account/email.html:31
 msgid "Primary"
-msgstr ""
+msgstr "プライマリ"
 
 #: templates/account/email.html:37
 msgid "Make Primary"
-msgstr ""
+msgstr "プライマリに変更"
 
 #: templates/account/email.html:38
-#, fuzzy
-#| msgid "Remove Notifications"
 msgid "Re-send Verification"
-msgstr "通知を削除"
+msgstr "確認メールを再送信"
 
 #: templates/account/email.html:46
 msgid "Warning:"
-msgstr ""
+msgstr "警告:"
 
 #: templates/account/email.html:46
 msgid ""
@@ -1856,16 +1643,12 @@ msgid ""
 msgstr ""
 
 #: templates/account/email.html:51
-#, fuzzy
-#| msgid "Add an email address to notify"
 msgid "Add E-mail Address"
-msgstr "通知先のメールアドレスを追加"
+msgstr "メールアドレスを追加"
 
 #: templates/account/email.html:56
-#, fuzzy
-#| msgid "Email"
 msgid "Add E-mail"
-msgstr "メールアドレス"
+msgstr "メールアドレスを追加"
 
 #: templates/account/email.html:65
 msgid "Do you really want to remove the selected email address?"
@@ -1889,37 +1672,49 @@ msgstr ""
 msgid "Verify your email address"
 msgstr ""
 
-#: templates/account/email/password_reset_key_message.html:16
-#: templates/account/email/password_reset_key_message.txt:11
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
 msgid ""
-"If you did not request to reset you password, you can disregard this email."
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
 msgstr ""
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password reset"
-msgstr ""
+msgstr "パスワードリセット"
 
-#: templates/account/login.html:6 templates/account/login.html:10
-#: templates/account/login.html:21
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
 msgid "Sign In"
 msgstr "ログイン"
 
-#: templates/account/login.html:12
+#: templates/account/login.html:14
+#, fuzzy, python-format
+#| msgid ""
+#| "If you have not created an account yet, then please\n"
+#| "<a href=\"%(signup_url)s\">sign up</a> first."
+msgid ""
+"If you have not created an account yet, then please <a href=\"%(signup_url)s"
+"\">sign up</a> first."
+msgstr ""
+"もしまだアカウントをお持ちでないなら、\n"
+"<a href=\"%(signup_url)s\">新規登録</a> をお願いします。"
+
+#: templates/account/login.html:27
 #, python-format
 msgid ""
-"If you have not created an account yet, then please\n"
-"<a href=\"%(signup_url)s\">sign up</a> first."
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
 msgstr ""
-"もしまだアカウントをお持ちでないなら、 まず最初に\n"
-"<a href=\"%(signup_url)s\">アカウント登録</a> をしてください。"
 
-#: templates/account/login.html:22
-msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
-msgstr ""
-"もしパスワードを忘れた場合、<a href=\"/accounts/password/reset/\">リセット</"
-"a>してください。"
+#: templates/account/login.html:31 templates/account/signup.html:28
+msgid "Or"
+msgstr "またｈ"
 
 #: templates/account/password_change.html:5
 #: templates/account/password_change.html:9
@@ -1928,159 +1723,186 @@ msgstr ""
 msgid "Change Password"
 msgstr "パスワードの変更"
 
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "新規登録"
+
+#: templates/account/signup.html:13
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+
+#: templates/account/signup.html:24
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
+"latest/privacy-policy.html\">privacy policy</a>."
+msgstr ""
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "Read the Docs アーカイブ"
 
-#: templates/base.html:92
-msgid "Docs"
+#: templates/base.html:124
+msgid "Stay Updated"
+msgstr ""
+
+#: templates/base.html:128
+msgid "Blog"
+msgstr "ブログ"
+
+#: templates/base.html:132
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+
+#: templates/base.html:142
+msgid "Subscribe"
+msgstr ""
+
+#: templates/base.html:150
+msgid "Get Involved"
+msgstr ""
+
+#: templates/base.html:154
+msgid "Getting Started Guide"
+msgstr ""
+
+#: templates/base.html:157
+msgid "Documentation"
 msgstr "ドキュメント"
 
-#: templates/base.html:95
-#, fuzzy, python-format
-#| msgid ""
-#| "Made by <a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-#| "contributors\">humans</a>. Funded by <a href=\"https://www.gittip.com/"
-#| "readthedocs/\">readers like you</a>."
-msgid ""
-"\n"
-"        Made by <a href=\"https://docs.readthedocs.io/en/latest/team.html"
-"\">humans</a>. Funded by <a href=\"%(gold_detail)s\">readers like you</a>.\n"
-"        "
+#: templates/base.html:160
+msgid "Contributing"
 msgstr ""
-"このサイトは<a href=\"https://github.com/rtfd/readthedocs.org/graphs/"
-"contributors\">人類</a>によって作られています。 また、<a href=\"https://www."
-"gittip.com/readthedocs/\">あなたのような読者に</a>活動資金を支えられていま"
-"す。"
+
+#: templates/base.html:163
+msgid "Team"
+msgstr "チーム"
+
+#: templates/base.html:166
+msgid "Open Source Philosophy"
+msgstr ""
+
+#: templates/base.html:173
+msgid "Business Info"
+msgstr ""
+
+#: templates/base.html:178
+msgid "Advertise with Us"
+msgstr ""
+
+#: templates/base.html:181
+msgid "Private Hosting"
+msgstr ""
+
+#: templates/base.html:185
+msgid "Supporters"
+msgstr "サポーター"
+
+#: templates/base.html:188
+msgid "Privacy Policy"
+msgstr "プライバシーポリシー"
+
+#: templates/base.html:209
+msgid "Read the Docs, Inc & contributors"
+msgstr ""
+
+#: templates/base.html:232
+msgid "Change Language"
+msgstr ""
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "絞り込む"
 
-#: templates/bookmarks/bookmark_delete.html:4
-#: templates/bookmarks/bookmark_delete.html:6
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-#, python-format
-msgid "Delete %(name)s?"
-msgstr "%(name)s を削除しますか？"
-
-#: templates/bookmarks/bookmark_delete.html:9
-#: templates/projects/project_delete.html:9
-#: templates/projects/project_resync_webhook.html:9
-msgid "You sure?"
-msgstr "本当ですか？"
-
-#: templates/bookmarks/bookmark_delete.html:12
-#: templates/projects/project_delete.html:12
-msgid "Delete forever"
-msgstr "完全に削除"
-
-#: templates/bookmarks/bookmark_list.html:7
-msgid "Bookmarks"
-msgstr "ブックマーク"
-
-#: templates/bookmarks/bookmark_list.html:20
-#, fuzzy
-#| msgid "Bookmarks"
-msgid "All Bookmarks"
-msgstr "ブックマーク"
-
-#: templates/builds/build_detail.html:36
-#, fuzzy
-#| msgid "Deleted"
+#: templates/builds/build_detail.html:37
 msgid "Completed"
-msgstr "削除済み"
+msgstr "完了"
 
-#: templates/builds/build_detail.html:41
-#, fuzzy
-#| msgid "Build Date"
+#: templates/builds/build_detail.html:42
 msgid "Build took"
-msgstr "ビルド時刻"
+msgstr ""
 
-#: templates/builds/build_detail.html:45
+#: templates/builds/build_detail.html:46
 msgid "seconds"
-msgstr ""
+msgstr "秒"
 
-#: templates/builds/build_detail.html:51
-#, fuzzy
-#| msgid "Built"
+#: templates/builds/build_detail.html:52
 msgid "Built on"
-msgstr "ビルド済み"
-
-#: templates/builds/build_detail.html:58
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        %(version)s PDF\n"
-#| "      "
-msgid ""
-"\n"
-"        Build #%(build_id)s\n"
-"      "
 msgstr ""
-"\n"
-"        %(version)s PDF\n"
-"      "
 
-#: templates/builds/build_detail.html:86
-#, fuzzy
-#| msgid "Build Started"
+#: templates/builds/build_detail.html:60
+msgid "View docs"
+msgstr ""
+
+#: templates/builds/build_detail.html:68
+msgid "View raw"
+msgstr ""
+
+#: templates/builds/build_detail.html:75
+#, python-format
+msgid "Build #%(build_id)s"
+msgstr ""
+
+#: templates/builds/build_detail.html:107
 msgid "Build completed"
-msgstr "ビルドを開始しました"
+msgstr "ビルド完了"
 
-#: templates/builds/build_detail.html:91
-#, fuzzy
-#| msgid "Build Date"
+#: templates/builds/build_detail.html:112
 msgid "Build failed"
-msgstr "ビルド時刻"
+msgstr "ビルド失敗"
 
-#: templates/builds/build_detail.html:99
-msgid "Show full build output"
+#: templates/builds/build_detail.html:121
+#, python-format
+msgid ""
+"Having trouble with your build environment? Try <a href=\"%(wipe_url)s"
+"\">resetting it</a>."
 msgstr ""
 
-#: templates/builds/build_detail.html:105
-#, fuzzy
-#| msgid "Build Standard Output"
-msgid "Build Output"
-msgstr "ビルド標準出力"
+#: templates/builds/build_detail.html:131
+#, python-format
+msgid ""
+"Don't want <em>setup.py install</em> called? Change the <strong>Install "
+"Project</strong> setting in your <a href=\"%(advanced_url)s\">advanced "
+"settings</a>."
+msgstr ""
 
-#: templates/builds/build_detail.html:109
+#: templates/builds/build_detail.html:144
+msgid "Show full build output"
+msgstr "完全なビルド出力を表示"
+
+#: templates/builds/build_detail.html:150
+msgid "Build Output"
+msgstr "ビルド出力"
+
+#: templates/builds/build_detail.html:154
 msgid "Setup Output"
 msgstr "設定出力"
 
-#: templates/builds/build_detail.html:114
+#: templates/builds/build_detail.html:159
 msgid "Environment Standard Error"
 msgstr "環境の標準エラー"
 
-#: templates/builds/build_detail.html:120
-#, fuzzy
-#| msgid "Build Standard Error"
+#: templates/builds/build_detail.html:165
 msgid "Build Errors"
-msgstr "ビルド標準エラー出力"
+msgstr "ビルドエラー"
 
-#: templates/builds/build_detail.html:154
+#: templates/builds/build_detail.html:199
 msgid "Command time:"
 msgstr ""
 
-#: templates/builds/build_detail.html:159
+#: templates/builds/build_detail.html:204
 msgid "Return"
 msgstr ""
 
-#: templates/builds/build_list.html:23
-#, python-format
-msgid ""
-"\n"
-"    Whoa! The build queue is %(queue_length)s tasks long, new builds may "
-"take a while.\n"
-"  "
-msgstr ""
-
-#: templates/builds/build_list.html:46
+#: templates/builds/build_list.html:37
 msgid "Build Version:"
 msgstr "ビルドバージョン:"
 
-#: templates/builds/build_list.html:62
+#: templates/builds/build_list.html:53
 msgid "Recent Builds"
 msgstr "最近のビルド"
 
@@ -2104,6 +1926,7 @@ msgstr "バージョン %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:9
 #: templates/core/project_list_detailed.html:27
+#: templates/projects/integration_webhook_detail.html:84
 #, python-format
 msgid "%(date)s ago"
 msgstr "%(date)s 前"
@@ -2114,7 +1937,7 @@ msgstr "ビルドがありません"
 
 #: templates/core/email/base.html:78
 msgid "Hello!"
-msgstr ""
+msgstr "こんにちは!"
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
@@ -2128,42 +1951,33 @@ msgstr "Read the Docs"
 msgid "No objects found"
 msgstr "オブジェクトが見つかりません"
 
-#: templates/core/header.html:29
+#: templates/core/header.html:28
 msgid "My Projects"
 msgstr "自分のプロジェクト"
 
-#: templates/core/header.html:30 templates/projects/project_edit.html:27
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
 #: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr "設定"
 
-#: templates/core/header.html:31
-#, fuzzy
-#| msgid "Supported"
+#: templates/core/header.html:30
 msgid "Support"
-msgstr "サポートされている"
+msgstr "サポート"
 
-#: templates/core/header.html:34 templates/error_header.html:24
+#: templates/core/header.html:33 templates/error_header.html:24
 msgid "Log Out"
 msgstr "ログアウト"
 
-#: templates/core/header.html:41
-#, fuzzy
-#| msgid "Log in"
+#: templates/core/header.html:39
 msgid "Log In"
 msgstr "ログイン"
 
 #: templates/core/home-header.html:10
 msgid "Create, host, and browse documentation."
-msgstr "ドキュメントを作って、配って、みんなで見ましょう。"
+msgstr "ドキュメントを作成、公開、閲覧しましょう。"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
-#: templates/core/home-header.html:17
-msgid "Sign up"
-msgstr "登録"
-
-#. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:38
+#: templates/core/home-header.html:19
+#: templates/projects/project_version_detail.html:23
 msgid "or"
 msgstr "または"
 
@@ -2174,58 +1988,41 @@ msgstr "ログイン"
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_version_list.html:50
+#: templates/projects/project_version_list.html:54
 msgid "View Docs"
 msgstr "開く"
 
-#: templates/core/project_bar_base.html:32
+#: templates/core/project_bar_base.html:31
 msgid ""
-"\n"
-"          This repository doesn't have a valid webhook set up,\n"
-"          commits won't trigger new builds for this project.\n"
-"        "
+"Your project is currently disabled for abuse of the system. Please make sure "
+"it isn't using unreasonable amounts of resources or triggering lots of "
+"builds in a short amount of time. Please <a href=\"https://github.com/rtfd/"
+"readthedocs.org/issues\">file a ticket</a> to get your project re-enabled."
 msgstr ""
 
-#: templates/core/project_bar_base.html:37
-#, python-format
-msgid ""
-"\n"
-"          See <a href='%(integrations_url)s'>your project integrations</a> "
-"for more information.\n"
-"        "
-msgstr ""
-
-#: templates/core/project_bar_base.html:45
-msgid ""
-"\n"
-"            Your project is currently disabled for abuse of the system.\n"
-"            Please make sure it isn't using unreasonable amounts of "
-"resources or triggering lots of builds in a short amount of time.\n"
-"            Please <a href=\"https://github.com/rtfd/readthedocs.org/issues"
-"\">file a ticket</a> to get your project re-enabled.\n"
-"          "
-msgstr ""
-
-#: templates/core/project_bar_base.html:54
+#: templates/core/project_bar_base.html:40
 msgid "Overview"
 msgstr "概要"
 
-#: templates/core/project_bar_base.html:56
+#: templates/core/project_bar_base.html:42
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "ダウンロード"
 
-#: templates/core/project_bar_base.html:58
+#. Translators: This is about starting a search
+#: templates/core/project_bar_base.html:44
 #: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
+#: templates/search/elastic_project_search.html:26
+#: templates/search/elastic_search.html:123
 msgid "Search"
 msgstr "検索"
 
-#: templates/core/project_bar_base.html:60
+#: templates/core/project_bar_base.html:46
 msgid "Builds"
 msgstr "ビルド"
 
-#: templates/core/project_bar_base.html:62
+#: templates/core/project_bar_base.html:48
 #: templates/core/project_details.html:19
 #: templates/projects/project_analytics.html:76
 #: templates/projects/project_edit_base.html:19
@@ -2234,14 +2031,7 @@ msgstr "ビルド"
 msgid "Versions"
 msgstr "バージョン"
 
-#: templates/core/project_bar_base.html:72
-#: templates/projects/project_edit_base.html:29
-#, fuzzy
-#| msgid "Commit"
-msgid "Comments"
-msgstr "コミット"
-
-#: templates/core/project_bar_base.html:73
+#: templates/core/project_bar_base.html:58
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
@@ -2251,88 +2041,98 @@ msgstr "管理"
 msgid "Repository"
 msgstr "リポジトリ"
 
-#: templates/core/project_detail_right.html:15
+#: templates/core/project_detail_right.html:21
 msgid "Last Built"
 msgstr "最後のビルド"
 
-#: templates/core/project_detail_right.html:22
-#, fuzzy
-#| msgid "Passed"
+#: templates/core/project_detail_right.html:28
 msgid "passed"
 msgstr "成功"
 
-#: templates/core/project_detail_right.html:24
-#, fuzzy
-#| msgid "Failed"
+#: templates/core/project_detail_right.html:30
 msgid "failed"
 msgstr "失敗"
 
-#: templates/core/project_detail_right.html:37
-msgid "Owners"
-msgstr "所有者"
+#: templates/core/project_detail_right.html:33
+msgid "Currently Building"
+msgstr ""
 
-#: templates/core/project_detail_right.html:47
+#: templates/core/project_detail_right.html:36
+#: templates/projects/project_dashboard_base.html:72
+msgid "No builds yet"
+msgstr "まだビルドがありません"
+
+#: templates/core/project_detail_right.html:43
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_users.html:8
+msgid "Maintainers"
+msgstr "メンテナー"
+
+#: templates/core/project_detail_right.html:53
 msgid "Home Page"
 msgstr "ホームページ"
 
-#: templates/core/project_detail_right.html:55
+#: templates/core/project_detail_right.html:61
 msgid "Badge"
-msgstr "バッヂ"
+msgstr "バッジ"
 
-#: templates/core/project_detail_right.html:65
+#: templates/core/project_detail_right.html:70
 msgid "Tags"
 msgstr "タグ"
 
-#: templates/core/project_detail_right.html:70
-msgid "No tags"
-msgstr "タグはありません"
+#: templates/core/project_detail_right.html:78
+msgid "Project has no tags."
+msgstr "このプロジェクトにはタグがありません。"
 
-#: templates/core/project_detail_right.html:77
+#: templates/core/project_detail_right.html:82
+#, fuzzy, python-format
+#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
+msgstr "<a href=\"%(project_url)s\">こちら</a>を見てください。"
+
+#: templates/core/project_detail_right.html:92
 msgid "Project Privacy Level"
 msgstr "プロジェクトのプライバシーレベル"
 
-#: templates/core/project_detail_right.html:86
+#: templates/core/project_detail_right.html:101
 msgid "Short URLs"
 msgstr "短いURL"
 
-#: templates/core/project_detail_right.html:97
+#: templates/core/project_detail_right.html:112
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "翻訳"
 
-#: templates/core/project_detail_right.html:108
+#: templates/core/project_detail_right.html:123
 msgid "Sub Projects"
 msgstr "サブプロジェクト"
 
-#: templates/core/project_detail_right.html:121
+#: templates/core/project_detail_right.html:136
 msgid "'latest' Version"
 msgstr "'最新' バージョン"
 
-#: templates/core/project_details.html:31
-#, python-format
-msgid " %(slug)s "
-msgstr " %(slug)s "
-
 #: templates/core/project_details.html:43
-#: templates/projects/domain_list.html:26
-#: templates/projects/project_version_list.html:46
-#: templates/projects/project_version_list.html:99
+#: templates/projects/domain_list.html:29
+#: templates/projects/project_version_list.html:50
+#: templates/projects/project_version_list.html:110
 msgid "Edit"
 msgstr "編集"
 
-#: templates/core/project_details.html:50
-#: templates/projects/project_version_list.html:59
-#, fuzzy
-#| msgid "Choose Active Versions"
+#: templates/core/project_details.html:51
+#: templates/projects/project_version_list.html:64
 msgid "No active versions."
-msgstr "有効にするバージョンを選択"
+msgstr "有効なバージョンがありません。"
 
-#: templates/core/project_details.html:60
+#: templates/core/project_details.html:62
 msgid "Build a version"
 msgstr "ビルドしたバージョン"
 
-#: templates/core/project_downloads.html:30
+#: templates/core/project_details.html:71
+msgid "Build version"
+msgstr "ビルドバージョン"
+
+#: templates/core/project_downloads.html:31
 msgid "No downloads for this project."
 msgstr "このプロジェクトにはダウンロードできるファイルはありません"
 
@@ -2355,10 +2155,13 @@ msgid "Add tags"
 msgstr "タグを追加"
 
 #: templates/core/widesearchbar.html:4
-#, fuzzy
-#| msgid "Search all the docs."
 msgid "Search all the docs"
-msgstr "すべてのドキュメントを検索"
+msgstr "全ドキュメントを検索"
+
+#: templates/core/widesearchbar.html:12
+#: templates/projects/project_dashboard_base.html:118
+msgid "Search Read the Docs"
+msgstr "Read the Docsを検索する"
 
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
@@ -2405,135 +2208,142 @@ msgstr "\"%(object)s\" に \"%(flag_type.title)s\" というフラグを付け�
 msgid "Thank you for contributing to the quality of this site!"
 msgstr "サイトの質向上に貢献していただきありがとうございます！"
 
-#: templates/homepage.html:7
+#: templates/homepage.html:9
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+
+#: templates/homepage.html:12
 msgid "Home"
 msgstr "トップページ"
 
-#: templates/homepage.html:43
-msgid "What is this place?"
-msgstr "このサイトはなにをするところ？"
-
-#: templates/homepage.html:45
-#, fuzzy
-#| msgid ""
-#| "Read the Docs hosts documentation, making it fully searchable and easy to "
-#| "find.\n"
-#| "You can import your docs using any major version control system, "
-#| "including Mercurial, Git, Subversion, and Bazaar.\n"
-#| "We support <a href=\"http://read-the-docs.readthedocs.org/en/latest/"
-#| "webhooks.html\">webhooks</a> so your docs get built when you commit "
-#| "code.\n"
-#| "There's also support for versioning so you can build docs from tags and "
-#| "branches of your code in your repository. A <a href=\"http://read-the-"
-#| "docs.readthedocs.org/en/latest/features.html\">full list of features</a> "
-#| "is available."
-msgid ""
-"\n"
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for <a href=\"http://docs.readthedocs.io/en/latest/"
-"versions.html\">versioning</a> so you can build docs from tags and branches "
-"of your code in your repository. \n"
-msgstr ""
-"Read the Docsは検索できて簡単に探せるドキュメントを提供します。Mercurial、"
-"Git、Subversion、Bazaarなどの主要なバージョン管理システムを使っているあなたの"
-"ドキュメントをインポートできます。また、<a href=\"http://read-the-docs."
-"readthedocs.org/en/latest/webhooks.html\">webhooks</a>もサポートしており、コ"
-"ミットするたびにビルドできます。さらにバージョン管理も提供しているため、リポ"
-"ジトリでタグやブランチを指定してビルドできます。機能の完全な一覧は<a href="
-"\"http://read-the-docs.readthedocs.org/en/latest/features.html\">こちら</a>で"
-"ご覧ください。"
-
-#: templates/homepage.html:53
-msgid ""
-"\n"
-"  Hosting documentation is free and simple,\n"
-"  <a href=\"https://docs.readthedocs.io/en/latest/getting_started.html"
-"\">read our guide</a>\n"
-"  to get started!\n"
+#: templates/homepage.html:46
+msgid "Technical documentation lives here"
 msgstr ""
 
-#: templates/homepage.html:60
+#: templates/homepage.html:48
 msgid ""
-"\n"
-"Read the Docs is <b>community supported</b>. \n"
-"It depends on users like you to contribute to development,\n"
-"support,\n"
-"and operations.\n"
-"You can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
-"latest/contribute.html\">contribute</a> in our docs.\n"
-"Thanks so much to our wonderful <a href=\"https://docs.readthedocs.io/en/"
-"latest/team.html\">community team</a> who helps us run the site.\n"
-"Read the Docs wouldn't be possible without them.\n"
-"Please consider joining today,\n"
-"as we always need more contributors to the project.\n"
+"Read the Docs simplifies software documentation by automating building, "
+"versioning, and hosting of your docs for you."
 msgstr ""
 
-#: templates/homepage.html:85
+#: templates/homepage.html:61
+#, python-format
+msgid ""
+"We will host your documentation for free forever. There are no tricks. We "
+"help %(projects_count_intcomma)s open source projects share their docs."
+msgstr ""
+
+#: templates/homepage.html:72
+msgid ""
+"Whenever you push code to your favorite version control system, whether that "
+"is Git, Mercurial, Bazaar, or Subversion, we will automatically build your "
+"docs so your code and documentation are never out of sync."
+msgstr ""
+
+#: templates/homepage.html:87
+msgid ""
+"Of course we build and host your docs for the web, but they are also "
+"vieweable as PDFs, as single page HTML, and for eReaders. No additional "
+"configuration is required."
+msgstr ""
+
+#: templates/homepage.html:97
+msgid ""
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+
+#: templates/homepage.html:110
+msgid "Getting started guide"
+msgstr ""
+
+#: templates/homepage.html:124
 msgid "Featured Projects"
 msgstr "注目のプロジェクト"
 
-#: templates/homepage.html:106
-#, fuzzy
-#| msgid "Recently Updated Projects"
-msgid "Recently updated projects"
-msgstr "最近更新されたプロジェクト"
-
-#: templates/homepage.html:122
+#: templates/homepage.html:139
 msgid "Read the Docs is funded by the community"
+msgstr "コミュニティによる Read the Docs"
+
+#: templates/homepage.html:146
+#, python-format
+msgid ""
+"Read the Docs is a huge resource that millions of developers rely on for "
+"software documentation. It would not be possible without the support of our "
+"<a href=\"%(sponsors_url)s\">sponsors</a>, <a href=\"%(advertising_url)s"
+"\">advertisers</a>, and <a href=\"%(gold_detail)s\">readers like you</a>."
+msgstr ""
+
+#: templates/homepage.html:157
+msgid ""
+"Read the Docs is <strong>community supported</strong>. It depends on users "
+"like you to contribute to development, support, and operations. You can "
+"learn more about how to <a href=\"https://docs.readthedocs.io/en/latest/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/en/latest/team.html"
+"\">community team</a> who helps us run the site. Read the Docs wouldn't be "
+"possible without them."
+msgstr ""
+
+#: templates/homepage.html:167
+msgid ""
+"Hosting for the project is graciously provided by <a href=\"https://azure."
+"microsoft.com/\">Microsoft Azure</a>."
 msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
-#, fuzzy
-#| msgid "Email"
 msgid "Send Email"
-msgstr "メールアドレス"
+msgstr "メールアドレスを送信する"
 
 #: templates/notifications/send_notification_form.html:9
-msgid ""
-"\n"
-"      An email message will be sent to the following email addresses:\n"
-"    "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      An email message will be sent to the following email addresses:\n"
+#| "    "
+msgid "An email message will be sent to the following email addresses:"
 msgstr ""
+"\n"
+"      メールのメッセージが次のアドレスに送信されます。\n"
+"    "
 
 #: templates/notifications/send_notification_form.html:21
 #, python-format
-msgid ""
-"\n"
-"            And 1 other recipient.\n"
-"          "
-msgid_plural ""
-"\n"
-"            And %(counter)s other recipients...\n"
-"          "
+msgid "And 1 other recipient."
+msgid_plural "And %(counter)s other recipients..."
 msgstr[0] ""
 
 #: templates/notifications/send_notification_form.html:32
-msgid ""
-"\n"
-"      Specify the email content you wish to send:\n"
-"    "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      Specify the email content you wish to send:\n"
+#| "    "
+msgid "Specify the email content you wish to send:"
 msgstr ""
+"\n"
+"      送りたいメールの内容を指定してください。\n"
+"    "
 
 #: templates/notifications/send_notification_form.html:41
 msgid "Send Messages"
-msgstr ""
+msgstr "メッセージを送信する"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
-#: templates/projects/project_import.html:189
-#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:172
+#: templates/projects/project_import.html:178
 msgid "previous"
 msgstr "前へ"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
-#: templates/projects/project_import.html:199
-#: templates/projects/project_import.html:205
+#: templates/projects/project_import.html:182
+#: templates/projects/project_import.html:188
 msgid "next"
 msgstr "次へ"
 
@@ -2567,17 +2377,69 @@ msgstr "プロファイル"
 
 #: templates/profiles/base_profile_edit.html:48
 msgid "Details"
-msgstr ""
+msgstr "詳細"
 
 #: templates/profiles/base_profile_edit.html:49
 #: templates/socialaccount/connections.html:5
 #: templates/socialaccount/connections.html:7
 msgid "Connected Services"
-msgstr ""
+msgstr "接続したサービス"
 
 #: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:18
+msgid "Delete Account"
+msgstr "アカウントを削除する"
+
+#: templates/profiles/base_profile_edit.html:53
 msgid "Gold"
+msgstr "Gold"
+
+#: templates/profiles/base_profile_edit.html:55
+#: templates/projects/project_edit_base.html:28
+msgid "Advertising"
 msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:15
+msgid ""
+"Since you are a Gold Member or Supporter, you are <strong>ad-free</strong> "
+"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:22
+#: templates/projects/project_advertising.html:16
+msgid ""
+"Read the Docs is an open source project. In order to maintain service, we "
+"rely on both the support of our users, and from sponsor support."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:30
+#: templates/projects/project_advertising.html:50
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and community advertising we run on "
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/en/latest/ethical-advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:41
+#, python-format
+msgid ""
+"You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
+"\">Gold Member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
+"Docs</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:49
+#: templates/projects/project_advertising.html:133
+msgid "Update advertisement preference"
+msgstr "広告の設定をアップデートする"
 
 #: templates/profiles/private/create_profile.html:5
 #: templates/profiles/private/create_profile.html:10
@@ -2586,7 +2448,11 @@ msgstr "プロファイルを作成"
 
 #: templates/profiles/private/create_profile.html:16
 msgid "Create it!"
-msgstr "作ろう!"
+msgstr "作ろう！"
+
+#: templates/profiles/private/delete_account.html:16
+msgid "Be careful! This can not be undone!"
+msgstr ""
 
 #: templates/profiles/private/edit_profile.html:5
 #: templates/profiles/private/edit_profile.html:9
@@ -2595,7 +2461,7 @@ msgstr "プロファイルを編集"
 
 #: templates/profiles/private/edit_profile.html:14
 msgid "OK, save it!"
-msgstr "OK、保存して!"
+msgstr "OK、保存して！"
 
 #: templates/profiles/public/profile_detail.html:6
 #, python-format
@@ -2611,134 +2477,113 @@ msgid "Add an alias for a project version."
 msgstr "プロジェクトのバージョンに対する別名を追加"
 
 #: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:34
+#: templates/projects/project_create.html:19
 msgid "Create"
 msgstr "作成"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "別名"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "プロジェクトを見る"
 
 #: templates/projects/domain_confirm_delete.html:5
 #: templates/projects/domain_form.html:5 templates/projects/domain_list.html:5
-#, fuzzy
-#| msgid "Edit Notifications"
 msgid "Edit Domains"
-msgstr "通知を編集"
+msgstr "ドメインの編集"
 
 #: templates/projects/domain_confirm_delete.html:13
-#, fuzzy
-#| msgid "Confirm flagging"
 msgid "Confirm Delete"
-msgstr "フラグの確認"
+msgstr "削除の確認"
 
 #: templates/projects/domain_confirm_delete.html:18
-#, fuzzy
-#| msgid "Confirm flagging"
 msgid "Confirm"
-msgstr "フラグの確認"
+msgstr "確認"
 
 #: templates/projects/domain_form.html:16
-#, fuzzy
-#| msgid "Edit Notifications"
 msgid "Edit Domain"
-msgstr "通知を編集"
+msgstr "ドメインの編集"
 
 #: templates/projects/domain_form.html:18
-#, fuzzy
-#| msgid "Created Date"
 msgid "Create Domain"
-msgstr "作成日付"
+msgstr "ドメインの作成"
 
 #: templates/projects/domain_list.html:12
 #: templates/projects/project_edit_base.html:20
 msgid "Domains"
-msgstr ""
+msgstr "ドメイン"
 
 #: templates/projects/domain_list.html:16
-#, fuzzy
-#| msgid ""
-#| "This allows you to add subprojects to your project. This allows them to "
-#| "live in the same namespace in the URLConf for a subdomain or CNAME."
+msgid ""
+"Recently we added HTTPS support for custom domains. Depending on your setup, "
+"you may need to take action for your domain to support HTTPS. <a href="
+"\"https://docs.readthedocs.io/en/latest/alternate_domains.html#cname-ssl"
+"\">See our docs</a> for details."
+msgstr ""
+
+#: templates/projects/domain_list.html:19
 msgid ""
 "This allows you to add domains to your project. This allows them to live in "
 "the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
-"ここではあなたのプロジェクトにサブプロジェクトを追加できます。これにより、"
-"URLConf中の同じ名前空間でサブドメインやCNAMEを設定できます。"
 
-#: templates/projects/domain_list.html:20
-#, fuzzy
-#| msgid "Existing Notifications"
+#: templates/projects/domain_list.html:23
 msgid "Existing Domains"
-msgstr "今ある通知"
+msgstr "既存のドメイン"
 
-#: templates/projects/domain_list.html:34
+#: templates/projects/domain_list.html:37
 msgid "Add new Domain"
-msgstr ""
+msgstr "ドメインを追加"
+
+#: templates/projects/domain_list.html:41
+#: templates/projects/project_import.html:157
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:114
+#: templates/projects/project_translations.html:53
+#: templates/projects/project_users.html:51
+msgid "Add"
+msgstr "追加"
 
 #: templates/projects/import_base.html:4
-#, fuzzy
-#| msgid "Edit Project"
 msgid "Add a Project"
-msgstr "プロジェクトの編集"
+msgstr "プロジェクトを追加"
 
 #: templates/projects/import_base.html:27
-#: templates/search/elastic_project_search.html:123
-#: templates/search/elastic_project_search.html:125
+#: templates/search/elastic_project_search.html:79
+#: templates/search/elastic_project_search.html:81
 #: templates/search/elastic_search.html:196
-#: templates/search/elastic_search.html:198 templates/search/search.html:58
-#: templates/search/search.html:60
+#: templates/search/elastic_search.html:198
 msgid "Next"
 msgstr "次へ"
 
 #: templates/projects/import_base.html:29
-#, fuzzy
-#| msgid "Finished"
 msgid "Finish"
 msgstr "完了"
 
 #: templates/projects/import_base.html:33
-#: templates/search/elastic_project_search.html:117
-#: templates/search/elastic_project_search.html:119
+#: templates/search/elastic_project_search.html:73
+#: templates/search/elastic_project_search.html:75
 #: templates/search/elastic_search.html:190
-#: templates/search/elastic_search.html:192 templates/search/search.html:52
-#: templates/search/search.html:54
+#: templates/search/elastic_search.html:192
 msgid "Previous"
 msgstr "前へ"
 
 #: templates/projects/import_basics.html:5
-#, fuzzy
-#| msgid "Project Alias"
 msgid "Project Details"
-msgstr "プロジェクトの別名"
+msgstr "プロジェクト詳細"
 
 #: templates/projects/import_basics.html:8
 msgid ""
-"\n"
-"      To import a project,\n"
-"      start by entering a few details about your repository.\n"
-"      More advanced project options can be configured\n"
-"      if you select <b>Edit advanced project options</b>.\n"
-"    "
+"To import a project, start by entering a few details about your repository. "
+"More advanced project options can be configured if you select <b>Edit "
+"advanced project options</b>."
 msgstr ""
 
-#: templates/projects/import_extra.html:20
-#, fuzzy
-#| msgid "Project Privacy Level"
+#: templates/projects/import_extra.html:5
 msgid "Project Extra Details"
-msgstr "プロジェクトのプライバシーレベル"
+msgstr ""
 
-#: templates/projects/import_extra.html:23
-msgid ""
-"\n"
-"      Here are a few more project options that you may need to configure.\n"
-"    "
+#: templates/projects/import_extra.html:8
+msgid "Here are a few more project options that you may need to configure."
 msgstr ""
 
 #. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
@@ -2768,10 +2613,8 @@ msgstr "未ビルド"
 #: templates/projects/integration_list.html:5
 #: templates/projects/integration_list.html:12
 #: templates/projects/project_edit_base.html:25
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integrations"
-msgstr "内部リンク"
+msgstr ""
 
 #: templates/projects/integration_exchange_detail.html:12
 msgid "Exchange"
@@ -2779,47 +2622,35 @@ msgstr ""
 
 #: templates/projects/integration_form.html:21
 #: templates/projects/integration_list.html:20
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add integration"
-msgstr "メンテナーを追加"
+msgstr ""
 
 #: templates/projects/integration_generic_webhook_detail.html:7
-msgid ""
-"\n"
-"      The following parameters are configured for this integration:\n"
-"    "
+msgid "The following parameters are configured for this integration:"
 msgstr ""
 
 #: templates/projects/integration_generic_webhook_detail.html:14
 msgid "Token"
-msgstr ""
+msgstr "トークン"
 
 #: templates/projects/integration_list.html:38
-msgid "No intergrations are currently configured"
-msgstr ""
+msgid "No integrations are currently configured."
+msgstr "設定されている他サービスとの統合はありません。"
 
 #: templates/projects/integration_webhook_detail.html:5
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integration"
-msgstr "内部リンク"
+msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:13
-#, python-format
-msgid ""
-"\n"
-"    Integration - %(type)s\n"
-"  "
-msgstr ""
+#, fuzzy, python-format
+#| msgid "version %(slug)s (%(type)s)"
+msgid "Integration - %(type)s"
+msgstr "バージョン %(slug)s (%(type)s)"
 
 #: templates/projects/integration_webhook_detail.html:21
 msgid ""
-"\n"
-"        This webhook was configured when this project was imported. If this\n"
-"        integration is not functioning correctly, try resyncing the "
-"webhook:\n"
-"      "
+"This webhook was configured when this project was imported. If this "
+"integration is not functioning correctly, try resyncing the webhook:"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:29
@@ -2828,48 +2659,28 @@ msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:43
 msgid ""
-"\n"
-"          This integration was created automatically from an existing "
-"webhook\n"
-"          configured on your repository. To make any changes to this "
-"webhook,\n"
-"          you'll need to update the configuration there. You can use the\n"
-"          following address to manually configure this webhook.\n"
-"        "
+"This integration was created automatically from an existing webhook "
+"configured on your repository. To make any changes to this webhook, you'll "
+"need to update the configuration there. You can use the following address to "
+"manually configure this webhook."
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:52
 msgid ""
-"\n"
-"          To manually configure this webhook with your provider, use the\n"
-"          following address:\n"
-"        "
+"To manually configure this webhook with your provider, use the following "
+"address:"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:67
 msgid ""
-"\n"
-"        For more information on manually configuring a webhook, refer to\n"
-"        <a href=\"https://docs.readthedocs.io/en/latest/webhooks.html\">\n"
-"          our webhook documentation\n"
-"        </a>\n"
-"      "
+"For more information on manually configuring a webhook, refer to <a href="
+"\"https://docs.readthedocs.io/en/latest/webhooks.html\"> our webhook "
+"documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:84
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        %(version)s Epub\n"
-#| "      "
-msgid ""
-"\n"
-"              %(date)s ago\n"
-"            "
-msgstr ""
-"\n"
-"        %(version)s Epub\n"
-"      "
+#: templates/projects/integration_webhook_detail.html:76
+msgid "Recent Activity"
+msgstr "最近の活動"
 
 #: templates/projects/integration_webhook_detail.html:92
 msgid "There is no recent activity"
@@ -2938,270 +2749,262 @@ msgstr ""
 
 #: templates/projects/onboard_detail.html:11
 msgid ""
-"\n"
-"          This project has not been built yet.\n"
-"          Try building the latest version now,\n"
-"          or if you would like to build a specific version,\n"
-"          select the version below and your documentation build will be "
-"triggered.\n"
-"        "
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
 msgstr ""
 
-#: templates/projects/onboard_detail.html:21
-#, fuzzy
-#| msgid "Build a version"
+#: templates/projects/onboard_detail.html:22
 msgid "Build latest version"
-msgstr "ビルドしたバージョン"
+msgstr ""
 
-#: templates/projects/onboard_detail.html:29
+#: templates/projects/onboard_detail.html:30
 msgid "Your documentation is ready to use"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:33
+#: templates/projects/onboard_detail.html:34
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "              Your documentation has been built.\n"
+#| "              Ensure your documentation is kept up to date with every "
+#| "commit to\n"
+#| "              your repository, by\n"
+#| "              <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
+#| "\">setting up a webhook</a>.\n"
+#| "            "
 msgid ""
+"Your documentation has been built. Ensure your documentation is kept up to "
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/en/latest/webhooks.html\">setting up a webhook</a>."
+msgstr ""
 "\n"
-"              Your documentation has been built.\n"
-"              Ensure your documentation is kept up to date with every commit "
-"to\n"
-"              your repository, by\n"
-"              <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">setting up a webhook</a>.\n"
-"            "
+"ドキュメントがビルドできました。\n"
+"<a href=\"http://docs.readthedocs.io/en/latest/webhooks.html\">webhook設定</"
+"a>からコミットする毎に最新のドキュメントになっていることを確認してください。"
+
+#: templates/projects/onboard_detail.html:42
+msgid "View your documentation"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:46
+#: templates/projects/onboard_detail.html:47
 msgid "Your documentation failed to build"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:50
+#: templates/projects/onboard_detail.html:51
 msgid ""
-"\n"
-"              There was a problem building your documentation,\n"
-"              you can see what went wrong in the build output.\n"
-"              If you need more help, check out some of the\n"
-"              <a href=\"http://docs.readthedocs.io/en/latest/faq.html"
-"\">problems frequently encountered</a>\n"
-"              during builds.\n"
-"            "
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a href="
+"\"http://docs.readthedocs.io/en/latest/faq.html\">problems frequently "
+"encountered</a> during builds."
 msgstr ""
 
-#: templates/projects/onboard_detail.html:63
+#: templates/projects/onboard_detail.html:60
+msgid "View build output"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:64
 msgid "Your documentation is building"
 msgstr ""
 
-#: templates/projects/onboard_detail.html:66
+#: templates/projects/onboard_detail.html:67
 msgid ""
-"\n"
-"          You'll be able to view your documentation in a minute or two,\n"
-"          once your project is done building.\n"
-"        "
+"You'll be able to view your documentation in a minute or two, once your "
+"project is done building."
+msgstr ""
+
+#: templates/projects/onboard_import.html:5
+msgid "Ready to share your documentation"
 msgstr ""
 
 #: templates/projects/onboard_import.html:10
 #, python-format
 msgid ""
-"\n"
-"          You don't have any projects yet, but you can start building "
-"documentation by importing one.\n"
-"          Not sure how to start documenting your project?\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started "
-"Guide</a> to learn how.\n"
-"        "
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(getting_started_url)s\">Getting Started Guide</a> to learn how."
 msgstr ""
 
-#: templates/projects/project_advanced.html:22
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
+"project</a>."
+msgstr ""
+
+#: templates/projects/onboard_import.html:24
+#: templates/projects/project_dashboard_base.html:53
+msgid "Import a Project"
+msgstr "プロジェクトを取り込む"
+
+#: templates/projects/project_advanced.html:7
 msgid "Edit Advanced Project Settings"
 msgstr "高度なプロジェクト設定を編集"
 
-#: templates/projects/project_advanced.html:27
+#: templates/projects/project_advanced.html:12
 #: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
 msgstr "高度な設定"
 
+#: templates/projects/project_advanced.html:18
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_detail.html:22
+#: templates/projects/project_versions.html:53
+msgid "Save"
+msgstr ""
+
 #: templates/projects/project_advertising.html:5
 #: templates/projects/project_advertising.html:12
-#, fuzzy
-#| msgid "Documentation type"
 msgid "Documentation Advertising"
-msgstr "ドキュメントの種類"
-
-#: templates/projects/project_advertising.html:16
-msgid ""
-"\n"
-"      Read the Docs is an open source project, maintained and operated by\n"
-"      full-time volunteers. In order to maintain service, we rely on both "
-"the\n"
-"      support of our users, and from sponsor support.\n"
-"    "
 msgstr ""
 
 #: templates/projects/project_advertising.html:24
 msgid ""
-"\n"
-"      We will periodically run advertisements on built documentation pages "
-"for\n"
-"      sponsors, however we have strict guidelines on advertisements:\n"
-"    "
+"We will periodically run advertisements on built documentation pages for "
+"sponsors, however we have strict guidelines on advertisements:"
 msgstr ""
 
 #: templates/projects/project_advertising.html:32
-msgid ""
-"\n"
-"        We don't give sponsors access to user information\n"
-"      "
+msgid "We don't give sponsors access to user information"
 msgstr ""
 
 #: templates/projects/project_advertising.html:37
-msgid ""
-"\n"
-"        We only report the number of impressions and number of ad clicks\n"
-"      "
+msgid "We only report the number of impressions and number of ad clicks"
 msgstr ""
 
 #: templates/projects/project_advertising.html:42
 msgid ""
-"\n"
-"        We only allow and image and text, no Javascript besides our "
-"existing\n"
-"        tracking\n"
-"      "
+"We only allow and image and text, no Javascript besides our existing tracking"
 msgstr ""
 
-#: templates/projects/project_advertising.html:50
-msgid ""
-"\n"
-"      For more information on our stance on sponsor advertisements, we "
-"wrote\n"
-"      more about our stance\n"
-"      <a href=\"https://blog.readthedocs.com/ads-on-read-the-docs/\">on our "
-"blog</a>.\n"
-"    "
-msgstr ""
-
-#: templates/projects/project_advertising.html:57
+#: templates/projects/project_advertising.html:58
 msgid "Opting out"
-msgstr ""
+msgstr "オプトアウト"
 
-#: templates/projects/project_advertising.html:60
+#: templates/projects/project_advertising.html:61
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you do not wish to support Read the Docs with use of this ad "
+#| "space,\n"
+#| "      we ask that you help support Read the Docs in one of following "
+#| "ways:\n"
+#| "    "
 msgid ""
+"If you do not wish to support Read the Docs with use of this ad space, we "
+"ask that you help support Read the Docs in one of following ways:"
+msgstr ""
 "\n"
-"      If you do not wish to support Read the Docs with use of this ad "
-"space,\n"
-"      we ask that you help support Read the Docs in one of following ways:\n"
+"この広告スペースを使ってRead the Docs を支援したくないときは、次のいずれかの"
+"手段での Read the Docs の支援をお願いしています。\n"
 "    "
-msgstr ""
 
-#: templates/projects/project_advertising.html:68
+#: templates/projects/project_advertising.html:69
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        If you have an open source project, and can contribute "
+#| "financially,\n"
+#| "        consider a gold subscription. Gold subscribers can disable ads "
+#| "for\n"
+#| "        projects they author.\n"
+#| "      "
 msgid ""
-"\n"
-"        If you have an open source project, and can contribute financially,\n"
-"        consider a gold subscription. Gold subscribers can disable ads for\n"
-"        projects they author.\n"
-"      "
+"If you have an open source project, and can contribute financially, consider "
+"a gold subscription. Gold subscribers can disable ads for projects they "
+"author."
 msgstr ""
+"\n"
+"オープンソースプロジェクトを運営していて経済的な支援ができる場合は、Gold "
+"Subscription を検討してみてください。Gold Subscription のメンバーなら、自分の"
+"プロジェクトの広告を非表示に設定できます。\n"
+"\n"
+"      "
 
-#: templates/projects/project_advertising.html:75
+#: templates/projects/project_advertising.html:76
 msgid "I can contribute financially"
-msgstr ""
+msgstr "わたしは経済的な支援ができます"
 
-#: templates/projects/project_advertising.html:80
+#: templates/projects/project_advertising.html:81
 msgid ""
-"\n"
-"        If your project is an open source project, you most certainly also\n"
-"        lack funding.  If you can't contribute financially to Read the "
-"Docs,\n"
-"        consider donating your time. We can always use help with support\n"
-"        requests, documentation updates, and of course feature development.\n"
-"      "
+"If your project is an open source project, you most certainly also lack "
+"funding.  If you can't contribute financially to Read the Docs, consider "
+"donating your time. We can always use help with support requests, "
+"documentation updates, and of course feature development."
 msgstr ""
 
-#: templates/projects/project_advertising.html:88
+#: templates/projects/project_advertising.html:89
 msgid "I can contribute my time"
-msgstr ""
+msgstr "わたしは自分の時間を使って協力できます"
 
-#: templates/projects/project_advertising.html:93
+#: templates/projects/project_advertising.html:94
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        If you are part of a company that uses Read the Docs to host\n"
+#| "        documentation for a commercial product, we offer paid plans that\n"
+#| "        offer email support, additional build resources, and features "
+#| "like\n"
+#| "        CDN support and private documentation.\n"
+#| "      "
 msgid ""
-"\n"
-"        If you are part of a company that uses Read the Docs to host\n"
-"        documentation for a commercial product, we offer paid plans that\n"
-"        offer email support, additional build resources, and features like\n"
-"        CDN support and private documentation.\n"
-"      "
+"If you are part of a company that uses Read the Docs to host documentation "
+"for a commercial product, we offer paid plans that offer email support, "
+"additional build resources, and features like CDN support and private "
+"documentation."
 msgstr ""
+"\n"
+"Read the Docs を使って商用の製品のドキュメントを公開したい会社には、有料プラ"
+"ンを提供しています。有料プランでは、メールサポート、追加のビルドリソース、"
+"CDN サポート、プライベートドキュメントなどのサービスが受けられます。"
 
-#: templates/projects/project_advertising.html:101
+#: templates/projects/project_advertising.html:102
 msgid "Learn more about a paid plan"
-msgstr ""
+msgstr "有料プランについて詳しく見る"
 
-#: templates/projects/project_advertising.html:106
+#: templates/projects/project_advertising.html:107
 msgid "Still can't help?"
-msgstr ""
+msgstr "それでもまだ支援できませんか？"
 
-#: templates/projects/project_advertising.html:109
+#: templates/projects/project_advertising.html:110
 msgid ""
-"\n"
-"      If you can't contribute your support for your open source project, "
-"but\n"
-"      are conflicted by allowing support through advertising, we still "
-"would\n"
-"      like to give you the option to disable showing promotions inside your\n"
-"      documentation. We might be in contact in the future to see if you "
-"would\n"
-"      reconsider offering your support.\n"
-"    "
+"If you can't contribute your support for your open source project, but are "
+"conflicted by allowing support through advertising, we still would like to "
+"give you the option to disable showing promotions inside your documentation. "
+"We might be in contact in the future to see if you would reconsider offering "
+"your support."
 msgstr ""
 
-#: templates/projects/project_advertising.html:119
+#: templates/projects/project_advertising.html:120
 msgid ""
-"\n"
-"      If you are a company hosting commercial documentation on our "
-"community\n"
-"      site, but can't offer support for Read the Docs, we do not allow\n"
-"      removing sponsor advertisements on your documentation. This goes\n"
-"      against the spirit of supporting the open source community, please "
-"find\n"
-"      a way to offer your support.\n"
-"    "
-msgstr ""
-
-#: templates/projects/project_advertising.html:132
-msgid "Update advertisement preference"
+"If you are a company hosting commercial documentation on our community site, "
+"but can't offer support for Read the Docs, we do not allow removing sponsor "
+"advertisements on your documentation. This goes against the spirit of "
+"supporting the open source community, please find a way to offer your "
+"support."
 msgstr ""
 
 #: templates/projects/project_analytics.html:47
-#, fuzzy
-#| msgid "Analytics code"
 msgid "Analytics"
-msgstr "Analyticsのコード"
+msgstr "Analytics"
 
 #: templates/projects/project_analytics.html:51
 msgid "This shows the last 7 days of data from your project."
-msgstr ""
+msgstr "あなたのプロジェクトの直近7日間のデータを表示します。"
 
 #: templates/projects/project_analytics.html:63
 msgid "Pages"
-msgstr ""
+msgstr "ページ"
 
-#: templates/projects/project_comments_settings.html:5
-#: templates/projects/project_comments_settings.html:12
-#, fuzzy
-#| msgid "Settings"
-msgid "Comments Settings"
-msgstr "設定"
-
-#: templates/projects/project_comments_settings.html:16
-msgid "Settings for comments and moderation."
-msgstr ""
-
-#: templates/projects/project_create.html:21
+#: templates/projects/project_create.html:6
 msgid "Create a new project"
 msgstr "新しいプロジェクトを作成"
 
-#: templates/projects/project_create.html:24
+#: templates/projects/project_create.html:9
 msgid "Create a New Project"
 msgstr "新しいプロジェクトを作成"
 
-#: templates/projects/project_create.html:29
+#: templates/projects/project_create.html:14
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
@@ -3209,7 +3012,7 @@ msgstr ""
 "もし公開リポジトリにすでにドキュメントがあるのなら、新しいドキュメントをここ"
 "に作成します。"
 
-#: templates/projects/project_create.html:30
+#: templates/projects/project_create.html:15
 msgid "import an existing project"
 msgstr "既存のプロジェクトをインポート"
 
@@ -3221,52 +3024,88 @@ msgstr "プロジェクトダッシュボード"
 msgid "Important Versions"
 msgstr "重要なバージョン"
 
-#: templates/projects/project_dashboard_base.html:72
-#, fuzzy
-#| msgid "No builds"
-msgid "No builds yet"
-msgstr "ビルドされていません"
-
 #: templates/projects/project_dashboard_base.html:77
-#, python-format
-msgid ""
-"\n"
-"                                1 build\n"
-"                              "
-msgid_plural ""
-"\n"
-"                                %(builds)s builds\n"
-"                              "
-msgstr[0] ""
+#, fuzzy, python-format
+#| msgid "No builds"
+msgid "1 build"
+msgid_plural "%(builds)s builds"
+msgstr[0] "ビルドされていません"
 
 #: templates/projects/project_dashboard_base.html:85
 msgid "passing"
-msgstr ""
+msgstr "成功"
 
 #: templates/projects/project_dashboard_base.html:87
 msgid "failing"
+msgstr "失敗"
+
+#: templates/projects/project_dashboard_base.html:134
+#: templates/projects/project_dashboard_base.html:143
+msgid "Connect your Accounts"
 msgstr ""
 
 #: templates/projects/project_dashboard_base.html:137
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            Have a GitHub account? Connect your account and import your "
+#| "existing projects automatically.\n"
+#| "          "
 msgid ""
+"Have a GitHub account? Connect your account and import your existing "
+"projects automatically."
+msgstr ""
 "\n"
-"            Have a GitHub account? Connect your account and import your "
-"existing projects automatically.\n"
-"          "
+"GitHubアカウントをお持ちですか? そのアカウントと接続し、既存のプロジェクトに"
+"自動的にimportできます。"
+
+#: templates/projects/project_dashboard_base.html:153
+msgid "Learn More"
 msgstr ""
 
-#: templates/projects/project_edit.html:22
+#: templates/projects/project_dashboard_base.html:155
+#, python-format
+msgid ""
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "%(name)s を削除しますか？"
+
+#: templates/projects/project_delete.html:9
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "本当ですか？"
+
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "完全に削除"
+
+#: templates/projects/project_edit.html:8
 msgid "Edit Project"
 msgstr "プロジェクトの編集"
 
-#: templates/projects/project_edit.html:39
-msgid "delete"
-msgstr "削除"
+#: templates/projects/project_edit.html:18
+#, python-format
+msgid ""
+"You can change how your project is built in your <a href=\"%(advanced_url)s"
+"\">Advanced Settings</a>."
+msgstr ""
 
-#: templates/projects/project_edit_base.html:21
-#: templates/projects/project_users.html:8
-msgid "Maintainers"
-msgstr "メンテナー"
+#: templates/projects/project_edit.html:23
+#, fuzzy
+#| msgid "or"
+msgctxt "The 'or' is in between 'Save' and 'Delete project'"
+msgid "or"
+msgstr "または"
+
+#: templates/projects/project_edit.html:24
+msgid "Delete project"
+msgstr "プロジェクトを削除する"
 
 #: templates/projects/project_edit_base.html:22
 #: templates/projects/project_redirects.html:8
@@ -3287,10 +3126,6 @@ msgstr "サブプロジェクト"
 msgid "Notifications"
 msgstr "通知"
 
-#: templates/projects/project_edit_base.html:27
-msgid "Advertising"
-msgstr ""
-
 #: templates/projects/project_embed.html:48
 msgid "Embed API"
 msgstr ""
@@ -3300,107 +3135,86 @@ msgid "Embed content into any site on the internet dynamically."
 msgstr ""
 
 #: templates/projects/project_embed.html:55
-#: templates/search/faceted_results.html:54
 msgid "File"
 msgstr "ファイル"
 
 #: templates/projects/project_embed.html:57
 msgid "Select a File"
-msgstr ""
+msgstr "ファイルを選択"
 
 #: templates/projects/project_embed.html:64
-#, fuzzy
-#| msgid "Description"
 msgid "Section"
-msgstr "説明"
+msgstr ""
 
 #: templates/projects/project_embed.html:72
 msgid "Show content"
 msgstr ""
 
 #: templates/projects/project_embed.html:74
-#, fuzzy
-#| msgid "Examples"
 msgid "Example Usage"
-msgstr "例"
+msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
 msgstr ""
 
-#: templates/projects/project_import.html:49
+#: templates/projects/project_import.html:50
 msgid "There was an error with your request:"
 msgstr ""
 
-#: templates/projects/project_import.html:62
+#: templates/projects/project_import.html:63
 msgid "Refresh your accounts"
 msgstr ""
 
-#: templates/projects/project_import.html:71
-#, fuzzy
-#| msgid "Repository"
+#: templates/projects/project_import.html:72
 msgid "Import a Repository"
-msgstr "リポジトリ"
+msgstr "リポジトリをimport"
 
-#: templates/projects/project_import.html:83
+#: templates/projects/project_import.html:84
 #, python-format
 msgid ""
 "No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
 "accounts</a>."
 msgstr ""
 
-#: templates/projects/project_import.html:90
+#: templates/projects/project_import.html:91
 msgid ""
 "You don't currently have any connected accounts. Connect your account to be "
 "able to easily set up projects."
 msgstr ""
 
-#: templates/projects/project_import.html:102
-msgid "Connect to GitHub"
-msgstr ""
-
-#: templates/projects/project_import.html:113
-msgid "Connect to Bitbucket"
-msgstr ""
-
-#: templates/projects/project_import.html:147
+#: templates/projects/project_import.html:130
 msgid "This repository requires admin access to import"
-msgstr ""
+msgstr "このリポジトリのimportには管理者権限が必要です"
 
-#: templates/projects/project_import.html:156
+#: templates/projects/project_import.html:139
 msgid "Locked"
-msgstr ""
+msgstr "ロック中"
 
-#: templates/projects/project_import.html:165
+#: templates/projects/project_import.html:148
 msgid "This repository has already been imported"
-msgstr ""
+msgstr "このリポジトリはすでにimportされています"
 
-#: templates/projects/project_import.html:166
-#, fuzzy
-#| msgid "View Docs"
+#: templates/projects/project_import.html:149
 msgctxt "verb, action to see in detail"
 msgid "\"View\""
-msgstr "開く"
+msgstr ""
 
-#: templates/projects/project_import.html:174
-msgid "Add"
-msgstr "追加"
-
-#: templates/projects/project_import.html:218
+#: templates/projects/project_import.html:201
 msgid ""
 "You can import your project manually if it isn't listed here or connected to "
 "one of your accounts."
 msgstr ""
+"もしこの一覧にない、あるいは別のアカウントと接続されている場合、手動でimport"
+"できます。"
 
-#: templates/projects/project_import.html:225
+#: templates/projects/project_import.html:208
 msgid "Import Manually"
-msgstr ""
+msgstr "手動import"
 
-#: templates/projects/project_import.html:232
-#, fuzzy
-#| msgid "Organization"
-msgid "Filter by Organization"
-msgstr "組織"
+#: templates/projects/project_import.html:215
+msgid "Filter repositories"
+msgstr ""
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -3466,25 +3280,33 @@ msgstr ""
 
 #: templates/projects/project_resync_webhook.html:12
 msgid "Resync"
-msgstr ""
+msgstr "再同期"
 
 #: templates/projects/project_translations.html:5
 msgid "Edit Translations"
 msgstr "翻訳を編集"
 
 #: templates/projects/project_translations.html:16
-msgid ""
-"This allows you to add translations to your project. Select the project "
-"below that is a translation of your current project."
+msgid "To add a translation to your project, select a project below."
 msgstr ""
-"ここではあなたのプロジェクトの翻訳を追加できます。現在のプロジェクトにある翻"
-"訳を選んでください。"
 
-#: templates/projects/project_translations.html:19
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
+msgstr ""
+
+#: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr ""
+
+#: templates/projects/project_translations.html:37
 msgid "Existing Translations"
 msgstr "今ある翻訳"
 
-#: templates/projects/project_translations.html:31
+#: templates/projects/project_translations.html:49
 msgid "Choose which project you would like to add as a translation."
 msgstr "翻訳を追加するプロジェクトを選んでください。"
 
@@ -3521,24 +3343,19 @@ msgstr "追加したいユーザーを選んでください"
 msgid "%(version_name)s"
 msgstr "%(version_name)s"
 
-#: templates/projects/project_version_list.html:24
-#, fuzzy
-#| msgid "Choose Active Versions"
-msgid "Active Versions"
-msgstr "有効にするバージョンを選択"
-
-#: templates/projects/project_version_list.html:45
-#: templates/projects/project_version_list.html:98
-msgid "Wipe"
+#: templates/projects/project_version_detail.html:24
+msgid "wipe "
 msgstr ""
 
-#: templates/projects/project_version_list.html:72
-#, fuzzy
-#| msgid "Choose Active Versions"
-msgid "Inactive Versions"
-msgstr "有効にするバージョンを選択"
+#: templates/projects/project_version_list.html:26
+msgid "Active Versions"
+msgstr "有効なバージョン"
 
-#: templates/projects/project_version_list.html:96
+#: templates/projects/project_version_list.html:81
+msgid "Inactive Versions"
+msgstr "無効なバージョン"
+
+#: templates/projects/project_version_list.html:108
 msgid "Clean"
 msgstr ""
 
@@ -3559,23 +3376,17 @@ msgid "Active versions below will show up on the site."
 msgstr "有効にしたバージョンがサイト上に表示されます。"
 
 #: templates/projects/projectrelationship_form.html:22
-#, fuzzy
-#| msgid "Edit Subprojects"
 msgid "Update subproject"
-msgstr "サブプロジェクトを編集"
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:29
-#, fuzzy
-#| msgid "Related projects"
 msgid "Delete subproject"
-msgstr "関連するプロジェクト"
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:38
 #: templates/projects/projectrelationship_list.html:41
-#, fuzzy
-#| msgid "Edit Project"
 msgid "Add subproject"
-msgstr "プロジェクトの編集"
+msgstr ""
 
 #: templates/projects/projectrelationship_list.html:16
 msgid ""
@@ -3591,18 +3402,11 @@ msgid ""
 msgstr ""
 
 #: templates/projects/projectrelationship_list.html:31
-#, fuzzy, python-format
-#| msgid "Search %(project)s"
+#, python-format
 msgid "View subprojects of %(project)s"
-msgstr "%(project)s の検索"
+msgstr ""
 
-#: templates/projects/projectrelationship_list.html:60
-#, fuzzy
-#| msgid "The project's homepage"
-msgid "Project page"
-msgstr "プロジェクトのホームページ"
-
-#: templates/projects/projectrelationship_list.html:70
+#: templates/projects/projectrelationship_list.html:79
 msgid "No subprojects are currently configured"
 msgstr ""
 
@@ -3648,87 +3452,42 @@ msgstr ""
 msgid "Upload"
 msgstr "アップロード"
 
-#: templates/search/base_facet.html:5 templates/search/search.html:5
-#, python-format
-msgid "Search: %(query)s"
-msgstr "検索: %(query)s"
-
-#. Translators: This is about starting a search
-#: templates/search/base_facet.html:27
-#: templates/search/elastic_project_search.html:70
-#: templates/search/elastic_search.html:123 templates/search/search.html:17
-msgid "Go crazy."
-msgstr "Go crazy。"
-
-#: templates/search/base_search.html:9 templates/search/faceted_results.html:49
-msgid "Project:"
-msgstr "プロジェクト:"
-
-#: templates/search/base_search.html:14
-msgid "File:"
-msgstr "ファイル:"
-
-#: templates/search/base_search.html:24
-#: templates/search/elastic_project_search.html:101
-#: templates/search/elastic_search.html:174
-#: templates/search/faceted_results.html:63
-msgid "No results found. Bummer."
-msgstr "なにも見つかりませんでした。まいったよ。"
-
 #: templates/search/elastic_project_search.html:5
 #: templates/search/elastic_search.html:5
 #, python-format
 msgid "Search: %(query)s "
 msgstr "検索: %(query)s"
 
-#: templates/search/elastic_project_search.html:84
-#: templates/search/elastic_search.html:137 templates/search/search.html:31
+#: templates/search/elastic_project_search.html:40
+#: templates/search/elastic_search.html:137
 #, python-format
 msgid "Results for %(query)s"
 msgstr "%(query)s の結果"
 
-#: templates/search/faceted_author.html:8
-msgid "By Author"
-msgstr "著者で"
+#: templates/search/elastic_project_search.html:57
+#: templates/search/elastic_search.html:174
+msgid "No results found. Bummer."
+msgstr "なにも見つかりませんでした。まいったよ。"
 
-#: templates/search/faceted_author.html:13
-msgid "Author"
-msgstr "著者"
+#: templates/security.html:5
+msgid "Security"
+msgstr ""
 
-#: templates/search/faceted_author.html:21
-msgid "No author facets."
-msgstr "著者での絞り込みはありません"
+#: templates/security.html:9
+msgid "Security at Read the Docs"
+msgstr ""
 
-#: templates/search/faceted_results.html:7
-#, python-format
-msgid "%(count)s Results for %(query)s"
-msgstr "%(query)s の結果 %(count)s 件"
-
-#: templates/search/faceted_results.html:7
-msgid "No search term entered"
-msgstr "検索ワードが入力されていません"
-
-#. Translators: The refers to filtering a search by using facets
-#: templates/search/faceted_results.html:15
-msgid "Filtered by"
-msgstr "絞り込み"
-
-#: templates/search/faceted_results.html:18
-msgid "remove"
-msgstr "検索条件から外す"
-
-#: templates/search/faceted_results.html:21
-msgid "Filter by Project"
-msgstr "プロジェクトで絞り込む"
-
-#: templates/search/faceted_results.html:32
-msgid "No project facets."
-msgstr "該当するプロジェクトはありません。"
+#: templates/security.html:11
+msgid ""
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/en/latest/security.html"
+"\">security policy</a>."
+msgstr ""
 
 #: templates/socialaccount/authentication_error.html:5
 #: templates/socialaccount/authentication_error.html:8
 msgid "Social Network Login Failure"
-msgstr ""
+msgstr "ソーシャルログインに失敗しました"
 
 #: templates/socialaccount/authentication_error.html:10
 msgid ""
@@ -3736,22 +3495,17 @@ msgid ""
 msgstr ""
 
 #: templates/socialaccount/connections.html:16
-msgid ""
-"\n"
-"          The following services are currently connected to your account:\n"
-"        "
+msgid "The following services are currently connected to your account:"
 msgstr ""
 
 #: templates/socialaccount/connections.html:43
 msgid "Disconnect"
-msgstr ""
+msgstr "切断"
 
 #: templates/socialaccount/connections.html:50
 msgid ""
-"\n"
-"                        The API version this connection uses is no longer\n"
-"                        supported, please reconnect your Bitbucket account.\n"
-"                      "
+"The API version this connection uses is no longer supported, please "
+"reconnect your Bitbucket account."
 msgstr ""
 
 #: templates/socialaccount/connections.html:66
@@ -3760,409 +3514,47 @@ msgid ""
 msgstr "ソーシャル連携はありません。"
 
 #: templates/socialaccount/snippets/provider_list.html:14
-#, python-format
-msgid ""
-"\n"
-"             Connect to %(brand_name)s\n"
-"           "
-msgstr ""
+#, fuzzy, python-format
+#| msgid "%(version_name)s"
+msgid "%(verbiage)s %(brand_name)s"
+msgstr "%(version_name)s"
 
 #: templates/socialaccount/snippets/provider_list.html:27
+#, fuzzy, python-format
+#| msgid "%(version_name)s"
+msgid "%(verbiage)s %(provider_name)s"
+msgstr "%(version_name)s"
+
+#: templates/wipe_version.html:16
 #, python-format
-msgid ""
-"\n"
-"           Connect to %(provider_name)s\n"
-"         "
+msgid "Remove build environment for <em>%(slug)s</em> version."
 msgstr ""
 
-#~ msgid "Any"
-#~ msgstr "すべて"
-
-#~ msgid "Build Date"
-#~ msgstr "ビルド時刻"
-
-#~ msgid "Build Type"
-#~ msgstr "ビルド種類"
-
+#: templates/wipe_version.html:23
 #, fuzzy
-#~| msgid "Description"
-#~ msgid "Cancel subscription"
-#~ msgstr "説明"
+#| msgid "Your demo project is currently being imported"
+msgid "Your project environment has been wiped."
+msgstr "デモプロジェクトをimport中です"
 
-#~ msgid "Created Date"
-#~ msgstr "作成日付"
+#: templates/wipe_version.html:28
+msgid ""
+"Having trouble getting your documentation build to complete?  By clicking on "
+"the button below you'll clean out your build checkouts and environment, but "
+"not your generated documentation."
+msgstr ""
 
-#~ msgid "Repository Type"
-#~ msgstr "リポジトリの種類"
+#: templates/wipe_version.html:33
+msgid "Wipe"
+msgstr ""
 
-#, fuzzy
-#~| msgid "Prefix Redirect"
-#~ msgid "Prefix Redirect: %s ->"
-#~ msgstr "プレフィックス  リダイレクト"
-
-#, fuzzy
-#~| msgid "Redirect: %s -> %s"
-#~ msgid "Page Redirect: %s -> %s"
-#~ msgstr "リダイレクト: %s -> %s"
-
-#, fuzzy
-#~| msgid " %(slug)s "
-#~ msgid " %(slug)s"
-#~ msgstr " %(slug)s "
-
-#~ msgid "Filtered Results"
-#~ msgstr "検索結果"
-
-#, fuzzy
-#~| msgid "No builds"
-#~ msgid "1 build"
-#~ msgstr "ビルドされていません"
-
-#, fuzzy
-#~| msgid "Builds"
-#~ msgid "builds"
-#~ msgstr "ビルド"
-
-#~ msgid ""
-#~ "This allows you to add subprojects to your project. This allows them to "
-#~ "live in the same namespace in the URLConf for a subdomain or CNAME."
+#~ msgid "Webhook activation failed. Make sure you have permissions to set it."
 #~ msgstr ""
-#~ "ここではあなたのプロジェクトにサブプロジェクトを追加できます。これにより、"
-#~ "URLConf中の同じ名前空間でサブドメインやCNAMEを設定できます。"
-
-#~ msgid "Existing Subprojects"
-#~ msgstr "今あるサブプロジェクト"
-
-#~ msgid "Choose which project you would like to add as a subproject."
-#~ msgstr "サブプロジェクトとして追加するプロジェクトを選んでください"
-
-#~ msgid "Please enter a valid URL on %s"
-#~ msgstr "正しいURLを %s に入力してください"
-
-#~ msgid "Login"
-#~ msgstr "ログイン"
-
-#~ msgid "Mkdocs"
-#~ msgstr "Mkdocs"
-
-#~ msgid "A project with that name exists already!"
-#~ msgstr "同じ名前のプロジェクトがすでにあります!"
+#~ "Webhookの有効化に失敗しました。権限が設定されているかどうか確認してくださ"
+#~ "い。"
 
 #~ msgid ""
-#~ "URL for your code (hg or git). Ex. http://github.com/ericholscher/django-"
-#~ "kong.git"
+#~ "No accounts available to set webhook on. Please connect your {network} "
+#~ "account."
 #~ msgstr ""
-#~ "あなたのコード(hgかgit)のURL。 例: http://github.com/ericholscher/django-"
-#~ "kong.git"
-
-#~ msgid ""
-#~ "Checkout URL for your code (hg, git, etc.). Ex. http://github.com/"
-#~ "ericholscher/django-kong.git"
-#~ msgstr ""
-#~ "あなたのコード (hgやgitなど) のチェックアウトURL 例: http://github.com/"
-#~ "ericholscher/django-kong.git"
-
-#~ msgid "Project URL"
-#~ msgstr "プロジェクトURL"
-
-#~ msgid ""
-#~ "The official URL that the docs live at. This can be slug.readthedocs.org, "
-#~ "or somewhere else. Ex. http://docs.fabfile.org"
-#~ msgstr ""
-#~ "ドキュメントが置かれる公式なURLです。 slug.readthedocs.org などが使えま"
-#~ "す。 例: http://docs.fabfile.org"
-
-#~ msgid "Use virtualenv"
-#~ msgstr "virtualenvを使う"
-
-#~ msgid "Redirect: %s ->"
-#~ msgstr "リダイレクト: %s ->"
-
-#~ msgid ""
-#~ "Your docs are currently being built.  It may take a moment for them to "
-#~ "appear."
-#~ msgstr "ドキュメントはビルド中です。表示されるまでしばらくお待ち下さい。"
-
-#~ msgid "Read the Docs thanks you for your continued patience."
-#~ msgstr "Read the Docsは辛抱強いあなたに感謝します。"
-
-#~ msgid ""
-#~ "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for "
-#~ "the 2010 %(djangodash)s."
-#~ msgstr ""
-#~ "Copyright 2010-2013. Created by %(eric)s, %(charles)s, and %(bobby)s for "
-#~ "the 2010 %(djangodash)s."
-
-#~ msgid ""
-#~ "Read the Docs is funded through donations from our users. You can donate "
-#~ "money a couple of ways:"
-#~ msgstr ""
-#~ "Read the Docsはユーザの寄付によって成り立っています。寄付するには以下の方"
-#~ "法があります:"
-
-#~ msgid ""
-#~ "\n"
-#~ "You can read more about the ongoing efforts to improve the documentation "
-#~ "ecosystem here:\n"
-#~ msgstr ""
-#~ "\n"
-#~ "ドキュメントのエコシステムを改善していくための方法を紹介しています:\n"
-#~ "\n"
-
-#~ msgid "Go"
-#~ msgstr "検索"
-
-#~ msgid ""
-#~ "It's free and simple.  Read the <a href=\"%(getting_started_url)s"
-#~ "\">Getting Started</a> guide to get going!"
-#~ msgstr ""
-#~ "無料で簡単です。<a href=\"%(getting_started_url)s\">「はじめに」</a>からは"
-#~ "じめましょう！"
-
-#~ msgid "Recent Bookmarks"
-#~ msgstr "最近のブックマーク"
-
-#~ msgid "Build for %(project_name)s"
-#~ msgstr "%(project_name)s のビルド"
-
-#~ msgid "Built: %(build_date)s"
-#~ msgstr "ビルド: %(build_date)s"
-
-#~ msgid "State:"
-#~ msgstr "状態"
-
-#~ msgid "Outcome:"
-#~ msgstr "結果:"
-
-#~ msgid "Not yet finished"
-#~ msgstr "まだ完了していません"
-
-#~ msgid "Version:"
-#~ msgstr "バージョン:"
-
-#~ msgid "Type:"
-#~ msgstr "種類:"
-
-#~ msgid "Dashboard"
-#~ msgstr "ダッシュボード"
-
-#~ msgid "Build failed (<a href=\"%(url)s\">why</a>)"
-#~ msgstr "ビルド失敗 (<a href=\"%(url)s\">理由</a>)"
-
-#~ msgid "Is the repo correct?"
-#~ msgstr "リポジトリは正しいですか？"
-
-#~ msgid " %(slug)s (Build Failed)"
-#~ msgstr " %(slug)s (ビルド失敗)"
-
-#~ msgid "Open Comparison"
-#~ msgstr "比較対象を開く"
-
-#~ msgid ""
-#~ "This project has more information available about it on <a href=\"%(url)s"
-#~ "\">Open Comparison!</a>"
-#~ msgstr ""
-#~ "このプロジェクトに関してもっと見たい場合は<a href=\"%(url)s\">比較対象を開"
-#~ "い</a>ください。"
-
-#~ msgid "Post Commit Hook"
-#~ msgstr "コミット後フック(post-commit hook)"
-
-#~ msgid "Most viewed pages for this project"
-#~ msgstr "このプロジェクトで最も見られているページ"
-
-#~ msgid ""
-#~ "\n"
-#~ "        %(version)s HTMLZip\n"
-#~ "      "
-#~ msgstr ""
-#~ "\n"
-#~ "        %(version)s HTMLZip\n"
-#~ "      "
-
-#~ msgid "Import"
-#~ msgstr "インポート"
-
-#~ msgid "GitHub"
-#~ msgstr "GitHub"
-
-#~ msgid "Create Profile"
-#~ msgstr "プロファイルの作成"
-
-#~ msgid "Social Accounts"
-#~ msgstr "ソーシャル連携"
-
-#~ msgid "Choose a redirect for \"%(djangome_term)s\""
-#~ msgstr "\"%(djangome_term)s\" に対するリダイレクトを選択"
-
-#~ msgid ""
-#~ "Choose a redirect for <kbd>%(djangome_term)s on <a href=\"http://%(slug)s."
-#~ "readthedocs.org\">%(slug)s.readthedocs.org</a></kbd>"
-#~ msgstr ""
-#~ "<kbd><a href=\"http://%(slug)s.readthedocs.org\">%(slug)s.readthedocs."
-#~ "org</a>の%(djangome_term)sへの</kbd>リダイレクトを選んでください。"
-
-#~ msgid "Save &amp; go &rarr;"
-#~ msgstr "保存 して移動 &rarr;"
-
-#~ msgid "One-offs"
-#~ msgstr "一度だけの"
-
-#~ msgid "Term"
-#~ msgstr "言葉"
-
-#~ msgid "Target"
-#~ msgstr "ターゲット"
-
-#~ msgid "kill"
-#~ msgstr "キル"
-
-#~ msgid "add"
-#~ msgstr "追加"
-
-#~ msgid "Statistics for %(term)s"
-#~ msgstr "%(term)s の統計"
-
-#~ msgid "Statistics for <kbd>%(term)s</kbd>:"
-#~ msgstr "<kbd>%(term)s</kbd> の統計:"
-
-#~ msgid "Add Your Name"
-#~ msgstr "名前を追加"
-
-#~ msgid "Add a Homepage"
-#~ msgstr "ホームページを追加"
-
-#~ msgid "Press enter to save your changes, or escape to discard them"
-#~ msgstr ""
-#~ "変更を保存するにはEnterキーを、保存しないならばescキーを押してください。"
-
-#~ msgid "User profiles"
-#~ msgstr "ユーザープロファイル"
-
-#~ msgid ""
-#~ "\n"
-#~ "              Check out the <a href=\"%(url)s\">documentation for Read "
-#~ "the Docs</a>. It contains lots of information about how to get the most "
-#~ "out of RTD.\n"
-#~ "              "
-#~ msgstr ""
-#~ "\n"
-#~ "              <a href=\"%(url)s\">Read the Docsのドキュメント</a>を見て下"
-#~ "さい。そこには、RTDが発行する多くの情報があります。\n"
-#~ "              "
-
-#~ msgid ""
-#~ "\n"
-#~ "          You don't have any projects. You can <a href="
-#~ "\"%(projects_import_url)s\">create new docs</a> on the site.\n"
-#~ "          <br>\n"
-#~ "          If you have a GitHub account, you can <a href="
-#~ "\"%(social_accounts)s\">connect it</a> and import projects from there.\n"
-#~ "          <br>\n"
-#~ "          Check out the <a href=\"%(getting_started_url)s\">Getting "
-#~ "Started</a> documentation for information about how to get going.\n"
-#~ "          </p> \n"
-#~ "          "
-#~ msgstr ""
-#~ "\n"
-#~ "          プロジェクトがありません。このサイトの <a href="
-#~ "\"%(projects_import_url)s\">新しいドキュメントを作成する</a> で作成できま"
-#~ "す。\n"
-#~ "          <br>\n"
-#~ "          GitHubアカウントをお持ちでしたら、GitHubと <a href="
-#~ "\"%(social_accounts)s\">接続し</a> インポートできます。\n"
-#~ "          <br>\n"
-#~ "          最初は <a href=\"%(getting_started_url)s\">「はじめに」</a>を読"
-#~ "むと分かりやすいです。\n"
-#~ "          </p> \n"
-#~ "          "
-
-#~ msgid "Import an existing project"
-#~ msgstr "既存のプロジェクトをインポート"
-
-#~ msgid ""
-#~ "You can change how your project is built in your <em>Advanced Settings</"
-#~ "em> once your project has been created."
-#~ msgstr ""
-#~ "プロジェクトを作成すると、 <em>Advanced Settings</em> でプロジェクトの設定"
-#~ "を変更できるようになります。"
-
-#~ msgid "Import a GitHub project"
-#~ msgstr "GitHubプロジェクトからインポート"
-
-#~ msgid ""
-#~ "Showing your GitHub projects. <a href=\"%(sync_github_url)s\">Sync your "
-#~ "GitHub projects</a> to update them."
-#~ msgstr ""
-#~ "GitHubプロジェクトを表示しています。 <a href=\"%(sync_github_url)s"
-#~ "\">GitHub プロジェクトと同期</a> により、更新されます。"
-
-#~ msgid "GitHub projects are now up to date."
-#~ msgstr "GitHubプロジェクトが更新されています。"
-
-#~ msgid ""
-#~ "You don't have any GitHub repositories connected. \n"
-#~ "  Go to your <a href=\"%(social_url)s\">Social Accounts</a> to set one "
-#~ "up.\n"
-#~ "  "
-#~ msgstr ""
-#~ "GitHubリポジトリと連携していないようです。 <a href=\"%(social_url)s"
-#~ "\">Social Accounts</a> に行き、設定して下さい。\n"
-#~ "  "
-
-#~ msgid "Existing Redirects"
-#~ msgstr "既存のリダイレクト"
-
-#~ msgid "Remove Redirect"
-#~ msgstr "リダイレクトを削除"
-
-#~ msgid "Add Redirect"
-#~ msgstr "リダイレクトを追加"
-
-#~ msgid ""
-#~ "Add new redirects. These will only happen on <b>404 Page Not Found</b> "
-#~ "requests."
-#~ msgstr ""
-#~ "新しいリダイレクトを追加します。これは <b>404 Page Not Found</b> が起きた"
-#~ "時にのみ呼ばれます。"
-
-#~ msgid ""
-#~ "This is mainly used to support migration from old doc systems. If you "
-#~ "used to serve your docs at <b>/docs/</b>, you will do:"
-#~ msgstr ""
-#~ "これは、古いドキュメントシステムからの移行をサポートするために使われます。"
-#~ "もし、 <b>/docs/<b>であなたのドキュメントを提供したい場合は、次のようにし"
-#~ "て下さい:"
-
-#~ msgid "You can also redirect a specific page, like so:"
-#~ msgstr "次のように、特定のページにリダイレクトさせることも出来ます:"
-
-#~ msgid "Account Connections"
-#~ msgstr "アカウント接続"
-
-#~ msgid ""
-#~ "You can sign in to your account using any of the following third party "
-#~ "accounts:"
-#~ msgstr "3rdパーティのアカウントでログインできます。"
-
-#~ msgid "Add a 3rd Party Account"
-#~ msgstr "3rdパーティアカウントを追加"
-
-#~ msgid "About these documents"
-#~ msgstr "これらのドキュメントについて"
-
-#~ msgid "Index"
-#~ msgstr "索引"
-
-#~ msgid "Navigation"
-#~ msgstr "ナビゲーション"
-
-#~ msgid "Search Results"
-#~ msgstr "検索結果"
-
-#~ msgid ""
-#~ "Your search did not match any documents. Please make sure that all words "
-#~ "are spelled correctly and that you've selected enough categories."
-#~ msgstr ""
-#~ "検索はどのドキュメントにも一致しませんでした。文字が正確に入力されている"
-#~ "か、十分なカテゴリーを選択しているか確認して下さい。"
+#~ "Webhookを設定するアカウントがありません。あなたの{ネットワーク}アカウント"
+#~ "と接続してください。"

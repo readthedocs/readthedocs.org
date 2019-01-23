@@ -44,7 +44,7 @@ Tags and branches
 -----------------
 
 Read the Docs supports two workflows for versioning: based on tags or branches.
-If you have at least one active tag,
+If you have at least one tag,
 tags will take preference over branches when selecting the stable version.
 
 Redirects on root URLs
@@ -55,3 +55,12 @@ for example ``http://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
+
+Version warning
+---------------
+
+This is a banner that appears on the top of every page of your docs that aren't stable or latest.
+This banner has a text with a link redirecting the users to the latest version of your docs.
+
+This feature is disabled by default on new projects,
+you can enable it in the admin section of your docs (Advanced Settings).

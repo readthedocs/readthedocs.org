@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """
 Doc serving from Python.
 
@@ -25,18 +26,15 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 import mimetypes
 import os
 from functools import wraps
 
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -45,6 +43,7 @@ from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ProjectRelationship
+
 
 log = logging.getLogger(__name__)
 
@@ -57,8 +56,11 @@ def map_subproject_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, subproject=None, subproject_slug=None, *args, **kwargs):  # noqa
+    def inner_view(  # noqa
+            request, subproject=None, subproject_slug=None, *args, **kwargs
+    ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
@@ -70,7 +72,7 @@ def map_subproject_slug(view_func):
                 )
                 subproject = rel.child
             except (ProjectRelationship.DoesNotExist, KeyError):
-                get_object_or_404(Project, slug=subproject_slug)
+                subproject = get_object_or_404(Project, slug=subproject_slug)
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view
@@ -84,8 +86,11 @@ def map_project_slug(view_func):
 
     .. warning:: Does not take into account any kind of privacy settings.
     """
+
     @wraps(view_func)
-    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
+    def inner_view(  # noqa
+            request, project=None, project_slug=None, *args, **kwargs
+    ):
         if project is None:
             if not project_slug:
                 project_slug = request.slug
@@ -110,13 +115,14 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
     return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename))
+        resolve(subproject or project, filename=filename),
+    )
 
 
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.debug('Unauthorized access to {0} documentation'.format(project.slug))
+    log.debug('Unauthorized access to {} documentation'.format(project.slug))
     return res
 
 
@@ -125,38 +131,52 @@ def _serve_file(request, filename, basepath):
     if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
         # Serve from Python
         return serve(request, filename, basepath)
-    else:
-        # Serve from Nginx
-        content_type, encoding = mimetypes.guess_type(
-            os.path.join(basepath, filename))
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response['Content-Encoding'] = encoding
-        try:
-            response['X-Accel-Redirect'] = os.path.join(
-                basepath[len(settings.SITE_ROOT):],
-                filename,
-            )
-        except UnicodeEncodeError:
-            raise Http404
 
-        return response
+    # Serve from Nginx
+    content_type, encoding = mimetypes.guess_type(
+        os.path.join(basepath, filename),
+    )
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(content_type=content_type)
+    if encoding:
+        response['Content-Encoding'] = encoding
+    try:
+        iri_path = os.path.join(
+            basepath[len(settings.SITE_ROOT):],
+            filename,
+        )
+        # NGINX does not support non-ASCII characters in the header, so we
+        # convert the IRI path to URI so it's compatible with what NGINX expects
+        # as the header value.
+        # https://github.com/benoitc/gunicorn/issues/1448
+        # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
+        x_accel_redirect = iri_to_uri(iri_path)
+        response['X-Accel-Redirect'] = x_accel_redirect
+    except UnicodeEncodeError:
+        raise Http404
+
+    return response
 
 
 @map_project_slug
 @map_subproject_slug
 def serve_docs(
-        request, project, subproject, lang_slug=None, version_slug=None,
-        filename=''):
-    """Exists to map existing proj, lang, version, filename views to the file format."""
+        request,
+        project,
+        subproject,
+        lang_slug=None,
+        version_slug=None,
+        filename='',
+):
+    """Map existing proj, lang, version, filename views to the file format."""
     if not version_slug:
         version_slug = project.get_default_version()
     try:
         version = project.versions.public(request.user).get(slug=version_slug)
     except Version.DoesNotExist:
-        # Properly raise a 404 if the version doesn't exist & a 401 if it does
-        if project.versions.filter(slug=version_slug).exists():
+        # Properly raise a 404 if the version doesn't exist (or is inactive) and
+        # a 401 if it does
+        if project.versions.filter(slug=version_slug, active=True).exists():
             return _serve_401(request, project)
         raise Http404('Version does not exist.')
     filename = resolve_path(
@@ -199,8 +219,8 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
-        else:
-            files_tried.append(os.path.join(basepath, filename))
+
+        files_tried.append(os.path.join(basepath, filename))
 
     if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
@@ -209,8 +229,55 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
-        else:
-            files_tried.append(os.path.join(basepath, filename))
+
+        files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried))
+        'File not found. Tried these files: %s' % ','.join(files_tried),
+    )
+
+
+@map_project_slug
+def robots_txt(request, project):
+    """
+    Serve custom user's defined ``/robots.txt``.
+
+    If the user added a ``robots.txt`` in the "default version" of the project,
+    we serve it directly.
+    """
+    # Use the ``robots.txt`` file from the default version configured
+    version_slug = project.get_default_version()
+    version = project.versions.get(slug=version_slug)
+
+    no_serve_robots_txt = any([
+        # If project is private or,
+        project.privacy_level == constants.PRIVATE,
+        # default version is private or,
+        version.privacy_level == constants.PRIVATE,
+        # default version is not active or,
+        not version.active,
+        # default version is not built
+        not version.built,
+    ])
+    if no_serve_robots_txt:
+        # ... we do return a 404
+        raise Http404()
+
+    filename = resolve_path(
+        project,
+        version_slug=version_slug,
+        filename='robots.txt',
+        subdomain=True,  # subdomain will make it a "full" path without a URL prefix
+    )
+
+    # This breaks path joining, by ignoring the root when given an "absolute" path
+    if filename[0] == '/':
+        filename = filename[1:]
+
+    basepath = PublicSymlink(project).project_root
+    fullpath = os.path.join(basepath, filename)
+
+    if os.path.exists(fullpath):
+        return HttpResponse(open(fullpath).read(), content_type='text/plain')
+
+    return HttpResponse('User-agent: *\nAllow: /\n', content_type='text/plain')

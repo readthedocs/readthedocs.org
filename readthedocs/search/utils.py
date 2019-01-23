@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
+
 """Utilities related to reading and generating indexable search content."""
 
-from __future__ import absolute_import
-
-import os
-import fnmatch
-import re
 import codecs
-import logging
+import fnmatch
 import json
+import logging
+import os
+import re
 
-from builtins import next, range
 from pyquery import PyQuery
 
 
@@ -23,7 +21,10 @@ def process_mkdocs_json(version, build_dir=True):
         full_path = version.project.full_json_path(version.slug)
     else:
         full_path = version.project.get_production_media_path(
-            type_='json', version_slug=version.slug, include_file=False)
+            type_='json',
+            version_slug=version.slug,
+            include_file=False,
+        )
 
     html_files = []
     for root, _, files in os.walk(full_path):
@@ -35,8 +36,14 @@ def process_mkdocs_json(version, build_dir=True):
             continue
         relative_path = parse_path_from_file(file_path=filename)
         html = parse_content_from_file(file_path=filename)
-        headers = parse_headers_from_file(documentation_type='mkdocs', file_path=filename)
-        sections = parse_sections_from_file(documentation_type='mkdocs', file_path=filename)
+        headers = parse_headers_from_file(
+            documentation_type='mkdocs',
+            file_path=filename,
+        )
+        sections = parse_sections_from_file(
+            documentation_type='mkdocs',
+            file_path=filename,
+        )
         try:
             title = sections[0]['title']
         except IndexError:
@@ -61,14 +68,23 @@ def valid_mkdocs_json(file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-    except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+    except IOError:
+        log.warning(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return None
 
+    # TODO: wrap this in a try/except block and use ``exc_info=True`` in the
+    # ``log.warning`` call
     page_json = json.loads(content)
     for to_check in ['url', 'content']:
         if to_check not in page_json:
-            log.warning('(Search Index) Unable to index file: %s error: Invalid JSON', file_path)
+            log.warning(
+                '(Search Index) Unable to index file: %s error: Invalid JSON',
+                file_path,
+            )
             return None
 
     return True
@@ -79,10 +95,15 @@ def parse_path_from_file(file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-    except IOError as e:
-        log.warning('(Search Index) Unable to index file: %s, error: %s', file_path, e)
+    except IOError:
+        log.warning(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     path = page_json['url']
 
@@ -92,7 +113,7 @@ def parse_path_from_file(file_path):
     #   "path/index.html" => "path/index"
     #   "/path/index" => "path/index"
     path = re.sub('/$', '/index', path)
-    path = re.sub('\.html$', '', path)
+    path = re.sub(r'\.html$', '', path)
     path = re.sub('^/', '', path)
 
     return path
@@ -103,16 +124,24 @@ def parse_content_from_file(file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-    except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
+    except IOError:
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     content = parse_content(page_content)
 
     if not content:
-        log.info('(Search Index) Unable to index file: %s, empty file', file_path)
+        log.info(
+            '(Search Index) Unable to index file: %s, empty file',
+            file_path,
+        )
     else:
         log.debug('(Search Index) %s length: %s', file_path, len(content))
     return content
@@ -136,11 +165,15 @@ def parse_headers_from_file(documentation_type, file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-    except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s',
-                 file_path, e)
+    except IOError:
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     headers = parse_headers(documentation_type, page_content)
@@ -163,10 +196,15 @@ def parse_sections_from_file(documentation_type, file_path):
     try:
         with codecs.open(file_path, encoding='utf-8', mode='r') as f:
             content = f.read()
-    except IOError as e:
-        log.info('(Search Index) Unable to index file: %s, error :%s', file_path, e)
+    except IOError:
+        log.info(
+            '(Search Index) Unable to index file: %s',
+            file_path,
+            exc_info=True,
+        )
         return ''
 
+    # TODO: wrap this in a try/except block
     page_json = json.loads(content)
     page_content = page_json['content']
     sections = parse_sections(documentation_type, page_content)
@@ -182,15 +220,15 @@ def parse_sphinx_sections(content):
     h1_section = body('.section > h1')
     if h1_section:
         div = h1_section.parent()
-        h1_title = h1_section.text().replace(u'¶', '').strip()
+        h1_title = h1_section.text().replace('¶', '').strip()
         h1_id = div.attr('id')
-        h1_content = ""
+        h1_content = ''
         next_p = next(body('h1'))  # pylint: disable=stop-iteration-return
         while next_p:
             if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                 if 'section' in next_p[0].attrib['class']:
                     break
-            h1_content += "\n%s\n" % next_p.html()
+            h1_content += '\n%s\n' % next_p.html()
             next_p = next(next_p)  # pylint: disable=stop-iteration-return
         if h1_content:
             yield {
@@ -204,7 +242,7 @@ def parse_sphinx_sections(content):
     for num in range(len(section_list)):
         div = section_list.eq(num).parent()
         header = section_list.eq(num)
-        title = header.text().replace(u'¶', '').strip()
+        title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
         content = div.html()
         yield {
@@ -227,14 +265,14 @@ def parse_mkdocs_sections(content):
         h1 = body('h1')
         h1_id = h1.attr('id')
         h1_title = h1.text().strip()
-        h1_content = ""
+        h1_content = ''
         next_p = next(body('h1'))  # pylint: disable=stop-iteration-return
         while next_p:
             if next_p[0].tag == 'h2':
                 break
             h1_html = next_p.html()
             if h1_html:
-                h1_content += "\n%s\n" % h1_html
+                h1_content += '\n%s\n' % h1_html
             next_p = next(next_p)  # pylint: disable=stop-iteration-return
         if h1_content:
             yield {
@@ -249,14 +287,14 @@ def parse_mkdocs_sections(content):
             h2 = section_list.eq(num)
             h2_title = h2.text().strip()
             section_id = h2.attr('id')
-            h2_content = ""
+            h2_content = ''
             next_p = next(body('h2'))  # pylint: disable=stop-iteration-return
             while next_p:
                 if next_p[0].tag == 'h2':
                     break
                 h2_html = next_p.html()
                 if h2_html:
-                    h2_content += "\n%s\n" % h2_html
+                    h2_content += '\n%s\n' % h2_html
                 next_p = next(next_p)  # pylint: disable=stop-iteration-return
             if h2_content:
                 yield {
@@ -265,8 +303,7 @@ def parse_mkdocs_sections(content):
                     'content': h2_content,
                 }
     # we're unsure which exceptions can be raised
-    # pylint: disable=bare-except
-    except:
+    except:  # noqa
         log.exception('Failed indexing')
 
 

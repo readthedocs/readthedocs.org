@@ -1,25 +1,23 @@
-from __future__ import absolute_import
-from __future__ import print_function
+# -*- coding: utf-8 -*-
 import re
 
-from builtins import object
+import mock
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_dynamic_fixture import get
-import mock
 from taggit.models import Tag
 
-from readthedocs.builds.models import Build, VersionAlias, BuildCommandResult
-from readthedocs.comments.models import DocumentComment, NodeSnapshot
+from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Domain
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
 
 
-class URLAccessMixin(object):
+class URLAccessMixin:
 
     default_kwargs = {}
     response_data = {}
@@ -32,6 +30,9 @@ class URLAccessMixin(object):
 
     def is_admin(self):
         raise NotImplementedError
+
+    def get_url_path_ctx(self):
+        return {}
 
     def assertResponse(self, path, name=None, method=None, data=None, **kwargs):
         self.login()
@@ -57,7 +58,7 @@ class URLAccessMixin(object):
             response_data = self.response_data.get(name, {}).copy()
 
         response_attrs = {
-            'status_code': kwargs.pop('status_code', self.default_status_code),
+            'status_code': response_data.pop('status_code', self.default_status_code),
         }
         response_attrs.update(kwargs)
         response_attrs.update(response_data)
@@ -70,8 +71,10 @@ class URLAccessMixin(object):
                 val,
                 ('Attribute mismatch for view {view} ({path}): '
                  '{key} != {expected} (got {value})'
-                 .format(view=name, path=path, key=key, expected=val,
-                         value=resp_val))
+                 .format(
+                     view=name, path=path, key=key, expected=val,
+                     value=resp_val,
+                 )),
             )
         return response
 
@@ -90,14 +93,22 @@ class URLAccessMixin(object):
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print("%s not in %s" % (not_obj, obj))
+                    print('{} not in {}'.format(not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print("%s is not %s" % (not_obj, obj))
+                    print('{} is not {}'.format(not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
         added_kwargs = {}
+
+        # we need to format urls with proper ids
+        url_ctx = self.get_url_path_ctx()
+        if url_ctx:
+            self.response_data = {
+                url.format(**url_ctx): data for url, data in self.response_data.items()
+            }
+
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
@@ -115,21 +126,26 @@ class URLAccessMixin(object):
         # Previous Fixtures
         self.owner = create_user(username='owner', password='test')
         self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner],
-                       privacy_level='public', main_language_project=None)
-        self.private = get(Project, slug='private', privacy_level='private',
-                           main_language_project=None)
+        self.pip = get(
+            Project, slug='pip', users=[self.owner],
+            privacy_level='public', main_language_project=None,
+        )
+        self.private = get(
+            Project, slug='private', privacy_level='private',
+            main_language_project=None,
+        )
 
 
 class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
-        super(ProjectMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
-        self.alias = get(VersionAlias, slug='that_alias', project=self.pip)
-        self.subproject = get(Project, slug='sub', language='ja',
-                              users=[self.owner], main_language_project=None)
+        self.subproject = get(
+            Project, slug='sub', language='ja',
+            users=[self.owner], main_language_project=None,
+        )
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
         self.integration = get(Integration, project=self.pip, provider_data='')
@@ -141,6 +157,7 @@ class ProjectMixin(URLAccessMixin):
             status_code=200,
         )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -148,12 +165,12 @@ class ProjectMixin(URLAccessMixin):
             'filename': 'index.html',
             'type_': 'pdf',
             'tag': self.tag.slug,
-            'alias_id': self.alias.pk,
             'child_slug': self.subproject.slug,
             'build_pk': self.build.pk,
             'domain_pk': self.domain.pk,
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
+            'environmentvariable_pk': self.environment_variable.pk,
         }
 
 
@@ -167,7 +184,7 @@ class PublicProjectMixin(ProjectMixin):
     response_data = {
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
-        '/projects/pip/badge/': {'status_code': 302},
+        '/projects/pip/badge/': {'status_code': 200},
     }
 
     def test_public_urls(self):
@@ -231,9 +248,16 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
     }
+
+    def get_url_path_ctx(self):
+        return {
+            'integration_id': self.integration.id,
+            'environmentvariable_id': self.environment_variable.id,
+        }
 
     def login(self):
         return self.client.login(username='owner', password='test')
@@ -260,12 +284,19 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/redirects/delete/': {'status_code': 405},
         '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
         '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/1/delete/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
+        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
     default_status_code = 404
+
+    def get_url_path_ctx(self):
+        return {
+            'integration_id': self.integration.id,
+            'environmentvariable_id': self.environment_variable.id,
+        }
 
     def login(self):
         return self.client.login(username='tester', password='test')
@@ -289,12 +320,11 @@ class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
 class APIMixin(URLAccessMixin):
 
     def setUp(self):
-        super(APIMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
-        self.comment = get(DocumentComment, node__project=self.pip)
-        self.snapshot = get(NodeSnapshot, node=self.comment.node)
+        self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
         self.integration = get(Integration, project=self.pip, provider_data='')
@@ -310,10 +340,10 @@ class APIMixin(URLAccessMixin):
             'buildcommandresult-detail': {'pk': self.build_command_result.pk},
             'version-detail': {'pk': self.pip.versions.all()[0].pk},
             'domain-detail': {'pk': self.domain.pk},
-            'comments-detail': {'pk': self.comment.pk},
             'footer_html': {'data': {'project': 'pip', 'version': 'latest', 'page': 'index'}},
             'remoteorganization-detail': {'pk': self.remote_org.pk},
             'remoterepository-detail': {'pk': self.remote_repo.pk},
+            'remoteaccount-detail': {'pk': self.social_account.pk},
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
@@ -321,7 +351,6 @@ class APIMixin(URLAccessMixin):
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
             'emailhook-detail': {'status_code': 403},
-            'comments-moderate': {'status_code': 405},
             'embed': {'status_code': 400},
             'docurl': {'status_code': 400},
             'cname': {'status_code': 400},
@@ -337,6 +366,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook_generic': {'status_code': 403},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
+            'remoteaccount-detail': {'status_code': 404},
         }
 
 

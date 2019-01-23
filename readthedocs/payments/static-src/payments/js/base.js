@@ -37,13 +37,13 @@ function PaymentView (config) {
     self.error_cc_cvv = ko.observable(null);
 
     self.stripe_token = ko.observable(null);
-    self.card_digits = ko.observable(null);
+    self.last_4_card_digits = ko.observable(null);
 
     // Form editing
     self.is_editing_card = ko.observable(false);
     self.show_card_form = ko.computed(function () {
         return (self.is_editing_card() ||
-                !self.card_digits() ||
+                !self.last_4_card_digits() ||
                 self.cc_number() ||
                 self.cc_expiry() ||
                 self.cc_cvv());
@@ -122,9 +122,15 @@ function PaymentView (config) {
 
 }
 
-PaymentView.prototype.submit_form = function (card_digits, token) {
-    this.form.find('#id_card_digits').val(card_digits);
+PaymentView.prototype.submit_form = function (last_4_card_digits, token) {
+    this.form.find('#id_last_4_card_digits').val(last_4_card_digits);
     this.form.find('#id_stripe_token').val(token);
+
+    // Delete all user's card information before sending them to our servers
+    this.form.find('#id_cc_number').val(null);
+    this.form.find('#id_cc_expiry').val(null);
+    this.form.find('#id_cc_cvv').val(null);
+
     this.form.submit();
 };
 

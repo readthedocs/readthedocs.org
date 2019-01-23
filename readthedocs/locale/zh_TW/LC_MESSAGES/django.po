@@ -14,9 +14,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-19 15:31-0700\n"
-"PO-Revision-Date: 2017-07-19 14:34+0000\n"
-"Last-Translator: Staph. aureus <inactive+StephDC@transifex.com>\n"
+"POT-Creation-Date: 2018-09-17 17:55-0600\n"
+"PO-Revision-Date: 2018-06-06 15:44+0000\n"
+"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/readthedocs/"
 "readthedocs/language/zh_TW/)\n"
 "Language: zh_TW\n"
@@ -25,273 +25,233 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: api/utils.py:97
-msgid "Sorry, no results on that page."
-msgstr "抱歉，在那個頁面上沒有結果。"
-
-#: api/utils.py:183
+#: api/utils.py:47
 #, python-format
 msgid "Invalid resource lookup data provided (mismatched type).: %(error)s"
 msgstr "提供無效的資源無法查詢（類型不符合）：%(error)s"
 
-#: bookmarks/models.py:19 core/models.py:21 donate/models.py:33
-#: gold/models.py:36 projects/models.py:84
-msgid "User"
-msgstr "使用者"
-
-#: bookmarks/models.py:21 builds/models.py:43 builds/models.py:309
-#: builds/models.py:329 comments/models.py:72 projects/models.py:837
-#: redirects/models.py:53
-msgid "Project"
-msgstr "專案"
-
-#: bookmarks/models.py:23 builds/models.py:331 comments/models.py:74
-#: projects/models.py:99 projects/models.py:839
-msgid "Version"
-msgstr "版本"
-
-#: bookmarks/models.py:25
-msgid "Page"
-msgstr "頁面"
-
-#: bookmarks/models.py:27 builds/models.py:337 comments/models.py:163
-#: comments/models.py:228 donate/models.py:185 integrations/models.py:123
-msgid "Date"
-msgstr "日期"
-
-#: bookmarks/models.py:28
-msgid "URL"
-msgstr "網址"
-
-#: bookmarks/models.py:35
-#, python-format
-msgid "Bookmark %(url)s for %(user)s (%(pk)s)"
-msgstr "%(user)s 的書籤 %(url)s (%(pk)s)"
-
-#: builds/constants.py:13
+#: builds/constants.py:14
 msgid "Triggered"
 msgstr "已觸發"
 
-#: builds/constants.py:14
+#: builds/constants.py:15
 msgid "Cloning"
 msgstr "複製中"
 
-#: builds/constants.py:15
+#: builds/constants.py:16
 msgid "Installing"
 msgstr "安裝中"
 
-#: builds/constants.py:16
+#: builds/constants.py:17
 msgid "Building"
 msgstr "建置中"
 
-#: builds/constants.py:17
+#: builds/constants.py:18
 msgid "Finished"
 msgstr "已完成"
 
-#: builds/constants.py:21
+#: builds/constants.py:22
 msgid "HTML"
 msgstr "HTML"
 
-#: builds/constants.py:22
+#: builds/constants.py:23
 msgid "PDF"
 msgstr "PDF"
 
-#: builds/constants.py:23
+#: builds/constants.py:24
 msgid "Epub"
 msgstr "Epub"
 
-#: builds/constants.py:27
+#: builds/constants.py:28
 msgid "Manpage"
 msgstr "Manpage"
 
-#: builds/constants.py:28
+#: builds/constants.py:29
 msgid "Dash"
 msgstr "Dash"
 
-#: builds/constants.py:36
+#: builds/constants.py:37
 msgid "Branch"
 msgstr "分支"
 
-#: builds/constants.py:37
+#: builds/constants.py:38
 msgid "Tag"
 msgstr "標籤"
 
-#: builds/constants.py:38
+#: builds/constants.py:39
 msgid "Unknown"
 msgstr "未知"
 
-#: builds/models.py:46 builds/models.py:333
+#: builds/models.py:50 builds/models.py:413 builds/models.py:434
+#: projects/models.py:925 redirects/models.py:57
+msgid "Project"
+msgstr "專案"
+
+#: builds/models.py:54 builds/models.py:438
 msgid "Type"
 msgstr "類型"
 
-#: builds/models.py:55
+#: builds/models.py:65
 msgid "Identifier"
 msgstr "識別碼"
 
-#: builds/models.py:61
+#: builds/models.py:71
 msgid "Verbose Name"
 msgstr "詳細名稱"
 
-#: builds/models.py:67 oauth/models.py:45 projects/models.py:87
-#: projects/models.py:842
+#: builds/models.py:78 oauth/models.py:46 projects/models.py:84
+#: projects/models.py:930
 msgid "Slug"
 msgstr "縮㫥名稱"
 
-#: builds/models.py:70
+#: builds/models.py:80
 msgid "Supported"
 msgstr "已支持"
 
-#: builds/models.py:71 oauth/models.py:43 oauth/models.py:90
+#: builds/models.py:81 oauth/models.py:44 oauth/models.py:92
 #: redirects/models.py:26 templates/projects/project_versions.html:46
 msgid "Active"
 msgstr "啟用"
 
-#: builds/models.py:72 templates/projects/includes/icon_built.html:4
+#: builds/models.py:82 templates/projects/includes/icon_built.html:4
 msgid "Built"
 msgstr "建置"
 
-#: builds/models.py:73 templates/projects/includes/icon_built.html:7
+#: builds/models.py:83 templates/projects/includes/icon_built.html:7
 msgid "Uploaded"
 msgstr "已上傳"
 
-#: builds/models.py:75 projects/models.py:213
+#: builds/models.py:85 projects/models.py:222
 msgid "Privacy Level"
 msgstr "私人等級"
 
-#: builds/models.py:76
+#: builds/models.py:89
 msgid "Level of privacy for this Version."
 msgstr "目前版本的私人等級。"
 
-#: builds/models.py:79
+#: builds/models.py:92
 msgid "Machine Created"
 msgstr "建立機器"
 
 #. Translators: Permission around whether a user can view the
 #. version
-#: builds/models.py:89
+#: builds/models.py:102
 msgid "View Version"
 msgstr "檢視版本"
 
-#: builds/models.py:93
-#, python-format
-msgid "Version %(version)s of %(project)s (%(pk)s)"
-msgstr "%(project)s 的 %(version)s 版本 (%(pk)s)"
+#: builds/models.py:106
+#, python-brace-format
+msgid "Version {version} of {project} ({pk})"
+msgstr ""
 
-#: builds/models.py:311
+#: builds/models.py:414
 msgid "From slug"
 msgstr "來自縮略名稱"
 
-#: builds/models.py:312
+#: builds/models.py:416
 msgid "To slug"
 msgstr "轉成縮略名稱"
 
-#: builds/models.py:314
+#: builds/models.py:417
 msgid "Largest"
 msgstr "最大"
 
-#: builds/models.py:317
-#, python-format
-msgid "Alias for %(project)s: %(from)s -> %(to)s"
-msgstr "%(project)s 的別名: %(from)s -> %(to)s"
+#: builds/models.py:421
+#, python-brace-format
+msgid "Alias for {project}: {_from} -> {to}"
+msgstr ""
 
-#: builds/models.py:335
+#: builds/models.py:436 projects/models.py:97 projects/models.py:927
+#: templates/base.html:213
+msgid "Version"
+msgstr "版本"
+
+#: builds/models.py:440
 msgid "State"
 msgstr "狀態"
 
-#: builds/models.py:338
+#: builds/models.py:441 integrations/models.py:128
+msgid "Date"
+msgstr "日期"
+
+#: builds/models.py:442
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:340
+#: builds/models.py:444
 msgid "Setup"
 msgstr "安裝"
 
-#: builds/models.py:341
+#: builds/models.py:445
 msgid "Setup error"
 msgstr "安裝錯誤"
 
-#: builds/models.py:342
+#: builds/models.py:446
 msgid "Output"
 msgstr "輸出"
 
-#: builds/models.py:343 templates/builds/build_detail.html:130
+#: builds/models.py:447 templates/builds/build_detail.html:175
 msgid "Error"
 msgstr "錯誤"
 
-#: builds/models.py:344
+#: builds/models.py:448
 msgid "Exit code"
 msgstr "結束碼"
 
-#: builds/models.py:345 projects/models.py:845
+#: builds/models.py:450 projects/models.py:933
 msgid "Commit"
 msgstr "存回 (commit)"
 
-#: builds/models.py:347
+#: builds/models.py:452
 msgid "Build Length"
 msgstr "建置長度"
 
-#: builds/models.py:349
+#: builds/models.py:455
 msgid "Builder"
 msgstr "產生器"
 
-#: builds/models.py:363
-#, python-format
-msgid "Build %(project)s for %(usernames)s (%(pk)s)"
-msgstr "為 %(usernames)s 建置 %(project)s (%(pk)s)"
+#: builds/models.py:458
+msgid "Cold Storage"
+msgstr ""
 
-#: builds/models.py:407 templates/core/project_details.html:68
+#: builds/models.py:471
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr ""
+
+#: builds/models.py:519
 msgid "Build"
 msgstr "建置"
 
-#: builds/models.py:410
+#: builds/models.py:521
 msgid "Command"
 msgstr "命令"
 
-#: builds/models.py:411 oauth/models.py:97 projects/models.py:88
-#: templates/core/project_details.html:77
+#: builds/models.py:522 oauth/models.py:104 projects/models.py:85
+#: templates/core/project_details.html:80
 msgid "Description"
 msgstr "說明"
 
-#: builds/models.py:412
+#: builds/models.py:523
 msgid "Command output"
 msgstr "命令輸出"
 
-#: builds/models.py:413
+#: builds/models.py:524
 msgid "Command exit code"
 msgstr "命令結束碼"
 
-#: builds/models.py:415
+#: builds/models.py:526
 msgid "Start time"
 msgstr "開始時間"
 
-#: builds/models.py:416
+#: builds/models.py:527
 msgid "End time"
 msgstr "結束時間"
 
-#: builds/models.py:425
+#: builds/models.py:537
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "從產生器 {build} 產生命令 {pk}"
-
-#: comments/models.py:76 projects/models.py:175 projects/models.py:843
-msgid "Path"
-msgstr "路徑"
-
-#: comments/models.py:78
-msgid "Raw Source"
-msgstr "原始的程式碼"
-
-#: comments/models.py:123
-msgid "Hash"
-msgstr "哈希"
-
-#: comments/models.py:164
-msgid "Rating"
-msgstr "評分"
-
-#: comments/models.py:165 donate/models.py:59
-msgid "Text"
-msgstr "文字"
 
 #: core/admin.py:28
 msgid "user projects"
@@ -309,325 +269,125 @@ msgstr "已建專案"
 msgid "has project with recent builds"
 msgstr "專案已有最新版本"
 
-#: core/forms.py:19
+#: core/forms.py:21
 msgid "First name"
 msgstr "名字"
 
-#: core/forms.py:20
+#: core/forms.py:22
 msgid "Last name"
 msgstr "姓氏"
 
-#: core/middleware.py:119 core/middleware.py:126
+#: core/forms.py:51
+msgid "Username"
+msgstr ""
+
+#: core/forms.py:52
+msgid "Please type your username to confirm."
+msgstr ""
+
+#: core/forms.py:63
+msgid "Username does not match!"
+msgstr ""
+
+#: core/middleware.py:121 core/middleware.py:128
 msgid "Invalid hostname"
 msgstr "主機名稱無效"
 
-#: core/models.py:23
+#: core/models.py:25 gold/models.py:36 projects/models.py:81
+msgid "User"
+msgstr "使用者"
+
+#: core/models.py:26
 msgid "Whitelisted"
 msgstr "已列入白名單"
 
-#: core/models.py:24
+#: core/models.py:27
 msgid "Banned"
 msgstr "禁止"
 
-#: core/models.py:25
+#: core/models.py:28
 msgid "Homepage"
 msgstr "主頁"
 
-#: core/models.py:26
-#, fuzzy
-#| msgid "Advertising"
+#: core/models.py:30
 msgid "See paid advertising"
-msgstr "廣告"
+msgstr ""
 
-#: core/models.py:27
+#: core/models.py:31
 msgid "If unchecked, you will still see community ads."
 msgstr ""
 
-#: core/models.py:30
+#: core/models.py:35
 msgid "Allow email"
 msgstr "允許電子信箱"
 
-#: core/models.py:31
+#: core/models.py:36
 msgid "Show your email on VCS contributions."
 msgstr "在版本庫的貢獻者名單中顯示您的電子信箱。"
 
-#: core/models.py:36
+#: core/models.py:42
 #, python-format
 msgid "%(username)s's profile"
 msgstr "%(username)s 的資料"
 
-#: core/validators.py:23
-msgid "Enter a valid plain or internationalized domain name value"
-msgstr "輸入有效的網域名稱或國際化網域名稱"
-
-#: core/validators.py:31
-msgid "Enter a valid domain name value"
-msgstr "請輸入有效的網域名稱"
-
-#: doc_builder/environments.py:231
+#: doc_builder/environments.py:273
 msgid "Command killed due to excessive memory consumption\n"
 msgstr "命令因消耗過多記憶體而終止\n"
 
-#: doc_builder/environments.py:236
+#: doc_builder/environments.py:278
 msgid "Command exited abnormally"
 msgstr "命令異常退出"
 
-#: doc_builder/environments.py:425
-msgid "An unexpected error occurred"
-msgstr "發生意外的錯誤"
-
-#: doc_builder/environments.py:497
+#: doc_builder/environments.py:719
 msgid "A build environment is currently running for this version"
 msgstr "正在為目前版本建置環境"
 
-#: doc_builder/environments.py:603 projects/tasks.py:215
+#: doc_builder/environments.py:901 doc_builder/exceptions.py:56
 msgid "Build exited due to time out"
 msgstr "建置時超過時間"
 
-#: doc_builder/environments.py:606
+#: doc_builder/environments.py:905
 msgid "Build exited due to excessive memory consumption"
 msgstr "建置時因消耗過多記憶體而退出"
 
-#: doc_builder/environments.py:609
+#: doc_builder/environments.py:909
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "建置時發生未知錯誤而離開：{0}"
 
-#: donate/forms.py:39
-msgid "Make this donation public"
-msgstr "公開捐贈"
+#: doc_builder/exceptions.py:26
+#, python-brace-format
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please report this to us with your build id ({build_id})."
+msgstr ""
 
-#: donate/forms.py:42
-msgid "Your name and image will be displayed on the donation page"
-msgstr "您的姓名和商標將顯示在捐贈頁面上"
+#: doc_builder/exceptions.py:33
+msgid "Build environment creation failed"
+msgstr ""
 
-#: donate/forms.py:43
-msgid "Your email is used for Gravatar and so we can send you a receipt"
-msgstr "您的電子信箱用於 Gravatar，所以我們可以發送收據給您"
+#: doc_builder/exceptions.py:38
+msgid "Version locked, retrying in 5 minutes."
+msgstr ""
 
-#: donate/forms.py:44
-msgid "URL of your company's logo, images should be 300x300 pixels or less"
-msgstr "商標圖片不可大於 300x300 像素"
+#: doc_builder/exceptions.py:44
+msgid "Builds for this project are temporarily disabled"
+msgstr "暫時停用專案產生器"
 
-#: donate/forms.py:45
-msgid "Companies donating over $400 can specify a logo URL and site link"
-msgstr "捐贈超過 400 美元的公司，可以指定商標網址和站台連結"
+#: doc_builder/exceptions.py:50
+#, python-brace-format
+msgid "Problem parsing YAML configuration. {exception}"
+msgstr ""
 
-#: donate/forms.py:110
-#, fuzzy
-#| msgid "Your email is used for Gravatar and so we can send you a receipt"
-msgid "Your email is used so we can send you a receipt"
-msgstr "您的電子信箱用於 Gravatar，所以我們可以發送收據給您"
-
-#: donate/models.py:27 donate/models.py:54 gold/models.py:33 oauth/models.py:35
-#: oauth/models.py:78 projects/models.py:80
+#: gold/models.py:33 oauth/models.py:36 oauth/models.py:80
+#: projects/models.py:77
 msgid "Publication date"
 msgstr "發佈日期"
 
-#: donate/models.py:28 donate/models.py:55 gold/models.py:34 oauth/models.py:36
-#: oauth/models.py:79 projects/models.py:81
+#: gold/models.py:34 oauth/models.py:37 oauth/models.py:81
+#: projects/models.py:78
 msgid "Modified date"
 msgstr "修改日期"
-
-#: donate/models.py:29 projects/constants.py:90
-msgid "Public"
-msgstr "公開"
-
-#: donate/models.py:31
-msgid "name"
-msgstr "名稱"
-
-#: donate/models.py:32 oauth/models.py:47
-msgid "Email"
-msgstr "電子信箱"
-
-#: donate/models.py:35
-msgid "Amount"
-msgstr "金額"
-
-#: donate/models.py:36
-msgid "Logo URL"
-msgstr "商標網址"
-
-#: donate/models.py:38
-msgid "Site URL"
-msgstr "站台網址"
-
-#: donate/models.py:57 oauth/models.py:46 oauth/models.py:95
-#: projects/models.py:86 projects/models.py:841
-msgid "Name"
-msgstr "名稱"
-
-#: donate/models.py:58
-msgid "Analytics ID"
-msgstr "分析 ID"
-
-#: donate/models.py:60
-msgid "Link URL"
-msgstr "連結網址"
-
-#: donate/models.py:61
-msgid "Image URL"
-msgstr "影像網址"
-
-#: donate/models.py:62
-msgid "Display Type"
-msgstr "顯示類型"
-
-#: donate/models.py:64
-msgid "Sold Impressions"
-msgstr "銷售印象"
-
-#: donate/models.py:65
-msgid "Sold Days"
-msgstr "銷售日"
-
-#: donate/models.py:66
-#, fuzzy
-#| msgid "Clicks"
-msgid "Sold Clicks"
-msgstr "點擊"
-
-#: donate/models.py:67 projects/models.py:237
-msgid "Programming Language"
-msgstr "程式設計語言"
-
-#: donate/models.py:70 projects/models.py:105
-msgid "Theme"
-msgstr "主題"
-
-#: donate/models.py:73
-#, fuzzy
-#| msgid "Commit"
-msgid "Community Ad"
-msgstr "存回 (commit)"
-
-#: donate/models.py:74 projects/constants.py:69
-msgid "Live"
-msgstr "線上"
-
-#: donate/models.py:186
-msgid "Offer"
-msgstr "提供"
-
-#: donate/models.py:188
-msgctxt "View"
-msgid "Number of display on a screen that were sold"
-msgstr ""
-
-#: donate/models.py:189
-msgid "Clicks"
-msgstr "點擊"
-
-#: donate/models.py:262
-msgid "Filter Type"
-msgstr "篩選類型"
-
-#: donate/templates/donate/create.html:6 donate/templates/donate/list.html:6
-#: donate/templates/donate/success.html:6
-msgid "Sustainability"
-msgstr "永續經營"
-
-#: donate/templates/donate/create.html:75
-#: donate/templates/donate/ethicalads.html:70
-msgid "Custom amount"
-msgstr "自訂金額"
-
-#: donate/templates/donate/create.html:79
-msgid "1 Hour"
-msgstr "1 小時"
-
-#: donate/templates/donate/create.html:80
-msgid "2 Hours"
-msgstr "2 小時"
-
-#: donate/templates/donate/create.html:81
-msgid "4 Hours"
-msgstr "4 小時"
-
-#: donate/templates/donate/create.html:82
-msgid "1 Day"
-msgstr "1 天"
-
-#: donate/templates/donate/create.html:83
-msgid "2 Days"
-msgstr "2 天"
-
-#: donate/templates/donate/create.html:84
-msgid "3 Days"
-msgstr "3 天"
-
-#: donate/templates/donate/create.html:85
-msgid "4 Days"
-msgstr "4 天"
-
-#: donate/templates/donate/create.html:86
-msgid "5 Days"
-msgstr "5 天"
-
-#: donate/templates/donate/create.html:87
-msgid "2 Weeks"
-msgstr "2 週"
-
-#: donate/templates/donate/create.html:88
-msgid "3 Weeks"
-msgstr "3 週"
-
-#: donate/templates/donate/create.html:89
-msgid "4 Weeks"
-msgstr "4 週"
-
-#: donate/templates/donate/create.html:100
-msgid "Donate"
-msgstr "捐款"
-
-#: donate/templates/donate/ethicalads-success.html:6
-msgid "Sponsorship"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:6
-msgid "Pay for your ad"
-msgstr ""
-
-#: donate/templates/donate/ethicalads.html:85
-#, fuzzy
-#| msgid "Primary"
-msgid "Pay"
-msgstr "主要"
-
-#: donate/templates/donate/list.html:77
-#: donate/templates/donate/progress.html:63
-msgid "Donate Now"
-msgstr "我要捐款"
-
-#: donate/templates/donate/progress.html:25
-msgid "Read More"
-msgstr "讀取更多"
-
-#: donate/templates/donate/promo_404.html:6 templates/401.html:6
-#: templates/404.html:6
-msgid "Maze Found"
-msgstr "發現迷宮"
-
-#: donate/templates/donate/promo_500.html:5 templates/500.html:5
-msgid "Server Error"
-msgstr "伺服器錯誤"
-
-#: donate/templates/donate/promo_detail.html:6
-#, fuzzy
-#| msgid "Project Details"
-msgid "Promo Detail"
-msgstr "專案細節"
-
-#: donate/views.py:36
-#, fuzzy
-#| msgid "Your contribution has been received"
-msgid "Your payment has been received"
-msgstr "已收到您的捐款"
-
-#: donate/views.py:52
-msgid "Your contribution has been received"
-msgstr "已收到您的捐款"
 
 #: gold/models.py:37 gold/templates/gold/subscription_detail.html:40
 msgid "Level"
@@ -641,68 +401,51 @@ msgstr "等級"
 msgid "Projects"
 msgstr "專案"
 
-#: gold/templates/gold/projects.html:24
+#: gold/templates/gold/projects.html:15
 msgid ""
 "Choose projects that will have all promos removed, and extra features added "
 "to them. You get to pick one for every $5/mo you support Read the Docs with."
 msgstr "刪除目前所有專案，並選擇 ReadTheDocs 5 美金/月附有額外功能的方案。"
 
-#: gold/templates/gold/projects.html:27
+#: gold/templates/gold/projects.html:18
 msgid "Existing Projects"
 msgstr "現有專案"
 
-#: gold/templates/gold/projects.html:29
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        You can adopt %(projects)s projects with your subscription.\n"
-#| "      "
-msgid ""
-"\n"
-"      You can adopt one project with your subscription.\n"
-"    "
-msgid_plural ""
-"\n"
-"      You can adopt %(projects)s projects with your subscription.\n"
-"    "
+#: gold/templates/gold/projects.html:20
+#: gold/templates/gold/subscription_detail.html:59
+#, python-format
+msgid "You can adopt one project with your subscription."
+msgid_plural "You can adopt %(projects)s projects with your subscription."
 msgstr[0] ""
-"\n"
-"您可以採用  %(projects)s 專案訂購。"
 
-#: gold/templates/gold/projects.html:42 templates/account/email.html:39
-#: templates/projects/domain_list.html:27
+#: gold/templates/gold/projects.html:33 templates/account/email.html:39
+#: templates/projects/domain_list.html:30
 #: templates/projects/project_notifications.html:56
-#: templates/projects/project_redirects.html:93
-#: templates/projects/project_translations.html:26
+#: templates/projects/project_redirects.html:98
+#: templates/projects/project_translations.html:43
+#: templates/projects/project_users.html:39
 msgid "Remove"
 msgstr "移除"
 
-#: gold/templates/gold/projects.html:48
+#: gold/templates/gold/projects.html:39
 msgid "Add a project"
 msgstr "新增專案"
 
-#: gold/templates/gold/projects.html:50
+#: gold/templates/gold/projects.html:41
 msgid "Choose which project you would like to add."
 msgstr "選擇您要新增的專案。"
 
-#: gold/templates/gold/projects.html:55 templates/projects/domain_form.html:32
-#: templates/projects/domain_list.html:38
-#: templates/projects/project_advanced.html:33
-#: templates/projects/project_edit.html:36
-#: templates/projects/project_notifications.html:69
-#: templates/projects/project_notifications.html:80
-#: templates/projects/project_redirects.html:109
-#: templates/projects/project_translations.html:36
-#: templates/projects/project_users.html:51
-#: templates/projects/project_versions.html:53
+#: gold/templates/gold/projects.html:46 templates/projects/domain_form.html:40
 msgid "Submit"
 msgstr "送出"
 
 #: gold/templates/gold/subscription_confirm_delete.html:12
-msgid ""
-"\n"
-"      Are you sure you want to cancel your subscription?\n"
-"    "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      Are you sure you want to cancel your subscription?\n"
+#| "    "
+msgid "Are you sure you want to cancel your subscription?"
 msgstr ""
 "\n"
 "您確定要取消訂購嗎？"
@@ -718,10 +461,13 @@ msgid "Gold Subscription"
 msgstr "黃金會員"
 
 #: gold/templates/gold/subscription_detail.html:34
-msgid ""
-"\n"
-"        Thanks for supporting Read the Docs! It really means a lot to us.\n"
-"      "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        Thanks for supporting Read the Docs! It really means a lot to "
+#| "us.\n"
+#| "      "
+msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgstr ""
 "\n"
 "非常感謝您支持 ReadTheDocs！ 這對我們真的很重要。"
@@ -731,68 +477,65 @@ msgid "Card"
 msgstr "信用卡"
 
 #: gold/templates/gold/subscription_detail.html:50
-#: gold/templates/gold/subscription_form.html:135
+#: gold/templates/gold/subscription_form.html:138
 msgid "Update Subscription"
 msgstr "更新訂購"
-
-#: gold/templates/gold/subscription_detail.html:59
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "        You can adopt %(projects)s projects with your subscription.\n"
-#| "      "
-msgid ""
-"\n"
-"        You can adopt one project with your subscription.\n"
-"      "
-msgid_plural ""
-"\n"
-"        You can adopt %(projects)s projects with your subscription.\n"
-"      "
-msgstr[0] ""
-"\n"
-"您可以採用  %(projects)s 專案訂購。"
 
 #: gold/templates/gold/subscription_detail.html:67
 msgid "Select Projects"
 msgstr "選擇專案"
 
 #: gold/templates/gold/subscription_form.html:40
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      Supporting Read the Docs lets us work more on features that people "
+#| "love.\n"
+#| "      Your money will go directly to maintenance and development of the\n"
+#| "      product.\n"
+#| "    "
 msgid ""
-"\n"
-"      Supporting Read the Docs lets us work more on features that people "
-"love.\n"
-"      Your money will go directly to maintenance and development of the\n"
-"      product.\n"
-"    "
+"Supporting Read the Docs lets us work more on features that people love. "
+"Your money will go directly to maintenance and development of the product."
 msgstr ""
 "\n"
 "支持 ReadTheDocs 可以讓我們更了解人們喜愛的功能。\n"
 "您的資金將用於產品的維護與開發。"
 
 #: gold/templates/gold/subscription_form.html:47
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you are an individual,\n"
+#| "      feel free to give whatever feels right for the value you get out of "
+#| "Read the Docs.\n"
+#| "    "
 msgid ""
-"\n"
-"      If you are an individual,\n"
-"      feel free to give whatever feels right for the value you get out of "
-"Read the Docs.\n"
-"    "
+"If you are an individual, feel free to give whatever feels right for the "
+"value you get out of Read the Docs."
 msgstr ""
 "\n"
 "如果您是個人，而選擇離開請提供原因，以改善 ReadTheDocs 的品質。"
 
 #: gold/templates/gold/subscription_form.html:53
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you are a company using Read the Docs,\n"
+#| "      please consider getting a <a href=\"https://readthedocs.com/"
+#| "services/#open-source-support\">commercial support contract</a>.\n"
+#| "      This will help us cover our costs,\n"
+#| "      and provide you with a better experience on the site.\n"
+#| "      If you aren't able to do that,\n"
+#| "      we suggest giving at least $20/month to help cover our support and "
+#| "operations costs.\n"
+#| "    "
 msgid ""
-"\n"
-"      If you are a company using Read the Docs,\n"
-"      please consider getting a <a href=\"https://readthedocs.com/services/"
-"#open-source-support\">commercial support contract</a>.\n"
-"      This will help us cover our costs,\n"
-"      and provide you with a better experience on the site.\n"
-"      If you aren't able to do that,\n"
-"      we suggest giving at least $20/month to help cover our support and "
-"operations costs.\n"
-"    "
+"If you are a company using Read the Docs, please consider getting a <a href="
+"\"https://readthedocs.com/services/#open-source-support\">commercial support "
+"contract</a>. This will help us cover our costs, and provide you with a "
+"better experience on the site. If you aren't able to do that, we suggest "
+"giving at least $20/month to help cover our support and operations costs."
 msgstr ""
 "\n"
 "\n"
@@ -803,451 +546,523 @@ msgstr ""
 
 #: gold/templates/gold/subscription_form.html:63
 msgid ""
-"\n"
-"      You can also make one-time donations on our <a href=\"https://"
-"readthedocs.org/sustainability/\">sustainability</a> page.\n"
-"    "
+"Becoming a Gold Member also makes Read the Docs ad-free for as long as you "
+"are logged-in."
+msgstr ""
+
+#: gold/templates/gold/subscription_form.html:66
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      You can also make one-time donations on our <a href=\"https://"
+#| "readthedocs.org/sustainability/\">sustainability</a> page.\n"
+#| "    "
+msgid ""
+"You can also make one-time donations on our <a href=\"https://readthedocs."
+"org/sustainability/\">sustainability</a> page."
 msgstr ""
 "\n"
 "您也可以在我們的 <a href=\"https://readthedocs.org/sustainability/\">永續經營"
 "</a> 頁面上一次性的捐款。"
 
-#: gold/templates/gold/subscription_form.html:71
+#: gold/templates/gold/subscription_form.html:74
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "    We ask that folks who use custom Domains give Read the Docs $5 per "
+#| "domain they are using.\n"
+#| "    This is optional, but it really does help us maintain the site going "
+#| "forward.\n"
+#| "    "
 msgid ""
-"\n"
-"    We ask that folks who use custom Domains give Read the Docs $5 per "
-"domain they are using.\n"
-"    This is optional, but it really does help us maintain the site going "
-"forward.\n"
-"    "
+"We ask that folks who use custom Domains give Read the Docs $5 per domain "
+"they are using. This is optional, but it really does help us maintain the "
+"site going forward."
 msgstr ""
 "\n"
 "我們要求使用自已域名的用戶，每個域名請捐贈 ReadTheDocs 5 美金/月。\n"
 "這是非強迫性的，但確有助於我們改善及維護專案。"
 
-#: gold/templates/gold/subscription_form.html:89
+#: gold/templates/gold/subscription_form.html:92
 msgid "Become a Gold Member"
 msgstr "成為黃金會員"
 
-#: gold/templates/gold/subscription_form.html:91
+#: gold/templates/gold/subscription_form.html:94
 msgid "Update Your Subscription"
 msgstr "更新您的訂購"
 
-#: gold/templates/gold/subscription_form.html:106
+#: gold/templates/gold/subscription_form.html:109
 msgid "Current card"
 msgstr "目前信用卡"
 
-#: gold/templates/gold/subscription_form.html:117
+#: gold/templates/gold/subscription_form.html:120
 msgid "Edit Card"
 msgstr "編輯信用卡"
 
-#: gold/templates/gold/subscription_form.html:133
+#: gold/templates/gold/subscription_form.html:136
+#: templates/account/signup.html:10 templates/account/signup.html:22
 msgid "Sign Up"
 msgstr "註冊"
 
-#: gold/templates/gold/subscription_form.html:139
+#: gold/templates/gold/subscription_form.html:142
 msgid "All information is submitted directly to Stripe."
 msgstr "所有資訊都將送到 Stripe (電子支付商)。"
 
-#: gold/views.py:72
+#: gold/views.py:76
 msgid "Your subscription has been updated"
 msgstr "已更新訂購的方案"
 
-#: gold/views.py:84
+#: gold/views.py:89
 msgid "Your subscription has been cancelled"
 msgstr "已取消訂購的方案"
 
-#: integrations/models.py:125 integrations/models.py:128
+#: integrations/models.py:130 integrations/models.py:133
 msgid "Request headers"
 msgstr ""
 
-#: integrations/models.py:126
+#: integrations/models.py:131
 msgid "Request body"
 msgstr ""
 
-#: integrations/models.py:129
+#: integrations/models.py:134
 msgid "Response body"
 msgstr ""
 
-#: integrations/models.py:132
-#, fuzzy
-#| msgid "Analytics code"
+#: integrations/models.py:137
 msgid "Status code"
-msgstr "分析程式碼"
+msgstr ""
 
-#: integrations/models.py:141
+#: integrations/models.py:147
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr ""
 
-#: integrations/models.py:236
+#: integrations/models.py:246
 msgid "GitHub incoming webhook"
 msgstr ""
 
-#: integrations/models.py:237
+#: integrations/models.py:247
 msgid "Bitbucket incoming webhook"
 msgstr ""
 
-#: integrations/models.py:238
+#: integrations/models.py:248
 msgid "GitLab incoming webhook"
 msgstr ""
 
-#: integrations/models.py:239
+#: integrations/models.py:249
 msgid "Generic API incoming webhook"
 msgstr ""
 
-#: integrations/models.py:246
-#, fuzzy
-#| msgid "Documentation type"
+#: integrations/models.py:256
 msgid "Integration type"
-msgstr "文檔類型"
+msgstr ""
 
-#: integrations/models.py:250
+#: integrations/models.py:260
 msgid "Provider data"
 msgstr ""
 
-#: integrations/models.py:262
+#: integrations/models.py:273
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr ""
 
-#: notifications/forms.py:27
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "通知"
 
-#: oauth/models.py:38 oauth/models.py:82
+#: oauth/models.py:40 oauth/models.py:85
 msgid "Users"
 msgstr "用戶"
 
-#: oauth/models.py:41 oauth/models.py:85
+#: oauth/models.py:42 oauth/models.py:87
 msgid "Connected account"
 msgstr "已連結帳戶"
 
-#: oauth/models.py:48
+#: oauth/models.py:47 oauth/models.py:101 projects/models.py:83
+#: projects/models.py:929
+msgid "Name"
+msgstr "名稱"
+
+#: oauth/models.py:48 templates/base.html:134
+msgid "Email"
+msgstr "電子信箱"
+
+#: oauth/models.py:49
 msgid "Avatar image URL"
 msgstr "頭像圖片網址"
 
-#: oauth/models.py:49
+#: oauth/models.py:51
 msgid "URL to organization page"
 msgstr "組織頁的網址"
 
-#: oauth/models.py:52 oauth/models.py:117
+#: oauth/models.py:53 oauth/models.py:140
 msgid "Serialized API response"
 msgstr "序列化的 API 回應"
 
-#: oauth/models.py:88
+#: oauth/models.py:90
 msgid "Organization"
 msgstr "公司"
 
-#: oauth/models.py:96
+#: oauth/models.py:102
 msgid "Full Name"
 msgstr "姓名"
 
-#: oauth/models.py:98
+#: oauth/models.py:107
 msgid "Description of the project"
 msgstr "專案描述"
 
-#: oauth/models.py:99
+#: oauth/models.py:110
 msgid "Owner avatar image URL"
 msgstr "擁有者的頭像圖片網址"
 
-#: oauth/models.py:102
+#: oauth/models.py:116
 msgid "SSH URL"
 msgstr "SSH 網址"
 
-#: oauth/models.py:105
+#: oauth/models.py:122
 msgid "Repository clone URL"
 msgstr "倉庫複製網址 (clone)"
 
-#: oauth/models.py:110
+#: oauth/models.py:129
 msgid "HTML URL"
 msgstr "HTML 網址"
 
-#: oauth/models.py:112
+#: oauth/models.py:131
 msgid "Private repository"
 msgstr "私人倉庫"
 
-#: oauth/models.py:113
+#: oauth/models.py:132
 msgid "Has admin privilege"
 msgstr "具有管理員權限"
 
-#: oauth/models.py:114
+#: oauth/models.py:134
 msgid "vcs"
 msgstr "vcs"
 
-#: oauth/utils.py:34
-#, fuzzy
-#| msgid "Webhook activation failed. Make sure you have permissions to set it."
-msgid ""
-"Webhook activation failed. There are no connected services for this project."
-msgstr "Webhook 啟動失敗，請確認您是否有設定權限。"
+#: oauth/notifications.py:18
+msgid "Webhook successfully added."
+msgstr ""
 
-#: oauth/utils.py:43 oauth/utils.py:73
+#: oauth/notifications.py:20
+msgid ""
+"Could not add webhook for {{ project.name }}. Make sure <a href="
+"\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"permissions</a>."
+msgstr ""
+
+#: oauth/notifications.py:21
+msgid ""
+"Could not add webhook for {{ project.name }}. Please <a href="
+"\"{{ url_connect_account }}\">connect your {{ provider.name }} account</a>."
+msgstr ""
+
+#: oauth/notifications.py:42
+msgid ""
+"The project {{ project.name }} doesn't have a valid webhook set up, commits "
+"won't trigger new builds for this project. See <a "
+"href='{{ url_integrations }}'>the project integrations</a> for more "
+"information."
+msgstr ""
+
+#: oauth/utils.py:47
 msgid "Webhook activated"
 msgstr "Webhook 啟動"
 
-#: oauth/utils.py:51
-msgid "Webhook activation failed. Make sure you have permissions to set it."
-msgstr "Webhook 啟動失敗，請確認您是否有設定權限。"
-
-#: oauth/utils.py:56
-#, python-brace-format
-msgid ""
-"No accounts available to set webhook on. Please connect your {network} "
-"account."
-msgstr "webhook 上沒有您的帳號，請連接您的 {network} 帳號。"
-
-#: oauth/utils.py:79
-#, fuzzy
-#| msgid "Webhook activation failed. Make sure you have permissions to set it."
+#: oauth/utils.py:54
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
-msgstr "Webhook 啟動失敗，請確認您是否有設定權限。"
+msgstr ""
 
-#: payments/forms.py:84
+#: payments/forms.py:85
 msgid "Card number"
 msgstr "信用卡卡號"
 
-#: payments/forms.py:93
+#: payments/forms.py:94
 msgid "Card expiration"
 msgstr "信用卡到期"
 
-#: payments/forms.py:102
+#: payments/forms.py:103
 msgid "Card CVV"
 msgstr "信用卡 CVV"
 
-#: payments/forms.py:170
+#: payments/forms.py:171
 msgid "There was a problem communicating with Stripe"
 msgstr "與 Stripe (電子支付商) 通信有問題"
 
-#: projects/constants.py:21
+#: profiles/views.py:301
+msgid "Updated your advertising preferences"
+msgstr ""
+
+#: projects/admin.py:91
+msgid "Yes"
+msgstr ""
+
+#: projects/constants.py:25
 msgid "Automatically Choose"
 msgstr "自動選擇"
 
-#: projects/constants.py:22
+#: projects/constants.py:26
 msgid "Sphinx Html"
 msgstr "Sphinx Html"
 
-#: projects/constants.py:23
+#: projects/constants.py:27
 msgid "Mkdocs (Markdown)"
 msgstr "Mkdocs (Markdown)"
 
-#: projects/constants.py:24
+#: projects/constants.py:28
 msgid "Sphinx HtmlDir"
 msgstr "Sphinx HtmlDir"
 
-#: projects/constants.py:25
+#: projects/constants.py:29
 msgid "Sphinx Single Page HTML"
 msgstr "Sphinx HTML 單頁"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:30
+#: projects/constants.py:34
 msgid "Default"
 msgstr "預設"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:32
+#: projects/constants.py:36
 msgid "Sphinx Docs"
 msgstr "Sphinx 文件"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:36
+#: projects/constants.py:40
 msgid "Traditional"
 msgstr "正體"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:38
+#: projects/constants.py:42
 msgid "Nature"
 msgstr "自然"
 
 #. Translators: This is a name of a Sphinx theme.
-#: projects/constants.py:40
+#: projects/constants.py:44
 msgid "Haiku"
 msgstr "俳句"
 
-#: projects/constants.py:70
+#: projects/constants.py:73
+msgid "Live"
+msgstr "線上"
+
+#: projects/constants.py:74
 msgid "Deleted"
 msgstr "已刪除"
 
-#: projects/constants.py:79
+#: projects/constants.py:83
 msgid "Git"
 msgstr "Git"
 
-#: projects/constants.py:80
+#: projects/constants.py:84
 msgid "Subversion"
 msgstr "Subversion"
 
-#: projects/constants.py:81
+#: projects/constants.py:85
 msgid "Mercurial"
 msgstr "Mercurial"
 
-#: projects/constants.py:82
+#: projects/constants.py:86
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:91
+#: projects/constants.py:94
+msgid "Public"
+msgstr "公開"
+
+#: projects/constants.py:95
 msgid "Protected"
 msgstr "保護"
 
-#: projects/constants.py:92
+#: projects/constants.py:96
 msgid "Private"
 msgstr "私人"
 
-#: projects/constants.py:103
+#: projects/constants.py:107
 msgid "CPython 2.x"
 msgstr "CPython 2.x"
 
-#: projects/constants.py:104
+#: projects/constants.py:108
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/forms.py:92
+#: projects/exceptions.py:17
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr ""
+
+#: projects/exceptions.py:22
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+
+#: projects/exceptions.py:33
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+
+#: projects/exceptions.py:37
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+
+#: projects/exceptions.py:43
+msgid "One or more submodule URLs are not valid."
+msgstr ""
+
+#: projects/exceptions.py:47
+msgid "You can not have two versions with the name latest or stable."
+msgstr ""
+
+#: projects/forms.py:97
 msgid "Edit advanced project options"
 msgstr "編輯專案的進階選項"
 
-#: projects/forms.py:115
+#: projects/forms.py:120
 msgid "Invalid project name, a project already exists with that name"
 msgstr "無效的專案名稱，此專案名稱已經存在"
 
-#: projects/forms.py:122
-msgid "Invalid character in repo name"
-msgstr "倉庫名稱中包含無效字符"
-
-#: projects/forms.py:125
-msgid ""
-"It looks like you entered a private repo - please use the public (http:// or "
-"git://) clone url"
-msgstr ""
-"看來您是誤闖了私人倉庫，請使用共用倉庫的網址複製 'clone' (http:// 或 git://) "
-
-#: projects/forms.py:139
-#, fuzzy
-#| msgid "Repository"
+#: projects/forms.py:133
 msgid "Repository invalid"
-msgstr "倉庫"
+msgstr ""
 
-#: projects/forms.py:181 projects/models.py:201
-msgid "(Beta) The Python interpreter used to create the virtual environment."
+#: projects/forms.py:176 projects/models.py:210
+#, fuzzy
+#| msgid ""
+#| "(Beta) The Python interpreter used to create the virtual environment."
+msgid "The Python interpreter used to create the virtual environment."
 msgstr "(Beta) 用於建立虛擬環境的 Python 解譯器。"
 
-#: projects/forms.py:212
+#: projects/forms.py:209
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr "您的組態設定檔無效，請確認 conf.py 檔案是否存在。"
 
-#: projects/forms.py:261
-#, fuzzy
-#| msgid "Project settings updated"
-msgid "Subproject nesting is not supported"
-msgstr "專案更新設定"
+#: projects/forms.py:237
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr ""
 
-#: projects/forms.py:339 templates/core/project_detail_right.html:118
+#: projects/forms.py:289
+msgid "Subproject nesting is not supported"
+msgstr ""
+
+#: projects/forms.py:296
+msgid "A project can not be a subproject of itself"
+msgstr ""
+
+#: projects/forms.py:384 templates/core/project_detail_right.html:133
 msgid "Default Version"
 msgstr "預設版本"
 
-#: projects/forms.py:366
+#: projects/forms.py:414
 msgid "Zip file of HTML"
 msgstr "HTML 網頁的 Zip 壓縮檔"
 
-#: projects/forms.py:368
+#: projects/forms.py:416
 msgid "Overwrite existing HTML?"
 msgstr "覆蓋已存在的 HTML 網頁？"
 
-#: projects/forms.py:381
+#: projects/forms.py:429
 msgid "That version is already active!"
 msgstr "這個版本已經啟用！"
 
-#: projects/forms.py:383
+#: projects/forms.py:431
 msgid "Must upload a zip file."
 msgstr "必須上傳一個 zip 壓縮檔。"
 
-#: projects/forms.py:398
+#: projects/forms.py:446
 msgid "Version of the project you are uploading HTML for"
 msgstr "您要上傳 HTML 的專案版本是"
 
-#: projects/forms.py:418
-#, python-format
-msgid "User %(name)s does not exist"
-msgstr "用戶 %(name)s 不存在"
+#: projects/forms.py:467
+#, python-brace-format
+msgid "User {name} does not exist"
+msgstr ""
 
-#: projects/forms.py:484
-#, python-format
-msgid "Project %(name)s does not exist"
-msgstr "專案 %(name)s 不存在"
-
-#: projects/forms.py:556
+#: projects/forms.py:661
 msgid "Only 1 Domain can be canonical at a time."
 msgstr "一個網域只能有一個規範。"
 
-#: projects/models.py:53
+#: projects/models.py:50
 msgid "Parent"
 msgstr "上一層"
 
-#: projects/models.py:55
+#: projects/models.py:52
 msgid "Child"
 msgstr "下一層"
 
-#: projects/models.py:57
+#: projects/models.py:54
 msgid "Alias"
 msgstr "別名"
 
-#: projects/models.py:89
+#: projects/models.py:86
 msgid "The reStructuredText description of the project"
 msgstr "reStructuredText 格式的專案說明"
 
-#: projects/models.py:91
+#: projects/models.py:88
 msgid "Repository URL"
 msgstr "倉庫網址"
 
-#: projects/models.py:92
+#: projects/models.py:90
 msgid "Hosted documentation repository URL"
 msgstr "托管倉庫的網址"
 
-#: projects/models.py:93
+#: projects/models.py:91
 msgid "Repository type"
 msgstr "倉庫類型"
 
-#: projects/models.py:95
+#: projects/models.py:93
 msgid "Project homepage"
 msgstr "專案首頁"
 
-#: projects/models.py:96
+#: projects/models.py:94
 msgid "The project's homepage"
 msgstr "專案的首頁"
 
-#: projects/models.py:97
+#: projects/models.py:95
 msgid "Canonical URL"
 msgstr "標準網址"
 
-#: projects/models.py:98
+#: projects/models.py:96
 msgid "URL that documentation is expected to serve from"
 msgstr "文件所提供的網址"
 
-#: projects/models.py:100
+#: projects/models.py:98
 msgid "Project version these docs apply to, i.e. 1.0a"
 msgstr "這些文件適用於專案的 i.e. 1.0a 版本"
 
-#: projects/models.py:102
+#: projects/models.py:100
 msgid "Copyright"
 msgstr "版權"
 
-#: projects/models.py:103
+#: projects/models.py:101
 msgid "Project copyright information"
 msgstr "專案版權資訊"
 
-#: projects/models.py:108
+#: projects/models.py:103
+msgid "Theme"
+msgstr "主題"
+
+#: projects/models.py:106
 msgid "Examples"
 msgstr "範例"
 
-#: projects/models.py:109
+#: projects/models.py:107
 msgid "Suffix"
 msgstr "後綴"
 
-#: projects/models.py:112
+#: projects/models.py:110
 msgid "Single version"
 msgstr "單機版"
 
-#: projects/models.py:113
+#: projects/models.py:111
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -1256,19 +1071,19 @@ msgstr ""
 "單機版網站只有 \"latest\" 不含翻譯文件，不適用於多語系版本，且它是在 'root'  "
 "下工作，使用時請謹慎。"
 
-#: projects/models.py:118
+#: projects/models.py:116
 msgid "Default version"
 msgstr "預設版本"
 
-#: projects/models.py:119
+#: projects/models.py:117
 msgid "The version of your project that / redirects to"
 msgstr "訪問專案根目錄時，將轉址到"
 
-#: projects/models.py:123
+#: projects/models.py:121
 msgid "Default branch"
 msgstr "預設分支"
 
-#: projects/models.py:124
+#: projects/models.py:122
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS (eg. <code>trunk</code> or <code>master</code>)."
@@ -1276,11 +1091,11 @@ msgstr ""
 "如何指向 \"latest\" 分支，如果空白則使用預設值 VCS。 (例如：<code>trunk</"
 "code> 或 <code>master</code>)"
 
-#: projects/models.py:128
+#: projects/models.py:126
 msgid "Requirements file"
 msgstr "需求文件"
 
-#: projects/models.py:130
+#: projects/models.py:128
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-files"
 "\">pip requirements file</a> needed to build your documentation. Path from "
@@ -1289,27 +1104,24 @@ msgstr ""
 "在您的專案目錄中，使用<a href=\"https://pip.pypa.io/en/latest/user_guide."
 "html#requirements-files\"> pip -r requirements.txt</a> 來建置系統。"
 
-#: projects/models.py:135
+#: projects/models.py:133
 msgid "Documentation type"
 msgstr "文檔類型"
 
-#: projects/models.py:137
+#: projects/models.py:135
 msgid ""
-"Type of documentation you are building. <a href=\"http://sphinx-doc.org/"
-"builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More info</a>."
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info</a>."
 msgstr ""
-"正在建立文件類型。<a href=\"http://sphinx-doc.org/builders.html#sphinx."
-"builders.html.DirectoryHTMLBuilder\">更多資訊</a>。"
 
-#: projects/models.py:142
+#: projects/models.py:141
 msgid "Allow Comments"
 msgstr "允許註解"
 
 #: projects/models.py:143
-#, fuzzy
-#| msgid "Comment Moderation)"
 msgid "Comment Moderation"
-msgstr "審核註解"
+msgstr ""
 
 #: projects/models.py:144
 msgid "CDN Enabled"
@@ -1350,243 +1162,325 @@ msgid "Alternate build queue id"
 msgstr "備用建置佇列 id"
 
 #: projects/models.py:161
-#, fuzzy
-#| msgid "Advertising"
 msgid "Allow paid advertising"
-msgstr "廣告"
+msgstr ""
 
 #: projects/models.py:162
 msgid "If unchecked, users will still see community ads."
 msgstr ""
 
-#: projects/models.py:166
+#: projects/models.py:164
+msgid "Ad-free"
+msgstr ""
+
+#: projects/models.py:169
+msgid "Show version warning"
+msgstr ""
+
+#: projects/models.py:170
+msgid "Show warning banner in non-stable nor latest versions."
+msgstr ""
+
+#: projects/models.py:175
 msgid "Enable EPUB build"
 msgstr "啟用 EPUB 產生器"
 
-#: projects/models.py:168
+#: projects/models.py:177
 msgid "Create a EPUB version of your documentation with each build."
 msgstr "使用 EPUB 產生器，建立所有文件"
 
-#: projects/models.py:170
+#: projects/models.py:179
 msgid "Enable PDF build"
 msgstr "啟用 PDF 產生器"
 
-#: projects/models.py:172
+#: projects/models.py:181
 msgid "Create a PDF version of your documentation with each build."
 msgstr "使用 PDF 產生器，建立所有文件"
 
-#: projects/models.py:176
+#: projects/models.py:184 projects/models.py:931
+msgid "Path"
+msgstr "路徑"
+
+#: projects/models.py:185
 msgid "The directory where <code>conf.py</code> lives"
 msgstr "<code>conf.py</code> 所在目錄"
 
-#: projects/models.py:179
+#: projects/models.py:188
 msgid "Python configuration file"
 msgstr "Python 組態設檔"
 
-#: projects/models.py:180
-#, fuzzy
-#| msgid ""
-#| "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf."
-#| "py</code>).Leave blank if you want us to find it for you."
+#: projects/models.py:189
 msgid ""
 "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
 "code>). Leave blank if you want us to find it for you."
 msgstr ""
-"<code>conf.py</ code> 文件在專案的根目錄，如果您希望自動找到它，請留空白。\n"
-"(例如： <code>docs/conf.py</ code>)"
 
-#: projects/models.py:184
+#: projects/models.py:193
 msgid "Featured"
 msgstr "精選"
 
-#: projects/models.py:185
+#: projects/models.py:194
 msgid "Skip"
 msgstr "跳過"
 
-#: projects/models.py:186
+#: projects/models.py:195
 msgid "Mirror"
 msgstr "鏡像"
 
-#: projects/models.py:188
+#: projects/models.py:197
 msgid "Install Project"
 msgstr "安裝專案"
 
-#: projects/models.py:189
+#: projects/models.py:198
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr "安裝您的專案使用 <code>setup.py install</code>"
 
-#: projects/models.py:197
+#: projects/models.py:206
 msgid "Python Interpreter"
 msgstr "Python 解譯器"
 
-#: projects/models.py:205
+#: projects/models.py:214
 msgid "Use system packages"
 msgstr "使用系統套件"
 
-#: projects/models.py:206
+#: projects/models.py:215
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "讓虛擬環境可以存取全域 site-packages 目錄。"
 
-#: projects/models.py:210
+#: projects/models.py:219
 msgid "Django Packages URL"
 msgstr "Django 套件網址"
 
-#: projects/models.py:215
+#: projects/models.py:224
+#, fuzzy
+#| msgid ""
+#| "(Beta) Level of privacy that you want on the repository. Protected means "
+#| "public but not in listings."
 msgid ""
-"(Beta) Level of privacy that you want on the repository. Protected means "
-"public but not in listings."
+"Level of privacy that you want on the repository. Protected means public but "
+"not in listings."
 msgstr "(Beta) 倉庫的私人等級，表示保護資料不顯示於清單中。"
 
-#: projects/models.py:218
+#: projects/models.py:227
 msgid "Version Privacy Level"
 msgstr "私人等級版本"
 
-#: projects/models.py:221
-msgid ""
-"(Beta) Default level of privacy you want on built versions of documentation."
+#: projects/models.py:230
+#, fuzzy
+#| msgid ""
+#| "(Beta) Default level of privacy you want on built versions of "
+#| "documentation."
+msgid "Default level of privacy you want on built versions of documentation."
 msgstr "(Beta) 建置不同專案時，預設使用私人等級。"
 
-#: projects/models.py:226
+#: projects/models.py:235
 msgid "Related projects"
 msgstr "相關專案"
 
-#: projects/models.py:230
+#: projects/models.py:239
 msgid "Language"
 msgstr "語系"
 
-#: projects/models.py:231
+#: projects/models.py:240
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr "專案要使用的語系，注意︰它會影響您專案的網址。"
 
-#: projects/models.py:240
+#: projects/models.py:246
+msgid "Programming Language"
+msgstr "程式設計語言"
+
+#: projects/models.py:250
 msgid "The primary programming language the project is written in."
 msgstr "在編寫此專案主要的程式設計語言。"
 
-#: projects/models.py:250
+#: projects/models.py:260
 msgid "Number of Major versions"
 msgstr "主要版本號"
 
-#: projects/models.py:254
+#: projects/models.py:264
 msgid "2 means supporting 3.X.X and 2.X.X, but not 1.X.X"
 msgstr "2 表示支援 3.X.X 和 2.X.X 不支援 1.X.X 版本"
 
-#: projects/models.py:257
+#: projects/models.py:267
 msgid "Number of Minor versions"
 msgstr "次要版本號"
 
-#: projects/models.py:261
+#: projects/models.py:271
 msgid "2 means supporting 2.2.X and 2.1.X, but not 2.0.X"
 msgstr "2 表示支援 2.2.X 和 2.1.X 不支援 2.0.X 版本"
 
-#: projects/models.py:264
+#: projects/models.py:274
 msgid "Number of Point versions"
 msgstr "點版本號"
 
-#: projects/models.py:268
+#: projects/models.py:278
 msgid "2 means supporting 2.2.2 and 2.2.1, but not 2.2.0"
 msgstr "2 表示支援 2.2.2 和 2.2.1 不支援 2.2.0 版本"
 
-#: projects/models.py:272
+#: projects/models.py:282
 msgid "This project has been built with a webhook"
 msgstr "這個專案已經產生 webhook"
 
-#: projects/models.py:275
+#: projects/models.py:285
 msgid "This project has been successfully cloned"
 msgstr "這個專案已經成功複製 (clone)"
 
 #. Translators: Permission around whether a user can view the
 #. project
-#: projects/models.py:287
+#: projects/models.py:297
 msgid "View Project"
 msgstr "檢視專案"
 
-#: projects/models.py:309
+#: projects/models.py:320
 msgid "Model must have slug"
 msgstr "Model 必須有縮略名稱"
 
-#: projects/models.py:844
+#: projects/models.py:932
 msgid "MD5 checksum"
 msgstr "MD5 校驗碼"
 
-#: projects/models.py:874
+#: projects/models.py:962
 msgid "URL to send the webhook to"
 msgstr "網址用來發送 webhook 到"
 
-#: projects/models.py:886
+#: projects/models.py:974
 msgid "Domain"
 msgstr "網域"
 
-#: projects/models.py:889
+#: projects/models.py:977
 msgid "This Domain was auto-created"
 msgstr "網域將會自動建立"
 
-#: projects/models.py:892
+#: projects/models.py:980
 msgid "This Domain is a CNAME for the project"
 msgstr "這個專案的子網域(CNAME)"
 
-#: projects/models.py:896
-#, fuzzy
-#| msgid ""
-#| "This Domain is the primary one where the documentation is served from."
+#: projects/models.py:985
 msgid "This Domain is the primary one where the documentation is served from"
-msgstr "提供文檔的主要網域。"
+msgstr ""
 
-#: projects/models.py:899
+#: projects/models.py:989
 msgid "Use HTTPS"
 msgstr "使用 HTTPS"
 
-#: projects/models.py:901
-msgid "SSL is enabled for this domain"
+#: projects/models.py:991
+#, fuzzy
+#| msgid "SSL is enabled for this domain"
+msgid "Always use HTTPS for this domain"
 msgstr "啟用 SSL"
 
-#: projects/models.py:903
-#, fuzzy
-#| msgid "Number of times this domain has been hit."
+#: projects/models.py:994
 msgid "Number of times this domain has been hit"
-msgstr "網站的點擊數。"
+msgstr ""
 
-#: projects/tasks.py:143
-msgid "Builds for this project are temporarily disabled"
-msgstr "暫時停用專案產生器"
+#: projects/models.py:1050
+msgid "Use latest version of Sphinx"
+msgstr ""
 
-#: projects/tasks.py:816
+#: projects/models.py:1051
+msgid "Use latest version of setuptools"
+msgstr ""
+
+#: projects/models.py:1052
+msgid "Allow deprecated webhook views"
+msgstr ""
+
+#: projects/models.py:1053
+msgid "Always run pip install --upgrade"
+msgstr ""
+
+#: projects/models.py:1054
+msgid "Skip git submodule checkout"
+msgstr ""
+
+#: projects/models.py:1056
+msgid "Do not overwrite context vars in conf.py with Read the Docs context"
+msgstr ""
+
+#: projects/models.py:1058
+#, fuzzy
+#| msgid "Python configuration file"
+msgid "Allow to use the v2 of the configuration file"
+msgstr "Python 組態設檔"
+
+#: projects/models.py:1068
+msgid "Feature identifier"
+msgstr ""
+
+#: projects/models.py:1073
+msgid "Date feature was added"
+msgstr ""
+
+#: projects/models.py:1077
+msgid "Historical default is True"
+msgstr ""
+
+#: projects/tasks.py:101
 #, python-brace-format
-msgid "Failed: {project.name} ({commit})"
-msgstr "失敗: {project.name} ({commit})"
+msgid "Repository type \"{repo_type}\" unknown"
+msgstr ""
 
-#: projects/tasks.py:818
+#: projects/tasks.py:1132
 #, python-brace-format
-msgid "Failed: {project.name} ({version.verbose_name})"
-msgstr "失敗: {project.name} ({version.verbose_name})"
+msgid "Failed: {project[name]} ({commit})"
+msgstr ""
 
-#: projects/views/private.py:103 projects/views/private.py:119
+#: projects/tasks.py:1134
+#, python-brace-format
+msgid "Failed: {project[name]} ({version[verbose_name]})"
+msgstr ""
+
+#: projects/tasks.py:1298
+#, python-brace-format
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({0})."
+msgstr ""
+
+#: projects/validators.py:25
+msgid "Enter a valid plain or internationalized domain name value"
+msgstr "輸入有效的網域名稱或國際化網域名稱"
+
+#: projects/validators.py:33
+msgid "Enter a valid domain name value"
+msgstr "請輸入有效的網域名稱"
+
+#: projects/validators.py:72
+msgid "Invalid character in the URL"
+msgstr ""
+
+#: projects/validators.py:93
+msgid "Invalid scheme for URL"
+msgstr ""
+
+#: projects/views/private.py:84 projects/views/private.py:100
 msgid "Project settings updated"
 msgstr "專案更新設定"
 
-#: projects/views/private.py:151
+#: projects/views/private.py:133
 msgid "Project versions updated"
 msgstr "更新專案版本"
 
-#: projects/views/private.py:204
+#: projects/views/private.py:185
 msgid "Project deleted"
 msgstr "刪除專案"
 
-#: projects/views/private.py:289
+#: projects/views/private.py:281
 msgid "The demo project is already imported!"
 msgstr "已經匯入專案範例！"
 
-#: projects/views/private.py:298
+#: projects/views/private.py:290
 msgid "Your demo project is currently being imported"
 msgstr "正在匯入專案範例"
 
-#: projects/views/private.py:303
+#: projects/views/private.py:294
 msgid "There was a problem adding the demo project"
 msgstr "新增專案範例時出現問題"
 
-#: projects/views/private.py:350
+#: projects/views/private.py:347
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -1595,7 +1489,7 @@ msgstr ""
 "您的 {service} 帳號有問題，請嘗試在<a href=\"{url}\">已連接的服務頁面</a>上重"
 "新連接您的帳號。"
 
-#: projects/views/private.py:794
+#: projects/views/private.py:808
 msgid "Project has been opted out from advertisement support"
 msgstr "專案已選擇退出廣告支援"
 
@@ -1631,126 +1525,123 @@ msgstr "Sphinx HTMLDir -> HTML"
 msgid "Sphinx HTML -> HTMLDir"
 msgstr "Sphinx HTML -> HTMLDir"
 
-#: redirects/models.py:39
+#: redirects/models.py:43
 msgid ""
 "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
 "html</b>"
 msgstr "不含網域的絕對路徑。範例： <b>/docs/</b> 或 <b>/install.html</b>"
 
-#: redirects/models.py:42
+#: redirects/models.py:46
 #, fuzzy
-#| msgid "Absolute or relative url. Examples: <b>/tutorial/install.html</b>"
-msgid "Absolute or relative URL. Examples: <b>/tutorial/install.html</b>"
-msgstr "絕對或相對網址。範例： <b>/tutorial/install.html</b>"
+#| msgid ""
+#| "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/"
+#| "install.html</b>"
+msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
+msgstr "不含網域的絕對路徑。範例： <b>/docs/</b> 或 <b>/install.html</b>"
 
-#: redirects/models.py:45
+#: redirects/models.py:49
 msgid "The type of redirect you wish to use."
 msgstr "您希望使用的轉址類型。"
 
-#: redirects/models.py:56
+#: redirects/models.py:60
 msgid "Redirect Type"
 msgstr "轉址類型"
 
-#: redirects/models.py:59
+#: redirects/models.py:63
 msgid "From URL"
 msgstr "從網址"
 
-#: redirects/models.py:62
+#: redirects/models.py:66
 msgid "To URL"
 msgstr "到網址"
 
-#: redirects/models.py:65
+#: redirects/models.py:69
 msgid "HTTP Status"
 msgstr "HTTP 狀態"
 
-#: redirects/models.py:76
+#: redirects/models.py:80
 msgid "redirect"
 msgstr "轉址"
 
-#: redirects/models.py:77
+#: redirects/models.py:81
 msgid "redirects"
 msgstr "轉址"
 
-#: redirects/models.py:82
-#, fuzzy
-#| msgid "Prefix Redirect"
-msgid "Prefix Redirect:"
-msgstr "子網域轉址"
+#: redirects/models.py:91
+msgid "Redirect: {}"
+msgstr ""
 
-#: redirects/models.py:84
-#, fuzzy
-#| msgid "Page Redirect"
-msgid "Page Redirect:"
-msgstr "頁面轉址"
-
-#: redirects/models.py:87
-#, python-format
-msgid "Redirect: %s"
-msgstr "轉址: %s"
-
-#: settings/base.py:197
+#: settings/base.py:221
 msgid "Catalan"
 msgstr "加泰隆語"
 
-#: settings/base.py:198
+#: settings/base.py:222
 msgid "English"
 msgstr "英語"
 
-#: settings/base.py:199
+#: settings/base.py:223
 msgid "Spanish"
 msgstr "西班牙語"
 
-#: settings/base.py:200
+#: settings/base.py:224
 msgid "Brazilian Portuguese"
 msgstr "葡萄牙語（巴西）"
 
-#: settings/base.py:201
+#: settings/base.py:225
 msgid "Norwegian Bokmål"
 msgstr "挪威"
 
-#: settings/base.py:202
+#: settings/base.py:226
 msgid "French"
 msgstr "法國"
 
-#: settings/base.py:203
+#: settings/base.py:227
 msgid "Russian"
 msgstr "俄國"
 
-#: settings/base.py:204
+#: settings/base.py:228
 msgid "German"
 msgstr "德國"
 
-#: settings/base.py:205
+#: settings/base.py:229
 msgid "Galician"
 msgstr "加里斯亞"
 
-#: settings/base.py:206
+#: settings/base.py:230
 msgid "Vietnamese"
 msgstr "越南"
 
-#: settings/base.py:207
-msgid "Chinese"
-msgstr "華語"
+#: settings/base.py:231
+msgid "Simplified Chinese"
+msgstr ""
 
-#: settings/base.py:208
-msgid "Taiwanese"
-msgstr "台灣"
+#: settings/base.py:232
+msgid "Traditional Chinese"
+msgstr ""
 
-#: settings/base.py:209
+#: settings/base.py:233
 msgid "Japanese"
 msgstr "日本"
 
-#: settings/base.py:210
+#: settings/base.py:234
 msgid "Ukrainian"
 msgstr "烏克蘭"
 
-#: settings/base.py:211
+#: settings/base.py:235
 msgid "Italian"
 msgstr "義大利"
 
-#: settings/base.py:212
+#: settings/base.py:236
 msgid "Korean"
 msgstr "韓國"
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr "發現迷宮"
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "伺服器錯誤"
 
 #: templates/account/email.html:5 templates/account/email.html:9
 #: templates/profiles/base_profile_edit.html:51
@@ -1758,10 +1649,8 @@ msgid "Change Email"
 msgstr "變更信箱"
 
 #: templates/account/email.html:13
-#, fuzzy
-#| msgid "The following e-mail addresses are associated with your account:"
 msgid "The following email addresses are associated with your account:"
-msgstr "下列是與您帳戶關聯的電子信箱︰"
+msgstr ""
 
 #: templates/account/email.html:27
 msgid "Verified"
@@ -1788,17 +1677,10 @@ msgid "Warning:"
 msgstr "警告"
 
 #: templates/account/email.html:46
-#, fuzzy
-#| msgid ""
-#| "You currently do not have any e-mail address set up. You should really "
-#| "add an e-mail address so you can receive notifications, reset your "
-#| "password, etc."
 msgid ""
 "You currently do not have any email address set up. You should really add an "
 "email address so you can receive notifications, reset your password, etc."
 msgstr ""
-"您尚未設定任何電子信箱，您至少要有一個電子信箱，日後才可以收到通知及重設密碼"
-"等。"
 
 #: templates/account/email.html:51
 msgid "Add E-mail Address"
@@ -1809,10 +1691,8 @@ msgid "Add E-mail"
 msgstr "新增電子信箱"
 
 #: templates/account/email.html:65
-#, fuzzy
-#| msgid "Do you really want to remove the selected e-mail address?"
 msgid "Do you really want to remove the selected email address?"
-msgstr "您確定刪除所選擇的電子信箱嗎？"
+msgstr ""
 
 #: templates/account/email/email_confirmation_message.html:7
 #: templates/account/email/email_confirmation_message.txt:6
@@ -1823,63 +1703,58 @@ msgstr ""
 
 #: templates/account/email/email_confirmation_message.html:15
 #: templates/account/email/email_confirmation_message.txt:10
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "To verify your email address and finish setting up your account, please\n"
-#| "go to:\n"
-#| "\n"
-#| "%(activate_url)s\n"
-#| "\n"
-#| "If you did not sign up for an account with Read the Docs, you can\n"
-#| "disregard this email.\n"
 msgid ""
 "If you did not sign up for an account with Read the Docs, you can disregard "
 "this email."
 msgstr ""
-"\n"
-"要完成您帳號註冊，請點擊以下連結驗證您的電子信箱：\n"
-"\n"
-"%(activate_url)s\n"
-"\n"
-"如果您沒有註冊 ReadTheDocs 的帳號，可以忽略此郵件。\n"
 
 #: templates/account/email/email_confirmation_subject.txt:3
-#, fuzzy
-#| msgid "Verify your e-mail address"
 msgid "Verify your email address"
-msgstr "驗證您的電子信箱地址"
+msgstr ""
 
-#: templates/account/email/password_reset_key_message.html:16
-#: templates/account/email/password_reset_key_message.txt:11
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
 msgid ""
-"If you did not request to reset you password, you can disregard this email."
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
 msgstr ""
 
 #: templates/account/email/password_reset_key_subject.txt:3
 msgid "Password reset"
 msgstr "重設密碼"
 
-#: templates/account/login.html:6 templates/account/login.html:10
-#: templates/account/login.html:21
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
 msgid "Sign In"
 msgstr "登入"
 
-#: templates/account/login.html:12
-#, python-format
+#: templates/account/login.html:14
+#, fuzzy, python-format
+#| msgid ""
+#| "If you have not created an account yet, then please\n"
+#| "<a href=\"%(signup_url)s\">sign up</a> first."
 msgid ""
-"If you have not created an account yet, then please\n"
-"<a href=\"%(signup_url)s\">sign up</a> first."
+"If you have not created an account yet, then please <a href=\"%(signup_url)s"
+"\">sign up</a> first."
 msgstr ""
 "如果您尚未建立帳號，請先\n"
 "<a href=\"%(signup_url)s\">註冊</a>。"
 
-#: templates/account/login.html:22
+#: templates/account/login.html:27
+#, python-format
 msgid ""
-"If you forgot your password, <a href=\"/accounts/password/reset/\">reset it."
-"</a>"
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
 msgstr ""
-"若您忘記了密碼，可以<a href=\"/accounts/password/reset/\">重設密碼</a>。"
+
+#: templates/account/login.html:31 templates/account/signup.html:28
+msgid "Or"
+msgstr ""
 
 #: templates/account/password_change.html:5
 #: templates/account/password_change.html:9
@@ -1888,135 +1763,192 @@ msgstr ""
 msgid "Change Password"
 msgstr "修改密碼"
 
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "註冊"
+
+#: templates/account/signup.html:13
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+
+#: templates/account/signup.html:24
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/en/"
+"latest/privacy-policy.html\">privacy policy</a>."
+msgstr ""
+
 #: templates/archive/index.html:5
 msgid "Read the Docs Archive"
 msgstr "ReadTheDocs 檔案"
 
-#: templates/base.html:92
-msgid "Docs"
-msgstr "文件"
-
-#: templates/base.html:95
-#, python-format
-msgid ""
-"\n"
-"        Made by <a href=\"https://docs.readthedocs.io/en/latest/team.html"
-"\">humans</a>. Funded by <a href=\"%(gold_detail)s\">readers like you</a>.\n"
-"        "
+#: templates/base.html:124
+msgid "Stay Updated"
 msgstr ""
-"\n"
-"由 <a href=\"https://docs.readthedocs.io/en/latest/team.html\">humans</a>製"
-"作， 以及類似您這樣的<a href=\"%(gold_detail)s\">讀者</a>資助。"
+
+#: templates/base.html:128
+msgid "Blog"
+msgstr ""
+
+#: templates/base.html:132
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+
+#: templates/base.html:142
+msgid "Subscribe"
+msgstr ""
+
+#: templates/base.html:150
+msgid "Get Involved"
+msgstr ""
+
+#: templates/base.html:154
+msgid "Getting Started Guide"
+msgstr ""
+
+#: templates/base.html:157
+msgid "Documentation"
+msgstr ""
+
+#: templates/base.html:160
+msgid "Contributing"
+msgstr ""
+
+#: templates/base.html:163
+msgid "Team"
+msgstr ""
+
+#: templates/base.html:166
+msgid "Open Source Philosophy"
+msgstr ""
+
+#: templates/base.html:173
+msgid "Business Info"
+msgstr ""
+
+#: templates/base.html:178
+msgid "Advertise with Us"
+msgstr ""
+
+#: templates/base.html:181
+msgid "Private Hosting"
+msgstr ""
+
+#: templates/base.html:185
+msgid "Supporters"
+msgstr ""
+
+#: templates/base.html:188
+msgid "Privacy Policy"
+msgstr ""
+
+#: templates/base.html:209
+msgid "Read the Docs, Inc & contributors"
+msgstr ""
+
+#: templates/base.html:232
+msgid "Change Language"
+msgstr ""
 
 #: templates/base_filter.html:14 templates/core/filter_bar.html:8
 msgid "Filter"
 msgstr "篩選器"
 
-#: templates/bookmarks/bookmark_delete.html:4
-#: templates/bookmarks/bookmark_delete.html:6
-#: templates/projects/project_delete.html:4
-#: templates/projects/project_delete.html:6
-#, python-format
-msgid "Delete %(name)s?"
-msgstr "刪除 %(name)s ？"
-
-#: templates/bookmarks/bookmark_delete.html:9
-#: templates/projects/project_delete.html:9
-#: templates/projects/project_resync_webhook.html:9
-msgid "You sure?"
-msgstr "確定嗎？"
-
-#: templates/bookmarks/bookmark_delete.html:12
-#: templates/projects/project_delete.html:12
-msgid "Delete forever"
-msgstr "永久刪除"
-
-#: templates/bookmarks/bookmark_list.html:7
-msgid "Bookmarks"
-msgstr "書籤"
-
-#: templates/bookmarks/bookmark_list.html:20
-msgid "All Bookmarks"
-msgstr "所有書籤"
-
-#: templates/builds/build_detail.html:36
+#: templates/builds/build_detail.html:37
 msgid "Completed"
 msgstr "已完成"
 
-#: templates/builds/build_detail.html:41
+#: templates/builds/build_detail.html:42
 msgid "Build took"
 msgstr "建置了"
 
-#: templates/builds/build_detail.html:45
+#: templates/builds/build_detail.html:46
 msgid "seconds"
 msgstr "秒"
 
-#: templates/builds/build_detail.html:51
+#: templates/builds/build_detail.html:52
 msgid "Built on"
 msgstr "建立在"
 
-#: templates/builds/build_detail.html:58
-#, python-format
-msgid ""
-"\n"
-"        Build #%(build_id)s\n"
-"      "
+#: templates/builds/build_detail.html:60
+msgid "View docs"
+msgstr ""
+
+#: templates/builds/build_detail.html:68
+msgid "View raw"
+msgstr ""
+
+#: templates/builds/build_detail.html:75
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "        Build #%(build_id)s\n"
+#| "      "
+msgid "Build #%(build_id)s"
 msgstr ""
 "\n"
 "建置 #%(build_id)s"
 
-#: templates/builds/build_detail.html:86
+#: templates/builds/build_detail.html:107
 msgid "Build completed"
 msgstr "建置完成"
 
-#: templates/builds/build_detail.html:91
+#: templates/builds/build_detail.html:112
 msgid "Build failed"
 msgstr "建置失敗"
 
-#: templates/builds/build_detail.html:99
+#: templates/builds/build_detail.html:121
+#, python-format
+msgid ""
+"Having trouble with your build environment? Try <a href=\"%(wipe_url)s"
+"\">resetting it</a>."
+msgstr ""
+
+#: templates/builds/build_detail.html:131
+#, python-format
+msgid ""
+"Don't want <em>setup.py install</em> called? Change the <strong>Install "
+"Project</strong> setting in your <a href=\"%(advanced_url)s\">advanced "
+"settings</a>."
+msgstr ""
+
+#: templates/builds/build_detail.html:144
 msgid "Show full build output"
 msgstr "顯示完整的建置輸出"
 
-#: templates/builds/build_detail.html:105
+#: templates/builds/build_detail.html:150
 msgid "Build Output"
 msgstr "建置輸出"
 
-#: templates/builds/build_detail.html:109
+#: templates/builds/build_detail.html:154
 msgid "Setup Output"
 msgstr "設置輸出"
 
-#: templates/builds/build_detail.html:114
+#: templates/builds/build_detail.html:159
 msgid "Environment Standard Error"
 msgstr "環境標準錯誤"
 
-#: templates/builds/build_detail.html:120
+#: templates/builds/build_detail.html:165
 msgid "Build Errors"
 msgstr "建置錯誤"
 
-#: templates/builds/build_detail.html:154
+#: templates/builds/build_detail.html:199
 msgid "Command time:"
 msgstr "命令時間︰"
 
-#: templates/builds/build_detail.html:159
+#: templates/builds/build_detail.html:204
 msgid "Return"
 msgstr "返回"
 
-#: templates/builds/build_list.html:23
-#, python-format
-msgid ""
-"\n"
-"    Whoa! The build queue is %(queue_length)s tasks long, new builds may "
-"take a while.\n"
-"  "
-msgstr ""
-"\n"
-"建置資料 %(queue_length)s 很多，可能需要一點時間來處理。"
-
-#: templates/builds/build_list.html:46
+#: templates/builds/build_list.html:37
 msgid "Build Version:"
 msgstr "建置版本："
 
-#: templates/builds/build_list.html:62
+#: templates/builds/build_list.html:53
 msgid "Recent Builds"
 msgstr "最近建置"
 
@@ -2040,6 +1972,7 @@ msgstr "%(slug)s 版本 (%(type)s)"
 
 #: templates/core/build_list_detailed.html:9
 #: templates/core/project_list_detailed.html:27
+#: templates/projects/integration_webhook_detail.html:84
 #, python-format
 msgid "%(date)s ago"
 msgstr "%(date)s 前"
@@ -2064,24 +1997,24 @@ msgstr "ReadTheDocs"
 msgid "No objects found"
 msgstr "未發現相關對象"
 
-#: templates/core/header.html:29
+#: templates/core/header.html:28
 msgid "My Projects"
 msgstr "我的專案"
 
-#: templates/core/header.html:30 templates/projects/project_edit.html:27
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
 #: templates/projects/project_edit_base.html:17
 msgid "Settings"
 msgstr "設定"
 
-#: templates/core/header.html:31
+#: templates/core/header.html:30
 msgid "Support"
 msgstr "支援"
 
-#: templates/core/header.html:34 templates/error_header.html:24
+#: templates/core/header.html:33 templates/error_header.html:24
 msgid "Log Out"
 msgstr "登出"
 
-#: templates/core/header.html:41
+#: templates/core/header.html:39
 msgid "Log In"
 msgstr "登入"
 
@@ -2089,13 +2022,8 @@ msgstr "登入"
 msgid "Create, host, and browse documentation."
 msgstr "建立、托管並瀏覽文檔。"
 
-#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
-#: templates/core/home-header.html:17
-msgid "Sign up"
-msgstr "註冊"
-
-#. Translators: The 'or' here is in between 'Submit' and 'delete'.
-#: templates/core/home-header.html:19 templates/projects/project_edit.html:38
+#: templates/core/home-header.html:19
+#: templates/projects/project_version_detail.html:23
 msgid "or"
 msgstr "或"
 
@@ -2106,84 +2034,41 @@ msgstr "登入"
 #: templates/core/project_bar_base.html:12
 #: templates/core/project_list_detailed.html:35
 #: templates/core/project_list_featured.html:13
-#: templates/projects/project_version_list.html:50
+#: templates/projects/project_version_list.html:54
 msgid "View Docs"
 msgstr "檢視文件"
 
-#: templates/core/project_bar_base.html:32
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "        This repository doesn't have a valid webhook set up.\n"
-#| "        That means it won't be rebuilt on commits to the repository.\n"
-#| "        <br>\n"
-#| "        You can <a href='%(resync_url)s'>resync your webhook</a> to fix "
-#| "this.\n"
-#| "        "
+#: templates/core/project_bar_base.html:31
 msgid ""
-"\n"
-"          This repository doesn't have a valid webhook set up,\n"
-"          commits won't trigger new builds for this project.\n"
-"        "
-msgstr ""
-"\n"
-"此倉庫未設定有效的 Webhook，表示回存 'commit' 到時不會被重建。\n"
-"<br>\n"
-"您可以重新同步 <a href='%(resync_url)s'>webhook</a>  來修復此問題。"
-
-#: templates/core/project_bar_base.html:37
-#, python-format
-msgid ""
-"\n"
-"          See <a href='%(integrations_url)s'>your project integrations</a> "
-"for more information.\n"
-"        "
+"Your project is currently disabled for abuse of the system. Please make sure "
+"it isn't using unreasonable amounts of resources or triggering lots of "
+"builds in a short amount of time. Please <a href=\"https://github.com/rtfd/"
+"readthedocs.org/issues\">file a ticket</a> to get your project re-enabled."
 msgstr ""
 
-#: templates/core/project_bar_base.html:45
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            Your project is currently disabled for abuse of the system. \n"
-#| "            Please make sure it isn't using unreasonable amounts of "
-#| "resources of triggering lots of builds in a short amount of time.\n"
-#| "            Please <a href=\"https://github.com/rtfd/readthedocs.org/"
-#| "issues\">file a ticket</a> to get your project re-enabled.\n"
-#| "            "
-msgid ""
-"\n"
-"            Your project is currently disabled for abuse of the system.\n"
-"            Please make sure it isn't using unreasonable amounts of "
-"resources or triggering lots of builds in a short amount of time.\n"
-"            Please <a href=\"https://github.com/rtfd/readthedocs.org/issues"
-"\">file a ticket</a> to get your project re-enabled.\n"
-"          "
-msgstr ""
-"\n"
-"您專案因濫用而被系統禁用，請保証在短時間內不會再觸發大量不合理的建置資源。\n"
-"重新啟用您專案的 <a href=\"https://github.com/rtfd/readthedocs.org/issues\">"
-"歸檔</a>。"
-
-#: templates/core/project_bar_base.html:54
+#: templates/core/project_bar_base.html:40
 msgid "Overview"
 msgstr "概況"
 
-#: templates/core/project_bar_base.html:56
+#: templates/core/project_bar_base.html:42
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "下載"
 
-#: templates/core/project_bar_base.html:58
+#. Translators: This is about starting a search
+#: templates/core/project_bar_base.html:44
 #: templates/core/project_list_detailed.html:39
 #: templates/core/project_list_featured.html:17
+#: templates/search/elastic_project_search.html:26
+#: templates/search/elastic_search.html:123
 msgid "Search"
 msgstr "查詢"
 
-#: templates/core/project_bar_base.html:60
+#: templates/core/project_bar_base.html:46
 msgid "Builds"
 msgstr "建置"
 
-#: templates/core/project_bar_base.html:62
+#: templates/core/project_bar_base.html:48
 #: templates/core/project_details.html:19
 #: templates/projects/project_analytics.html:76
 #: templates/projects/project_edit_base.html:19
@@ -2192,12 +2077,7 @@ msgstr "建置"
 msgid "Versions"
 msgstr "版本"
 
-#: templates/core/project_bar_base.html:72
-#: templates/projects/project_edit_base.html:29
-msgid "Comments"
-msgstr "註解"
-
-#: templates/core/project_bar_base.html:73
+#: templates/core/project_bar_base.html:58
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
@@ -2207,82 +2087,98 @@ msgstr "管理"
 msgid "Repository"
 msgstr "倉庫"
 
-#: templates/core/project_detail_right.html:15
+#: templates/core/project_detail_right.html:21
 msgid "Last Built"
 msgstr "上次建置"
 
-#: templates/core/project_detail_right.html:22
+#: templates/core/project_detail_right.html:28
 msgid "passed"
 msgstr "已通過"
 
-#: templates/core/project_detail_right.html:24
+#: templates/core/project_detail_right.html:30
 msgid "failed"
 msgstr "已失敗"
 
-#: templates/core/project_detail_right.html:37
-msgid "Owners"
-msgstr "擁有者"
+#: templates/core/project_detail_right.html:33
+msgid "Currently Building"
+msgstr ""
 
-#: templates/core/project_detail_right.html:47
+#: templates/core/project_detail_right.html:36
+#: templates/projects/project_dashboard_base.html:72
+msgid "No builds yet"
+msgstr "沒有產生"
+
+#: templates/core/project_detail_right.html:43
+#: templates/projects/project_edit_base.html:21
+#: templates/projects/project_users.html:8
+msgid "Maintainers"
+msgstr "維護者"
+
+#: templates/core/project_detail_right.html:53
 msgid "Home Page"
 msgstr "首頁"
 
-#: templates/core/project_detail_right.html:55
+#: templates/core/project_detail_right.html:61
 msgid "Badge"
 msgstr "徽章"
 
-#: templates/core/project_detail_right.html:65
+#: templates/core/project_detail_right.html:70
 msgid "Tags"
 msgstr "標籤"
 
-#: templates/core/project_detail_right.html:70
-msgid "No tags"
-msgstr "無標籤"
+#: templates/core/project_detail_right.html:78
+msgid "Project has no tags."
+msgstr ""
 
-#: templates/core/project_detail_right.html:77
+#: templates/core/project_detail_right.html:82
+#, fuzzy, python-format
+#| msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
+msgstr "<a href=\"%(project_url)s\">看看這裡</a>。"
+
+#: templates/core/project_detail_right.html:92
 msgid "Project Privacy Level"
 msgstr "專案私入等級"
 
-#: templates/core/project_detail_right.html:86
+#: templates/core/project_detail_right.html:101
 msgid "Short URLs"
 msgstr "短網址"
 
-#: templates/core/project_detail_right.html:97
+#: templates/core/project_detail_right.html:112
 #: templates/projects/project_edit_base.html:23
 #: templates/projects/project_translations.html:12
 msgid "Translations"
 msgstr "翻譯"
 
-#: templates/core/project_detail_right.html:108
+#: templates/core/project_detail_right.html:123
 msgid "Sub Projects"
 msgstr "子專案"
 
-#: templates/core/project_detail_right.html:121
+#: templates/core/project_detail_right.html:136
 msgid "'latest' Version"
 msgstr "'latest' 版本"
 
-#: templates/core/project_details.html:31
-#, python-format
-msgid " %(slug)s "
-msgstr " %(slug)s "
-
 #: templates/core/project_details.html:43
-#: templates/projects/domain_list.html:26
-#: templates/projects/project_version_list.html:46
-#: templates/projects/project_version_list.html:99
+#: templates/projects/domain_list.html:29
+#: templates/projects/project_version_list.html:50
+#: templates/projects/project_version_list.html:110
 msgid "Edit"
 msgstr "編輯"
 
-#: templates/core/project_details.html:50
-#: templates/projects/project_version_list.html:59
+#: templates/core/project_details.html:51
+#: templates/projects/project_version_list.html:64
 msgid "No active versions."
 msgstr "沒有有效的版本。"
 
-#: templates/core/project_details.html:60
+#: templates/core/project_details.html:62
 msgid "Build a version"
 msgstr "建置版本"
 
-#: templates/core/project_downloads.html:30
+#: templates/core/project_details.html:71
+msgid "Build version"
+msgstr ""
+
+#: templates/core/project_downloads.html:31
 msgid "No downloads for this project."
 msgstr "目前專案無可供下載的內容。"
 
@@ -2307,6 +2203,11 @@ msgstr "加入標籤"
 #: templates/core/widesearchbar.html:4
 msgid "Search all the docs"
 msgstr "查詢所有文件"
+
+#: templates/core/widesearchbar.html:12
+#: templates/projects/project_dashboard_base.html:118
+msgid "Search Read the Docs"
+msgstr ""
 
 #. Translators: This is about starting a search
 #: templates/core/widesearchbar.html:16
@@ -2351,119 +2252,121 @@ msgstr "您已成功將 %(object)s 標記為 %(flag_type.title)s"
 msgid "Thank you for contributing to the quality of this site!"
 msgstr "感謝您對此網站的貢獻！"
 
-#: templates/homepage.html:7
+#: templates/homepage.html:9
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+
+#: templates/homepage.html:12
 msgid "Home"
 msgstr "首頁"
 
-#: templates/homepage.html:43
-msgid "What is this place?"
-msgstr "這是哪裡？"
-
-#: templates/homepage.html:45
-msgid ""
-"\n"
-"Read the Docs hosts documentation, making it fully searchable and easy to "
-"find.\n"
-"You can import your docs using any major version control system, including "
-"Mercurial, Git, Subversion, and Bazaar.\n"
-"We support <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">webhooks</a> so your docs get built when you commit code.\n"
-"There's also support for <a href=\"http://docs.readthedocs.io/en/latest/"
-"versions.html\">versioning</a> so you can build docs from tags and branches "
-"of your code in your repository. \n"
+#: templates/homepage.html:46
+msgid "Technical documentation lives here"
 msgstr ""
-"\n"
-"ReadTheDocs 是易於查詢文件的託管系統。更支援主要常用的版本控制系統，如 "
-"Mercurial，Git，Subversion 和 Bazaar 等匯入文件。\n"
-"更可支援 <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">webhooks </a>及<a href=\"http://docs.readthedocs.io/en/latest/versions."
-"html\">版本控制系統</a>，可以從標記與分支的倉庫中，存回 'commit' 或建立文"
-"件。\n"
 
-#: templates/homepage.html:53
+#: templates/homepage.html:48
 msgid ""
-"\n"
-"  Hosting documentation is free and simple,\n"
-"  <a href=\"https://docs.readthedocs.io/en/latest/getting_started.html"
-"\">read our guide</a>\n"
-"  to get started!\n"
+"Read the Docs simplifies software documentation by automating building, "
+"versioning, and hosting of your docs for you."
 msgstr ""
-"\n"
-"託管文件是免費且簡單的，請參閱我們的<a href=\"https://docs.readthedocs.io/en/"
-"latest/getting_started.html\">使用說明</a>。\n"
 
-#: templates/homepage.html:60
+#: templates/homepage.html:61
+#, python-format
 msgid ""
-"\n"
-"Read the Docs is <b>community supported</b>. \n"
-"It depends on users like you to contribute to development,\n"
-"support,\n"
-"and operations.\n"
-"You can learn more about how to <a href=\"https://docs.readthedocs.io/en/"
-"latest/contribute.html\">contribute</a> in our docs.\n"
-"Thanks so much to our wonderful <a href=\"https://docs.readthedocs.io/en/"
-"latest/team.html\">community team</a> who helps us run the site.\n"
-"Read the Docs wouldn't be possible without them.\n"
-"Please consider joining today,\n"
-"as we always need more contributors to the project.\n"
+"We will host your documentation for free forever. There are no tricks. We "
+"help %(projects_count_intcomma)s open source projects share their docs."
 msgstr ""
-"\n"
-"ReadTheDocs  是 <b>社區支援</ b>，取決於像您這樣對開發、支援和作出貢獻的用"
-"戶。\n"
-"更多資訊請參閱，說明文件中 <a href=\"https://docs.readthedocs.io/en/latest/"
-"contribute.html\">貢獻</a>章節。\n"
-"非常感謝 ReadTheDocs <a href=\"https://docs.readthedocs.io/en/latest/team."
-"html\">社區團隊</a>的協助，如果沒有他們，ReadTheDocs  是不可能的。\n"
-"請考慮就在加入我們，因為我們需要更多的貢獻者來支持及維護 ReadTheDocs。\n"
 
-#: templates/homepage.html:85
+#: templates/homepage.html:72
+msgid ""
+"Whenever you push code to your favorite version control system, whether that "
+"is Git, Mercurial, Bazaar, or Subversion, we will automatically build your "
+"docs so your code and documentation are never out of sync."
+msgstr ""
+
+#: templates/homepage.html:87
+msgid ""
+"Of course we build and host your docs for the web, but they are also "
+"vieweable as PDFs, as single page HTML, and for eReaders. No additional "
+"configuration is required."
+msgstr ""
+
+#: templates/homepage.html:97
+msgid ""
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+
+#: templates/homepage.html:110
+msgid "Getting started guide"
+msgstr ""
+
+#: templates/homepage.html:124
 msgid "Featured Projects"
 msgstr "精選專案"
 
-#: templates/homepage.html:106
-msgid "Recently updated projects"
-msgstr "最近更新的專案"
-
-#: templates/homepage.html:122
+#: templates/homepage.html:139
 msgid "Read the Docs is funded by the community"
 msgstr "ReadTheDocs 是由社區資助"
+
+#: templates/homepage.html:146
+#, python-format
+msgid ""
+"Read the Docs is a huge resource that millions of developers rely on for "
+"software documentation. It would not be possible without the support of our "
+"<a href=\"%(sponsors_url)s\">sponsors</a>, <a href=\"%(advertising_url)s"
+"\">advertisers</a>, and <a href=\"%(gold_detail)s\">readers like you</a>."
+msgstr ""
+
+#: templates/homepage.html:157
+msgid ""
+"Read the Docs is <strong>community supported</strong>. It depends on users "
+"like you to contribute to development, support, and operations. You can "
+"learn more about how to <a href=\"https://docs.readthedocs.io/en/latest/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/en/latest/team.html"
+"\">community team</a> who helps us run the site. Read the Docs wouldn't be "
+"possible without them."
+msgstr ""
+
+#: templates/homepage.html:167
+msgid ""
+"Hosting for the project is graciously provided by <a href=\"https://azure."
+"microsoft.com/\">Microsoft Azure</a>."
+msgstr ""
 
 #: templates/notifications/send_notification_form.html:6
 msgid "Send Email"
 msgstr "發送郵件"
 
 #: templates/notifications/send_notification_form.html:9
-msgid ""
-"\n"
-"      An email message will be sent to the following email addresses:\n"
-"    "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      An email message will be sent to the following email addresses:\n"
+#| "    "
+msgid "An email message will be sent to the following email addresses:"
 msgstr ""
 "\n"
 "電子郵件將發送到以下電子信箱："
 
 #: templates/notifications/send_notification_form.html:21
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            And %(count)s other recipients...\n"
-#| "          "
-msgid ""
-"\n"
-"            And 1 other recipient.\n"
-"          "
-msgid_plural ""
-"\n"
-"            And %(counter)s other recipients...\n"
-"          "
+#, python-format
+msgid "And 1 other recipient."
+msgid_plural "And %(counter)s other recipients..."
 msgstr[0] ""
-"\n"
-"%(count)s 其它收件者..."
 
 #: templates/notifications/send_notification_form.html:32
-msgid ""
-"\n"
-"      Specify the email content you wish to send:\n"
-"    "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      Specify the email content you wish to send:\n"
+#| "    "
+msgid "Specify the email content you wish to send:"
 msgstr ""
 "\n"
 "指定您希望發送的電子郵件內容︰"
@@ -2474,15 +2377,15 @@ msgstr "發送通知"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
-#: templates/projects/project_import.html:189
-#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:172
+#: templates/projects/project_import.html:178
 msgid "previous"
 msgstr "上一頁"
 
 #: templates/pagination/pagination.html:22
 #: templates/pagination/pagination.html:24
-#: templates/projects/project_import.html:199
-#: templates/projects/project_import.html:205
+#: templates/projects/project_import.html:182
+#: templates/projects/project_import.html:188
 msgid "next"
 msgstr "下一頁"
 
@@ -2525,8 +2428,60 @@ msgid "Connected Services"
 msgstr "連接服務"
 
 #: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:18
+msgid "Delete Account"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:53
 msgid "Gold"
 msgstr "黃金會員"
+
+#: templates/profiles/base_profile_edit.html:55
+#: templates/projects/project_edit_base.html:28
+msgid "Advertising"
+msgstr "廣告"
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:15
+msgid ""
+"Since you are a Gold Member or Supporter, you are <strong>ad-free</strong> "
+"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:22
+#: templates/projects/project_advertising.html:16
+msgid ""
+"Read the Docs is an open source project. In order to maintain service, we "
+"rely on both the support of our users, and from sponsor support."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:30
+#: templates/projects/project_advertising.html:50
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and community advertising we run on "
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/en/latest/ethical-advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:41
+#, python-format
+msgid ""
+"You can <strong>go ad-free</strong> by becoming a <a href=\"%(gold_detail)s"
+"\">Gold Member</a> or <a href=\"%(donate_url)s\">Supporter</a> of Read the "
+"Docs</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:49
+#: templates/projects/project_advertising.html:133
+msgid "Update advertisement preference"
+msgstr "更新廣告偏好"
 
 #: templates/profiles/private/create_profile.html:5
 #: templates/profiles/private/create_profile.html:10
@@ -2536,6 +2491,10 @@ msgstr "建立您的資料"
 #: templates/profiles/private/create_profile.html:16
 msgid "Create it!"
 msgstr "建立"
+
+#: templates/profiles/private/delete_account.html:16
+msgid "Be careful! This can not be undone!"
+msgstr ""
 
 #: templates/profiles/private/edit_profile.html:5
 #: templates/profiles/private/edit_profile.html:9
@@ -2560,15 +2519,10 @@ msgid "Add an alias for a project version."
 msgstr "新增專案版本別名"
 
 #: templates/projects/alias_edit.html:16
-#: templates/projects/project_create.html:34
+#: templates/projects/project_create.html:19
 msgid "Create"
 msgstr "建立"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "別名"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "瀏覽專案"
@@ -2601,30 +2555,47 @@ msgstr "網域"
 
 #: templates/projects/domain_list.html:16
 msgid ""
+"Recently we added HTTPS support for custom domains. Depending on your setup, "
+"you may need to take action for your domain to support HTTPS. <a href="
+"\"https://docs.readthedocs.io/en/latest/alternate_domains.html#cname-ssl"
+"\">See our docs</a> for details."
+msgstr ""
+
+#: templates/projects/domain_list.html:19
+msgid ""
 "This allows you to add domains to your project. This allows them to live in "
 "the same namespace in the URLConf for a subdomain or CNAME."
 msgstr ""
 "允許將您的域名加入專案中，也允許在網域設定中的子網域或 CNAME 使用相同的命名空"
 "間。"
 
-#: templates/projects/domain_list.html:20
+#: templates/projects/domain_list.html:23
 msgid "Existing Domains"
 msgstr "現有網域"
 
-#: templates/projects/domain_list.html:34
+#: templates/projects/domain_list.html:37
 msgid "Add new Domain"
 msgstr "加入新的網域"
+
+#: templates/projects/domain_list.html:41
+#: templates/projects/project_import.html:157
+#: templates/projects/project_notifications.html:69
+#: templates/projects/project_notifications.html:80
+#: templates/projects/project_redirects.html:114
+#: templates/projects/project_translations.html:53
+#: templates/projects/project_users.html:51
+msgid "Add"
+msgstr "加入"
 
 #: templates/projects/import_base.html:4
 msgid "Add a Project"
 msgstr "新增專案"
 
 #: templates/projects/import_base.html:27
-#: templates/search/elastic_project_search.html:123
-#: templates/search/elastic_project_search.html:125
+#: templates/search/elastic_project_search.html:79
+#: templates/search/elastic_project_search.html:81
 #: templates/search/elastic_search.html:196
-#: templates/search/elastic_search.html:198 templates/search/search.html:58
-#: templates/search/search.html:60
+#: templates/search/elastic_search.html:198
 msgid "Next"
 msgstr "下一頁"
 
@@ -2633,11 +2604,10 @@ msgid "Finish"
 msgstr "完成"
 
 #: templates/projects/import_base.html:33
-#: templates/search/elastic_project_search.html:117
-#: templates/search/elastic_project_search.html:119
+#: templates/search/elastic_project_search.html:73
+#: templates/search/elastic_project_search.html:75
 #: templates/search/elastic_search.html:190
-#: templates/search/elastic_search.html:192 templates/search/search.html:52
-#: templates/search/search.html:54
+#: templates/search/elastic_search.html:192
 msgid "Previous"
 msgstr "上一頁"
 
@@ -2646,26 +2616,34 @@ msgid "Project Details"
 msgstr "專案細節"
 
 #: templates/projects/import_basics.html:8
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      To import a project,\n"
+#| "      start by entering a few details about your repository.\n"
+#| "      More advanced project options can be configured\n"
+#| "      if you select <b>Edit advanced project options</b>.\n"
+#| "    "
 msgid ""
-"\n"
-"      To import a project,\n"
-"      start by entering a few details about your repository.\n"
-"      More advanced project options can be configured\n"
-"      if you select <b>Edit advanced project options</b>.\n"
-"    "
+"To import a project, start by entering a few details about your repository. "
+"More advanced project options can be configured if you select <b>Edit "
+"advanced project options</b>."
 msgstr ""
 "\n"
 "要匯入專案，請先輸入倉庫的詳細資訊或編輯 <b>進階</ b> 專案設定。"
 
-#: templates/projects/import_extra.html:20
+#: templates/projects/import_extra.html:5
 msgid "Project Extra Details"
 msgstr "專案額外的細節"
 
-#: templates/projects/import_extra.html:23
-msgid ""
-"\n"
-"      Here are a few more project options that you may need to configure.\n"
-"    "
+#: templates/projects/import_extra.html:8
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      Here are a few more project options that you may need to "
+#| "configure.\n"
+#| "    "
+msgid "Here are a few more project options that you may need to configure."
 msgstr ""
 "\n"
 "以下是您可能需要設定的幾個專案選項。"
@@ -2697,10 +2675,8 @@ msgstr "未建置"
 #: templates/projects/integration_list.html:5
 #: templates/projects/integration_list.html:12
 #: templates/projects/project_edit_base.html:25
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integrations"
-msgstr "內部連結"
+msgstr ""
 
 #: templates/projects/integration_exchange_detail.html:12
 msgid "Exchange"
@@ -2708,108 +2684,65 @@ msgstr ""
 
 #: templates/projects/integration_form.html:21
 #: templates/projects/integration_list.html:20
-#, fuzzy
-#| msgid "Add Maintainer"
 msgid "Add integration"
-msgstr "新增維護者"
+msgstr ""
 
 #: templates/projects/integration_generic_webhook_detail.html:7
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "          The following services are currently connected to your "
-#| "account:\n"
-#| "        "
-msgid ""
-"\n"
-"      The following parameters are configured for this integration:\n"
-"    "
+msgid "The following parameters are configured for this integration:"
 msgstr ""
-"\n"
-"          以下服務連接到您目前的帳號：\n"
-"        "
 
 #: templates/projects/integration_generic_webhook_detail.html:14
 msgid "Token"
 msgstr ""
 
 #: templates/projects/integration_list.html:38
-msgid "No intergrations are currently configured"
+msgid "No integrations are currently configured."
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:5
-#, fuzzy
-#| msgid "Internal Links"
 msgid "Integration"
-msgstr "內部連結"
+msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:13
-#, python-format
-msgid ""
-"\n"
-"    Integration - %(type)s\n"
-"  "
-msgstr ""
+#, fuzzy, python-format
+#| msgid "version %(slug)s (%(type)s)"
+msgid "Integration - %(type)s"
+msgstr "%(slug)s 版本 (%(type)s)"
 
 #: templates/projects/integration_webhook_detail.html:21
 msgid ""
-"\n"
-"        This webhook was configured when this project was imported. If this\n"
-"        integration is not functioning correctly, try resyncing the "
-"webhook:\n"
-"      "
+"This webhook was configured when this project was imported. If this "
+"integration is not functioning correctly, try resyncing the webhook:"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:29
-#, fuzzy
-#| msgid "Resync"
 msgid "Resync webhook"
-msgstr "重新同步"
+msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:43
 msgid ""
-"\n"
-"          This integration was created automatically from an existing "
-"webhook\n"
-"          configured on your repository. To make any changes to this "
-"webhook,\n"
-"          you'll need to update the configuration there. You can use the\n"
-"          following address to manually configure this webhook.\n"
-"        "
+"This integration was created automatically from an existing webhook "
+"configured on your repository. To make any changes to this webhook, you'll "
+"need to update the configuration there. You can use the following address to "
+"manually configure this webhook."
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:52
 msgid ""
-"\n"
-"          To manually configure this webhook with your provider, use the\n"
-"          following address:\n"
-"        "
+"To manually configure this webhook with your provider, use the following "
+"address:"
 msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:67
 msgid ""
-"\n"
-"        For more information on manually configuring a webhook, refer to\n"
-"        <a href=\"https://docs.readthedocs.io/en/latest/webhooks.html\">\n"
-"          our webhook documentation\n"
-"        </a>\n"
-"      "
+"For more information on manually configuring a webhook, refer to <a href="
+"\"https://docs.readthedocs.io/en/latest/webhooks.html\"> our webhook "
+"documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:84
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "             Connect to %(brand_name)s\n"
-#| "           "
-msgid ""
-"\n"
-"              %(date)s ago\n"
-"            "
+#: templates/projects/integration_webhook_detail.html:76
+msgid "Recent Activity"
 msgstr ""
-"\n"
-"             連接到 %(brand_name)s\n"
-"           "
 
 #: templates/projects/integration_webhook_detail.html:92
 msgid "There is no recent activity"
@@ -2877,281 +2810,358 @@ msgid "Start building your documentation"
 msgstr "開始建置您的文件"
 
 #: templates/projects/onboard_detail.html:11
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "          This project has not been built yet.\n"
+#| "          Try building the latest version now,\n"
+#| "          or if you would like to build a specific version,\n"
+#| "          select the version below and your documentation build will be "
+#| "triggered.\n"
+#| "        "
 msgid ""
-"\n"
-"          This project has not been built yet.\n"
-"          Try building the latest version now,\n"
-"          or if you would like to build a specific version,\n"
-"          select the version below and your documentation build will be "
-"triggered.\n"
-"        "
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
 msgstr ""
 "\n"
 "這個專案還沒有建置完成，又想嘗試建置新的或特定版本，請選擇以下版本，並觸發您"
 "的文件產生器。"
 
-#: templates/projects/onboard_detail.html:21
+#: templates/projects/onboard_detail.html:22
 msgid "Build latest version"
 msgstr "產生最新版本 (latest)"
 
-#: templates/projects/onboard_detail.html:29
+#: templates/projects/onboard_detail.html:30
 msgid "Your documentation is ready to use"
 msgstr "我們的文件已準備好使用"
 
-#: templates/projects/onboard_detail.html:33
+#: templates/projects/onboard_detail.html:34
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "              Your documentation has been built.\n"
+#| "              Ensure your documentation is kept up to date with every "
+#| "commit to\n"
+#| "              your repository, by\n"
+#| "              <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
+#| "\">setting up a webhook</a>.\n"
+#| "            "
 msgid ""
-"\n"
-"              Your documentation has been built.\n"
-"              Ensure your documentation is kept up to date with every commit "
-"to\n"
-"              your repository, by\n"
-"              <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
-"\">setting up a webhook</a>.\n"
-"            "
+"Your documentation has been built. Ensure your documentation is kept up to "
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/en/latest/webhooks.html\">setting up a webhook</a>."
 msgstr ""
 "\n"
 "您的文件已經建置，為了確保文件保持在最新狀態，每個文件都必須回存 'commit' 到"
 "倉庫，可以經由 <a href=\"http://docs.readthedocs.io/en/latest/webhooks.html"
 "\">webhook</a> 設定。"
 
-#: templates/projects/onboard_detail.html:46
+#: templates/projects/onboard_detail.html:42
+msgid "View your documentation"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:47
 msgid "Your documentation failed to build"
 msgstr "無法產生您的文件"
 
-#: templates/projects/onboard_detail.html:50
+#: templates/projects/onboard_detail.html:51
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "              There was a problem building your documentation,\n"
+#| "              you can see what went wrong in the build output.\n"
+#| "              If you need more help, check out some of the\n"
+#| "              <a href=\"http://docs.readthedocs.io/en/latest/faq.html"
+#| "\">problems frequently encountered</a>\n"
+#| "              during builds.\n"
+#| "            "
 msgid ""
-"\n"
-"              There was a problem building your documentation,\n"
-"              you can see what went wrong in the build output.\n"
-"              If you need more help, check out some of the\n"
-"              <a href=\"http://docs.readthedocs.io/en/latest/faq.html"
-"\">problems frequently encountered</a>\n"
-"              during builds.\n"
-"            "
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a href="
+"\"http://docs.readthedocs.io/en/latest/faq.html\">problems frequently "
+"encountered</a> during builds."
 msgstr ""
 "\n"
 "建置文件時出現問題，您可以查看建置輸出紀錄資訊。\n"
 "如果您需要更多幫助，請參閱建置期間的<a href=\"http://docs.readthedocs.io/en/"
 "latest/faq.html\">常見問題</a>。"
 
-#: templates/projects/onboard_detail.html:63
+#: templates/projects/onboard_detail.html:60
+msgid "View build output"
+msgstr ""
+
+#: templates/projects/onboard_detail.html:64
 msgid "Your documentation is building"
 msgstr "建立您的文件"
 
-#: templates/projects/onboard_detail.html:66
+#: templates/projects/onboard_detail.html:67
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "          You'll be able to view your documentation in a minute or two,\n"
+#| "          once your project is done building.\n"
+#| "        "
 msgid ""
-"\n"
-"          You'll be able to view your documentation in a minute or two,\n"
-"          once your project is done building.\n"
-"        "
+"You'll be able to view your documentation in a minute or two, once your "
+"project is done building."
 msgstr ""
 "\n"
 "專案完成後，您將可以在一兩分鐘內檢視文件。"
 
+#: templates/projects/onboard_import.html:5
+msgid "Ready to share your documentation"
+msgstr ""
+
 #: templates/projects/onboard_import.html:10
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "          You don't have any projects yet, but you can start building "
+#| "documentation by importing one.\n"
+#| "          Not sure how to start documenting your project?\n"
+#| "          Check out the <a href=\"%(getting_started_url)s\">Getting "
+#| "Started Guide</a> to learn how.\n"
+#| "        "
 msgid ""
-"\n"
-"          You don't have any projects yet, but you can start building "
-"documentation by importing one.\n"
-"          Not sure how to start documenting your project?\n"
-"          Check out the <a href=\"%(getting_started_url)s\">Getting Started "
-"Guide</a> to learn how.\n"
-"        "
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(getting_started_url)s\">Getting Started Guide</a> to learn how."
 msgstr ""
 "\n"
 "您還沒有任何專案，可以先匯入建置文件開始制作。\n"
 "如何開始記錄您的專案，請參閱<a href=\"%(getting_started_url)s\">入門手冊</"
 "a>。"
 
-#: templates/projects/project_advanced.html:22
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"Want to try a demo? <a href=\"%(import_demo_url)s\">Import our own demo "
+"project</a>."
+msgstr ""
+
+#: templates/projects/onboard_import.html:24
+#: templates/projects/project_dashboard_base.html:53
+msgid "Import a Project"
+msgstr ""
+
+#: templates/projects/project_advanced.html:7
 msgid "Edit Advanced Project Settings"
 msgstr "編輯進階專案設定"
 
-#: templates/projects/project_advanced.html:27
+#: templates/projects/project_advanced.html:12
 #: templates/projects/project_edit_base.html:18
 msgid "Advanced Settings"
 msgstr "進階設置"
+
+#: templates/projects/project_advanced.html:18
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_detail.html:22
+#: templates/projects/project_versions.html:53
+msgid "Save"
+msgstr ""
 
 #: templates/projects/project_advertising.html:5
 #: templates/projects/project_advertising.html:12
 msgid "Documentation Advertising"
 msgstr "廣告文件"
 
-#: templates/projects/project_advertising.html:16
-msgid ""
-"\n"
-"      Read the Docs is an open source project, maintained and operated by\n"
-"      full-time volunteers. In order to maintain service, we rely on both "
-"the\n"
-"      support of our users, and from sponsor support.\n"
-"    "
-msgstr ""
-"\n"
-"ReadTheDocs 是開源專案，由全職志願者維護和運營。為了維護服務，我們依靠用戶和"
-"贊助商的支持。"
-
 #: templates/projects/project_advertising.html:24
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      We will periodically run advertisements on built documentation "
+#| "pages for\n"
+#| "      sponsors, however we have strict guidelines on advertisements:\n"
+#| "    "
 msgid ""
-"\n"
-"      We will periodically run advertisements on built documentation pages "
-"for\n"
-"      sponsors, however we have strict guidelines on advertisements:\n"
-"    "
+"We will periodically run advertisements on built documentation pages for "
+"sponsors, however we have strict guidelines on advertisements:"
 msgstr ""
 "\n"
 "我們將定期在贊助商的內置文件中置入廣告，但是我們對廣告有嚴格的選擇："
 
 #: templates/projects/project_advertising.html:32
-msgid ""
-"\n"
-"        We don't give sponsors access to user information\n"
-"      "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        We don't give sponsors access to user information\n"
+#| "      "
+msgid "We don't give sponsors access to user information"
 msgstr ""
 "\n"
 "我們不提供贊助商存取用戶資訊"
 
 #: templates/projects/project_advertising.html:37
-msgid ""
-"\n"
-"        We only report the number of impressions and number of ad clicks\n"
-"      "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        We only report the number of impressions and number of ad clicks\n"
+#| "      "
+msgid "We only report the number of impressions and number of ad clicks"
 msgstr ""
 "\n"
 "我們只會報告廣告曝光數和點擊數"
 
 #: templates/projects/project_advertising.html:42
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        We only allow and image and text, no Javascript besides our "
+#| "existing\n"
+#| "        tracking\n"
+#| "      "
 msgid ""
-"\n"
-"        We only allow and image and text, no Javascript besides our "
-"existing\n"
-"        tracking\n"
-"      "
+"We only allow and image and text, no Javascript besides our existing tracking"
 msgstr ""
 "\n"
 "除了我們現有的跟踪，並無使用 Javascript 且只允許圖片和文字"
 
-#: templates/projects/project_advertising.html:50
-msgid ""
-"\n"
-"      For more information on our stance on sponsor advertisements, we "
-"wrote\n"
-"      more about our stance\n"
-"      <a href=\"https://blog.readthedocs.com/ads-on-read-the-docs/\">on our "
-"blog</a>.\n"
-"    "
-msgstr ""
-"\n"
-"有關我們對贊助廣告的原則和立場，在 <a href=\"https://blog.readthedocs.com/"
-"ads-on-read-the-docs/\">部落格</a> 中有詳細說明。"
-
-#: templates/projects/project_advertising.html:57
+#: templates/projects/project_advertising.html:58
 msgid "Opting out"
 msgstr "退出"
 
-#: templates/projects/project_advertising.html:60
+#: templates/projects/project_advertising.html:61
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you do not wish to support Read the Docs with use of this ad "
+#| "space,\n"
+#| "      we ask that you help support Read the Docs in one of following "
+#| "ways:\n"
+#| "    "
 msgid ""
-"\n"
-"      If you do not wish to support Read the Docs with use of this ad "
-"space,\n"
-"      we ask that you help support Read the Docs in one of following ways:\n"
-"    "
+"If you do not wish to support Read the Docs with use of this ad space, we "
+"ask that you help support Read the Docs in one of following ways:"
 msgstr ""
 "\n"
 "如果您不希望廣告空間佔用您的頁面，請通過以下方式來幫助 ReadTheDocs："
 
-#: templates/projects/project_advertising.html:68
+#: templates/projects/project_advertising.html:69
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        If you have an open source project, and can contribute "
+#| "financially,\n"
+#| "        consider a gold subscription. Gold subscribers can disable ads "
+#| "for\n"
+#| "        projects they author.\n"
+#| "      "
 msgid ""
-"\n"
-"        If you have an open source project, and can contribute financially,\n"
-"        consider a gold subscription. Gold subscribers can disable ads for\n"
-"        projects they author.\n"
-"      "
+"If you have an open source project, and can contribute financially, consider "
+"a gold subscription. Gold subscribers can disable ads for projects they "
+"author."
 msgstr ""
 "\n"
 "如果您有開放源碼專案，並可提供財務捐助可選擇加入黃金會員，此會員為您的專案停"
 "用廣告。"
 
-#: templates/projects/project_advertising.html:75
+#: templates/projects/project_advertising.html:76
 msgid "I can contribute financially"
 msgstr "我提供捐款"
 
-#: templates/projects/project_advertising.html:80
+#: templates/projects/project_advertising.html:81
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        If your project is an open source project, you most certainly "
+#| "also\n"
+#| "        lack funding.  If you can't contribute financially to Read the "
+#| "Docs,\n"
+#| "        consider donating your time. We can always use help with support\n"
+#| "        requests, documentation updates, and of course feature "
+#| "development.\n"
+#| "      "
 msgid ""
-"\n"
-"        If your project is an open source project, you most certainly also\n"
-"        lack funding.  If you can't contribute financially to Read the "
-"Docs,\n"
-"        consider donating your time. We can always use help with support\n"
-"        requests, documentation updates, and of course feature development.\n"
-"      "
+"If your project is an open source project, you most certainly also lack "
+"funding.  If you can't contribute financially to Read the Docs, consider "
+"donating your time. We can always use help with support requests, "
+"documentation updates, and of course feature development."
 msgstr ""
 "\n"
 "如果您的專案是開源專案，肯定也缺乏資金，無法對 ReadTheDocs 貢獻財務，可以考慮"
 "貢獻您的時間，來幫助我們完成使用說明，文件更新或功能開發。"
 
-#: templates/projects/project_advertising.html:88
+#: templates/projects/project_advertising.html:89
 msgid "I can contribute my time"
 msgstr "我可以貢獻的時間"
 
-#: templates/projects/project_advertising.html:93
+#: templates/projects/project_advertising.html:94
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "        If you are part of a company that uses Read the Docs to host\n"
+#| "        documentation for a commercial product, we offer paid plans that\n"
+#| "        offer email support, additional build resources, and features "
+#| "like\n"
+#| "        CDN support and private documentation.\n"
+#| "      "
 msgid ""
-"\n"
-"        If you are part of a company that uses Read the Docs to host\n"
-"        documentation for a commercial product, we offer paid plans that\n"
-"        offer email support, additional build resources, and features like\n"
-"        CDN support and private documentation.\n"
-"      "
+"If you are part of a company that uses Read the Docs to host documentation "
+"for a commercial product, we offer paid plans that offer email support, "
+"additional build resources, and features like CDN support and private "
+"documentation."
 msgstr ""
 "\n"
 "如果您託管於 ReadTheDocs的商業用戶，我們提供付費的電子郵件，附加建置和私人文"
 "件以及 CDN 支援等功能。"
 
-#: templates/projects/project_advertising.html:101
+#: templates/projects/project_advertising.html:102
 msgid "Learn more about a paid plan"
 msgstr "瞭解更多付費方案"
 
-#: templates/projects/project_advertising.html:106
+#: templates/projects/project_advertising.html:107
 msgid "Still can't help?"
 msgstr "還是不能幫忙？"
 
-#: templates/projects/project_advertising.html:109
+#: templates/projects/project_advertising.html:110
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you can't contribute your support for your open source project, "
+#| "but\n"
+#| "      are conflicted by allowing support through advertising, we still "
+#| "would\n"
+#| "      like to give you the option to disable showing promotions inside "
+#| "your\n"
+#| "      documentation. We might be in contact in the future to see if you "
+#| "would\n"
+#| "      reconsider offering your support.\n"
+#| "    "
 msgid ""
-"\n"
-"      If you can't contribute your support for your open source project, "
-"but\n"
-"      are conflicted by allowing support through advertising, we still "
-"would\n"
-"      like to give you the option to disable showing promotions inside your\n"
-"      documentation. We might be in contact in the future to see if you "
-"would\n"
-"      reconsider offering your support.\n"
-"    "
+"If you can't contribute your support for your open source project, but are "
+"conflicted by allowing support through advertising, we still would like to "
+"give you the option to disable showing promotions inside your documentation. "
+"We might be in contact in the future to see if you would reconsider offering "
+"your support."
 msgstr ""
 "\n"
 "如果無法為您的開源專案對我們提供支持，只能透過廣告或者在文件側欄顯示禁用，將"
 "來可能會聯繫到您是否重新考慮支持我們。"
 
-#: templates/projects/project_advertising.html:119
+#: templates/projects/project_advertising.html:120
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "      If you are a company hosting commercial documentation on our "
+#| "community\n"
+#| "      site, but can't offer support for Read the Docs, we do not allow\n"
+#| "      removing sponsor advertisements on your documentation. This goes\n"
+#| "      against the spirit of supporting the open source community, please "
+#| "find\n"
+#| "      a way to offer your support.\n"
+#| "    "
 msgid ""
-"\n"
-"      If you are a company hosting commercial documentation on our "
-"community\n"
-"      site, but can't offer support for Read the Docs, we do not allow\n"
-"      removing sponsor advertisements on your documentation. This goes\n"
-"      against the spirit of supporting the open source community, please "
-"find\n"
-"      a way to offer your support.\n"
-"    "
+"If you are a company hosting commercial documentation on our community site, "
+"but can't offer support for Read the Docs, we do not allow removing sponsor "
+"advertisements on your documentation. This goes against the spirit of "
+"supporting the open source community, please find a way to offer your "
+"support."
 msgstr ""
 "\n"
 "如果您是我們社區網站上商業用戶，且未對 ReadTheDocs 提供支持，則不允許在您的文"
 "件中刪除贊助商廣告。\n"
 "因為這違反了開源社區的精神，請選擇其中方式來支持我們開源社區。"
-
-#: templates/projects/project_advertising.html:132
-msgid "Update advertisement preference"
-msgstr "更新廣告偏好"
 
 #: templates/projects/project_analytics.html:47
 msgid "Analytics"
@@ -3165,30 +3175,21 @@ msgstr "顯示您過去 7 天的專案資料。"
 msgid "Pages"
 msgstr "頁面"
 
-#: templates/projects/project_comments_settings.html:5
-#: templates/projects/project_comments_settings.html:12
-msgid "Comments Settings"
-msgstr "註解設定"
-
-#: templates/projects/project_comments_settings.html:16
-msgid "Settings for comments and moderation."
-msgstr "註解和審核的設定。"
-
-#: templates/projects/project_create.html:21
+#: templates/projects/project_create.html:6
 msgid "Create a new project"
 msgstr "建立新專案"
 
-#: templates/projects/project_create.html:24
+#: templates/projects/project_create.html:9
 msgid "Create a New Project"
 msgstr "建立新專案"
 
-#: templates/projects/project_create.html:29
+#: templates/projects/project_create.html:14
 msgid ""
 "Create new documentation here. If you already have docs in a public "
 "repository,"
 msgstr "在此建立新文件。如果在您的公共倉庫中已經有文件，"
 
-#: templates/projects/project_create.html:30
+#: templates/projects/project_create.html:15
 msgid "import an existing project"
 msgstr "匯入現有專案"
 
@@ -3200,21 +3201,12 @@ msgstr "專案控制面板"
 msgid "Important Versions"
 msgstr "重要版本"
 
-#: templates/projects/project_dashboard_base.html:72
-msgid "No builds yet"
-msgstr "沒有產生"
-
 #: templates/projects/project_dashboard_base.html:77
-#, python-format
-msgid ""
-"\n"
-"                                1 build\n"
-"                              "
-msgid_plural ""
-"\n"
-"                                %(builds)s builds\n"
-"                              "
-msgstr[0] ""
+#, fuzzy, python-format
+#| msgid "No builds"
+msgid "1 build"
+msgid_plural "%(builds)s builds"
+msgstr[0] "沒有產生"
 
 #: templates/projects/project_dashboard_base.html:85
 msgid "passing"
@@ -3224,29 +3216,73 @@ msgstr "已通過"
 msgid "failing"
 msgstr "已失敗"
 
+#: templates/projects/project_dashboard_base.html:134
+#: templates/projects/project_dashboard_base.html:143
+msgid "Connect your Accounts"
+msgstr ""
+
 #: templates/projects/project_dashboard_base.html:137
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "            Have a GitHub account? Connect your account and import your "
+#| "existing projects automatically.\n"
+#| "          "
 msgid ""
-"\n"
-"            Have a GitHub account? Connect your account and import your "
-"existing projects automatically.\n"
-"          "
+"Have a GitHub account? Connect your account and import your existing "
+"projects automatically."
 msgstr ""
 "\n"
 "            如果您有 GitHub 帳號，可以連接您的帳號並自動匯入現有的專案。\n"
 "          "
 
-#: templates/projects/project_edit.html:22
+#: templates/projects/project_dashboard_base.html:153
+msgid "Learn More"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:155
+#, python-format
+msgid ""
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "刪除 %(name)s ？"
+
+#: templates/projects/project_delete.html:9
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "確定嗎？"
+
+#: templates/projects/project_delete.html:12
+msgid "Delete forever"
+msgstr "永久刪除"
+
+#: templates/projects/project_edit.html:8
 msgid "Edit Project"
 msgstr "編輯專案"
 
-#: templates/projects/project_edit.html:39
-msgid "delete"
-msgstr "刪除"
+#: templates/projects/project_edit.html:18
+#, python-format
+msgid ""
+"You can change how your project is built in your <a href=\"%(advanced_url)s"
+"\">Advanced Settings</a>."
+msgstr ""
 
-#: templates/projects/project_edit_base.html:21
-#: templates/projects/project_users.html:8
-msgid "Maintainers"
-msgstr "維護者"
+#: templates/projects/project_edit.html:23
+#, fuzzy
+#| msgid "or"
+msgctxt "The 'or' is in between 'Save' and 'Delete project'"
+msgid "or"
+msgstr "或"
+
+#: templates/projects/project_edit.html:24
+msgid "Delete project"
+msgstr ""
 
 #: templates/projects/project_edit_base.html:22
 #: templates/projects/project_redirects.html:8
@@ -3267,10 +3303,6 @@ msgstr "子專案"
 msgid "Notifications"
 msgstr "通知"
 
-#: templates/projects/project_edit_base.html:27
-msgid "Advertising"
-msgstr "廣告"
-
 #: templates/projects/project_embed.html:48
 msgid "Embed API"
 msgstr "嵌入 API"
@@ -3280,7 +3312,6 @@ msgid "Embed content into any site on the internet dynamically."
 msgstr "將動態內容嵌入到任何網站的網際網路。"
 
 #: templates/projects/project_embed.html:55
-#: templates/search/faceted_results.html:54
 msgid "File"
 msgstr "文件"
 
@@ -3304,80 +3335,61 @@ msgstr "使用範例"
 msgid "Import a Remote Repository"
 msgstr "匯入遠端倉庫"
 
-#: templates/projects/project_import.html:49
+#: templates/projects/project_import.html:50
 msgid "There was an error with your request:"
 msgstr "您的請求出現錯誤："
 
-#: templates/projects/project_import.html:62
+#: templates/projects/project_import.html:63
 msgid "Refresh your accounts"
 msgstr "重新整理您的帳號"
 
-#: templates/projects/project_import.html:71
+#: templates/projects/project_import.html:72
 msgid "Import a Repository"
 msgstr "匯入倉庫"
 
-#: templates/projects/project_import.html:83
-#, fuzzy, python-format
-#| msgid ""
-#| "<p> No remote repositories found, try <a href=\"#\" "
-#| "%(binding)s>refreshing your accounts</a>. </p>"
+#: templates/projects/project_import.html:84
+#, python-format
 msgid ""
 "No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
 "accounts</a>."
 msgstr ""
-"<p>沒有找到遠端倉庫，嘗試 <a href=\"#\" %(binding)s>重新整理</a> 您的帳號。 "
-"</p>"
 
-#: templates/projects/project_import.html:90
+#: templates/projects/project_import.html:91
 msgid ""
 "You don't currently have any connected accounts. Connect your account to be "
 "able to easily set up projects."
 msgstr "您目前沒有任何連接帳號。請連接您的帳號，以便設定專案。"
 
-#: templates/projects/project_import.html:102
-msgid "Connect to GitHub"
-msgstr "連線到 GitHub"
-
-#: templates/projects/project_import.html:113
-msgid "Connect to Bitbucket"
-msgstr "連線到 Bitbucket"
-
-#: templates/projects/project_import.html:147
+#: templates/projects/project_import.html:130
 msgid "This repository requires admin access to import"
 msgstr "這個倉庫需要管理員權限才能匯入"
 
-#: templates/projects/project_import.html:156
+#: templates/projects/project_import.html:139
 msgid "Locked"
 msgstr "鎖定"
 
-#: templates/projects/project_import.html:165
+#: templates/projects/project_import.html:148
 msgid "This repository has already been imported"
 msgstr "這個倉庫已經匯入"
 
-#: templates/projects/project_import.html:166
-#, fuzzy
-#| msgid "View"
+#: templates/projects/project_import.html:149
 msgctxt "verb, action to see in detail"
 msgid "\"View\""
-msgstr "檢視"
+msgstr ""
 
-#: templates/projects/project_import.html:174
-msgid "Add"
-msgstr "加入"
-
-#: templates/projects/project_import.html:218
+#: templates/projects/project_import.html:201
 msgid ""
 "You can import your project manually if it isn't listed here or connected to "
 "one of your accounts."
 msgstr "如果這裡沒有列出或連接到您的帳號，您可以手動匯入專案。"
 
-#: templates/projects/project_import.html:225
+#: templates/projects/project_import.html:208
 msgid "Import Manually"
 msgstr "手動匯入"
 
-#: templates/projects/project_import.html:232
-msgid "Filter by Organization"
-msgstr "按公司篩選"
+#: templates/projects/project_import.html:215
+msgid "Filter repositories"
+msgstr ""
 
 #: templates/projects/project_list.html:9
 #: templates/projects/project_list.html:27
@@ -3448,16 +3460,26 @@ msgid "Edit Translations"
 msgstr "編輯翻譯"
 
 #: templates/projects/project_translations.html:16
-msgid ""
-"This allows you to add translations to your project. Select the project "
-"below that is a translation of your current project."
-msgstr "允許為您的專案新增翻譯文件。請選擇以下所列為您專案翻譯文件。"
+msgid "To add a translation to your project, select a project below."
+msgstr ""
 
-#: templates/projects/project_translations.html:19
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
+msgstr ""
+
+#: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr ""
+
+#: templates/projects/project_translations.html:37
 msgid "Existing Translations"
 msgstr "已存在的翻譯"
 
-#: templates/projects/project_translations.html:31
+#: templates/projects/project_translations.html:49
 msgid "Choose which project you would like to add as a translation."
 msgstr "請選擇要新增翻譯的專案。"
 
@@ -3493,20 +3515,19 @@ msgstr "選擇您想新增的用戶。"
 msgid "%(version_name)s"
 msgstr "%(version_name)s"
 
-#: templates/projects/project_version_list.html:24
+#: templates/projects/project_version_detail.html:24
+msgid "wipe "
+msgstr ""
+
+#: templates/projects/project_version_list.html:26
 msgid "Active Versions"
 msgstr "有效版本"
 
-#: templates/projects/project_version_list.html:45
-#: templates/projects/project_version_list.html:98
-msgid "Wipe"
-msgstr "擦掉"
-
-#: templates/projects/project_version_list.html:72
+#: templates/projects/project_version_list.html:81
 msgid "Inactive Versions"
 msgstr "未啟動版本"
 
-#: templates/projects/project_version_list.html:96
+#: templates/projects/project_version_list.html:108
 msgid "Clean"
 msgstr "清除"
 
@@ -3527,23 +3548,17 @@ msgid "Active versions below will show up on the site."
 msgstr "下面啟動的版本將在網站上顯示。"
 
 #: templates/projects/projectrelationship_form.html:22
-#, fuzzy
-#| msgid "Edit Subprojects"
 msgid "Update subproject"
-msgstr "編輯子專案"
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:29
-#, fuzzy
-#| msgid "Related projects"
 msgid "Delete subproject"
-msgstr "相關專案"
+msgstr ""
 
 #: templates/projects/projectrelationship_form.html:38
 #: templates/projects/projectrelationship_list.html:41
-#, fuzzy
-#| msgid "Add a project"
 msgid "Add subproject"
-msgstr "新增專案"
+msgstr ""
 
 #: templates/projects/projectrelationship_list.html:16
 msgid ""
@@ -3563,17 +3578,9 @@ msgstr ""
 msgid "View subprojects of %(project)s"
 msgstr ""
 
-#: templates/projects/projectrelationship_list.html:60
-#, fuzzy
-#| msgid "Project homepage"
-msgid "Project page"
-msgstr "專案首頁"
-
-#: templates/projects/projectrelationship_list.html:70
-#, fuzzy
-#| msgid "Your demo project is currently being imported"
+#: templates/projects/projectrelationship_list.html:79
 msgid "No subprojects are currently configured"
-msgstr "正在匯入專案範例"
+msgstr ""
 
 #: templates/projects/samples/getting_started.rst.html:3
 msgid "Here's a place to describe how to get up and running with your project"
@@ -3615,82 +3622,37 @@ msgstr "此功能用於現存版本不正確時，上傳預存的 HTML 網頁。
 msgid "Upload"
 msgstr "上傳"
 
-#: templates/search/base_facet.html:5 templates/search/search.html:5
-#, python-format
-msgid "Search: %(query)s"
-msgstr "查詢：%(query)s"
-
-#. Translators: This is about starting a search
-#: templates/search/base_facet.html:27
-#: templates/search/elastic_project_search.html:70
-#: templates/search/elastic_search.html:123 templates/search/search.html:17
-msgid "Go crazy."
-msgstr "開始查詢"
-
-#: templates/search/base_search.html:9 templates/search/faceted_results.html:49
-msgid "Project:"
-msgstr "專案："
-
-#: templates/search/base_search.html:14
-msgid "File:"
-msgstr "文件："
-
-#: templates/search/base_search.html:24
-#: templates/search/elastic_project_search.html:101
-#: templates/search/elastic_search.html:174
-#: templates/search/faceted_results.html:63
-msgid "No results found. Bummer."
-msgstr "沒有發現相關結果。~( ＞﹏＜)"
-
 #: templates/search/elastic_project_search.html:5
 #: templates/search/elastic_search.html:5
 #, python-format
 msgid "Search: %(query)s "
 msgstr "查詢 %(query)s"
 
-#: templates/search/elastic_project_search.html:84
-#: templates/search/elastic_search.html:137 templates/search/search.html:31
+#: templates/search/elastic_project_search.html:40
+#: templates/search/elastic_search.html:137
 #, python-format
 msgid "Results for %(query)s"
 msgstr "與 %(query)s 相關的結果"
 
-#: templates/search/faceted_author.html:8
-msgid "By Author"
-msgstr "按作者"
+#: templates/search/elastic_project_search.html:57
+#: templates/search/elastic_search.html:174
+msgid "No results found. Bummer."
+msgstr "沒有發現相關結果。~( ＞﹏＜)"
 
-#: templates/search/faceted_author.html:13
-msgid "Author"
-msgstr "作者"
+#: templates/security.html:5
+msgid "Security"
+msgstr ""
 
-#: templates/search/faceted_author.html:21
-msgid "No author facets."
-msgstr "沒有作者"
+#: templates/security.html:9
+msgid "Security at Read the Docs"
+msgstr ""
 
-#: templates/search/faceted_results.html:7
-#, python-format
-msgid "%(count)s Results for %(query)s"
-msgstr "%(count)s 項與 %(query)s 相關的結果"
-
-#: templates/search/faceted_results.html:7
-msgid "No search term entered"
-msgstr "未輸入查詢項目"
-
-#. Translators: The refers to filtering a search by using facets
-#: templates/search/faceted_results.html:15
-msgid "Filtered by"
-msgstr "被篩選"
-
-#: templates/search/faceted_results.html:18
-msgid "remove"
-msgstr "移除"
-
-#: templates/search/faceted_results.html:21
-msgid "Filter by Project"
-msgstr "按專案篩選"
-
-#: templates/search/faceted_results.html:32
-msgid "No project facets."
-msgstr "沒有專案方面。"
+#: templates/security.html:11
+msgid ""
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/en/latest/security.html"
+"\">security policy</a>."
+msgstr ""
 
 #: templates/socialaccount/authentication_error.html:5
 #: templates/socialaccount/authentication_error.html:8
@@ -3703,10 +3665,13 @@ msgid ""
 msgstr "嘗試以您的社群網路帳號登入時，發生錯誤。"
 
 #: templates/socialaccount/connections.html:16
-msgid ""
-"\n"
-"          The following services are currently connected to your account:\n"
-"        "
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "          The following services are currently connected to your "
+#| "account:\n"
+#| "        "
+msgid "The following services are currently connected to your account:"
 msgstr ""
 "\n"
 "          以下服務連接到您目前的帳號：\n"
@@ -3717,11 +3682,17 @@ msgid "Disconnect"
 msgstr "斷開連接"
 
 #: templates/socialaccount/connections.html:50
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                        The API version this connection uses is no "
+#| "longer\n"
+#| "                        supported, please reconnect your Bitbucket "
+#| "account.\n"
+#| "                      "
 msgid ""
-"\n"
-"                        The API version this connection uses is no longer\n"
-"                        supported, please reconnect your Bitbucket account.\n"
-"                      "
+"The API version this connection uses is no longer supported, please "
+"reconnect your Bitbucket account."
 msgstr ""
 "\n"
 "     這個 API 版本不再支援連接您的 Bitbucket 帳號，請自行登入 Bitbucket 帳"
@@ -3734,161 +3705,43 @@ msgid ""
 msgstr "您目前任何社群網路帳號連接到此帳號。"
 
 #: templates/socialaccount/snippets/provider_list.html:14
-#, python-format
-msgid ""
-"\n"
-"             Connect to %(brand_name)s\n"
-"           "
-msgstr ""
-"\n"
-"             連接到 %(brand_name)s\n"
-"           "
+#, fuzzy, python-format
+#| msgid "%(version_name)s"
+msgid "%(verbiage)s %(brand_name)s"
+msgstr "%(version_name)s"
 
 #: templates/socialaccount/snippets/provider_list.html:27
+#, fuzzy, python-format
+#| msgid "%(version_name)s"
+msgid "%(verbiage)s %(provider_name)s"
+msgstr "%(version_name)s"
+
+#: templates/wipe_version.html:16
 #, python-format
-msgid ""
-"\n"
-"           Connect to %(provider_name)s\n"
-"         "
+msgid "Remove build environment for <em>%(slug)s</em> version."
 msgstr ""
-"\n"
-"           連接到 %(provider_name)s\n"
-"         "
 
-#~ msgid "Any"
-#~ msgstr "任何"
+#: templates/wipe_version.html:23
+#, fuzzy
+#| msgid "Your demo project is currently being imported"
+msgid "Your project environment has been wiped."
+msgstr "正在匯入專案範例"
 
-#~ msgid "Build Date"
-#~ msgstr "建置日期"
+#: templates/wipe_version.html:28
+msgid ""
+"Having trouble getting your documentation build to complete?  By clicking on "
+"the button below you'll clean out your build checkouts and environment, but "
+"not your generated documentation."
+msgstr ""
 
-#~ msgid "Build Type"
-#~ msgstr "建置類型"
+#: templates/wipe_version.html:33
+msgid "Wipe"
+msgstr "擦掉"
 
-#~ msgid "Cancel subscription"
-#~ msgstr "取消訂購"
-
-#~ msgid "Created Date"
-#~ msgstr "建立日期"
-
-#~ msgid "Repository Type"
-#~ msgstr "倉庫類型"
-
-#~ msgid "You need to be admin of {name} in order to add it as a subproject."
-#~ msgstr "您需要成為 {name} 的管理員才能新增子專案。"
-
-#~ msgid "Sponsor advertisements"
-#~ msgstr "贊助廣告"
-
-#~ msgid "Allow sponsor advertisements on my project documentation"
-#~ msgstr "允許贊助商廣告在我的專案文件"
-
-#~ msgid "Prefix Redirect: %s ->"
-#~ msgstr "前綴轉址: %s ->"
-
-#~ msgid "Page Redirect: %s -> %s"
-#~ msgstr "頁面轉址: %s -> %s"
+#~ msgid "Webhook activation failed. Make sure you have permissions to set it."
+#~ msgstr "Webhook 啟動失敗，請確認您是否有設定權限。"
 
 #~ msgid ""
-#~ "\n"
-#~ "    <p>\n"
-#~ "      To complete setting up your account, please verify this email "
-#~ "address by\n"
-#~ "      going to:\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      <a href=\"%(activate_url)s\">%(activate_url)s</a>\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      If you did not sign up for an account with Read the Docs, you can\n"
-#~ "      disregard this email.\n"
-#~ "    </p>\n"
-#~ "  "
-#~ msgstr ""
-#~ "\n"
-#~ "    <p>\n"
-#~ "      要完成您帳號註冊，請點擊以下連結驗證您的電子信箱︰\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      <a href=\"%(activate_url)s\">%(activate_url)s</a>\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      如果您沒有在 ReadTheDocs 註冊帳號，可以忽略此郵件。\n"
-#~ "    </p>\n"
-#~ "  "
-
-#~ msgid ""
-#~ "\n"
-#~ "    <p>\n"
-#~ "      A request has been made to reset your Read the Docs password. To "
-#~ "confirm\n"
-#~ "      this reset request, please go to:\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      <a href=\"%(password_reset_url)s\">%(password_reset_url)s</a>\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      If you did not request to reset you password, you can disregard "
-#~ "this email.\n"
-#~ "    </p>\n"
-#~ "  "
-#~ msgstr ""
-#~ "\n"
-#~ "    <p>\n"
-#~ "      要求重新設定 ReadTheDocs 的密碼，如果確認這是您的要求，請點擊以下連"
-#~ "結︰\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "      <a href=\"%(password_reset_url)s\">%(password_reset_url)s</a>\n"
-#~ "    </p>\n"
-#~ "\n"
-#~ "    <p>\n"
-#~ "       如果您沒有在 ReadTheDocs 要求重新設定密碼，可以忽略此郵件。\n"
-#~ "    </p>\n"
-#~ "  "
-
-#~ msgid ""
-#~ "\n"
-#~ "A request has been made to reset your Read the Docs password. To confirm\n"
-#~ "this reset request, please go to:\n"
-#~ "\n"
-#~ "%(password_reset_url)s\n"
-#~ "\n"
-#~ "If you did not request to reset you password, you can disregard this "
-#~ "email.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "要求重新設定 ReadTheDocs 的密碼，如果確認這是您的要求，請點擊以下連結︰\n"
-#~ "\n"
-#~ "%(password_reset_url)s\n"
-#~ "\n"
-#~ "如果您未要求重新設定密碼，可以忽略此郵件。\n"
-
-#~ msgid " %(slug)s"
-#~ msgstr "%(slug)s"
-
-#~ msgid "Filtered Results"
-#~ msgstr "篩選的結果"
-
-#~ msgid "1 build"
-#~ msgstr "1 產生"
-
-#~ msgid "builds"
-#~ msgstr "產生"
-
-#~ msgid ""
-#~ "This allows you to add subprojects to your project. This allows them to "
-#~ "live in the same namespace in the URLConf for a subdomain or CNAME."
-#~ msgstr "您可增加子方案到本方案中，這可以使用相同網域名稱來管理所有方案。"
-
-#~ msgid "Existing Subprojects"
-#~ msgstr "現有子專案"
-
-#~ msgid "Choose which project you would like to add as a subproject."
-#~ msgstr "請選擇要新增子專案的專案。"
+#~ "No accounts available to set webhook on. Please connect your {network} "
+#~ "account."
+#~ msgstr "webhook 上沒有您的帳號，請連接您的 {network} 帳號。"

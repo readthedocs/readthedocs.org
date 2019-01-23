@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+
 """Mercurial-related utilities."""
-from __future__ import absolute_import
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
@@ -14,7 +14,7 @@ class Backend(BaseVCS):
     fallback_branch = 'default'
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         retcode = self.run('hg', 'status', record=False)[0]
         if retcode == 0:
             return self.pull()
@@ -38,14 +38,28 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        retcode, stdout = self.run('hg', 'branches', record_as_success=True)[:2]
+        retcode, stdout = self.run(
+            'hg',
+            'branches',
+            '--quiet',
+            record_as_success=True,
+        )[:2]
         # error (or no tags found)
         if retcode != 0:
             return []
         return self.parse_branches(stdout)
 
     def parse_branches(self, data):
-        """Stable / default"""
+        """
+        Parses output of `hg branches --quiet`, eg:
+
+            default
+            0.2
+            0.1
+
+        Into VCSVersion objects with branch name as verbose_name and
+        identifier.
+        """
         names = [name.lstrip() for name in data.splitlines()]
         return [VCSVersion(self, name, name) for name in names if name]
 
@@ -91,12 +105,17 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         if not identifier:
             identifier = 'tip'
-        retcode = self.run('hg', 'status', record=False)[0]
-        if retcode == 0:
-            self.run('hg', 'pull')
-        else:
-            self.clone()
-        return self.run('hg', 'update', '--clean', identifier)
+        exit_code, stdout, stderr = self.run(
+            'hg',
+            'update',
+            '--clean',
+            identifier,
+        )
+        if exit_code != 0:
+            raise RepositoryError(
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
+            )
+        return exit_code, stdout, stderr

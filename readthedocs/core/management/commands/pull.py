@@ -1,6 +1,7 @@
-"""Trigger build for project slug"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Trigger build for project slug."""
+
 import logging
 
 from django.core.management.base import BaseCommand
@@ -20,6 +21,4 @@ class Command(BaseCommand):
         if args:
             for slug in args:
                 version = utils.version_from_slug(slug, LATEST)
-                tasks.SyncRepositoryTask().run(
-                    version.pk,
-                )
+                tasks.sync_repository_task(version.pk)

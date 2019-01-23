@@ -60,9 +60,10 @@ When you build your project on RTD, we automatically build a PDF of your project
 Search
 ------
 
-We provide full-text search across all of the pages of documentation hosted on our site. This uses the excellent Haystack project and Solr as the search backend. We hope to be integrating this into the site more fully in the future.
+We provide full-text search across all of the pages of documentation hosted on our site. This uses the excellent Haystack project and Elasticsearch as the search backend. We hope to be integrating this into the site more fully in the future.
 
 Alternate Domains
 -----------------
 
-We provide support for CNAMEs, subdomains, and a shorturl for your project as well. This is outlined in the :doc:`alternate_domains` section.
+We provide support for custom domains, subdomains, and a shorturl for your
+project as well. This is outlined in the :doc:`custom_domains` section.

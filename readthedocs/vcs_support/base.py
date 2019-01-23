@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """Base classes for VCS backends."""
-from __future__ import absolute_import
-from builtins import object
 import logging
 import os
 import shutil
@@ -11,7 +9,7 @@ import shutil
 log = logging.getLogger(__name__)
 
 
-class VCSVersion(object):
+class VCSVersion:
 
     """
     Represents a Version (tag or branch) in a VCS.
@@ -28,11 +26,13 @@ class VCSVersion(object):
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return "<VCSVersion: %s:%s" % (self.repository.repo_url,
-                                       self.verbose_name)
+        return '<VCSVersion: {}:{}'.format(
+            self.repository.repo_url,
+            self.verbose_name,
+        )
 
 
-class BaseVCS(object):
+class BaseVCS:
 
     """
     Base for VCS Classes.
@@ -42,6 +42,7 @@ class BaseVCS(object):
 
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
+    supports_submodules = False
 
     # =========================================================================
     # General methods
@@ -51,6 +52,7 @@ class BaseVCS(object):
     # pylint: disable=unused-argument
     def __init__(self, project, version_slug, environment=None, **kwargs):
         self.default_branch = project.default_branch
+        self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
@@ -66,7 +68,7 @@ class BaseVCS(object):
             os.makedirs(self.working_dir)
 
     def make_clean_working_dir(self):
-        """Ensures that the working dir exists and is empty"""
+        """Ensures that the working dir exists and is empty."""
         shutil.rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
@@ -137,3 +139,11 @@ class BaseVCS(object):
         backend is responsible to understand it's identifiers.
         """
         self.check_working_dir()
+
+    def update_submodules(self, config):
+        """
+        Update the submodules of the current checkout.
+
+        :type config: readthedocs.config.BuildConfigBase
+        """
+        raise NotImplementedError

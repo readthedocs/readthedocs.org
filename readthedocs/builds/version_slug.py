@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Contains logic for handling version slugs.
 
@@ -17,8 +19,6 @@ slug. This is used since using numbers in tags is too common and appending
 another number would be confusing.
 """
 
-from __future__ import absolute_import
-
 import math
 import re
 import string
@@ -26,7 +26,6 @@ from operator import truediv
 
 from django.db import models
 from django.utils.encoding import force_text
-from builtins import range
 
 
 def get_fields_with_model(cls):
@@ -37,12 +36,10 @@ def get_fields_with_model(cls):
     prescrived in the Django docs.
     https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
     """
-    return [
-        (f, f.model if f.model != cls else None)
-        for f in cls._meta.get_fields()
-        if not f.is_relation or f.one_to_one or
-        (f.many_to_one and f.related_model)
-    ]
+    return [(f, f.model if f.model != cls else None)
+            for f in cls._meta.get_fields()
+            if not f.is_relation or f.one_to_one or
+            (f.many_to_one and f.related_model)]
 
 
 # Regex breakdown:
@@ -72,7 +69,7 @@ class VersionSlugField(models.CharField):
             raise ValueError("missing 'populate_from' argument")
         else:
             self._populate_from = populate_from
-        super(VersionSlugField, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
         # pylint: disable=protected-access
@@ -157,7 +154,7 @@ class VersionSlugField(models.CharField):
 
         # increases the number while searching for the next valid slug
         # depending on the given slug, clean-up
-        while not slug or queryset.filter(**kwargs):
+        while not slug or queryset.filter(**kwargs).exists():
             slug = original_slug
             end = self.uniquifying_suffix(count)
             end_len = len(end)
@@ -168,7 +165,8 @@ class VersionSlugField(models.CharField):
             count += 1
 
         assert self.test_pattern.match(slug), (
-            'Invalid generated slug: {slug}'.format(slug=slug))
+            'Invalid generated slug: {slug}'.format(slug=slug)
+        )
         return slug
 
     def pre_save(self, model_instance, add):
@@ -180,6 +178,6 @@ class VersionSlugField(models.CharField):
         return value
 
     def deconstruct(self):
-        name, path, args, kwargs = super(VersionSlugField, self).deconstruct()
+        name, path, args, kwargs = super().deconstruct()
         kwargs['populate_from'] = self._populate_from
         return name, path, args, kwargs

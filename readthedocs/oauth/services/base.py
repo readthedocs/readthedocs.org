@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
-"""OAuth utility functions."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""OAuth utility functions."""
 
 import logging
 from datetime import datetime
 
 from allauth.socialaccount.models import SocialAccount
-from builtins import object
+from allauth.socialaccount.providers import registry
 from django.conf import settings
+from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
+
 log = logging.getLogger(__name__)
 
 
-class Service(object):
+class Service:
 
     """
     Service mapping for local accounts.
@@ -56,6 +56,10 @@ class Service(object):
     def provider_id(self):
         return self.get_adapter().provider_id
 
+    @property
+    def provider_name(self):
+        return registry.by_id(self.provider_id).name
+
     def get_session(self):
         if self.session is None:
             self.create_session()
@@ -78,7 +82,7 @@ class Service(object):
             'token_type': 'bearer',
         }
         if token.expires_at is not None:
-            token_expires = (token.expires_at - datetime.now()).total_seconds()
+            token_expires = (token.expires_at - timezone.now()).total_seconds()
             token_config.update({
                 'refresh_token': token.token_secret,
                 'expires_in': token_expires,
@@ -112,9 +116,12 @@ class Service(object):
                 u'expires_at': 1449218652.558185
             }
         """
+
         def _updater(data):
             token.token = data['access_token']
-            token.expires_at = datetime.fromtimestamp(data['expires_at'])
+            token.expires_at = timezone.make_aware(
+                datetime.fromtimestamp(data['expires_at']),
+            )
             token.save()
             log.info('Updated token %s:', token)
 
@@ -131,6 +138,22 @@ class Service(object):
         """
         try:
             resp = self.get_session().get(url, data=kwargs)
+
+            # TODO: this check of the status_code would be better in the
+            # ``create_session`` method since it could be used from outside, but
+            # I didn't find a generic way to make a test request to each
+            # provider.
+            if resp.status_code == 401:
+                # Bad credentials: the token we have in our database is not
+                # valid. Probably the user has revoked the access to our App. He
+                # needs to reconnect his account
+                raise Exception(
+                    'Our access to your {provider} account was revoked. '
+                    'Please, reconnect it from your social account connections.'.format(
+                        provider=self.provider_name,
+                    ),
+                )
+
             next_url = self.get_next_url_to_paginate(resp)
             results = self.get_paginated_results(resp)
             if next_url:
@@ -138,7 +161,7 @@ class Service(object):
             return results
         # Catch specific exception related to OAuth
         except InvalidClientIdError:
-            log.error('access_token or refresh_token failed: %s', url)
+            log.warning('access_token or refresh_token failed: %s', url)
             raise Exception('You should reconnect your account')
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -149,8 +172,10 @@ class Service(object):
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'paginate failed at %s with response: %s', url, debug_data)
-        else:
+                'Paginate failed at %s with response: %s',
+                url,
+                debug_data,
+            )
             return []
 
     def sync(self):
@@ -200,4 +225,5 @@ class Service(object):
         # TODO Replace this check by keying project to remote repos
         return (
             cls.url_pattern is not None and
-            cls.url_pattern.search(project.repo) is not None)
+            cls.url_pattern.search(project.repo) is not None
+        )

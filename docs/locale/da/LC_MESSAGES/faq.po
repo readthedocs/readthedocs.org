@@ -1,33 +1,30 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2010, Eric Holscher, Charlie Leifer, Bobby Grace
-# This file is distributed under the same license as the Read The Docs package.
+# Copyright (C) 2010-2018, Read the Docs, Inc & contributors
+# This file is distributed under the same license as the Read the Docs package.
 # 
 # Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs-docs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-01 22:07+0800\n"
-"PO-Revision-Date: 2014-03-02 12:03+0000\n"
-"Last-Translator: Eric Holscher <eric@ericholscher.com>\n"
-"Language-Team: Danish (http://www.transifex.com/projects/p/readthedocs-docs/language/da/)\n"
+"POT-Creation-Date: 2018-09-17 19:05-0500\n"
+"PO-Revision-Date: 2018-09-18 00:15+0000\n"
+"Last-Translator: Anthony <aj@ohess.org>\n"
+"Language-Team: Danish (http://www.transifex.com/readthedocs/readthedocs-docs/language/da/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: da\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# 2a3b2282fad24d1e89155c9a37d8487c
 #: ../../faq.rst:2
 msgid "Frequently Asked Questions"
 msgstr ""
 
-# 44318c4f248c47ab831084157f6d3b57
 #: ../../faq.rst:5
 msgid "My project isn't building with autodoc"
 msgstr ""
 
-# bd98f5e3986e45da9ade4b1bc579b529
 #: ../../faq.rst:7
 msgid ""
 "First, you should check out the Builds tab of your project. That records all"
@@ -38,46 +35,89 @@ msgid ""
 "``requirements.txt`` file for your project."
 msgstr ""
 
-# 95178481e2734d148fcd4dc77cf6a021
 #: ../../faq.rst:9
 msgid ""
 "If you are still seeing errors because of C library dependencies, please see"
-" the below section about that."
+" :ref:`faq:I get import errors on libraries that depend on C modules`."
 msgstr ""
 
-# 2fb799d0662c4ab9b3545099e95f7db8
-#: ../../faq.rst:12
+#: ../../faq.rst:13
+msgid "How do I change my slug (the URL your docs are served at)?"
+msgstr ""
+
+#: ../../faq.rst:15
+msgid ""
+"We don't support allowing folks to change the slug for their project. You "
+"can update the name which is shown on the site, but not the actual URL that "
+"documentation is served."
+msgstr ""
+
+#: ../../faq.rst:19
+msgid ""
+"The main reason for this is that all existing URLs to the content will "
+"break. You can delete and re-create the project with the proper name to get "
+"a new slug, but you really shouldn't do this if you have existing inbound "
+"links, as it `breaks the internet "
+"<http://www.w3.org/Provider/Style/URI.html>`_."
+msgstr ""
+
+#: ../../faq.rst:25
+msgid "Help, my build passed but my documentation page is 404 Not Found!"
+msgstr ""
+
+#: ../../faq.rst:27
+msgid ""
+"This often happens because you don't have an `index.html` file being "
+"generated. Make sure you have one of the following files:"
+msgstr ""
+
+#: ../../faq.rst:30
+msgid "`index.rst`"
+msgstr ""
+
+#: ../../faq.rst:31
+msgid "`index.md`"
+msgstr ""
+
+#: ../../faq.rst:33
+msgid ""
+"At the top level of your built documentation, otherwise we aren't able to "
+"serve a \"default\" index page."
+msgstr ""
+
+#: ../../faq.rst:36
+msgid ""
+"To test if your docs actually built correctly, you can navigate to a "
+"specific page (`/en/latest/README.html` for example)."
+msgstr ""
+
+#: ../../faq.rst:40
 msgid "How do I change behavior for Read the Docs?"
 msgstr ""
 
-# 11be3f8c3eca4c0194ef1ca62ad65e2f
-#: ../../faq.rst:14
+#: ../../faq.rst:42
 msgid ""
-"When RTD builds your project, it sets the `READTHEDOCS` environment variable"
-" to the string `True`. So within your Sphinx's conf.py file, you can vary "
-"the behavior based on this. For example::"
+"When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment "
+"variable to the string `True`. So within your Sphinx :file:`conf.py` file, "
+"you can vary the behavior based on this. For example::"
 msgstr ""
 
-# 65d24a187b024e92b0c5998e70915a46
-#: ../../faq.rst:23
+#: ../../faq.rst:53
 msgid ""
-"The ``READTHEDOCS`` variable is also available in the Sphinx build "
+"The :envvar:`READTHEDOCS` variable is also available in the Sphinx build "
 "environment, and will be set to ``True`` when building on RTD::"
 msgstr ""
 
-# abcaeab5d70e4498b27c8d3390f456ca
-#: ../../faq.rst:30
+#: ../../faq.rst:61
 msgid "I get import errors on libraries that depend on C modules"
 msgstr ""
 
-# b454a215d37e45f6a43075ce0b1a6fec
-#: ../../faq.rst:33
+#: ../../faq.rst:64
 msgid ""
 "Another use case for this is when you have a module with a C extension."
 msgstr ""
 
-# 2f93987066bf4704a78dc0bb76c2a155
-#: ../../faq.rst:35
+#: ../../faq.rst:66
 msgid ""
 "This happens because our build system doesn't have the dependencies for "
 "building your project. This happens with things like libevent and mysql, and"
@@ -86,94 +126,102 @@ msgid ""
 "imports."
 msgstr ""
 
-# ce958ef256c6444ab27de54278e3ae05
-#: ../../faq.rst:37
+#: ../../faq.rst:68
 msgid ""
-"You can mock out the imports for these modules in your conf.py with the "
+"You can mock out the imports for these modules in your ``conf.py`` with the "
 "following snippet::"
 msgstr ""
 
-# a733b4a080ff42478554b619e6b924af
-#: ../../faq.rst:66
+#: ../../faq.rst:81
 msgid ""
 "Of course, replacing `MOCK_MODULES` with the modules that you want to mock "
 "out."
 msgstr ""
 
-# 577026ceae464f3ca28d11e500882902
-#: ../../faq.rst:69
-msgid "Can I make search engines only see one version of my docs?"
-msgstr ""
-
-# b612a3b48dab48feb869027f4bbd3713
-#: ../../faq.rst:71
+#: ../../faq.rst:83
 msgid ""
-"You can do this for Google at least with a canonical link tag. It should "
-"look like:"
+"The library ``unittest.mock`` was introduced on python 3.3. On earlier "
+"versions install the ``mock`` library from PyPI with (ie ``pip install "
+"mock``) and replace the above import::"
 msgstr ""
 
-# a66c3c5951214caaba793f4e94b9e55e
-#: ../../faq.rst:89
+#: ../../faq.rst:88
+msgid ""
+"If such libraries are installed via ``setup.py``, you also will need to "
+"remove all the C-dependent libraries from your ``install_requires`` in the "
+"RTD environment."
+msgstr ""
+
+#: ../../faq.rst:91
+msgid "`Client Error 401` when building documentation"
+msgstr ""
+
+#: ../../faq.rst:93
+msgid ""
+"If you did not install the `test_data` fixture during the installation "
+"instructions, you will get the following error::"
+msgstr ""
+
+#: ../../faq.rst:98
+msgid ""
+"This is because the API admin user does not exist, and so cannot "
+"authenticate. You can fix this by loading the test_data::"
+msgstr ""
+
+#: ../../faq.rst:103
+msgid ""
+"If you'd prefer not to install the test data, you'll need to provide a "
+"database account for the builder to use. You can provide these credentials "
+"by editing the following settings::"
+msgstr ""
+
+#: ../../faq.rst:111
 msgid "Deleting a stale or broken build environment"
 msgstr ""
 
-# 0f63c2199db9498f9259644e65f5897a
-#: ../../faq.rst:91
+#: ../../faq.rst:113
+msgid "See :doc:`guides/wipe-environment`."
+msgstr ""
+
+#: ../../faq.rst:116
+msgid "How do I host multiple projects on one custom domain?"
+msgstr ""
+
+#: ../../faq.rst:118
 msgid ""
-"RTD doesn't expose this in the UI, but it is possible to remove the build "
-"directory of your project. If you want to remove a build environment for "
-"your project, hit "
-"http://readthedocs.org/wipe/<project_slug>/<version_slug>/. You must be "
-"logged in to do this."
+"We support the concept of subprojects, which allows multiple projects to "
+"share a single domain. If you add a subproject to a project, that "
+"documentation will be served under the parent project's subdomain or custom "
+"domain."
 msgstr ""
 
-# d64a9c4e59814eb9b8e671440796e6d7
-#: ../../faq.rst:95
-msgid "How do I host multiple projects on one CNAME?"
-msgstr ""
-
-# d248fd083ffe4642b55b56fdef5d1cd4
-#: ../../faq.rst:97
+#: ../../faq.rst:122
 msgid ""
-"We support the concept of Subprojects. If you add a subproject to a project,"
-" that documentation will also be served under the parent project's "
-"subdomain."
+"For example, Kombu is a subproject of Celery, so you can access it on the "
+"`celery.readthedocs.io` domain:"
 msgstr ""
 
-# bd599bb09c1f4a3c8b2c13e0cf61a9d1
-#: ../../faq.rst:101
-msgid ""
-"For example, Kombu is a subproject of celery, so you can access it on the "
-"`celery.readthedocs.org` domain:"
+#: ../../faq.rst:126
+msgid "http://celery.readthedocs.io/projects/kombu/en/latest/"
 msgstr ""
 
-# 798b68b0b4964f8993835a9c9c3318d8
-#: ../../faq.rst:105
-msgid "http://celery.readthedocs.org/projects/kombu/en/latest/"
+#: ../../faq.rst:128
+msgid "This also works the same for custom domains:"
 msgstr ""
 
-# e842bf158d814b5094cfd9191af141c3
-#: ../../faq.rst:107
-msgid "This also works the same for CNAME's:"
-msgstr ""
-
-# 3653f579d02043da91b0c097e9ee32c3
-#: ../../faq.rst:109
+#: ../../faq.rst:130
 msgid "http://docs.celeryproject.org/projects/kombu/en/latest/"
 msgstr ""
 
-# ae4065bff5c9449d9852823d078dd378
-#: ../../faq.rst:111
-msgid "You can add subprojects in the Admin section for your project."
+#: ../../faq.rst:132
+msgid "You can add subprojects in the project admin dashboard."
 msgstr ""
 
-# 91f3de17f1414d959d75196f1f9ebd06
-#: ../../faq.rst:114
+#: ../../faq.rst:135
 msgid "Where do I need to put my docs for RTD to find it?"
 msgstr ""
 
-# 12effb20a28b434db1cfddca96d30ab8
-#: ../../faq.rst:116
+#: ../../faq.rst:137
 msgid ""
 "Read the Docs will crawl your project looking for a ``conf.py``. Where it "
 "finds the ``conf.py``, it will run ``sphinx-build`` in that directory. So as"
@@ -181,13 +229,11 @@ msgid ""
 "should Just Work."
 msgstr ""
 
-# 72ac1e9f05b74498b8c86dfbdbf25af5
-#: ../../faq.rst:119
+#: ../../faq.rst:140
 msgid "I want to use the Blue/Default Sphinx theme"
 msgstr ""
 
-# 71783724ecf641da94f7b36a2b72dad8
-#: ../../faq.rst:121
+#: ../../faq.rst:142
 msgid ""
 "We think that our theme is badass, and better than the default for many "
 "reasons. Some people don't like change though :), so there is a hack that "
@@ -197,104 +243,116 @@ msgid ""
 "default behavior."
 msgstr ""
 
-# 1bc3b0bcc73d4d3db21bd309263afaef
-#: ../../faq.rst:124
+#: ../../faq.rst:145
 msgid "I want to use the Read the Docs theme locally"
 msgstr ""
 
-# c9c9534f9057495e9b84bd9991f8f9d4
-#: ../../faq.rst:126
+#: ../../faq.rst:147
 msgid ""
 "There is a repository for that: https://github.com/snide/sphinx_rtd_theme. "
 "Simply follow the instructions in the README."
 msgstr ""
 
-# b9cfdb74740d44c28e7675a886ccab84
-#: ../../faq.rst:130
+#: ../../faq.rst:151
 msgid "Image scaling doesn't work in my documentation"
 msgstr ""
 
-# 9bbab6dab3774a7dbde3de632daf3232
-#: ../../faq.rst:132
+#: ../../faq.rst:153
 msgid ""
 "Image scaling in docutils depends on PIL. PIL is installed in the system "
 "that RTD runs on. However, if you are using the virtualenv building option, "
 "you will likely need to include PIL in your requirements for your project."
 msgstr ""
 
-# 56e972973d2c4f548e0adbe0284fd5df
-#: ../../faq.rst:135
+#: ../../faq.rst:156
 msgid "I want comments in my docs"
 msgstr ""
 
-# e14cec1a7c764cdc82180c2840350dc8
-#: ../../faq.rst:137
+#: ../../faq.rst:158
 msgid ""
 "RTD doesn't have explicit support for this. That said, a tool like `Disqus`_"
-" can be used for this purpose on RTD."
+" (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on "
+"RTD."
 msgstr ""
 
-# 0a1614a9a4224e46984c18a39680fd06
-#: ../../faq.rst:142
+#: ../../faq.rst:164
 msgid "How do I support multiple languages of documentation?"
 msgstr ""
 
-# 3d40651d2a2a428aa72c66d5420262f1
-#: ../../faq.rst:144
-msgid ""
-"This is something that has been long planned. In fact, we have a language "
-"string in the URLs! However, it isn't currently modeled and supported in the"
-" code base. However, you can specify the conf.py file to use for a specific "
-"version of the documentation. So, you can create a project for each language"
-" of documentation, and do it that way. You can then CNAME different domains "
-"on your docs to them. Requests does something like this with it's "
-"translations:"
+#: ../../faq.rst:166
+msgid "See the section on :doc:`localization`."
 msgstr ""
 
-# 83d2b015bcb647bfac218cf2a799d228
-#: ../../faq.rst:146
-msgid "http://ja.python-requests.org/en/latest/index.html"
-msgstr ""
-
-# e72fdc0a57ab41028adb707d187ea8d7
-#: ../../faq.rst:147
-msgid "http://docs.python-requests.org/en/latest/index.html"
-msgstr ""
-
-# 54db48682b794438b6915196d208a3f3
-#: ../../faq.rst:150
-msgid "Do I need to be whitelisted?"
-msgstr ""
-
-# 1c44b08c08084b04840cb43f5a93e19d
-#: ../../faq.rst:152
-msgid ""
-"No. Whitelisting has been removed as a concept in Read the Docs. You should "
-"have access to all of the features already."
-msgstr ""
-
-# eb19fbd4f3fd439998bc3a0fe469ff71
-#: ../../faq.rst:155
+#: ../../faq.rst:169
 msgid "Does Read The Docs work well with \"legible\" docstrings?"
 msgstr ""
 
-# a0d11a2c026c40beb882897d098cb1ed
-#: ../../faq.rst:157
+#: ../../faq.rst:171
 msgid ""
 "Yes. One criticism of Sphinx is that its annotated docstrings are too dense "
 "and difficult for humans to read. In response, many projects have adopted "
 "customized docstring styles that are simultaneously informative and legible."
 " The `NumPy "
 "<https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_ "
-"and `Google <http://google-"
-"styleguide.googlecode.com/svn/trunk/pyguide.html?showone=Comments#Comments>`_"
+"and `Google "
+"<https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments>`_"
 " styles are two popular docstring formats.  Fortunately, the default Read "
 "The Docs theme handles both formats just fine, provided your ``conf.py`` "
 "specifies an appropriate Sphinx extension that knows how to convert your "
 "customized docstrings.  Two such extensions are `numpydoc "
 "<https://github.com/numpy/numpydoc>`_ and `napoleon <http://sphinxcontrib-"
-"napoleon.readthedocs.org>`_. Only ``napoleon`` is able to handle both "
+"napoleon.readthedocs.io>`_. Only ``napoleon`` is able to handle both "
 "docstring formats. Its default output more closely matches the format of "
 "standard Sphinx annotations, and as a result, it tends to look a bit better "
 "with the default theme."
+msgstr ""
+
+#: ../../faq.rst:189
+msgid ""
+"Can I document a python package that is not at the root of my repository?"
+msgstr ""
+
+#: ../../faq.rst:191
+msgid ""
+"Yes. The most convenient way to access a python package for example via "
+"`Sphinx's autoapi`_ in your documentation is to use the *Install your "
+"project inside a virtualenv using setup.py install* option in the admin "
+"panel of your project. However this assumes that your ``setup.py`` is in the"
+" root of your repository."
+msgstr ""
+
+#: ../../faq.rst:197
+msgid ""
+"If you want to place your package in a different directory or have multiple "
+"python packages in the same project, then create a pip requirements file. "
+"You can specify the relative path to your package inside the file. For "
+"example you want to keep your python package in the ``src/python`` "
+"directory, then create a ``requirements.readthedocs.txt`` file with the "
+"following contents::"
+msgstr ""
+
+#: ../../faq.rst:206
+msgid ""
+"Please note that the path must be relative to the file. So the example path "
+"above would work if the file is in the root of your repository. If you want "
+"to put the requirements in a file called ``requirements/readthedocs.txt``, "
+"the contents would look like::"
+msgstr ""
+
+#: ../../faq.rst:213
+msgid ""
+"After adding the file to your repository, go to the *Advanced Settings* in "
+"your project's admin panel and add the name of the file to the *Requirements"
+" file* field."
+msgstr ""
+
+#: ../../faq.rst:221
+msgid "What commit of Read the Docs is in production?"
+msgstr ""
+
+#: ../../faq.rst:223
+msgid ""
+"We deploy readthedocs.org from the `rel` branch in our GitHub repository. "
+"You can see the latest commits that have been deployed by looking on GitHub:"
+" https://github.com/rtfd/readthedocs.org/commits/rel"
 msgstr ""

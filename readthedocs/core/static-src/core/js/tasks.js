@@ -2,14 +2,14 @@
 
 var jquery = require('jquery');
 
-function poll_task (data) {
-    var defer = jquery.Deferred(),
-        tries = 5;
+function poll_task(data) {
+    var defer = jquery.Deferred();
+    var tries = 5;
 
-    function poll_task_loop () {
+    function poll_task_loop() {
         jquery
             .getJSON(data.url)
-            .success(function (task) {
+            .done(function (task) {
                 if (task.finished) {
                     if (task.success) {
                         defer.resolve();
@@ -22,7 +22,7 @@ function poll_task (data) {
                     setTimeout(poll_task_loop, 2000);
                 }
             })
-            .error(function (error) {
+            .fail(function (error) {
                 console.error('Error polling task:', error);
                 tries -= 1;
                 if (tries > 0) {
@@ -40,11 +40,11 @@ function poll_task (data) {
     return defer;
 }
 
-function trigger_task (config) {
-    var defer = jquery.Deferred(),
-        url = config.url,
-        token = config.token,
-        data = {csrfmiddlewaretoken: token};
+function trigger_task(config) {
+    var defer = jquery.Deferred();
+    var url = config.url;
+    var token = config.token;
+    var data = {csrfmiddlewaretoken: token};
 
     $.ajax({
         method: 'POST',

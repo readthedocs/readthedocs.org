@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% load core_tags i18n highlight  %}
+{% load core_tags i18n %}
 
 {% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
 
@@ -17,17 +17,17 @@
 
 <div class="navigable">
 <ul>
-    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">Projects</a></li>
-    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">Files</a></li>
+    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
+    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
 
     <hr>
 
     {% if type == 'project' %}
 
       {% if facets.language %}
-        <h5> Language </h5>
+        <h5>{% trans 'Language' %}</h5>
           {% for name, count in facets.language.items %}
-            <li class="{% if language == name %}active{% endif %}">
+            <li class="{% if language == name %}active{% endif %} language-list">
               {% if language == name %}
                 <a href="?{% url_replace request 'language' ''  %}">{{ name }}
               {% else %}
@@ -44,9 +44,9 @@
   {% if type == 'file' %}
 
     {% if facets.project %}
-      <h5> Projects </h5>
+      <h5>{% trans 'Projects' %}</h5>
         {% for name, count in facets.project.items %}
-          <li class="{% if project == name %}active{% endif %}">
+          <li class="{% if project == name %}active{% endif %} project-list">
             {% if project == name %}
               <a href="?{% url_replace request 'project' ''  %}">{{ name }}
             {% else %}
@@ -61,14 +61,14 @@
 
     {% if facets.version %}
 
-      <h5>Version</h5> 
+      <h5>{% trans 'Version' %}</h5>
         {% for name, count in facets.version.items %}
-          <li class="{% if version == name %}active{% endif %}">
+          <li class="{% if version == name %}active{% endif %} version-list">
             {% if version == name %}
               <a href="?{% url_replace request 'version' ''  %}">{{ name }}
             {% else %}
               <a href="?{% url_replace request 'version' name  %}">{{ name }}
-            {% endif %}            
+            {% endif %}
             ({{ count }})
             </a>
          </li>
@@ -79,14 +79,14 @@
 
     {% if facets.taxonomy %}
 
-      <h5>Taxonomy</h5> 
+      <h5>{% trans 'Taxonomy' %}</h5>
         {% for name, count in facets.taxonomy.items %}
           <li class="{% if taxonomy == name %}active{% endif %}">
             {% if taxonomy == name %}
               <a href="?{% url_replace request 'taxonomy' ''  %}">{{ name }}
             {% else %}
               <a href="?{% url_replace request 'taxonomy' name  %}">{{ name }}
-            {% endif %}        
+            {% endif %}
             ({{ count }})
             </a>
          </li>
@@ -96,7 +96,7 @@
     {% endif %}
 
   {% endif %}
-  
+
 {% block sponsor %}
 <div class="search-sponsored">
 Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.
@@ -105,7 +105,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
 
 </ul>
   <div>
-        <h2>Search</h2>
+        <h2>{% trans 'Search' %}</h2>
         <!-- BEGIN search form -->
         <div class="wide-search-bar">
           <div class="wide-search-bar-wrapper clearfix">
@@ -120,7 +120,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
-                <input type="submit" value="{% trans "Go crazy." %}">
+                <input type="submit" value="{% trans 'Search' %}">
               </div>
             </form>
           </div>
@@ -144,7 +144,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                   {% for result in results.hits.hits %}
                         <li class="module-item">
                           <p class="module-item-title">
-                            {% if result.fields.name %} 
+                            {% if result.fields.name %}
 
                               {# Project #}
                               <a href="{{ result.fields.url }}">{{ result.fields.name }}</a>

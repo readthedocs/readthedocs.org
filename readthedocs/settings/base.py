@@ -6,7 +6,10 @@ from __future__ import (
 
 import os
 
+from celery.schedules import crontab
+
 from readthedocs.core.settings import Settings
+
 
 try:
     import readthedocsext  # noqa
@@ -33,29 +36,28 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
-    TEMPLATE_DEBUG = DEBUG
     TASTYPIE_FULL_DEBUG = True
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
+    PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
-    PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
-
-    ADMINS = (
-        ('Eric Holscher', 'eric@readthedocs.org'),
-        ('Anthony Johnson', 'anthony@readthedocs.org'),
-    )
-    MANAGERS = ADMINS
+    PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
-    # Cookies
+    # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
+    SESSION_SAVE_EVERY_REQUEST = True
+
+    # CSRF
     CSRF_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
     # Application classes
     @property
@@ -71,7 +73,7 @@ class CommunityBaseSettings(Settings):
             'django.contrib.humanize',
 
             # third party apps
-            'linaro_django_pagination',
+            'dj_pagination',
             'taggit',
             'guardian',
             'django_gravatar',
@@ -81,16 +83,11 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-
-            # daniellindsleyrocksdahouse
-            'haystack',
             'tastypie',
 
             # our apps
-            'readthedocs.bookmarks',
             'readthedocs.projects',
             'readthedocs.builds',
-            'readthedocs.comments',
             'readthedocs.core',
             'readthedocs.doc_builder',
             'readthedocs.oauth',
@@ -101,6 +98,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.payments',
             'readthedocs.notifications',
             'readthedocs.integrations',
+            'readthedocs.analytics',
 
 
             # allauth
@@ -122,7 +120,7 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
@@ -131,7 +129,7 @@ class CommunityBaseSettings(Settings):
         'django.middleware.csrf.CsrfViewMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
-        'linaro_django_pagination.middleware.PaginationMiddleware',
+        'dj_pagination.middleware.PaginationMiddleware',
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
@@ -163,12 +161,19 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
 
     # Assets and media
-    STATIC_ROOT = os.path.join(SITE_ROOT, 'media/static/')
+    STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
     STATIC_URL = '/static/'
     MEDIA_ROOT = os.path.join(SITE_ROOT, 'media/')
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
-    STATICFILES_DIRS = [os.path.join(SITE_ROOT, 'readthedocs', 'static')]
+    STATICFILES_DIRS = [
+        os.path.join(SITE_ROOT, 'readthedocs', 'static'),
+        os.path.join(SITE_ROOT, 'media'),
+    ]
+    STATICFILES_FINDERS = [
+        'readthedocs.core.static.SelectiveFileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    ]
 
     TEMPLATES = [
         {
@@ -204,7 +209,8 @@ class CommunityBaseSettings(Settings):
     CACHE_MIDDLEWARE_SECONDS = 60
 
     # I18n
-    TIME_ZONE = 'America/Chicago'
+    TIME_ZONE = 'UTC'
+    USE_TZ = True
     LANGUAGE_CODE = 'en-us'
     LANGUAGES = (
         ('ca', gettext('Catalan')),
@@ -217,8 +223,8 @@ class CommunityBaseSettings(Settings):
         ('de', gettext('German')),
         ('gl', gettext('Galician')),
         ('vi', gettext('Vietnamese')),
-        ('zh-cn', gettext('Chinese')),
-        ('zh-tw', gettext('Taiwanese')),
+        ('zh-cn', gettext('Simplified Chinese')),
+        ('zh-tw', gettext('Traditional Chinese')),
         ('ja', gettext('Japanese')),
         ('uk', gettext('Ukrainian')),
         ('it', gettext('Italian')),
@@ -241,10 +247,50 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULE = {
+        # Ran every hour on minute 30
+        'hourly-remove-orphan-symlinks': {
+            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+        },
+        'quarter-finish-inactive-builds': {
+            'task': 'readthedocs.projects.tasks.finish_inactive_builds',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'every-three-hour-clear-persistent-messages': {
+            'task': 'readthedocs.core.tasks.clear_persistent_messages',
+            'schedule': crontab(minute=0, hour='*/3'),
+            'options': {'queue': 'web'},
+        },
+    }
+
+    # Sentry
+    SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
     DOCKER_ENABLE = False
-    DOCKER_IMAGE = 'readthedocs/build:2.0'
+    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    DOCKER_DEFAULT_VERSION = '2.0'
+    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE_SETTINGS = {
+        'readthedocs/build:1.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+        },
+        'readthedocs/build:2.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
+        },
+        'readthedocs/build:3.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+        'readthedocs/build:stable': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+        'readthedocs/build:latest': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+    }
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -252,7 +298,6 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
@@ -273,8 +318,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.io$',
-        '^https://(.+)\.readthedocs\.io$'
+        r'^http://(.+)\.readthedocs\.io$',
+        r'^https://(.+)\.readthedocs\.io$',
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -294,13 +339,6 @@ class CommunityBaseSettings(Settings):
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
 
-    # Haystack
-    HAYSTACK_CONNECTIONS = {
-        'default': {
-            'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
-        },
-    }
-
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
     ES_DEFAULT_NUM_REPLICAS = 0
@@ -316,16 +354,18 @@ class CommunityBaseSettings(Settings):
 
     # Guardian Settings
     GUARDIAN_RAISE_403 = True
-    ANONYMOUS_USER_ID = -1
 
     # Stripe
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
 
+    # Do Not Track support
+    DO_NOT_TRACK_ENABLED = False
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
-    GRAVATAR_DEFAULT_IMAGE = 'https://media.readthedocs.org/images/silhouette.png'  # NOQA
+    GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     RESTRICTEDSESSIONS_AUTHED_ONLY = True
@@ -343,10 +383,11 @@ class CommunityBaseSettings(Settings):
         'field_name_limit': 50,
     }
     REST_FRAMEWORK = {
+        'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
-    SILENCED_SYSTEM_CHECKS = ['fields.W342']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'
@@ -371,6 +412,9 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
+            'null': {
+                'class': 'logging.NullHandler',
+            },
         },
         'loggers': {
             '': {  # root logger
@@ -382,6 +426,10 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 'level': 'DEBUG',
                 # Don't double log at the root logger for these.
+                'propagate': False,
+            },
+            'django.security.DisallowedHost': {
+                'handlers': ['null'],
                 'propagate': False,
             },
         },

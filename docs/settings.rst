@@ -83,6 +83,17 @@ Default: :djangosetting:`PUBLIC_DOMAIN`
 A special domain for serving public documentation.
 If set, public docs will be linked here instead of the `PRODUCTION_DOMAIN`.
 
+
+PUBLIC_DOMAIN_USES_HTTPS
+------------------------
+
+Default: ``False``
+
+If ``True`` and ``PUBLIC_DOMAIN`` is set, that domain will default to
+serving public documentation over HTTPS. By default, documentation is
+served over HTTP.
+
+
 ALLOW_ADMIN
 -----------
 
