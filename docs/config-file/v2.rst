@@ -104,6 +104,10 @@ python.install
 ``````````````
 
 List of installation methods of packages and requirements.
+You can have several of the following methods.
+
+:Type: ``list``
+:Default: ``[]``
 
 Requirements file
 '''''''''''''''''
