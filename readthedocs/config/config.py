@@ -309,7 +309,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for name, options in DOCKER_IMAGE_SETTINGS.items():
+            for _, options in DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(options['python']['supported_versions'])
             return versions
 
