@@ -26,6 +26,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
 from readthedocs.search.indexes import PageIndex
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
@@ -171,6 +172,7 @@ def project_downloads(request, project_slug):
         slug=project_slug,
     )
     versions = Version.objects.public(user=request.user, project=project)
+    versions = sort_version_aware(versions)
     version_data = OrderedDict()
     for version in versions:
         data = version.get_downloads()

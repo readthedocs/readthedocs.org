@@ -1,6 +1,8 @@
+{% load projects_tags %}
+
 <div class="module-list-wrapper">
   <ul>
-  {% for version in versions %}
+  {% for version in versions|sort_version_aware %}
     <li class="module-item">
       {# Link to the docs #}
       <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
