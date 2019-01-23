@@ -1,6 +1,8 @@
 Version 3.0.0
 -------------
 
+**Read the Docs now only supported Python 3.5+**
+
 :Date: January 23, 2019
 
 * `@stsewd <http://github.com/stsewd>`__: Fix tests on master (`#5162 <https://github.com/rtfd/readthedocs.org/pull/5162>`__)
