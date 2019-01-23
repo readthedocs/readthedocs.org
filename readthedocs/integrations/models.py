@@ -2,18 +2,10 @@
 
 """Integration models for external services."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import json
 import re
 import uuid
 
-from builtins import object, str
 from django.contrib.contenttypes.fields import (
     GenericForeignKey,
     GenericRelation,
@@ -73,11 +65,11 @@ class HttpExchangeManager(models.Manager):
         # headers. HTTP headers are prefixed with `HTTP_`, which we remove,
         # and because the keys are all uppercase, we'll normalize them to
         # title case-y hyphen separated values.
-        request_headers = dict(
-            (key[5:].title().replace('_', '-'), str(val))
+        request_headers = {
+            key[5:].title().replace('_', '-'): str(val)
             for (key, val) in list(req.META.items())
-            if key.startswith('HTTP_'),
-        )  # yapf: disable
+            if key.startswith('HTTP_')
+        }  # yapf: disable
 
         request_headers['Content-Type'] = req.content_type
         # Remove unwanted headers
@@ -146,7 +138,7 @@ class HttpExchange(models.Model):
 
     objects = HttpExchangeManager()
 
-    class Meta(object):
+    class Meta:
         ordering = ['-date']
 
     def __str__(self):
@@ -191,11 +183,11 @@ class IntegrationQuerySet(models.QuerySet):
 
     def _get_subclass(self, integration_type):
         # Build a mapping of integration_type -> class dynamically
-        class_map = dict(
-            (cls.integration_type_id, cls)
+        class_map = {
+            cls.integration_type_id: cls
             for cls in self.model.__subclasses__()
-            if hasattr(cls, 'integration_type_id'),
-        )  # yapf: disable
+            if hasattr(cls, 'integration_type_id')
+        }  # yapf: disable
         return class_map.get(integration_type)
 
     def _get_subclass_replacement(self, original):
@@ -215,7 +207,7 @@ class IntegrationQuerySet(models.QuerySet):
         return new
 
     def get(self, *args, **kwargs):
-        original = super(IntegrationQuerySet, self).get(*args, **kwargs)
+        original = super().get(*args, **kwargs)
         return self._get_subclass_replacement(original)
 
     def subclass(self, instance):
@@ -277,7 +269,8 @@ class Integration(models.Model):
     def __str__(self):
         return (
             _('{0} for {1}')
-            .format(self.get_integration_type_display(), self.project.name))
+            .format(self.get_integration_type_display(), self.project.name)
+        )
 
 
 class GitHubWebhook(Integration):
@@ -285,7 +278,7 @@ class GitHubWebhook(Integration):
     integration_type_id = Integration.GITHUB_WEBHOOK
     has_sync = True
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     @property
@@ -301,7 +294,7 @@ class BitbucketWebhook(Integration):
     integration_type_id = Integration.BITBUCKET_WEBHOOK
     has_sync = True
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     @property
@@ -317,7 +310,7 @@ class GitLabWebhook(Integration):
     integration_type_id = Integration.GITLAB_WEBHOOK
     has_sync = True
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     @property
@@ -333,7 +326,7 @@ class GenericAPIWebhook(Integration):
     integration_type_id = Integration.API_WEBHOOK
     has_sync = False
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -346,7 +339,7 @@ class GenericAPIWebhook(Integration):
             if token is None:
                 token = default_token()
                 self.provider_data = {'token': token}
-        super(GenericAPIWebhook, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @property
     def token(self):

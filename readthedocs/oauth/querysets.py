@@ -1,6 +1,6 @@
-"""Managers for OAuth models"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Managers for OAuth models."""
 
 from django.db import models
 
@@ -12,8 +12,8 @@ class RelatedUserQuerySetBase(models.QuerySet):
     """For models with relations through :py:class:`User`"""
 
     def api(self, user=None):
-        """Return objects for user"""
-        if not user.is_authenticated():
+        """Return objects for user."""
+        if not user.is_authenticated:
             return self.none()
         return self.filter(users=user)
 

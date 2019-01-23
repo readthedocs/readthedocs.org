@@ -1,13 +1,14 @@
-"""Project model QuerySet classes"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Project model QuerySet classes."""
 
 from django.db import models
 from django.db.models import Q
 from guardian.shortcuts import get_objects_for_user
 
-from . import constants
 from readthedocs.core.utils.extend import SettingsOverrideObject
+
+from . import constants
 
 
 class ProjectQuerySetBase(models.QuerySet):
@@ -19,7 +20,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
         return queryset.distinct()
@@ -32,7 +33,7 @@ class ProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def for_admin_user(self, user):
-        if user.is_authenticated():
+        if user.is_authenticated:
             return self.filter(users__in=[user])
         return self.none()
 
@@ -43,7 +44,9 @@ class ProjectQuerySetBase(models.QuerySet):
         return queryset
 
     def protected(self, user=None):
-        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        queryset = self.filter(
+            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
+        )
         if user:
             return self._add_user_repos(queryset, user)
         return queryset
@@ -53,6 +56,26 @@ class ProjectQuerySetBase(models.QuerySet):
         if user:
             return self._add_user_repos(queryset, user)
         return queryset
+
+    def is_active(self, project):
+        """
+        Check if the project is active.
+
+        The check consists on,
+          * the Project shouldn't be marked as skipped.
+          * any of the project's owners is banned.
+
+        :param project: project to be checked
+        :type project: readthedocs.projects.models.Project
+
+        :returns: whether or not the project is active
+        :rtype: bool
+        """
+        any_owner_banned = any(u.profile.banned for u in project.users.all())
+        if project.skip or any_owner_banned:
+            return False
+
+        return True
 
     # Aliases
 
@@ -71,9 +94,11 @@ class ProjectQuerySet(SettingsOverrideObject):
 class RelatedProjectQuerySetBase(models.QuerySet):
 
     """
-    A manager for things that relate to Project and need to get their perms from the project.
+    Useful for objects that relate to Project and its permissions.
 
-    This shouldn't be used as a subclass.
+    Objects get the permissions from the project itself.
+
+    ..note:: This shouldn't be used as a subclass.
     """
 
     use_for_related_fields = True
@@ -83,7 +108,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
         # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
             pks = project_qs.values_list('pk', flat=True)
@@ -102,7 +127,10 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def protected(self, user=None, project=None):
         kwargs = {
-            '%s__privacy_level__in' % self.project_field: [constants.PUBLIC, constants.PROTECTED]
+            '%s__privacy_level__in' % self.project_field: [
+                constants.PUBLIC,
+                constants.PROTECTED,
+            ],
         }
         queryset = self.filter(**kwargs)
         if user:
@@ -157,5 +185,5 @@ class FeatureQuerySet(models.QuerySet):
     def for_project(self, project):
         return self.filter(
             Q(projects=project) |
-            Q(default_true=True, add_date__gt=project.pub_date)
+            Q(default_true=True, add_date__gt=project.pub_date),
         ).distinct()

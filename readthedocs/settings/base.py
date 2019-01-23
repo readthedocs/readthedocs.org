@@ -43,7 +43,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
-    PUBLIC_API_URL = 'https://{0}'.format(PRODUCTION_DOMAIN)
+    PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -266,9 +266,31 @@ class CommunityBaseSettings(Settings):
         },
     }
 
+    # Sentry
+    SENTRY_CELERY_IGNORE_EXPECTED = True
+
     # Docker
     DOCKER_ENABLE = False
-    DOCKER_IMAGE = 'readthedocs/build:2.0'
+    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    DOCKER_DEFAULT_VERSION = '2.0'
+    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE_SETTINGS = {
+        'readthedocs/build:1.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+        },
+        'readthedocs/build:2.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
+        },
+        'readthedocs/build:3.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+        'readthedocs/build:stable': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+        'readthedocs/build:latest': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+    }
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -296,8 +318,8 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '^http://(.+)\.readthedocs\.io$',
-        '^https://(.+)\.readthedocs\.io$'
+        r'^http://(.+)\.readthedocs\.io$',
+        r'^https://(.+)\.readthedocs\.io$',
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -365,7 +387,7 @@ class CommunityBaseSettings(Settings):
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'PAGE_SIZE': 10,
     }
-    SILENCED_SYSTEM_CHECKS = ['fields.W342']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'

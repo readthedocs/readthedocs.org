@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import shutil
 from os.path import exists
@@ -8,35 +6,42 @@ from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
-from mock import patch, MagicMock
+from mock import MagicMock, patch
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.builds.models import Build
-from readthedocs.projects.models import Project
+from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.projects import tasks
-
-from readthedocs.rtd_tests.utils import (
-    create_git_branch, create_git_tag, delete_git_branch)
-from readthedocs.rtd_tests.utils import make_test_git
+from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
+from readthedocs.rtd_tests.utils import (
+    create_git_branch,
+    create_git_tag,
+    delete_git_branch,
+    make_test_git,
+)
 
 
 class TestCeleryBuilding(RTDTestCase):
 
-    """These tests run the build functions directly. They don't use celery"""
+    """
+    These tests run the build functions directly.
+
+    They don't use celery
+    """
 
     def setUp(self):
         repo = make_test_git()
         self.repo = repo
-        super(TestCeleryBuilding, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="git",
+            name='Test Project',
+            repo_type='git',
             # Our top-level checkout
             repo=repo,
         )
@@ -44,12 +49,12 @@ class TestCeleryBuilding(RTDTestCase):
 
     def tearDown(self):
         shutil.rmtree(self.repo)
-        super(TestCeleryBuilding, self).tearDown()
+        super().tearDown()
 
-    def test_remove_dir(self):
+    def test_remove_dirs(self):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
-        result = tasks.remove_dir.delay(directory)
+        result = tasks.remove_dirs.delay((directory,))
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -58,14 +63,14 @@ class TestCeleryBuilding(RTDTestCase):
         directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
         directory = version.project.rtd_build_path(version=version.slug)
         os.makedirs(directory)
         self.assertTrue(exists(directory))
-        result = tasks.clear_artifacts.delay(paths=version.get_artifact_paths())
+        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -73,14 +78,17 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     def test_update_docs(self):
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -90,14 +98,17 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
@@ -107,14 +118,39 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
-        build = get(Build, project=self.project,
-                    version=self.project.versions.first())
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
                 self.project.pk,
                 build_pk=build.pk,
                 record=False,
-                intersphinx=False)
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.send_notifications')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
+    def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
+        mock_setup_vcs.side_effect = VersionLockedError()
+
+        build = get(
+            Build, project=self.project,
+            version=self.project.versions.first(),
+        )
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs_task.delay(
+                self.project.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+
+        mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
 
     def test_sync_repository(self):
@@ -124,9 +160,15 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertTrue(result.successful())
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_latest(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_latest(self, checkout_path, api_v2):
         create_git_branch(self.repo, 'latest')
         create_git_tag(self.repo, 'latest')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
@@ -136,7 +178,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICATED_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         delete_git_branch(self.repo, 'latest')
@@ -144,9 +186,15 @@ class TestCeleryBuilding(RTDTestCase):
         api_v2.project().sync_versions.post.assert_called()
 
     @patch('readthedocs.projects.tasks.api_v2')
-    def test_check_duplicate_reserved_version_stable(self, api_v2):
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_check_duplicate_reserved_version_stable(self, checkout_path, api_v2):
         create_git_branch(self.repo, 'stable')
         create_git_tag(self.repo, 'stable')
+
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
         sync_repository = tasks.UpdateDocsTaskStep()
@@ -156,7 +204,7 @@ class TestCeleryBuilding(RTDTestCase):
             sync_repository.sync_repo()
         self.assertEqual(
             str(e.exception),
-            RepositoryError.DUPLICATED_RESERVED_VERSIONS
+            RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         # TODO: Check that we can build properly after
@@ -194,9 +242,11 @@ class TestCeleryBuilding(RTDTestCase):
         # although the task risen an exception, it's success since we add the
         # exception into the ``info`` attributes
         self.assertEqual(result.status, 'SUCCESS')
-        self.assertEqual(result.info, {
-            'task_name': 'public_task_exception',
-            'context': {},
-            'public_data': {},
-            'error': 'Something bad happened',
-        })
+        self.assertEqual(
+            result.info, {
+                'task_name': 'public_task_exception',
+                'context': {},
+                'public_data': {},
+                'error': 'Something bad happened',
+            },
+        )
