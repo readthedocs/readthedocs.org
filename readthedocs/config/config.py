@@ -147,6 +147,13 @@ class BuildConfigBase:
         'mkdocs',
         'submodules',
     ]
+
+    valid_build_images = {'stable', 'latest'}
+    for k in DOCKER_IMAGE_SETTINGS:
+        image, version = k.split(':')
+        if re.fullmatch(r'^[\d\.]+$', version):
+            valid_build_images.add(version)
+
     default_build_image = DOCKER_DEFAULT_VERSION
     version = None
 
@@ -287,13 +294,6 @@ class BuildConfigV1(BuildConfigBase):
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
         '"python.extra_requirements" section must be a list.'
     )
-
-    # ConfigV1 accepts only numbered versions
-    valid_build_images = set()
-    for k in DOCKER_IMAGE_SETTINGS:
-        image, version = k.split(':')
-        if re.fullmatch(r'[\d\.]+', version):
-            valid_build_images.add(version)
 
     version = '1'
 
@@ -616,9 +616,6 @@ class BuildConfigV2(BuildConfigBase):
         'singlehtml': 'sphinx_singlehtml',
     }
     builders_display = dict(DOCUMENTATION_CHOICES)
-
-    # Config V2 only accepts named versions
-    valid_build_images = ['stable', 'latest']
 
     def validate(self):
         """
