@@ -39,7 +39,7 @@ Example:
 
 .. warning::
    
-   If you don't provide the version, :doc:`v1 <v1>` would be used.
+   If you don't provide the version, :doc:`v1 <v1>` will be used.
 
 formats
 ~~~~~~~
@@ -140,11 +140,13 @@ The path to the package, relative to the root of the project.
 The installation method.
 
 :Key: ``method``
-:Options: ``pip``, ``setup.py``
+:Options: ``pip``, ``setuptools``
 :Default: ``pip``
 
-`Extra requirements <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies>`_
-section to install in addition to the `package dependencies <https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies>`_.
+`Extra requirements`_ section to install in addition to the `package dependencies`_.
+
+.. _Extra Requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+.. _package dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
 
 .. warning::
 
@@ -168,6 +170,13 @@ Example:
          - method: setuptools
            path: package
 
+With the previous settings, Read the Docs will execute the next commands:
+
+.. prompt:: bash $
+
+   pip install .[docs]
+   python package/setup.py install
+
 python.system_packages
 ``````````````````````
 
@@ -178,6 +187,7 @@ Give the virtual environment access to the global site-packages directory.
 
 Depending on the :ref:`config-file/v2:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
+That you can access to them by enabling this option.
 See :ref:`builds:The build environment` for more details.
 
 conda
@@ -194,7 +204,7 @@ Example:
 conda.environment
 `````````````````
 
-The path to the Conda environment file from the root of the project.
+The path to the Conda environment file, relative to the root of the project.
 
 :Type: ``path``
 :Required: ``true``
@@ -226,8 +236,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/2.x>`_: :buildpyversions:`2.0`
-* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`3.0`
+* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`2.0`
+* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`3.0`
 
 sphinx
 ~~~~~~
@@ -261,7 +271,7 @@ The path to the ``conf.py`` file, relative to the root of the project.
 :Default: ``null``
 
 If the value is ``null``,
-Read the Docs would try to find a ``conf.py`` file in your project.
+Read the Docs will try to find a ``conf.py`` file in your project.
 
 sphinx.fail_on_warning
 ``````````````````````
@@ -287,13 +297,13 @@ Example:
 mkdocs.configuration
 ````````````````````
 
-The path to the ``mkdocs.yml`` file
+The path to the ``mkdocs.yml`` file, relative to the root of the project.
 
 :Type: ``path``
 :Default: ``null``
 
 If the value is ``null``,
-Read the Docs would try to find a ``mkdocs.yml`` file in your project.
+Read the Docs will try to find a ``mkdocs.yml`` file in your project.
 
 mkdocs.fail_on_warning
 ``````````````````````
@@ -318,7 +328,9 @@ Example:
 .. code-block:: yaml
    
    submodules:
-     include: all
+     include:
+        - one
+        - two
      recursive: true
 
 submodules.include
@@ -402,8 +414,8 @@ Changes
    Some values from the web interface are no longer respected,
    please see :ref:`config-file/v2:Migrating from the web interface` if you have settings there.
 
-New
-~~~
+New settings
+~~~~~~~~~~~~
 
 - :ref:`config-file/v2:sphinx`
 - :ref:`config-file/v2:mkdocs`
@@ -414,8 +426,8 @@ Migrating from the web interface
 --------------------------------
 
 This should be pretty straightforward,
-just go to the admin panel of your project,
-advanced settings and find their respective setting :ref:`here <config-file/v2:Supported settings>`.
+just go to the :guilabel:`Admin` > :guilabel:`Advanced settings`,
+and find their respective setting in :ref:`here <config-file/v2:Supported settings>`.
 
 Not all settings in the web interface are per version, but are per project.
 These settings aren't supported via the configuration file.
