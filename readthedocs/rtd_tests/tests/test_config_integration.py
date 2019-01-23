@@ -145,7 +145,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6],
+            [2, 2.7, 3, 3.5, 3.6, 3.7],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -507,7 +507,7 @@ class TestLoadConfigV2:
 
         config = self.get_update_docs_task().config
         assert config.python.version == 3
-        assert config.python_full_version == 3.6
+        assert config.python_full_version == 3.7
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_requirements(self, run, checkout_path, tmpdir):
