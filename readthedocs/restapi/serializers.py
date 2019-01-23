@@ -1,27 +1,31 @@
+# -*- coding: utf-8 -*-
+
 """Defines serializers for each of our models."""
-
-from __future__ import absolute_import
-
-from builtins import object
 
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     canonical_url = serializers.ReadOnlyField(source='get_docs_url')
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             'id',
-            'name', 'slug', 'description', 'language',
-            'programming_language', 'repo', 'repo_type',
-            'default_version', 'default_branch',
+            'name',
+            'slug',
+            'description',
+            'language',
+            'programming_language',
+            'repo',
+            'repo_type',
+            'default_version',
+            'default_branch',
             'documentation_type',
             'users',
             'canonical_url',
@@ -76,13 +80,16 @@ class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
     downloads = serializers.DictField(source='get_downloads', read_only=True)
 
-    class Meta(object):
+    class Meta:
         model = Version
         fields = (
             'id',
-            'project', 'slug',
-            'identifier', 'verbose_name',
-            'active', 'built',
+            'project',
+            'slug',
+            'identifier',
+            'verbose_name',
+            'active',
+            'built',
             'downloads',
             'type',
         )
@@ -99,7 +106,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     run_time = serializers.ReadOnlyField()
 
-    class Meta(object):
+    class Meta:
         model = BuildCommandResult
         exclude = ('')
 
@@ -117,7 +124,7 @@ class BuildSerializer(serializers.ModelSerializer):
     # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
     config = serializers.JSONField(required=False)
 
-    class Meta(object):
+    class Meta:
         model = Build
         # `_config` should be excluded to avoid conflicts with `config`
         exclude = ('builder', '_config')
@@ -142,7 +149,7 @@ class SearchIndexSerializer(serializers.Serializer):
 class DomainSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
 
-    class Meta(object):
+    class Meta:
         model = Domain
         fields = (
             'id',
@@ -156,7 +163,7 @@ class DomainSerializer(serializers.ModelSerializer):
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
-    class Meta(object):
+    class Meta:
         model = RemoteOrganization
         exclude = ('json', 'email', 'users')
 
@@ -168,7 +175,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
     organization = RemoteOrganizationSerializer()
     matches = serializers.SerializerMethodField()
 
-    class Meta(object):
+    class Meta:
         model = RemoteRepository
         exclude = ('json', 'users')
 
@@ -190,13 +197,12 @@ class SocialAccountSerializer(serializers.ModelSerializer):
     avatar_url = serializers.URLField(source='get_avatar_url')
     provider = ProviderSerializer(source='get_provider')
 
-    class Meta(object):
+    class Meta:
         model = SocialAccount
         exclude = ('extra_data',)
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get('username') or
-            obj.extra_data.get('login')
+            obj.extra_data.get('username') or obj.extra_data.get('login')
             # FIXME: which one is GitLab?
         )

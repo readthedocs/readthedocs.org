@@ -1,13 +1,13 @@
+# -*- coding: utf-8 -*-
+
 """Mixin classes for project views."""
 
-from __future__ import absolute_import
-from builtins import object
 from django.shortcuts import get_object_or_404
 
 from readthedocs.projects.models import Project
 
 
-class ProjectRelationMixin(object):
+class ProjectRelationMixin:
 
     """
     Mixin class for constructing model views for project dashboard.
@@ -32,7 +32,7 @@ class ProjectRelationMixin(object):
             return None
         return get_object_or_404(
             self.get_project_queryset(),
-            slug=self.kwargs[self.project_lookup_url_kwarg]
+            slug=self.kwargs[self.project_lookup_url_kwarg],
         )
 
     def get_queryset(self):
@@ -41,6 +41,6 @@ class ProjectRelationMixin(object):
         )
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectRelationMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context[self.project_context_object_name] = self.get_project()
         return context
