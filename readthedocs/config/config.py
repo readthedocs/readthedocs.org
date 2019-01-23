@@ -148,12 +148,6 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    valid_build_images = {'stable', 'latest'}
-    for k in DOCKER_IMAGE_SETTINGS:
-        image, version = k.split(':')
-        if re.fullmatch(r'^[\d\.]+$', version):
-            valid_build_images.add(version)
-
     default_build_image = DOCKER_DEFAULT_VERSION
     version = None
 
@@ -254,6 +248,22 @@ class BuildConfigBase:
                 if v < ver + 1
             )
         return ver
+
+    @property
+    def valid_build_images(self):
+        """
+        Return all the valid Docker image choices for ``build.image`` option.
+
+        The user can use any of this values in the YAML file. These values are
+        the keys of ``DOCKER_IMAGE_SETTINGS`` Django setting (without the
+        ``readthedocs/build`` part) plus ``stable`` and ``latest``.
+        """
+        images = {'stable', 'latest'}
+        for k in DOCKER_IMAGE_SETTINGS:
+            image, version = k.split(':')
+            if re.fullmatch(r'^[\d\.]+$', version):
+                images.add(version)
+        return images
 
     def get_valid_python_versions_for_image(self, build_image):
         """
