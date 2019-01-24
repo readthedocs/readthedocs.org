@@ -65,7 +65,8 @@ class PageDocument(RTDDocTypeMixin, DocType):
     # Fields to perform search with weight
     search_fields = ['title^10', 'headers^5', 'content']
     # Exclude some files to not index
-    excluded_files = ['search.html', 'genindex.html', 'py-modindex.html']
+    excluded_files = ['search.html', 'genindex.html', 'py-modindex.html',
+                      'search/index.html', 'genindex/index.html', 'py-modindex/index.html']
 
     @classmethod
     def faceted_search(cls, query, projects_list=None, versions_list=None, using=None, index=None):
@@ -135,5 +136,5 @@ class PageDocument(RTDDocTypeMixin, DocType):
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
         queryset = (queryset.filter(project__documentation_type__contains='sphinx')
-                            .exclude(name__in=self.excluded_files))
+                            .exclude(path__endswith=self.excluded_files))
         return queryset
