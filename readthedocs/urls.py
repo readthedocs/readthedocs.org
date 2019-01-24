@@ -26,6 +26,7 @@ from readthedocs.core.views import (
     server_error_500,
 )
 from readthedocs.search import views as search_views
+from readthedocs.search.api import PageSearchAPIView
 
 
 v1_api = Api(api_name='v1')
@@ -73,9 +74,11 @@ project_urls = [
 api_urls = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
+    # Keep the `doc_search` at root level, so the test does not fail for other API
+    url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
     url(
         r'^api-auth/',
-        include('rest_framework.urls', namespace='rest_framework'),
+        include('rest_framework.urls', namespace='rest_framework')
     ),
 ]
 
