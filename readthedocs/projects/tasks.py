@@ -730,6 +730,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             args=[
                 self.project.pk,
                 self.version.pk,
+                self.config.doctype,
             ],
             kwargs=dict(
                 hostname=socket.gethostname(),
@@ -813,7 +814,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             broadcast(
                 type='app',
                 task=move_files,
-                args=[self.version.pk, socket.gethostname()],
+                args=[
+                    self.version.pk, socket.gethostname(), self.config.doctype
+                ],
                 kwargs=dict(html=True),
             )
         except socket.error:
@@ -886,6 +889,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 def sync_files(
         project_pk,
         version_pk,
+        doctype,
         hostname=None,
         html=False,
         localmedia=False,
@@ -900,7 +904,9 @@ def sync_files(
     synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     if not pdf:
         remove_dirs([
             version.project.get_production_media_path(
@@ -920,6 +926,7 @@ def sync_files(
     move_files(
         version_pk,
         hostname,
+        doctype,
         html=html,
         localmedia=localmedia,
         search=search,
@@ -938,6 +945,7 @@ def sync_files(
 def move_files(
         version_pk,
         hostname,
+        doctype,
         html=False,
         localmedia=False,
         search=False,
@@ -960,7 +968,9 @@ def move_files(
     :param epub: Sync ePub files
     :type epub: bool
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
@@ -972,59 +982,58 @@ def move_files(
     if html:
         from_path = version.project.artifact_path(
             version=version.slug,
-            type_=version.project.documentation_type,
+            type_=doctype,
         )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_search',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='json',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if search:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_search',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='json',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        if localmedia:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='htmlzip',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if localmedia:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_localmedia',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='htmlzip',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        # Always move PDF's because the return code lies.
-        if pdf:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
-        if epub:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    # Always move PDF's because the return code lies.
+    if pdf:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_pdf',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='pdf',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
+    if epub:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_epub',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='epub',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
 
 @app.task(queue='web')
@@ -1099,7 +1108,9 @@ def fileify(version_pk, commit):
 
     This is so we have an idea of what files we have in the database.
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     project = version.project
 
     if not commit:
@@ -1217,7 +1228,9 @@ def _manage_imported_files(version, path, commit):
 
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
