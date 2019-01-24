@@ -444,7 +444,7 @@ def build_versions_form(project):
     active = versions_qs.filter(active=True)
     if active.exists():
         active = sort_version_aware(active)
-        choices = [(version.slug, version.verbose_name) for version in active]
+        choices = [(version.slug, version.verbose_name) for version in active if version.built]
         attrs['default-version'] = forms.ChoiceField(
             label=_('Default Version'),
             choices=choices,

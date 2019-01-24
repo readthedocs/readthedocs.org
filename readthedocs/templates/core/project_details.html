@@ -41,6 +41,15 @@
           {% if request.user|is_admin:project %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+              <li>
+                <span class="right quiet" style="margin:10px 5px 0px 0px;">
+                  {% if version.built %}
+                    <span class="build-state build-state-passing">{% trans "passing" %}</span>
+                  {% else %}
+                    <span class="build-state build-state-failing" style="margin-left:14px">{% trans "failing" %}</span>
+                  {% endif %}
+                </span>
+              <li>
             </ul>
           {% endif %}
         </li>
