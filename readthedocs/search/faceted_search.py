@@ -1,5 +1,4 @@
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import SimpleQueryString, Bool
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -38,6 +37,7 @@ class FileSearch(RTDFacetedSearch):
 
         Overriding because we pass ES Query object instead of string
         """
+        search = search.highlight_options(encoder='html')
         if query:
             search = search.query(query)
 
