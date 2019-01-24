@@ -21,6 +21,6 @@ class TestXSS(object):
         page_search = PageDocument.simple_search(query=query)
         results = page_search.execute()
         expected = """
-        '&lt;h3&gt;<em>XSS</em> exploit&lt;&#x2F;h3&gt;
+        &lt;h3&gt;<em>XSS</em> exploit&lt;&#x2F;h3&gt;
         """.strip()
         assert results[0].meta.highlight.content[0][:len(expected)] == expected
