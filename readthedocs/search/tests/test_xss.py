@@ -5,7 +5,7 @@ from readthedocs.search.documents import PageDocument
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestXSS(object):
+class TestXSS:
 
     def test_facted_page_xss(self, client, project):
         query = 'XSS'
