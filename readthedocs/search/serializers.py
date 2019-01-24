@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from readthedocs.projects.models import Project
-
 
 class PageSearchSerializer(serializers.Serializer):
     project = serializers.CharField()

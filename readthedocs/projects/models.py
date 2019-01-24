@@ -4,6 +4,7 @@
 
 import fnmatch
 import logging
+import re
 import os
 from urllib.parse import urlparse
 
@@ -1124,6 +1125,11 @@ class HTMLFile(ImportedFile):
     @cached_property
     def json_file_path(self):
         basename = os.path.splitext(self.path)[0]
+        if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            log.info('Adjusted json file path: %s -> %s', basename, new_basename)
+            basename = new_basename
+
         file_path = basename + '.fjson'
 
         full_json_path = self.project.get_production_media_path(

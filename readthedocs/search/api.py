@@ -1,8 +1,6 @@
 from rest_framework import generics
-from rest_framework import exceptions
 from rest_framework.exceptions import ValidationError
 
-from readthedocs.projects.models import Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.filters import SearchFilterBackend
 from readthedocs.search.pagination import SearchPagination
