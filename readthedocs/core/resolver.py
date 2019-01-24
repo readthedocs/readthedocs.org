@@ -3,6 +3,7 @@
 """URL resolver for documentation."""
 
 import re
+from urllib.parse import urlunparse
 
 from django.conf import settings
 
@@ -159,8 +160,8 @@ class ResolverBase:
         return getattr(settings, 'PRODUCTION_DOMAIN')
 
     def resolve(
-            self, project, require_https=False, filename='', private=None,
-            **kwargs
+            self, project, require_https=False, filename='', query_params='',
+            private=None, **kwargs
     ):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -192,12 +193,10 @@ class ResolverBase:
         ])
         protocol = 'https' if use_https_protocol else 'http'
 
-        return '{protocol}://{domain}{path}'.format(
-            protocol=protocol,
-            domain=domain,
-            path=self.
-            resolve_path(project, filename=filename, private=private, **kwargs),
+        path = self.resolve_path(
+            project, filename=filename, private=private, **kwargs
         )
+        return urlunparse((protocol, domain, path, '', query_params, ''))
 
     def _get_canonical_project(self, project, projects=None):
         """
