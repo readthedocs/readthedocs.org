@@ -1,15 +1,27 @@
-# -*- coding: utf-8 -*-
-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
+
+import copy
 import os
 from contextlib import contextmanager
 
+from django.conf import settings
+
+from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
-from .models import Build, Conda, Mkdocs, Python, Sphinx, Submodules
+from .models import (
+    Build,
+    Conda,
+    Mkdocs,
+    Python,
+    PythonInstall,
+    PythonInstallRequirements,
+    Sphinx,
+    Submodules,
+)
 from .parser import ParseError, parse
 from .validation import (
     VALUE_NOT_FOUND,
@@ -17,6 +29,7 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
+    validate_directory,
     validate_file,
     validate_list,
     validate_string,
@@ -31,9 +44,13 @@ __all__ = (
     'ConfigError',
     'ConfigOptionNotSupportedError',
     'InvalidConfig',
+    'PIP',
+    'SETUPTOOLS',
 )
 
 ALL = 'all'
+PIP = 'pip'
+SETUPTOOLS = 'setuptools'
 CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 CONFIG_NOT_SUPPORTED = 'config-not-supported'
@@ -46,28 +63,16 @@ SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-DOCKER_DEFAULT_VERSION = '2.0'
+DOCKER_DEFAULT_IMAGE = getattr(settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build')
+DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
-DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-DOCKER_IMAGE_SETTINGS = {
-    'readthedocs/build:1.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-    },
-    'readthedocs/build:2.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-    },
-    'readthedocs/build:3.0': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:stable': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-    'readthedocs/build:latest': {
-        'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-    },
-}
+DOCKER_IMAGE = getattr(
+    settings,
+    'DOCKER_IMAGE',
+    '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+)
+DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
 
 class ConfigError(Exception):
@@ -145,7 +150,7 @@ class BuildConfigBase:
 
     def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
-        self.raw_config = raw_config
+        self.raw_config = copy.deepcopy(raw_config)
         self.source_file = source_file
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file
@@ -245,10 +250,7 @@ class BuildConfigBase:
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
             attr = getattr(self, name)
-            if hasattr(attr, '_asdict'):
-                config[name] = attr._asdict()
-            else:
-                config[name] = attr
+            config[name] = to_dict(attr)
         return config
 
     def __getattr__(self, name):
@@ -465,7 +467,9 @@ class BuildConfigV1(BuildConfigBase):
         if not requirements_file:
             return None
         with self.catch_validation_error('requirements_file'):
-            validate_file(requirements_file, self.base_path)
+            requirements_file = validate_file(
+                requirements_file, self.base_path
+            )
         return requirements_file
 
     def validate_formats(self):
@@ -491,9 +495,39 @@ class BuildConfigV1(BuildConfigBase):
     @property
     def python(self):
         """Python related configuration."""
+        python = self._config['python']
         requirements = self._config['requirements_file']
-        self._config['python']['requirements'] = requirements
-        return Python(**self._config['python'])
+        python_install = []
+
+        # Always append a `PythonInstallRequirements` option.
+        # If requirements is None, rtd will try to find a requirements file.
+        python_install.append(
+            PythonInstallRequirements(
+                requirements=requirements,
+            )
+        )
+        if python['install_with_pip']:
+            python_install.append(
+                PythonInstall(
+                    path=self.base_path,
+                    method=PIP,
+                    extra_requirements=python['extra_requirements'],
+                )
+            )
+        elif python['install_with_setup']:
+            python_install.append(
+                PythonInstall(
+                    path=self.base_path,
+                    method=SETUPTOOLS,
+                    extra_requirements=[],
+                )
+            )
+
+        return Python(
+            version=python['version'],
+            install=python_install,
+            use_system_site_packages=python['use_system_site_packages'],
+        )
 
     @property
     def conda(self):
@@ -545,7 +579,7 @@ class BuildConfigV2(BuildConfigBase):
     valid_formats = ['htmlzip', 'pdf', 'epub']
     valid_build_images = ['1.0', '2.0', '3.0', 'stable', 'latest']
     default_build_image = 'latest'
-    valid_install_options = ['pip', 'setup.py']
+    valid_install_method = [PIP, SETUPTOOLS]
     valid_sphinx_builders = {
         'html': 'sphinx',
         'htmldir': 'sphinx_htmldir',
@@ -668,39 +702,22 @@ class BuildConfigV2(BuildConfigBase):
                 self.get_valid_python_versions(),
             )
 
-        with self.catch_validation_error('python.requirements'):
-            requirements = self.defaults.get('requirements_file')
-            requirements = self.pop_config('python.requirements', requirements)
-            if requirements != '' and requirements is not None:
-                requirements = validate_file(requirements, self.base_path)
-            python['requirements'] = requirements
-
         with self.catch_validation_error('python.install'):
-            install = (
-                'setup.py' if self.defaults.get('install_project') else None
-            )
-            install = self.pop_config('python.install', install)
-            if install is not None:
-                validate_choice(install, self.valid_install_options)
-            python['install_with_setup'] = install == 'setup.py'
-            python['install_with_pip'] = install == 'pip'
-
-        with self.catch_validation_error('python.extra_requirements'):
-            extra_requirements = self.pop_config(
-                'python.extra_requirements',
-                [],
-            )
-            extra_requirements = validate_list(extra_requirements)
-            if extra_requirements and not python['install_with_pip']:
-                self.error(
-                    'python.extra_requirements',
-                    'You need to install your project with pip '
-                    'to use extra_requirements',
-                    code=PYTHON_INVALID,
+            raw_install = self.raw_config.get('python', {}).get('install', [])
+            validate_list(raw_install)
+            if raw_install:
+                # Transform to a dict, so it's easy to validate extra keys.
+                self.raw_config.setdefault('python', {})['install'] = (
+                    list_to_dict(raw_install)
                 )
-            python['extra_requirements'] = [
-                validate_string(extra) for extra in extra_requirements
-            ]
+            else:
+                self.pop_config('python.install')
+
+        raw_install = self.raw_config.get('python', {}).get('install', [])
+        python['install'] = [
+            self.validate_python_install(index)
+            for index in range(len(raw_install))
+        ]
 
         with self.catch_validation_error('python.system_packages'):
             system_packages = self.defaults.get(
@@ -714,6 +731,60 @@ class BuildConfigV2(BuildConfigBase):
             python['use_system_site_packages'] = validate_bool(system_packages)
 
         return python
+
+    def validate_python_install(self, index):
+        """Validates the python.install.{index} key."""
+        python_install = {}
+        key = 'python.install.{}'.format(index)
+        raw_install = self.raw_config['python']['install'][str(index)]
+        with self.catch_validation_error(key):
+            validate_dict(raw_install)
+
+        if 'requirements' in raw_install:
+            requirements_key = key + '.requirements'
+            with self.catch_validation_error(requirements_key):
+                requirements = validate_file(
+                    self.pop_config(requirements_key),
+                    self.base_path
+                )
+                python_install['requirements'] = requirements
+        elif 'path' in raw_install:
+            path_key = key + '.path'
+            with self.catch_validation_error(path_key):
+                path = validate_directory(
+                    self.pop_config(path_key),
+                    self.base_path
+                )
+                python_install['path'] = path
+
+            method_key = key + '.method'
+            with self.catch_validation_error(method_key):
+                method = validate_choice(
+                    self.pop_config(method_key, PIP),
+                    self.valid_install_method
+                )
+                python_install['method'] = method
+
+            extra_req_key = key + '.extra_requirements'
+            with self.catch_validation_error(extra_req_key):
+                extra_requirements = validate_list(
+                    self.pop_config(extra_req_key, [])
+                )
+                if extra_requirements and python_install['method'] != PIP:
+                    self.error(
+                        extra_req_key,
+                        'You need to install your project with pip '
+                        'to use extra_requirements',
+                        code=PYTHON_INVALID,
+                    )
+                python_install['extra_requirements'] = extra_requirements
+        else:
+            self.error(
+                key,
+                '"path" or "requirements" key is required',
+                code=CONFIG_REQUIRED,
+            )
+        return python_install
 
     def get_valid_python_versions(self):
         """
@@ -951,7 +1022,22 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def python(self):
-        return Python(**self._config['python'])
+        python_install = []
+        python = self._config['python']
+        for install in python['install']:
+            if 'requirements' in install:
+                python_install.append(
+                    PythonInstallRequirements(**install)
+                )
+            elif 'path' in install:
+                python_install.append(
+                    PythonInstall(**install)
+                )
+        return Python(
+            version=python['version'],
+            install=python_install,
+            use_system_site_packages=python['use_system_site_packages'],
+        )
 
     @property
     def sphinx(self):

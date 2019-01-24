@@ -26,6 +26,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
 from readthedocs.search.indexes import PageIndex
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
@@ -44,6 +45,7 @@ class ProjectIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
+        queryset = queryset.exclude(users__profile__banned=True)
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
@@ -67,9 +69,6 @@ class ProjectIndex(ListView):
         context['person'] = self.user
         context['tag'] = self.tag
         return context
-
-
-project_index = ProjectIndex.as_view()
 
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
@@ -173,6 +172,7 @@ def project_downloads(request, project_slug):
         slug=project_slug,
     )
     versions = Version.objects.public(user=request.user, project=project)
+    versions = sort_version_aware(versions)
     version_data = OrderedDict()
     for version in versions:
         data = version.get_downloads()

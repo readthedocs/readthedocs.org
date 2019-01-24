@@ -2,7 +2,10 @@
 
 """Build and Version class model Managers."""
 
+import logging
+
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 from readthedocs.core.utils.extend import (
     SettingsOverrideObject,
@@ -18,6 +21,8 @@ from .constants import (
     TAG,
 )
 from .querysets import VersionQuerySet
+
+log = logging.getLogger(__name__)
 
 
 __all__ = ['VersionManager']
@@ -66,6 +71,18 @@ class VersionManagerBase(models.Manager):
         }
         defaults.update(kwargs)
         return self.create(**defaults)
+
+    def get_object_or_log(self, **kwargs):
+        """
+        Returns Version object or log.
+
+        It will return the Version object if found for the given kwargs,
+        otherwise it will log a warning along with all provided kwargs.
+        """
+        try:
+            return super().get(**kwargs)
+        except ObjectDoesNotExist:
+            log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
 class VersionManager(SettingsOverrideObject):

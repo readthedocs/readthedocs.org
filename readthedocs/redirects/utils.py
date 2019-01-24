@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Redirection view support.
 
@@ -11,6 +9,7 @@ handlers, so that redirects only take effect if no other view matches.
 """
 import logging
 import re
+from urllib.parse import urlparse, urlunparse
 
 from django.http import HttpResponseRedirect
 
@@ -69,24 +68,25 @@ def language_and_version_from_path(path):
     return None, None, path
 
 
-def get_redirect_response(request, path):
-    project, path = project_and_path_from_request(request, path)
+def get_redirect_response(request, full_path):
+    project, full_path = project_and_path_from_request(request, full_path)
     if not project:
         return None
 
     language = None
     version_slug = None
+    schema, netloc, path, params, query, fragments = urlparse(full_path)
     if not project.single_version:
         language, version_slug, path = language_and_version_from_path(path)
 
-    new_path = project.redirects.get_redirect_path(
-        path=path,
-        language=language,
-        version_slug=version_slug,
+    path = project.redirects.get_redirect_path(
+        path=path, language=language, version_slug=version_slug
     )
 
-    if new_path is None:
+    if path is None:
         return None
+
+    new_path = urlunparse((schema, netloc, path, params, query, fragments))
 
     # Re-use the domain and protocol used in the current request.
     # Redirects shouldn't change the domain, version or language.
