@@ -27,10 +27,8 @@ def process_all_json_files(version, build_dir=True):
     html_files = []
     for root, _, files in os.walk(full_path):
         for filename in fnmatch.filter(files, '*.fjson'):
-            if filename in [
-                    'search.fjson',
-                    'genindex.fjson',
-                    'py-modindex.fjson']:
+            if filename in ['search.fjson', 'genindex.fjson',
+                            'py-modindex.fjson']:
                 continue
             html_files.append(os.path.join(root, filename))
     page_list = []
@@ -48,7 +46,7 @@ def process_all_json_files(version, build_dir=True):
 def process_headers(data, filename):
     """Read headers from toc data."""
     headers = []
-    if 'toc' in data:
+    if data.get('toc', False):
         for element in PyQuery(data['toc'])('a'):
             headers.append(recurse_while_none(element))
         if None in headers:
