@@ -114,6 +114,7 @@ to help you create fantastic documentation for your project.
 
    changelog
    install
+   development/search
    architecture
    tests
    docs
