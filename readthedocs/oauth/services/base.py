@@ -22,7 +22,7 @@ class SyncServiceError(Exception):
     pass
 
 
-class Service(object):
+class Service:
 
     """
     Service mapping for local accounts.
@@ -121,10 +121,11 @@ class Service(object):
                 u'expires_at': 1449218652.558185
             }
         """
+
         def _updater(data):
             token.token = data['access_token']
             token.expires_at = timezone.make_aware(
-                datetime.fromtimestamp(data['expires_at'])
+                datetime.fromtimestamp(data['expires_at']),
             )
             token.save()
             log.info('Updated token %s:', token)
