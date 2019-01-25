@@ -260,7 +260,7 @@ class BuildConfigBase:
         """
         images = {'stable', 'latest'}
         for k in DOCKER_IMAGE_SETTINGS:
-            image, version = k.split(':')
+            _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
         return images
