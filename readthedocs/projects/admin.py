@@ -19,6 +19,7 @@ from .models import (
     EmailHook,
     EnvironmentVariable,
     Feature,
+    HTMLFile,
     ImportedFile,
     Project,
     ProjectRelationship,
@@ -250,3 +251,4 @@ admin.site.register(Domain, DomainAdmin)
 admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
+admin.site.register(HTMLFile, ImportedFileAdmin)
