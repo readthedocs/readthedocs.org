@@ -16,6 +16,18 @@ class CommunityTestSettings(CommunityDevSettings):
 
     DEBUG = False
     TEMPLATE_DEBUG = False
+    ES_PAGE_IGNORE_SIGNALS = False
+    ES_PROJECT_IGNORE_SIGNALS = False
+    ELASTICSEARCH_DSL_AUTOSYNC = False
+    ELASTICSEARCH_DSL_AUTO_REFRESH = True
+
+    @property
+    def ES_INDEXES(self):  # noqa - avoid pep8 N802
+        es_indexes = super(CommunityTestSettings, self).ES_INDEXES
+        for index_conf in es_indexes.values():
+            index_conf['name'] = "test_{}".format(index_conf['name'])
+
+        return es_indexes
 
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
