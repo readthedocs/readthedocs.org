@@ -12,12 +12,7 @@ import re
 from django.shortcuts import get_object_or_404
 from pyquery import PyQuery
 
-<<<<<<< HEAD
-from readthedocs.search.indexes import PageIndex, SectionIndex
-from readthedocs.projects.tasks import update_search
-=======
 from readthedocs.projects.models import Project
->>>>>>> master
 
 
 log = logging.getLogger(__name__)
