@@ -11,13 +11,7 @@ django-extensions==2.1.4
 djangorestframework==3.9.1
 
 # Filtering for the REST API
-# When Python2 gets deprecated we can upgrade django-filter
-# >   from .filterset import FilterSet
-# E     File "/home/travis/build/rtfd/readthedocs.org/.tox/py27/lib/python2.7/site-packages/django_filters/filterset.py", line 184
-# E       def __init__(self, data=None, queryset=None, *, request=None, prefix=None):
-# E                                                     ^
-# E   SyntaxError: invalid syntax
-django-filter<2.0.0
+django-filter==2.1.0
 
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
