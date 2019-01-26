@@ -51,8 +51,14 @@ GitPython==2.1.10
 
 # Search
 elasticsearch==6.2.0
+
+
+# elasticsearch-dsl==6.3.1 produces this error
+#   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
+#     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
+# ImportError: cannot import name 'DocTypeMeta'
 elasticsearch-dsl==6.1.0
-django-elasticsearch-dsl==0.5.0
+django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
 
 # Utils
