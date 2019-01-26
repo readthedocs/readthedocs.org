@@ -14,6 +14,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.search.tasks import index_objects_to_es
+from readthedocs.search.documents import ProjectDocument
 
 from .forms import FeatureForm
 from .models import (
