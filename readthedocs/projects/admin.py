@@ -11,6 +11,7 @@ from __future__ import (
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
+from django_elasticsearch_dsl.registries import registry
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
@@ -18,8 +19,7 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
-from readthedocs.restapi.utils import get_delete_query
-from readthedocs.search.utils import reindex_version, unindex_via_query
+from readthedocs.search.tasks import index_objects_to_es
 
 from .forms import FeatureForm
 from .models import (
@@ -139,7 +139,7 @@ class ProjectAdmin(GuardedModelAdmin):
     actions = [
         'send_owner_email',
         'ban_owner',
-        'reindex_active_versions',
+        'reindex_projects',
         'wipe_index',
     ]
 
@@ -196,54 +196,39 @@ class ProjectAdmin(GuardedModelAdmin):
                 )
         return delete_selected(self, request, queryset)
 
-    def reindex_active_versions(self, request, queryset):
-        """Reindex all active versions of selected projects"""
-        for project in queryset:
-            versions_qs = Version.objects.filter(project__slug=project.slug)
-            if not versions_qs.exists():
-                self.message_user(
-                    request,
-                    'No project with slug {}'.format(project.slug),
-                    level=messages.ERROR
-                )
+    def reindex_projects(self, request, queryset):
+        """Reindexes selected projects"""
+        projects_id = queryset.values_list('pk', flat=True)
 
-            active_versions = versions_qs.filter(active=True)
+        kwargs = {
+            'app_label': Project._meta.app_label,
+            'model_name': Project.__name__,
+            'document_class': str(ProjectDocument),
+            'index_name': None,  # No need to change the index name
+            'objects_id': list(projects_id),
+        }
 
-            for version in active_versions:
-                success, err_msg = reindex_version(version)
-                if success:
-                    self.message_user(
-                        request,
-                        'Reindexing triggered for {}'.format(version.slug),
-                        level=messages.SUCCESS
-                    )
-                else:
-                    self.message_user(
-                        request,
-                        'Reindexing failed for {}. {}'.format(version.slug, err_msg),
-                        level=messages.ERROR
-                    )
+        index_objects_to_es.delay(**kwargs)
 
-    reindex_active_versions.short_description = 'Reindex active versions'
+        self.message_user(
+            request,
+            'Reindexing of selected projects triggered.',
+            level=messages.SUCCESS
+        )
+
+    reindex_projects.short_description = 'Reindex selected projects'
 
     def wipe_index(self, request, queryset):
         """Wipe indexes of selected projects"""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            query = get_delete_query(project_slug=project.slug)
-            success, err_msg = unindex_via_query(query)
-            if success:
-                self.message_user(
-                    request,
-                    'Wiped index for project {}'.format(project.slug),
-                    level=messages.SUCCESS
-                )
-            else:
-                self.message_user(
-                    request,
-                    'Unable to wipe index for project {}. {}'.format(project.slug, err_msg),
-                    level=messages.ERROR
-                )
+            registry.delete(project)
+        
+        self.message_user(
+            request,
+            'Task for wiping index of selected projects triggered.',
+            level=messages.SUCCESS
+        )
 
     wipe_index.short_description = 'Wipe indexes of selected projects'
 
