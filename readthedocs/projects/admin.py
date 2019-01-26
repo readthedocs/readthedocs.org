@@ -234,7 +234,7 @@ class ProjectAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
             registry.delete(project)
-        
+
         self.message_user(
             request,
             'Task for wiping index of selected projects triggered.',
