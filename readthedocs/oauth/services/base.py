@@ -1,25 +1,23 @@
 # -*- coding: utf-8 -*-
-"""OAuth utility functions."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""OAuth utility functions."""
 
 import logging
 from datetime import datetime
 
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
-from builtins import object
 from django.conf import settings
 from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
 from requests_oauthlib import OAuth2Session
 
+
 log = logging.getLogger(__name__)
 
 
-class Service(object):
+class Service:
 
     """
     Service mapping for local accounts.
@@ -118,10 +116,11 @@ class Service(object):
                 u'expires_at': 1449218652.558185
             }
         """
+
         def _updater(data):
             token.token = data['access_token']
             token.expires_at = timezone.make_aware(
-                datetime.fromtimestamp(data['expires_at'])
+                datetime.fromtimestamp(data['expires_at']),
             )
             token.save()
             log.info('Updated token %s:', token)

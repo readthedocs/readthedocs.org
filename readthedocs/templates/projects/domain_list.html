@@ -33,7 +33,7 @@
     </ul>
   </p>
   {% endif %}
-  
+
   <h3> {% trans "Add new Domain" %} </h3>
   <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
     {{ form.as_p }}
@@ -42,4 +42,3 @@
     </p>
   </form>
 {% endblock %}
-

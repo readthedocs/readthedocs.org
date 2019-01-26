@@ -35,7 +35,7 @@ class HomepageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
-        context = super(HomepageView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
         context['projects_count'] = Project.objects.count()
         return context
@@ -45,7 +45,7 @@ class SupportView(TemplateView):
     template_name = 'support.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SupportView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         support_email = getattr(settings, 'SUPPORT_EMAIL', None)
         if not support_email:
             support_email = 'support@{domain}'.format(
@@ -113,7 +113,7 @@ def server_error_404(request, exception=None, template_name='404.html'):  # pyli
 
         Marking exception as optional to make /404/ testing page to work.
     """
-    response = get_redirect_response(request, path=request.get_full_path())
+    response = get_redirect_response(request, full_path=request.get_full_path())
 
     if response:
         if response.url == request.build_absolute_uri():
@@ -133,13 +133,15 @@ def do_not_track(request):
     dnt_header = request.META.get('HTTP_DNT')
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
-    return JsonResponse({   # pylint: disable=redundant-content-type-for-json-response
-        'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
-        'same-party': [
-            'readthedocs.org',
-            'readthedocs.com',
-            'readthedocs.io',           # .org Documentation Sites
-            'readthedocs-hosted.com',   # .com Documentation Sites
-        ],
-        'tracking': 'N' if dnt_header == '1' else 'T',
-    }, content_type='application/tracking-status+json')
+    return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response
+        {
+            'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
+            'same-party': [
+                'readthedocs.org',
+                'readthedocs.com',
+                'readthedocs.io',           # .org Documentation Sites
+                'readthedocs-hosted.com',   # .com Documentation Sites
+            ],
+            'tracking': 'N' if dnt_header == '1' else 'T',
+        }, content_type='application/tracking-status+json',
+    )

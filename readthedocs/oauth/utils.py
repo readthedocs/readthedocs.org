@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Support code for OAuth, including webhook support."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""Support code for OAuth, including webhook support."""
 
 import logging
 
@@ -11,8 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.services import (
-    BitbucketService, GitHubService, GitLabService, registry)
+    BitbucketService,
+    GitHubService,
+    GitLabService,
+    registry,
+)
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +55,9 @@ def update_webhook(project, integration, request=None):
         request,
         _(
             'Webhook activation failed. '
-            'Make sure you have the necessary permissions.'))
+            'Make sure you have the necessary permissions.',
+        ),
+    )
     project.has_valid_webhook = False
     project.save()
     return False

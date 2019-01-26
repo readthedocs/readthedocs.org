@@ -1,6 +1,7 @@
-"""Trigger build for project slug"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Trigger build for project slug."""
+
 import logging
 
 from django.core.management.base import BaseCommand

@@ -1,28 +1,32 @@
+# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
-from __future__ import absolute_import
-
 import os
 from functools import reduce
 from operator import add
 
-from django.conf.urls import url, include
-from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import include, url
 from django.conf.urls.static import static
-from django.views.generic.base import TemplateView, RedirectView
+from django.contrib import admin
+from django.views.generic.base import RedirectView, TemplateView
 from tastypie.api import Api
 
-from readthedocs.api.base import (ProjectResource, UserResource,
-                                  VersionResource, FileResource)
-from readthedocs.core.urls import docs_urls, core_urls, deprecated_urls
+from readthedocs.api.base import (
+    FileResource,
+    ProjectResource,
+    UserResource,
+    VersionResource,
+)
+from readthedocs.core.urls import core_urls, deprecated_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
     SupportView,
+    do_not_track,
     server_error_404,
     server_error_500,
-    do_not_track,
 )
 from readthedocs.search import views as search_views
+from readthedocs.search.api import PageSearchAPIView
 
 
 v1_api = Api(api_name='v1')
@@ -40,8 +44,11 @@ basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
-    url(r'^\.well-known/security.txt$',
-        TemplateView.as_view(template_name='security.txt', content_type='text/plain')),
+    url(
+        r'^\.well-known/security.txt$',
+        TemplateView
+        .as_view(template_name='security.txt', content_type='text/plain'),
+    ),
 ]
 
 rtd_urls = [
@@ -67,7 +74,12 @@ project_urls = [
 api_urls = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # Keep the `doc_search` at root level, so the test does not fail for other API
+    url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
+    url(
+        r'^api-auth/',
+        include('rest_framework.urls', namespace='rest_framework')
+    ),
 ]
 
 i18n_urls = [
@@ -82,8 +94,11 @@ dnt_urls = [
     url(r'^\.well-known/dnt/$', do_not_track),
 
     # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
-    url(r'^\.well-known/dnt-policy.txt$',
-        TemplateView.as_view(template_name='dnt-policy.txt', content_type='text/plain')),
+    url(
+        r'^\.well-known/dnt-policy.txt$',
+        TemplateView
+        .as_view(template_name='dnt-policy.txt', content_type='text/plain'),
+    ),
 ]
 
 debug_urls = []
@@ -93,16 +108,29 @@ for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
     )
 debug_urls += [
-    url('style-catalog/$',
-        TemplateView.as_view(template_name='style_catalog.html')),
+    url(
+        'style-catalog/$',
+        TemplateView.as_view(template_name='style_catalog.html'),
+    ),
 
     # This must come last after the build output files
-    url(r'^media/(?P<remainder>.+)$',
-        RedirectView.as_view(url=settings.STATIC_URL + '%(remainder)s'), name='media-redirect'),
+    url(
+        r'^media/(?P<remainder>.+)$',
+        RedirectView.as_view(url=settings.STATIC_URL + '%(remainder)s'),
+        name='media-redirect',
+    ),
 ]
 
 # Export URLs
-groups = [basic_urls, rtd_urls, project_urls, api_urls, core_urls, i18n_urls, deprecated_urls]
+groups = [
+    basic_urls,
+    rtd_urls,
+    project_urls,
+    api_urls,
+    core_urls,
+    i18n_urls,
+    deprecated_urls,
+]
 
 if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported
@@ -117,7 +145,7 @@ if settings.USE_PROMOS:
 if 'readthedocsext.embed' in settings.INSTALLED_APPS:
     api_urls.insert(
         0,
-        url(r'^api/v1/embed/', include('readthedocsext.embed.urls'))
+        url(r'^api/v1/embed/', include('readthedocsext.embed.urls')),
     )
 
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:

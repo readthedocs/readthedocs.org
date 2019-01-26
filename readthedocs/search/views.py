@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Search views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Search views."""
 import collections
 import logging
 from pprint import pprint
@@ -11,10 +9,12 @@ from django.conf import settings
 from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.search import lib as search_lib
+from readthedocs.search.documents import PageDocument, ProjectDocument
+from readthedocs.search.utils import get_project_list_or_404
+
 
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = u'(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
+LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
 
 UserInput = collections.namedtuple(
     'UserInput',
@@ -45,26 +45,27 @@ def elastic_search(request):
 
     if user_input.query:
         if user_input.type == 'project':
-            results = search_lib.search_project(
-                request, user_input.query, language=user_input.language)
+            project_search = ProjectDocument.faceted_search(
+                query=user_input.query, language=user_input.language
+            )
+            results = project_search.execute()
+            facets = results.facets
         elif user_input.type == 'file':
-            results = search_lib.search_file(
-                request, user_input.query, project_slug=user_input.project,
-                version_slug=user_input.version, taxonomy=user_input.taxonomy)
+            kwargs = {}
+            if user_input.project:
+                projects_list = get_project_list_or_404(
+                    project_slug=user_input.project, user=request.user
+                )
+                project_slug_list = [project.slug for project in projects_list]
+                kwargs['projects_list'] = project_slug_list
+            if user_input.version:
+                kwargs['versions_list'] = user_input.version
 
-    if results:
-        # pre and post 1.0 compat
-        for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
-                if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
-
-        if 'facets' in results:
-            for facet_type in ['project', 'version', 'taxonomy', 'language']:
-                if facet_type in results['facets']:
-                    facets[facet_type] = collections.OrderedDict()
-                    for term in results['facets'][facet_type]['terms']:
-                        facets[facet_type][term['term']] = term['count']
+            page_search = PageDocument.faceted_search(
+                query=user_input.query, **kwargs
+            )
+            results = page_search.execute()
+            facets = results.facets
 
     if settings.DEBUG:
         print(pprint(results))
@@ -82,13 +83,11 @@ def elastic_search(request):
                 version=user_input.version or '',
                 language=user_input.language or '',
                 msg=user_input.query or '',
-            ))
+            ),
+        )
 
     template_vars = user_input._asdict()
-    template_vars.update({
-        'results': results,
-        'facets': facets,
-    })
+    template_vars.update({'results': results, 'facets': facets})
     return render(
         request,
         'search/elastic_search.html',

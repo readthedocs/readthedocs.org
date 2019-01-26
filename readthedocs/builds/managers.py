@@ -1,14 +1,28 @@
-"""Build and Version class model Managers"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Build and Version class model Managers."""
+
+import logging
 
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
-from .constants import (BRANCH, TAG, LATEST, LATEST_VERBOSE_NAME, STABLE,
-                        STABLE_VERBOSE_NAME)
+from readthedocs.core.utils.extend import (
+    SettingsOverrideObject,
+    get_override_class,
+)
+
+from .constants import (
+    BRANCH,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from .querysets import VersionQuerySet
-from readthedocs.core.utils.extend import (SettingsOverrideObject,
-                                           get_override_class)
+
+log = logging.getLogger(__name__)
 
 
 __all__ = ['VersionManager']
@@ -30,9 +44,9 @@ class VersionManagerBase(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class  # pylint: disable=protected-access
+            VersionQuerySet._default_class,  # pylint: disable=protected-access
         )
-        return super(VersionManagerBase, cls).from_queryset(queryset_class, class_name)
+        return super().from_queryset(queryset_class, class_name)
 
     def create_stable(self, **kwargs):
         defaults = {
@@ -57,6 +71,18 @@ class VersionManagerBase(models.Manager):
         }
         defaults.update(kwargs)
         return self.create(**defaults)
+
+    def get_object_or_log(self, **kwargs):
+        """
+        Returns Version object or log.
+
+        It will return the Version object if found for the given kwargs,
+        otherwise it will log a warning along with all provided kwargs.
+        """
+        try:
+            return super().get(**kwargs)
+        except ObjectDoesNotExist:
+            log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
 class VersionManager(SettingsOverrideObject):
