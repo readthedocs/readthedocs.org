@@ -1,7 +1,7 @@
 # Base packages
-pip==18.1
+pip==19.0.1
 appdirs==1.4.3
-virtualenv==16.2.0
+virtualenv==16.3.0
 
 django==1.11.18
 django-tastypie==0.14.2
@@ -62,7 +62,7 @@ beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.18.0
+stripe==2.19.0
 
 django-formtools==2.1
 
