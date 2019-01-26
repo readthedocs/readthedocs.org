@@ -2,13 +2,6 @@
 
 """Simple client to access our API with Slumber credentials."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 
 import requests
@@ -17,6 +10,7 @@ from requests.packages.urllib3.util.retry import Retry  # noqa
 from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
+
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +22,7 @@ PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
 
 class DrfJsonSerializer(serialize.JsonSerializer):
 
-    """Additional serialization help from the DRF renderer"""
+    """Additional serialization help from the DRF renderer."""
 
     key = 'json-drf'
 

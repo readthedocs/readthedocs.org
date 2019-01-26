@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+
 """Utilities for the builds app."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 from readthedocs.projects.constants import (
-    BITBUCKET_REGEXS, GITHUB_REGEXS, GITLAB_REGEXS)
+    BITBUCKET_REGEXS,
+    GITHUB_REGEXS,
+    GITLAB_REGEXS,
+)
 
 
 def get_github_username_repo(url):

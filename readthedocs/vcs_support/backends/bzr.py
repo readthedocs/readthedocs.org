@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Bazaar-related utilities."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Bazaar-related utilities."""
 
 import csv
 import re
-
-from builtins import str  # pylint: disable=redefined-builtin
-from six import StringIO
+from io import StringIO
 
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -26,7 +18,7 @@ class Backend(BaseVCS):
     fallback_branch = ''
 
     def update(self):
-        super(Backend, self).update()
+        super().update()
         retcode = self.run('bzr', 'status', record=False)[0]
         if retcode == 0:
             return self.up()
@@ -90,12 +82,12 @@ class Backend(BaseVCS):
         return stdout.strip()
 
     def checkout(self, identifier=None):
-        super(Backend, self).checkout()
+        super().checkout()
         if not identifier:
             return self.up()
         exit_code, stdout, stderr = self.run('bzr', 'switch', identifier)
         if exit_code != 0:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(identifier)
+                RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
             )
         return exit_code, stdout, stderr

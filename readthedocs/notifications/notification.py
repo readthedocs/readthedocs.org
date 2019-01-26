@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
+
 """Support for templating of notifications."""
 
-from __future__ import absolute_import
-from builtins import object
 import logging
+
 from django.conf import settings
-from django.template import Template, Context
-from django.template.loader import render_to_string
 from django.db import models
 from django.http import HttpRequest
+from django.template import Context, Template
+from django.template.loader import render_to_string
 
-from .backends import send_notification
 from . import constants
+from .backends import send_notification
 
 
 log = logging.getLogger(__name__)
 
 
-class Notification(object):
+class Notification:
 
     """
     An unsent notification linked to an object.
@@ -53,7 +53,8 @@ class Notification(object):
             self.context_object_name: self.object,
             'request': self.request,
             'production_uri': '{scheme}://{host}'.format(
-                scheme='https', host=settings.PRODUCTION_DOMAIN,
+                scheme='https',
+                host=settings.PRODUCTION_DOMAIN,
             ),
         }
 
@@ -62,13 +63,13 @@ class Notification(object):
         if self.object and isinstance(self.object, models.Model):
             meta = self.object._meta  # pylint: disable=protected-access
             names.append(
-                '{app}/notifications/{name}_{backend}.{source_format}'
-                .format(
+                '{app}/notifications/{name}_{backend}.{source_format}'.format(
                     app=meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,
-                ))
+                ),
+            )
             return names
 
         raise AttributeError()
@@ -122,8 +123,14 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self, user, success, reason=None, context_object=None,
-            request=None, extra_context=None):
+            self,
+            user,
+            success,
+            reason=None,
+            context_object=None,
+            request=None,
+            extra_context=None,
+    ):
         self.object = context_object
 
         self.user = user or request.user
@@ -135,10 +142,10 @@ class SiteNotification(Notification):
         self.success = success
         self.reason = reason
         self.extra_context = extra_context or {}
-        super(SiteNotification, self).__init__(context_object, request, user)
+        super().__init__(context_object, request, user)
 
     def get_context_data(self):
-        context = super(SiteNotification, self).get_context_data()
+        context = super().get_context_data()
         context.update(self.extra_context)
         return context
 

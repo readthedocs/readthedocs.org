@@ -1,23 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-
-from django.http import Http404
+from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
 from django.core.cache import cache
-from django.urls.base import get_urlconf, set_urlconf
+from django.http import Http404
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
-
+from django.urls.base import get_urlconf, set_urlconf
 from django_dynamic_fixture import get
-
-from corsheaders.middleware import CorsMiddleware
 from mock import patch
 
 from readthedocs.core.middleware import SubdomainMiddleware
-from readthedocs.projects.models import Project, ProjectRelationship, Domain
-
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
 
@@ -152,7 +147,7 @@ class TestCORSMiddleware(TestCase):
         self.project = get(
             Project, slug='pip',
             users=[self.owner], privacy_level='public',
-            mail_language_project=None
+            mail_language_project=None,
         )
         self.subproject = get(
             Project,
@@ -163,7 +158,7 @@ class TestCORSMiddleware(TestCase):
         self.relationship = get(
             ProjectRelationship,
             parent=self.project,
-            child=self.subproject
+            child=self.subproject,
         )
         self.domain = get(Domain, domain='my.valid.domain', project=self.project)
 

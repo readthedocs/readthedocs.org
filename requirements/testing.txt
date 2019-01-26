@@ -2,9 +2,9 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-pytest==4.0.2
-pytest-django==3.4.4
-pytest-xdist==1.25.0
+pytest==4.1.1
+pytest-django==3.4.5
+pytest-xdist==1.26.0
 pytest-cov
 apipkg==1.5
 execnet==1.5.0

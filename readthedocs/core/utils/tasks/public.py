@@ -1,21 +1,18 @@
-"""Celery tasks with publicly viewable status"""
+# -*- coding: utf-8 -*-
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Celery tasks with publicly viewable status."""
 
 from celery import Task, states
 from django.conf import settings
 
 from .retrieve import TaskNotFound, get_task_data
 
-__all__ = (
-    'PublicTask', 'TaskNoPermission', 'get_public_task_data'
-)
 
+__all__ = (
+    'PublicTask',
+    'TaskNoPermission',
+    'get_public_task_data',
+)
 
 STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
 
@@ -51,7 +48,7 @@ class PublicTask(Task):
 
     def set_permission_context(self, context):
         """
-        Set data that can be used by ``check_permission`` to authorize a
+        Set data that can be used by ``check_permission`` to authorize a.
 
         request for the this task. By default it will be the ``kwargs`` passed
         into the task.
@@ -109,22 +106,26 @@ class PublicTask(Task):
             def my_public_task(user_id):
                 pass
         """
+
         def decorator(func):
             func.check_permission = check
             return func
+
         return decorator
 
 
 class TaskNoPermission(Exception):
+
     def __init__(self, task_id, *args, **kwargs):
         message = 'No permission to access task with id {id}'.format(
-            id=task_id)
-        super(TaskNoPermission, self).__init__(message, *args, **kwargs)
+            id=task_id,
+        )
+        super().__init__(message, *args, **kwargs)
 
 
 def get_public_task_data(request, task_id):
     """
-    Return task details as tuple
+    Return task details as tuple.
 
     Will raise `TaskNoPermission` if `request` has no permission to access info
     of the task with id `task_id`. This is also the case of no task with the

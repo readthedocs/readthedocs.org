@@ -1,3 +1,5 @@
-"""App init"""
+# -*- coding: utf-8 -*-
 
-default_app_config = 'readthedocs.analytics.apps.AnalyticsAppConfig'    # noqa
+"""App init."""
+
+default_app_config = 'readthedocs.analytics.apps.AnalyticsAppConfig'  # noqa

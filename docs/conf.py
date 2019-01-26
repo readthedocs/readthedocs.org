@@ -6,7 +6,6 @@ import os
 import sys
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
@@ -29,13 +28,11 @@ extensions = [
     'doc_extensions',
     'sphinx_tabs.tabs',
     'sphinx-prompt',
+    'recommonmark',
 ]
 templates_path = ['_templates']
 
 source_suffix = ['.rst', '.md']
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 
 master_doc = 'index'
 project = u'Read the Docs'

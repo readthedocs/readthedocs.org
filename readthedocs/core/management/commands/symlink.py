@@ -1,13 +1,14 @@
-"""Update symlinks for projects"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Update symlinks for projects."""
+
 import logging
 
 from django.core.management.base import BaseCommand
 
 from readthedocs.projects import tasks
-
 from readthedocs.projects.models import Project
+
 
 log = logging.getLogger(__name__)
 
@@ -24,7 +25,9 @@ class Command(BaseCommand):
         if 'all' in projects:
             pks = Project.objects.values_list('pk', flat=True)
         else:
-            pks = Project.objects.filter(slug__in=projects).values_list('pk', flat=True)
+            pks = Project.objects.filter(
+                slug__in=projects,
+            ).values_list('pk', flat=True)
         for proj in pks:
             try:
                 tasks.symlink_project(project_pk=proj)

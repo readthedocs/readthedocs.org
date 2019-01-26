@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import mock
 import pytest
-
 from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
 from readthedocs.core.templatetags import core_tags
+from readthedocs.projects.models import Project
 
 
 @override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
-    fixtures = ["eric", "test_data"]
+    fixtures = ['eric', 'test_data']
 
     def setUp(self):
         url_base = '{scheme}://{domain}/docs/pip{{version}}'.format(
@@ -38,7 +36,7 @@ class CoreTagsTests(TestCase):
         with mock.patch('readthedocs.projects.models.broadcast'):
             self.client.login(username='eric', password='test')
             self.pip = Project.objects.get(slug='pip')
-            self.pip_fr = Project.objects.create(name="PIP-FR", slug='pip-fr', language='fr', main_language_project=self.pip)
+            self.pip_fr = Project.objects.create(name='PIP-FR', slug='pip-fr', language='fr', main_language_project=self.pip)
 
     def test_project_only(self):
         proj = Project.objects.get(slug='pip')

@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import os
 from os.path import exists
 from tempfile import mkdtemp
 
 import django_dynamic_fixture as fixture
-import pytest
-import six
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
@@ -34,15 +25,15 @@ from readthedocs.rtd_tests.utils import (
 class TestGitBackend(RTDTestCase):
     def setUp(self):
         git_repo = make_test_git()
-        super(TestGitBackend, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
         self.project = Project.objects.create(
-            name="Test Project",
-            repo_type="git",
+            name='Test Project',
+            repo_type='git',
             #Our top-level checkout
-            repo=git_repo
+            repo=git_repo,
         )
         self.project.users.add(self.eric)
         self.dummy_conf = Mock()
@@ -81,7 +72,6 @@ class TestGitBackend(RTDTestCase):
             {branch.verbose_name for branch in repo.branches},
         )
 
-    @pytest.mark.skipif(six.PY2, reason='Only for python3')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_git_branches_unicode(self, checkout_path):
         repo_path = self.project.repo
@@ -126,7 +116,7 @@ class TestGitBackend(RTDTestCase):
             repo.checkout(version)
         self.assertEqual(
             str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+            RepositoryError.FAILED_TO_CHECKOUT.format(version),
         )
 
     def test_git_tags(self):
@@ -139,7 +129,7 @@ class TestGitBackend(RTDTestCase):
         # so we need to hack the repo path
         repo.working_dir = repo_path
         self.assertEqual(
-            set(['v01', 'v02', 'release-ünîø∂é']),
+            {'v01', 'v02', 'release-ünîø∂é'},
             {vcs.verbose_name for vcs in repo.tags},
         )
 
@@ -189,14 +179,14 @@ class TestGitBackend(RTDTestCase):
     def test_check_invalid_submodule_urls(self):
         repo = self.project.vcs_repo()
         repo.update()
-        r = repo.checkout('invalidsubmodule')
+        repo.checkout('invalidsubmodule')
         with self.assertRaises(RepositoryError) as e:
             repo.update_submodules(self.dummy_conf)
         # `invalid` is created in `make_test_git`
         # it's a url in ssh form.
         self.assertEqual(
             str(e.exception),
-            RepositoryError.INVALID_SUBMODULES.format(['invalid'])
+            RepositoryError.INVALID_SUBMODULES.format(['invalid']),
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -218,28 +208,28 @@ class TestGitBackend(RTDTestCase):
 
         # We still have all branches and tags in the local repo
         self.assertEqual(
-            set(['v01', 'v02']),
-            set(vcs.verbose_name for vcs in repo.tags)
+            {'v01', 'v02'},
+            {vcs.verbose_name for vcs in repo.tags},
         )
         self.assertEqual(
-            set([
+            {
                 'invalidsubmodule', 'master', 'submodule', 'newbranch',
-            ]),
-            set(vcs.verbose_name for vcs in repo.branches)
+            },
+            {vcs.verbose_name for vcs in repo.branches},
         )
 
         repo.update()
 
         # We don't have the eliminated branches and tags in the local repo
         self.assertEqual(
-            set(['v01']),
-            set(vcs.verbose_name for vcs in repo.tags)
+            {'v01'},
+            {vcs.verbose_name for vcs in repo.tags},
         )
         self.assertEqual(
-            set([
-                'invalidsubmodule', 'master', 'submodule'
-            ]),
-            set(vcs.verbose_name for vcs in repo.branches)
+            {
+                'invalidsubmodule', 'master', 'submodule',
+            },
+            {vcs.verbose_name for vcs in repo.branches},
         )
 
 
@@ -247,7 +237,7 @@ class TestHgBackend(RTDTestCase):
 
     def setUp(self):
         hg_repo = make_test_hg()
-        super(TestHgBackend, self).setUp()
+        super().setUp()
         self.eric = User(username='eric')
         self.eric.set_password('test')
         self.eric.save()
@@ -255,7 +245,7 @@ class TestHgBackend(RTDTestCase):
             name='Test Project',
             repo_type='hg',
             # Our top-level checkout
-            repo=hg_repo
+            repo=hg_repo,
         )
         self.project.users.add(self.eric)
 
@@ -286,7 +276,7 @@ class TestHgBackend(RTDTestCase):
             repo.checkout(version)
         self.assertEqual(
             str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version)
+            RepositoryError.FAILED_TO_CHECKOUT.format(version),
         )
 
     def test_parse_tags(self):

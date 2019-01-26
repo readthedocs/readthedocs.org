@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Extensions to Django messages to support notifications to users.
 
@@ -18,8 +20,7 @@ from .backends import send_notification
 __all__ = (
     'Notification',
     'SiteNotification',
-    'send_notification'
+    'send_notification',
 )
-
 
 default_app_config = 'readthedocs.notifications.apps.NotificationsAppConfig'

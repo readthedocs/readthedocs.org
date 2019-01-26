@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""An API to load config from a readthedocs.yml file."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""An API to load config from a readthedocs.yml file."""
 
 from os import path
 
@@ -33,7 +31,7 @@ def load_yaml_config(version):
     try:
         sphinx_configuration = path.join(
             version.get_conf_py_path(),
-            'conf.py'
+            'conf.py',
         )
     except ProjectConfigurationError:
         sphinx_configuration = None
@@ -43,8 +41,6 @@ def load_yaml_config(version):
         'build': {
             'image': img_name,
         },
-        'output_base': '',
-        'name': version.slug,
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
@@ -54,12 +50,11 @@ def load_yaml_config(version):
             'sphinx_configuration': sphinx_configuration,
             'build_image': project.container_image,
             'doctype': project.documentation_type,
-        }
+        },
     }
     img_settings = DOCKER_IMAGE_SETTINGS.get(img_name, None)
     if img_settings:
         env_config.update(img_settings)
-        env_config['DOCKER_IMAGE_SETTINGS'] = img_settings
 
     try:
         config = load_config(

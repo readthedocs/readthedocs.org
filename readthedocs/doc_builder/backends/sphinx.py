@@ -1,36 +1,34 @@
 # -*- coding: utf-8 -*-
+
 """
 Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import codecs
-import shutil
 import logging
 import os
+import shutil
 import sys
 import zipfile
 from glob import glob
 
-import six
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 from readthedocs.restapi.client import api
-from readthedocs.projects.models import Feature
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
+
 
 log = logging.getLogger(__name__)
 
@@ -40,14 +38,14 @@ class BaseSphinx(BaseBuilder):
     """The parent for most sphinx builders."""
 
     def __init__(self, *args, **kwargs):
-        super(BaseSphinx, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.config_file = self.config.sphinx.configuration
         try:
             if not self.config_file:
                 self.config_file = self.project.conf_file(self.version.slug)
             self.old_artifact_path = os.path.join(
                 os.path.dirname(self.config_file),
-                self.sphinx_build_dir
+                self.sphinx_build_dir,
             )
         except ProjectConfigurationError:
             docs_dir = self.docs_dir()
@@ -60,11 +58,13 @@ class BaseSphinx(BaseBuilder):
         """Create ``conf.py`` if it doesn't exist."""
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
-            'sphinx/conf.py.conf', {
+            'sphinx/conf.py.conf',
+            {
                 'project': self.project,
                 'version': self.version,
                 'master_doc': master_doc,
-            })
+            },
+        )
         conf_file = os.path.join(docs_dir, 'conf.py')
         safe_write(conf_file, conf_template)
 
@@ -76,25 +76,28 @@ class BaseSphinx(BaseBuilder):
             os.path.dirname(
                 os.path.relpath(
                     self.config_file,
-                    self.project.checkout_path(self.version.slug)
-                )
+                    self.project.checkout_path(self.version.slug),
+                ),
             ),
             '',
         )
         remote_version = self.version.commit_name
 
         github_user, github_repo = version_utils.get_github_username_repo(
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         github_version_is_editable = (self.version.type == 'branch')
         display_github = github_user is not None
 
         bitbucket_user, bitbucket_repo = version_utils.get_bitbucket_username_repo(  # noqa
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         bitbucket_version_is_editable = (self.version.type == 'branch')
         display_bitbucket = bitbucket_user is not None
 
         gitlab_user, gitlab_repo = version_utils.get_gitlab_username_repo(
-            url=self.project.repo)
+            url=self.project.repo,
+        )
         gitlab_version_is_editable = (self.version.type == 'branch')
         display_gitlab = gitlab_user is not None
 
@@ -146,7 +149,7 @@ class BaseSphinx(BaseBuilder):
 
             # Features
             'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPHINX_CONTEXT
+                Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
         }
 
@@ -159,26 +162,25 @@ class BaseSphinx(BaseBuilder):
         return data
 
     def append_conf(self, **__):
-        """Find or create a ``conf.py`` with a rendered ``doc_builder/conf.py.tmpl`` appended"""
+        """
+        Find or create a ``conf.py`` and appends default content.
+
+        The default content is rendered from ``doc_builder/conf.py.tmpl``.
+        """
         if self.config_file is None:
             master_doc = self.create_index(extension='rst')
             self._write_config(master_doc=master_doc)
 
         try:
             self.config_file = (
-                self.config_file or
-                self.project.conf_file(self.version.slug)
+                self.config_file or self.project.conf_file(self.version.slug)
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except (ProjectConfigurationError, IOError):
             trace = sys.exc_info()[2]
-            six.reraise(
-                ProjectConfigurationError,
-                ProjectConfigurationError(
-                    ProjectConfigurationError.NOT_FOUND
-                ),
-                trace
-            )
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND,
+            ).with_traceback(trace)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -222,8 +224,7 @@ class BaseSphinx(BaseBuilder):
             self.sphinx_build_dir,
         ])
         cmd_ret = self.run(
-            *build_command,
-            cwd=os.path.dirname(self.config_file),
+            *build_command, cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
@@ -234,18 +235,19 @@ class HtmlBuilder(BaseSphinx):
     sphinx_build_dir = '_build/html'
 
     def __init__(self, *args, **kwargs):
-        super(HtmlBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
 
     def move(self, **__):
-        super(HtmlBuilder, self).move()
+        super().move()
         # Copy JSON artifacts to its own directory
         # to keep compatibility with the older builder.
         json_path = os.path.abspath(
-            os.path.join(self.old_artifact_path, '..', 'json')
+            os.path.join(self.old_artifact_path, '..', 'json'),
         )
         json_path_target = self.project.artifact_path(
-            version=self.version.slug, type_='sphinx_search'
+            version=self.version.slug,
+            type_='sphinx_search',
         )
         if os.path.exists(json_path):
             if os.path.exists(json_path_target):
@@ -253,19 +255,17 @@ class HtmlBuilder(BaseSphinx):
             log.info('Copying json on the local filesystem')
             shutil.copytree(
                 json_path,
-                json_path_target
+                json_path_target,
             )
         else:
-            log.warning(
-                'Not moving json because the build dir is unknown.'
-            )
+            log.warning('Not moving json because the build dir is unknown.',)
 
 
 class HtmlDirBuilder(HtmlBuilder):
     type = 'sphinx_htmldir'
 
     def __init__(self, *args, **kwargs):
-        super(HtmlDirBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
 
 
@@ -273,7 +273,7 @@ class SingleHtmlBuilder(HtmlBuilder):
     type = 'sphinx_singlehtml'
 
     def __init__(self, *args, **kwargs):
-        super(SingleHtmlBuilder, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
 
 
@@ -304,7 +304,8 @@ class LocalMediaBuilder(BaseSphinx):
                     filename=to_write,
                     arcname=os.path.join(
                         '{}-{}'.format(self.project.slug, self.version.slug),
-                        to_write),
+                        to_write,
+                    ),
                 )
         archive.close()
 
@@ -338,7 +339,7 @@ class LatexBuildCommand(BuildCommand):
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
-        super(LatexBuildCommand, self).run()
+        super().run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
@@ -350,7 +351,7 @@ class DockerLatexBuildCommand(DockerBuildCommand):
     """Ignore LaTeX exit code if there was file output."""
 
     def run(self):
-        super(DockerLatexBuildCommand, self).run()
+        super().run()
         # Force LaTeX exit code to be a little more optimistic. If LaTeX
         # reports an output file, let's just assume we're fine.
         if PDF_RE.search(self.output):
@@ -393,11 +394,16 @@ class PdfBuilder(BaseSphinx):
         # Run LaTeX -> PDF conversions
         pdflatex_cmds = [
             ['pdflatex', '-interaction=nonstopmode', tex_file]
-            for tex_file in tex_files]  # yapf: disable
+            for tex_file in tex_files
+        ]  # yapf: disable
         makeindex_cmds = [
-            ['makeindex', '-s', 'python.ist', '{0}.idx'.format(
-                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0])]
-            for tex_file in tex_files]  # yapf: disable
+            [
+                'makeindex', '-s', 'python.ist', '{}.idx'.format(
+                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
+                ),
+            ]
+            for tex_file in tex_files
+        ]  # yapf: disable
 
         if self.build_env.command_class == DockerBuildCommand:
             latex_class = DockerLatexBuildCommand
@@ -406,15 +412,27 @@ class PdfBuilder(BaseSphinx):
         pdf_commands = []
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_commands.append(cmd_ret)
         for cmd in makeindex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_commands.append(cmd_ret)
         for cmd in pdflatex_cmds:
             cmd_ret = self.build_env.run_command_class(
-                cls=latex_class, cmd=cmd, cwd=latex_cwd, warn_only=True)
+                cls=latex_class,
+                cmd=cmd,
+                cwd=latex_cwd,
+                warn_only=True,
+            )
             pdf_match = PDF_RE.search(cmd_ret.output)
             if pdf_match:
                 self.pdf_file_name = pdf_match.group(1).strip()
@@ -448,7 +466,9 @@ class PdfBuilder(BaseSphinx):
                 from_file = None
         if from_file:
             to_file = os.path.join(
-                self.target, '{}.pdf'.format(self.project.slug))
+                self.target,
+                '{}.pdf'.format(self.project.slug),
+            )
             self.run(
                 'mv',
                 '-f',

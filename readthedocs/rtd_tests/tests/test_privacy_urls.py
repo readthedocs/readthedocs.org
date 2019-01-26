@@ -1,25 +1,23 @@
-from __future__ import absolute_import
-from __future__ import print_function
+# -*- coding: utf-8 -*-
 import re
 
+import mock
 from allauth.socialaccount.models import SocialAccount
-from builtins import object
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
-import mock
 from taggit.models import Tag
 
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Domain, EnvironmentVariable
-from readthedocs.oauth.models import RemoteRepository, RemoteOrganization
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
 
 
-class URLAccessMixin(object):
+class URLAccessMixin:
 
     default_kwargs = {}
     response_data = {}
@@ -73,8 +71,10 @@ class URLAccessMixin(object):
                 val,
                 ('Attribute mismatch for view {view} ({path}): '
                  '{key} != {expected} (got {value})'
-                 .format(view=name, path=path, key=key, expected=val,
-                         value=resp_val))
+                 .format(
+                     view=name, path=path, key=key, expected=val,
+                     value=resp_val,
+                 )),
             )
         return response
 
@@ -93,10 +93,10 @@ class URLAccessMixin(object):
             for not_obj in self.context_data:
                 if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
                     self.assertNotIn(not_obj, obj)
-                    print("%s not in %s" % (not_obj, obj))
+                    print('{} not in {}'.format(not_obj, obj))
                 else:
                     self.assertNotEqual(not_obj, obj)
-                    print("%s is not %s" % (not_obj, obj))
+                    print('{} is not {}'.format(not_obj, obj))
 
     def _test_url(self, urlpatterns):
         deconstructed_urls = extract_views_from_urlpatterns(urlpatterns)
@@ -106,7 +106,8 @@ class URLAccessMixin(object):
         url_ctx = self.get_url_path_ctx()
         if url_ctx:
             self.response_data = {
-                url.format(**url_ctx): data for url, data in self.response_data.items()}
+                url.format(**url_ctx): data for url, data in self.response_data.items()
+            }
 
         for (view, regex, namespace, name) in deconstructed_urls:
             request_data = self.request_data.get(name, {}).copy()
@@ -125,20 +126,26 @@ class URLAccessMixin(object):
         # Previous Fixtures
         self.owner = create_user(username='owner', password='test')
         self.tester = create_user(username='tester', password='test')
-        self.pip = get(Project, slug='pip', users=[self.owner],
-                       privacy_level='public', main_language_project=None)
-        self.private = get(Project, slug='private', privacy_level='private',
-                           main_language_project=None)
+        self.pip = get(
+            Project, slug='pip', users=[self.owner],
+            privacy_level='public', main_language_project=None,
+        )
+        self.private = get(
+            Project, slug='private', privacy_level='private',
+            main_language_project=None,
+        )
 
 
 class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
-        super(ProjectMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.tag = get(Tag, slug='coolness')
-        self.subproject = get(Project, slug='sub', language='ja',
-                              users=[self.owner], main_language_project=None)
+        self.subproject = get(
+            Project, slug='sub', language='ja',
+            users=[self.owner], main_language_project=None,
+        )
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.subproject)
         self.integration = get(Integration, project=self.pip, provider_data='')
@@ -313,7 +320,7 @@ class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
 class APIMixin(URLAccessMixin):
 
     def setUp(self):
-        super(APIMixin, self).setUp()
+        super().setUp()
         self.build = get(Build, project=self.pip)
         self.build_command_result = get(BuildCommandResult, project=self.pip)
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
