@@ -26,6 +26,7 @@ from operator import truediv
 
 from django.db import models
 from django.utils.encoding import force_text
+from slugify import slugify
 
 
 def get_fields_with_model(cls):
@@ -53,13 +54,15 @@ VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
 
 class VersionSlugField(models.CharField):
 
-    """Inspired by ``django_extensions.db.fields.AutoSlugField``."""
+    """
+    Inspired by ``django_extensions.db.fields.AutoSlugField``.
 
-    invalid_chars_re = re.compile('[^-._a-z0-9]')
-    leading_punctuation_re = re.compile('^[-._]+')
-    placeholder = '-'
-    fallback_slug = 'unknown'
+    Uses ``unicode-slugify`` to generate the slug.
+    """
+
+    ok_chars = '-._'  # dash, dot, underscore
     test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
+    fallback_slug = 'unknown'
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -78,13 +81,37 @@ class VersionSlugField(models.CharField):
                 return model._default_manager.all()
         return model_cls._default_manager.all()
 
+    def _normalize(self, content):
+        """
+        Normalize some invalid characters to become a dash (``-``).
+
+        For example, ``release/1.0`` will become ``release-1.0``.
+        """
+        return re.sub('[/%!?]', '-', content)
+
     def slugify(self, content):
+        """
+        Make ``content`` a valid slug.
+
+        It uses ``unicode-slugify`` behind the scenes which works properly with
+        Unicode characters.
+        """
         if not content:
             return ''
 
-        slugified = content.lower()
-        slugified = self.invalid_chars_re.sub(self.placeholder, slugified)
-        slugified = self.leading_punctuation_re.sub('', slugified)
+        normalized = self._normalize(content)
+        slugified = slugify(
+            normalized,
+            only_ascii=True,
+            spaces=False,
+            lower=True,
+            ok=self.ok_chars,
+            space_replacement='-',
+        )
+
+        # Remove first character wile it's an invalid character for the
+        # beginning of the slug
+        slugified = slugified.lstrip(self.ok_chars)
 
         if not slugified:
             return self.fallback_slug
