@@ -1,26 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import pytest
-from django.core.management import call_command
-from django.urls import reverse_lazy
+from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
 from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestElasticSearch:
-
-    url = reverse_lazy('search')
-
-    def _reindex_elasticsearch(self, es_index):
-        call_command('reindex_elasticsearch')
-        es_index.refresh_index()
+class TestProjectSearch(object):
+    url = reverse('search')
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
@@ -30,10 +24,6 @@ class TestElasticSearch:
         result = page.find('.module-list-wrapper .module-item-title')
         return result, page
 
-    @pytest.fixture(autouse=True)
-    def elastic_index(self, mock_parse_json, all_projects, es_index):
-        self._reindex_elasticsearch(es_index=es_index)
-
     def test_search_by_project_name(self, client, project):
         result, _ = self._get_search_result(
             url=self.url, client=client,
@@ -42,11 +32,10 @@ class TestElasticSearch:
 
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
 
-    def test_search_project_show_languages(self, client, project, es_index):
+    def test_search_project_show_languages(self, client, project):
         """Test that searching project should show all available languages."""
         # Create a project in bn and add it as a translation
         G(Project, language='bn', name=project.name)
-        self._reindex_elasticsearch(es_index=es_index)
 
         result, page = self._get_search_result(
             url=self.url, client=client,
@@ -58,11 +47,10 @@ class TestElasticSearch:
         assert len(content) == 2
         assert 'bn' in content.text()
 
-    def test_search_project_filter_language(self, client, project, es_index):
+    def test_search_project_filter_language(self, client, project):
         """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
         translate = G(Project, language='bn', name=project.name)
-        self._reindex_elasticsearch(es_index=es_index)
         search_params = {'q': project.name, 'language': 'bn'}
 
         result, page = self._get_search_result(
@@ -74,25 +62,88 @@ class TestElasticSearch:
         assert len(result) == 1
 
         content = page.find('.navigable .language-list')
-        # There should be 1 languages
-        assert len(content) == 1
+        # There should be 2 languages because both `en` and `bn` should show there
+        assert len(content) == 2
         assert 'bn' in content.text()
+
+
+@pytest.mark.django_db
+@pytest.mark.search
+class TestPageSearch(object):
+    url = reverse('search')
+
+    def _get_search_result(self, url, client, search_params):
+        resp = client.get(url, search_params)
+        assert resp.status_code == 200
+
+        page = pq(resp.content)
+        result = page.find('.module-list-wrapper .search-result-item')
+        return result, page
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_by_file_content(self, client, project, data_type, page_num):
-        query = get_search_query_from_project_file(
-            project_slug=project.slug, page_num=page_num,
-            data_type=data_type,
-        )
+    def test_file_search(self, client, project, data_type, page_num):
+        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
+                                                   data_type=data_type)
 
-        result, _ = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': query, 'type': 'file'},
-        )
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 1
+        assert query in result.text()
+
+    @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
+    def test_file_search_case_insensitive(self, client, project, case):
+        """
+        Check File search is case insensitive.
+
+        It tests with uppercase, lowercase and camelcase
+        """
+        query_text = get_search_query_from_project_file(project_slug=project.slug)
+
+        cased_query = getattr(query_text, case)
+        query = cased_query()
+
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+
+        assert len(result) == 1
+        # Check the actual text is in the result, not the cased one
+        assert query_text in result.text()
+
+    def test_file_search_exact_match(self, client, project):
+        """
+        Check quoted query match exact phrase.
+
+        Making a query with quoted text like ``"foo bar"`` should match exactly
+        ``foo bar`` phrase.
+        """
+
+        # `Github` word is present both in `kuma` and `pipeline` files
+        # But the phrase Github can is available only in kuma docs.
+        # So search with this phrase to check
+        query = r'"GitHub can"'
+
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+
         assert len(result) == 1
 
-    def test_file_search_show_projects(self, client):
+    def test_page_search_not_return_removed_page(self, client, project):
+        """Check removed page are not in the search index."""
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        # Make a query to check it returns result
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 1
+
+        # Delete all the HTML files of the project
+        HTMLFile.objects.filter(project=project).delete()
+        # Run the query again and this time there should not be any result
+        result, _ = self._get_search_result(url=self.url, client=client,
+                                            search_params={'q': query, 'type': 'file'})
+        assert len(result) == 0
+
+    def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching
         for files."""
 
@@ -149,7 +200,6 @@ class TestElasticSearch:
         project = all_projects[0]
         # Create some versions of the project
         versions = [G(Version, project=project) for _ in range(3)]
-        self._reindex_elasticsearch(es_index=es_index)
 
         query = get_search_query_from_project_file(project_slug=project.slug)
 
@@ -183,7 +233,6 @@ class TestElasticSearch:
         subproject = all_projects[1]
         # Add another project as subproject of the project
         project.add_subproject(subproject)
-        self._reindex_elasticsearch(es_index=es_index)
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
