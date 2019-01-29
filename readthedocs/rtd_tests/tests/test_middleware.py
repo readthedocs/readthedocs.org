@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
 from django.http import Http404
