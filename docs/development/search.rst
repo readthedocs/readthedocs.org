@@ -61,7 +61,7 @@ After any build is successfully finished, `HTMLFile` objects are created for eac
 `django-elasticsearch-dsl`_ package listens to the `post_create`/`post_delete` signals
 to index/delete documents, but it has performance drawbacks as it send HTTP request whenever
 any `HTMLFile` objects is created or deleted. To optimize the performance, `bulk_post_create`
-and `bulk_post_delete` Signals_ are dispatched with list of `HTMLFIle` objects so its possible
+and `bulk_post_delete` signals_ are dispatched with list of `HTMLFIle` objects so its possible
 to bulk index documents in elasticsearch ( `bulk_post_create` signal is dispatched for created
 and `bulk_post_delete` is dispatched for deleted objects). Both of the signals are dispatched
 with the list of the instances of `HTMLFile` in `instance_list` parameter.
@@ -107,4 +107,4 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 .. _Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
-.. _Signals: https://docs.djangoproject.com/en/2.1/topics/signals/
+.. _signals: https://docs.djangoproject.com/en/2.1/topics/signals/

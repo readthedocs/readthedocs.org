@@ -15,6 +15,8 @@ buildpyversions
 from django.conf import settings
 from docutils import nodes, utils
 
+from readthedocs.projects.models import Feature
+
 
 def django_setting_role(typ, rawtext, text, lineno, inliner, options=None,
                         content=None):
@@ -39,6 +41,17 @@ def python_supported_versions_role(typ, rawtext, text, lineno, inliner,
     return (node_list, [])
 
 
+def feature_flags_role(typ, rawtext, text, lineno, inliner, options=None,
+                       content=None):
+    """Up to date feature flags from the application."""
+    all_features = Feature.FEATURES
+    requested_feature = utils.unescape(text)
+    for feature in all_features:
+        if requested_feature.lower() == feature[0].lower():
+            desc = nodes.Text(feature[1], feature[1])
+    return [desc], []
+
+
 def setup(_):
     from docutils.parsers.rst import roles
     roles.register_local_role(
@@ -47,7 +60,11 @@ def setup(_):
     )
     roles.register_local_role(
         'buildpyversions',
-        python_supported_versions_role
+        python_supported_versions_role,
+    )
+    roles.register_local_role(
+        'featureflags',
+        feature_flags_role,
     )
 
     return {

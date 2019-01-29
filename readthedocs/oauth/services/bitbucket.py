@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """OAuth utility functions."""
 
 import json
@@ -17,7 +15,7 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
 
 
 log = logging.getLogger(__name__)
@@ -47,10 +45,10 @@ class BitbucketService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
-            log.exception('Error syncing Bitbucket repositories')
-            raise Exception(
+            log.warning('Error syncing Bitbucket repositories')
+            raise SyncServiceError(
                 'Could not sync your Bitbucket repositories, '
-                'try reconnecting your account',
+                'try reconnecting your account'
             )
 
         # Because privileges aren't returned with repository data, run query
@@ -85,8 +83,8 @@ class BitbucketService(Service):
                 for repo in repos:
                     self.create_repository(repo, organization=org)
         except ValueError:
-            log.exception('Error syncing Bitbucket organizations')
-            raise Exception(
+            log.warning('Error syncing Bitbucket organizations')
+            raise SyncServiceError(
                 'Could not sync your Bitbucket team repositories, '
                 'try reconnecting your account',
             )
