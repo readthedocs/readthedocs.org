@@ -12,11 +12,12 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 @pytest.mark.search
 class TestDocumentSearch(object):
 
-    def setUp(self):
-        # This reverse needs to be inside the ``setUp`` method because from
+    @classmethod
+    def setup_class(cls):
+        # This reverse needs to be inside the ``setup_class`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        self.url = reverse('doc_search')
+        cls.url = reverse('doc_search')
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
