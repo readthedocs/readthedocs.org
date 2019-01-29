@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% load i18n %}
+
+{% block title %}
+  {% trans "Maze Found - Invalid Host" %}
+{% endblock %}
+
+{% block header-wrapper %}
+  {% include "error_header.html" %}
+{% endblock %}
+
+{% block notify %}{% endblock %}
+
+{# Hide the language select form so we don't set a CSRF cookie #}
+{% block language-select-form %}{% endblock %}
+
+
+{% block content %}
+<h1>{% trans '404 - Invalid Host' %}</h1>
+<h3>{% blocktrans %}The host "{{ host }}" is unknown to Read the Docs{% endblocktrans %}</h3>
+
+<p>
+  {% with docsurl='https://docs.readthedocs.io/en/stable/custom_domains.html' %}
+  {% blocktrans trimmed %}
+    If you control this domain and believe this is in error,
+    please review our <a href="{{ docsurl }}">custom domain documentation</a>.
+    In the past, we allowed custom domains to point to us without configuring the domain in the Read the Docs dashboard
+    and we attempted to intelligently guess the correct project.
+    This was never explicitly supported and documented. It just happened to work.
+    Below are some steps to help you get your domain working again:
+  {% endblocktrans  %}
+  {% endwith %}
+</p>
+
+
+<ul style="margin-left: 2em; list-style: inherit">
+  <li>{% trans 'Ensure you have a CNAME record pointing to <code>readthedocs.io</code>' %}</li>
+  <li>{% trans 'Add your desired domain in the Read the Docs dashboard for your project (under Your Project &gt;&gt; Admin &gt;&gt; Domains)' %}</li>
+</ul>
+
+
+{% endblock %}

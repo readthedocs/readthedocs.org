@@ -7,6 +7,7 @@ from django.http import Http404, HttpResponseBadRequest
 from django.urls.base import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import render
 
 from readthedocs.projects.models import Domain, Project
 
@@ -106,9 +107,9 @@ class SubdomainMiddleware(MiddlewareMixin):
                 )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
-                # Some person is CNAMEing to us. 404.
+                # Some person is CNAMEing to us without configuring a domain - 404.
                 log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
-                raise Http404(_('Invalid hostname'))
+                return render(request, 'core/dns-404.html', context={'host': host}, status=404)
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
