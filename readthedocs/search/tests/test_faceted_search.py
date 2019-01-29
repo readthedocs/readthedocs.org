@@ -21,7 +21,7 @@ class TestFileSearch(object):
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        page_search = PageDocument.faceted_search(query=query)
+        page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
 
         assert len(results) == 1
@@ -37,7 +37,7 @@ class TestFileSearch(object):
         - Where `Foo` or `Bar` is present
         """
         query = 'Official Support'
-        page_search = PageDocument.faceted_search(query=query)
+        page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
         assert len(results) == 3
 
