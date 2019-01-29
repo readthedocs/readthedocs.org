@@ -56,7 +56,8 @@ function attach_elastic_search_query(data) {
                         // Show highlighted texts
                         if (highlight.content) {
                             for (index in highlight.content) {
-                                if (index < 2) {
+                                if (index < 3) {
+                                    // Show up to 3 results for search
                                     var content = highlight.content[index];
                                     var content_text = xss(content);
                                     var contents = $('<div class="context">');

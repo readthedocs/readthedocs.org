@@ -12,7 +12,7 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 @pytest.mark.search
 class TestDocumentSearch(object):
 
-    def __init__(self):
+    def setUp(self):
         # This reverse needs to be inside the ``__init__`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
