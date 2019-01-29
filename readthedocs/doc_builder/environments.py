@@ -17,6 +17,7 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from requests.exceptions import ConnectionError
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
@@ -266,7 +267,25 @@ class BuildCommand(BuildCommandResultMixin):
             'start_time': self.start_time,
             'end_time': self.end_time,
         }
-        api_v2.command.post(data)
+
+        if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
+            # Don't use slumber directly here. Slumber tries to enforce a string,
+            # which will break our multipart encoding here.
+            encoder = MultipartEncoder(
+                {key: str(value) for key, value in data.items()}
+            )
+            resource = api_v2.command
+            resp = resource._store['session'].post(
+                resource._store['base_url'] + '/',
+                data=encoder,
+                headers={
+                    'Content-Type': encoder.content_type,
+                }
+            )
+            log.info('Post response via multipart form: %s', resp)
+        else:
+            resp = api_v2.command.post(data)
+            log.info('Post response via JSON encoded data: %s', resp)
 
 
 class DockerBuildCommand(BuildCommand):

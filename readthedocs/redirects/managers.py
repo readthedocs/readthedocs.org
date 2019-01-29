@@ -17,6 +17,7 @@ class RedirectQuerySet(QuerySet):
             )
             if new_path:
                 return new_path
+        return None
 
 
 RedirectManager = Manager.from_queryset(RedirectQuerySet)

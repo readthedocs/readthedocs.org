@@ -4,6 +4,7 @@
 
 import fnmatch
 import logging
+import re
 import os
 from urllib.parse import urlparse
 
@@ -12,6 +13,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.urls import NoReverseMatch, reverse
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
@@ -23,6 +25,7 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
@@ -36,6 +39,7 @@ from readthedocs.projects.validators import (
 )
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.restapi.client import api
+from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -654,11 +658,8 @@ class Project(models.Model):
 
     def full_json_path(self, version=LATEST):
         """The path to the build json docs in the project."""
-        if 'sphinx' in self.documentation_type:
-            return os.path.join(self.conf_dir(version), '_build', 'json')
-
-        if 'mkdocs' in self.documentation_type:
-            return os.path.join(self.checkout_path(version), '_build', 'json')
+        json_path = os.path.join(self.conf_dir(version), '_build', 'json')
+        return json_path
 
     def full_singlehtml_path(self, version=LATEST):
         """The path to the build singlehtml docs in the project."""
@@ -845,7 +846,8 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
+        for version_data in api.project(self.pk
+                                        ).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1040,13 +1042,8 @@ class APIProject(Project):
         ad_free = (not kwargs.pop('show_advertising', True))
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
-        for key in [
-                'users',
-                'resource_uri',
-                'absolute_url',
-                'downloads',
-                'main_language_project',
-                'related_projects']:
+        for key in ['users', 'resource_uri', 'absolute_url', 'downloads',
+                    'main_language_project', 'related_projects']:
             try:
                 del kwargs[key]
             except KeyError:
@@ -1110,6 +1107,54 @@ class ImportedFile(models.Model):
 
     def __str__(self):
         return '{}: {}'.format(self.name, self.project)
+
+
+class HTMLFile(ImportedFile):
+
+    """
+    Imported HTML file Proxy model.
+
+    This tracks only the HTML files for indexing to search.
+    """
+
+    class Meta(object):
+        proxy = True
+
+    objects = HTMLFileManager()
+
+    @cached_property
+    def json_file_path(self):
+        basename = os.path.splitext(self.path)[0]
+        if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            log.info('Adjusted json file path: %s -> %s', basename, new_basename)
+            basename = new_basename
+
+        file_path = basename + '.fjson'
+
+        full_json_path = self.project.get_production_media_path(
+            type_='json', version_slug=self.version.slug, include_file=False
+        )
+
+        file_path = os.path.join(full_json_path, file_path)
+        return file_path
+
+    def get_processed_json(self):
+        file_path = self.json_file_path
+        try:
+            return process_file(file_path)
+        except Exception:
+            log.warning(
+                'Unhandled exception during search processing file: %s' % file_path
+            )
+        return {
+            'headers': [], 'content': '', 'path': file_path, 'title': '',
+            'sections': []
+        }
+
+    @cached_property
+    def processed_json(self):
+        return self.get_processed_json()
 
 
 class Notification(models.Model):
@@ -1199,7 +1244,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk],
+            args=[self.project.pk, self.domain],
         )
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -1207,7 +1252,7 @@ class Domain(models.Model):
         broadcast(
             type='app',
             task=tasks.symlink_domain,
-            args=[self.project.pk, self.pk, True],
+            args=[self.project.pk, self.domain, True],
         )
         super().delete(*args, **kwargs)
 
@@ -1239,6 +1284,7 @@ class Feature(models.Model):
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
+    API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
 
@@ -1247,35 +1293,30 @@ class Feature(models.Model):
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
-        (
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
             ),
-        ),
-        (
+        ), (
             ALLOW_V2_CONFIG_FILE,
             _(
                 'Allow to use the v2 of the configuration file',
             ),
-        ),
-        (
+        ), (
             MKDOCS_THEME_RTD,
             _('Use Read the Docs theme for MkDocs as default theme')
-        ),
-        (
+        ), (
             DONT_SHALLOW_CLONE,
             _(
                 'Do not shallow clone when cloning git repos',
             ),
-        ),
-        (
+        ), (
             USE_TESTING_BUILD_IMAGE,
             _(
                 'Use Docker image labelled as `testing` to build the docs',
             ),
-        ),
+        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
     )
 
     projects = models.ManyToManyField(

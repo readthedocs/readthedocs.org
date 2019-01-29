@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+
 from datetime import timedelta
 
+from mock import patch
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
@@ -9,7 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
+from allauth.account.models import EmailAddress
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
@@ -341,6 +343,10 @@ class TestImportDemoView(MockBuildTestCase):
         project = Project.objects.get(slug='eric-demo')
         project.repo = 'file:///foobar'
         project.save()
+
+        # Setting the primary and verified email of the test user.
+        user = User.objects.get(username='eric')
+        user_email = get(EmailAddress, user=user, primary=True, verified=True)
 
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)

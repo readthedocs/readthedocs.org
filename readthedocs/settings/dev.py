@@ -48,6 +48,9 @@ class CommunityDevSettings(CommunityBaseSettings):
         'test:8000',
     )
 
+    # Disable auto syncing elasticsearch documents in development
+    ELASTICSEARCH_DSL_AUTOSYNC = False
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING

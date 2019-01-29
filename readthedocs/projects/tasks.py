@@ -8,6 +8,7 @@ rebuilding documentation.
 """
 
 import datetime
+import fnmatch
 import hashlib
 import json
 import logging
@@ -59,19 +60,19 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
-from readthedocs.restapi.utils import index_search_request
-from readthedocs.search.parse_json import process_all_json_files
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
 from .exceptions import RepositoryError
-from .models import Domain, ImportedFile, Project
+from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
     after_vcs,
     before_build,
     before_vcs,
+    bulk_post_create,
+    bulk_post_delete,
     domain_verify,
     files_changed,
 )
@@ -729,6 +730,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             args=[
                 self.project.pk,
                 self.version.pk,
+                self.config.doctype,
             ],
             kwargs=dict(
                 hostname=socket.gethostname(),
@@ -741,6 +743,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
+                search=search,
             ),
         )
 
@@ -766,8 +769,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.python_env.setup_base()
             self.python_env.save_environment_json()
             self.python_env.install_core_requirements()
-            self.python_env.install_user_requirements()
-            self.python_env.install_package()
+            self.python_env.install_requirements()
 
     def build_docs(self):
         """
@@ -812,7 +814,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             broadcast(
                 type='app',
                 task=move_files,
-                args=[self.version.pk, socket.gethostname()],
+                args=[
+                    self.version.pk, socket.gethostname(), self.config.doctype
+                ],
                 kwargs=dict(html=True),
             )
         except socket.error:
@@ -885,6 +889,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 def sync_files(
         project_pk,
         version_pk,
+        doctype,
         hostname=None,
         html=False,
         localmedia=False,
@@ -899,7 +904,9 @@ def sync_files(
     synchronization of build artifacts on each application instance.
     """
     # Clean up unused artifacts
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     if not pdf:
         remove_dirs([
             version.project.get_production_media_path(
@@ -919,6 +926,7 @@ def sync_files(
     move_files(
         version_pk,
         hostname,
+        doctype,
         html=html,
         localmedia=localmedia,
         search=search,
@@ -937,6 +945,7 @@ def sync_files(
 def move_files(
         version_pk,
         hostname,
+        doctype,
         html=False,
         localmedia=False,
         search=False,
@@ -959,7 +968,9 @@ def move_files(
     :param epub: Sync ePub files
     :type epub: bool
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
@@ -971,101 +982,61 @@ def move_files(
     if html:
         from_path = version.project.artifact_path(
             version=version.slug,
-            type_=version.project.documentation_type,
+            type_=doctype,
         )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
 
-    if 'sphinx' in version.project.documentation_type:
-        if search:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_search',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='json',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if search:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_search',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='json',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        if localmedia:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='htmlzip',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    if localmedia:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_localmedia',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='htmlzip',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
-        # Always move PDF's because the return code lies.
-        if pdf:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
-        if epub:
-            from_path = version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            )
-            to_path = version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-                include_file=False,
-            )
-            Syncer.copy(from_path, to_path, host=hostname)
+    # Always move PDF's because the return code lies.
+    if pdf:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_pdf',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='pdf',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
+    if epub:
+        from_path = version.project.artifact_path(
+            version=version.slug,
+            type_='sphinx_epub',
+        )
+        to_path = version.project.get_production_media_path(
+            type_='epub',
+            version_slug=version.slug,
+            include_file=False,
+        )
+        Syncer.copy(from_path, to_path, host=hostname)
 
 
 @app.task(queue='web')
-def update_search(version_pk, commit, delete_non_commit_files=True):
-    """
-    Task to update search indexes.
-
-    :param version_pk: Version id to update
-    :param commit: Commit that updated index
-    :param delete_non_commit_files: Delete files not in commit from index
-    """
-    version = Version.objects.get(pk=version_pk)
-
-    if 'sphinx' in version.project.documentation_type:
-        page_list = process_all_json_files(version, build_dir=False)
-    else:
-        log.debug(
-            'Unknown documentation type: %s',
-            version.project.documentation_type,
-        )
-        return
-
-    log_msg = ' '.join([page['path'] for page in page_list])
-    log.info(
-        '(Search Index) Sending Data: %s [%s]',
-        version.project.slug,
-        log_msg,
-    )
-    index_search_request(
-        version=version,
-        page_list=page_list,
-        commit=commit,
-        project_scale=0,
-        page_scale=0,
-        # Don't index sections to speed up indexing.
-        # They aren't currently exposed anywhere.
-        section=False,
-        delete=delete_non_commit_files,
-    )
-
-
-@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1074,9 +1045,16 @@ def symlink_project(project_pk):
 
 
 @app.task(queue='web', throws=(BuildEnvironmentWarning,))
-def symlink_domain(project_pk, domain_pk, delete=False):
+def symlink_domain(project_pk, domain, delete=False):
+    """
+    Symlink domain.
+
+    :param project_pk: project's pk
+    :type project_pk: int
+    :param domain: domain for the symlink
+    :type domain: str
+    """
     project = Project.objects.get(pk=project_pk)
-    domain = Domain.objects.get(pk=domain_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
@@ -1130,7 +1108,9 @@ def fileify(version_pk, commit):
 
     This is so we have an idea of what files we have in the database.
     """
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     project = version.project
 
     if not commit:
@@ -1175,22 +1155,28 @@ def _manage_imported_files(version, path, commit):
     :param commit: Commit that updated path
     """
     changed_files = set()
+    created_html_files = []
     for root, __, filenames in os.walk(path):
         for filename in filenames:
+            if fnmatch.fnmatch(filename, '*.html'):
+                model_class = HTMLFile
+            else:
+                model_class = ImportedFile
+
             dirpath = os.path.join(
-                root.replace(path, '').lstrip('/'),
-                filename.lstrip('/'),
+                root.replace(path, '').lstrip('/'), filename.lstrip('/')
             )
             full_path = os.path.join(root, filename)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
-                obj, __ = ImportedFile.objects.get_or_create(
+                # pylint: disable=unpacking-non-sequence
+                obj, __ = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
                     name=filename,
                 )
-            except ImportedFile.MultipleObjectsReturned:
+            except model_class.MultipleObjectsReturned:
                 log.warning('Error creating ImportedFile')
                 continue
             if obj.md5 != md5:
@@ -1199,11 +1185,33 @@ def _manage_imported_files(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
             obj.save()
+
+            if model_class == HTMLFile:
+                # the `obj` is HTMLFile, so add it to the list
+                created_html_files.append(obj)
+
+    # Send bulk_post_create signal for bulk indexing to Elasticsearch
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
+
+    # Delete the HTMLFile first from previous commit and
+    # send bulk_post_delete signal for bulk removing from Elasticsearch
+    delete_queryset = (
+        HTMLFile.objects.filter(project=version.project,
+                                version=version).exclude(commit=commit)
+    )
+    # Keep the objects into memory to send it to signal
+    instance_list = list(delete_queryset)
+    # Safely delete from database
+    delete_queryset.delete()
+    # Always pass the list of instance, not queryset.
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
+
     # Delete ImportedFiles from previous versions
-    ImportedFile.objects.filter(
-        project=version.project,
-        version=version,
-    ).exclude(commit=commit).delete()
+    (
+        ImportedFile.objects.filter(project=version.project,
+                                    version=version).exclude(commit=commit
+                                                             ).delete()
+    )
     changed_files = [
         resolve_path(
             version.project,
@@ -1220,7 +1228,9 @@ def _manage_imported_files(version, path, commit):
 
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
-    version = Version.objects.get(pk=version_pk)
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if not version:
+        return
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
@@ -1397,7 +1407,6 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
     The first argument is the result from previous tasks, which we discard.
     """
     fileify(version_pk, commit=commit)
-    update_search(version_pk, commit=commit)
 
 
 @app.task()
