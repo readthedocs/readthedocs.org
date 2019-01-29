@@ -1,6 +1,7 @@
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
+from elasticsearch_dsl.query import Query
 from readthedocs.search.signals import before_file_search, before_project_search
 
 log = logging.getLogger(__name__)
@@ -41,9 +42,20 @@ class RTDFacetedSearch(FacetedSearch):
                 log.exception('Failed to return a search object from search signals')
         return s
 
+    def query(self, search, query):
+        """
+        Add query part to ``search`` when needed
+
+        Also does HTML encoding of results to avoid XSS issues.
+
+        """
+        search = search.highlight_options(encoder='html')
+        if not isinstance(query, str):
+            search = search.query(query)
+        return search
+
 
 class ProjectSearch(RTDFacetedSearch):
-    fields = ['name^5', 'description']
     facets = {
         'language': TermsFacet(field='language')
     }
@@ -56,15 +68,3 @@ class FileSearch(RTDFacetedSearch):
         'version': TermsFacet(field='version')
     }
     signal = before_file_search
-
-    def query(self, search, query):
-        """
-        Add query part to ``search``
-
-        Overriding because we pass ES Query object instead of string
-        """
-        search = search.highlight_options(encoder='html')
-        if query:
-            search = search.query(query)
-
-        return search

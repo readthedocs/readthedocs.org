@@ -30,6 +30,9 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
     })
     language = fields.KeywordField()
 
+    # Fields to perform search with weight
+    search_fields = ['name^5', 'description']
+
     @classmethod
     def faceted_search(cls, query, user, language=None, using=None, index=None):
         kwargs = {
@@ -38,7 +41,8 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
             'index': index or cls._doc_type.index,
             'doc_types': [cls],
             'model': cls._doc_type.model,
-            'query': query
+            'query': query,
+            'fields': cls.search_fields
         }
 
         if language:
@@ -70,7 +74,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
                       'search/index.html', 'genindex/index.html', 'py-modindex/index.html']
 
     @classmethod
-    def faceted_search(cls, query, user, projects_list=None, versions_list=None, using=None, index=None):
+    def faceted_search(
+        cls, query, user, projects_list=None, versions_list=None, using=None, index=None
+    ):
         es_query = cls.get_es_query(query=query)
         kwargs = {
             'user': user,
