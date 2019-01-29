@@ -1,7 +1,9 @@
-from django.conf import settings
+import logging
+from pprint import pformat
+
 from rest_framework import serializers
 
-from pprint import pprint
+log = logging.getLogger(__name__)
 
 
 class PageSearchSerializer(serializers.Serializer):
@@ -21,7 +23,6 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            if settings.DEBUG:
-                print('Highlight')
-                pprint(highlight)
-            return highlight.to_dict()
+            ret = highlight.to_dict()
+            log.debug('API Search highlight: %s', pformat(ret))
+            return ret

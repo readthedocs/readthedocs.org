@@ -8,7 +8,7 @@ import mimetypes
 import operator
 import os
 from collections import OrderedDict
-from pprint import pprint
+from pprint import pformat
 
 import requests
 from django.conf import settings
@@ -262,11 +262,8 @@ def elastic_project_search(request, project_slug):
         )
         results = page_search.execute()
 
-        if settings.DEBUG:
-            print('Results')
-            pprint(results.to_dict())
-            print('Facets')
-            pprint(results.facets.to_dict())
+        log.debug('Search results: %s', pformat(results.to_dict()))
+        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
         log.info(
             LOG_TEMPLATE.format(

@@ -3,7 +3,7 @@
 """Search views."""
 import collections
 import logging
-from pprint import pprint
+from pprint import pformat
 
 from django.conf import settings
 from django.shortcuts import render
@@ -81,11 +81,9 @@ def elastic_search(request):
             ),
         )
 
-    if settings.DEBUG and results:
-        print('Results')
-        pprint(results.to_dict())
-        print('Facets')
-        pprint(facets.to_dict())
+    if results:
+        log.debug('Search results: %s', pformat(results.to_dict()))
+        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
     template_vars = user_input._asdict()
     template_vars.update({'results': results, 'facets': facets})
