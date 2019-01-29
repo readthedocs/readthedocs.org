@@ -25,7 +25,7 @@ class RTDFacetedSearch(FacetedSearch):
 
     def search(self):
         """
-        Filter out fill content on search results.search
+        Filter out full content on search results
 
         This was causing all of the indexed content to be returned,
         which was never used on the client side.
