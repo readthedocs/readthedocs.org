@@ -1,4 +1,7 @@
+from django.conf import settings
 from rest_framework import serializers
+
+from pprint import pprint
 
 
 class PageSearchSerializer(serializers.Serializer):
@@ -18,4 +21,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
+            if settings.DEBUG:
+                print('Highlight')
+                pprint(highlight)
             return highlight.to_dict()

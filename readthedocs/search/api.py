@@ -2,7 +2,6 @@ from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.filters import SearchFilterBackend
 from readthedocs.search.pagination import SearchPagination
 from readthedocs.search.serializers import PageSearchSerializer
 from readthedocs.search.utils import get_project_list_or_404
@@ -10,7 +9,6 @@ from readthedocs.search.utils import get_project_list_or_404
 
 class PageSearchAPIView(generics.ListAPIView):
     pagination_class = SearchPagination
-    filter_backends = [SearchFilterBackend]
     serializer_class = PageSearchSerializer
 
     def get_queryset(self):
@@ -24,7 +22,15 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        queryset = PageDocument.simple_search(query=query)
+        kwargs = {}
+        kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
+        kwargs['versions_list'] = self.request.query_params.get('version')
+        user = ''
+        if self.request.user.is_authenticated:
+            user = self.request.user
+        queryset = PageDocument.faceted_search(
+            query=query, user=user, **kwargs
+        )
         return queryset
 
     def validate_query_params(self):
@@ -43,13 +49,15 @@ class PageSearchAPIView(generics.ListAPIView):
         context['projects_url'] = self.get_all_projects_url()
         return context
 
-    def get_all_projects_url(self):
-        version_slug = self.request.query_params.get('version')
+    def get_all_projects(self):
         project_slug = self.request.query_params.get('project')
         all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
-        projects_url = {}
+        return all_projects
 
+    def get_all_projects_url(self):
+        all_projects = self.get_all_projects()
+        version_slug = self.request.query_params.get('version')
+        projects_url = {}
         for project in all_projects:
             projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
-
         return projects_url

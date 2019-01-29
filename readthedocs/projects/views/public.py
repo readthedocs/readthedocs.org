@@ -8,6 +8,7 @@ import mimetypes
 import operator
 import os
 from collections import OrderedDict
+from pprint import pprint
 
 import requests
 from django.conf import settings
@@ -247,10 +248,26 @@ def elastic_project_search(request, project_slug):
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
     results = None
+
     if query:
+        kwargs = {}
+        kwargs['projects_list'] = [project.slug]
+        kwargs['versions_list'] = version_slug
         user = ''
         if request.user.is_authenticated:
             user = request.user
+
+        page_search = PageDocument.faceted_search(
+            query=query, user=user, **kwargs
+        )
+        results = page_search.execute()
+
+        if settings.DEBUG:
+            print('Results')
+            pprint(results.to_dict())
+            print('Facets')
+            pprint(results.facets.to_dict())
+
         log.info(
             LOG_TEMPLATE.format(
                 user=user,
@@ -261,15 +278,6 @@ def elastic_project_search(request, project_slug):
                 msg=query or '',
             ),
         )
-
-    if query:
-        req = PageDocument.simple_search(query=query)
-        filtered_query = (
-            req.filter('term', project=project.slug)
-            .filter('term', version=version_slug)
-        )
-        paginated_query = filtered_query[:50]
-        results = paginated_query.execute()
 
     return render(
         request,

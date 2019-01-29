@@ -1,4 +1,9 @@
+import logging
+
 from elasticsearch_dsl import FacetedSearch, TermsFacet
+from readthedocs.search.signals import before_file_search, before_project_search
+
+log = logging.getLogger(__name__)
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -8,7 +13,8 @@ class RTDFacetedSearch(FacetedSearch):
     # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
     # See more: https://github.com/elastic/elasticsearch-dsl-py/issues/916
 
-    def __init__(self, using, index, doc_types, model, fields=None, **kwargs):
+    def __init__(self, user, using, index, doc_types, model, fields=None, **kwargs):
+        self.user = user
         self.using = using
         self.index = index
         self.doc_types = doc_types
@@ -17,12 +23,31 @@ class RTDFacetedSearch(FacetedSearch):
             self.fields = fields
         super(RTDFacetedSearch, self).__init__(**kwargs)
 
+    def search(self):
+        """
+        Filter out fill content on search results.search
+
+        This was causing all of the indexed content to be returned,
+        which was never used on the client side.
+        """
+        s = super().search()
+        s = s.source(exclude=['content', 'headers'])
+        resp = self.signal.send(sender=self, user=self.user, search=s)
+        if resp:
+            # Signal return a search object
+            try:
+                s = resp[0][1]
+            except AttributeError:
+                log.exception('Failed to return a search object from search signals')
+        return s
+
 
 class ProjectSearch(RTDFacetedSearch):
     fields = ['name^5', 'description']
     facets = {
         'language': TermsFacet(field='language')
     }
+    signal = before_project_search
 
 
 class FileSearch(RTDFacetedSearch):
@@ -30,6 +55,7 @@ class FileSearch(RTDFacetedSearch):
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version')
     }
+    signal = before_file_search
 
     def query(self, search, query):
         """

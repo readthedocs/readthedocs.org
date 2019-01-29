@@ -9,17 +9,16 @@ from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
-from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.tasks import index_objects_to_es
 
 
 before_project_search = django.dispatch.Signal(providing_args=['body'])
 before_file_search = django.dispatch.Signal(providing_args=['body'])
-before_section_search = django.dispatch.Signal(providing_args=['body'])
 
 
 @receiver(bulk_post_create, sender=HTMLFile)
 def index_html_file(instance_list, **_):
+    from readthedocs.search.documents import PageDocument
     kwargs = {
         'app_label': HTMLFile._meta.app_label,
         'model_name': HTMLFile.__name__,
@@ -42,6 +41,7 @@ def remove_html_file(instance_list, **_):
 
 @receiver(post_save, sender=Project)
 def index_project(instance, *args, **kwargs):
+    from readthedocs.search.documents import ProjectDocument
     kwargs = {
         'app_label': Project._meta.app_label,
         'model_name': Project.__name__,

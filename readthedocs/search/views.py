@@ -44,9 +44,12 @@ def elastic_search(request):
     facets = {}
 
     if user_input.query:
+        user = ''
+        if request.user.is_authenticated:
+            user = request.user
         if user_input.type == 'project':
             project_search = ProjectDocument.faceted_search(
-                query=user_input.query, language=user_input.language
+                query=user_input.query, user=user, language=user_input.language
             )
             results = project_search.execute()
             facets = results.facets
@@ -62,19 +65,11 @@ def elastic_search(request):
                 kwargs['versions_list'] = user_input.version
 
             page_search = PageDocument.faceted_search(
-                query=user_input.query, **kwargs
+                query=user_input.query, user=user, **kwargs
             )
             results = page_search.execute()
             facets = results.facets
 
-    if settings.DEBUG:
-        print(pprint(results))
-        print(pprint(facets))
-
-    if user_input.query:
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
         log.info(
             LOG_TEMPLATE.format(
                 user=user,
@@ -85,6 +80,12 @@ def elastic_search(request):
                 msg=user_input.query or '',
             ),
         )
+
+    if settings.DEBUG and results:
+        print('Results')
+        pprint(results.to_dict())
+        print('Facets')
+        pprint(facets.to_dict())
 
     template_vars = user_input._asdict()
     template_vars.update({'results': results, 'facets': facets})

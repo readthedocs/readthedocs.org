@@ -31,8 +31,9 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
     language = fields.KeywordField()
 
     @classmethod
-    def faceted_search(cls, query, language=None, using=None, index=None):
+    def faceted_search(cls, query, user, language=None, using=None, index=None):
         kwargs = {
+            'user': user,
             'using': using or cls._doc_type.using,
             'index': index or cls._doc_type.index,
             'doc_types': [cls],
@@ -69,9 +70,10 @@ class PageDocument(RTDDocTypeMixin, DocType):
                       'search/index.html', 'genindex/index.html', 'py-modindex/index.html']
 
     @classmethod
-    def faceted_search(cls, query, projects_list=None, versions_list=None, using=None, index=None):
+    def faceted_search(cls, query, user, projects_list=None, versions_list=None, using=None, index=None):
         es_query = cls.get_es_query(query=query)
         kwargs = {
+            'user': user,
             'using': using or cls._doc_type.using,
             'index': index or cls._doc_type.index,
             'doc_types': [cls],
@@ -89,26 +91,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
         kwargs['filters'] = filters
 
         return FileSearch(**kwargs)
-
-    @classmethod
-    def simple_search(cls, query, using=None, index=None):
-        """
-        Do a search without facets.
-
-        This is used in:
-
-        * The Docsearch API
-        * The Project Admin Search page
-        """
-
-        es_search = cls.search(using=using, index=index)
-        es_search = es_search.highlight_options(encoder='html')
-
-        es_query = cls.get_es_query(query=query)
-        highlighted_fields = [f.split('^', 1)[0] for f in cls.search_fields]
-        es_search = es_search.query(es_query).highlight(*highlighted_fields)
-
-        return es_search
 
     @classmethod
     def get_es_query(cls, query):
