@@ -1,7 +1,6 @@
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import Query
 from readthedocs.search.signals import before_file_search, before_project_search
 
 log = logging.getLogger(__name__)
@@ -49,7 +48,7 @@ class RTDFacetedSearch(FacetedSearch):
         Also does HTML encoding of results to avoid XSS issues.
 
         """
-        search = search.highlight_options(encoder='html')
+        search = search.highlight_options(encoder='html', number_of_fragments=3)
         if not isinstance(query, str):
             search = search.query(query)
         return search
