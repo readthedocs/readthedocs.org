@@ -6,7 +6,7 @@ mergeable:
     approvals:
       # Minimum of approvals needed.
       min: 1
-        message: 'The PR must have a minimum of 1 approvals.'
+      message: 'The PR must have a minimum of 1 approvals.'
 
     description:
       no_empty:
