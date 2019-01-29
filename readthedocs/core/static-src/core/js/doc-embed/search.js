@@ -62,7 +62,7 @@ function attach_elastic_search_query(data) {
                                     var content_text = xss(content);
                                     var contents = $('<div class="context">');
 
-                                    contents.html(content_text);
+                                    contents.html("..." + content_text + "...");
                                     contents.find('em').addClass('highlighted');
                                     list_item.append(contents);
                                 }
