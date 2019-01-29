@@ -4,6 +4,7 @@
 
 import copy
 import os
+import re
 from contextlib import contextmanager
 
 from django.conf import settings
@@ -146,6 +147,8 @@ class BuildConfigBase:
         'mkdocs',
         'submodules',
     ]
+
+    default_build_image = DOCKER_DEFAULT_VERSION
     version = None
 
     def __init__(self, env_config, raw_config, source_file):
@@ -246,6 +249,40 @@ class BuildConfigBase:
             )
         return ver
 
+    @property
+    def valid_build_images(self):
+        """
+        Return all the valid Docker image choices for ``build.image`` option.
+
+        The user can use any of this values in the YAML file. These values are
+        the keys of ``DOCKER_IMAGE_SETTINGS`` Django setting (without the
+        ``readthedocs/build`` part) plus ``stable`` and ``latest``.
+        """
+        images = {'stable', 'latest'}
+        for k in DOCKER_IMAGE_SETTINGS:
+            _, version = k.split(':')
+            if re.fullmatch(r'^[\d\.]+$', version):
+                images.add(version)
+        return images
+
+    def get_valid_python_versions_for_image(self, build_image):
+        """
+        Return all the valid Python versions for a Docker image.
+
+        The Docker image (``build_image``) has to be its complete name, already
+        validated: ``readthedocs/build:4.0``, not just ``4.0``.
+
+        Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
+        ``build_image`` found.
+        """
+
+        if build_image not in DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
+            )
+        return DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+
     def as_dict(self):
         config = {}
         for name in self.PUBLIC_ATTRIBUTES:
@@ -268,18 +305,23 @@ class BuildConfigV1(BuildConfigBase):
         '"python.extra_requirements" section must be a list.'
     )
 
-    PYTHON_SUPPORTED_VERSIONS = [2, 2.7, 3, 3.5]
-    DOCKER_SUPPORTED_VERSIONS = ['1.0', '2.0', 'latest']
-
     version = '1'
 
     def get_valid_python_versions(self):
-        """Get all valid python versions."""
+        """
+        Return all valid Python versions.
+
+        .. note::
+
+            It does not take current build image used into account.
+        """
         try:
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
-            pass
-        return self.PYTHON_SUPPORTED_VERSIONS
+            versions = set()
+            for _, options in DOCKER_IMAGE_SETTINGS.items():
+                versions = versions.union(options['python']['supported_versions'])
+            return versions
 
     def get_valid_formats(self):  # noqa
         """Get all valid documentation formats."""
@@ -339,7 +381,7 @@ class BuildConfigV1(BuildConfigBase):
                 with self.catch_validation_error('build'):
                     build['image'] = validate_choice(
                         str(_build['image']),
-                        self.DOCKER_SUPPORTED_VERSIONS,
+                        self.valid_build_images,
                     )
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
@@ -577,8 +619,6 @@ class BuildConfigV2(BuildConfigBase):
 
     version = '2'
     valid_formats = ['htmlzip', 'pdf', 'epub']
-    valid_build_images = ['1.0', '2.0', '3.0', 'stable', 'latest']
-    default_build_image = 'latest'
     valid_install_method = [PIP, SETUPTOOLS]
     valid_sphinx_builders = {
         'html': 'sphinx',
@@ -793,13 +833,7 @@ class BuildConfigV2(BuildConfigBase):
         This should be called after ``validate_build()``.
         """
         build_image = self.build.image
-        if build_image not in DOCKER_IMAGE_SETTINGS:
-            build_image = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
-                self.default_build_image,
-            )
-        python = DOCKER_IMAGE_SETTINGS[build_image]['python']
-        return python['supported_versions']
+        return self.get_valid_python_versions_for_image(build_image)
 
     def validate_doc_types(self):
         """
