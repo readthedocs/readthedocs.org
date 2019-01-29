@@ -13,7 +13,7 @@ Here is an example of how this file looks like:
    version: 2
 
    python:
-     version: 3.6
+     version: 3.7
      install:
         - method: pip
           path: .
@@ -82,7 +82,7 @@ Example:
 .. code-block:: yaml
 
    python:
-      version: 3.6
+      version: 3.7
       install:
          - requirements: docs/requirements.txt
          - method: pip
@@ -125,7 +125,7 @@ Example:
 .. code-block:: yaml
 
    python:
-      version: 3.6
+      version: 3.7
       install:
          - requirements: docs/requirements.txt
          - requirements: requirements.txt
@@ -165,7 +165,7 @@ Example:
 .. code-block:: yaml
 
    python:
-      version: 3.6
+      version: 3.7
       install:
          - method: pip
            path: .
@@ -225,7 +225,7 @@ Example:
      image: latest
 
    python:
-     version: 3.6
+     version: 3.7
 
 
 build.image
@@ -240,8 +240,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`2.0`
-* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`3.0`
+* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`3.0`
+* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`4.0`
 
 sphinx
 ~~~~~~
