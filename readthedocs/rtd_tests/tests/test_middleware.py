@@ -32,8 +32,8 @@ class MiddlewareTests(TestCase):
     def test_failey_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
-        with self.assertRaises(Http404):
-            self.middleware.process_request(request)
+        r = self.middleware.process_request(request)
+        self.assertEqual(r.status_code, 404)
         self.assertEqual(request.cname, True)
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -96,8 +96,8 @@ class MiddlewareTests(TestCase):
     def test_domain_object_missing(self):
         self.domain = get(Domain, domain='docs.foobar2.com', project=self.pip)
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
-        with self.assertRaises(Http404):
-            self.middleware.process_request(request)
+        r = self.middleware.process_request(request)
+        self.assertEqual(r.status_code, 404)
 
     def test_request_header(self):
         request = self.factory.get(
