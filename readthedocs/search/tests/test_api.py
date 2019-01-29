@@ -13,7 +13,7 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 class TestDocumentSearch(object):
 
     def setUp(self):
-        # This reverse needs to be inside the ``__init__`` method because from
+        # This reverse needs to be inside the ``setUp`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
         self.url = reverse('doc_search')
