@@ -23,7 +23,6 @@ def index_html_file(instance_list, **_):
         'app_label': HTMLFile._meta.app_label,
         'model_name': HTMLFile.__name__,
         'document_class': str(PageDocument),
-        'index_name': None,  # No need to change the index name
         'objects_id': [obj.id for obj in instance_list],
     }
 
@@ -46,7 +45,6 @@ def index_project(instance, *args, **kwargs):
         'app_label': Project._meta.app_label,
         'model_name': Project.__name__,
         'document_class': str(ProjectDocument),
-        'index_name': None,  # No need to change the index name
         'objects_id': [instance.id],
     }
 

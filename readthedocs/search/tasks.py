@@ -41,8 +41,7 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
 
 
 @app.task(queue='web')
-def index_objects_to_es(app_label, model_name, document_class, index_name,
-                        chunk=None, objects_id=None):
+def index_objects_to_es(app_label, model_name, document_class, chunk=None, objects_id=None):
 
     assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
 
@@ -64,7 +63,7 @@ def index_objects_to_es(app_label, model_name, document_class, index_name,
         queryset = queryset.filter(id__in=objects_id)
 
     log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
-    doc_obj.update(queryset.iterator(), index_name=index_name)
+    doc_obj.update(queryset.iterator())
 
 
 @app.task(queue='web')
