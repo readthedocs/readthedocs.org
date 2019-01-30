@@ -85,6 +85,14 @@ def elastic_search(request):
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
+    if results:
+        # Change results to turn newlines in highlight into periods
+        # https://github.com/rtfd/readthedocs.org/issues/5168
+        for result in results:
+            for num, block in enumerate(result.meta.highlight.content):
+                new_text = block.replace('\n', '. ')
+                result.meta.highlight.content[num] = new_text
+
     template_vars = user_input._asdict()
     template_vars.update({'results': results, 'facets': facets})
     return render(
