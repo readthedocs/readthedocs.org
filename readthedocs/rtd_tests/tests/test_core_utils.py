@@ -10,7 +10,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slug
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.tasks import remove_dirs
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.projects.models import Project
@@ -162,7 +162,10 @@ class CoreUtilTests(TestCase):
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
     def test_wipe_version_via_slug(self, mock_broadcast):
-        wipe_version_via_slug(self.version.slug)
+        wipe_version_via_slugs(
+            version_slug=self.version.slug,
+            project_slug=self.version.project.slug
+        )
         expected_del_dirs = [
             os.path.join(self.version.project.doc_path, 'checkouts', self.version.slug),
             os.path.join(self.version.project.doc_path, 'envs', self.version.slug),
@@ -181,7 +184,9 @@ class CoreUtilTests(TestCase):
     @mock.patch('readthedocs.core.utils.general.broadcast')
     def test_wipe_version_via_slug_wrong_param(self, mock_broadcast):
         self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
-
         with self.assertRaises(Http404):
-            wipe_version_via_slug('wrong-slug')
+            wipe_version_via_slugs(
+                version_slug='wrong-slug',
+                project_slug=self.version.project.slug
+            )
         mock_broadcast.assert_not_called()
