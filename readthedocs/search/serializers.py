@@ -28,6 +28,6 @@ class PageSearchSerializer(serializers.Serializer):
                 # https://github.com/rtfd/readthedocs.org/issues/5168
                 new_text = result.replace('\n', '. ')
                 highlight.content[num] = new_text
-                ret = highlight.to_dict()
-                log.debug('API Search highlight: %s', pformat(ret))
-                return ret
+            ret = highlight.to_dict()
+            log.debug('API Search highlight: %s', pformat(ret))
+            return ret
