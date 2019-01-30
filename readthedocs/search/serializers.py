@@ -23,11 +23,12 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            for num, result in enumerate(highlight.content):
-                # Change results to turn newlines in highlight into periods
-                # https://github.com/rtfd/readthedocs.org/issues/5168
-                new_text = result.replace('\n', '. ')
-                highlight.content[num] = new_text
+            if hasattr(highlight, 'content'):
+                for num, result in enumerate(highlight.content):
+                    # Change results to turn newlines in highlight into periods
+                    # https://github.com/rtfd/readthedocs.org/issues/5168
+                    new_text = result.replace('\n', '. ')
+                    highlight.content[num] = new_text
             ret = highlight.to_dict()
             log.debug('API Search highlight: %s', pformat(ret))
             return ret
