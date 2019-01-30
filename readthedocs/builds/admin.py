@@ -6,7 +6,7 @@ from django.contrib import admin, messages
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Build, Version, BuildCommandResult
-from readthedocs.core.utils.general import wipe_version_via_slug
+from readthedocs.core.utils.general import wipe_version_via_slugs
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -61,7 +61,10 @@ class VersionAdmin(GuardedModelAdmin):
     def wipe_selected_versions(self, request, queryset):
         """Wipes the selected versions."""
         for version in queryset:
-            wipe_version_via_slug(version.slug)
+            wipe_version_via_slugs(
+                version_slug=version.slug,
+                project_slug=version.project.slug
+            )
             self.message_user(
                 request,
                 'Wiped {}.'.format(version.slug),

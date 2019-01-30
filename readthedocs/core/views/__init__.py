@@ -16,7 +16,7 @@ from django.views.generic import TemplateView
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project, ImportedFile
 from readthedocs.redirects.utils import get_redirect_response
-from readthedocs.core.utils.general import wipe_version_via_slug
+from readthedocs.core.utils.general import wipe_version_via_slugs
 
 log = logging.getLogger(__name__)
 
@@ -79,7 +79,10 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404('You must own this project to wipe it.')
 
     if request.method == 'POST':
-        wipe_version_via_slug(version)
+        wipe_version_via_slugs(
+            version_slug=version_slug,
+            project_slug=project_slug
+        )
         return redirect('project_version_list', project_slug)
     return render(
         request,
