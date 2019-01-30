@@ -48,6 +48,7 @@ class RTDFacetedSearch(FacetedSearch):
         Also does HTML encoding of results to avoid XSS issues.
 
         """
+        search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
         if not isinstance(query, str):
             search = search.query(query)
