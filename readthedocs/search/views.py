@@ -39,13 +39,13 @@ def elastic_search(request):
         language=request.GET.get('language'),
     )
     results = ''
-
+    user = ''
     facets = {}
 
+    if request.user.is_authenticated:
+        user = request.user
+
     if user_input.query:
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
         if user_input.type == 'project':
             project_search = ProjectDocument.faceted_search(
                 query=user_input.query, user=user, language=user_input.language
@@ -56,7 +56,7 @@ def elastic_search(request):
             kwargs = {}
             if user_input.project:
                 projects_list = get_project_list_or_404(
-                    project_slug=user_input.project, user=request.user
+                    project_slug=user_input.project, user=user
                 )
                 project_slug_list = [project.slug for project in projects_list]
                 kwargs['projects_list'] = project_slug_list
@@ -68,15 +68,6 @@ def elastic_search(request):
             )
             results = page_search.execute()
             facets = results.facets
-            if results:
-                # Change results to turn newlines in highlight into periods
-                # https://github.com/rtfd/readthedocs.org/issues/5168
-                for result in results:
-                    if hasattr(result.meta.highlight, 'content'):
-                        for num, block in enumerate(result.meta.highlight.content):
-                            new_text = block.replace('\n', '. ')
-                            result.meta.highlight.content[num] = new_text
-
         log.info(
             LOG_TEMPLATE.format(
                 user=user,
@@ -89,6 +80,15 @@ def elastic_search(request):
         )
 
     if results:
+        if user_input.type == 'file':
+            # Change results to turn newlines in highlight into periods
+            # https://github.com/rtfd/readthedocs.org/issues/5168
+            for result in results:
+                if hasattr(result.meta.highlight, 'content'):
+                    for num, block in enumerate(result.meta.highlight.content):
+                        new_text = block.replace('\n', '. ')
+                        result.meta.highlight.content[num] = new_text
+
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
