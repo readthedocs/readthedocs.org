@@ -8,7 +8,6 @@ import mimetypes
 import operator
 import os
 from collections import OrderedDict
-from pprint import pformat
 
 import requests
 from django.conf import settings
@@ -26,9 +25,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
-from readthedocs.search.documents import PageDocument
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
 
@@ -239,52 +236,6 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
     response['Content-Disposition'] = 'filename=%s' % filename
     return response
-
-
-def elastic_project_search(request, project_slug):
-    """Use elastic search to search in a project."""
-    queryset = Project.objects.protected(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    version_slug = request.GET.get('version', LATEST)
-    query = request.GET.get('q', None)
-    results = None
-
-    if query:
-        kwargs = {}
-        kwargs['projects_list'] = [project.slug]
-        kwargs['versions_list'] = version_slug
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
-
-        page_search = PageDocument.faceted_search(
-            query=query, user=user, **kwargs
-        )
-        results = page_search.execute()
-
-        log.debug('Search results: %s', pformat(results.to_dict()))
-        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
-
-        log.info(
-            LOG_TEMPLATE.format(
-                user=user,
-                project=project or '',
-                type='inproject',
-                version=version_slug or '',
-                language='',
-                msg=query or '',
-            ),
-        )
-
-    return render(
-        request,
-        'search/elastic_project_search.html',
-        {
-            'project': project,
-            'query': query,
-            'results': results,
-        },
-    )
 
 
 def project_versions(request, project_slug):

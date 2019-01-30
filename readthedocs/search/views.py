@@ -5,11 +5,12 @@ import collections
 import logging
 from pprint import pformat
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.utils import get_project_list_or_404
+from readthedocs.projects.models import Project
 
 
 log = logging.getLogger(__name__)
@@ -98,4 +99,50 @@ def elastic_search(request):
         request,
         'search/elastic_search.html',
         template_vars,
+    )
+
+
+def elastic_project_search(request, project_slug):
+    """Use elastic search to search in a project."""
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    version_slug = request.GET.get('version', LATEST)
+    query = request.GET.get('q', None)
+    results = None
+
+    if query:
+        kwargs = {}
+        kwargs['projects_list'] = [project.slug]
+        kwargs['versions_list'] = version_slug
+        user = ''
+        if request.user.is_authenticated:
+            user = request.user
+
+        page_search = PageDocument.faceted_search(
+            query=query, user=user, **kwargs
+        )
+        results = page_search.execute()
+
+        log.debug('Search results: %s', pformat(results.to_dict()))
+        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
+
+        log.info(
+            LOG_TEMPLATE.format(
+                user=user,
+                project=project or '',
+                type='inproject',
+                version=version_slug or '',
+                language='',
+                msg=query or '',
+            ),
+        )
+
+    return render(
+        request,
+        'search/elastic_project_search.html',
+        {
+            'project': project,
+            'query': query,
+            'results': results,
+        },
     )
