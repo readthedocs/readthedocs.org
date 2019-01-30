@@ -1282,7 +1282,6 @@ class Feature(models.Model):
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
-    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
@@ -1297,11 +1296,6 @@ class Feature(models.Model):
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
-            ),
-        ), (
-            ALLOW_V2_CONFIG_FILE,
-            _(
-                'Allow to use the v2 of the configuration file',
             ),
         ), (
             MKDOCS_THEME_RTD,
