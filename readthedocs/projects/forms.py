@@ -708,9 +708,15 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.path
 
         if Domain.objects.filter(domain=domain_string).exists():
-            raise forms.ValidationError(
-                _('This domain is not available.')
-            )
+            project_domains = self.project.domains.values_list('domain', flat=True)
+            if domain_string in project_domains:
+                raise forms.ValidationError(
+                    _('This domain already exists for this project. Please choose another.')
+                )
+            else:
+                raise forms.ValidationError(
+                    _('This domain already exists on Read the Docs. Please choose another.')
+                )
         return domain_string
 
     def clean_canonical(self):

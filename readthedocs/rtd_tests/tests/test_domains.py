@@ -113,14 +113,29 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example2.com')
 
-    def test_domain_not_available(self):
+    def test_adding_duplicate_domain_for_same_project(self):
         form = DomainForm({'domain': 'example.com'}, project=self.project)
         self.assertTrue(form.is_valid())
         form.save()
 
         form = DomainForm({'domain': 'example.com',}, project=self.project)
         self.assertFalse(form.is_valid())
-        self.assertDictEqual(form.errors, {'domain': ['This domain is not available.']})
+        self.assertDictEqual(
+            form.errors,
+            {'domain': ['This domain already exists for this project. Please choose another.']}
+        )
+
+    def test_adding_domain_which_already_exists(self):
+        project2 = get(Project)
+        self.assertFalse(Domain.objects.filter(domain='helloworld.com').exists())
+        domain2 = get(Domain, project=project2, domain='helloworld.com')
+
+        form = DomainForm({'domain': 'helloworld.com'}, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'domain': ['This domain already exists on Read the Docs. Please choose another.']}
+        )
 
 
 class TestAPI(TestCase):
