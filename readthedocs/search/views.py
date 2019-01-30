@@ -73,9 +73,10 @@ def elastic_search(request):
                 # Change results to turn newlines in highlight into periods
                 # https://github.com/rtfd/readthedocs.org/issues/5168
                 for result in results:
-                    for num, block in enumerate(result.meta.highlight.content):
-                        new_text = block.replace('\n', '. ')
-                        result.meta.highlight.content[num] = new_text
+                    if hasattr(result.meta.highlight, 'content'):
+                        for num, block in enumerate(result.meta.highlight.content):
+                            new_text = block.replace('\n', '. ')
+                            result.meta.highlight.content[num] = new_text
 
         log.info(
             LOG_TEMPLATE.format(
