@@ -25,7 +25,8 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
-from readthedocs.search.indexes import PageIndex
+from readthedocs.search.documents import PageDocument
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
@@ -44,6 +45,7 @@ class ProjectIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
+        queryset = queryset.exclude(users__profile__banned=True)
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
@@ -67,9 +69,6 @@ class ProjectIndex(ListView):
         context['person'] = self.user
         context['tag'] = self.tag
         return context
-
-
-project_index = ProjectIndex.as_view()
 
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
@@ -173,6 +172,7 @@ def project_downloads(request, project_slug):
         slug=project_slug,
     )
     versions = Version.objects.public(user=request.user, project=project)
+    versions = sort_version_aware(versions)
     version_data = OrderedDict()
     for version in versions:
         data = version.get_downloads()
@@ -246,6 +246,7 @@ def elastic_project_search(request, project_slug):
     project = get_object_or_404(queryset, slug=project_slug)
     version_slug = request.GET.get('version', LATEST)
     query = request.GET.get('q', None)
+    results = None
     if query:
         user = ''
         if request.user.is_authenticated:
@@ -262,48 +263,13 @@ def elastic_project_search(request, project_slug):
         )
 
     if query:
-
-        kwargs = {}
-        body = {
-            'query': {
-                'bool': {
-                    'should': [
-                        {'match': {'title': {'query': query, 'boost': 10}}},
-                        {'match': {'headers': {'query': query, 'boost': 5}}},
-                        {'match': {'content': {'query': query}}},
-                    ],
-                },
-            },
-            'highlight': {
-                'fields': {
-                    'title': {},
-                    'headers': {},
-                    'content': {},
-                },
-            },
-            'fields': ['title', 'project', 'version', 'path'],
-            'filter': {
-                'and': [
-                    {'term': {'project': project_slug}},
-                    {'term': {'version': version_slug}},
-                ],
-            },
-            'size': 50,  # TODO: Support pagination.
-        }
-
-        # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project_slug
-
-        results = PageIndex().search(body, **kwargs)
-    else:
-        results = {}
-
-    if results:
-        # pre and post 1.0 compat
-        for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
-                if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
+        req = PageDocument.simple_search(query=query)
+        filtered_query = (
+            req.filter('term', project=project.slug)
+            .filter('term', version=version_slug)
+        )
+        paginated_query = filtered_query[:50]
+        results = paginated_query.execute()
 
     return render(
         request,

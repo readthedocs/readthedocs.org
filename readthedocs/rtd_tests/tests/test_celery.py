@@ -12,6 +12,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.projects import tasks
+from readthedocs.builds.models import Version
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -250,3 +251,21 @@ class TestCeleryBuilding(RTDTestCase):
                 'error': 'Something bad happened',
             },
         )
+
+    @patch('readthedocs.builds.managers.log')
+    def test_sync_files_logging_when_wrong_version_pk(self, mock_logger):
+        self.assertFalse(Version.objects.filter(pk=345343).exists())
+        tasks.sync_files(project_pk=None, version_pk=345343, doctype='sphinx')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+
+    @patch('readthedocs.builds.managers.log')
+    def test_move_files_logging_when_wrong_version_pk(self, mock_logger):
+        self.assertFalse(Version.objects.filter(pk=345343).exists())
+        tasks.move_files(version_pk=345343, hostname=None, doctype='sphinx')
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+
+    @patch('readthedocs.builds.managers.log')
+    def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
+        self.assertFalse(Version.objects.filter(pk=345343).exists())
+        tasks.fileify(version_pk=345343, commit=None)
+        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")

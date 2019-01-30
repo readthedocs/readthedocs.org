@@ -2,36 +2,67 @@
 
 """Models for the response of the configuration object."""
 
-from collections import namedtuple
+from readthedocs.config.utils import to_dict
 
 
-Build = namedtuple('Build', ['image'])  # noqa
+class Base(object):
 
-Python = namedtuple(  # noqa
-    'Python',
-    [
-        'version',
-        'requirements',
-        'install_with_pip',
-        'install_with_setup',
-        'extra_requirements',
-        'use_system_site_packages',
-    ],
-)
+    """
+    Base class for every configuration.
 
-Conda = namedtuple('Conda', ['environment'])  # noqa
+    Each inherited class should define
+    its attibutes in the `__slots__` attribute.
 
-Sphinx = namedtuple(  # noqa
-    'Sphinx',
-    ['builder', 'configuration', 'fail_on_warning'],
-)
+    We are using `__slots__` so we can't add more attributes by mistake,
+    this is similar to a namedtuple.
+    """
 
-Mkdocs = namedtuple(  # noqa
-    'Mkdocs',
-    ['configuration', 'fail_on_warning'],
-)
+    def __init__(self, **kwargs):
+        for name in self.__slots__:
+            setattr(self, name, kwargs[name])
 
-Submodules = namedtuple(  # noqa
-    'Submodules',
-    ['include', 'exclude', 'recursive'],
-)
+    def as_dict(self):
+        return {
+            name: to_dict(getattr(self, name))
+            for name in self.__slots__
+        }
+
+
+class Build(Base):
+
+    __slots__ = ('image',)
+
+
+class Python(Base):
+
+    __slots__ = ('version', 'install', 'use_system_site_packages')
+
+
+class PythonInstallRequirements(Base):
+
+    __slots__ = ('requirements',)
+
+
+class PythonInstall(Base):
+
+    __slots__ = ('path', 'method', 'extra_requirements',)
+
+
+class Conda(Base):
+
+    __slots__ = ('environment',)
+
+
+class Sphinx(Base):
+
+    __slots__ = ('builder', 'configuration', 'fail_on_warning')
+
+
+class Mkdocs(Base):
+
+    __slots__ = ('configuration', 'fail_on_warning')
+
+
+class Submodules(Base):
+
+    __slots__ = ('include', 'exclude', 'recursive')

@@ -64,6 +64,16 @@ environment, and will be set to ``True`` when building on RTD::
     Woo
     {% endif %}
 
+My project requires different settings than those available under Admin
+-----------------------------------------------------------------------
+
+Read the Docs offers some settings which can be used for a variety of purposes,
+such as to use the latest version of sphinx or pip. To enable these settings,
+please open a request issue on our `github`_ and we will change the settings for the project.
+Read more about these settings :doc:`here <guides/feature-flags>`.
+
+.. _github: https://github.com/rtfd/readthedocs.org
+
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
 
@@ -233,7 +243,7 @@ We deploy readthedocs.org from the `rel` branch in our GitHub repository. You ca
 
 
 How can I avoid search results having a deprecated version of my docs?
----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
 It may happen that this version is already deprecated and you want to stop Google indexing it as a result,

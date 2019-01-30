@@ -103,7 +103,7 @@ def server_error_404(request, exception=None, template_name='404.html'):  # pyli
 
         Marking exception as optional to make /404/ testing page to work.
     """
-    response = get_redirect_response(request, path=request.get_full_path())
+    response = get_redirect_response(request, full_path=request.get_full_path())
 
     if response:
         if response.url == request.build_absolute_uri():

@@ -22,6 +22,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
@@ -235,9 +236,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             choices=[default_choice] + list(all_versions),
         )
 
-        active_versions = self.instance.all_active_versions().values_list(
-            'slug', 'verbose_name'
-        )  # yapf: disabled
+        active_versions = self.get_all_active_versions()
         self.fields['default_version'].widget = forms.Select(
             choices=active_versions,
         )
@@ -252,6 +251,21 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 ),
             )  # yapf: disable
         return filename
+
+    def get_all_active_versions(self):
+        """
+        Returns all active versions.
+
+        Returns a smartly sorted list of tuples.
+        First item of each tuple is the version's slug,
+        and the second item is version's verbose_name.
+        """
+        version_qs = self.instance.all_active_versions()
+        if version_qs.exists():
+            version_qs = sort_version_aware(version_qs)
+            all_versions = [(version.slug, version.verbose_name) for version in version_qs]
+            return all_versions
+        return [()]
 
 
 class UpdateProjectForm(
@@ -429,12 +443,14 @@ def build_versions_form(project):
     versions_qs = project.versions.all()  # Admin page, so show all versions
     active = versions_qs.filter(active=True)
     if active.exists():
+        active = sort_version_aware(active)
         choices = [(version.slug, version.verbose_name) for version in active]
         attrs['default-version'] = forms.ChoiceField(
             label=_('Default Version'),
             choices=choices,
             initial=project.get_default_version(),
         )
+    versions_qs = sort_version_aware(versions_qs)
     for version in versions_qs:
         field_name = 'version-{}'.format(version.slug)
         privacy_name = 'privacy-{}'.format(version.slug)
@@ -565,6 +581,14 @@ class WebHookForm(forms.ModelForm):
         )[0]
         self.project.webhook_notifications.add(self.webhook)
         return self.project
+
+    def clean_url(self):
+        url = self.cleaned_data.get('url')
+        if not url:
+            raise forms.ValidationError(
+                _('This field is required.')
+            )
+        return url
 
     class Meta:
         model = WebHook

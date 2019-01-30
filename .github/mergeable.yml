@@ -1,28 +1,30 @@
 # ProBot Mergeable Bot
 # https://github.com/jusx/mergeable
 
+version: 2
 mergeable:
-  pull_requests:
-    approvals:
-      # Minimum of approvals needed.
-      min: 1
-        message: 'The PR must have a minimum of 1 approvals.'
-
-    description:
-      no_empty:
-        # Do not allow empty descriptions on PR.
-        enabled: false
-        message: 'Description can not be empty.'
-
-      must_exclude:
-        # Do not allow 'DO NOT MERGE' phrase on PR's description.
-        regex: 'DO NOT MERGE'
-        message: 'Description says that the PR should not be merged yet.'
-
-    # Do not allow 'WIP' on PR's title.
-    title: 'WIP'
-
-    label:
-      # Do not allow PR with label 'PR: work in progress'
-      must_exclude: 'PR: work in progress'
-      message: 'This PR is work in progress.'
+  - when: pull_request.*
+    validate:
+      - do: title
+        # Do not merge when it is marked work in progress (WIP)
+        must_exclude:
+          regex: ^\[WIP\]
+          message: This is work in progress. Do not merge yet.
+      - do: description
+        must_exclude:
+          # Do not allow 'DO NOT MERGE' phrase on PR's description.
+          regex: 'DO NOT MERGE'
+          message: 'Description says that the PR should not be merged yet.'
+        no_empty:
+          # Do not allow empty descriptions on PR.
+          enabled: true
+          message: 'Description can not be empty.'
+      - do: approvals
+        min:
+          count: 1
+          message: 'The PR must have a minimum of 1 approvals.'
+      - do: label
+        # Do not allow PR with label 'PR: work in progress'
+        must_exclude:
+          regex: 'PR: work in progress'
+          message: 'This PR is work in progress.'
