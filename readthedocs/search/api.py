@@ -1,10 +1,49 @@
+import logging
+from pprint import pformat
+
 from rest_framework import generics
+from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.pagination import SearchPagination
-from readthedocs.search.serializers import PageSearchSerializer
 from readthedocs.search.utils import get_project_list_or_404
+
+log = logging.getLogger(__name__)
+
+
+class SearchPagination(PageNumberPagination):
+    page_size = 25
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
+class PageSearchSerializer(serializers.Serializer):
+    project = serializers.CharField()
+    version = serializers.CharField()
+    title = serializers.CharField()
+    path = serializers.CharField()
+    link = serializers.SerializerMethodField()
+    highlight = serializers.SerializerMethodField()
+
+    def get_link(self, obj):
+        projects_url = self.context.get('projects_url')
+        if projects_url:
+            docs_url = projects_url[obj.project]
+            return docs_url + obj.path
+
+    def get_highlight(self, obj):
+        highlight = getattr(obj.meta, 'highlight', None)
+        if highlight:
+            if hasattr(highlight, 'content'):
+                for num, result in enumerate(highlight.content):
+                    # Change results to turn newlines in highlight into periods
+                    # https://github.com/rtfd/readthedocs.org/issues/5168
+                    new_text = result.replace('\n', '. ')
+                    highlight.content[num] = new_text
+            ret = highlight.to_dict()
+            log.debug('API Search highlight: %s', pformat(ret))
+            return ret
 
 
 class PageSearchAPIView(generics.ListAPIView):

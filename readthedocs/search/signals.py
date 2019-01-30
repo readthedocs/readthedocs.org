@@ -12,8 +12,8 @@ from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
 from readthedocs.search.tasks import index_objects_to_es
 
 
-before_project_search = django.dispatch.Signal(providing_args=['body'])
-before_file_search = django.dispatch.Signal(providing_args=['body'])
+before_project_search = django.dispatch.Signal(providing_args=['user', 'search'])
+before_file_search = django.dispatch.Signal(providing_args=['user', 'search'])
 
 
 @receiver(bulk_post_create, sender=HTMLFile)

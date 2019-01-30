@@ -4,36 +4,9 @@ from django.apps import apps
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.worker import app
+from .utils import _get_index, _get_document
 
 log = logging.getLogger(__name__)
-
-
-def _get_index(indices, index_name):
-    """
-    Get Index from all the indices
-
-    :param indices: DED indices list
-    :param index_name: Name of the index
-    :return: DED Index
-    """
-    for index in indices:
-        if str(index) == index_name:
-            return index
-
-
-def _get_document(model, document_class):
-    """
-    Get DED document class object from the model and name of document class
-
-    :param model: The model class to find the document
-    :param document_class: the name of the document class.
-    :return: DED DocType object
-    """
-    documents = registry.get_documents(models=[model])
-
-    for document in documents:
-        if str(document) == document_class:
-            return document
 
 
 @app.task(queue='web')

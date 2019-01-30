@@ -5,7 +5,6 @@ import collections
 import logging
 from pprint import pformat
 
-from django.conf import settings
 from django.shortcuts import render
 
 from readthedocs.builds.constants import LATEST
