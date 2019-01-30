@@ -19,6 +19,7 @@ mergeable:
           # Do not allow empty descriptions on PR.
           enabled: true
           message: 'Description can not be empty.'
+# Removed because it causes every PR to fail
 #      - do: approvals
 #        min:
 #          count: 1
