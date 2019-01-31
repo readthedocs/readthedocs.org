@@ -3,6 +3,7 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
 
@@ -52,4 +53,20 @@ class DomainData(models.Model):
     objects = RelatedProjectQuerySet.as_manager()
 
     def __str__(self):
-        return f'DomainData [{self.project.slug}:{self.version.slug}] [{self.domain}:{self.type}] {self.name} -> {self.doc_name}#{self.anchor}'
+        return f'''
+            DomainData [{self.project.slug}:{self.version.slug}]
+            [{self.domain}:{self.type}] {self.name} -> {self.doc_name}#{self.anchor}
+            '''
+
+    @property
+    def doc_type(self):
+        return f'{self.domain}:{self.type}'
+
+    @property
+    def doc_url(self):
+        path = self.doc_name
+        if self.anchor:
+            path += f'#{self.anchor}'
+        full_url = resolve(
+            project=self.project, version_slug=self.version.slug, filename=path)
+        return full_url
