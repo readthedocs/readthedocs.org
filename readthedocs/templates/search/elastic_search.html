@@ -19,6 +19,7 @@
 <ul>
     <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
     <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
+    <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Domain objects' %}</a></li>
 
     <hr>
 
@@ -40,6 +41,27 @@
       {% endif %}
 
     {% endif %}
+
+
+    {% if type == 'domain' %}
+
+      {% if facets.doc_type %}
+        <h5>{% trans 'Type' %}</h5>
+          {% for name, count, selected in facets.doc_type %}
+            <li class="{% if selected %}active{% endif %} language-list">
+              {% if doc_type == name %}
+                <a href="?{% url_replace request 'doc_type' ''  %}">{{ name }}
+              {% else %}
+                <a href="?{% url_replace request 'doc_type' name  %}">{{ name }}
+              {% endif %}
+              ({{ count }})
+              </a>
+           </li>
+          {% endfor %}
+      {% endif %}
+
+    {% endif %}
+
 
   {% if type == 'file' %}
 
@@ -124,7 +146,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                   {% for result in results %}
                         <li class="module-item search-result-item">
                           <p class="module-item-title">
-                            {% if result.name %}
+                            {% if result.language %}
 
                               {# Project #}
                               <a href="{{ result.url }}">{{ result.name }} (<em>{{ result.slug }}</em>)</a>
@@ -139,6 +161,17 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                               <p><em>No description for project.</em></p>
                               {% endfor %}
                               {# End Project #}
+
+                            {% elif result.doc_type %}
+
+                              {# Domain Data #}
+                              <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">{{ result.project }} - {{ result.doc_type }} - {{ result.name|safe }}</a>
+                              {% for fragment in result.meta.highlight.display_name|slice:":3" %}
+                                <p class="fragment">
+                                ...{{ fragment|safe }}...
+                                </p>
+                              {% endfor %}
+                              {# End File #}
 
                             {% elif result.path %}
 

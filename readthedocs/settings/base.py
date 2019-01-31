@@ -358,6 +358,12 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 100
 
     ES_INDEXES = {
+        'domain': {
+            'name': 'domain_index',
+            'settings': {'number_of_shards': 2,
+                         'number_of_replicas': 0
+                         }
+        },
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 2,

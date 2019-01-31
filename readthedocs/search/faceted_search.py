@@ -3,8 +3,8 @@ import logging
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import SimpleQueryString, Bool
 
-from readthedocs.search.documents import PageDocument, ProjectDocument
-from readthedocs.search.signals import before_file_search, before_project_search
+from readthedocs.search.documents import PageDocument, ProjectDocument, DomainDocument
+from readthedocs.search.signals import before_file_search, before_project_search, before_domain_search
 
 
 log = logging.getLogger(__name__)
@@ -48,6 +48,18 @@ class RTDFacetedSearch(FacetedSearch):
         search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
         return search
+
+
+class DomainSearch(RTDFacetedSearch):
+    facets = {
+        'project': TermsFacet(field='project'),
+        'version': TermsFacet(field='version'),
+        'doc_type': TermsFacet(field='doc_type'),
+    }
+    signal = before_domain_search
+    doc_types = [DomainDocument]
+    index = DomainDocument._doc_type.index
+    fields = ('display_name^5', 'name')
 
 
 class ProjectSearch(RTDFacetedSearch):

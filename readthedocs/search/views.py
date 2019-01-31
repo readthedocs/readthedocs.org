@@ -8,7 +8,7 @@ from pprint import pformat
 from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.search.documents import PageDocument, ProjectDocument
+from readthedocs.search.documents import PageDocument, ProjectDocument, DomainDocument
 from readthedocs.search.utils import get_project_list_or_404
 from readthedocs.projects.models import Project
 
@@ -25,6 +25,7 @@ UserInput = collections.namedtuple(
         'version',
         'taxonomy',
         'language',
+        'doc_type',
     ),
 )
 
@@ -38,6 +39,7 @@ def elastic_search(request):
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
         language=request.GET.get('language'),
+        doc_type=request.GET.get('doc_type'),
     )
     results = ''
     user = ''
@@ -50,6 +52,12 @@ def elastic_search(request):
         if user_input.type == 'project':
             project_search = ProjectDocument.faceted_search(
                 query=user_input.query, user=user, language=user_input.language
+            )
+            results = project_search.execute()
+            facets = results.facets
+        elif user_input.type == 'domain':
+            project_search = DomainDocument.faceted_search(
+                query=user_input.query, user=user, doc_type=user_input.doc_type
             )
             results = project_search.execute()
             facets = results.facets
