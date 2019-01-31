@@ -8,9 +8,14 @@ from pprint import pformat
 from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.search.documents import PageDocument, ProjectDocument, DomainDocument
-from readthedocs.search.utils import get_project_list_or_404
 from readthedocs.projects.models import Project
+from readthedocs.search.documents import (
+    DomainDocument,
+    PageDocument,
+    ProjectDocument,
+)
+from readthedocs.search.faceted_search import AllSearch
+from readthedocs.search.utils import get_project_list_or_404
 
 
 log = logging.getLogger(__name__)
@@ -76,6 +81,12 @@ def elastic_search(request):
                 query=user_input.query, user=user, **kwargs
             )
             results = page_search.execute()
+            facets = results.facets
+        elif user_input.type == 'all':
+            project_search = AllSearch(
+                query=user_input.query, user=user
+            )
+            results = project_search.execute()
             facets = results.facets
 
         log.info(

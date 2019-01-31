@@ -1,10 +1,20 @@
+# -*- coding: utf-8 -*-
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString
 
-from readthedocs.search.documents import PageDocument, ProjectDocument, DomainDocument
-from readthedocs.search.signals import before_file_search, before_project_search, before_domain_search
+from readthedocs.search.documents import (
+    DomainDocument,
+    PageDocument,
+    ProjectDocument,
+)
+from readthedocs.search.signals import (
+    before_domain_search,
+    before_file_search,
+    before_project_search,
+)
+
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +72,27 @@ class DomainSearch(RTDFacetedSearch):
     index = DomainDocument._doc_type.index
     fields = ('display_name^5', 'name')
 
+    def query(self, search, query):
+        """Use a custom SimpleQueryString instead of default query."""
+
+        search = super().query(search, query)
+
+        all_queries = []
+
+        # need to search for both 'and' and 'or' operations
+        # the score of and should be higher as it satisfies both or and and
+        for operator in ['and', 'or']:
+            query_string = SimpleQueryString(
+                query=query, fields=self.fields, default_operator=operator
+            )
+            all_queries.append(query_string)
+
+        # run bool query with should, so it returns result where either of the query matches
+        bool_query = Bool(should=all_queries)
+
+        search = search.query(bool_query)
+        return search
+
 
 class ProjectSearch(RTDFacetedSearch):
     facets = {'language': TermsFacet(field='language')}
@@ -101,3 +132,13 @@ class PageSearch(RTDFacetedSearch):
 
         search = search.query(bool_query)
         return search
+
+
+class AllSearch(RTDFacetedSearch):
+    facets = {
+        'project': TermsFacet(field='project'),
+        'version': TermsFacet(field='version')
+    }
+    signal = before_project_search
+    doc_types = [DomainDocument, PageDocument, ProjectDocument]
+    index = ['page_index', 'domain_index', 'project_index']

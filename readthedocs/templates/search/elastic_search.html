@@ -1,6 +1,6 @@
 {% extends "projects/base_project.html" %}
 
-{% load core_tags i18n %}
+{% load core_tags i18n static %}
 
 {% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
 
@@ -13,6 +13,31 @@
 
 {% endblock %}
 
+{% block extra_scripts %}
+<script type="text/javascript" src="{% static 'search/readthedocs-client.js' %}"></script>
+<script> 
+  var config = {api_host: 'http://localhost:8000'}
+
+  $(document).ready(function () {
+  var embed = new Embed(config);
+    $('.fragment').one("click mouseover",
+      function(elem) {
+            embed.section(
+                elem.currentTarget.getAttribute('project'),
+                elem.currentTarget.getAttribute('version'),
+                elem.currentTarget.getAttribute('doc_name').replace('.html', ''),
+                elem.currentTarget.getAttribute('anchor'),
+                function (section) {
+                    section.insertContent(elem.currentTarget);
+                }
+            )
+      }
+    )
+  })
+</script>
+
+{% endblock %}
+
 {% block content %}
 
 <div class="navigable">
@@ -20,6 +45,7 @@
     <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
     <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
     <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Domain objects' %}</a></li>
+    <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
 
     <hr>
 
@@ -166,11 +192,13 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
 
                               {# Domain Data #}
                               <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">{{ result.project }} - {{ result.doc_type }} - {{ result.name|safe }}</a>
-                              {% for fragment in result.meta.highlight.display_name|slice:":3" %}
-                                <p class="fragment">
+                              {% for fragment in result.meta.highlight.name|slice:":3" %}
+                                <p class="fragment" project={{ result.project }} version={{result.version}} doc_name={{ result.doc_name }} anchor={{ result.anchor }}>
                                 ...{{ fragment|safe }}...
                                 </p>
                               {% endfor %}
+                              <div class="fragment-content">
+                              </div>
                               {# End File #}
 
                             {% elif result.path %}
