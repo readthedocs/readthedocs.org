@@ -5,7 +5,7 @@ from readthedocs.search.documents import PageDocument
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestFileSearch(object):
+class TestPageSearch(object):
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_search_exact_match(self, client, project, case):

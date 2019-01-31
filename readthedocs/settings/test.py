@@ -16,9 +16,7 @@ class CommunityTestSettings(CommunityDevSettings):
 
     DEBUG = False
     TEMPLATE_DEBUG = False
-    ES_PAGE_IGNORE_SIGNALS = False
-    ES_PROJECT_IGNORE_SIGNALS = False
-    ELASTICSEARCH_DSL_AUTOSYNC = False
+    ELASTICSEARCH_DSL_AUTOSYNC = True
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
     @property

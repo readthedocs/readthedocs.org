@@ -1,7 +1,11 @@
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
+from elasticsearch_dsl.query import SimpleQueryString, Bool
+
+from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.signals import before_file_search, before_project_search
+
 
 log = logging.getLogger(__name__)
 
@@ -13,14 +17,8 @@ class RTDFacetedSearch(FacetedSearch):
     # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
     # See more: https://github.com/elastic/elasticsearch-dsl-py/issues/916
 
-    def __init__(self, user, using, index, doc_types, model, fields=None, **kwargs):
+    def __init__(self, user, **kwargs):
         self.user = user
-        self.using = using
-        self.index = index
-        self.doc_types = doc_types
-        self._model = model
-        if fields:
-            self.fields = fields
         super(RTDFacetedSearch, self).__init__(**kwargs)
 
     def search(self):
@@ -46,12 +44,9 @@ class RTDFacetedSearch(FacetedSearch):
         Add query part to ``search`` when needed
 
         Also does HTML encoding of results to avoid XSS issues.
-
         """
         search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
-        if not isinstance(query, str):
-            search = search.query(query)
         return search
 
 
@@ -60,11 +55,39 @@ class ProjectSearch(RTDFacetedSearch):
         'language': TermsFacet(field='language')
     }
     signal = before_project_search
+    doc_types = [ProjectDocument]
+    index = ProjectDocument._doc_type.index
+    fields = ('name^10', 'slug^5', 'description')
 
 
-class FileSearch(RTDFacetedSearch):
+class PageSearch(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version')
     }
     signal = before_file_search
+    doc_types = [PageDocument]
+    index = PageDocument._doc_type.index
+    fields = ['title^10', 'headers^5', 'content']
+
+    def query(self, search, query):
+        """
+        Use a custom SimpleQueryString instead of default query
+        """
+
+        search = super().query(search, query)
+
+        all_queries = []
+
+        # need to search for both 'and' and 'or' operations
+        # the score of and should be higher as it satisfies both or and and
+        for operator in ['and', 'or']:
+            query_string = SimpleQueryString(query=query, fields=self.fields,
+                                             default_operator=operator)
+            all_queries.append(query_string)
+
+        # run bool query with should, so it returns result where either of the query matches
+        bool_query = Bool(should=all_queries)
+
+        search = search.query(bool_query)
+        return search

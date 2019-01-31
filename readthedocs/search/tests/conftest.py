@@ -30,8 +30,7 @@ def all_projects(es_index, mock_processed_json, db, settings):
             # file_basename in config are without extension so add html extension
             file_name = file_basename + '.html'
             version = project.versions.all()[0]
-            f = G(HTMLFile, project=project, version=version, name=file_name)
-            f.save()
+            G(HTMLFile, project=project, version=version, name=file_name)
 
         projects_list.append(project)
 

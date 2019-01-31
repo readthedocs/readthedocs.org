@@ -10,6 +10,43 @@ log = logging.getLogger(__name__)
 
 
 @app.task(queue='web')
+def index_objects_to_es(app_label, model_name, document_class, chunk=None, objects_id=None):
+
+    assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
+
+    model = apps.get_model(app_label, model_name)
+    document = _get_document(model=model, document_class=document_class)
+    doc_obj = document()
+
+    # WARNING: This must use the exact same queryset as from where we get the ID's
+    # There is a chance there is a race condition here as the ID's may change as the task runs,
+    # so we need to think through this a bit more and probably pass explicit ID's,
+    # but there are performance issues with that on large model sets
+    queryset = doc_obj.get_queryset()
+    if chunk:
+        # Chunk is a tuple with start and end index of queryset
+        start = chunk[0]
+        end = chunk[1]
+        queryset = queryset[start:end]
+    elif objects_id:
+        queryset = queryset.filter(id__in=objects_id)
+
+    log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
+    doc_obj.update(queryset.iterator())
+
+
+@app.task(queue='web')
+def delete_objects_in_es(app_label, model_name, document_class, objects_id):
+    model = apps.get_model(app_label, model_name)
+    document = _get_document(model=model, document_class=document_class)
+    doc_obj = document()
+    queryset = doc_obj.get_queryset()
+    queryset = queryset.filter(id__in=objects_id)
+    log.info("Deleting model: {}, '{}' objects".format(model.__name__, queryset.count()))
+    doc_obj.update(queryset.iterator(), action='delete')
+
+
+@app.task(queue='web')
 def create_new_es_index(app_label, model_name, index_name, new_index_name):
     model = apps.get_model(app_label, model_name)
     indices = registry.get_indices(models=[model])
@@ -38,32 +75,6 @@ def switch_es_index(app_label, model_name, index_name, new_index_name):
     new_index.put_alias(name=index_name)
     if old_index_actual_name:
         old_index.connection.indices.delete(index=old_index_actual_name)
-
-
-@app.task(queue='web')
-def index_objects_to_es(app_label, model_name, document_class, chunk=None, objects_id=None):
-
-    assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
-
-    model = apps.get_model(app_label, model_name)
-    document = _get_document(model=model, document_class=document_class)
-    doc_obj = document()
-
-    # WARNING: This must use the exact same queryset as from where we get the ID's
-    # There is a chance there is a race condition here as the ID's may change as the task runs,
-    # so we need to think through this a bit more and probably pass explicit ID's,
-    # but there are performance issues with that on large model sets
-    queryset = doc_obj.get_queryset()
-    if chunk:
-        # Chunk is a tuple with start and end index of queryset
-        start = chunk[0]
-        end = chunk[1]
-        queryset = queryset[start:end]
-    elif objects_id:
-        queryset = queryset.filter(id__in=objects_id)
-
-    log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
-    doc_obj.update(queryset.iterator())
 
 
 @app.task(queue='web')

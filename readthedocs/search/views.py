@@ -69,6 +69,7 @@ def elastic_search(request):
             )
             results = page_search.execute()
             facets = results.facets
+
         log.info(
             LOG_TEMPLATE.format(
                 user=user,
