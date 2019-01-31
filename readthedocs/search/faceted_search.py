@@ -1,18 +1,17 @@
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import SimpleQueryString, Bool
+from elasticsearch_dsl.query import Bool, SimpleQueryString
 
 from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.signals import before_file_search, before_project_search
-
 
 log = logging.getLogger(__name__)
 
 
 class RTDFacetedSearch(FacetedSearch):
 
-    """Overwrite the initialization in order too meet our needs"""
+    """Overwrite the initialization in order too meet our needs."""
 
     # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
     # See more: https://github.com/elastic/elasticsearch-dsl-py/issues/916
@@ -23,10 +22,10 @@ class RTDFacetedSearch(FacetedSearch):
 
     def search(self):
         """
-        Filter out full content on search results
+        Filter out full content on search results.
 
-        This was causing all of the indexed content to be returned,
-        which was never used on the client side.
+        This was causing all of the indexed content to be returned, which was
+        never used on the client side.
         """
         s = super().search()
         s = s.source(exclude=['content', 'headers'])
@@ -36,12 +35,14 @@ class RTDFacetedSearch(FacetedSearch):
             try:
                 s = resp[0][1]
             except AttributeError:
-                log.exception('Failed to return a search object from search signals')
+                log.exception(
+                    'Failed to return a search object from search signals'
+                )
         return s
 
     def query(self, search, query):
         """
-        Add query part to ``search`` when needed
+        Add query part to ``search`` when needed.
 
         Also does HTML encoding of results to avoid XSS issues.
         """
@@ -51,9 +52,7 @@ class RTDFacetedSearch(FacetedSearch):
 
 
 class ProjectSearch(RTDFacetedSearch):
-    facets = {
-        'language': TermsFacet(field='language')
-    }
+    facets = {'language': TermsFacet(field='language')}
     signal = before_project_search
     doc_types = [ProjectDocument]
     index = ProjectDocument._doc_type.index
@@ -71,9 +70,7 @@ class PageSearch(RTDFacetedSearch):
     fields = ['title^10', 'headers^5', 'content']
 
     def query(self, search, query):
-        """
-        Use a custom SimpleQueryString instead of default query
-        """
+        """Use a custom SimpleQueryString instead of default query."""
 
         search = super().query(search, query)
 
@@ -82,8 +79,9 @@ class PageSearch(RTDFacetedSearch):
         # need to search for both 'and' and 'or' operations
         # the score of and should be higher as it satisfies both or and and
         for operator in ['and', 'or']:
-            query_string = SimpleQueryString(query=query, fields=self.fields,
-                                             default_operator=operator)
+            query_string = SimpleQueryString(
+                query=query, fields=self.fields, default_operator=operator
+            )
             all_queries.append(query_string)
 
         # run bool query with should, so it returns result where either of the query matches
