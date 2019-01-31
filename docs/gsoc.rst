@@ -161,12 +161,12 @@ More info here:
 Additional Ideas
 ~~~~~~~~~~~~~~~~
 
-We have some medium sized projects sketched out in our issue tracker with the tag *Feature Overview*.
+We have some medium sized projects sketched out in our issue tracker with the tag *Feature*.
 Looking through `these issues`_ is a good place to start.
 You might also look through our `milestones`_ on GitHub,
 which provide outlines on the larger tasks that we're hoping to accomplish.
 
-.. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature+Overview&page=1&sort=updated&state=open
+.. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _milestones: https://github.com/rtfd/readthedocs.org/milestones
 
 Thanks
