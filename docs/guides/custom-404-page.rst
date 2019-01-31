@@ -4,7 +4,7 @@ Use custom 404 page on my project
 If you want your project to use a custom page for not found pages instead of the "Maze Found" default one,
 you can put a ``404.html`` on the root of your project's output.
 
-Once a 404 is about to be returned, Read the Docs first checks if there is a ``404.html`` in the root of your project's output and if it does exist, it's returned.
+When a 404 is returned, Read the Docs checks if there is a ``404.html`` in the root of your project's output and uses it if it exists.
 
 As the ``404.html`` will be returned for all the URLs where the real page was not found,
 all its resources URLs and links must be absolute (including internals),
