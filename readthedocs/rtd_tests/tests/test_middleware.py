@@ -1,5 +1,6 @@
 from corsheaders.middleware import CorsMiddleware
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -32,6 +33,7 @@ class MiddlewareTests(TestCase):
     def test_failey_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
+        request.user = AnonymousUser()
         r = self.middleware.process_request(request)
         self.assertEqual(r.status_code, 404)
         self.assertEqual(request.cname, True)
@@ -96,6 +98,7 @@ class MiddlewareTests(TestCase):
     def test_domain_object_missing(self):
         self.domain = get(Domain, domain='docs.foobar2.com', project=self.pip)
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
+        request.user = AnonymousUser()
         r = self.middleware.process_request(request)
         self.assertEqual(r.status_code, 404)
 
@@ -137,15 +140,19 @@ class MiddlewareTests(TestCase):
         self.assertEqual(request.slug, 'pip')
         self.assertTrue(request.domain_object)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_long_bad_subdomain(self):
         domain = 'www.pip.readthedocs.org'
         request = self.factory.get(self.url, HTTP_HOST=domain)
+        request.user = AnonymousUser()
         res = self.middleware.process_request(request)
         self.assertEqual(res.status_code, 400)
 
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_long_subdomain(self):
         domain = 'some.long.readthedocs.org'
         request = self.factory.get(self.url, HTTP_HOST=domain)
+        request.user = AnonymousUser()
         res = self.middleware.process_request(request)
         self.assertIsNone(res)
 
