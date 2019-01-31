@@ -1,29 +1,39 @@
 # -*- coding: utf-8 -*-
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import base64
 import datetime
 import json
-from builtins import str
 
 import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.http import QueryDict
 from django.test import TestCase
-from django.utils import six
+from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Feature, Project, APIProject
-from readthedocs.restapi.views.integrations import GitHubWebhookView
+from readthedocs.projects.models import (
+    APIProject,
+    EnvironmentVariable,
+    Feature,
+    Project,
+)
+from readthedocs.restapi.views.integrations import (
+    GITHUB_CREATE,
+    GITHUB_DELETE,
+    GITHUB_EVENT_HEADER,
+    GITLAB_NULL_HASH,
+    GITLAB_PUSH,
+    GITLAB_TAG_PUSH,
+    GitHubWebhookView,
+)
 from readthedocs.restapi.views.task_views import get_status_data
+
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -51,6 +61,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
         self.assertEqual(build['state_display'], 'Cloning')
+        self.assertEqual(build['config'], {})
 
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
@@ -58,11 +69,134 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['output'], 'Test Output')
         self.assertEqual(build['state_display'], 'Cloning')
 
+    def test_api_does_not_have_private_config_key_superuser(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
+    def test_api_does_not_have_private_config_key_normal_user(self):
+        client = APIClient()
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        resp = client.get('/api/v2/build/{}/'.format(build.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertIn('config', resp.data)
+        self.assertNotIn('_config', resp.data)
+
+    def test_save_config(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+    def test_save_same_config(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_one = resp.data
+        self.assertEqual(build_one['config'], {'one': 'two'})
+
+        resp = client.post(
+            '/api/v2/build/',
+            {
+                'project': 1,
+                'version': 1,
+                'config': {'one': 'two'},
+            },
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        build_two = resp.data
+        self.assertEqual(build_two['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/%s/' % build_one['id'])
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+        # Checking the values from the db, just to be sure the
+        # api isn't lying.
+        self.assertEqual(
+            Build.objects.get(pk=build_one['id'])._config,
+            {'one': 'two'},
+        )
+        self.assertEqual(
+            Build.objects.get(pk=build_two['id'])._config,
+            {Build.CONFIG_KEY: build_one['id']},
+        )
+
+    def test_save_same_config_using_patch(self):
+        client = APIClient()
+        client.login(username='super', password='test')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build_one = Build.objects.create(project=project, version=version)
+        resp = client.patch(
+            '/api/v2/build/{}/'.format(build_one.pk),
+            {'config': {'one': 'two'}},
+            format='json',
+        )
+        self.assertEqual(resp.data['config'], {'one': 'two'})
+
+        build_two = Build.objects.create(project=project, version=version)
+        resp = client.patch(
+            '/api/v2/build/{}/'.format(build_two.pk),
+            {'config': {'one': 'two'}},
+            format='json',
+        )
+        self.assertEqual(resp.data['config'], {'one': 'two'})
+
+        resp = client.get('/api/v2/build/{}/'.format(build_one.pk))
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        build = resp.data
+        self.assertEqual(build['config'], {'one': 'two'})
+
+        # Checking the values from the db, just to be sure the
+        # api isn't lying.
+        self.assertEqual(
+            Build.objects.get(pk=build_one.pk)._config,
+            {'one': 'two'},
+        )
+        self.assertEqual(
+            Build.objects.get(pk=build_two.pk)._config,
+            {Build.CONFIG_KEY: build_one.pk},
+        )
+
     def test_response_building(self):
-        """
-        The ``view docs`` attr should return a link
-        to the dashboard.
-        """
+        """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -101,10 +235,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['docs_url'], dashboard_url)
 
     def test_response_finished_and_success(self):
-        """
-        The ``view docs`` attr should return a link
-        to the docs.
-        """
+        """The ``view docs`` attr should return a link to the docs."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -139,10 +270,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['docs_url'], docs_url)
 
     def test_response_finished_and_fail(self):
-        """
-        The ``view docs`` attr should return a link
-        to the dashboard.
-        """
+        """The ``view docs`` attr should return a link to the dashboard."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
@@ -214,7 +342,7 @@ class APIBuildTests(TestCase):
         client.force_authenticate(user=api_user)
         build = get(Build, project_id=1, version_id=1, state='cloning')
         resp = client.put(
-            '/api/v2/build/{0}/'.format(build.pk),
+            '/api/v2/build/{}/'.format(build.pk),
             {
                 'project': 1,
                 'version': 1,
@@ -236,11 +364,11 @@ class APIBuildTests(TestCase):
 
         api_user = get(User, staff=False, password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
+        resp = client.get('/api/v2/build/{}/'.format(build.pk), format='json')
         self.assertEqual(resp.status_code, 200)
 
         client.force_authenticate(user=User.objects.get(username='super'))
-        resp = client.get('/api/v2/build/{0}/'.format(build.pk), format='json')
+        resp = client.get('/api/v2/build/{}/'.format(build.pk), format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertIn('builder', resp.data)
 
@@ -286,19 +414,19 @@ class APIBuildTests(TestCase):
             BuildCommandResult,
             build=build,
             command='python setup.py install',
-            output='Installing dependencies...'
+            output='Installing dependencies...',
         )
         get(
             BuildCommandResult,
             build=build,
             command='git checkout master',
-            output='Switched to branch "master"'
+            output='Switched to branch "master"',
         )
         client = APIClient()
 
         api_user = get(User, user='test', password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        resp = client.get('/api/v2/build/{}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
         self.assertIn('Read the Docs build information', resp.content.decode())
@@ -312,11 +440,11 @@ class APIBuildTests(TestCase):
         self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
-            resp.content.decode()
+            resp.content.decode(),
         )
         self.assertIn(
             'git checkout master\nSwitched to branch "master"',
-            resp.content.decode()
+            resp.content.decode(),
         )
 
     def test_get_raw_log_building(self):
@@ -336,13 +464,13 @@ class APIBuildTests(TestCase):
             BuildCommandResult,
             build=build,
             command='git checkout master',
-            output='Switched to branch "master"'
+            output='Switched to branch "master"',
         )
         client = APIClient()
 
         api_user = get(User, user='test', password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        resp = client.get('/api/v2/build/{}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
         self.assertIn('Read the Docs build information', resp.content.decode())
@@ -356,17 +484,17 @@ class APIBuildTests(TestCase):
         self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
-            resp.content.decode()
+            resp.content.decode(),
         )
         self.assertIn(
             'git checkout master\nSwitched to branch "master"',
-            resp.content.decode()
+            resp.content.decode(),
         )
 
     def test_get_raw_log_failure(self):
         build = get(
             Build, project_id=1, version_id=1,
-            builder='foo', success=False, exit_code=1
+            builder='foo', success=False, exit_code=1,
         )
         get(
             BuildCommandResult,
@@ -379,13 +507,13 @@ class APIBuildTests(TestCase):
             BuildCommandResult,
             build=build,
             command='git checkout master',
-            output='Switched to branch "master"'
+            output='Switched to branch "master"',
         )
         client = APIClient()
 
         api_user = get(User, user='test', password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}.txt'.format(build.pk))
+        resp = client.get('/api/v2/build/{}.txt'.format(build.pk))
         self.assertEqual(resp.status_code, 200)
 
         self.assertIn('Read the Docs build information', resp.content.decode())
@@ -399,11 +527,11 @@ class APIBuildTests(TestCase):
         self.assertIn('[rtd-command-info]', resp.content.decode())
         self.assertIn(
             'python setup.py install\nInstalling dependencies...',
-            resp.content.decode()
+            resp.content.decode(),
         )
         self.assertIn(
             'git checkout master\nSwitched to branch "master"',
-            resp.content.decode()
+            resp.content.decode(),
         )
 
     def test_get_invalid_raw_log(self):
@@ -411,8 +539,24 @@ class APIBuildTests(TestCase):
 
         api_user = get(User, user='test', password='test')
         client.force_authenticate(user=api_user)
-        resp = client.get('/api/v2/build/{0}.txt'.format(404))
+        resp = client.get('/api/v2/build/{}.txt'.format(404))
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_build_filter_by_commit(self):
+        """
+        Create a build with commit
+        Should return the list of builds according to the
+        commit query params
+        """
+        get(Build, project_id=1, version_id=1, builder='foo', commit='test')
+        get(Build, project_id=2, version_id=1, builder='foo', commit='other')
+        client = APIClient()
+        api_user = get(User, staff=False, password='test')
+        client.force_authenticate(user=api_user)
+        resp = client.get('/api/v2/build/', {'commit': 'test'}, format='json')
+        self.assertEqual(resp.status_code, 200)
+        build = resp.data
+        self.assertEqual(len(build['results']), 1)
 
 
 class APITests(TestCase):
@@ -500,8 +644,7 @@ class APITests(TestCase):
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('features', resp.data)
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             resp.data['features'],
             [feature1.feature_id, feature2.feature_id],
         )
@@ -556,6 +699,27 @@ class APITests(TestCase):
         self.assertEqual(len(resp.data['results']), 25)  # page_size
         self.assertIn('?page=2', resp.data['next'])
 
+    def test_project_environment_variables(self):
+        user = get(User, is_staff=True)
+        project = get(Project, main_language_project=None)
+        get(
+            EnvironmentVariable,
+            name='TOKEN',
+            value='a1b2c3',
+            project=project,
+        )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get('/api/v2/project/%s/' % (project.pk))
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn('environment_variables', resp.data)
+        self.assertEqual(
+            resp.data['environment_variables'],
+            {'TOKEN': 'a1b2c3'},
+        )
+
     def test_init_api_project(self):
         project_data = {
             'name': 'Test Project',
@@ -568,13 +732,16 @@ class APITests(TestCase):
         self.assertEqual(api_project.features, [])
         self.assertFalse(api_project.ad_free)
         self.assertTrue(api_project.show_advertising)
+        self.assertEqual(api_project.environment_variables, {})
 
         project_data['features'] = ['test-feature']
         project_data['show_advertising'] = False
+        project_data['environment_variables'] = {'TOKEN': 'a1b2c3'}
         api_project = APIProject(**project_data)
         self.assertEqual(api_project.features, ['test-feature'])
         self.assertTrue(api_project.ad_free)
         self.assertFalse(api_project.show_advertising)
+        self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
 
 
 class APIImportTests(TestCase):
@@ -645,64 +812,153 @@ class IntegrationsTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        self.version = get(Version, verbose_name='master', active=True, project=self.project)
-        self.version_tag = get(Version, verbose_name='v1.0', active=True, project=self.project)
+        self.version = get(
+            Version, slug='master', verbose_name='master',
+            active=True, project=self.project,
+        )
+        self.version_tag = get(
+            Version, slug='v1.0', verbose_name='v1.0',
+            active=True, project=self.project,
+        )
+        self.github_payload = {
+            'ref': 'master',
+        }
+        self.gitlab_payload = {
+            'object_kind': GITLAB_PUSH,
+            'ref': 'master',
+            'before': '95790bf891e76fee5e1747ab589903a6a1f80f22',
+            'after': '95790bf891e76fee5e1747ab589903a6a1f80f23',
+        }
+        self.bitbucket_payload = {
+            'push': {
+                'changes': [{
+                    'new': {
+                        'type': 'branch',
+                        'name': 'master',
+                    },
+                    'old': {
+                        'type': 'branch',
+                        'name': 'master',
+                    },
+                }],
+            },
+        }
+
+    def test_webhook_skipped_project(self, trigger_build):
+        client = APIClient()
+        self.project.skip = True
+        self.project.save()
+
+        response = client.post(
+            '/api/v2/webhook/github/{}/'.format(
+                self.project.slug,
+            ),
+            self.github_payload,
+            format='json',
+        )
+        self.assertDictEqual(response.data, {'detail': 'This project is currently disabled'})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+        self.assertFalse(trigger_build.called)
 
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'master'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version, project=self.project)])
+            [mock.call(force=True, version=self.version, project=self.project)],
+        )
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'non-existent'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=mock.ANY, project=self.project)],
+        )
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'refs/heads/master'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version, project=self.project)])
+            [mock.call(force=True, version=self.version, project=self.project)],
+        )
 
     def test_github_webhook_for_tags(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'v1.0'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version_tag, project=self.project)])
+            [mock.call(force=True, version=self.version_tag, project=self.project)],
+        )
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'refs/heads/non-existent'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=mock.ANY, project=self.project)],
+        )
 
         client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'refs/tags/v1.0'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=self.version_tag, project=self.project)])
+            [mock.call(force=True, version=self.version_tag, project=self.project)],
+        )
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_create_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_delete_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_DELETE}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
@@ -718,7 +974,7 @@ class IntegrationsTests(TestCase):
         """GitHub webhook unhandled event."""
         client = APIClient()
         resp = client.post(
-            '/api/v2/webhook/github/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'foo': 'bar'},
             format='json',
             HTTP_X_GITHUB_EVENT='pull_request',
@@ -726,29 +982,163 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
-    def test_gitlab_webhook(self, trigger_build):
+    def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
         client.post(
-            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
-            {'object_kind': 'push', 'ref': 'master'},
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
             format='json',
         )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_called_with(
+            force=True, version=mock.ANY, project=self.project,
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='non-existent',
+        )
         client.post(
-            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
-            {'object_kind': 'push', 'ref': 'non-existent'},
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
             format='json',
         )
-        trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+        trigger_build.assert_not_called()
+
+    def test_gitlab_webhook_for_tags(self, trigger_build):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            ref='v1.0',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_called_with(
+            force=True, version=self.version_tag, project=self.project,
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='refs/tags/v1.0',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_called_with(
+            force=True, version=self.version_tag, project=self.project,
+        )
+
+        trigger_build.reset_mock()
+        self.gitlab_payload.update(
+            ref='refs/heads/non-existent',
+        )
+        client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_push_hook_creation(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.gitlab_payload.update(
+            before=GITLAB_NULL_HASH,
+            after='95790bf891e76fee5e1747ab589903a6a1f80f22',
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_push_hook_deletion(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.gitlab_payload.update(
+            before='95790bf891e76fee5e1747ab589903a6a1f80f22',
+            after=GITLAB_NULL_HASH,
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_tag_push_hook_creation(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            before=GITLAB_NULL_HASH,
+            after='95790bf891e76fee5e1747ab589903a6a1f80f22',
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_gitlab_tag_push_hook_deletion(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.gitlab_payload.update(
+            object_kind=GITLAB_TAG_PUSH,
+            before='95790bf891e76fee5e1747ab589903a6a1f80f22',
+            after=GITLAB_NULL_HASH,
+        )
+        resp = client.post(
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
+            self.gitlab_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
         client = APIClient()
         resp = client.post(
-            '/api/v2/webhook/gitlab/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             {'object_kind': 'pull_request'},
             format='json',
         )
@@ -759,27 +1149,21 @@ class IntegrationsTests(TestCase):
         """Bitbucket webhook API."""
         client = APIClient()
         client.post(
-            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
-            {
-                'push': {
-                    'changes': [{
-                        'new': {
-                            'name': 'master',
-                        },
-                    }],
-                },
-            },
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
+            self.bitbucket_payload,
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=mock.ANY, project=self.project)],
+        )
         client.post(
-            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
             {
                 'push': {
                     'changes': [
                         {
                             'new': {'name': 'non-existent'},
+                            'old': {'name': 'master'},
                         },
                     ],
                 },
@@ -787,11 +1171,12 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(force=True, version=mock.ANY, project=self.project)])
+            [mock.call(force=True, version=mock.ANY, project=self.project)],
+        )
 
         trigger_build_call_count = trigger_build.call_count
         client.post(
-            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
             {
                 'push': {
                     'changes': [
@@ -805,19 +1190,58 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(trigger_build_call_count, trigger_build.call_count)
 
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_bitbucket_push_hook_creation(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.bitbucket_payload['push']['changes'][0]['old'] = None
+        resp = client.post(
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
+            self.bitbucket_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_bitbucket_push_hook_deletion(
+            self, sync_repository_task, trigger_build,
+    ):
+        client = APIClient()
+        self.bitbucket_payload['push']['changes'][0]['new'] = None
+        resp = client.post(
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
+            self.bitbucket_payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.delay.assert_called_with(latest_version.pk)
+
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
         client = APIClient()
         resp = client.post(
-            '/api/v2/webhook/bitbucket/{0}/'.format(self.project.slug),
-            {'foo': 'bar'}, format='json', HTTP_X_EVENT_KEY='pull_request')
+            '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
+            {'foo': 'bar'}, format='json', HTTP_X_EVENT_KEY='pull_request',
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
     def test_generic_api_fails_without_auth(self, trigger_build):
         client = APIClient()
         resp = client.post(
-            '/api/v2/webhook/generic/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/generic/{}/'.format(self.project.slug),
             {},
             format='json',
         )
@@ -835,7 +1259,7 @@ class IntegrationsTests(TestCase):
         )
         self.assertIsNotNone(integration.token)
         resp = client.post(
-            '/api/v2/webhook/{0}/{1}/'.format(
+            '/api/v2/webhook/{}/{}/'.format(
                 self.project.slug,
                 integration.pk,
             ),
@@ -846,7 +1270,7 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         # Test nonexistent branch
         resp = client.post(
-            '/api/v2/webhook/{0}/{1}/'.format(
+            '/api/v2/webhook/{}/{}/'.format(
                 self.project.slug,
                 integration.pk,
             ),
@@ -862,7 +1286,7 @@ class IntegrationsTests(TestCase):
         self.project.users.add(user)
         client.force_authenticate(user=user)
         resp = client.post(
-            '/api/v2/webhook/generic/{0}/'.format(self.project.slug),
+            '/api/v2/webhook/generic/{}/'.format(self.project.slug),
             {},
             format='json',
         )
@@ -874,10 +1298,11 @@ class IntegrationsTests(TestCase):
         user = get(User)
         client.force_authenticate(user=user)
         integration = Integration.objects.create(
-            project=self.project, integration_type=Integration.API_WEBHOOK)
+            project=self.project, integration_type=Integration.API_WEBHOOK,
+        )
         self.assertIsNotNone(integration.token)
         resp = client.post(
-            '/api/v2/webhook/{0}/{1}/'.format(
+            '/api/v2/webhook/{}/{}/'.format(
                 self.project.slug,
                 integration.pk,
             ),
@@ -886,6 +1311,109 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
+
+    def test_webhook_doesnt_build_latest_if_is_deactivated(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        latest_version.active = False
+        latest_version.save()
+
+        default_branch = self.project.versions.get(slug='master')
+        default_branch.active = False
+        default_branch.save()
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.data['build_triggered'])
+        trigger_build.assert_not_called()
+
+    def test_webhook_builds_only_master(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        latest_version.active = False
+        latest_version.save()
+
+        default_branch = self.project.versions.get(slug='master')
+
+        self.assertFalse(latest_version.active)
+        self.assertTrue(default_branch.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['versions'], ['master'])
+
+    def test_webhook_build_latest_and_master(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        latest_version = self.project.versions.get(slug=LATEST)
+        default_branch = self.project.versions.get(slug='master')
+
+        self.assertTrue(latest_version.active)
+        self.assertTrue(default_branch.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': default_branch.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(set(resp.data['versions']), {'latest', 'master'})
+
+    def test_webhook_build_another_branch(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
+        version_v1 = self.project.versions.get(slug='v1.0')
+
+        self.assertTrue(version_v1.active)
+
+        resp = client.post(
+            '/api/v2/webhook/{}/{}/'.format(
+                self.project.slug,
+                integration.pk,
+            ),
+            {'token': integration.token, 'branches': version_v1.slug},
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['versions'], ['v1.0'])
 
 
 class APIVersionTests(TestCase):
@@ -929,6 +1457,7 @@ class APIVersionTests(TestCase):
                 'default_version': 'latest',
                 'description': '',
                 'documentation_type': 'sphinx',
+                'environment_variables': {},
                 'enable_epub_build': True,
                 'enable_pdf_build': True,
                 'features': ['allow_deprecated_webhooks'],
@@ -946,7 +1475,6 @@ class APIVersionTests(TestCase):
                 'show_advertising': True,
                 'skip': False,
                 'slug': 'pip',
-                'suffix': '.rst',
                 'use_system_packages': False,
                 'users': [1],
             },
@@ -961,9 +1489,8 @@ class APIVersionTests(TestCase):
         )
 
     def test_get_active_versions(self):
-        """
-        Test the full response of ``/api/v2/version/?project__slug=pip&active=true``
-        """
+        """Test the full response of
+        ``/api/v2/version/?project__slug=pip&active=true``"""
         pip = Project.objects.get(slug='pip')
 
         data = QueryDict('', mutable=True)
@@ -973,7 +1500,7 @@ class APIVersionTests(TestCase):
         })
         url = '{base_url}?{querystring}'.format(
             base_url=reverse('version-list'),
-            querystring=data.urlencode()
+            querystring=data.urlencode(),
         )
 
         resp = self.client.get(url, content_type='application/json')
@@ -987,7 +1514,7 @@ class APIVersionTests(TestCase):
         })
         url = '{base_url}?{querystring}'.format(
             base_url=reverse('version-list'),
-            querystring=data.urlencode()
+            querystring=data.urlencode(),
         )
 
         resp = self.client.get(url, content_type='application/json')
@@ -1004,11 +1531,13 @@ class TaskViewsTests(TestCase):
             {'data': 'public'},
             'Something bad happened',
         )
-        self.assertEqual(data, {
-            'name': 'public_task_exception',
-            'data': {'data': 'public'},
-            'started': True,
-            'finished': True,
-            'success': False,
-            'error': 'Something bad happened',
-        })
+        self.assertEqual(
+            data, {
+                'name': 'public_task_exception',
+                'data': {'data': 'public'},
+                'started': True,
+                'finished': True,
+                'success': False,
+                'error': 'Something bad happened',
+            },
+        )

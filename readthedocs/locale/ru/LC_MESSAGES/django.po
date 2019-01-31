@@ -2454,11 +2454,6 @@ msgstr "Добавить для версии проекта другое наз�
 msgid "Create"
 msgstr "Создать"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "Другие названия"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Просмотреть пректы"

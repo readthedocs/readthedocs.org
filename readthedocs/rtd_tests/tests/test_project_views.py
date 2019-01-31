@@ -1,26 +1,30 @@
-from __future__ import absolute_import
-from datetime import datetime, timedelta
+# -*- coding: utf-8 -*-
+
+from datetime import timedelta
 
 from mock import patch
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
-from django.core.urlresolvers import reverse
 from django.http.response import HttpResponseRedirect
+from django.test import TestCase
+from django.urls import reverse
+from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-
-import six
+from allauth.account.models import EmailAddress
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.rtd_tests.base import (WizardTestCase, MockBuildTestCase,
-                                        RequestFactoryTestMixin)
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Project, Domain
-from readthedocs.projects.views.private import ImportWizardView
-from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects import tasks
+from readthedocs.projects.exceptions import ProjectSpamError
+from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.private import ImportWizardView
+from readthedocs.rtd_tests.base import (
+    MockBuildTestCase,
+    RequestFactoryTestMixin,
+    WizardTestCase,
+)
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
@@ -30,7 +34,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
     url = '/dashboard/import/manual/'
 
     def setUp(self):
-        super(TestProfileMiddleware, self).setUp()
+        super().setUp()
         data = {
             'basics': {
                 'name': 'foobar',
@@ -45,12 +49,12 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         }
         self.data = {}
         for key in data:
-            self.data.update({('{0}-{1}'.format(key, k), v)
+            self.data.update({('{}-{}'.format(key, k), v)
                               for (k, v) in list(data[key].items())})
-        self.data['{0}-current_step'.format(self.wizard_class_slug)] = 'extra'
+        self.data['{}-current_step'.format(self.wizard_class_slug)] = 'extra'
 
     def test_profile_middleware_no_profile(self):
-        """User without profile and isn't banned"""
+        """User without profile and isn't banned."""
         req = self.request('/projects/import', method='post', data=self.data)
         req.user = get(User, profile=None)
         resp = ImportWizardView.as_view()(req)
@@ -59,7 +63,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
 
     @patch('readthedocs.projects.views.private.ProjectBasicsForm.clean')
     def test_profile_middleware_spam(self, form):
-        """User will be banned"""
+        """User will be banned."""
         form.side_effect = ProjectSpamError
         req = self.request('/projects/import', method='post', data=self.data)
         req.user = get(User)
@@ -69,7 +73,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertTrue(req.user.profile.banned)
 
     def test_profile_middleware_banned(self):
-        """User is banned"""
+        """User is banned."""
         req = self.request('/projects/import', method='post', data=self.data)
         req.user = get(User)
         req.user.profile.banned = True
@@ -99,10 +103,10 @@ class TestBasicsForm(WizardTestCase):
 
     def request(self, *args, **kwargs):
         kwargs['user'] = self.user
-        return super(TestBasicsForm, self).request(*args, **kwargs)
+        return super().request(*args, **kwargs)
 
     def test_form_pass(self):
-        """Only submit the basics"""
+        """Only submit the basics."""
         resp = self.post_step('basics')
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
@@ -134,7 +138,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertWizardFailure(resp, 'remote_repository')
 
     def test_form_missing(self):
-        """Submit form with missing data, expect to get failures"""
+        """Submit form with missing data, expect to get failures."""
         self.step_data['basics'] = {'advanced': True}
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'name')
@@ -144,7 +148,7 @@ class TestBasicsForm(WizardTestCase):
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
-        super(TestAdvancedForm, self).setUp()
+        super().setUp()
         self.step_data['basics']['advanced'] = True
         self.step_data['extra'] = {
             'description': 'Describe foobar',
@@ -154,7 +158,7 @@ class TestAdvancedForm(TestBasicsForm):
         }
 
     def test_form_pass(self):
-        """Test all forms pass validation"""
+        """Test all forms pass validation."""
         resp = self.post_step('basics')
         self.assertWizardResponse(resp, 'extra')
         resp = self.post_step('extra', session=list(resp._request.session.items()))
@@ -167,16 +171,16 @@ class TestAdvancedForm(TestBasicsForm):
         data = self.step_data['basics']
         del data['advanced']
         del self.step_data['extra']['tags']
-        six.assertCountEqual(
-            self,
+        self.assertCountEqual(
             [tag.name for tag in proj.tags.all()],
-            [u'bar', u'baz', u'foo'])
+            ['bar', 'baz', 'foo'],
+        )
         data.update(self.step_data['extra'])
         for (key, val) in list(data.items()):
             self.assertEqual(getattr(proj, key), val)
 
     def test_form_missing_extra(self):
-        """Submit extra form with missing data, expect to get failures"""
+        """Submit extra form with missing data, expect to get failures."""
         # Remove extra data to trigger validation errors
         self.step_data['extra'] = {}
 
@@ -201,11 +205,13 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
 
-    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-           create=True)
+    @patch(
+        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+        create=True,
+    )
     def test_form_spam(self, mocked_validator):
-        """Don't add project on a spammy description"""
-        self.user.date_joined = datetime.now() - timedelta(days=365)
+        """Don't add project on a spammy description."""
+        self.user.date_joined = timezone.now() - timedelta(days=365)
         self.user.save()
         mocked_validator.side_effect = ProjectSpamError
 
@@ -223,11 +229,13 @@ class TestAdvancedForm(TestBasicsForm):
             proj = Project.objects.get(name='foobar')
         self.assertFalse(self.user.profile.banned)
 
-    @patch('readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-           create=True)
+    @patch(
+        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
+        create=True,
+    )
     def test_form_spam_ban_user(self, mocked_validator):
-        """Don't add spam and ban new user"""
-        self.user.date_joined = datetime.now()
+        """Don't add spam and ban new user."""
+        self.user.date_joined = timezone.now()
         self.user.save()
         mocked_validator.side_effect = ProjectSpamError
 
@@ -247,7 +255,7 @@ class TestAdvancedForm(TestBasicsForm):
 
 
 class TestImportDemoView(MockBuildTestCase):
-    """Test project import demo view"""
+    """Test project import demo view."""
 
     fixtures = ['test_data', 'eric']
 
@@ -264,7 +272,7 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(messages[0].level, message_const.SUCCESS)
 
     def test_import_demo_already_imported(self):
-        """Import demo project multiple times, expect failure 2nd post"""
+        """Import demo project multiple times, expect failure 2nd post."""
         self.test_import_demo_pass()
         project = Project.objects.get(slug='eric-demo')
 
@@ -277,11 +285,13 @@ class TestImportDemoView(MockBuildTestCase):
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
     def test_import_demo_another_user_imported(self):
-        """Import demo project after another user, expect success"""
+        """Import demo project after another user, expect success."""
         self.test_import_demo_pass()
         project = Project.objects.get(slug='eric-demo')
 
@@ -297,7 +307,7 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(messages[0].level, message_const.SUCCESS)
 
     def test_import_demo_imported_renamed(self):
-        """If the demo project is renamed, don't import another"""
+        """If the demo project is renamed, don't import another."""
         self.test_import_demo_pass()
         project = Project.objects.get(slug='eric-demo')
         project.name = 'eric-demo-foobar'
@@ -311,14 +321,19 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'already imported')
+        self.assertRegex(
+            messages[0].message,
+            r'already imported',
+        )
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
     def test_import_demo_imported_duplicate(self):
-        """If a project exists with same name, expect a failure importing demo
+        """
+        If a project exists with same name, expect a failure importing demo.
 
         This should be edge case, user would have to import a project (not the
         demo project), named user-demo, and then manually enter the demo import
@@ -329,6 +344,10 @@ class TestImportDemoView(MockBuildTestCase):
         project.repo = 'file:///foobar'
         project.save()
 
+        # Setting the primary and verified email of the test user.
+        user = User.objects.get(username='eric')
+        user_email = get(EmailAddress, user=user, primary=True, verified=True)
+
         resp = self.client.get('/dashboard/import/manual/demo/')
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'], '/dashboard/')
@@ -337,11 +356,15 @@ class TestImportDemoView(MockBuildTestCase):
         self.assertEqual(resp_redir.status_code, 200)
         messages = list(resp_redir.context['messages'])
         self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegexpMatches(messages[0].message,
-                                 r'There was a problem')
+        self.assertRegex(
+            messages[0].message,
+            r'There was a problem',
+        )
 
-        self.assertEqual(project,
-                         Project.objects.get(slug='eric-demo'))
+        self.assertEqual(
+            project,
+            Project.objects.get(slug='eric-demo'),
+        )
 
 
 class TestPrivateViews(MockBuildTestCase):
@@ -377,8 +400,9 @@ class TestPrivateViews(MockBuildTestCase):
             self.assertFalse(Project.objects.filter(slug='pip').exists())
             broadcast.assert_called_with(
                 type='app',
-                task=tasks.remove_dir,
-                args=[project.doc_path])
+                task=tasks.remove_dirs,
+                args=[(project.doc_path,)],
+            )
 
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])
@@ -393,7 +417,8 @@ class TestPrivateViews(MockBuildTestCase):
             broadcast.assert_called_with(
                 type='app',
                 task=tasks.symlink_subproject,
-                args=[project.pk])
+                args=[project.pk],
+            )
 
 
 class TestPrivateMixins(MockBuildTestCase):
@@ -403,7 +428,7 @@ class TestPrivateMixins(MockBuildTestCase):
         self.domain = get(Domain, project=self.project)
 
     def test_project_relation(self):
-        """Class using project relation mixin class"""
+        """Class using project relation mixin class."""
 
         class FoobarView(ProjectRelationMixin, ContextMixin):
             model = Domain

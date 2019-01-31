@@ -9,7 +9,7 @@ function poll_task(data) {
     function poll_task_loop() {
         jquery
             .getJSON(data.url)
-            .success(function (task) {
+            .done(function (task) {
                 if (task.finished) {
                     if (task.success) {
                         defer.resolve();
@@ -22,7 +22,7 @@ function poll_task(data) {
                     setTimeout(poll_task_loop, 2000);
                 }
             })
-            .error(function (error) {
+            .fail(function (error) {
                 console.error('Error polling task:', error);
                 tries -= 1;
                 if (tries > 0) {

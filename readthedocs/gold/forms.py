@@ -1,10 +1,8 @@
+# -*- coding: utf-8 -*-
+
 """Gold subscription forms."""
 
-from __future__ import absolute_import
-
-from builtins import object
 from django import forms
-
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.payments.forms import StripeModelForm, StripeResourceMixin
@@ -24,7 +22,7 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
     :py:class:`StripeResourceMixin` for common operations against the Stripe API.
     """
 
-    class Meta(object):
+    class Meta:
         model = GoldUser
         fields = ['last_4_card_digits', 'level']
 
@@ -32,9 +30,11 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
         required=True,
         min_length=4,
         max_length=4,
-        widget=forms.HiddenInput(attrs={
-            'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
-        })
+        widget=forms.HiddenInput(
+            attrs={
+                'data-bind': 'valueInit: last_4_card_digits, value: last_4_card_digits',
+            },
+        ),
     )
 
     level = forms.ChoiceField(
@@ -44,25 +44,33 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
 
     def clean(self):
         self.instance.user = self.customer
-        return super(GoldSubscriptionForm, self).clean()
+        return super().clean()
 
     def validate_stripe(self):
         subscription = self.get_subscription()
         self.instance.stripe_id = subscription.customer
         self.instance.subscribed = True
+        self.instance.business_vat_id = self.cleaned_data['business_vat_id']
 
     def get_customer_kwargs(self):
-        return {
-            'description': self.customer.get_full_name() or self.customer.username,
+        data = {
+            'description': self.customer.get_full_name() or
+            self.customer.username,
             'email': self.customer.email,
-            'id': self.instance.stripe_id or None
+            'id': self.instance.stripe_id or None,
         }
+        business_vat_id = self.cleaned_data.get('business_vat_id')
+        if business_vat_id:
+            data.update({
+                'business_vat_id': self.cleaned_data['business_vat_id'],
+            })
+        return data
 
     def get_subscription(self):
         customer = self.get_customer()
 
         # TODO get the first subscription more intelligently
-        subscriptions = customer.subscriptions.all(limit=5)
+        subscriptions = customer.subscriptions.list(limit=5)
         if subscriptions.data:
             # Update an existing subscription - Stripe prorates by default
             subscription = subscriptions.data[0]
@@ -75,21 +83,28 @@ class GoldSubscriptionForm(StripeResourceMixin, StripeModelForm):
             # Add a new subscription
             subscription = customer.subscriptions.create(
                 plan=self.cleaned_data['level'],
-                source=self.cleaned_data['stripe_token']
+                source=self.cleaned_data['stripe_token'],
             )
 
         return subscription
 
 
 class GoldProjectForm(forms.Form):
-    project = forms.CharField(
+    project = forms.ChoiceField(
         required=True,
+        help_text='Select a project.',
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, active_user, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.projects = kwargs.pop('projects', None)
-        super(GoldProjectForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
+        self.fields['project'].choices = self.generate_choices(active_user)
+
+    def generate_choices(self, active_user):
+        queryset = Project.objects.filter(users=active_user)
+        choices = ((proj.slug, str(proj)) for proj in queryset)
+        return choices
 
     def clean_project(self):
         project_slug = self.cleaned_data.get('project', '')
@@ -100,8 +115,11 @@ class GoldProjectForm(forms.Form):
             return project_slug
 
     def clean(self):
-        cleaned_data = super(GoldProjectForm, self).clean()
+        cleaned_data = super().clean()
         if self.projects.count() < self.user.num_supported_projects:
             return cleaned_data
 
-        self.add_error(None, 'You already have the max number of supported projects.')
+        self.add_error(
+            None,
+            'You already have the max number of supported projects.',
+        )

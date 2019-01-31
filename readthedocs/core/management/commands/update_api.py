@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Build documentation using the API and not hitting a database.
 
@@ -6,7 +8,6 @@ Usage::
     ./manage.py update_api <slug>
 """
 
-from __future__ import absolute_import
 import logging
 
 from django.core.management.base import BaseCommand
@@ -32,6 +33,6 @@ class Command(BaseCommand):
         for slug in options['projects']:
             project_data = api.project(slug).get()
             p = APIProject(**project_data)
-            log.info("Building %s", p)
+            log.info('Building %s', p)
             # pylint: disable=no-value-for-parameter
             tasks.update_docs_task(p.pk, docker=docker)

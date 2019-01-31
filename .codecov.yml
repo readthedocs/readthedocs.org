@@ -1,2 +1,5 @@
-comment:
-  layout: "diff, files"
+comment: off
+coverage:
+  status:
+    project: off
+

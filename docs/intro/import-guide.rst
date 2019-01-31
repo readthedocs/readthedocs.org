@@ -8,7 +8,7 @@ you will see a list of your repositories that we are able to import.
 To import one of these projects, just click the import
 icon next to the repository you'd like to import. This will bring up a form that
 is already filled with your project's information. Feel free to edit any of
-these properties, and the click **Next** to
+these properties, and then click **Next** to
 :ref:`build your documentation <intro/import-guide:Building your documentation>`.
 
 .. _Read the Docs dashboard: https://readthedocs.org/dashboard
@@ -26,11 +26,11 @@ these properties, and the click **Next** to
 Manually import your docs
 -------------------------
 
-If you do not have a connected account, you will need select **Import Manually**
+If you do not have a connected account, you will need to select **Import Manually**
 and enter the information for your repository yourself. You will also need to
 manually configure the webhook for your repository as well. When importing your
 project, you will be asked for the repository URL, along with some other
-information for you new project. The URL is normally the URL or path name you'd
+information for your new project. The URL is normally the URL or path name you'd
 use to checkout, clone, or branch your repository. Some examples:
 
 * Git: ``https://github.com/ericholscher/django-kong.git``
@@ -59,7 +59,7 @@ and to troubleshoot any issues that arise.
 Some documentation projects require additional configuration to build
 such as specifying a certain version of Python or installing additional dependencies.
 You can configure these settings in a ``readthedocs.yml`` file.
-See our :doc:`/yaml-config` docs for more details.
+See our :doc:`/config-file/index` docs for more details.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.

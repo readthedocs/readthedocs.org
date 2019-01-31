@@ -1,13 +1,13 @@
-from __future__ import absolute_import
-import mock
+# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-from django.test import TestCase
+import mock
 from django.contrib.auth.models import User
+from django.test import TestCase
 
 from readthedocs.projects.models import Project
 
-from ..models import GoldUser
 from ..forms import GoldSubscriptionForm
+from ..models import GoldUser
 
 
 class GoldSubscriptionFormTests(TestCase):
@@ -32,7 +32,7 @@ class GoldSubscriptionFormTests(TestCase):
         self.mocks['request'].request = mock.Mock(side_effect=resp)
 
     def test_add_subscription(self):
-        """Valid subscription form"""
+        """Valid subscription form."""
         subscription_list = {
             'object': 'list',
             'data': [],
@@ -44,7 +44,7 @@ class GoldSubscriptionFormTests(TestCase):
             'id': 'cus_12345',
             'description': self.user.get_full_name(),
             'email': self.user.email,
-            'subscriptions': subscription_list
+            'subscriptions': subscription_list,
         }
         subscription_obj = {
             'id': 'sub_12345',
@@ -56,7 +56,7 @@ class GoldSubscriptionFormTests(TestCase):
                 'amount': 1000,
                 'currency': 'usd',
                 'name': 'Test',
-            }
+            },
         }
         self.mock_request([
             (customer_obj, ''),
@@ -66,36 +66,46 @@ class GoldSubscriptionFormTests(TestCase):
 
         # Create user and subscription
         subscription_form = GoldSubscriptionForm(
-            {'level': 'v1-org-5',
-             'last_4_card_digits': '0000',
-             'stripe_token': 'GARYBUSEY'},
-            customer=self.user
+            {
+                'level': 'v1-org-5',
+                'last_4_card_digits': '0000',
+                'stripe_token': 'GARYBUSEY',
+                'business_vat_id': 'business-vat-id',
+            },
+                customer=self.user,
         )
         self.assertTrue(subscription_form.is_valid())
         subscription = subscription_form.save()
 
         self.assertEqual(subscription.level, 'v1-org-5')
         self.assertEqual(subscription.stripe_id, 'cus_12345')
+        self.assertEqual(subscription.business_vat_id, 'business-vat-id')
         self.assertIsNotNone(self.user.gold)
         self.assertEqual(self.user.gold.first().level, 'v1-org-5')
 
         self.mocks['request'].request.assert_has_calls([
-            mock.call('post',
-                      '/v1/customers',
-                      {'description': mock.ANY, 'email': mock.ANY},
-                      mock.ANY),
-            mock.call('get',
-                      '/v1/customers/cus_12345/subscriptions',
-                      mock.ANY,
-                      mock.ANY),
-            mock.call('post',
-                      '/v1/customers/cus_12345/subscriptions',
-                      {'source': mock.ANY, 'plan': 'v1-org-5'},
-                      mock.ANY),
+            mock.call(
+                'post',
+                '/v1/customers',
+                {'description': mock.ANY, 'email': mock.ANY, 'business_vat_id': 'business-vat-id'},
+                mock.ANY,
+            ),
+            mock.call(
+                'get',
+                '/v1/customers/cus_12345/subscriptions',
+                mock.ANY,
+                mock.ANY,
+            ),
+            mock.call(
+                'post',
+                '/v1/customers/cus_12345/subscriptions',
+                {'source': mock.ANY, 'plan': 'v1-org-5'},
+                mock.ANY,
+            ),
         ])
 
     def test_add_subscription_update_user(self):
-        """Valid subscription form"""
+        """Valid subscription form."""
         subscription_list = {
             'object': 'list',
             'data': [],
@@ -107,7 +117,7 @@ class GoldSubscriptionFormTests(TestCase):
             'id': 'cus_12345',
             'description': self.user.get_full_name(),
             'email': self.user.email,
-            'subscriptions': subscription_list
+            'subscriptions': subscription_list,
         }
         subscription_obj = {
             'id': 'sub_12345',
@@ -119,7 +129,7 @@ class GoldSubscriptionFormTests(TestCase):
                 'amount': 1000,
                 'currency': 'usd',
                 'name': 'Test',
-            }
+            },
         }
         self.mock_request([
             (customer_obj, ''),
@@ -131,11 +141,13 @@ class GoldSubscriptionFormTests(TestCase):
         # Create user and update the current gold subscription
         golduser = fixture.get(GoldUser, user=self.user, stripe_id='cus_12345')
         subscription_form = GoldSubscriptionForm(
-            {'level': 'v1-org-5',
-             'last_4_card_digits': '0000',
-             'stripe_token': 'GARYBUSEY'},
+            {
+                'level': 'v1-org-5',
+                'last_4_card_digits': '0000',
+                'stripe_token': 'GARYBUSEY',
+            },
             customer=self.user,
-            instance=golduser
+            instance=golduser,
         )
         self.assertTrue(subscription_form.is_valid())
         subscription = subscription_form.save()
@@ -146,26 +158,34 @@ class GoldSubscriptionFormTests(TestCase):
         self.assertEqual(self.user.gold.first().level, 'v1-org-5')
 
         self.mocks['request'].request.assert_has_calls([
-            mock.call('get',
-                      '/v1/customers/cus_12345',
-                      {},
-                      mock.ANY),
-            mock.call('post',
-                      '/v1/customers/cus_12345',
-                      {'description': mock.ANY, 'email': mock.ANY},
-                      mock.ANY),
-            mock.call('get',
-                      '/v1/customers/cus_12345/subscriptions',
-                      mock.ANY,
-                      mock.ANY),
-            mock.call('post',
-                      '/v1/customers/cus_12345/subscriptions',
-                      {'source': mock.ANY, 'plan': 'v1-org-5'},
-                      mock.ANY),
+            mock.call(
+                'get',
+                '/v1/customers/cus_12345',
+                {},
+                mock.ANY,
+            ),
+            mock.call(
+                'post',
+                '/v1/customers/cus_12345',
+                {'description': mock.ANY, 'email': mock.ANY},
+                mock.ANY,
+            ),
+            mock.call(
+                'get',
+                '/v1/customers/cus_12345/subscriptions',
+                mock.ANY,
+                mock.ANY,
+            ),
+            mock.call(
+                'post',
+                '/v1/customers/cus_12345/subscriptions',
+                {'source': mock.ANY, 'plan': 'v1-org-5'},
+                mock.ANY,
+            ),
         ])
 
     def test_update_subscription_plan(self):
-        """Update subcription plan"""
+        """Update subcription plan."""
         subscription_obj = {
             'id': 'sub_12345',
             'object': 'subscription',
@@ -176,7 +196,7 @@ class GoldSubscriptionFormTests(TestCase):
                 'amount': 1000,
                 'currency': 'usd',
                 'name': 'Test',
-            }
+            },
         }
         subscription_list = {
             'object': 'list',
@@ -189,7 +209,7 @@ class GoldSubscriptionFormTests(TestCase):
             'id': 'cus_12345',
             'description': self.user.get_full_name(),
             'email': self.user.email,
-            'subscriptions': subscription_list
+            'subscriptions': subscription_list,
         }
         self.mock_request([
             (customer_obj, ''),
@@ -197,10 +217,12 @@ class GoldSubscriptionFormTests(TestCase):
             (subscription_obj, ''),
         ])
         subscription_form = GoldSubscriptionForm(
-            {'level': 'v1-org-5',
-             'last_4_card_digits': '0000',
-             'stripe_token': 'GARYBUSEY'},
-            customer=self.user
+            {
+                'level': 'v1-org-5',
+                'last_4_card_digits': '0000',
+                'stripe_token': 'GARYBUSEY',
+            },
+            customer=self.user,
         )
         self.assertTrue(subscription_form.is_valid())
         subscription = subscription_form.save()
@@ -210,16 +232,22 @@ class GoldSubscriptionFormTests(TestCase):
         self.assertEqual(self.user.gold.first().level, 'v1-org-5')
 
         self.mocks['request'].request.assert_has_calls([
-            mock.call('post',
-                      '/v1/customers',
-                      {'description': mock.ANY, 'email': mock.ANY},
-                      mock.ANY),
-            mock.call('get',
-                      '/v1/customers/cus_12345/subscriptions',
-                      mock.ANY,
-                      mock.ANY),
-            mock.call('post',
-                      '/v1/customers/cus_12345/subscriptions/sub_12345',
-                      {'source': mock.ANY, 'plan': 'v1-org-5'},
-                      mock.ANY),
+            mock.call(
+                'post',
+                '/v1/customers',
+                {'description': mock.ANY, 'email': mock.ANY},
+                mock.ANY,
+            ),
+            mock.call(
+                'get',
+                '/v1/customers/cus_12345/subscriptions',
+                mock.ANY,
+                mock.ANY,
+            ),
+            mock.call(
+                'post',
+                '/v1/subscriptions/sub_12345',
+                {'source': mock.ANY, 'plan': 'v1-org-5'},
+                mock.ANY,
+            ),
         ])

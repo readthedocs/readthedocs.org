@@ -1,6 +1,6 @@
-"""Build and Version QuerySet classes"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Build and Version QuerySet classes."""
 
 from django.db import models
 from guardian.shortcuts import get_objects_for_user
@@ -21,7 +21,7 @@ class VersionQuerySetBase(models.QuerySet):
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             queryset = user_queryset | queryset
         return queryset.distinct()
@@ -37,7 +37,9 @@ class VersionQuerySetBase(models.QuerySet):
         return queryset
 
     def protected(self, user=None, project=None, only_active=True):
-        queryset = self.filter(privacy_level__in=[constants.PUBLIC, constants.PROTECTED])
+        queryset = self.filter(
+            privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
+        )
         if user:
             queryset = self._add_user_repos(queryset, user)
         if project:
@@ -60,10 +62,10 @@ class VersionQuerySetBase(models.QuerySet):
         return self.public(user, only_active=False)
 
     def for_project(self, project):
-        """Return all versions for a project, including translations"""
+        """Return all versions for a project, including translations."""
         return self.filter(
             models.Q(project=project) |
-            models.Q(project__main_language_project=project)
+            models.Q(project__main_language_project=project),
         )
 
 
@@ -84,7 +86,7 @@ class BuildQuerySetBase(models.QuerySet):
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = user_queryset.values_list('pk', flat=True)
             queryset = self.filter(version__pk__in=pks) | queryset
@@ -116,11 +118,10 @@ class RelatedBuildQuerySetBase(models.QuerySet):
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
             return self.all().distinct()
-        if user.is_authenticated():
+        if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = user_queryset.values_list('pk', flat=True)
-            queryset = self.filter(
-                build__version__pk__in=pks) | queryset
+            queryset = self.filter(build__version__pk__in=pks,) | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):

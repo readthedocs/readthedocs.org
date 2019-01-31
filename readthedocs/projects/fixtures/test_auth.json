@@ -675,12 +675,12 @@
             "is_active": true,
             "is_superuser": false,
             "is_staff": false,
-            "last_login": "2014-02-09T19:47:26.625",
+            "last_login": "2014-02-09T19:47:26.625+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "",
             "email": "",
-            "date_joined": "2014-02-09T19:47:26.625"
+            "date_joined": "2014-02-09T19:47:26.625+00:00"
         }
     },
     {
@@ -693,12 +693,12 @@
             "is_active": true,
             "is_superuser": true,
             "is_staff": true,
-            "last_login": "2014-02-09T19:48:39.934",
+            "last_login": "2014-02-09T19:48:39.934+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "pbkdf2_sha256$10000$FgAANNnclCS5$ElbS6laaFoh+nyHbEb96ICxS3xK1LioUS+CMQK+KdYM=",
             "email": "test@readthedocs.org",
-            "date_joined": "2014-02-09T19:48:39.934"
+            "date_joined": "2014-02-09T19:48:39.934+00:00"
         }
     }
 ]

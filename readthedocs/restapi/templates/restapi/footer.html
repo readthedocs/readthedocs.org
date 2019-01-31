@@ -82,9 +82,11 @@
         <dd>
           <a href="{{ github_view_url }}">View</a>
         </dd>
+        {% if version.is_editable %}
         <dd>
           <a href="{{ github_edit_url }}">Edit</a>
         </dd>
+        {% endif %}
       </dl>
       {% elif bitbucket_url %}
       <dl>
@@ -99,9 +101,11 @@
         <dd>
           <a href="{{ gitlab_view_url }}">View</a>
         </dd>
+        {% if version.is_editable %}
         <dd>
           <a href="{{ gitlab_edit_url }}">Edit</a>
         </dd>
+        {% endif %}
       </dl>
       {% endif %}
       {% endblock %}

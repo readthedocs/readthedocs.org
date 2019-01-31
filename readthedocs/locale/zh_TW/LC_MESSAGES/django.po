@@ -2523,11 +2523,6 @@ msgstr "新增專案版本別名"
 msgid "Create"
 msgstr "建立"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "別名"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "瀏覽專案"

@@ -17,6 +17,14 @@
   {% endif %}
 {% endblock %}
 
+{% block slug %}
+  {% trans "Used in URL's and in code to represent the project name" as title %}
+  <h3 title="{{ title }}">{% trans "Project Slug" %}</h3>
+  <p title="{{ title }}" class="detail-long">
+      {{ project.slug }}
+  </p>
+{% endblock %}
+
 {% block last-built %}
   <h3>{% trans "Last Built" %}</h3>
   <p>
@@ -59,8 +67,9 @@
 
 {% block badge %}
     <h3>{% trans "Badge" %}</h3>
+      <img src="{{ badge_url }}" />
       <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
-        <img src="{{ badge_url }}" />
+        <span class="badge-info" title="Get this badge"></span> 
       </a>
       {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
 {% endblock %}

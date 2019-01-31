@@ -1,8 +1,7 @@
-from __future__ import division, print_function, unicode_literals
-
+# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django_dynamic_fixture import get
 
 
@@ -25,7 +24,7 @@ class ProfileViewsTest(TestCase):
                 'first_name': 'Read',
                 'last_name': 'Docs',
                 'homepage': 'readthedocs.org',
-            }
+            },
         )
         self.assertTrue(resp.status_code, 200)
 
@@ -35,22 +34,43 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(self.user.last_name, 'Docs')
         self.assertEqual(self.user.profile.homepage, 'readthedocs.org')
 
+    def test_edit_profile_with_invalid_values(self):
+        resp = self.client.get(
+            reverse('profiles_profile_edit'),
+        )
+        self.assertTrue(resp.status_code, 200)
+
+        resp = self.client.post(
+            reverse('profiles_profile_edit'),
+            data={
+                'first_name': 'a' * 31,
+                'last_name': 'b' * 31,
+                'homepage': 'c' * 101,
+            },
+        )
+
+        FORM_ERROR_FORMAT = 'Ensure this value has at most {} characters (it has {}).'
+
+        self.assertFormError(resp, form='form', field='first_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='last_name', errors=FORM_ERROR_FORMAT.format(30, 31))
+        self.assertFormError(resp, form='form', field='homepage', errors=FORM_ERROR_FORMAT.format(100, 101))
+
     def test_delete_account(self):
         resp = self.client.get(
-            reverse('delete_account')
+            reverse('delete_account'),
         )
         self.assertEqual(resp.status_code, 200)
         resp = self.client.post(
             reverse('delete_account'),
             data={
                 'username': self.user.username,
-            }
+            },
         )
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['Location'], reverse('homepage'))
 
         self.assertFalse(
-            User.objects.filter(username=self.user.username).exists()
+            User.objects.filter(username=self.user.username).exists(),
         )
 
     def test_profile_detail(self):
@@ -74,7 +94,7 @@ class ProfileViewsTest(TestCase):
 
     def test_account_advertising(self):
         resp = self.client.get(
-            reverse('account_advertising')
+            reverse('account_advertising'),
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(self.user.profile.allow_ads)

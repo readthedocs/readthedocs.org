@@ -67,6 +67,9 @@ function create_sidebar_placement() {
         if (!offset || offset.top > $(window).height()) {
             // If this is off screen, lower the priority
             priority = constants.LOW_PROMO_PRIORITY;
+        } else if (bowser && !bowser.mobile) {
+            // If this isn't mobile, then the ad will be ATF, so raise the priority
+            priority = constants.MAXIMUM_PROMO_PRIORITY;
         }
 
         return {
@@ -149,6 +152,7 @@ function Promo(data) {
     this.div_id = data.div_id || '';
     this.html = data.html || '';
     this.display_type = data.display_type || '';
+    this.view_tracking_url = data.view_url;
 
     // Handler when a promo receives a click
     this.click_handler = function () {
@@ -169,9 +173,33 @@ function Promo(data) {
  *  Position and inject the promo
  */
 Promo.prototype.display = function () {
-    $('#' + this.div_id).html(this.html);
-    $('#' + this.div_id).find('a[href*="/sustainability/click/"]')
+    var ad_selector = '#' + this.div_id;
+    var view_tracking_url = this.view_tracking_url;
+
+    $(ad_selector).html(this.html);
+    $(ad_selector).find('a[href*="/sustainability/click/"]')
         .on('click', this.click_handler);
+
+    var handler = function () {
+        // A fudge factor of ~3 is needed for the case where the ad
+        // is hidden off the left side of the screen by a sliding sidebar
+        // (eg. the right side of the ad is at x=0)
+        if ($.inViewport($(ad_selector), -3)) {
+            // This ad was seen!
+            $('<img />')
+                .attr('src', view_tracking_url)
+                .css('display', 'none')
+                .appendTo(ad_selector);
+
+            // Unbind view event
+            $(window).off('.rtdinview');
+            $('.wy-side-scroll').off('.rtdinview');
+        }
+    };
+
+    // Check whether the ad is actually viewed
+    $(window).on('DOMContentLoaded.rtdinview load.rtdinview scroll.rtdinview resize.rtdinview', handler);
+    $('.wy-side-scroll').on('scroll.rtdinview', handler);
 
     this.post_promo_display();
 };

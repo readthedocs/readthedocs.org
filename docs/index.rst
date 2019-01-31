@@ -61,7 +61,7 @@ to help you create fantastic documentation for your project.
    connected-accounts
    support
    faq
-   yaml-config
+   config-file/index
    guides/index
    api/index
    embed
@@ -114,6 +114,7 @@ to help you create fantastic documentation for your project.
 
    changelog
    install
+   development/search
    architecture
    tests
    docs
@@ -127,13 +128,13 @@ to help you create fantastic documentation for your project.
    design
    RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
 
-.. _business-docs:
+.. _commercial-docs:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Business Documentation
+   :caption: Commercial Documentation
 
-   business/index
+   commercial/index
 
 .. _custom-docs:
 

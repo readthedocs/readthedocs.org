@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Project views for authenticated users."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
+"""Project views for authenticated users."""
 
 import logging
 
@@ -11,35 +9,61 @@ from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.http import (
-    Http404, HttpResponseBadRequest, HttpResponseNotAllowed,
-    HttpResponseRedirect)
+    Http404,
+    HttpResponseBadRequest,
+    HttpResponseNotAllowed,
+    HttpResponseRedirect,
+)
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
-from readthedocs.builds.forms import AliasForm, VersionForm
-from readthedocs.builds.models import Version, VersionAlias
+
+from readthedocs.builds.forms import VersionForm
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, trigger_build, prepare_build
+from readthedocs.core.utils import broadcast, prepare_build, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
-from readthedocs.oauth.utils import update_webhook
 from readthedocs.oauth.tasks import attach_webhook
+from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects import tasks
 from readthedocs.projects.forms import (
-    DomainForm, EmailHookForm, IntegrationForm, ProjectAdvancedForm,
-    ProjectAdvertisingForm, ProjectBasicsForm, ProjectExtraForm,
-    ProjectRelationshipForm, RedirectForm, TranslationForm, UpdateProjectForm,
-    UserForm, WebHookForm, build_versions_form)
+    DomainForm,
+    EmailHookForm,
+    EnvironmentVariableForm,
+    IntegrationForm,
+    ProjectAdvancedForm,
+    ProjectAdvertisingForm,
+    ProjectBasicsForm,
+    ProjectExtraForm,
+    ProjectRelationshipForm,
+    RedirectForm,
+    TranslationForm,
+    UpdateProjectForm,
+    UserForm,
+    WebHookForm,
+    build_versions_form,
+)
 from readthedocs.projects.models import (
-    Domain, EmailHook, Project, ProjectRelationship, WebHook)
+    Domain,
+    EmailHook,
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+    WebHook,
+)
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.notifications import EmailConfirmNotification
+
+from ..tasks import retry_domain_verification
+
 
 log = logging.getLogger(__name__)
 
@@ -55,11 +79,29 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    def validate_primary_email(self, user):
+        """
+        Sends a persistent error notification.
+
+        Checks if the user has a primary email or if the primary email
+        is verified or not. Sends a persistent error notification if
+        either of the condition is False.
+        """
+        email_qs = user.emailaddress_set.filter(primary=True)
+        email = email_qs.first()
+        if not email or not email.verified:
+            notification = EmailConfirmNotification(user=user, success=False)
+            notification.send()
+
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
 
+    def get(self, request, *args, **kwargs):
+        self.validate_primary_email(request.user)
+        return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
-        context = super(ProjectDashboard, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         return context
 
@@ -101,7 +143,6 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
     template_name = 'projects/project_advanced.html'
     lookup_url_kwarg = 'project_slug'
     lookup_field = 'slug'
-    initial = {'num_minor': 2, 'num_major': 2, 'num_point': 2}
 
     def get_queryset(self):
         return self.model.objects.for_admin_user(self.request.user)
@@ -119,7 +160,9 @@ def project_versions(request, project_slug):
     like to have built.
     """
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
     if not project.is_imported:
         raise Http404
@@ -135,19 +178,27 @@ def project_versions(request, project_slug):
         return HttpResponseRedirect(project_dashboard)
 
     return render(
-        request, 'projects/project_versions.html',
-        {'form': form, 'project': project})
+        request,
+        'projects/project_versions.html',
+        {'form': form, 'project': project},
+    )
 
 
 @login_required
 def project_version_detail(request, project_slug, version_slug):
     """Project version detail page."""
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     version = get_object_or_404(
         Version.objects.public(
-            user=request.user, project=project, only_active=False),
-        slug=version_slug)
+            user=request.user,
+            project=project,
+            only_active=False,
+        ),
+        slug=version_slug,
+    )
 
     form = VersionForm(request.POST or None, instance=version)
 
@@ -157,15 +208,20 @@ def project_version_detail(request, project_slug, version_slug):
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
                 broadcast(
-                    type='app', task=tasks.clear_artifacts, args=[version.get_artifact_paths()])
+                    type='app',
+                    task=tasks.remove_dirs,
+                    args=[version.get_artifact_paths()],
+                )
                 version.built = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
 
     return render(
-        request, 'projects/project_version_detail.html',
-        {'form': form, 'project': project, 'version': version})
+        request,
+        'projects/project_version_detail.html',
+        {'form': form, 'project': project, 'version': version},
+    )
 
 
 @login_required
@@ -177,10 +233,16 @@ def project_delete(request, project_slug):
     confirmation of delete.
     """
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
     if request.method == 'POST':
-        broadcast(type='app', task=tasks.remove_dir, args=[project.doc_path])
+        broadcast(
+            type='app',
+            task=tasks.remove_dirs,
+            args=[(project.doc_path,)],
+        )
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')
@@ -209,7 +271,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     def get_template_names(self):
         """Return template names based on step name."""
-        return 'projects/import_{0}.html'.format(self.steps.current)
+        return 'projects/import_{}.html'.format(self.steps.current)
 
     def done(self, form_list, **kwargs):
         """
@@ -240,11 +302,15 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
         self.trigger_initial_build(project)
         return HttpResponseRedirect(
-            reverse('projects_detail', args=[project.slug]))
+            reverse('projects_detail', args=[project.slug]),
+        )
 
     def trigger_initial_build(self, project):
         """Trigger initial build."""
-        update_docs = prepare_build(project)
+        update_docs, build = prepare_build(project)
+        if (update_docs, build) == (None, None):
+            return None
+
         task_promise = chain(
             attach_webhook.si(project.pk, self.request.user.pk),
             update_docs,
@@ -275,10 +341,13 @@ class ImportDemoView(PrivateViewMixin, View):
 
         data = self.get_form_data()
         project = Project.objects.for_admin_user(
-            request.user).filter(repo=data['repo']).first()
+            request.user,
+        ).filter(repo=data['repo']).first()
         if project is not None:
             messages.success(
-                request, _('The demo project is already imported!'))
+                request,
+                _('The demo project is already imported!'),
+            )
         else:
             kwargs = self.get_form_kwargs()
             form = self.form_class(data=data, **kwargs)
@@ -287,7 +356,9 @@ class ImportDemoView(PrivateViewMixin, View):
                 project.save()
                 trigger_build(project)
                 messages.success(
-                    request, _('Your demo project is currently being imported'))
+                    request,
+                    _('Your demo project is currently being imported'),
+                )
             else:
                 messages.error(
                     request,
@@ -295,14 +366,15 @@ class ImportDemoView(PrivateViewMixin, View):
                 )
                 return HttpResponseRedirect(reverse('projects_dashboard'))
         return HttpResponseRedirect(
-            reverse('projects_detail', args=[project.slug]))
+            reverse('projects_detail', args=[project.slug]),
+        )
 
     def get_form_data(self):
         """Get form data to post to import form."""
         return {
-            'name': '{0}-demo'.format(self.request.user.username),
+            'name': '{}-demo'.format(self.request.user.username),
             'repo_type': 'git',
-            'repo': 'https://github.com/readthedocs/template.git'
+            'repo': 'https://github.com/readthedocs/template.git',
         }
 
     def get_form_kwargs(self):
@@ -336,7 +408,8 @@ class ImportView(PrivateViewMixin, TemplateView):
             .exclude(
                 provider__in=[
                     service.adapter.provider_id for service in registry
-                ])
+                ],
+            )
         )  # yapf: disable
         for account in deprecated_accounts:
             provider_account = account.get_provider_account()
@@ -346,12 +419,14 @@ class ImportView(PrivateViewMixin, TemplateView):
                     _(
                         'There is a problem with your {service} account, '
                         'try reconnecting your account on your '
-                        '<a href="{url}">connected services page</a>.').format(
-                            service=provider_account.get_brand()['name'],
-                            url=reverse('socialaccount_connections'))
-                ))  # yapf: disable
+                        '<a href="{url}">connected services page</a>.',
+                    ).format(
+                        service=provider_account.get_brand()['name'],
+                        url=reverse('socialaccount_connections'),
+                    )
+                )),  # yapf: disable
             )
-        return super(ImportView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         initial_data = {}
@@ -365,44 +440,12 @@ class ImportView(PrivateViewMixin, TemplateView):
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 
     def get_context_data(self, **kwargs):
-        context = super(ImportView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['view_csrf_token'] = get_token(self.request)
         context['has_connected_accounts'] = SocialAccount.objects.filter(
-            user=self.request.user).exists()
+            user=self.request.user,
+        ).exists()
         return context
-
-
-@login_required
-def edit_alias(request, project_slug, alias_id=None):
-    """Edit project alias form view."""
-    proj = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
-    if alias_id:
-        alias = proj.aliases.get(pk=alias_id)
-        form = AliasForm(instance=alias, data=request.POST or None)
-    else:
-        form = AliasForm(request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        alias = form.save()
-        return HttpResponseRedirect(alias.project.get_absolute_url())
-    return render(
-        request,
-        'projects/alias_edit.html',
-        {'form': form},
-    )
-
-
-class AliasList(PrivateViewMixin, ListView):
-    model = VersionAlias
-    template_context_name = 'alias'
-    template_name = 'projects/alias_list.html'
-
-    def get_queryset(self):
-        self.project = get_object_or_404(
-            Project.objects.for_admin_user(self.request.user),
-            slug=self.kwargs.get('project_slug'))
-        return self.project.aliases.all()
 
 
 class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -418,8 +461,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
-        return super(ProjectRelationshipMixin,
-                     self).get_form(data, files, **kwargs)
+        return super().get_form(data, files, **kwargs)
 
     def form_valid(self, form):
         broadcast(
@@ -427,7 +469,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
             task=tasks.symlink_subproject,
             args=[self.get_project().pk],
         )
-        return super(ProjectRelationshipMixin, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])
@@ -436,7 +478,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
 class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
 
     def get_context_data(self, **kwargs):
-        ctx = super(ProjectRelationshipList, self).get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         ctx['superproject'] = self.project.superprojects.first()
         return ctx
 
@@ -459,7 +501,9 @@ class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
 def project_users(request, project_slug):
     """Project users view and form view."""
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
     form = UserForm(data=request.POST or None, project=project)
 
@@ -482,9 +526,13 @@ def project_users_delete(request, project_slug):
     if request.method != 'POST':
         return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     user = get_object_or_404(
-        User.objects.all(), username=request.POST.get('username'))
+        User.objects.all(),
+        username=request.POST.get('username'),
+    )
     if user == request.user:
         raise Http404
     project.users.remove(user)
@@ -496,21 +544,22 @@ def project_users_delete(request, project_slug):
 def project_notifications(request, project_slug):
     """Project notification view and form view."""
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
-    email_form = EmailHookForm(data=request.POST or None, project=project)
-    webhook_form = WebHookForm(data=request.POST or None, project=project)
+    email_form = EmailHookForm(data=None, project=project)
+    webhook_form = WebHookForm(data=None, project=project)
 
     if request.method == 'POST':
-        if email_form.is_valid():
-            email_form.save()
-        if webhook_form.is_valid():
-            webhook_form.save()
-        project_dashboard = reverse(
-            'projects_notifications',
-            args=[project.slug],
-        )
-        return HttpResponseRedirect(project_dashboard)
+        if 'email' in request.POST.keys():
+            email_form = EmailHookForm(data=request.POST, project=project)
+            if email_form.is_valid():
+                email_form.save()
+        elif 'url' in request.POST.keys():
+            webhook_form = WebHookForm(data=request.POST, project=project)
+            if webhook_form.is_valid():
+                webhook_form.save()
 
     emails = project.emailhook_notifications.all()
     urls = project.webhook_notifications.all()
@@ -534,14 +583,18 @@ def project_notifications_delete(request, project_slug):
     if request.method != 'POST':
         return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     try:
         project.emailhook_notifications.get(
-            email=request.POST.get('email')).delete()
+            email=request.POST.get('email'),
+        ).delete()
     except EmailHook.DoesNotExist:
         try:
             project.webhook_notifications.get(
-                url=request.POST.get('email')).delete()
+                url=request.POST.get('email'),
+            ).delete()
         except WebHook.DoesNotExist:
             raise Http404
     project_dashboard = reverse('projects_notifications', args=[project.slug])
@@ -552,7 +605,9 @@ def project_notifications_delete(request, project_slug):
 def project_translations(request, project_slug):
     """Project translations view and form view."""
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     form = TranslationForm(
         data=request.POST or None,
         parent=project,
@@ -599,7 +654,9 @@ def project_translations_delete(request, project_slug, child_slug):
 def project_redirects(request, project_slug):
     """Project redirects view and form view."""
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
     form = RedirectForm(data=request.POST or None, project=project)
 
@@ -611,8 +668,10 @@ def project_redirects(request, project_slug):
     redirects = project.redirects.all()
 
     return render(
-        request, 'projects/project_redirects.html',
-        {'form': form, 'project': project, 'redirects': redirects})
+        request,
+        'projects/project_redirects.html',
+        {'form': form, 'project': project, 'redirects': redirects},
+    )
 
 
 @login_required
@@ -621,15 +680,20 @@ def project_redirects_delete(request, project_slug):
     if request.method != 'POST':
         return HttpResponseNotAllowed('Only POST is allowed')
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     redirect = get_object_or_404(
-        project.redirects, pk=request.POST.get('id_pk'))
+        project.redirects,
+        pk=request.POST.get('id_pk'),
+    )
     if redirect.project == project:
         redirect.delete()
     else:
         raise Http404
     return HttpResponseRedirect(
-        reverse('projects_redirects', args=[project.slug]))
+        reverse('projects_redirects', args=[project.slug]),
+    )
 
 
 @login_required
@@ -640,21 +704,33 @@ def project_version_delete_html(request, project_slug, version_slug):
     This marks a version as not built
     """
     project = get_object_or_404(
-        Project.objects.for_admin_user(request.user), slug=project_slug)
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
     version = get_object_or_404(
         Version.objects.public(
-            user=request.user, project=project, only_active=False),
-        slug=version_slug)
+            user=request.user,
+            project=project,
+            only_active=False,
+        ),
+        slug=version_slug,
+    )
 
     if not version.active:
         version.built = False
         version.save()
-        broadcast(type='app', task=tasks.clear_artifacts, args=[version.get_artifact_paths()])
+        broadcast(
+            type='app',
+            task=tasks.remove_dirs,
+            args=[version.get_artifact_paths()],
+        )
     else:
         return HttpResponseBadRequest(
-            "Can't delete HTML for an active version.")
+            "Can't delete HTML for an active version.",
+        )
     return HttpResponseRedirect(
-        reverse('project_version_list', kwargs={'project_slug': project_slug}))
+        reverse('project_version_list', kwargs={'project_slug': project_slug}),
+    )
 
 
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -667,7 +743,15 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class DomainList(DomainMixin, ListViewWithForm):
-    pass
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        # Retry validation on all domains if applicable
+        for domain in ctx['domain_list']:
+            retry_domain_verification.delay(domain_pk=domain.pk)
+
+        return ctx
 
 
 class DomainCreate(DomainMixin, CreateView):
@@ -716,7 +800,7 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_template_names(self):
         if self.template_name:
             return self.template_name
-        return 'projects/integration{0}.html'.format(self.template_name_suffix)
+        return 'projects/integration{}.html'.format(self.template_name_suffix)
 
 
 class IntegrationList(IntegrationMixin, ListView):
@@ -751,8 +835,9 @@ class IntegrationDetail(IntegrationMixin, DetailView):
         integration_type = self.get_integration().integration_type
         suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
         return (
-            'projects/integration_{0}{1}.html'
-            .format(suffix, self.template_name_suffix))
+            'projects/integration_{}{}.html'
+            .format(suffix, self.template_name_suffix)
+        )
 
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
@@ -815,3 +900,37 @@ class ProjectAdvertisingUpdate(PrivateViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_advertising', args=[self.object.slug])
+
+
+class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    """Environment Variables to be added when building the Project."""
+
+    model = EnvironmentVariable
+    form_class = EnvironmentVariableForm
+    lookup_url_kwarg = 'environmentvariable_pk'
+
+    def get_success_url(self):
+        return reverse(
+            'projects_environmentvariables',
+            args=[self.get_project().slug],
+        )
+
+
+class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
+    pass
+
+
+class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
+    pass
+
+
+class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
+    pass
+
+
+class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
+
+    # This removes the delete confirmation
+    def get(self, request, *args, **kwargs):
+        return self.http_method_not_allowed(request, *args, **kwargs)

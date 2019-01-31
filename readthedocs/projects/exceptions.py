@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Project exceptions."""
 
-from __future__ import division, print_function, unicode_literals
+"""Project exceptions."""
 
 from django.conf import settings
 from django.utils.translation import ugettext_noop as _
@@ -15,13 +14,13 @@ class ProjectConfigurationError(BuildEnvironmentError):
 
     NOT_FOUND = _(
         'A configuration file was not found. '
-        'Make sure you have a conf.py file in your repository.'
+        'Make sure you have a conf.py file in your repository.',
     )
 
     MULTIPLE_CONF_FILES = _(
         'We found more than one conf.py and are not sure which one to use. '
         'Please, specify the correct file under the Advanced settings tab '
-        "in the project's Admin."
+        "in the project's Admin.",
     )
 
 
@@ -31,21 +30,21 @@ class RepositoryError(BuildEnvironmentError):
 
     PRIVATE_ALLOWED = _(
         'There was a problem connecting to your repository, '
-        'ensure that your repository URL is correct.'
+        'ensure that your repository URL is correct.',
     )
     PRIVATE_NOT_ALLOWED = _(
         'There was a problem connecting to your repository, '
         'ensure that your repository URL is correct and your repository is public. '
-        'Private repositories are not supported.'
+        'Private repositories are not supported.',
     )
 
-    INVALID_SUBMODULES = _(
-        'One or more submodule URLs are not valid.'
-    )
+    INVALID_SUBMODULES = _('One or more submodule URLs are not valid: {}.',)
 
     DUPLICATED_RESERVED_VERSIONS = _(
-        'You can not have two versions with the name latest or stable.'
+        'You can not have two versions with the name latest or stable.',
     )
+
+    FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')
 
     def get_default_message(self):
         if settings.ALLOW_PRIVATE_REPOS:
@@ -61,5 +60,3 @@ class ProjectSpamError(Exception):
     This error is not raised to users, we use this for banning users in the
     background.
     """
-
-    pass

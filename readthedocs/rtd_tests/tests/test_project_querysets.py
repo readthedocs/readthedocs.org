@@ -1,13 +1,15 @@
-from __future__ import absolute_import
-
+# -*- coding: utf-8 -*-
 from datetime import timedelta
 
 import django_dynamic_fixture as fixture
+from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.projects.models import Project, ProjectRelationship, Feature
-from readthedocs.projects.querysets import (ParentRelatedProjectQuerySet,
-                                            ChildRelatedProjectQuerySet)
+from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.querysets import (
+    ChildRelatedProjectQuerySet,
+    ParentRelatedProjectQuerySet,
+)
 
 
 class ProjectQuerySetTests(TestCase):
@@ -22,13 +24,26 @@ class ProjectQuerySetTests(TestCase):
         mgr = ChildRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromChildRelatedProjectQuerySetBase'
+            'ManagerFromChildRelatedProjectQuerySetBase',
         )
         mgr = ParentRelatedProjectQuerySet.as_manager()
         self.assertEqual(
             mgr.__class__.__name__,
-            'ManagerFromParentRelatedProjectQuerySetBase'
+            'ManagerFromParentRelatedProjectQuerySetBase',
         )
+
+    def test_is_active(self):
+        project = fixture.get(Project, skip=False)
+        self.assertTrue(Project.objects.is_active(project))
+
+        project = fixture.get(Project, skip=True)
+        self.assertFalse(Project.objects.is_active(project))
+
+        user = fixture.get(User)
+        user.profile.banned = True
+        user.profile.save()
+        project = fixture.get(Project, skip=False, users=[user])
+        self.assertFalse(Project.objects.is_active(project))
 
 
 class FeatureQuerySetTests(TestCase):

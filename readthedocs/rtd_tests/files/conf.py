@@ -7,7 +7,7 @@ from datetime import datetime
 from recommonmark.parser import CommonMarkParser
 
 extensions = []
-templates_path = ['/tmp/sphinx-template-dir', 'templates', '_templates', '.templates']
+templates_path = ['templates', '_templates', '.templates']
 source_suffix = ['.rst', '.md']
 source_parsers = {
             '.md': CommonMarkParser,

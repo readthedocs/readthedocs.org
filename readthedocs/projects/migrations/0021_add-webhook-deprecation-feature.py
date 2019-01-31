@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Add feature for allowing access to deprecated webhook endpoints"""
-
-from __future__ import unicode_literals
+"""Add feature for allowing access to deprecated webhook endpoints."""
 
 from django.db import migrations
 
@@ -30,5 +28,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forward_add_feature, reverse_add_feature)
+        migrations.RunPython(forward_add_feature, reverse_add_feature),
     ]

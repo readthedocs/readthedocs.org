@@ -9,12 +9,12 @@
             "is_active": true,
             "is_superuser": false,
             "is_staff": true,
-            "last_login": "2010-08-14 01:51:05",
+            "last_login": "2010-08-14T01:51:05+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "pbkdf2_sha256$30000$Vs87OlKZEzCb$nUw1o5pGQw7ff/QhnleSpUOupBaT1DogZrVaoZyQRyc=",
             "email": "e@e.co",
-            "date_joined": "2010-08-14 01:50:58"
+            "date_joined": "2010-08-14T01:50:58+00:00"
         }
     },
     {
@@ -27,12 +27,12 @@
             "is_active": true,
             "is_superuser": false,
             "is_staff": true,
-            "last_login": "2010-08-14 01:51:05",
+            "last_login": "2010-08-14T01:51:05+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "pbkdf2_sha256$30000$Vs87OlKZEzCb$nUw1o5pGQw7ff/QhnleSpUOupBaT1DogZrVaoZyQRyc=",
             "email": "e@etest.co",
-            "date_joined": "2010-08-14 01:50:58"
+            "date_joined": "2010-08-14T01:50:58+00:00"
         }
     },
     {
@@ -45,12 +45,12 @@
             "is_active": true,
             "is_superuser": true,
             "is_staff": true,
-            "last_login": "2010-08-14 01:51:05",
+            "last_login": "2010-08-14T01:51:05+00:00",
             "groups": [],
             "user_permissions": [],
             "password": "pbkdf2_sha256$30000$Vs87OlKZEzCb$nUw1o5pGQw7ff/QhnleSpUOupBaT1DogZrVaoZyQRyc=",
             "email": "e@e.co",
-            "date_joined": "2010-08-14 01:50:58"
+            "date_joined": "2010-08-14T01:50:58+00:00"
         }
     }
 ]

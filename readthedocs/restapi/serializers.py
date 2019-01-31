@@ -1,27 +1,31 @@
+# -*- coding: utf-8 -*-
+
 """Defines serializers for each of our models."""
-
-from __future__ import absolute_import
-
-from builtins import object
 
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     canonical_url = serializers.ReadOnlyField(source='get_docs_url')
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = (
             'id',
-            'name', 'slug', 'description', 'language',
-            'programming_language', 'repo', 'repo_type',
-            'default_version', 'default_branch',
+            'name',
+            'slug',
+            'description',
+            'language',
+            'programming_language',
+            'repo',
+            'repo_type',
+            'default_version',
+            'default_branch',
             'documentation_type',
             'users',
             'canonical_url',
@@ -43,10 +47,11 @@ class ProjectAdminSerializer(ProjectSerializer):
         slug_field='feature_id',
     )
 
-    show_advertising = serializers.SerializerMethodField()
-
-    def get_show_advertising(self, obj):
-        return obj.show_advertising
+    def get_environment_variables(self, obj):
+        return {
+            variable.name: variable.value
+            for variable in obj.environmentvariable_set.all()
+        }
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
@@ -60,7 +65,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             'container_time_limit',
             'install_project',
             'use_system_packages',
-            'suffix',
             'skip',
             'requirements_file',
             'python_interpreter',
@@ -68,6 +72,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_clone',
             'has_valid_webhook',
             'show_advertising',
+            'environment_variables',
         )
 
 
@@ -75,13 +80,16 @@ class VersionSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
     downloads = serializers.DictField(source='get_downloads', read_only=True)
 
-    class Meta(object):
+    class Meta:
         model = Version
         fields = (
             'id',
-            'project', 'slug',
-            'identifier', 'verbose_name',
-            'active', 'built',
+            'project',
+            'slug',
+            'identifier',
+            'verbose_name',
+            'active',
+            'built',
             'downloads',
             'type',
         )
@@ -98,7 +106,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
     run_time = serializers.ReadOnlyField()
 
-    class Meta(object):
+    class Meta:
         model = BuildCommandResult
         exclude = ('')
 
@@ -112,10 +120,14 @@ class BuildSerializer(serializers.ModelSerializer):
     version_slug = serializers.ReadOnlyField(source='version.slug')
     docs_url = serializers.ReadOnlyField(source='version.get_absolute_url')
     state_display = serializers.ReadOnlyField(source='get_state_display')
+    # Jsonfield needs an explicit serializer
+    # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
+    config = serializers.JSONField(required=False)
 
-    class Meta(object):
+    class Meta:
         model = Build
-        exclude = ('builder',)
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('builder', '_config')
 
 
 class BuildAdminSerializer(BuildSerializer):
@@ -123,7 +135,8 @@ class BuildAdminSerializer(BuildSerializer):
     """Build serializer for display to admin users and build instances."""
 
     class Meta(BuildSerializer.Meta):
-        exclude = ()
+        # `_config` should be excluded to avoid conflicts with `config`
+        exclude = ('_config',)
 
 
 class SearchIndexSerializer(serializers.Serializer):
@@ -136,7 +149,7 @@ class SearchIndexSerializer(serializers.Serializer):
 class DomainSerializer(serializers.ModelSerializer):
     project = ProjectSerializer()
 
-    class Meta(object):
+    class Meta:
         model = Domain
         fields = (
             'id',
@@ -150,7 +163,7 @@ class DomainSerializer(serializers.ModelSerializer):
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
 
-    class Meta(object):
+    class Meta:
         model = RemoteOrganization
         exclude = ('json', 'email', 'users')
 
@@ -162,13 +175,13 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
     organization = RemoteOrganizationSerializer()
     matches = serializers.SerializerMethodField()
 
-    class Meta(object):
+    class Meta:
         model = RemoteRepository
         exclude = ('json', 'users')
 
     def get_matches(self, obj):
         request = self.context['request']
-        if request.user is not None and request.user.is_authenticated():
+        if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
 
@@ -184,13 +197,12 @@ class SocialAccountSerializer(serializers.ModelSerializer):
     avatar_url = serializers.URLField(source='get_avatar_url')
     provider = ProviderSerializer(source='get_provider')
 
-    class Meta(object):
+    class Meta:
         model = SocialAccount
         exclude = ('extra_data',)
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get('username') or
-            obj.extra_data.get('login')
+            obj.extra_data.get('username') or obj.extra_data.get('login')
             # FIXME: which one is GitLab?
         )

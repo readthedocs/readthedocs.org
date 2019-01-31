@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
-from django.db import models, migrations
+from django.db import migrations
 
 
 def forwards_move_repo_source(apps, schema_editor):
-    """Use source field to set repository account"""
+    """Use source field to set repository account."""
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
     SocialAccount = apps.get_model('socialaccount', 'SocialAccount')
     for account in SocialAccount.objects.all():
@@ -16,7 +13,7 @@ def forwards_move_repo_source(apps, schema_editor):
 
 
 def backwards_move_repo_source(apps, schema_editor):
-    RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
+    apps.get_model('oauth', 'RemoteRepository')
     SocialAccount = apps.get_model('socialaccount', 'SocialAccount')
     for account in SocialAccount.objects.all():
         rows = (account.remote_repositories
@@ -24,7 +21,7 @@ def backwards_move_repo_source(apps, schema_editor):
 
 
 def forwards_move_org_source(apps, schema_editor):
-    """Use source field to set organization account"""
+    """Use source field to set organization account."""
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
     SocialAccount = apps.get_model('socialaccount', 'SocialAccount')
     for account in SocialAccount.objects.all():
@@ -34,8 +31,8 @@ def forwards_move_org_source(apps, schema_editor):
 
 
 def backwards_move_org_source(apps, schema_editor):
-    """Use source field to set organization account"""
-    RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')
+    """Use source field to set organization account."""
+    apps.get_model('oauth', 'RemoteOrganization')
     SocialAccount = apps.get_model('socialaccount', 'SocialAccount')
     for account in SocialAccount.objects.all():
         rows = (account.remote_organizations
@@ -49,8 +46,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(forwards_move_repo_source,
-                             backwards_move_repo_source),
-        migrations.RunPython(forwards_move_org_source,
-                             backwards_move_org_source),
+        migrations.RunPython(
+            forwards_move_repo_source,
+            backwards_move_repo_source,
+        ),
+        migrations.RunPython(
+            forwards_move_org_source,
+            backwards_move_org_source,
+        ),
     ]

@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
 """Django admin interface for `~builds.models.Build` and related models."""
 
-from __future__ import absolute_import
 from django.contrib import admin
-from readthedocs.builds.models import Build, VersionAlias, Version, BuildCommandResult
 from guardian.admin import GuardedModelAdmin
+
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -12,8 +14,25 @@ class BuildCommandResultInline(admin.TabularInline):
 
 
 class BuildAdmin(admin.ModelAdmin):
-    fields = ('project', 'version', 'type', 'state', 'error', 'success', 'length', 'cold_storage')
-    list_display = ('id', 'project', 'version_name', 'success', 'type', 'state', 'date')
+    fields = (
+        'project',
+        'version',
+        'type',
+        'state',
+        'error',
+        'success',
+        'length',
+        'cold_storage',
+    )
+    list_display = (
+        'id',
+        'project',
+        'version_name',
+        'success',
+        'type',
+        'state',
+        'date',
+    )
     list_filter = ('type', 'state', 'success')
     list_select_related = ('project', 'version')
     raw_id_fields = ('project', 'version')
@@ -26,11 +45,17 @@ class BuildAdmin(admin.ModelAdmin):
 
 class VersionAdmin(GuardedModelAdmin):
     search_fields = ('slug', 'project__name')
-    list_display = ('slug', 'type', 'project', 'privacy_level', 'active', 'built')
+    list_display = (
+        'slug',
+        'type',
+        'project',
+        'privacy_level',
+        'active',
+        'built',
+    )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     raw_id_fields = ('project',)
 
 
 admin.site.register(Build, BuildAdmin)
-admin.site.register(VersionAlias)
 admin.site.register(Version, VersionAdmin)

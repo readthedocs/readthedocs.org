@@ -2415,24 +2415,12 @@ msgstr "D'acord, desa'l"
 msgid "%(user)s's profile"
 msgstr "Perfil de %(user)s"
 
-#: templates/projects/alias_edit.html:4 templates/projects/alias_edit.html:7
-msgid "Project Alias"
-msgstr "Àlies del projecte"
-
-#: templates/projects/alias_edit.html:12
-msgid "Add an alias for a project version."
-msgstr "Afegiu un àlies a la versió del projecte."
 
 #: templates/projects/alias_edit.html:16
 #: templates/projects/project_create.html:19
 msgid "Create"
 msgstr "Crea"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "Àlies"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Navega pels projectes"

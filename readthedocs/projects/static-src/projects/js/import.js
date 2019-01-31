@@ -230,7 +230,7 @@ function ProjectImportView(instance, config) {
         self.error(null);
 
         $.getJSON(url)
-            .success(function (projects_list) {
+            .done(function (projects_list) {
                 var projects = [];
                 self.page_next(projects_list.next);
                 self.page_previous(projects_list.previous);
@@ -241,7 +241,7 @@ function ProjectImportView(instance, config) {
                 }
                 self.projects(projects);
             })
-            .error(function (error) {
+            .fail(function (error) {
                 var error_msg = error.responseJSON.detail || error.statusText;
                 self.error({message: error_msg});
             })
@@ -252,10 +252,10 @@ function ProjectImportView(instance, config) {
 
     self.get_organizations = function () {
         $.getJSON(self.urls['remoteorganization-list'])
-            .success(function (organizations) {
+            .done(function (organizations) {
                 self.organizations_raw(organizations.results);
             })
-            .error(function (error) {
+            .fail(function (error) {
                 var error_msg = error.responseJSON.detail || error.statusText;
                 self.error({message: error_msg});
             });
@@ -263,10 +263,10 @@ function ProjectImportView(instance, config) {
 
     self.get_accounts = function () {
         $.getJSON(self.urls['remoteaccount-list'])
-            .success(function (accounts) {
+            .done(function (accounts) {
                 self.accounts_raw(accounts.results);
             })
-            .error(function (error) {
+            .fail(function (error) {
                 var error_msg = error.responseJSON.detail || error.statusText;
                 self.error({message: error_msg});
             });

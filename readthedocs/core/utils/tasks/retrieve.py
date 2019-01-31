@@ -1,27 +1,24 @@
-"""Utilities for retrieving task data."""
+# -*- coding: utf-8 -*-
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Utilities for retrieving task data."""
 
 from celery import states
 from celery.result import AsyncResult
+
 
 __all__ = ('TaskNotFound', 'get_task_data')
 
 
 class TaskNotFound(Exception):
+
     def __init__(self, task_id, *args, **kwargs):
         message = 'No public task found with id {id}'.format(id=task_id)
-        super(TaskNotFound, self).__init__(message, *args, **kwargs)
+        super().__init__(message, *args, **kwargs)
 
 
 def get_task_data(task_id):
     """
-    Will raise `TaskNotFound` if the task is in state ``PENDING`` or the task
+    Will raise `TaskNotFound` if the task is in state ``PENDING`` or the task.
 
     meta data has no ``'task_name'`` key set.
     """

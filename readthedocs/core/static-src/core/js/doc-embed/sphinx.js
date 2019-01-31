@@ -47,10 +47,10 @@ function init() {
         if (rtd.is_rtd_like_theme()) {
             // Add a scrollable element to the sidebar on the RTD sphinx theme
             // This fix is for sphinx_rtd_theme<=0.1.8
-            var navBar = jquery('div.wy-side-scroll:first');
+            var navBar = $('div.wy-side-scroll:first');
             if (!navBar.length) {
                 console.log('Applying theme sidebar fix...');
-                var navInner = jquery('nav.wy-nav-side:first');
+                var navInner = $('nav.wy-nav-side:first');
                 var navScroll = $('<div />')
                         .addClass('wy-side-scroll');
 

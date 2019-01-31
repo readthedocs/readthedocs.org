@@ -2504,11 +2504,6 @@ msgstr "Adic alias para versão projeto"
 msgid "Create"
 msgstr "Criar"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "Apelidos"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "Navegar em projetos"

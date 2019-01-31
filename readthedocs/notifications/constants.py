@@ -1,6 +1,7 @@
-"""Notification constants"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Notification constants."""
+
 from messages_extends import constants as message_constants
 
 
@@ -18,7 +19,6 @@ LEVEL_MAPPING = {
     REQUIREMENT: message_constants.WARNING_PERSISTENT,
     ERROR: message_constants.ERROR_PERSISTENT,
 }
-
 
 # Message levels to save the message into the database and mark as read
 # immediately after retrieved (one-time shown message)

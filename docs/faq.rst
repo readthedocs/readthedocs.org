@@ -64,15 +64,25 @@ environment, and will be set to ``True`` when building on RTD::
     Woo
     {% endif %}
 
+My project requires different settings than those available under Admin
+-----------------------------------------------------------------------
+
+Read the Docs offers some settings which can be used for a variety of purposes,
+such as to use the latest version of sphinx or pip. To enable these settings,
+please open a request issue on our `github`_ and we will change the settings for the project.
+Read more about these settings :doc:`here <guides/feature-flags>`.
+
+.. _github: https://github.com/rtfd/readthedocs.org
+
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
 
 .. note::
     Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for building your project. This happens with things like libevent and mysql, and other python things that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
+This happens because our build system doesn't have the dependencies for building your project. This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-You can mock out the imports for these modules in your ``conf.py`` with the following snippet::
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. Alternatively you can use the mock library by putting the following snippet in your ``conf.py``::
 
     import sys
     from unittest.mock import MagicMock
@@ -85,7 +95,7 @@ You can mock out the imports for these modules in your ``conf.py`` with the foll
     MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
-Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
+You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
 
 .. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
     from PyPI with (ie ``pip install mock``) and replace the above import::
@@ -93,6 +103,8 @@ Of course, replacing `MOCK_MODULES` with the modules that you want to mock out.
         from mock import Mock as MagicMock
 
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
+
+.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 `Client Error 401` when building documentation
 ----------------------------------------------
@@ -151,7 +163,7 @@ We think that our theme is badass, and better than the default for many reasons.
 I want to use the Read the Docs theme locally
 ---------------------------------------------
 
-There is a repository for that: https://github.com/snide/sphinx_rtd_theme.
+There is a repository for that: https://github.com/rtfd/sphinx_rtd_theme.
 Simply follow the instructions in the README.
 
 Image scaling doesn't work in my documentation
@@ -228,3 +240,49 @@ What commit of Read the Docs is in production?
 ----------------------------------------------
 
 We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
+
+
+How can I avoid search results having a deprecated version of my docs?
+----------------------------------------------------------------------
+
+If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
+It may happen that this version is already deprecated and you want to stop Google indexing it as a result,
+and start suggesting the latest (or newer) one.
+
+To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
+(for example, https://yourproject.readthedocs.io/robots.txt).
+
+
+Minimal example of ``robots.txt``
++++++++++++++++++++++++++++++++++
+
+::
+
+   User-agent: *
+   Disallow: /en/deprecated-version/
+   Disallow: /en/2.0/
+
+.. note::
+
+   See `Google's docs`_ for its full syntax.
+
+This file has to be served as is under ``/robots.txt``.
+Depending if you are using Sphinx or MkDocs, you will need a different configuration for this.
+
+
+Sphinx
+~~~~~~
+
+Sphinx uses `html_extra`_ option to add static files to the output.
+You need to create a ``robots.txt`` file and put it under the path defined in ``html_extra``.
+
+
+MkDocs
+~~~~~~
+
+MkDocs needs the ``robots.txt`` to be at the directory defined at `docs_dir`_ config.
+
+
+.. _Google's docs: https://support.google.com/webmasters/answer/6062608
+.. _html_extra: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
+.. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir

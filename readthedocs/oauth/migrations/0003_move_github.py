@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
-import json
 import gc
+import json
 import logging
 
-from django.db import models, migrations
+from django.db import migrations
+
 
 log = logging.getLogger(__name__)
 
@@ -25,7 +23,7 @@ def chunks(queryset, chunksize=1000):
 
 
 def forwards_move_repos(apps, schema_editor):
-    """Moves OAuth repos"""
+    """Moves OAuth repos."""
     db = schema_editor.connection.alias
 
     # Organizations
@@ -109,7 +107,7 @@ def forwards_move_repos(apps, schema_editor):
             else:
                 new_repo.clone_url = data.get('clone_url')
             new_repo.json = json.dumps(data)
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError):
             pass
         new_repo.save()
         log.info('Migrated project: %s', project.name)
@@ -143,21 +141,21 @@ def forwards_move_repos(apps, schema_editor):
             new_repo.private = data.get('is_private', False)
             new_repo.json = json.dumps(data)
 
-            clone_urls = dict((location['name'], location['href'])
+            clone_urls = {location['name']: location['href']
                               for location
-                              in data.get('links', {}).get('clone', {}))
+                              in data.get('links', {}).get('clone', {})}
             if new_repo.private:
                 new_repo.clone_url = clone_urls.get('ssh', project.git_url)
             else:
                 new_repo.clone_url = clone_urls.get('https', project.html_url)
-        except (SyntaxError, ValueError) as e:
+        except (SyntaxError, ValueError):
             pass
         new_repo.save()
         log.info('Migrated project: %s', project.name)
 
 
 def reverse_move_repos(apps, schema_editor):
-    """Drop OAuth repos"""
+    """Drop OAuth repos."""
     db = schema_editor.connection.alias
     RemoteRepository = apps.get_model('oauth', 'RemoteRepository')
     RemoteOrganization = apps.get_model('oauth', 'RemoteOrganization')

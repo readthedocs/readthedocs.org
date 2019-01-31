@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
+
 """Forms for core app."""
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
-from builtins import object
 
 from django import forms
 from django.contrib.auth.models import User
@@ -14,20 +11,21 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import UserProfile
 
+
 log = logging.getLogger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):
-    first_name = CharField(label=_('First name'), required=False)
-    last_name = CharField(label=_('Last name'), required=False)
+    first_name = CharField(label=_('First name'), required=False, max_length=30)
+    last_name = CharField(label=_('Last name'), required=False, max_length=30)
 
-    class Meta(object):
+    class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page
         fields = ['first_name', 'last_name', 'homepage']
 
     def __init__(self, *args, **kwargs):
-        super(UserProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         try:
             self.fields['first_name'].initial = self.instance.user.first_name
             self.fields['last_name'].initial = self.instance.user.last_name
@@ -37,7 +35,7 @@ class UserProfileForm(forms.ModelForm):
     def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
         last_name = self.cleaned_data.pop('last_name', None)
-        profile = super(UserProfileForm, self).save(commit=commit)
+        profile = super().save(commit=commit)
         if commit:
             user = profile.user
             user.first_name = first_name
@@ -52,7 +50,7 @@ class UserDeleteForm(forms.ModelForm):
         help_text=_('Please type your username to confirm.'),
     )
 
-    class Meta(object):
+    class Meta:
         model = User
         fields = ['username']
 
@@ -66,7 +64,8 @@ class UserDeleteForm(forms.ModelForm):
 
 
 class UserAdvertisingForm(forms.ModelForm):
-    class Meta(object):
+
+    class Meta:
         model = UserProfile
         fields = ['allow_ads']
 

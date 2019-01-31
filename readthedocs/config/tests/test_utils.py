@@ -1,5 +1,4 @@
-from __future__ import division, print_function, unicode_literals
-
+# -*- coding: utf-8 -*-
 from .utils import apply_fs
 
 

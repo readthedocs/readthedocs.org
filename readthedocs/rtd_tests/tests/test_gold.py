@@ -1,10 +1,9 @@
-from __future__ import absolute_import
-from django.core.urlresolvers import reverse
+# -*- coding: utf-8 -*-
 from django.test import TestCase
+from django.urls import reverse
+from django_dynamic_fixture import fixture, get
 
-from django_dynamic_fixture import get
-
-from readthedocs.gold.models import GoldUser, LEVEL_CHOICES
+from readthedocs.gold.models import LEVEL_CHOICES, GoldUser
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_user
 
@@ -14,7 +13,7 @@ class GoldViewTests(TestCase):
     def setUp(self):
         self.user = create_user(username='owner', password='test')
 
-        self.project = get(Project, slug='test')
+        self.project = get(Project, slug='test', users=[fixture(), self.user])
 
         self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
 
@@ -26,13 +25,6 @@ class GoldViewTests(TestCase):
         self.assertEqual(self.golduser.projects.count(), 1)
         self.assertEqual(resp.status_code, 302)
 
-    def test_incorrect_input_when_adding_projects(self):
-        self.assertEqual(self.golduser.projects.count(), 0)
-        incorrect_slug = 'xyz-random-incorrect-slug-xyz'
-        self.assertEqual(Project.objects.filter(slug=incorrect_slug).count(), 0)
-        resp = self.client.post(reverse('gold_projects'), data={'project': incorrect_slug})
-        self.assertFormError(resp, form='form', field='project', errors='No project found.')
-
     def test_too_many_projects(self):
         self.project2 = get(Project, slug='test2')
 
@@ -42,7 +34,7 @@ class GoldViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         resp = self.client.post(reverse('gold_projects'), data={'project': self.project2.slug})
         self.assertFormError(
-            resp, form='form', field=None, errors='You already have the max number of supported projects.'
+            resp, form='form', field=None, errors='You already have the max number of supported projects.',
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.golduser.projects.count(), 1)

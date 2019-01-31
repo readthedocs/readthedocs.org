@@ -1,32 +1,31 @@
 # -*- coding: utf-8 -*-
-"""Mix-in classes for project views."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Mix-in classes for project views."""
 import logging
-from builtins import object
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.utils import timezone
 
 from ..exceptions import ProjectSpamError
 from ..models import Project
+
 
 log = logging.getLogger(__name__)
 
 USER_MATURITY_DAYS = getattr(settings, 'USER_MATURITY_DAYS', 7)
 
 
-class ProjectOnboardMixin(object):
+class ProjectOnboardMixin:
 
     """Add project onboard context data to project object views."""
 
     def get_context_data(self, **kwargs):
         """Add onboard context data."""
-        context = super(ProjectOnboardMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         # If more than 1 project, don't show onboarding at all. This could
         # change in the future, to onboard each user maybe?
         if Project.objects.for_admin_user(self.request.user).count() > 1:
@@ -50,7 +49,7 @@ class ProjectOnboardMixin(object):
 
 
 # Mixins
-class ProjectAdminMixin(object):
+class ProjectAdminMixin:
 
     """
     Mixin class that provides project sublevel objects.
@@ -73,11 +72,12 @@ class ProjectAdminMixin(object):
             return None
         return get_object_or_404(
             Project.objects.for_admin_user(user=self.request.user),
-            slug=self.kwargs[self.project_url_field])
+            slug=self.kwargs[self.project_url_field],
+        )
 
     def get_context_data(self, **kwargs):
         """Add project to context data."""
-        context = super(ProjectAdminMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['project'] = self.get_project()
         return context
 
@@ -87,7 +87,7 @@ class ProjectAdminMixin(object):
         return self.form_class(data, files, **kwargs)
 
 
-class ProjectSpamMixin(object):
+class ProjectSpamMixin:
 
     """Protects POST views from spammers."""
 
@@ -99,9 +99,9 @@ class ProjectSpamMixin(object):
             )
             return HttpResponseRedirect(self.get_failure_url())
         try:
-            return super(ProjectSpamMixin, self).post(request, *args, **kwargs)
+            return super().post(request, *args, **kwargs)
         except ProjectSpamError:
-            date_maturity = datetime.now() - timedelta(days=USER_MATURITY_DAYS)
+            date_maturity = timezone.now() - timedelta(days=USER_MATURITY_DAYS)
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()

@@ -2400,11 +2400,6 @@ msgstr "أضف كنية لإصدار المشروع"
 msgid "Create"
 msgstr "إنشاء"
 
-#: templates/projects/alias_list.html:6 templates/projects/alias_list.html:11
-msgid "Aliases"
-msgstr "أسماء كنية"
-
-#: templates/projects/alias_list.html:20
 #: templates/projects/project_list.html:48
 msgid "Browse projects"
 msgstr "تصفّح المشاريع"

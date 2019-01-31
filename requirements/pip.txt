@@ -1,64 +1,42 @@
 # Base packages
-pip==18.0
+pip==19.0.1
 appdirs==1.4.3
-virtualenv==16.0.0
-docutils==0.14
-Sphinx==1.7.8
-sphinx_rtd_theme==0.4.1
-# Required to avoid Transifex error with reserved slug
-# https://github.com/sphinx-doc/sphinx-intl/pull/27
-git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
+virtualenv==16.3.0
 
-Pygments==2.2.0
-
-mkdocs==0.17.3
-# mkdocs requires markdown
-# Markdown 3.0 breaks with older Django Rest Framework
-Markdown<3.0
-
-django==1.11.16
-six==1.11.0
-future==0.16.0
-
-# django-tastypie 0.14.0 drops support for django 1.9
-django-tastypie==0.13.3
-
+django==1.11.18
+django-tastypie==0.14.2
 django-guardian==1.4.9
-django-extensions==2.1.2
+django-extensions==2.1.4
 
-# djangorestframework 3.7.x drops support for django 1.9.x
-djangorestframework==3.6.4
+djangorestframework==3.9.1
 
 # Filtering for the REST API
-# django-filter>2.0 require Django 1.11
-# https://django-filter.readthedocs.io/en/master/guide/migration.html#migrating-to-2-0
-# Besides the guide, check this comment for the migration
-# https://github.com/rtfd/readthedocs.org/pull/4318#discussion_r214163531
-django-filter==1.1.0
+django-filter==2.1.0
 
-django-vanilla-views==1.0.5
+django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
-requests==2.19.1
+requests==2.21.0
 requests-toolbelt==0.8.0
 slumber==0.7.1
-lxml==4.2.4
+lxml==4.3.0
 defusedxml==0.5.0
+pyyaml==3.13
+Pygments==2.3.1
 
 # Basic tools
+# Redis 3.x has an incompatible change and fails
+# https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
+# https://github.com/sebleier/django-redis-cache/pull/162
 redis==2.10.6
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
 celery==4.1.1
 
-# django-allauth 0.33.0 dropped support for Django 1.9
-# https://django-allauth.readthedocs.io/en/latest/release-notes.html#backwards-incompatible-changes
-django-allauth==0.32.0
-
-dnspython==1.15.0
+django-allauth==0.38.0
 
 # VCS
-httplib2==0.11.3
+httplib2==0.12.0
 
 # GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
 # of an UnicodeError
@@ -70,21 +48,25 @@ httplib2==0.11.3
 GitPython==2.1.10
 
 # Search
-elasticsearch==1.5.0
-pyelasticsearch==0.7.1
+elasticsearch==6.2.0
+
+
+# elasticsearch-dsl==6.3.1 produces this error
+#   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
+#     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
+# ImportError: cannot import name 'DocTypeMeta'
+elasticsearch-dsl==6.1.0
+django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.5
-beautifulsoup4==4.6.3
+pytz==2018.9
+beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-
-# stripe 1.20.2 is the latest compatible with our code base (otherwise
-# gold/tests/test_forms.py fails)
-stripe==1.20.2
+stripe==2.19.0
 
 django-formtools==2.1
 
@@ -98,21 +80,11 @@ django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-# django-taggit 0.23.0 drops support for django < 1.11
-django-taggit==0.22.0
-dj-pagination==2.3.2
-
-# Docs
-sphinxcontrib-httpdomain==1.7.0
-
-# commonmark 0.5.5 is the latest version compatible with our docs, the
-# newer ones make `tox -e docs` to fail
-commonmark==0.5.5
-
-recommonmark==0.4.0
+django-taggit==0.23.0
+dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==17.1
+packaging==19.0
 
 # Commenting stuff
 django-cors-middleware==1.3.1

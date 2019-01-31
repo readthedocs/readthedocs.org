@@ -66,4 +66,4 @@ Alternate Domains
 -----------------
 
 We provide support for custom domains, subdomains, and a shorturl for your
-project as well. This is outlined in the :doc:`alternate_domains` section.
+project as well. This is outlined in the :doc:`custom_domains` section.
