@@ -59,15 +59,6 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     return task_promise
 
 
-def cname_to_slug(host):
-    # TODO: remove
-    from dns import resolver
-    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-    domain = answer.target.to_unicode()
-    slug = domain.split('.')[0]
-    return slug
-
-
 def prepare_build(
         project,
         version=None,

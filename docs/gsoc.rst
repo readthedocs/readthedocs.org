@@ -78,7 +78,7 @@ This project will include:
 Finish YAML config
 ~~~~~~~~~~~~~~~~~~
 
-Currently we have a basic :doc:`/yaml-config` for Read the Docs.
+Currently we have a basic :doc:`configuration file <config-file/v1>` for Read the Docs.
 It's still considered beta,
 and there are a number of features that it doesn't support.
 We need to support everying users can currently do from our website dashboard inside the YAML file,

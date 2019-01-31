@@ -1,3 +1,22 @@
+Version 3.1.0
+-------------
+
+This version greatly improves our search capabilities,
+thanks to the Google Summer of Code.
+We're hoping to have another version of search coming soon after this,
+but this is a large upgrade moving to the latest Elastic Search.
+
+:Date: January 24, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix docs build (`#5164 <https://github.com/rtfd/readthedocs.org/pull/5164>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.0.0 (`#5163 <https://github.com/rtfd/readthedocs.org/pull/5163>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix tests on master (`#5162 <https://github.com/rtfd/readthedocs.org/pull/5162>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Sort versions smartly everywhere (`#5157 <https://github.com/rtfd/readthedocs.org/pull/5157>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow query params in redirects (`#5081 <https://github.com/rtfd/readthedocs.org/pull/5081>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Implement get objects or log (`#4900 <https://github.com/rtfd/readthedocs.org/pull/4900>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove usage of project.documentation_type in tasks (`#4896 <https://github.com/rtfd/readthedocs.org/pull/4896>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Reapply the Elastic Search upgrade to `master` (`#4722 <https://github.com/rtfd/readthedocs.org/pull/4722>`__)
+
 Version 3.0.0
 -------------
 
