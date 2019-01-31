@@ -8,7 +8,7 @@ When a 404 is returned, Read the Docs checks if there is a ``404.html`` in the r
 
 As the ``404.html`` will be returned for all the URLs where the real page was not found,
 all its resources URLs and links must be absolute (start with a `/`),
-otherwise they won't be found by the client for all the 404 URLs producing errors while displaying the page (styles and/or images not found).
+otherwise they will not work when a user clicks on them.
 
 In case you want to follow the same style for the 404 page than your theme, you can either:
 
