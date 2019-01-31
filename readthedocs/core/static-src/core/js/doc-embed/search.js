@@ -55,12 +55,18 @@ function attach_elastic_search_query(data) {
 
                         // Show highlighted texts
                         if (highlight.content) {
-                            var content_text = xss(highlight.content[0]);
-                            var contents = $('<div class="context">');
+                            for (index in highlight.content) {
+                                if (index < 3) {
+                                    // Show up to 3 results for search
+                                    var content = highlight.content[index];
+                                    var content_text = xss(content);
+                                    var contents = $('<div class="context">');
 
-                            contents.html(content_text);
-                            contents.find('em').addClass('highlighted');
-                            list_item.append(contents);
+                                    contents.html("..." + content_text + "...");
+                                    contents.find('em').addClass('highlighted');
+                                    list_item.append(contents);
+                                }
+                            }
                         }
 
                         Search.output.append(list_item);
