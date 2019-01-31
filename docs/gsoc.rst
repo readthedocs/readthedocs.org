@@ -63,31 +63,6 @@ We will consider the priority on our roadmap as a factor,
 along with the skill of the student,
 in our selection process.
 
-Refactor & improve our search code
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Currently we're using a homegrown library for Elastic Search.
-There is a new `elasticsearch-dsl <http://elasticsearch-dsl.readthedocs.io/en/latest/>`_ library that we should be using.
-This project will include:
-
-* Improving our search indexing
-* Refactoring how we "model" our search data to use elasticsearch-dsl Models
-* Add additional search data into our indexes, like the programming languages, type of document (tutorial, api, etc.) and other data for users to filter by
-* (Optional) Improve the UX of the search for users in various ways
-
-Finish YAML config
-~~~~~~~~~~~~~~~~~~
-
-Currently we have a basic :doc:`configuration file <config-file/v1>` for Read the Docs.
-It's still considered beta,
-and there are a number of features that it doesn't support.
-We need to support everying users can currently do from our website dashboard inside the YAML file,
-and then plan a smooth transition path from the database UI to the YAML file.
-
-This is a *large* project and will likely require a good deal of understanding of both Python as well as web technologies.
-We have a `starting list of issues <https://github.com/rtfd/readthedocs.org/milestone/28>`_ put together,
-but there will be much more work.
-
 API V3
 ~~~~~~
 
@@ -164,6 +139,23 @@ We should rebuild how we handle redirects across a number of cases:
 
 There will also be a good number of things that spawn from this, including version aliases and other related concepts, if this task doesn't take the whole summer.
 
+Autobuild docs for Pull Requests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It would be great to automatically build docs for Pull Requests in GitHub repos that our users have.
+Currently we don't support this,
+and it's one of our most requested features.
+
+This would include:
+
+* Modeling Pull Requests as a type of version alongside Tags and Branches
+* Modifying how we upload HTML docs to store them in a place like S3 for long term storage
+* Build integration with GitHub to send the status notifications when a PR is building and complete
+
+More info here: 
+
+* https://github.com/rtfd/readthedocs.org/issues/1340
+* https://github.com/rtfd/readthedocs.org/issues/2465
 
 Additional Ideas
 ~~~~~~~~~~~~~~~~
