@@ -19,6 +19,9 @@ from readthedocs.search.signals import (
 log = logging.getLogger(__name__)
 
 
+ALL_FACETS = ['project', 'version', 'doc_type', 'language']
+
+
 class RTDFacetedSearch(FacetedSearch):
 
     """Overwrite the initialization in order too meet our needs."""
@@ -28,6 +31,14 @@ class RTDFacetedSearch(FacetedSearch):
 
     def __init__(self, user, **kwargs):
         self.user = user
+        for facet in self.facets:
+            if facet in kwargs:
+                kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
+
+        # Don't pass along unnecessary filters
+        for f in ALL_FACETS:
+            if f in kwargs:
+                del kwargs[f]
         super(RTDFacetedSearch, self).__init__(**kwargs)
 
     def search(self):
@@ -54,28 +65,12 @@ class RTDFacetedSearch(FacetedSearch):
         """
         Add query part to ``search`` when needed.
 
-        Also does HTML encoding of results to avoid XSS issues.
+        Also:
+
+        * Adds SimpleQueryString instead of default query.
+        * Adds HTML encoding of results to avoid XSS issues.
         """
-        search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
-        return search
-
-
-class DomainSearch(RTDFacetedSearch):
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'doc_type': TermsFacet(field='doc_type'),
-    }
-    signal = before_domain_search
-    doc_types = [DomainDocument]
-    index = DomainDocument._doc_type.index
-    fields = ('display_name^5', 'name')
-
-    def query(self, search, query):
-        """Use a custom SimpleQueryString instead of default query."""
-
-        search = super().query(search, query)
 
         all_queries = []
 
@@ -94,8 +89,22 @@ class DomainSearch(RTDFacetedSearch):
         return search
 
 
+class DomainSearch(RTDFacetedSearch):
+    facets = {
+        'project': TermsFacet(field='project'),
+        'version': TermsFacet(field='version'),
+        'doc_type': TermsFacet(field='doc_type'),
+    }
+    signal = before_domain_search
+    doc_types = [DomainDocument]
+    index = DomainDocument._doc_type.index
+    fields = ('display_name^5', 'name')
+
+
 class ProjectSearch(RTDFacetedSearch):
-    facets = {'language': TermsFacet(field='language')}
+    facets = {
+        'language': TermsFacet(field='language')
+    }
     signal = before_project_search
     doc_types = [ProjectDocument]
     index = ProjectDocument._doc_type.index
@@ -112,33 +121,19 @@ class PageSearch(RTDFacetedSearch):
     index = PageDocument._doc_type.index
     fields = ['title^10', 'headers^5', 'content']
 
-    def query(self, search, query):
-        """Use a custom SimpleQueryString instead of default query."""
-
-        search = super().query(search, query)
-
-        all_queries = []
-
-        # need to search for both 'and' and 'or' operations
-        # the score of and should be higher as it satisfies both or and and
-        for operator in ['and', 'or']:
-            query_string = SimpleQueryString(
-                query=query, fields=self.fields, default_operator=operator
-            )
-            all_queries.append(query_string)
-
-        # run bool query with should, so it returns result where either of the query matches
-        bool_query = Bool(should=all_queries)
-
-        search = search.query(bool_query)
-        return search
-
 
 class AllSearch(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version')
+        'version': TermsFacet(field='version'),
+        'language': TermsFacet(field='language'),
+        'doc_type': TermsFacet(field='doc_type'),
+        'index': TermsFacet(field='_index'),
     }
-    signal = before_project_search
+    signal = before_file_search
     doc_types = [DomainDocument, PageDocument, ProjectDocument]
-    index = ['page_index', 'domain_index', 'project_index']
+    index = [DomainDocument._doc_type.index,
+             PageDocument._doc_type.index,
+             ProjectDocument._doc_type.index]
+    fields = ('title^10', 'headers^5', 'content', 'name^10',
+              'slug^5', 'description', 'display_name^5')

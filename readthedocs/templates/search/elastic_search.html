@@ -15,41 +15,83 @@
 
 {% block extra_scripts %}
 <script type="text/javascript" src="{% static 'search/readthedocs-client.js' %}"></script>
-<script> 
-  var config = {api_host: 'http://localhost:8000'}
+<!--<script type="text/javascript" src="{% static 'search/search-embed.js' %}"></script>-->
+{% endblock %}
 
-  $(document).ready(function () {
-  var embed = new Embed(config);
-    $('.fragment').one("click mouseover",
-      function(elem) {
-            embed.section(
-                elem.currentTarget.getAttribute('project'),
-                elem.currentTarget.getAttribute('version'),
-                elem.currentTarget.getAttribute('doc_name').replace('.html', ''),
-                elem.currentTarget.getAttribute('anchor'),
-                function (section) {
-                    section.insertContent(elem.currentTarget);
-                }
-            )
-      }
-    )
-  })
-</script>
-
+{% block project_editing %}
+  {% if project_obj %}
+    {% with search_active="active" project=project_obj %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+  {% endif %}
 {% endblock %}
 
 {% block content %}
 
 <div class="navigable">
-<ul>
-    <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
-    <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
-    <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Domain objects' %}</a></li>
-    <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
+  <ul>
+<!--
+      <h5>{% trans 'Object Type' %}</h5>
+      <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
+      <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
+      <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
+      <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Code API' %}</a></li>
 
-    <hr>
+      <hr>
+-->
 
-    {% if type == 'project' %}
+      {% if facets.index %}
+
+        <h5>{% trans 'Index' %}</h5>
+          {% for name, count, selected in facets.index %}
+            <li class="{% if selected %}active{% endif %} index-list">
+              {% if index == name %}
+                <a href="?{% url_replace request 'index' ''  %}">{{ name }}
+              {% else %}
+                <a href="?{% url_replace request 'index' name  %}">{{ name }}
+              {% endif %}
+              ({{ count }})
+              </a>
+           </li>
+          {% endfor %}
+
+      <hr>
+      {% endif %}
+
+      {% if facets.project and not project_obj %}
+
+        <h5>{% trans 'Projects' %}</h5>
+          {% for name, count, selected in facets.project %}
+            <li class="{% if selected %}active{% endif %} project-list">
+              {% if project == name %}
+                <a href="?{% url_replace request 'project' ''  %}">{{ name }}
+              {% else %}
+                <a href="?{% url_replace request 'project' name  %}">{{ name }}
+              {% endif %}
+              ({{ count }})
+              </a>
+           </li>
+          {% endfor %}
+
+      <hr>
+      {% endif %}
+
+      {% if facets.version %}
+        <h5>{% trans 'Version' %}</h5>
+          {% for name, count, selected in facets.version %}
+            <li class="{% if selected %}active{% endif %} version-list">
+              {% if version == name %}
+                <a href="?{% url_replace request 'version' ''  %}">{{ name }}
+              {% else %}
+                <a href="?{% url_replace request 'version' name  %}">{{ name }}
+              {% endif %}
+              ({{ count }})
+              </a>
+           </li>
+          {% endfor %}
+
+      <hr>
+      {% endif %}
 
       {% if facets.language %}
         <h5>{% trans 'Language' %}</h5>
@@ -64,15 +106,13 @@
               </a>
            </li>
           {% endfor %}
+      <hr>
+
       {% endif %}
 
-    {% endif %}
-
-
-    {% if type == 'domain' %}
 
       {% if facets.doc_type %}
-        <h5>{% trans 'Type' %}</h5>
+        <h5>{% trans 'Code API Type' %}</h5>
           {% for name, count, selected in facets.doc_type %}
             <li class="{% if selected %}active{% endif %} language-list">
               {% if doc_type == name %}
@@ -84,54 +124,18 @@
               </a>
            </li>
           {% endfor %}
+
+      <hr>
       {% endif %}
 
-    {% endif %}
+  {% block sponsor %}
+  <div class="search-sponsored">
+  Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.
+  </div>
+  {% endblock sponsor %}
 
+  </ul>
 
-  {% if type == 'file' %}
-
-    {% if facets.project %}
-      <h5>{% trans 'Projects' %}</h5>
-        {% for name, count, selected in facets.project %}
-          <li class="{% if selected %}active{% endif %} project-list">
-            {% if project == name %}
-              <a href="?{% url_replace request 'project' ''  %}">{{ name }}
-            {% else %}
-              <a href="?{% url_replace request 'project' name  %}">{{ name }}
-            {% endif %}
-            ({{ count }})
-            </a>
-         </li>
-        {% endfor %}
-
-    {% endif %}
-
-    {% if facets.version %}
-      <h5>{% trans 'Version' %}</h5>
-        {% for name, count, selected in facets.version %}
-          <li class="{% if selected %}active{% endif %} version-list">
-            {% if version == name %}
-              <a href="?{% url_replace request 'version' ''  %}">{{ name }}
-            {% else %}
-              <a href="?{% url_replace request 'version' name  %}">{{ name }}
-            {% endif %}
-            ({{ count }})
-            </a>
-         </li>
-        {% endfor %}
-
-    {% endif %}
-
-  {% endif %}
-
-{% block sponsor %}
-<div class="search-sponsored">
-Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.
-</div>
-{% endblock %}
-
-</ul>
   <div>
         <h2>{% trans 'Search' %}</h2>
         <!-- BEGIN search form -->
@@ -139,7 +143,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
           <div class="wide-search-bar-wrapper clearfix">
             <form action="." method="GET">
               <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_project_search">
+                <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
                 {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
                 {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
                 {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
@@ -160,7 +164,6 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
         <!-- BEGIN search results -->
         <div class="module">
           <div class="module-wrapper">
-
             <div class="module-header">
               <h3>{% blocktrans with query=query|default:"" %}Results for {{ query }}{% endblocktrans %}</h3>
             </div>
@@ -169,54 +172,53 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
               <div class="module-list-wrapper">
 
                 <ul>
+
                   {% for result in results %}
-                        <li class="module-item search-result-item">
-                          <p class="module-item-title">
-                            {% if result.language %}
+                    <li class="module-item search-result-item">
+                      <p class="module-item-title">
 
-                              {# Project #}
-                              <a href="{{ result.url }}">{{ result.name }} (<em>{{ result.slug }}</em>)</a>
+                        {% if 'project' in result.meta.index %}
+                          <a href="{{ result.url }}">
+                            {{ result.name }} (<em>{{ result.slug }}</em>)
+                          </a>
+                          {% for fragment in result.meta.highlight.description %}
+                            <p class="fragment">
+                            ...{{ fragment|safe }}...
+                            </p>
+                          {% empty %}
+                          <p><em>No description for project.</em></p>
+                          {% endfor %}
+
+                      {% elif 'domain' in result.meta.index %}
+
+                        <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">
+                          {{ result.project }} - {{ result.doc_type }} - {{ result.name }}
+                        </a>
+                        {% for fragment in result.meta.highlight.name %}
+                          <p class="fragment" project={{ result.project }} version={{result.version}} doc_name={{ result.doc_name }} anchor={{ result.anchor }}>
+                          ...{{ fragment|safe }}...
                           </p>
-                                {{ result.meta.description }}
-                              {% for fragment in result.meta.highlight.description|slice:":3" %}
-                                <p class="fragment">
-                                ...{{ fragment|safe }}...
-                                </p>
-                                <br>
-                              {% empty %}
-                              <p><em>No description for project.</em></p>
-                              {% endfor %}
-                              {# End Project #}
+                        {% endfor %}
 
-                            {% elif result.doc_type %}
+                      {% elif 'page' in result.meta.index %}
 
-                              {# Domain Data #}
-                              <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">{{ result.project }} - {{ result.doc_type }} - {{ result.name|safe }}</a>
-                              {% for fragment in result.meta.highlight.name|slice:":3" %}
-                                <p class="fragment" project={{ result.project }} version={{result.version}} doc_name={{ result.doc_name }} anchor={{ result.anchor }}>
-                                ...{{ fragment|safe }}...
-                                </p>
-                              {% endfor %}
-                              <div class="fragment-content">
-                              </div>
-                              {# End File #}
+                        <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">
+                          {{ result.project }} - {{ result.title }}
+                        </a>
+                        {% for fragment in result.meta.highlight.content %}
+                          <p class="fragment">
+                          ...{{ fragment|safe }}...
+                          </p>
+                        {% endfor %}
 
-                            {% elif result.path %}
+                      {% endif %}
 
-                              {# File #}
-                              <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">{{ result.project }} - {{ result.title|safe }}</a>
-                              {% for fragment in result.meta.highlight.content|slice:":3" %}
-                                <p class="fragment">
-                                ...{{ fragment|safe }}...
-                                </p>
-                              {% endfor %}
-                              {# End File #}
+                    </p>
+                  </li>
 
-                            {% endif %}
-                        </li>
-                  {% empty %}
-                    <li class="module-item"><span class="quiet">{% trans "No results found. Bummer." %}</span></li>
-                  {% endfor %}
+                {% empty %}
+                  <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
+                {% endfor %}
 
                 </ul>
 
@@ -225,31 +227,8 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
 
           </div>
         </div>
-        <!-- END search results -->
-
-          {% if page.has_previous or page.has_next %}
-          <!-- BEGIN search pagination -->
-          <div class="pagination">
-            {% if page.has_previous %}
-              <a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">&laquo; {% trans "Previous" %}</a>
-            {% else %}
-              <span class="disabled">&laquo; {% trans "Previous" %}</span>
-            {% endif %}
-
-            {% if page.has_next %}
-              <a class="next" href="?q={{ query }}&amp;page={{ page.next_page_number }}">{% trans "Next" %} &raquo;</a>
-            {% else %}
-              <span class="next disabled">{% trans "Next" %} &raquo;</span>
-            {% endif %}
-          </div>
-          <!-- END search pagination -->
-          {% endif %}
-
-        {% else %}
-          {# Show some example queries to run, maybe query syntax, something else? #}
         {% endif %}
-
-
+        <!-- END search results -->
   </div>
 </div>
 {% endblock %}

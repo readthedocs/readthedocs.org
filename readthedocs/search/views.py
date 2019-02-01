@@ -9,12 +9,7 @@ from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
-from readthedocs.search.documents import (
-    DomainDocument,
-    PageDocument,
-    ProjectDocument,
-)
-from readthedocs.search.faceted_search import AllSearch
+from readthedocs.search.faceted_search import AllSearch, ProjectSearch, PageSearch, DomainSearch
 from readthedocs.search.utils import get_project_list_or_404
 
 
@@ -31,20 +26,22 @@ UserInput = collections.namedtuple(
         'taxonomy',
         'language',
         'doc_type',
+        'index',
     ),
 )
 
 
-def elastic_search(request):
+def elastic_search(request, project_slug=None):
     """Use Elasticsearch for global search."""
     user_input = UserInput(
         query=request.GET.get('q'),
-        type=request.GET.get('type', 'project'),
-        project=request.GET.get('project'),
+        type=request.GET.get('type', 'all'),
+        project=project_slug or request.GET.get('project'),
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
         language=request.GET.get('language'),
         doc_type=request.GET.get('doc_type'),
+        index=request.GET.get('index'),
     )
     results = ''
     user = ''
@@ -54,37 +51,50 @@ def elastic_search(request):
         user = request.user
 
     if user_input.query:
+        kwargs = {}
+
+        if user_input.project:
+            projects_list = get_project_list_or_404(
+                project_slug=user_input.project, user=user
+            )
+            project_slug_list = [project.slug for project in projects_list]
+            kwargs['project'] = project_slug_list
+            log.info('Filtering to project list: %s' % project_slug_list)
+
+        if user_input.version:
+            kwargs['version'] = [user_input.version]
+
+        if user_input.doc_type:
+            kwargs['doc_type'] = user_input.doc_type
+
+        if user_input.language:
+            kwargs['language'] = user_input.language
+
+        if user_input.index:
+            kwargs['index'] = user_input.index
+
         if user_input.type == 'project':
-            project_search = ProjectDocument.faceted_search(
-                query=user_input.query, user=user, language=user_input.language
+            project_search = ProjectSearch(
+                query=user_input.query, user=user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
         elif user_input.type == 'domain':
-            project_search = DomainDocument.faceted_search(
-                query=user_input.query, user=user, doc_type=user_input.doc_type
+            project_search = DomainSearch(
+                query=user_input.query, user=user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
         elif user_input.type == 'file':
-            kwargs = {}
-            if user_input.project:
-                projects_list = get_project_list_or_404(
-                    project_slug=user_input.project, user=user
-                )
-                project_slug_list = [project.slug for project in projects_list]
-                kwargs['projects_list'] = project_slug_list
-            if user_input.version:
-                kwargs['versions_list'] = user_input.version
 
-            page_search = PageDocument.faceted_search(
+            page_search = PageSearch(
                 query=user_input.query, user=user, **kwargs
             )
             results = page_search.execute()
             facets = results.facets
         elif user_input.type == 'all':
             project_search = AllSearch(
-                query=user_input.query, user=user
+                query=user_input.query, user=user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
@@ -100,6 +110,14 @@ def elastic_search(request):
             ),
         )
 
+    # Make sure our selected facets are displayed even when they return 0 results
+    for avail_facet in ['project', 'version', 'doc_type', 'language']:
+        value = getattr(user_input, avail_facet)
+        if not value or avail_facet not in facets:
+            continue
+        if value not in [val[0] for val in facets[avail_facet]]:
+            facets[avail_facet].insert(0, (value, 0, True))
+
     if results:
         if user_input.type == 'file':
             # Change results to turn newlines in highlight into periods
@@ -114,55 +132,18 @@ def elastic_search(request):
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
     template_vars = user_input._asdict()
-    template_vars.update({'results': results, 'facets': facets})
+    template_vars.update({
+        'results': results,
+        'facets': facets,
+    })
+
+    if project_slug:
+        queryset = Project.objects.protected(request.user)
+        project = get_object_or_404(queryset, slug=project_slug)
+        template_vars.update({'project_obj': project})
+
     return render(
         request,
         'search/elastic_search.html',
         template_vars,
-    )
-
-
-def elastic_project_search(request, project_slug):
-    """Use elastic search to search in a project."""
-    queryset = Project.objects.protected(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    version_slug = request.GET.get('version', LATEST)
-    query = request.GET.get('q', None)
-    results = None
-
-    if query:
-        kwargs = {}
-        kwargs['projects_list'] = [project.slug]
-        kwargs['versions_list'] = version_slug
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
-
-        page_search = PageDocument.faceted_search(
-            query=query, user=user, **kwargs
-        )
-        results = page_search.execute()
-
-        log.debug('Search results: %s', pformat(results.to_dict()))
-        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
-
-        log.info(
-            LOG_TEMPLATE.format(
-                user=user,
-                project=project or '',
-                type='inproject',
-                version=version_slug or '',
-                language='',
-                msg=query or '',
-            ),
-        )
-
-    return render(
-        request,
-        'search/elastic_project_search.html',
-        {
-            'project': project,
-            'query': query,
-            'results': results,
-        },
     )
