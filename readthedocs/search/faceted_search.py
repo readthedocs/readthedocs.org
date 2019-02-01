@@ -19,7 +19,7 @@ from readthedocs.search.signals import (
 log = logging.getLogger(__name__)
 
 
-ALL_FACETS = ['project', 'version', 'doc_type', 'language']
+ALL_FACETS = ['project', 'version', 'doc_type', 'language', 'index']
 
 
 class RTDFacetedSearch(FacetedSearch):

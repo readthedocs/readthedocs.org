@@ -26,10 +26,11 @@ class DomainDocument(DocType):
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
     doc_type = fields.KeywordField(attr='doc_type')
+    anchor = fields.KeywordField(attr='anchor')
 
     class Meta(object):
         model = DomainData
-        fields = ('name', 'display_name', 'doc_name', 'anchor')
+        fields = ('name', 'display_name', 'doc_name')
         ignore_signals = True
 
     @classmethod

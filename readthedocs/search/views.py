@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
-from readthedocs.search.faceted_search import AllSearch, ProjectSearch, PageSearch, DomainSearch
+from readthedocs.search.faceted_search import AllSearch, ProjectSearch, PageSearch, DomainSearch, ALL_FACETS
 from readthedocs.search.utils import get_project_list_or_404
 
 
@@ -111,7 +111,7 @@ def elastic_search(request, project_slug=None):
         )
 
     # Make sure our selected facets are displayed even when they return 0 results
-    for avail_facet in ['project', 'version', 'doc_type', 'language']:
+    for avail_facet in ALL_FACETS:
         value = getattr(user_input, avail_facet)
         if not value or avail_facet not in facets:
             continue
