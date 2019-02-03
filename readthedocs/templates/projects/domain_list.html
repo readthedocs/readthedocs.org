@@ -32,7 +32,7 @@
                 </span>
                 <ul class="module-item-menu">
                   <li><a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a></li>
-                  <li><a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a></li>
+                  <li><a href="{% url 'projects_domains_delete' project.slug domain.pk %}" onclick="return deleteConfirmation()">{% trans "Remove" %}</a></li>
                 </ul>
                 </li>
               {% endfor %}
@@ -50,4 +50,16 @@
       <input style="display: inline;" type="submit" value="{% trans "Add" %}">
     </p>
   </form>
+{% endblock %}
+
+{% block footerjs %}
+  function deleteConfirmation() {
+    var message = "{% trans 'Do you really want to remove the selected domain?' %}";
+    var ans = confirm(message);
+    if (ans == true) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 {% endblock %}
