@@ -1,15 +1,9 @@
 -r pip.txt
-# We need these special cases of Python < 3 because we run tests with
-# Python 2 still
 # prospector 1.1.6.2 is not compatible with 2.1.0
-astroid==2.0.4; python_version > '3'
-astroid<1.7; python_version < '3'
+astroid<=2.0.4
 # prospector 1.1.6.2 is not compatible with 2.2.2
-pylint==2.1.1; python_version > '3'
-pylint<2; python_version < '3'
-# prospector 1.1.6.2 is not compatible with 2.0.5
-pylint-django==2.0.2; python_version > '3'
-pylint-django<0.12; python_version < '3'
+pylint<=2.1.1
+pylint-django<2.0.5
 pylint-celery==0.3
 prospector==1.1.6.2
 # prospector 1.1.6.2 is not compatible with 2.0.0

@@ -60,6 +60,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.notifications import EmailConfirmNotification
 
 from ..tasks import retry_domain_verification
 
@@ -78,8 +79,26 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    def validate_primary_email(self, user):
+        """
+        Sends a persistent error notification.
+
+        Checks if the user has a primary email or if the primary email
+        is verified or not. Sends a persistent error notification if
+        either of the condition is False.
+        """
+        email_qs = user.emailaddress_set.filter(primary=True)
+        email = email_qs.first()
+        if not email or not email.verified:
+            notification = EmailConfirmNotification(user=user, success=False)
+            notification.send()
+
     def get_queryset(self):
         return Project.objects.dashboard(self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        self.validate_primary_email(request.user)
+        return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -529,19 +548,18 @@ def project_notifications(request, project_slug):
         slug=project_slug,
     )
 
-    email_form = EmailHookForm(data=request.POST or None, project=project)
-    webhook_form = WebHookForm(data=request.POST or None, project=project)
+    email_form = EmailHookForm(data=None, project=project)
+    webhook_form = WebHookForm(data=None, project=project)
 
     if request.method == 'POST':
-        if email_form.is_valid():
-            email_form.save()
-        if webhook_form.is_valid():
-            webhook_form.save()
-        project_dashboard = reverse(
-            'projects_notifications',
-            args=[project.slug],
-        )
-        return HttpResponseRedirect(project_dashboard)
+        if 'email' in request.POST.keys():
+            email_form = EmailHookForm(data=request.POST, project=project)
+            if email_form.is_valid():
+                email_form.save()
+        elif 'url' in request.POST.keys():
+            webhook_form = WebHookForm(data=request.POST, project=project)
+            if webhook_form.is_valid():
+                webhook_form.save()
 
     emails = project.emailhook_notifications.all()
     urls = project.webhook_notifications.all()
