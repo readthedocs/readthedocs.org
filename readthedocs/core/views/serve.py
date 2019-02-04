@@ -316,7 +316,6 @@ def robots_txt(request, project):
 
 
 @map_project_slug
-# TODO: make this cache dependent on the project's slug
 @cache_page(60 * 60 * 24 * 3)  # 3 days
 def sitemap_xml(request, project):
     """
