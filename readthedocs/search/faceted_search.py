@@ -59,7 +59,8 @@ class RTDFacetedSearch(FacetedSearch):
                 log.exception(
                     'Failed to return a search object from search signals'
                 )
-        return s
+        # Return 25 results
+        return s[:25]
 
     def query(self, search, query):
         """
@@ -135,5 +136,5 @@ class AllSearch(RTDFacetedSearch):
     index = [DomainDocument._doc_type.index,
              PageDocument._doc_type.index,
              ProjectDocument._doc_type.index]
-    fields = ('title^10', 'headers^5', 'content', 'name^10',
+    fields = ('title^10', 'headers^5', 'content', 'name^20',
               'slug^5', 'description', 'display_name^5')

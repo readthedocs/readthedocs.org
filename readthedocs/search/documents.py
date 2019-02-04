@@ -46,6 +46,19 @@ class DomainDocument(DocType):
 
         return DomainSearch(**kwargs)
 
+    def get_queryset(self):
+        """Overwrite default queryset to filter certain files to index"""
+        queryset = super().get_queryset()
+
+        # Exclude some types to not index
+        excluded_types = ['std:doc', 'std:label']
+
+        # Do not index files that belong to non sphinx project
+        # Also do not index certain files
+        for exclude in excluded_types:
+            queryset = queryset.exclude(type=exclude)
+        return queryset
+
 
 @project_index.doc_type
 class ProjectDocument(DocType):
