@@ -93,6 +93,12 @@ This would include:
 * Modifying how we upload HTML docs to store them in a place like S3 for long term storage
 * Build integration with GitHub to send the status notifications when a PR is building and complete
 
+More info here: 
+
+* https://github.com/rtfd/readthedocs.org/issues/1340
+* https://github.com/rtfd/readthedocs.org/issues/2465
+
+
 Build a new Sphinx theme
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -154,11 +160,6 @@ It would be great to have wrappers for the following as a start:
 
 The goal would also be to make it quite easy for users to contribute third party build steps for Read the Docs,
 so that other useful parts of the Sphinx ecosystem could be tightly integrated with Read the Docs.
-
-More info here: 
-
-* https://github.com/rtfd/readthedocs.org/issues/1340
-* https://github.com/rtfd/readthedocs.org/issues/2465
 
 Additional Ideas
 ~~~~~~~~~~~~~~~~
