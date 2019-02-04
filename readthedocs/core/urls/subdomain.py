@@ -23,8 +23,8 @@ handler500 = server_error_500
 handler404 = server_error_404
 
 subdomain_urls = [
-    url(r'robots.txt$', robots_txt, name='robots_txt'),
-    url(r'sitemap.xml$', sitemap_xml, name='sitemap_xml'),
+    url(r'robots\.txt$', robots_txt, name='robots_txt'),
+    url(r'sitemap\.xml$', sitemap_xml, name='sitemap_xml'),
 
     url(
         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
