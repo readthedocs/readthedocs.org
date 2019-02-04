@@ -15,7 +15,8 @@ from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
 from readthedocs.core.views.serve import _serve_symlink_docs
 from readthedocs.builds.constants import STABLE
-from readthedocs.builds.models import Versionfrom readthedocs.projects import constants
+from readthedocs.builds.models import Version
+from readthedocs.projects import constants
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
