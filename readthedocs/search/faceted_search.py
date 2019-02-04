@@ -32,6 +32,9 @@ class RTDFacetedSearch(FacetedSearch):
         resp = self.signal.send(sender=self, user=self.user, search=s)
         if resp:
             # Signal return a search object
+            # TODO: Find a better way to handle having the signal modify the search object
+            # This is currently depending on signal processing order,
+            # which is brittle.
             try:
                 s = resp[0][1]
             except AttributeError:
