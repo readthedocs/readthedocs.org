@@ -93,6 +93,21 @@ This would include:
 * Modifying how we upload HTML docs to store them in a place like S3 for long term storage
 * Build integration with GitHub to send the status notifications when a PR is building and complete
 
+Build a new Sphinx theme
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx v2 will introduce a new format for themes,
+supporting HTML5 and new markup.
+We are hoping to buid a new Sphinx theme that supports this new structure.
+
+This project would include:
+
+* A large amount of design, including working with CSS & SASS
+* Iterating with the community to build something that works well for a number of use cases
+
+This is not as well defined as the other tasks,
+so would require a higher level of skill from an incoming student.
+
 Integrated Redirects
 ~~~~~~~~~~~~~~~~~~~~
 
