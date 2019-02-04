@@ -152,7 +152,7 @@ class LoadConfigTests(TestCase):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
         self.assertEqual(config.python.version, 3)
-        self.assertEqual(config.python_interpreter, 'python3.5')
+        self.assertEqual(config.python_interpreter, 'python3.7')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_on_project(self, load_config):
