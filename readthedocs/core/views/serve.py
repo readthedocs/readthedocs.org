@@ -30,6 +30,7 @@ import logging
 import mimetypes
 import os
 from functools import wraps
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -107,15 +108,26 @@ def map_project_slug(view_func):
 @map_subproject_slug
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
-    return HttpResponseRedirect(resolve(subproject or project))
+    urlparse_result = urlparse(request.get_full_path())
+    return HttpResponseRedirect(
+        resolve(
+            subproject or project,
+            query_params=urlparse_result.query,
+        )
+    )
 
 
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
+    urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename),
+        resolve(
+            subproject or project,
+            filename=filename,
+            query_params=urlparse_result.query,
+        )
     )
 
 
