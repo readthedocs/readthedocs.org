@@ -307,6 +307,7 @@ class Virtualenv(PythonEnvironment):
                 ),
                 'sphinx-rtd-theme<0.5',
                 'readthedocs-sphinx-ext<0.6',
+                'sphinx-notfound-page',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -429,7 +430,10 @@ class Conda(PythonEnvironment):
         if self.config.doctype == 'mkdocs':
             pip_requirements.append('mkdocs')
         else:
-            pip_requirements.append('readthedocs-sphinx-ext')
+            pip_requirements.extend([
+                'readthedocs-sphinx-ext',
+                'sphinx-notfound-page',
+            ])
             requirements.extend(['sphinx', 'sphinx_rtd_theme'])
 
         cmd = [
@@ -443,7 +447,7 @@ class Conda(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
         pip_cmd = [
