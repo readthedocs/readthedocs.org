@@ -112,7 +112,7 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: :djangosetting:`DOCKER_IMAGE`
+* Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
 * Options: ``1.0``, ``2.0``, ``latest``
 
 The build image to use for specific builds.
@@ -122,9 +122,9 @@ if they want to be on the cutting edge.
 Certain Python versions require a certain build image,
 as defined here:
 
-* ``1.0``: 2, 2.7, 3, 3.4
-* ``2.0``: 2, 2.7, 3, 3.5
-* ``latest``: 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
+* ``1.0``: :buildpyversions:`1.0`
+* ``2.0``: :buildpyversions:`2.0`
+* ``latest``: :buildpyversions:`latest`
 
 .. code-block:: yaml
 
@@ -147,8 +147,8 @@ used for building documentation.
 python.version
 ``````````````
 
-* Default: ``3.5``
-* Options: ``2.7``, ``2``, ``3.5``, ``3``
+* Default: ``3.7``
+* Options: :buildpyversions:`latest`
 
 This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,
@@ -158,7 +158,7 @@ the highest supported minor version will be selected.
 
     The supported Python versions depends on the version of the build image your
     project is using. The default build image that is used to build
-    documentation contains support for Python ``2.7`` and ``3.5``.  See the
+    documentation contains support for Python ``2.7`` and ``3.7``.  See the
     :ref:`yaml__build__image` for more information on supported Python versions.
 
 .. code-block:: yaml
