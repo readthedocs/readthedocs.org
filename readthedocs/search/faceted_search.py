@@ -84,6 +84,7 @@ class PageSearchBase(RTDFacetedSearch):
 
 
 class PageSearch(SettingsOverrideObject):
+
     """
     Allow this class to be overridden based on CLASS_OVERRIDES setting.
 
@@ -93,6 +94,7 @@ class PageSearch(SettingsOverrideObject):
 
 
 class ProjectSearch(SettingsOverrideObject):
+
     """
     Allow this class to be overridden based on CLASS_OVERRIDES setting.
 

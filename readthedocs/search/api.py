@@ -45,6 +45,7 @@ class PageSearchSerializer(serializers.Serializer):
 
 
 class PageSearchAPIView(generics.ListAPIView):
+
     """Main entry point to perform a search using Elasticsearch."""
 
     pagination_class = SearchPagination
