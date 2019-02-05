@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """URL resolver for documentation."""
 
-import re
 from urllib.parse import urlunparse
 
 from django.conf import settings
@@ -255,29 +252,10 @@ class ResolverBase:
         """
         Force filenames that might be HTML file paths into proper URL's.
 
-        This basically means stripping / and .html endings and then re-adding
-        them properly.
+        This basically means stripping /.
         """
-        # Bail out on non-html files
-        if '.' in filename and '.html' not in filename:
-            return filename
         filename = filename.lstrip('/')
-        filename = re.sub(r'(^|/)index(?:.html)?$', '\\1', filename)
-        if filename:
-            if filename.endswith('/') or filename.endswith('.html'):
-                path = filename
-            elif project.documentation_type == 'sphinx_singlehtml':
-                path = 'index.html#document-' + filename
-            elif project.documentation_type in ['sphinx_htmldir', 'mkdocs']:
-                path = filename + '/'
-            elif '#' in filename:
-                # do nothing if the filename contains URL fragments
-                path = filename
-            else:
-                path = filename + '.html'
-        else:
-            path = ''
-        return path
+        return filename
 
     def _use_custom_domain(self, custom_domain):
         """
