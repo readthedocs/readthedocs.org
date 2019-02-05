@@ -40,16 +40,12 @@ def elastic_search(request):
         language=request.GET.get('language'),
     )
     results = ''
-    user = ''
     facets = {}
-
-    if request.user.is_authenticated:
-        user = request.user
 
     if user_input.query:
         if user_input.type == 'project':
             project_search = ProjectDocument.faceted_search(
-                query=user_input.query, user=user, language=user_input.language
+                query=user_input.query, user=request.user, language=user_input.language
             )
             results = project_search.execute()
             facets = results.facets
@@ -57,7 +53,7 @@ def elastic_search(request):
             kwargs = {}
             if user_input.project:
                 projects_list = get_project_list_or_404(
-                    project_slug=user_input.project, user=user
+                    project_slug=user_input.project, user=request.user
                 )
                 project_slug_list = [project.slug for project in projects_list]
                 kwargs['projects_list'] = project_slug_list
@@ -65,14 +61,14 @@ def elastic_search(request):
                 kwargs['versions_list'] = user_input.version
 
             page_search = PageDocument.faceted_search(
-                query=user_input.query, user=user, **kwargs
+                query=user_input.query, user=request.user, **kwargs
             )
             results = page_search.execute()
             facets = results.facets
 
         log.info(
             LOG_TEMPLATE.format(
-                user=user,
+                user=request.user,
                 project=user_input.project or '',
                 type=user_input.type or '',
                 version=user_input.version or '',
@@ -114,12 +110,9 @@ def elastic_project_search(request, project_slug):
         kwargs = {}
         kwargs['projects_list'] = [project.slug]
         kwargs['versions_list'] = version_slug
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
 
         page_search = PageDocument.faceted_search(
-            query=query, user=user, **kwargs
+            query=query, user=request.user, **kwargs
         )
         results = page_search.execute()
 
@@ -128,7 +121,7 @@ def elastic_project_search(request, project_slug):
 
         log.info(
             LOG_TEMPLATE.format(
-                user=user,
+                user=request.user,
                 project=project or '',
                 type='inproject',
                 version=version_slug or '',

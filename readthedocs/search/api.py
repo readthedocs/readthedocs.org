@@ -62,9 +62,7 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs = {}
         kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
         kwargs['versions_list'] = self.request.query_params.get('version')
-        user = ''
-        if self.request.user.is_authenticated:
-            user = self.request.user
+        user = self.request.user
         queryset = PageDocument.faceted_search(
             query=query, user=user, **kwargs
         )
