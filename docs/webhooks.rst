@@ -88,7 +88,7 @@ Using the generic API integration
 
 For repositories that are not hosted with a supported provider, we also offer a
 generic API endpoint for triggering project builds. Similar to webhook integrations,
-this integration has a specific URL, which can be found on the project's **Integrations** dashboard page.
+this integration has a specific URL, which can be found on the project's **Integrations** dashboard page
 (:guilabel:`Admin` > :guilabel:`Integrations`).
 
 Token authentication is required to use the generic endpoint, you will find this
@@ -107,8 +107,8 @@ branches
     Default: **latest**
 
 token
-    The integration token found on the project's **Integrations** dashboard page.
-    (:guilabel:`Admin` > :guilabel:`Integrations`)
+    The integration token found on the project's **Integrations** dashboard page
+    (:guilabel:`Admin` > :guilabel:`Integrations`).
 
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
