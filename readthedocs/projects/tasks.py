@@ -20,6 +20,7 @@ from collections import Counter, defaultdict
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+from django.core.files.storage import get_storage_class, FileSystemStorage
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -79,6 +80,7 @@ from .signals import (
 
 
 log = logging.getLogger(__name__)
+storage = get_storage_class()()
 
 
 class SyncRepositoryMixin:
@@ -722,6 +724,24 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
+        hostname = socket.gethostname()
+
+        if not isinstance(storage, FileSystemStorage):
+            # Handle the case where we want to upload some built assets to our storage
+            move_files.delay(
+                self.version.pk,
+                hostname,
+                self.config.doctype,
+                html=False,
+                search=False,
+                localmedia=localmedia,
+                pdf=pdf,
+                epub=epub,
+            )
+            # Set variables so they don't get synced in the next broadcast step
+            localmedia = False
+            pdf = False
+            epub = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -733,7 +753,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.config.doctype,
             ],
             kwargs=dict(
-                hostname=socket.gethostname(),
+                hostname=hostname,
                 html=html,
                 localmedia=localmedia,
                 search=search,
@@ -743,7 +763,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
-                search=search,
             ),
         )
 
