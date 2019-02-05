@@ -32,7 +32,7 @@ function attach_elastic_search_query(data) {
                 var total_count = data.count || 0;
 
                 if (hit_list.length) {
-                    console.debug('Read the Docs search got a result. Showing results.')
+                    console.debug('Read the Docs search got a result. Showing results.');
                     for (var i = 0; i < hit_list.length; i += 1) {
                         var doc = hit_list[i];
                         var highlight = doc.highlight;
@@ -78,7 +78,7 @@ function attach_elastic_search_query(data) {
                 if (!hit_list.length) {
                     // Fallback to Sphinx's indexes
                     Search.query_fallback(query);
-                    console.log('Read the Docs search failed. Falling back to Sphinx search.')
+                    console.log('Read the Docs search failed. Falling back to Sphinx search.');
                 }
                 else {
                     Search.status.text(
@@ -105,7 +105,7 @@ function attach_elastic_search_query(data) {
             },
             complete: function (resp, status_code) {
                 if (status_code !== 'success' || resp.responseJSON.count === 0) {
-                    console.debug('Read the Docs search failed, skipping loading search content.')
+                    console.debug('Read the Docs search failed, skipping loading search content.');
                     return search_def.reject();
                 }
                 return search_def.resolve(resp.responseJSON);
