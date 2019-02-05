@@ -70,7 +70,7 @@ class PageSearchBase(RTDFacetedSearch):
 
         # need to search for both 'and' and 'or' operations
         # the score of and should be higher as it satisfies both or and and
-        for operator in ['and', 'or']:
+        for operator in ['AND', 'OR']:
             query_string = SimpleQueryString(
                 query=query, fields=self.fields, default_operator=operator
             )
