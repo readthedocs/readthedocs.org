@@ -118,7 +118,5 @@ def readthedocs_version():
 
 @register.simple_tag
 def get_past_time(mins):
-    """
-    Subtracts provided minutes from current time.
-    """
+    """Subtracts provided minutes from current time."""
     return timezone.now() - datetime.timedelta(minutes=int(mins))
