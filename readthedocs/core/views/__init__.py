@@ -174,8 +174,15 @@ def server_error_404_subdomain(request, template_name='404.html'):
         if filename[0] == '/':
             filename = filename[1:]
 
-        version = project.versions.get(slug=version_slug)
-        if version.privacy_level == PRIVATE:
+        version = None
+        if version_slug:
+            version = project.versions.get(slug=version_slug)
+
+        private = any([
+            version and version.privacy_level == PRIVATE,
+            not version and project.privacy_level == PRIVATE,
+        ])
+        if private:
             symlink = PrivateSymlink(project)
         else:
             symlink = PublicSymlink(project)
