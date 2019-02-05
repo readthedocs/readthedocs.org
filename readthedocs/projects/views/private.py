@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project views for authenticated users."""
 
 import logging
@@ -58,9 +56,9 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
+from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects.notifications import EmailConfirmNotification
 
 from ..tasks import retry_domain_verification
 
@@ -354,7 +352,7 @@ class ImportDemoView(PrivateViewMixin, View):
             if form.is_valid():
                 project = form.save()
                 project.save()
-                trigger_build(project)
+                self.trigger_build(project)
                 messages.success(
                     request,
                     _('Your demo project is currently being imported'),
@@ -380,6 +378,9 @@ class ImportDemoView(PrivateViewMixin, View):
     def get_form_kwargs(self):
         """Form kwargs passed in during instantiation."""
         return {'user': self.request.user}
+
+    def trigger_build(self, project):
+        return trigger_build(project)
 
 
 class ImportView(PrivateViewMixin, TemplateView):
