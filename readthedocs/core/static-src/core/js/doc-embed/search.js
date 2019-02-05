@@ -82,7 +82,7 @@ function attach_elastic_search_query(data) {
                 }
                 else {
                     Search.status.text(
-                        _('Search finished, found %s page(s) matching the search query.').replace('%s', total_count)
+                        _('Search finished, found %s page(s) matching the search query.').replace('%s', hit_list.length)
                     );
                 }
             })
