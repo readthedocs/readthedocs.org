@@ -21,7 +21,7 @@ class RTDFacetedSearch(FacetedSearch):
 
     def __init__(self, user, **kwargs):
         self.user = user
-        super(RTDFacetedSearch, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def search(self):
         """
@@ -30,7 +30,7 @@ class RTDFacetedSearch(FacetedSearch):
         This was causing all of the indexed content to be returned, which was
         never used on the client side.
         """
-        s = super(RTDFacetedSearch, self).search()
+        s = super().search()
         s = s.source(exclude=['content', 'headers'])
         return s
 
@@ -40,7 +40,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         Also does HTML encoding of results to avoid XSS issues.
         """
-        search = super(RTDFacetedSearch, self).query(search, query)
+        search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
         return search
 
