@@ -90,6 +90,7 @@ class PageSearch(SettingsOverrideObject):
 
     This is primary used on the .com to adjust how we filter our search queries
     """
+
     _default_class = PageSearchBase
 
 
@@ -100,4 +101,5 @@ class ProjectSearch(SettingsOverrideObject):
 
     This is primary used on the .com to adjust how we filter our search queries
     """
+
     _default_class = ProjectSearchBase
