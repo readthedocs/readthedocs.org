@@ -352,7 +352,7 @@ class ImportDemoView(PrivateViewMixin, View):
             if form.is_valid():
                 project = form.save()
                 project.save()
-                self.trigger_build(project)
+                self.trigger_initial_build(project)
                 messages.success(
                     request,
                     _('Your demo project is currently being imported'),
@@ -379,7 +379,7 @@ class ImportDemoView(PrivateViewMixin, View):
         """Form kwargs passed in during instantiation."""
         return {'user': self.request.user}
 
-    def trigger_build(self, project):
+    def trigger_initial_build(self, project):
         return trigger_build(project)
 
 
