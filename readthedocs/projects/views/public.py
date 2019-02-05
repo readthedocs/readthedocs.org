@@ -210,28 +210,18 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
-<<<<<<< HEAD
         storage_path = version.project.get_storage_path(type_=type_, version_slug=version_slug)
         if storage.exists(storage_path):
             return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
-=======
-        path = os.path.join(
->>>>>>> origin/master
             settings.MEDIA_URL,
             type_,
             project_slug,
             version_slug,
-<<<<<<< HEAD
             '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
         )
         return HttpResponseRedirect(media_path)
-=======
-            '{}.{}'.format(project_slug, type_.replace('htmlzip', 'zip')),
-        )
-        return HttpResponseRedirect(path)
->>>>>>> origin/master
 
     # Get relative media path
     path = (
