@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """OAuth utility functions."""
 
 import logging
@@ -15,6 +13,13 @@ from requests_oauthlib import OAuth2Session
 
 
 log = logging.getLogger(__name__)
+
+
+class SyncServiceError(Exception):
+
+    """Error raised when a service failed to sync."""
+
+    pass
 
 
 class Service:
@@ -147,7 +152,7 @@ class Service:
                 # Bad credentials: the token we have in our database is not
                 # valid. Probably the user has revoked the access to our App. He
                 # needs to reconnect his account
-                raise Exception(
+                raise SyncServiceError(
                     'Our access to your {provider} account was revoked. '
                     'Please, reconnect it from your social account connections.'.format(
                         provider=self.provider_name,
