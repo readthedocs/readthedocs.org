@@ -40,23 +40,23 @@ class Lock:
         while os.path.exists(self.fpath):
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.timeout:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, old lockfile',
                     self.name,
                 )
                 os.remove(self.fpath)
                 break
-            log.info('Lock (%s): Locked, waiting..', self.name)
+            log.debug('Lock (%s): Locked, waiting..', self.name)
             time.sleep(self.polling_interval)
             timesince = time.time() - start
             if timesince > self.timeout:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, timeout reached',
                     self.name,
                 )
                 os.remove(self.fpath)
                 break
-            log.info(
+            log.debug(
                 '%s still locked after %.2f seconds; retry for %.2f'
                 ' seconds',
                 self.name,
@@ -107,7 +107,7 @@ class NonBlockingLock:
         if path_exists and self.max_lock_age is not None:
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.max_lock_age:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, old lockfile',
                     self.name,
                 )
