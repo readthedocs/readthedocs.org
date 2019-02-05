@@ -1000,40 +1000,48 @@ def move_files(
         Syncer.copy(from_path, to_path, host=hostname)
 
     if localmedia:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_localmedia',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_localmedia',
+            ),
+            '{}.zip'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='htmlzip',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
-
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     # Always move PDF's because the return code lies.
     if pdf:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_pdf',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_pdf',
+            ),
+            '{}.pdf'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='pdf',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     if epub:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_epub',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_epub',
+            ),
+            '{}.epub'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='epub',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
 
 
 @app.task(queue='web')
