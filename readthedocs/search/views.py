@@ -83,8 +83,8 @@ def elastic_search(request):
             # https://github.com/rtfd/readthedocs.org/issues/5168
             for result in results:
                 if hasattr(result.meta.highlight, 'content'):
-                    result.meta.highligh.content = [result.replace(
-                        '\n', '. ') for result in result.meta.highligh.content]
+                    result.meta.highlight.content = [result.replace(
+                        '\n', '. ') for result in result.meta.highlight.content]
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
