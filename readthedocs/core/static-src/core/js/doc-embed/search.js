@@ -56,7 +56,7 @@ function attach_elastic_search_query(data) {
 
                         // Show highlighted texts
                         if (highlight.content) {
-                            for (index in highlight.content) {
+                            for (var index = 0; index < highlight.content.length; index += 1) {
                                 if (index < 3) {
                                     // Show up to 3 results for search
                                     var content = highlight.content[index];
