@@ -3,18 +3,21 @@ import logging
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
-from readthedocs.search.signals import before_file_search, before_project_search
 
 log = logging.getLogger(__name__)
 
 
 class RTDFacetedSearch(FacetedSearch):
+    """
+    Pass in a user in order to filter search results by privacy.
 
-    """Overwrite the initialization in order too meet our needs."""
+    .. warning::
 
-    # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
-    # See more: https://github.com/elastic/elasticsearch-dsl-py/issues/916
+        This isn't currently used on the .org,
+        but is used on the .com
+    """
 
     def __init__(self, user, **kwargs):
         self.user = user
@@ -27,20 +30,8 @@ class RTDFacetedSearch(FacetedSearch):
         This was causing all of the indexed content to be returned, which was
         never used on the client side.
         """
-        s = super().search()
+        s = super(RTDFacetedSearch, self).search()
         s = s.source(exclude=['content', 'headers'])
-        resp = self.signal.send(sender=self, user=self.user, search=s)
-        if resp:
-            # Signal return a search object
-            # TODO: Find a better way to handle having the signal modify the search object
-            # This is currently depending on signal processing order,
-            # which is brittle.
-            try:
-                s = resp[0][1]
-            except AttributeError:
-                log.exception(
-                    'Failed to return a search object from search signals'
-                )
         return s
 
     def query(self, search, query):
@@ -49,25 +40,23 @@ class RTDFacetedSearch(FacetedSearch):
 
         Also does HTML encoding of results to avoid XSS issues.
         """
-        search = super().query(search, query)
+        search = super(RTDFacetedSearch, self).query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
         return search
 
 
-class ProjectSearch(RTDFacetedSearch):
+class ProjectSearchBase(RTDFacetedSearch):
     facets = {'language': TermsFacet(field='language')}
-    signal = before_project_search
     doc_types = [ProjectDocument]
     index = ProjectDocument._doc_type.index
     fields = ('name^10', 'slug^5', 'description')
 
 
-class PageSearch(RTDFacetedSearch):
+class PageSearchBase(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version')
     }
-    signal = before_file_search
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
     fields = ['title^10', 'headers^5', 'content']
@@ -92,3 +81,21 @@ class PageSearch(RTDFacetedSearch):
 
         search = search.query(bool_query)
         return search
+
+
+class PageSearch(SettingsOverrideObject):
+    """
+    Allow this class to be overridden based on CLASS_OVERRIDES setting.
+
+    This is primary used on the .com to adjust how we filter our search queries
+    """
+    _default_class = PageSearchBase
+
+
+class ProjectSearch(SettingsOverrideObject):
+    """
+    Allow this class to be overridden based on CLASS_OVERRIDES setting.
+
+    This is primary used on the .com to adjust how we filter our search queries
+    """
+    _default_class = ProjectSearchBase

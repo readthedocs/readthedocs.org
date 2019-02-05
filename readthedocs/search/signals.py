@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 """We define custom Django signals to trigger before executing searches."""
-import django.dispatch
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
@@ -9,11 +8,6 @@ from django_elasticsearch_dsl.apps import DEDConfig
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
-
-before_project_search = django.dispatch.Signal(
-    providing_args=['user', 'search']
-)
-before_file_search = django.dispatch.Signal(providing_args=['user', 'search'])
 
 
 @receiver(bulk_post_create, sender=HTMLFile)
