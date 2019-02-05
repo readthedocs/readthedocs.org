@@ -10,16 +10,16 @@ log = logging.getLogger(__name__)
 
 
 class RTDFacetedSearch(FacetedSearch):
-    """
-    Pass in a user in order to filter search results by privacy.
-
-    .. warning::
-
-        This isn't currently used on the .org,
-        but is used on the .com
-    """
 
     def __init__(self, user, **kwargs):
+        """
+        Pass in a user in order to filter search results by privacy.
+
+        .. warning::
+
+            The `self.user` attribute isn't currently used on the .org,
+            but is used on the .com
+        """
         self.user = user
         super().__init__(**kwargs)
 
