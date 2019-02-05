@@ -64,11 +64,11 @@ class Lock:
                 self.timeout,
             )
         open(self.fpath, 'w').close()
-        log.info('Lock (%s): Lock acquired', self.name)
+        log.debug('Lock (%s): Lock acquired', self.name)
 
     def __exit__(self, exc, value, tb):
         try:
-            log.info('Lock (%s): Releasing', self.name)
+            log.debug('Lock (%s): Releasing', self.name)
             os.remove(self.fpath)
         except OSError as e:
             # We want to ignore "No such file or directory" and log any other
@@ -123,7 +123,7 @@ class NonBlockingLock:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         try:
-            log.info('Lock (%s): Releasing', self.name)
+            log.debug('Lock (%s): Releasing', self.name)
             os.remove(self.fpath)
         except (IOError, OSError) as e:
             # We want to ignore "No such file or directory" and log any other
