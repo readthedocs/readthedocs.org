@@ -105,7 +105,7 @@ def test_load_version1(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {'allow_v2': True})
+    build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -118,7 +118,7 @@ def test_load_version2(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {'allow_v2': True})
+    build = load(base, {})
     assert isinstance(build, BuildConfigV2)
 
 
@@ -132,7 +132,7 @@ def test_load_unknow_version(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {'allow_v2': True})
+        load(base, {})
     assert excinfo.value.code == VERSION_INVALID
 
 

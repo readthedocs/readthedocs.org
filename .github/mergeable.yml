@@ -19,12 +19,8 @@ mergeable:
           # Do not allow empty descriptions on PR.
           enabled: true
           message: 'Description can not be empty.'
-      - do: approvals
-        min:
-          count: 1
-          message: 'The PR must have a minimum of 1 approvals.'
       - do: label
-        # Do not allow PR with label 'PR: work in progress'
+        # Do not allow PR with label 'PR: work in progress' or 'Status: blocked'
         must_exclude:
-          regex: 'PR: work in progress'
-          message: 'This PR is work in progress.'
+          regex: 'PR: work in progress|Status: blocked'
+          message: 'This PR is work in progress or it is still blocked.'
