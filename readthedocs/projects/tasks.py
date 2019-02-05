@@ -705,6 +705,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             search=False,
             pdf=False,
             epub=False,
+            delete=True,
     ):
         """
         Update application instances with build artifacts.
@@ -742,6 +743,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             localmedia = False
             pdf = False
             epub = False
+            delete = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -759,6 +761,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 search=search,
                 pdf=pdf,
                 epub=epub,
+                delete=delete,
             ),
             callback=sync_callback.s(
                 version_pk=self.version.pk,
@@ -915,6 +918,7 @@ def sync_files(
         search=False,
         pdf=False,
         epub=False,
+        delete=False,
 ):
     """
     Sync build artifacts to application instances.
@@ -926,20 +930,21 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
-    if not pdf:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-            ),
-        ])
-    if not epub:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-            ),
-        ])
+    if delete:
+        if not pdf:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='pdf',
+                    version_slug=version.slug,
+                ),
+            ])
+        if not epub:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='epub',
+                    version_slug=version.slug,
+                ),
+            ])
 
     # Sync files to the web servers
     move_files(
