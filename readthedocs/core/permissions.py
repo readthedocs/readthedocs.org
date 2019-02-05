@@ -1,11 +1,11 @@
-"""Objects for User permission checks"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Objects for User permission checks."""
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
-class AdminPermissionBase(object):
+class AdminPermissionBase:
 
     @classmethod
     def is_admin(cls, user, project):

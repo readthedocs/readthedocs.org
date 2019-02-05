@@ -20,15 +20,15 @@ Quick start
 
 Assuming you have Python already, `install MkDocs`_:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
-    $ pip install mkdocs
+    pip install mkdocs
 
 Setup your MkDocs project:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
-    $ mkdocs new .
+    mkdocs new .
 
 This command creates ``mkdocs.yml`` which holds your MkDocs configuration,
 and ``docs/index.md`` which is the Markdown file
@@ -37,9 +37,9 @@ that is the entry point for your documentation.
 You can edit this ``index.md`` file to add more details about your project
 and then you can build your documentation:
 
-.. sourcecode:: bash
+.. prompt:: bash $
 
-    $ mkdocs serve
+    mkdocs serve
 
 This command builds your Markdown files into HTML
 and starts a development server to browse your documentation.

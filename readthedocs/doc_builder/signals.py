@@ -1,9 +1,10 @@
-"""Signals for adding custom context data"""
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Signals for adding custom context data."""
 
 import django.dispatch
 
+
 finalize_sphinx_context_data = django.dispatch.Signal(
-    providing_args=['buildenv', 'context', 'response_data']
+    providing_args=['buildenv', 'context', 'response_data'],
 )

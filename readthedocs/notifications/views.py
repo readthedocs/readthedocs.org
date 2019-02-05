@@ -1,8 +1,9 @@
+# -*- coding: utf-8 -*-
+
 """Django views for the notifications app."""
-from __future__ import absolute_import
-from django.views.generic import FormView
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
+from django.views.generic import FormView
 
 from .forms import SendNotificationForm
 
@@ -14,13 +15,11 @@ class SendNotificationView(FormView):
 
     Accepts the following additional parameters:
 
-    queryset
-        The queryset to use to determine the users to send emails to
-
-    :cvar action_name: Name of the action to pass to the form template,
-                       determines the action to pass back to the admin view
-    :cvar notification_classes: List of :py:class:`Notification` classes to
-                                display in the form
+    :param queryset: Queryset to use to determine the users to send emails to
+    :param action_name: Name of the action to pass to the form template,
+        determines the action to pass back to the admin view
+    :param notification_classes: List of :py:class:`Notification` classes to
+        display in the form
     """
 
     form_class = SendNotificationForm
@@ -35,7 +34,7 @@ class SendNotificationView(FormView):
         The admin posts to this view initially, so detect the send button on
         form post variables. Drop additional fields if we see the send button.
         """
-        kwargs = super(SendNotificationView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['notification_classes'] = self.notification_classes
         if 'send' not in self.request.POST:
             kwargs.pop('data', None)
@@ -44,9 +43,10 @@ class SendNotificationView(FormView):
 
     def get_initial(self):
         """Add selected ids to initial form data."""
-        initial = super(SendNotificationView, self).get_initial()
+        initial = super().get_initial()
         initial['_selected_action'] = self.request.POST.getlist(
-            admin.ACTION_CHECKBOX_NAME)
+            admin.ACTION_CHECKBOX_NAME,
+        )
         return initial
 
     def form_valid(self, form):
@@ -55,15 +55,17 @@ class SendNotificationView(FormView):
         notification_cls = form.cleaned_data['source']
         for obj in self.get_queryset().all():
             for recipient in self.get_object_recipients(obj):
-                notification = notification_cls(context_object=obj,
-                                                request=self.request,
-                                                user=recipient)
+                notification = notification_cls(
+                    context_object=obj,
+                    request=self.request,
+                    user=recipient,
+                )
                 notification.send()
                 count += 1
         if count == 0:
-            self.message_user("No recipients to send to", level=messages.ERROR)
+            self.message_user('No recipients to send to', level=messages.ERROR)
         else:
-            self.message_user("Queued {0} messages".format(count))
+            self.message_user('Queued {} messages'.format(count))
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_object_recipients(self, obj):
@@ -89,7 +91,7 @@ class SendNotificationView(FormView):
 
     def get_context_data(self, **kwargs):
         """Return queryset in context."""
-        context = super(SendNotificationView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         recipients = []
         for obj in self.get_queryset().all():
             recipients.extend(self.get_object_recipients(obj))
@@ -97,14 +99,26 @@ class SendNotificationView(FormView):
         context['action_name'] = self.action_name
         return context
 
-    def message_user(self, message, level=messages.INFO, extra_tags='',
-                     fail_silently=False):
+    def message_user(
+            self,
+            message,
+            level=messages.INFO,
+            extra_tags='',
+            fail_silently=False,
+    ):
         """
-        Implementation of :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
+        Implementation of.
+
+        :py:meth:`django.contrib.admin.options.ModelAdmin.message_user`
 
         Send message through messages framework
         """
         # TODO generalize this or check if implementation in ModelAdmin is
         # usable here
-        messages.add_message(self.request, level, message, extra_tags=extra_tags,
-                             fail_silently=fail_silently)
+        messages.add_message(
+            self.request,
+            level,
+            message,
+            extra_tags=extra_tags,
+            fail_silently=fail_silently,
+        )

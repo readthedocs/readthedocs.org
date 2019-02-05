@@ -53,9 +53,9 @@ Project list
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. prompt:: bash $
 
-        $ curl https://readthedocs.org/api/v2/project/?slug=pip
+        curl https://readthedocs.org/api/v2/project/?slug=pip
 
     **Example response**:
 
@@ -232,9 +232,9 @@ Build list
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. prompt:: bash $
 
-        $ curl https://readthedocs.org/api/v2/build/?project__slug=pip
+        curl https://readthedocs.org/api/v2/build/?project__slug=pip
 
     **Example response**:
 

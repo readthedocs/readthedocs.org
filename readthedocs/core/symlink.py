@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 A class that manages the symlinks for nginx to serve public files.
 
@@ -52,19 +54,11 @@ Example layout
         fabric -> rtd-builds/fabric/en/latest/ # single version
 """
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import os
 import shutil
 from collections import OrderedDict
 
-from builtins import object
 from django.conf import settings
 
 from readthedocs.builds.models import Version
@@ -74,20 +68,23 @@ from readthedocs.doc_builder.environments import LocalEnvironment
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain
 
+
 log = logging.getLogger(__name__)
 
 
-class Symlink(object):
+class Symlink:
 
     """Base class for symlinking of projects."""
 
     def __init__(self, project):
         self.project = project
         self.project_root = os.path.join(
-            self.WEB_ROOT, project.slug
+            self.WEB_ROOT,
+            project.slug,
         )
         self.subproject_root = os.path.join(
-            self.project_root, 'projects'
+            self.project_root,
+            'projects',
         )
         self.environment = LocalEnvironment(project)
         self.sanity_check()
@@ -99,9 +96,13 @@ class Symlink(object):
         This will leave it in the proper state for the single_project setting.
         """
         if os.path.islink(self.project_root) and not self.project.single_version:
-            log.info(constants.LOG_TEMPLATE.format(
-                     project=self.project.slug, version='',
-                     msg="Removing single version symlink"))
+            log.info(
+                constants.LOG_TEMPLATE.format(
+                    project=self.project.slug,
+                    version='',
+                    msg='Removing single version symlink',
+                ),
+            )
             safe_unlink(self.project_root)
             safe_makedirs(self.project_root)
         elif (self.project.single_version and
@@ -151,44 +152,59 @@ class Symlink(object):
         if domain:
             domains = [domain]
         else:
-            domains = Domain.objects.filter(project=self.project)
+            domains = Domain.objects.filter(project=self.project).values_list('domain', flat=True)
         for dom in domains:
             log_msg = 'Symlinking CNAME: {} -> {}'.format(
-                dom.domain, self.project.slug
+                dom,
+                self.project.slug,
             )
             log.info(
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
-                    version='', msg=log_msg
-                )
+                    version='',
+                    msg=log_msg,
+                ),
             )
 
             # CNAME to doc root
-            symlink = os.path.join(self.CNAME_ROOT, dom.domain)
+            symlink = os.path.join(self.CNAME_ROOT, dom)
             self.environment.run('ln', '-nsf', self.project_root, symlink)
 
             # Project symlink
             project_cname_symlink = os.path.join(
-                self.PROJECT_CNAME_ROOT, dom.domain
+                self.PROJECT_CNAME_ROOT,
+                dom,
             )
             self.environment.run(
-                'ln', '-nsf', self.project.doc_path, project_cname_symlink
+                'ln',
+                '-nsf',
+                self.project.doc_path,
+                project_cname_symlink,
             )
 
     def remove_symlink_cname(self, domain):
-        """Remove CNAME symlink."""
-        log_msg = "Removing symlink for CNAME {0}".format(domain.domain)
-        log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
-                                               version='', msg=log_msg))
-        symlink = os.path.join(self.CNAME_ROOT, domain.domain)
+        """
+        Remove CNAME symlink.
+
+        :param domain: domain for which symlink is to be removed
+        :type domain: str
+        """
+        log_msg = 'Removing symlink for CNAME {}'.format(domain)
+        log.info(
+            constants.LOG_TEMPLATE.format(
+                project=self.project.slug,
+                version='',
+                msg=log_msg
+            ),
+        )
+        symlink = os.path.join(self.CNAME_ROOT, domain)
         safe_unlink(symlink)
 
     def symlink_subprojects(self):
         """
         Symlink project subprojects.
 
-        Link from $WEB_ROOT/projects/<project> ->
-                  $WEB_ROOT/<project>
+        Link from $WEB_ROOT/projects/<project> ->           $WEB_ROOT/<project>
         """
         subprojects = set()
         rels = self.get_subprojects()
@@ -205,12 +221,21 @@ class Symlink(object):
                 from_to[rel.alias] = rel.child.slug
                 subprojects.add(rel.alias)
             for from_slug, to_slug in list(from_to.items()):
-                log_msg = "Symlinking subproject: {0} -> {1}".format(from_slug, to_slug)
-                log.info(constants.LOG_TEMPLATE.format(project=self.project.slug,
-                                                       version='', msg=log_msg))
+                log_msg = 'Symlinking subproject: {} -> {}'.format(
+                    from_slug,
+                    to_slug,
+                )
+                log.info(
+                    constants.LOG_TEMPLATE.format(
+                        project=self.project.slug,
+                        version='',
+                        msg=log_msg,
+                    ),
+                )
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
-                    self.WEB_ROOT, to_slug
+                    self.WEB_ROOT,
+                    to_slug,
                 )
                 symlink_dir = os.sep.join(symlink.split(os.path.sep)[:-1])
                 if not os.path.lexists(symlink_dir):
@@ -222,7 +247,8 @@ class Symlink(object):
                 if result.exit_code > 0:
                     log.error(
                         'Could not symlink path: status=%d error=%s',
-                        result.exit_code, result.error
+                        result.exit_code,
+                        result.error,
                     )
 
         # Remove old symlinks
@@ -236,7 +262,7 @@ class Symlink(object):
         Symlink project translations.
 
         Link from $WEB_ROOT/<project>/<language>/ ->
-                  $WEB_ROOT/<translation>/<language>/
+        $WEB_ROOT/<translation>/<language>/
         """
         translations = {}
 
@@ -256,8 +282,9 @@ class Symlink(object):
             log.info(
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
-                    version='', msg=log_msg
-                )
+                    version='',
+                    msg=log_msg,
+                ),
             )
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
@@ -277,8 +304,9 @@ class Symlink(object):
         """
         Symlink project single version.
 
-        Link from $WEB_ROOT/<project> ->
-                  HOME/user_builds/<project>/rtd-builds/latest/
+        Link from:
+
+        $WEB_ROOT/<project> -> HOME/user_builds/<project>/rtd-builds/latest/
         """
         version = self.get_default_version()
 
@@ -295,7 +323,7 @@ class Symlink(object):
                 settings.DOCROOT,
                 self.project.slug,
                 'rtd-builds',
-                version.slug
+                version.slug,
             )
             self.environment.run('ln', '-nsf', docs_dir, symlink)
 
@@ -304,11 +332,13 @@ class Symlink(object):
         Symlink project's versions.
 
         Link from $WEB_ROOT/<project>/<language>/<version>/ ->
-                  HOME/user_builds/<project>/rtd-builds/<version>
+        HOME/user_builds/<project>/rtd-builds/<version>
         """
         versions = set()
         version_dir = os.path.join(
-            self.WEB_ROOT, self.project.slug, self.project.language
+            self.WEB_ROOT,
+            self.project.slug,
+            self.project.language,
         )
         # Include active public versions,
         # as well as public versions that are built but not active, for archived versions
@@ -322,15 +352,15 @@ class Symlink(object):
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version='',
-                    msg=log_msg
-                )
+                    msg=log_msg,
+                ),
             )
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(
                 settings.DOCROOT,
                 self.project.slug,
                 'rtd-builds',
-                version.slug
+                version.slug,
             )
             self.environment.run('ln', '-nsf', docs_dir, symlink)
             versions.add(version.slug)
@@ -353,11 +383,18 @@ class Symlink(object):
 class PublicSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_project')
+    PROJECT_CNAME_ROOT = os.path.join(
+        settings.SITE_ROOT,
+        'public_cname_project',
+    )
 
     def get_version_queryset(self):
-        return (self.project.versions.protected(only_active=False).filter(built=True) |
-                self.project.versions.protected(only_active=True))
+        return (
+            self.project.versions.protected(
+                only_active=False,
+            ).filter(built=True) |
+            self.project.versions.protected(only_active=True)
+        )
 
     def get_subprojects(self):
         return self.project.subprojects.protected()
@@ -369,11 +406,16 @@ class PublicSymlinkBase(Symlink):
 class PrivateSymlinkBase(Symlink):
     CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
     WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
-    PROJECT_CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_project')
+    PROJECT_CNAME_ROOT = os.path.join(
+        settings.SITE_ROOT,
+        'private_cname_project',
+    )
 
     def get_version_queryset(self):
-        return (self.project.versions.private(only_active=False).filter(built=True) |
-                self.project.versions.private(only_active=True))
+        return (
+            self.project.versions.private(only_active=False).filter(built=True) |
+            self.project.versions.private(only_active=True)
+        )
 
     def get_subprojects(self):
         return self.project.subprojects.private()

@@ -1,0 +1,47 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Environment Variables" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block editing-option-edit-environment-variables %}class="active"{% endblock %}
+
+{% block project-environment-variables-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Environment Variables" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p>Environment variables allow you to change the way that your build behaves. Take into account that these environment variables are available to all build steps.</p>
+
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="{% url 'projects_environmentvariables_create' project_slug=project.slug %}">
+          {% trans "Add Environment Variable" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for environmentvariable in object_list %}
+          <li class="module-item">
+            <a href="{% url 'projects_environmentvariables_detail' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
+              {{ environmentvariable.name }}
+            </a>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No environment variables are currently configured.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

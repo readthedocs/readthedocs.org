@@ -69,7 +69,7 @@ Understanding how Read the Docs builds your project will help you with debugging
 It should also allow you to take advantage of certain things that happen during the build process.
 
 The first step of the process is that we check out your code from the repository you have given us.
-If the code is already checked out, we update the copy to the branch that you have specified in your projects configuration.
+If the code is already checked out, we update the copy to the branch that you have specified in your project's configuration.
 
 Then we build the proper backend code for the type of documentation you've selected.
 
@@ -119,7 +119,7 @@ The build environment
 
 The build process is executed inside Docker containers,
 by default the image used is ``readthedocs/build:2.0``,
-but you can change that using a :doc:`configuration file <yaml-config>`.
+but you can change that using a :doc:`config-file/index`.
 
 .. note::
    
@@ -225,3 +225,8 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 +-------------------------+--------------------------------------------------+----------------------+
 | ``READTHEDOCS_PROJECT`` | The RTD name of the project which is being built | ``myexampleproject`` |
 +-------------------------+--------------------------------------------------+----------------------+
+
+.. tip::
+
+   In case extra environment variables are needed to the build process (like secrets, tokens, etc),
+   you can add them going to **Admin > Environment Variables** in your project. See :doc:`guides/environment-variables`.

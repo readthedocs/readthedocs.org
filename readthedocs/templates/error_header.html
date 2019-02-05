@@ -14,24 +14,6 @@
             </h1>
         </div>
         <!-- END header title -->
-
-
-        <!-- BEGIN header nav -->
-        <div class="rtfd-header-nav">
-          <ul>
-            {% if request.user.is_authenticated %}
-              <li>
-                <a href="//{{ PRODUCTION_DOMAIN }}/accounts/logout/">{% trans "Log Out" %}</a>
-              </li>
-            {% else %}
-              <li>
-                <a href="//{{ PRODUCTION_DOMAIN }}/accounts/login/">{% trans "Log in" %}</a>
-              </li>
-            {% endif %}
-          </ul>
-        </div>
-        <!-- END header nav -->
-
       </div>
     </div>
     <!-- END header-->

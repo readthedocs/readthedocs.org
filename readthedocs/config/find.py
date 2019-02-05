@@ -1,6 +1,6 @@
-"""Helper functions to search files."""
+# -*- coding: utf-8 -*-
 
-from __future__ import division, print_function, unicode_literals
+"""Helper functions to search files."""
 
 import os
 import re

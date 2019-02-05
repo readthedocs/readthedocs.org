@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-from __future__ import absolute_import
-from django.db import models, migrations
-import readthedocs.builds.version_slug
 import taggit.managers
+from django.db import migrations, models
+
+import readthedocs.builds.version_slug
 
 
 class Migration(migrations.Migration):
@@ -77,10 +75,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='version',
-            unique_together=set([('project', 'slug')]),
+            unique_together={('project', 'slug')},
         ),
         migrations.AlterIndexTogether(
             name='build',
-            index_together=set([('version', 'state', 'type')]),
+            index_together={('version', 'state', 'type')},
         ),
     ]

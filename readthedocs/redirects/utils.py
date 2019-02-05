@@ -7,10 +7,11 @@ with it in the database, and generating a redirect response.
 These are not used directly as views; they are instead included into 404
 handlers, so that redirects only take effect if no other view matches.
 """
-from __future__ import absolute_import
-from django.http import HttpResponseRedirect
 import logging
 import re
+from urllib.parse import urlparse, urlunparse
+
+from django.http import HttpResponseRedirect
 
 from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project
@@ -37,7 +38,8 @@ def project_and_path_from_request(request, path):
         # docs prefix.
         match = re.match(
             r'^/docs/(?P<project_slug>[^/]+)(?P<path>/.*)$',
-            path)
+            path,
+        )
         if match:
             project_slug = match.groupdict()['project_slug']
             path = match.groupdict()['path']
@@ -56,7 +58,8 @@ def project_and_path_from_request(request, path):
 def language_and_version_from_path(path):
     match = re.match(
         r'^/(?P<language>%s)/(?P<version_slug>[^/]+)(?P<path>/.*)$' % LANGUAGES_REGEX,
-        path)
+        path,
+    )
     if match:
         language = match.groupdict()['language']
         version_slug = match.groupdict()['version_slug']
@@ -65,21 +68,25 @@ def language_and_version_from_path(path):
     return None, None, path
 
 
-def get_redirect_response(request, path):
-    project, path = project_and_path_from_request(request, path)
+def get_redirect_response(request, full_path):
+    project, full_path = project_and_path_from_request(request, full_path)
     if not project:
         return None
 
     language = None
     version_slug = None
+    schema, netloc, path, params, query, fragments = urlparse(full_path)
     if not project.single_version:
         language, version_slug, path = language_and_version_from_path(path)
 
-    new_path = project.redirects.get_redirect_path(
-        path=path, language=language, version_slug=version_slug)
+    path = project.redirects.get_redirect_path(
+        path=path, language=language, version_slug=version_slug
+    )
 
-    if new_path is None:
+    if path is None:
         return None
+
+    new_path = urlunparse((schema, netloc, path, params, query, fragments))
 
     # Re-use the domain and protocol used in the current request.
     # Redirects shouldn't change the domain, version or language.

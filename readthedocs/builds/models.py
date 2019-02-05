@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Models for the builds app."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Models for the builds app."""
 
 import logging
 import os.path
 import re
 from shutil import rmtree
 
-from builtins import object
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
@@ -55,8 +48,12 @@ from .utils import (
 )
 from .version_slug import VersionSlugField
 
+
 DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
-    settings, 'DEFAULT_VERSION_PRIVACY_LEVEL', 'public')
+    settings,
+    'DEFAULT_VERSION_PRIVACY_LEVEL',
+    'public',
+)
 
 log = logging.getLogger(__name__)
 
@@ -96,7 +93,10 @@ class Version(models.Model):
     #: filesystem to determine how the paths for this version are called. It
     #: must not be used for any other identifying purposes.
     slug = VersionSlugField(
-        _('Slug'), max_length=255, populate_from='verbose_name')
+        _('Slug'),
+        max_length=255,
+        populate_from='verbose_name',
+    )
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
@@ -114,13 +114,14 @@ class Version(models.Model):
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
 
-    class Meta(object):
+    class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
         permissions = (
             # Translators: Permission around whether a user can view the
             #              version
-            ('view_version', _('View Version')),)
+            ('view_version', _('View Version')),
+        )
 
     def __str__(self):
         return ugettext(
@@ -128,7 +129,8 @@ class Version(models.Model):
                 version=self.verbose_name,
                 project=self.project,
                 pk=self.pk,
-            ))
+            ),
+        )
 
     @property
     def config(self):
@@ -139,9 +141,10 @@ class Version(models.Model):
         :rtype: dict
         """
         last_build = (
-            self.builds.filter(state='finished', success=True)
-            .order_by('-date')
-            .first()
+            self.builds.filter(
+                state='finished',
+                success=True,
+            ).order_by('-date').first()
         )
         return last_build.config
 
@@ -184,7 +187,9 @@ class Version(models.Model):
 
         # If we came that far it's not a special version nor a branch or tag.
         # Therefore just return the identifier to make a safe guess.
-        log.debug('TODO: Raise an exception here. Testing what cases it happens')
+        log.debug(
+            'TODO: Raise an exception here. Testing what cases it happens',
+        )
         return self.identifier
 
     def get_absolute_url(self):
@@ -198,25 +203,38 @@ class Version(models.Model):
             )
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(
-            version_slug=self.slug, private=private)
+            version_slug=self.slug,
+            private=private,
+        )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
-        obj = super(Version, self).save(*args, **kwargs)
+        obj = super().save(*args, **kwargs)
         for owner in self.project.users.all():
             assign('view_version', owner, self)
         broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk])
+            type='app',
+            task=tasks.symlink_project,
+            args=[self.project.pk],
+        )
         return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(type='app', task=tasks.clear_artifacts, args=[self.get_artifact_paths()])
         broadcast(
-            type='app', task=tasks.symlink_project, args=[self.project.pk])
-        super(Version, self).delete(*args, **kwargs)
+            type='app',
+            task=tasks.remove_dirs,
+            args=[self.get_artifact_paths()],
+        )
+        project_pk = self.project.pk
+        super().delete(*args, **kwargs)
+        broadcast(
+            type='app',
+            task=tasks.symlink_project,
+            args=[project_pk],
+        )
 
     @property
     def identifier_friendly(self):
@@ -245,19 +263,27 @@ class Version(models.Model):
                 data['PDF'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['HTML'] = project.get_production_media_url(
-                    'htmlzip', self.slug)
+                    'htmlzip',
+                    self.slug,
+                )
             if project.has_epub(self.slug):
                 data['Epub'] = project.get_production_media_url(
-                    'epub', self.slug)
+                    'epub',
+                    self.slug,
+                )
         else:
             if project.has_pdf(self.slug):
                 data['pdf'] = project.get_production_media_url('pdf', self.slug)
             if project.has_htmlzip(self.slug):
                 data['htmlzip'] = project.get_production_media_url(
-                    'htmlzip', self.slug)
+                    'htmlzip',
+                    self.slug,
+                )
             if project.has_epub(self.slug):
                 data['epub'] = project.get_production_media_url(
-                    'epub', self.slug)
+                    'epub',
+                    self.slug,
+                )
         return data
 
     def get_conf_py_path(self):
@@ -283,9 +309,8 @@ class Version(models.Model):
 
         for type_ in ('pdf', 'epub', 'htmlzip'):
             paths.append(
-                self.project.get_production_media_path(
-                    type_=type_,
-                    version_slug=self.slug),
+                self.project
+                .get_production_media_path(type_=type_, version_slug=self.slug),
             )
         paths.append(self.project.rtd_build_path(version=self.slug))
 
@@ -307,7 +332,12 @@ class Version(models.Model):
             log.exception('Build path cleanup failed')
 
     def get_github_url(
-            self, docroot, filename, source_suffix='.rst', action='view'):
+            self,
+            docroot,
+            filename,
+            source_suffix='.rst',
+            action='view',
+    ):
         """
         Return a GitHub URL for a given filename.
 
@@ -349,7 +379,12 @@ class Version(models.Model):
         )
 
     def get_gitlab_url(
-            self, docroot, filename, source_suffix='.rst', action='view'):
+            self,
+            docroot,
+            filename,
+            source_suffix='.rst',
+            action='view',
+    ):
         repo_url = self.project.repo
         if 'gitlab' not in repo_url:
             return ''
@@ -434,7 +469,7 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super(APIVersion, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         return 0
@@ -446,13 +481,28 @@ class Build(models.Model):
     """Build data."""
 
     project = models.ForeignKey(
-        Project, verbose_name=_('Project'), related_name='builds')
+        Project,
+        verbose_name=_('Project'),
+        related_name='builds',
+    )
     version = models.ForeignKey(
-        Version, verbose_name=_('Version'), null=True, related_name='builds')
+        Version,
+        verbose_name=_('Version'),
+        null=True,
+        related_name='builds',
+    )
     type = models.CharField(
-        _('Type'), max_length=55, choices=BUILD_TYPES, default='html')
+        _('Type'),
+        max_length=55,
+        choices=BUILD_TYPES,
+        default='html',
+    )
     state = models.CharField(
-        _('State'), max_length=55, choices=BUILD_STATE, default='finished')
+        _('State'),
+        max_length=55,
+        choices=BUILD_STATE,
+        default='finished',
+    )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
 
@@ -462,16 +512,26 @@ class Build(models.Model):
     error = models.TextField(_('Error'), default='', blank=True)
     exit_code = models.IntegerField(_('Exit code'), null=True, blank=True)
     commit = models.CharField(
-        _('Commit'), max_length=255, null=True, blank=True)
+        _('Commit'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     _config = JSONField(_('Configuration used in the build'), default=dict)
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
 
     builder = models.CharField(
-        _('Builder'), max_length=255, null=True, blank=True)
+        _('Builder'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
 
     cold_storage = models.NullBooleanField(
-        _('Cold Storage'), help_text='Build steps stored outside the database.')
+        _('Cold Storage'),
+        help_text='Build steps stored outside the database.',
+    )
 
     # Manager
 
@@ -479,13 +539,13 @@ class Build(models.Model):
 
     CONFIG_KEY = '__config'
 
-    class Meta(object):
+    class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [['version', 'state', 'type']]
 
     def __init__(self, *args, **kwargs):
-        super(Build, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._config_changed = False
 
     @property
@@ -498,14 +558,11 @@ class Build(models.Model):
         date = self.date or timezone.now()
         if self.project is not None and self.version is not None:
             return (
-                Build.objects
-                .filter(
+                Build.objects.filter(
                     project=self.project,
                     version=self.version,
                     date__lt=date,
-                )
-                .order_by('-date')
-                .first()
+                ).order_by('-date').first()
             )
         return None
 
@@ -515,9 +572,9 @@ class Build(models.Model):
         Get the config used for this build.
 
         Since we are saving the config into the JSON field only when it differs
-        from the previous one, this helper returns the correct JSON used in
-        this Build object (it could be stored in this object or one of the
-        previous ones).
+        from the previous one, this helper returns the correct JSON used in this
+        Build object (it could be stored in this object or one of the previous
+        ones).
         """
         if self.CONFIG_KEY in self._config:
             return Build.objects.get(pk=self._config[self.CONFIG_KEY])._config
@@ -545,11 +602,13 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
-            if (previous is not None and
-                    self._config and self._config == previous.config):
+            if (
+                previous is not None and self._config and
+                self._config == previous.config
+            ):
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
-        super(Build, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         self._config_changed = False
 
     def __str__(self):
@@ -560,11 +619,11 @@ class Build(models.Model):
                     self.project.users.all().values_list('username', flat=True),
                 ),
                 pk=self.pk,
-            ))
+            ),
+        )
 
-    @models.permalink
     def get_absolute_url(self):
-        return ('builds_detail', [self.project.slug, self.pk])
+        return reverse('builds_detail', args=[self.project.slug, self.pk])
 
     @property
     def finished(self):
@@ -572,7 +631,7 @@ class Build(models.Model):
         return self.state == BUILD_STATE_FINISHED
 
 
-class BuildCommandResultMixin(object):
+class BuildCommandResultMixin:
 
     """
     Mixin for common command result methods/properties.
@@ -602,7 +661,10 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     """Build command for a ``Build``."""
 
     build = models.ForeignKey(
-        Build, verbose_name=_('Build'), related_name='commands')
+        Build,
+        verbose_name=_('Build'),
+        related_name='commands',
+    )
 
     command = models.TextField(_('Command'))
     description = models.TextField(_('Description'), blank=True)
@@ -612,7 +674,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     start_time = models.DateTimeField(_('Start time'))
     end_time = models.DateTimeField(_('End time'))
 
-    class Meta(object):
+    class Meta:
         ordering = ['start_time']
         get_latest_by = 'start_time'
 
@@ -621,7 +683,8 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
     def __str__(self):
         return (
             ugettext('Build command {pk} for build {build}')
-            .format(pk=self.pk, build=self.build))
+            .format(pk=self.pk, build=self.build)
+        )
 
     @property
     def run_time(self):

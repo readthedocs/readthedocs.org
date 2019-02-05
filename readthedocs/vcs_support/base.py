@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Base classes for VCS backends."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Base classes for VCS backends."""
 import logging
 import os
 import shutil
 
-from builtins import object
 
 log = logging.getLogger(__name__)
 
 
-class VCSVersion(object):
+class VCSVersion:
 
     """
     Represents a Version (tag or branch) in a VCS.
@@ -29,11 +26,13 @@ class VCSVersion(object):
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return '<VCSVersion: %s:%s' % (
-            self.repository.repo_url, self.verbose_name)
+        return '<VCSVersion: {}:{}'.format(
+            self.repository.repo_url,
+            self.verbose_name,
+        )
 
 
-class BaseVCS(object):
+class BaseVCS:
 
     """
     Base for VCS Classes.

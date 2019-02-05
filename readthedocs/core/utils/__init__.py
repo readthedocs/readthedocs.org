@@ -11,7 +11,6 @@ import os
 import re
 
 from django.conf import settings
-from django.utils import six
 from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
@@ -60,15 +59,6 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     return task_promise
 
 
-def cname_to_slug(host):
-    # TODO: remove
-    from dns import resolver
-    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-    domain = answer.target.to_unicode()
-    slug = domain.split('.')[0]
-    return slug
-
-
 def prepare_build(
         project,
         version=None,
@@ -87,18 +77,22 @@ def prepare_build(
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
-    :returns: Celery signature of update_docs_task to be executed
+    :returns: Celery signature of update_docs_task and Build instance
+    :rtype: tuple
     """
     # Avoid circular import
-    from readthedocs.projects.tasks import update_docs_task
     from readthedocs.builds.models import Build
+    from readthedocs.projects.models import Project
+    from readthedocs.projects.tasks import update_docs_task
 
-    if project.skip:
-        log.info(
-            'Build not triggered because Project.skip=True: project=%s',
+    build = None
+
+    if not Project.objects.is_active(project):
+        log.warning(
+            'Build not triggered because Project is not active: project=%s',
             project.slug,
         )
-        return None
+        return (None, None)
 
     if not version:
         version = project.versions.get(slug=LATEST)
@@ -158,7 +152,8 @@ def trigger_build(project, version=None, record=True, force=False):
     :param version: version of the project to be built. Default: ``latest``
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
-    :returns: A tuple (Celery AsyncResult promise, Task Signature from ``prepare_build``)
+    :returns: Celery AsyncResult promise and Build instance
+    :rtype: tuple
     """
     update_docs_task, build = prepare_build(
         project,
@@ -168,9 +163,9 @@ def trigger_build(project, version=None, record=True, force=False):
         immutable=True,
     )
 
-    if update_docs_task is None:
-        # Current project is skipped
-        return None
+    if (update_docs_task, build) == (None, None):
+        # Build was skipped
+        return (None, None)
 
     return (update_docs_task.apply_async(), build)
 
@@ -215,7 +210,7 @@ def slugify(value, *args, **kwargs):
     return value
 
 
-slugify = allow_lazy(slugify, six.text_type, SafeText)
+slugify = allow_lazy(slugify, str, SafeText)
 
 
 def safe_makedirs(directory_name):

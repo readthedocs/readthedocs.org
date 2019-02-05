@@ -1,0 +1,13 @@
+/* CSS for sphinx-prompt */
+
+pre.highlight {
+  border: 1px solid #e1e4e5;
+  overflow-x: auto;
+  margin: 1px 0 24px 0;
+  padding: 12px 12px;
+}
+
+pre.highlight span.prompt1 {
+  font-size: 12px;
+  line-height: 1.4;
+}

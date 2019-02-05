@@ -49,20 +49,26 @@ install `pre-commit`_ and it will automatically run different linting tools
 and `yapf`_) to check your changes before you commit them. `pre-commit` will let
 you know if there were any problems that is wasn't able to fix automatically.
 
-To run the `pre-commit` command and check your changes::
+To run the `pre-commit` command and check your changes:
 
-    $ pip install -U pre-commit
-    $ git add <your-modified-files>
-    $ pre-commit run
+.. prompt:: bash $
 
-or to run against a specific file::
+    pip install -U pre-commit
+    git add <your-modified-files>
+    pre-commit run
 
-    $ pre-commit run --files <file.py>
+or to run against a specific file:
+
+.. prompt:: bash $
+
+    pre-commit run --files <file.py>
 
 `pre-commit` can also be run as a git pre-commit hook. You can set this up
-with::
+with:
 
-    $ pre-commit install
+.. prompt:: bash $
+
+    pre-commit install
 
 After this installation, the next time you run `git commit` the `pre-commit run`
 command will be run immediately and will inform you of the changes and errors.
