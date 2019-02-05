@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Functions related to converting content into dict/JSON structures."""
 
 import codecs
@@ -101,6 +99,15 @@ def process_file(filename):
 
 
 def recurse_while_none(element):
+    """
+    Traverse the ``element`` until a non-None text is found.
+
+    :param element: element to traverse until get a non-None text.
+    :type element: pyquery.PyQuery
+
+    :returns: the first non-None value found
+    :rtype: str
+    """
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
     return element.text

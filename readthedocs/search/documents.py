@@ -88,8 +88,14 @@ class PageDocument(DocType):
         queryset = super(PageDocument, self).get_queryset()
 
         # Exclude some files to not index
-        excluded_files = ['search.html', 'genindex.html', 'py-modindex.html',
-                          'search/index.html', 'genindex/index.html', 'py-modindex/index.html']
+        excluded_files = [
+            'search.html',
+            'genindex.html',
+            'py-modindex.html',
+            'search/index.html',
+            'genindex/index.html',
+            'py-modindex/index.html',
+        ]
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files

@@ -45,6 +45,8 @@ class PageSearchSerializer(serializers.Serializer):
 
 
 class PageSearchAPIView(generics.ListAPIView):
+    """Main entry point to perform a search using Elasticsearch."""
+
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
 
@@ -69,6 +71,15 @@ class PageSearchAPIView(generics.ListAPIView):
         return queryset
 
     def validate_query_params(self):
+        """
+        Validate all required query params are passed on the request.
+
+        Query params required are: ``q``, ``project`` and ``version``.
+
+        :rtype: None
+
+        :raises: ValidationError if one of them is missing.
+        """
         required_query_params = {'q', 'project', 'version'}  # python `set` literal is `{}`
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
@@ -80,16 +91,41 @@ class PageSearchAPIView(generics.ListAPIView):
             raise ValidationError(errors)
 
     def get_serializer_context(self):
-        context = super(PageSearchAPIView, self).get_serializer_context()
+        context = super().get_serializer_context()
         context['projects_url'] = self.get_all_projects_url()
         return context
 
     def get_all_projects(self):
+        """
+        Return a list containing the project itself and all its subprojects.
+
+        The project slug is retrieved from ``project`` query param.
+
+        :rtype: list
+
+        :raises: Http404 if project is not found
+        """
         project_slug = self.request.query_params.get('project')
         all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
         return all_projects
 
     def get_all_projects_url(self):
+        """
+        Return a dict containing the project slug and its version URL.
+
+        The dictionary contains the project and its subprojects . Each project's
+        slug is used as a key and the documentation URL for that project and
+        version as the value.
+
+        Example:
+
+        {
+            "requests": "https://requests.readthedocs.io/en/latest/",
+            "requests-oauth": "https://requests-oauth.readthedocs.io/en/latest/",
+        }
+
+        :rtype: dict
+        """
         all_projects = self.get_all_projects()
         version_slug = self.request.query_params.get('version')
         projects_url = {}
