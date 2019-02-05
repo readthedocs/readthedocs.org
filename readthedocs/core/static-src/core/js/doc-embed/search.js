@@ -105,7 +105,7 @@ function attach_elastic_search_query(data) {
             },
             complete: function (resp, status_code) {
                 if (status_code !== 'success' || resp.responseJSON.count === 0) {
-                    console.debug('Read the Docs search failed, skipping')
+                    console.debug('Read the Docs search failed, skipping loading search content.')
                     return search_def.reject();
                 }
                 return search_def.resolve(resp.responseJSON);
