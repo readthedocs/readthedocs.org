@@ -66,12 +66,14 @@ class PageDocument(DocType):
         ignore_signals = True
 
     @classmethod
-    def faceted_search(cls, query, user, projects_list=None, versions_list=None, filter_user=True):
+    def faceted_search(
+        cls, query, user, projects_list=None, versions_list=None, filter_by_user=True
+    ):
         from readthedocs.search.faceted_search import PageSearch
         kwargs = {
             'user': user,
             'query': query,
-            'filter_user': filter_user,
+            'filter_by_user': filter_by_user,
         }
 
         filters = {}
