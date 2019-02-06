@@ -18,7 +18,7 @@ if you provide a good reason your documentation needs more resources.
 You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
 
-Currently in production we're using the ``readthedocs/build:stable`` docker image as our default image.
+Currently in production we're using the ``readthedocs/build:latest`` docker image as our default image.
 
 How we build documentation
 --------------------------
@@ -118,7 +118,7 @@ The build environment
 ---------------------
 
 The build process is executed inside Docker containers,
-by default the image used is ``readthedocs/build:stable``,
+by default the image used is ``readthedocs/build:latest``,
 but you can change that using a :doc:`config-file/index`.
 
 .. note::
@@ -133,7 +133,7 @@ but you can change that using a :doc:`config-file/index`.
    If you want to know the specific version of a package that is installed in the image
    you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
-More details on software installed in images could be found in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository by browsing specific tag, marked in README as ``stable``.
+More details on software installed in images could be found in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository by browsing specific tag, marked in README.
 
 Writing your own builder
 ------------------------
