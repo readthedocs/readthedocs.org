@@ -29,6 +29,7 @@ extensions = [
     'sphinx_tabs.tabs',
     'sphinx-prompt',
     'recommonmark',
+    'notfound.extension',
 ]
 templates_path = ['_templates']
 
