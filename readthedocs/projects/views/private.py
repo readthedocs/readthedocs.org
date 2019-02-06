@@ -380,6 +380,11 @@ class ImportDemoView(PrivateViewMixin, View):
         return {'user': self.request.user}
 
     def trigger_initial_build(self, project):
+        """
+        Trigger initial build.
+
+        Allow to override the behavior from outside.
+        """
         return trigger_build(project)
 
 
