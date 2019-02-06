@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     @staticmethod
-    def _get_indexing_tasks(app_label, model_name, queryset, document_class):
+    def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
         total = queryset.count()
         chunks = get_chunk(total, settings.ES_TASK_CHUNK_SIZE)
 
@@ -27,6 +27,7 @@ class Command(BaseCommand):
                 'app_label': app_label,
                 'model_name': model_name,
                 'document_class': document_class,
+                'index_name': index_name,
                 'chunk': chunk
             }
             yield index_objects_to_es.si(**data)
@@ -62,6 +63,7 @@ class Command(BaseCommand):
 
             indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
                                                       queryset=queryset,
+                                                      index_name=new_index_name,
                                                       document_class=str(doc))
 
             post_index_task = switch_es_index.si(app_label=app_label, model_name=model_name,
