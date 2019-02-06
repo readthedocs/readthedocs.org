@@ -1229,7 +1229,6 @@ class TestPythonEnvironment(TestCase):
             'sphinx',
             'sphinx-rtd-theme',
             'readthedocs-sphinx-ext',
-            'sphinx-notfound-page',
         ]
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
@@ -1357,7 +1356,6 @@ class TestPythonEnvironment(TestCase):
         pip_requirements = [
             'recommonmark',
             'readthedocs-sphinx-ext',
-            'sphinx-notfound-page',
         ]
 
         args_pip = [
