@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 # and move this function to a mixin
 def get_project_list_or_404(project_slug, user):
     """Return list of project and its subprojects."""
-    queryset = Project.objects.api(user).only('slug')
+    queryset = Project.objects.public(user).only('slug')
 
     project = get_object_or_404(queryset, slug=project_slug)
     subprojects = queryset.filter(superprojects__parent_id=project.id)
