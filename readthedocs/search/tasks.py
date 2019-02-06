@@ -10,7 +10,9 @@ log = logging.getLogger(__name__)
 
 
 @app.task(queue='web')
-def index_objects_to_es(app_label, model_name, document_class, chunk=None, objects_id=None):
+def index_objects_to_es(
+    app_label, model_name, document_class, index_name=None, chunk=None, objects_id=None
+):
 
     assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
 
@@ -31,8 +33,19 @@ def index_objects_to_es(app_label, model_name, document_class, chunk=None, objec
     elif objects_id:
         queryset = queryset.filter(id__in=objects_id)
 
+    if index_name:
+        # Hack the index name temporarily for reindexing tasks
+        old_index_name = document._doc_type.index
+        document._doc_type.index = index_name
+        log.info('Replacing index name %s with %s', old_index_name, index_name)
+
     log.info("Indexing model: {}, '{}' objects".format(model.__name__, queryset.count()))
     doc_obj.update(queryset.iterator())
+
+    if index_name:
+        log.info('Undoing index replacement, settings %s with %s',
+                 document._doc_type.index, old_index_name)
+        document._doc_type.index = old_index_name
 
 
 @app.task(queue='web')
