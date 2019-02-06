@@ -41,8 +41,8 @@ Architecture
 ------------
 The search architecture is devided into 2 parts.
 
-* One part is responsible for **indexing** the documents and projects (`documents.py`)
-* The other part is responsible for **querying** the Index to show the proper results to users (`faceted_search.py`)
+* One part is responsible for **indexing** the documents and projects (``documents.py``)
+* The other part is responsible for **querying** the Index to show the proper results to users (``faceted_search.py``)
 
 We use the `django-elasticsearch-dsl`_ package for our Document abstraction.
 `django-elasticsearch-dsl`_ is a wrapper around `elasticsearch-dsl`_ for easy configuration
