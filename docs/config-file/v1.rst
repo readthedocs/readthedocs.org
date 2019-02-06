@@ -113,7 +113,7 @@ build.image
 ```````````
 
 * Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
-* Options: ``1.0``, ``2.0``, ``latest``
+* Options: ``stable``, ``latest``
 
 The build image to use for specific builds.
 This lets users specify a more experimental build image,
@@ -122,8 +122,7 @@ if they want to be on the cutting edge.
 Certain Python versions require a certain build image,
 as defined here:
 
-* ``1.0``: :buildpyversions:`1.0`
-* ``2.0``: :buildpyversions:`2.0`
+* ``stable``: :buildpyversions:`stable`
 * ``latest``: :buildpyversions:`latest`
 
 .. code-block:: yaml
