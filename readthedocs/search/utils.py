@@ -24,12 +24,12 @@ def get_project_list_or_404(project_slug, user, version_slug=None):
     """
     # Support private projects with public versions
     project_list = []
-    main_project = get_object_or_404(Project.objects.all(), slug=project_slug)
+    main_project = get_object_or_404(Project, slug=project_slug)
     subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
     for project in list(subprojects) + [main_project]:
         version = Version.objects.public(user).filter(project__slug=project.slug, slug=version_slug)
-        if version.count():
-            project_list.append(version[0].project)
+        if version.exists():
+            project_list.append(version.first().project)
     return project_list
 
 

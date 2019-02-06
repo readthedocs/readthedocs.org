@@ -62,7 +62,7 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        kwargs = {'filter_user': False}
+        kwargs = {'filter_by_user': False}
         kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
         kwargs['versions_list'] = self.request.query_params.get('version')
         user = self.request.user

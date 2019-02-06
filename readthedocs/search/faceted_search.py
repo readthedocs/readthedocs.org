@@ -21,8 +21,7 @@ class RTDFacetedSearch(FacetedSearch):
             but is used on the .com
         """
         self.user = user
-        if 'filter_user' in kwargs:
-            self.filter_user = kwargs.pop('filter_user')
+        self.filter_by_user = kwargs.pop('filter_by_user')
         super().__init__(**kwargs)
 
     def query(self, search, query):
