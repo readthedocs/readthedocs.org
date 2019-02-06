@@ -4,8 +4,8 @@
 
 import fnmatch
 import logging
-import re
 import os
+import re
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -1123,7 +1123,11 @@ class HTMLFile(ImportedFile):
         basename = os.path.splitext(self.path)[0]
         if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
             new_basename = re.sub(r'\/index$', '', basename)
-            log.info('Adjusted json file path: %s -> %s', basename, new_basename)
+            log.info(
+                'Adjusted json file path: %s -> %s',
+                basename,
+                new_basename,
+            )
             basename = new_basename
 
         file_path = basename + '.fjson'

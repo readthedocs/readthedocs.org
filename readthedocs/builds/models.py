@@ -599,10 +599,12 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
+            # yapf: disable
             if (
                 previous is not None and self._config and
                 self._config == previous.config
             ):
+                # yapf: enable
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
         super().save(*args, **kwargs)
