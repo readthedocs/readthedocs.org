@@ -1145,11 +1145,15 @@ class HTMLFile(ImportedFile):
             return process_file(file_path)
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file: %s' % file_path
+                'Unhandled exception during search processing file: %s',
+                file_path,
             )
         return {
-            'headers': [], 'content': '', 'path': file_path, 'title': '',
-            'sections': []
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': [],
         }
 
     @cached_property
