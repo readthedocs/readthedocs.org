@@ -62,7 +62,7 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        kwargs = {}
+        kwargs = {'filter_user': False}
         kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
         kwargs['versions_list'] = self.request.query_params.get('version')
         user = self.request.user
@@ -107,7 +107,10 @@ class PageSearchAPIView(generics.ListAPIView):
         :raises: Http404 if project is not found
         """
         project_slug = self.request.query_params.get('project')
-        all_projects = get_project_list_or_404(project_slug=project_slug, user=self.request.user)
+        version_slug = self.request.query_params.get('version')
+        all_projects = get_project_list_or_404(
+            project_slug=project_slug, user=self.request.user, version_slug=version_slug,
+        )
         return all_projects
 
     def get_all_projects_url(self):

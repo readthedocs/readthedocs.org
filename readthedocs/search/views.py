@@ -52,13 +52,9 @@ def elastic_search(request):
         elif user_input.type == 'file':
             kwargs = {}
             if user_input.project:
-                projects_list = get_project_list_or_404(
-                    project_slug=user_input.project, user=request.user
-                )
-                project_slug_list = [project.slug for project in projects_list]
-                kwargs['projects_list'] = project_slug_list
+                kwargs['projects_list'] = [user_input.project]
             if user_input.version:
-                kwargs['versions_list'] = user_input.version
+                kwargs['versions_list'] = [user_input.version]
 
             page_search = PageDocument.faceted_search(
                 query=user_input.query, user=request.user, **kwargs

@@ -21,18 +21,9 @@ class RTDFacetedSearch(FacetedSearch):
             but is used on the .com
         """
         self.user = user
+        if 'filter_user' in kwargs:
+            self.filter_user = kwargs.pop('filter_user')
         super().__init__(**kwargs)
-
-    def search(self):
-        """
-        Filter out full content on search results.
-
-        This was causing all of the indexed content to be returned, which was
-        never used on the client side.
-        """
-        s = super().search()
-        s = s.source(exclude=['content', 'headers'])
-        return s
 
     def query(self, search, query):
         """
@@ -42,6 +33,7 @@ class RTDFacetedSearch(FacetedSearch):
         """
         search = super().query(search, query)
         search = search.highlight_options(encoder='html', number_of_fragments=3)
+        search = search.source(exclude=['content', 'headers'])
         return search
 
 
