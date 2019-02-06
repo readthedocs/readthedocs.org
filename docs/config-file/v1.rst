@@ -1,12 +1,15 @@
-Read the Docs YAML Config
-=========================
+Configuration File V1
+=====================
 
 Read the Docs now has support for configuring builds with a YAML file.
-The file, ``readthedocs.yml``, must be in the root directory of your project.
+:doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
-.. warning:: This feature is in a beta state.
-             Please file an `issue`_ if you find anything wrong.
+.. warning::
 
+   Version 1 shouldn't be used.
+   The version 2 of the configuration file is now avaliable.
+   See the :ref:`new features <config-file/v2:New settings>`
+   and :ref:`how to migrate from v1 <config-file/v2:Migrating from v1>`.
 
 Here is an example of what this file looks like:
 
@@ -24,6 +27,15 @@ Here is an example of what this file looks like:
 
 Supported settings
 ------------------
+
+version
+~~~~~~~
+
+* Default: 1
+
+.. code-block:: yaml
+   
+   version: 1
 
 .. _yaml__formats:
 
@@ -100,8 +112,8 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: :djangosetting:`DOCKER_IMAGE`
-* Options: ``1.0``, ``2.0``, ``latest``
+* Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
+* Options: ``stable``, ``latest``
 
 The build image to use for specific builds.
 This lets users specify a more experimental build image,
@@ -110,9 +122,8 @@ if they want to be on the cutting edge.
 Certain Python versions require a certain build image,
 as defined here:
 
-* ``1.0``: 2, 2.7, 3, 3.4
-* ``2.0``: 2, 2.7, 3, 3.5
-* ``latest``: 2, 2.7, 3, 3.3, 3.4, 3.5, 3.6
+* ``stable``: :buildpyversions:`stable`
+* ``latest``: :buildpyversions:`latest`
 
 .. code-block:: yaml
 
@@ -135,8 +146,8 @@ used for building documentation.
 python.version
 ``````````````
 
-* Default: ``2.7``
-* Options: ``2.7``, ``2``, ``3.5``, ``3``
+* Default: ``3.7``
+* Options: :buildpyversions:`latest`
 
 This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,
@@ -146,7 +157,7 @@ the highest supported minor version will be selected.
 
     The supported Python versions depends on the version of the build image your
     project is using. The default build image that is used to build
-    documentation contains support for Python ``2.7`` and ``3.5``.  See the
+    documentation contains support for Python ``2.7`` and ``3.7``.  See the
     :ref:`yaml__build__image` for more information on supported Python versions.
 
 .. code-block:: yaml
@@ -161,7 +172,7 @@ python.use_system_site_packages
 * Type: Boolean
 
 When true, it gives the virtual environment access to the global site-packages directory.
-Depending on the :ref:`yaml-config:build.image`,
+Depending on the :ref:`config-file/v1:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
 See :ref:`builds:The build environment` for more details.
 

@@ -274,7 +274,7 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-    DOCKER_DEFAULT_VERSION = '2.0'
+    DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
@@ -286,13 +286,16 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:3.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
         },
-        'readthedocs/build:stable': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
-        },
-        'readthedocs/build:latest': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        'readthedocs/build:4.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
         },
     }
+
+    # Alias tagged via ``docker tag`` on the build servers
+    DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+    })
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -350,18 +353,6 @@ class CommunityBaseSettings(Settings):
     }
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
-    ES_PAGE_IGNORE_SIGNALS = True
-    ES_PROJECT_IGNORE_SIGNALS = True
-
-    # ANALYZER = 'analysis': {
-    #     'analyzer': {
-    #         'default_icu': {
-    #             'type': 'custom',
-    #             'tokenizer': 'icu_tokenizer',
-    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
-    #         }
-    #     }
-    # }
 
     ES_INDEXES = {
         'project': {
@@ -381,6 +372,17 @@ class CommunityBaseSettings(Settings):
             }
         },
     }
+
+    # ANALYZER = 'analysis': {
+    #     'analyzer': {
+    #         'default_icu': {
+    #             'type': 'custom',
+    #             'tokenizer': 'icu_tokenizer',
+    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
+    #         }
+    #     }
+    # }
+
     # Disable auto refresh for increasing index performance
     ELASTICSEARCH_DSL_AUTO_REFRESH = False
 

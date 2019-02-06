@@ -303,7 +303,7 @@ class Project(models.Model):
         _('Python Interpreter'),
         max_length=20,
         choices=constants.PYTHON_CHOICES,
-        default='python',
+        default='python3',
         help_text=_(
             'The Python interpreter used to create the virtual '
             'environment.',
@@ -1145,11 +1145,15 @@ class HTMLFile(ImportedFile):
             return process_file(file_path)
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file: %s' % file_path
+                'Unhandled exception during search processing file: %s',
+                file_path,
             )
         return {
-            'headers': [], 'content': '', 'path': file_path, 'title': '',
-            'sections': []
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': [],
         }
 
     @cached_property
@@ -1282,7 +1286,6 @@ class Feature(models.Model):
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
-    ALLOW_V2_CONFIG_FILE = 'allow_v2_config_file'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
@@ -1297,11 +1300,6 @@ class Feature(models.Model):
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
-            ),
-        ), (
-            ALLOW_V2_CONFIG_FILE,
-            _(
-                'Allow to use the v2 of the configuration file',
             ),
         ), (
             MKDOCS_THEME_RTD,

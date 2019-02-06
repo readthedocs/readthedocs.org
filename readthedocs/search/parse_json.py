@@ -1,46 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Functions related to converting content into dict/JSON structures."""
 
 import codecs
-import fnmatch
 import json
 import logging
-import os
 
 from pyquery import PyQuery
 
 
 log = logging.getLogger(__name__)
-
-
-def process_all_json_files(version, build_dir=True):
-    """Return a list of pages to index."""
-    if build_dir:
-        full_path = version.project.full_json_path(version.slug)
-    else:
-        full_path = version.project.get_production_media_path(
-            type_='json',
-            version_slug=version.slug,
-            include_file=False,
-        )
-    html_files = []
-    for root, _, files in os.walk(full_path):
-        for filename in fnmatch.filter(files, '*.fjson'):
-            if filename in ['search.fjson', 'genindex.fjson',
-                            'py-modindex.fjson']:
-                continue
-            html_files.append(os.path.join(root, filename))
-    page_list = []
-    for filename in html_files:
-        try:
-            result = process_file(filename)
-            if result:
-                page_list.append(result)
-        # we're unsure which exceptions can be raised
-        except:  # noqa
-            pass
-    return page_list
 
 
 def process_headers(data, filename):
@@ -132,6 +99,15 @@ def process_file(filename):
 
 
 def recurse_while_none(element):
+    """
+    Traverse the ``element`` until a non-None text is found.
+
+    :param element: element to traverse until get a non-None text.
+    :type element: pyquery.PyQuery
+
+    :returns: the first non-None value found
+    :rtype: str
+    """
     if element.text is None:
         return recurse_while_none(element.getchildren()[0])
     return element.text

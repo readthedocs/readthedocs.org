@@ -24,13 +24,15 @@ class TestProjectSearch(object):
         result = page.find('.module-list-wrapper .module-item-title')
         return result, page
 
-    def test_search_by_project_name(self, client, project):
+    def test_search_by_project_name(self, client, project, all_projects):
         result, _ = self._get_search_result(
             url=self.url, client=client,
             search_params={'q': project.name},
         )
 
+        assert len(result) == 1
         assert project.name.encode('utf-8') in result.text().encode('utf-8')
+        assert all_projects[1].name.encode('utf-8') not in result.text().encode('utf-8')
 
     def test_search_project_show_languages(self, client, project):
         """Test that searching project should show all available languages."""
@@ -228,7 +230,12 @@ class TestPageSearch(object):
         assert sorted(project_versions) == sorted(content_versions)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
-        """File search should return results from subprojects also."""
+        """
+        TODO: File search should return results from subprojects also.
+
+        This is currently disabled because the UX around it is weird.
+        You filter by a project, and get results for multiple.
+        """
         project = all_projects[0]
         subproject = all_projects[1]
         # Add another project as subproject of the project
@@ -242,4 +249,4 @@ class TestPageSearch(object):
             search_params=search_params,
         )
 
-        assert len(result) == 1
+        assert len(result) == 0

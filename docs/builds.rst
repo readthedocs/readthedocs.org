@@ -119,7 +119,7 @@ The build environment
 
 The build process is executed inside Docker containers,
 by default the image used is ``readthedocs/build:2.0``,
-but you can change that using a :doc:`configuration file <yaml-config>`.
+but you can change that using a :doc:`config-file/index`.
 
 .. note::
    
