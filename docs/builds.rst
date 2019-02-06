@@ -133,7 +133,7 @@ but you can change that using a :doc:`config-file/index`.
    If you want to know the specific version of a package that is installed in the image
    you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
-More details on software installed in images could be found in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository by browsing specific tag, marked in README.
+More details on software installed in images could be found by browsing specific branch in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository.
 
 Writing your own builder
 ------------------------
