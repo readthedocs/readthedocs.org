@@ -303,7 +303,7 @@ class Project(models.Model):
         _('Python Interpreter'),
         max_length=20,
         choices=constants.PYTHON_CHOICES,
-        default='python',
+        default='python3',
         help_text=_(
             'The Python interpreter used to create the virtual '
             'environment.',
