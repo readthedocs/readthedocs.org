@@ -1,3 +1,15 @@
+Version 3.2.1
+-------------
+
+:Date: February 07, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Remove excluding files on search. (`#5246 <https://github.com/rtfd/readthedocs.org/pull/5246>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don't update search on HTMLFile save (`#5244 <https://github.com/rtfd/readthedocs.org/pull/5244>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Be more defensive in our 404 handler (`#5243 <https://github.com/rtfd/readthedocs.org/pull/5243>`__)
+* `@humitos <http://github.com/humitos>`__: Install sphinx-notfound-page for building 404.html custom page (`#5242 <https://github.com/rtfd/readthedocs.org/pull/5242>`__)
+* `@humitos <http://github.com/humitos>`__: Remove py2 compatibility (`#5241 <https://github.com/rtfd/readthedocs.org/pull/5241>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.0 (`#5240 <https://github.com/rtfd/readthedocs.org/pull/5240>`__)
+
 Version 3.2.0
 -------------
 
