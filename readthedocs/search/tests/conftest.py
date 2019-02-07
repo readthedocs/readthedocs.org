@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django_dynamic_fixture import G
 
 from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.search.documents import PageDocument
 from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
 
 
@@ -30,8 +31,8 @@ def all_projects(es_index, mock_processed_json, db, settings):
             # file_basename in config are without extension so add html extension
             file_name = file_basename + '.html'
             version = project.versions.all()[0]
-            f = G(HTMLFile, project=project, version=version, name=file_name)
-            f.save()
+            html_file = G(HTMLFile, project=project, version=version, name=file_name)
+            PageDocument().update(html_file)
 
         projects_list.append(project)
 

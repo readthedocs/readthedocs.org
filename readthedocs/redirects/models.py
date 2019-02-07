@@ -6,7 +6,6 @@ import logging
 import re
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
@@ -52,7 +51,6 @@ to_url_helptext = _(
 redirect_type_helptext = _('The type of redirect you wish to use.')
 
 
-@python_2_unicode_compatible
 class Redirect(models.Model):
 
     """A HTTP redirect associated with a Project."""
