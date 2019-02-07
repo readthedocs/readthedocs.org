@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import logging
 
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
-from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.projects.models import HTMLFile, Project
+
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -13,7 +15,6 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-
 log = logging.getLogger(__name__)
 
 
@@ -22,10 +23,12 @@ class ProjectDocument(DocType):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
-    users = fields.NestedField(properties={
-        'username': fields.TextField(),
-        'id': fields.IntegerField(),
-    })
+    users = fields.NestedField(
+        properties={
+            'username': fields.TextField(),
+            'id': fields.IntegerField(),
+        }
+    )
     language = fields.KeywordField()
 
     class Meta(object):
@@ -67,7 +70,8 @@ class PageDocument(DocType):
 
     @classmethod
     def faceted_search(
-        cls, query, user, projects_list=None, versions_list=None, filter_by_user=True
+            cls, query, user, projects_list=None, versions_list=None,
+            filter_by_user=True
     ):
         from readthedocs.search.faceted_search import PageSearch
         kwargs = {
@@ -87,13 +91,14 @@ class PageDocument(DocType):
         return PageSearch(**kwargs)
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index"""
+        """Overwrite default queryset to filter certain files to index."""
         queryset = super(PageDocument, self).get_queryset()
-
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
-        queryset = queryset.filter(project__documentation_type__contains='sphinx')
+        queryset = queryset.filter(
+            project__documentation_type__contains='sphinx'
+        )
 
         # TODO: Make this smarter
         # This was causing issues excluding some valid user documentation pages
