@@ -110,6 +110,7 @@ Members
 * `Anthony Johnson <https://github.com/agjohnson>`_
 * `Manuel Kaufmann <https://github.com/humitos>`_
 * `David Fischer <https://github.com/davidfischer>`_
+* `Santos Gallegos <https://github.com/stsewd>`_
 * Your name here
 
 Feel free to ask any of us if you have questions or want to join!

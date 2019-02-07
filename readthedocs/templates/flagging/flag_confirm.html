@@ -16,7 +16,7 @@
   {% load flagging %}
   <h3>{% trans "What you are saying:" %}</h3>
   <p>{{ flag_type.description }}</p>
-  
+
   <form action="{{ object|flag_url:flag_type.slug }}{% if next %}?next={{ next }}{% endif %}" method="post">{% csrf_token %}
     <p>{% blocktrans %}Are you sure you want to flag "{{ object }}" as "{{ flag_type.title }}"?{% endblocktrans %}</p>
     <p class="submit">

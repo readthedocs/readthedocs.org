@@ -64,6 +64,16 @@ environment, and will be set to ``True`` when building on RTD::
     Woo
     {% endif %}
 
+My project requires different settings than those available under Admin
+-----------------------------------------------------------------------
+
+Read the Docs offers some settings which can be used for a variety of purposes,
+such as to use the latest version of sphinx or pip. To enable these settings,
+please open a request issue on our `github`_ and we will change the settings for the project.
+Read more about these settings :doc:`here <guides/feature-flags>`.
+
+.. _github: https://github.com/rtfd/readthedocs.org
+
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
 
@@ -230,3 +240,49 @@ What commit of Read the Docs is in production?
 ----------------------------------------------
 
 We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
+
+
+How can I avoid search results having a deprecated version of my docs?
+----------------------------------------------------------------------
+
+If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
+It may happen that this version is already deprecated and you want to stop Google indexing it as a result,
+and start suggesting the latest (or newer) one.
+
+To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
+(for example, https://yourproject.readthedocs.io/robots.txt).
+
+
+Minimal example of ``robots.txt``
++++++++++++++++++++++++++++++++++
+
+::
+
+   User-agent: *
+   Disallow: /en/deprecated-version/
+   Disallow: /en/2.0/
+
+.. note::
+
+   See `Google's docs`_ for its full syntax.
+
+This file has to be served as is under ``/robots.txt``.
+Depending if you are using Sphinx or MkDocs, you will need a different configuration for this.
+
+
+Sphinx
+~~~~~~
+
+Sphinx uses `html_extra`_ option to add static files to the output.
+You need to create a ``robots.txt`` file and put it under the path defined in ``html_extra``.
+
+
+MkDocs
+~~~~~~
+
+MkDocs needs the ``robots.txt`` to be at the directory defined at `docs_dir`_ config.
+
+
+.. _Google's docs: https://support.google.com/webmasters/answer/6062608
+.. _html_extra: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
+.. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir

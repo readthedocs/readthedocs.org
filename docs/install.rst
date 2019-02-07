@@ -19,7 +19,7 @@ Additionally Read the Docs depends on:
 * `Redis`_
 * `Elasticsearch`_ (only if you want full support for searching inside the site)
 
-    * Ubuntu users could install this package by following :doc:`/custom_installs/elasticsearch`.
+    * Follow :doc:`/development/search` documentation for more instruction.
 
 .. note::
 
@@ -55,8 +55,6 @@ you need these libraries.
          sudo apt-get install redis-server
 
    .. tab:: CentOS/RHEL 7
-
-      Install::
 
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 

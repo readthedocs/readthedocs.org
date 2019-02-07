@@ -11,7 +11,6 @@ import os
 import re
 
 from django.conf import settings
-from django.utils import six
 from django.utils.functional import allow_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
@@ -19,7 +18,6 @@ from celery import group, chord
 
 from readthedocs.builds.constants import LATEST, BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-
 
 log = logging.getLogger(__name__)
 
@@ -59,15 +57,6 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         else:
             task_promise = group(tasks).apply_async()
     return task_promise
-
-
-def cname_to_slug(host):
-    # TODO: remove
-    from dns import resolver
-    answer = [ans for ans in resolver.query(host, 'CNAME')][0]
-    domain = answer.target.to_unicode()
-    slug = domain.split('.')[0]
-    return slug
 
 
 def prepare_build(
@@ -221,7 +210,7 @@ def slugify(value, *args, **kwargs):
     return value
 
 
-slugify = allow_lazy(slugify, six.text_type, SafeText)
+slugify = allow_lazy(slugify, str, SafeText)
 
 
 def safe_makedirs(directory_name):

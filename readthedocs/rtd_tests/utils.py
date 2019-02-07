@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import logging
 import subprocess
 import textwrap
@@ -22,13 +15,12 @@ from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
 
+
 log = logging.getLogger(__name__)
 
 
 def get_readthedocs_app_path():
-    """
-    Return the absolute path of the ``readthedocs`` app.
-    """
+    """Return the absolute path of the ``readthedocs`` app."""
 
     try:
         import readthedocs
@@ -42,7 +34,7 @@ def get_readthedocs_app_path():
 def check_output(command, env=None):
     output = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        env=env
+        env=env,
     ).communicate()[0]
     log.info(output)
     return output
@@ -61,7 +53,7 @@ def make_test_git():
     # the repo
     check_output(['git', 'checkout', '-b', 'submodule', 'master'], env=env)
     add_git_submodule_without_cloning(
-        directory, 'foobar', 'https://foobar.com/git'
+        directory, 'foobar', 'https://foobar.com/git',
     )
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m"Add submodule"'], env=env)
@@ -69,7 +61,7 @@ def make_test_git():
     # Add an invalid submodule URL in the invalidsubmodule branch
     check_output(['git', 'checkout', '-b', 'invalidsubmodule', 'master'], env=env)
     add_git_submodule_without_cloning(
-        directory, 'invalid', 'git@github.com:rtfd/readthedocs.org.git'
+        directory, 'invalid', 'git@github.com:rtfd/readthedocs.org.git',
     )
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m"Add invalid submodule"'], env=env)
@@ -130,11 +122,11 @@ def make_git_repo(directory, name='sample_repo'):
     check_output(['git', 'init'] + [directory], env=env)
     check_output(
         ['git', 'config', 'user.email', 'dev@readthedocs.org'],
-        env=env
+        env=env,
     )
     check_output(
         ['git', 'config', 'user.name', 'Read the Docs'],
-        env=env
+        env=env,
     )
 
     # Set up the actual repository
@@ -187,8 +179,10 @@ def delete_git_branch(directory, branch):
 
 
 @restoring_chdir
-def create_git_submodule(directory, submodule,
-                         msg='Add realative submodule', branch='master'):
+def create_git_submodule(
+    directory, submodule,
+    msg='Add realative submodule', branch='master',
+):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
     chdir(directory)

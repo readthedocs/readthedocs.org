@@ -1,19 +1,18 @@
+# -*- coding: utf-8 -*-
 """Base classes and mixins for unit tests."""
-from __future__ import absolute_import
-from builtins import object
+import logging
 import os
 import shutil
-import logging
 import tempfile
 from collections import OrderedDict
 
-from mock import patch
 from django.conf import settings
-from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
-import six
+from django.test import RequestFactory, TestCase
+from mock import patch
+
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class RTDTestCase(TestCase):
         self.original_DOCROOT = settings.DOCROOT
         self.cwd = os.path.dirname(__file__)
         self.build_dir = tempfile.mkdtemp()
-        log.info("build dir: %s", self.build_dir)
+        log.info('build dir: %s', self.build_dir)
         if not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
         settings.DOCROOT = self.build_dir
@@ -42,7 +41,7 @@ class MockBuildTestCase(TestCase):
     pass
 
 
-class RequestFactoryTestMixin(object):
+class RequestFactoryTestMixin:
 
     """
     Adds helper methods for testing with :py:class:`RequestFactory`
@@ -107,14 +106,14 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         if not self.url:
             raise Exception('Missing wizard URL')
         try:
-            data = dict(
-                ('{0}-{1}'.format(step, k), v)
+            data = {
+                '{}-{}'.format(step, k): v
                 for (k, v) in list(self.step_data[step].items())
-            )
+            }
         except KeyError:
             pass
         # Update with prefixed step data
-        data['{0}-current_step'.format(self.wizard_class_slug)] = step
+        data['{}-current_step'.format(self.wizard_class_slug)] = step
         view = self.wizard_class.as_view()
         req = self.request(self.url, method='post', data=data, **kwargs)
         resp = view(req)
@@ -146,7 +145,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
             response.render()
             self.assertContains(
                 response,
-                u'name="{0}-current_step"'.format(self.wizard_class_slug)
+                'name="{}-current_step"'.format(self.wizard_class_slug),
             )
 
     # We use camelCase on purpose here to conform with unittest's naming
@@ -170,4 +169,4 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         self.assertIn(field, response.context_data['wizard']['form'].errors)
         if match is not None:
             error = response.context_data['wizard']['form'].errors[field]
-            self.assertRegex(six.text_type(error), match)  # noqa
+            self.assertRegex(str(error), match)  # noqa

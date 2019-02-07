@@ -1,12 +1,11 @@
+# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
-from __future__ import absolute_import
-from builtins import object
 import mock
 
 
-class EnvironmentMockGroup(object):
+class EnvironmentMockGroup:
 
-    """Mock out necessary environment pieces"""
+    """Mock out necessary environment pieces."""
 
     def __init__(self):
         self.patches = {
@@ -15,43 +14,61 @@ class EnvironmentMockGroup(object):
             'api': mock.patch('slumber.Resource'),
             'api_v2.command': mock.patch(
                 'readthedocs.doc_builder.environments.api_v2.command',
-                mock.Mock(**{'get.return_value': {}})),
+                mock.Mock(**{'get.return_value': {}}),
+            ),
             'api_v2.build': mock.patch(
                 'readthedocs.doc_builder.environments.api_v2.build',
-                mock.Mock(**{'get.return_value': {}})),
+                mock.Mock(**{'get.return_value': {}}),
+            ),
             'api_versions': mock.patch(
-                'readthedocs.projects.models.Project.api_versions'),
+                'readthedocs.projects.models.Project.api_versions',
+            ),
             'non_blocking_lock': mock.patch(
-                'readthedocs.vcs_support.utils.NonBlockingLock.__enter__'),
+                'readthedocs.vcs_support.utils.NonBlockingLock.__enter__',
+            ),
 
             'append_conf': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf'),
+                'readthedocs.doc_builder.backends.sphinx.BaseSphinx.append_conf',
+            ),
             'move': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.BaseSphinx.move'),
+                'readthedocs.doc_builder.backends.sphinx.BaseSphinx.move',
+            ),
             'conf_dir': mock.patch(
-                'readthedocs.projects.models.Project.conf_dir'),
+                'readthedocs.projects.models.Project.conf_dir',
+            ),
             'html_build': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build'),
+                'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build',
+            ),
             'html_move': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.move'),
+                'readthedocs.doc_builder.backends.sphinx.HtmlBuilder.move',
+            ),
             'localmedia_build': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.build'),
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.build',
+            ),
             'localmedia_move': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.move'),
+                'readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder.move',
+            ),
             'pdf_build': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build'),
+                'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build',
+            ),
             'pdf_move': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.PdfBuilder.move'),
+                'readthedocs.doc_builder.backends.sphinx.PdfBuilder.move',
+            ),
             'epub_build': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.EpubBuilder.build'),
+                'readthedocs.doc_builder.backends.sphinx.EpubBuilder.build',
+            ),
             'epub_move': mock.patch(
-                'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move'),
+                'readthedocs.doc_builder.backends.sphinx.EpubBuilder.move',
+            ),
             'move_mkdocs': mock.patch(
-                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move'),
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.move',
+            ),
             'append_conf_mkdocs': mock.patch(
-                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf'),
+                'readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.append_conf',
+            ),
             'html_build_mkdocs': mock.patch(
-                'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.build'),
+                'readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.build',
+            ),
             'glob': mock.patch('readthedocs.doc_builder.backends.sphinx.glob'),
 
             'docker': mock.patch('readthedocs.doc_builder.environments.APIClient'),
@@ -60,7 +77,7 @@ class EnvironmentMockGroup(object):
         self.mocks = {}
 
     def start(self):
-        """Create a patch object for class patches"""
+        """Create a patch object for class patches."""
         for patch in self.patches:
             self.mocks[patch] = self.patches[patch].start()
         self.mocks['process'].communicate.return_value = ('', '')
@@ -78,7 +95,7 @@ class EnvironmentMockGroup(object):
                 pass
 
     def configure_mock(self, mock, kwargs):
-        """Configure object mocks"""
+        """Configure object mocks."""
         self.mocks[mock].configure_mock(**kwargs)
 
     def __getattr__(self, name):

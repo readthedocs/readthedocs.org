@@ -6,7 +6,7 @@ var doc_slug = "{{ slug }}";
 var page_name = "{{ pagename }}";
 var html_theme = "{{ html_theme }}";
 
-// mkdocs_page_input_path is only defined on the RTD mkdocs theme but it isn't 
+// mkdocs_page_input_path is only defined on the RTD mkdocs theme but it isn't
 // available on all pages (e.g. missing in search result)
 if (typeof mkdocs_page_input_path !== "undefined") {
   READTHEDOCS_DATA["page"] = mkdocs_page_input_path.substr(

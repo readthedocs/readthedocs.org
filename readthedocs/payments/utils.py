@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
 Payment utility functions.
 
@@ -5,9 +7,9 @@ These are mostly one-off functions. Define the bulk of Stripe operations on
 :py:class:`readthedocs.payments.forms.StripeResourceMixin`.
 """
 
-from __future__ import absolute_import
 import stripe
 from django.conf import settings
+
 
 stripe.api_key = getattr(settings, 'STRIPE_SECRET', None)
 

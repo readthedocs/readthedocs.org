@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Django models for recurring donations aka Gold Membership."""
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 import math
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Project
+
 
 #: The membership options that are currently available
 LEVEL_CHOICES = (
@@ -30,7 +23,6 @@ LEVEL_CHOICES = (
 DOLLARS_PER_PROJECT = 5
 
 
-@python_2_unicode_compatible
 class GoldUser(models.Model):
 
     """A user subscription for gold membership."""
@@ -62,7 +54,7 @@ class GoldUser(models.Model):
     business_vat_id = models.CharField(max_length=128, null=True, blank=True)
 
     def __str__(self):
-        return 'Gold Level %s for %s' % (self.level, self.user)
+        return 'Gold Level {} for {}'.format(self.level, self.user)
 
     @property
     def num_supported_projects(self):

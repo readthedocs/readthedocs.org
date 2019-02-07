@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """Slumber API client."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import logging
 
-from django.conf import settings
 import requests
+from django.conf import settings
 from requests_toolbelt.adapters import host_header_ssl
 from slumber import API
+
 
 log = logging.getLogger(__name__)
 

@@ -6,7 +6,6 @@ import os
 import sys
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
@@ -29,13 +28,12 @@ extensions = [
     'doc_extensions',
     'sphinx_tabs.tabs',
     'sphinx-prompt',
+    'recommonmark',
+    'notfound.extension',
 ]
 templates_path = ['_templates']
 
 source_suffix = ['.rst', '.md']
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 
 master_doc = 'index'
 project = u'Read the Docs'
@@ -83,6 +81,18 @@ html_theme_options = {
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+# sphinx-notfound-page
+# https://github.com/rtfd/sphinx-notfound-page
+notfound_context = {
+    'body': '''
+<h1>Page not found</h1>
+
+<p>Sorry, we couldn't find that page.</p>
+
+<p>Try using the search box or go to the homepage.</p>
+''',
+}
 
 
 def setup(app):

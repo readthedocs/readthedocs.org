@@ -2,24 +2,15 @@
 
 """Define routes between URL paths and views/endpoints."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-
 from django.conf import settings
 from django.conf.urls import include, url
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts
-from readthedocs.restapi import views
 from readthedocs.restapi.views import (
     core_views,
     footer_views,
     integrations,
-    search_views,
     task_views,
 )
 
@@ -34,6 +25,7 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
+
 
 router = routers.DefaultRouter()
 router.register(r'build', BuildViewSet, basename='build')
@@ -67,25 +59,6 @@ function_urls = [
     url(r'footer_html/', footer_views.footer_html, name='footer_html'),
 ]
 
-search_urls = [
-    url(
-        r'index_search/',
-        search_views.index_search,
-        name='index_search',
-    ),
-    url(r'search/$', views.search_views.search, name='api_search'),
-    url(
-        r'search/project/$',
-        search_views.project_search,
-        name='api_project_search',
-    ),
-    url(
-        r'search/section/$',
-        search_views.section_search,
-        name='api_section_search',
-    ),
-]
-
 task_urls = [
     url(
         r'jobs/status/(?P<task_id>[^/]+)/',
@@ -101,26 +74,30 @@ task_urls = [
 
 integration_urls = [
     url(
-        r'webhook/github/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/github/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitHubWebhookView.as_view(),
         name='api_webhook_github',
     ),
     url(
-        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.GitLabWebhookView.as_view(),
         name='api_webhook_gitlab',
     ),
     url(
-        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.BitbucketWebhookView.as_view(),
         name='api_webhook_bitbucket',
     ),
     url(
-        r'webhook/generic/(?P<project_slug>{project_slug})/$'
-        .format(**pattern_opts),
+        r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(
+            **pattern_opts
+        ),
         integrations.APIWebhookView.as_view(),
         name='api_webhook_generic',
     ),
@@ -135,17 +112,8 @@ integration_urls = [
 ]
 
 urlpatterns += function_urls
-urlpatterns += search_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
-
-if 'readthedocsext.search' in settings.INSTALLED_APPS:
-    # pylint: disable=import-error
-    from readthedocsext.search.docsearch import DocSearch
-    api_search_urls = [
-        url(r'^docsearch/$', DocSearch.as_view(), name='doc_search'),
-    ]
-    urlpatterns += api_search_urls
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     # pylint: disable=import-error

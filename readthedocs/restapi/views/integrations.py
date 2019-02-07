@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+"""Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 import json
 import logging
 import re
 
-import six
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -30,6 +23,7 @@ from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
 
+
 log = logging.getLogger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
@@ -43,7 +37,7 @@ BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
 BITBUCKET_PUSH = 'repo:push'
 
 
-class WebhookMixin(object):
+class WebhookMixin:
 
     """Base class for Webhook mixins."""
 
@@ -75,7 +69,7 @@ class WebhookMixin(object):
 
     def finalize_response(self, req, *args, **kwargs):
         """If the project was set on POST, store an HTTP exchange."""
-        resp = super(WebhookMixin, self).finalize_response(req, *args, **kwargs)
+        resp = super().finalize_response(req, *args, **kwargs)
         if hasattr(self, 'project') and self.project:
             HttpExchange.objects.from_exchange(
                 req,
@@ -133,12 +127,17 @@ class WebhookMixin(object):
         """
         to_build, not_building = build_branches(project, branches)
         if not_building:
-            log.info('Skipping project branches: project=%s branches=%s',
-                     project, branches)
+            log.info(
+                'Skipping project branches: project=%s branches=%s',
+                project,
+                branches,
+            )
         triggered = True if to_build else False
-        return {'build_triggered': triggered,
-                'project': project.slug,
-                'versions': list(to_build)}
+        return {
+            'build_triggered': triggered,
+            'project': project.slug,
+            'versions': list(to_build),
+        }
 
     def sync_versions(self, project):
         version = sync_versions(project)
@@ -180,7 +179,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return json.loads(self.request.data['payload'])
             except (ValueError, KeyError):
                 pass
-        return super(GitHubWebhookView, self).get_data()
+        return super().get_data()
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
@@ -189,7 +188,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             Project,
             project=self.project,
             data=self.data,
-            event=event
+            event=event,
         )
         # Handle push events and trigger builds
         if event == GITHUB_PUSH:
@@ -245,7 +244,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             Project,
             project=self.project,
             data=self.request.data,
-            event=event
+            event=event,
         )
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
@@ -306,16 +305,16 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         """
         Handle BitBucket events for push.
 
-        BitBucket doesn't have a separate event for creation/deletion,
-        instead it sets the new attribute (null if it is a deletion)
-        and the old attribute (null if it is a creation).
+        BitBucket doesn't have a separate event for creation/deletion, instead
+        it sets the new attribute (null if it is a deletion) and the old
+        attribute (null if it is a creation).
         """
         event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
         webhook_bitbucket.send(
             Project,
             project=self.project,
             data=self.request.data,
-            event=event
+            event=event,
         )
         if event == BITBUCKET_PUSH:
             try:
@@ -350,8 +349,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super(IsAuthenticatedOrHasToken, self)
-                    .has_permission(request, view))
+        has_perm = (super().has_permission(request, view))
         return has_perm or 'token' in request.data
 
 
@@ -380,9 +378,11 @@ class APIWebhookView(WebhookMixin, APIView):
         # If the user is not an admin of the project, fall back to token auth
         if self.request.user.is_authenticated:
             try:
-                return (Project.objects
-                        .for_admin_user(self.request.user)
-                        .get(**kwargs))
+                return (
+                    Project.objects.for_admin_user(
+                        self.request.user,
+                    ).get(**kwargs)
+                )
             except Project.DoesNotExist:
                 pass
         # Recheck project and integration relationship during token auth check
@@ -402,9 +402,9 @@ class APIWebhookView(WebhookMixin, APIView):
         try:
             branches = self.request.data.get(
                 'branches',
-                [self.project.get_default_branch()]
+                [self.project.get_default_branch()],
             )
-            if isinstance(branches, six.string_types):
+            if isinstance(branches, str):
                 branches = [branches]
             return self.get_response_push(self.project, branches)
         except TypeError:

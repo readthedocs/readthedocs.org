@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+
 """YAML parser for the RTD configuration file."""
 
-from __future__ import division, print_function, unicode_literals
-
 import yaml
+
 
 __all__ = ('parse', 'ParseError')
 
@@ -11,8 +11,6 @@ __all__ = ('parse', 'ParseError')
 class ParseError(Exception):
 
     """Parser related errors."""
-
-    pass
 
 
 def parse(stream):

@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals, division, print_function
-import mock
 import django_dynamic_fixture as fixture
-
-from django.contrib.auth.models import User
-from django.test import TestCase
-from django.test.utils import override_settings
-from django.http import Http404
+import mock
+import os
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.http import Http404
+from django.test import TestCase, RequestFactory
+from django.test.utils import override_settings
+from django.urls import reverse
+from mock import mock_open, patch
 
-from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.core.middleware import SubdomainMiddleware
+from readthedocs.core.views import server_error_404_subdomain
+from readthedocs.core.views.serve import _serve_symlink_docs
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
-from readthedocs.core.views.serve import _serve_symlink_docs
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
 
 @override_settings(
-    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False
+    USE_SUBDOMAIN=False, PUBLIC_DOMAIN='public.readthedocs.org', DEBUG=False,
 )
 class BaseDocServing(RequestFactoryTestMixin, TestCase):
 
@@ -46,7 +49,7 @@ class TestPrivateDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/private_web_root/private'
+                    settings.SITE_ROOT + '/private_web_root/private',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -56,7 +59,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -66,7 +69,7 @@ class TestPrivateDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.private, filename='/en/latest/úñíčódé.html', privacy_level='private')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html'
+                r._headers['x-accel-redirect'][1], '/private_web_root/private/en/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -76,6 +79,28 @@ class TestPrivateDocs(BaseDocServing):
             _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='private')
         self.assertTrue('private_web_root' in str(exc.exception))
         self.assertTrue('public_web_root' not in str(exc.exception))
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    def test_robots_txt(self):
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='private.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        self.client.force_login(self.eric)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='private.readthedocs.io',
+        )
+        # Private projects/versions always return 404 for robots.txt
+        self.assertEqual(response.status_code, 404)
 
 
 @override_settings(SERVE_DOCS=[constants.PRIVATE, constants.PUBLIC])
@@ -90,7 +115,7 @@ class TestPublicDocs(BaseDocServing):
                 serve_mock.assert_called_with(
                     request,
                     'en/latest/usage.html',
-                    settings.SITE_ROOT + '/public_web_root/public'
+                    settings.SITE_ROOT + '/public_web_root/public',
                 )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -100,7 +125,7 @@ class TestPublicDocs(BaseDocServing):
             r = _serve_symlink_docs(request, project=self.public, filename='/en/latest/usage.html', privacy_level='public')
             self.assertEqual(r.status_code, 200)
             self.assertEqual(
-                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html'
+                r._headers['x-accel-redirect'][1], '/public_web_root/public/en/latest/usage.html',
             )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -110,3 +135,68 @@ class TestPublicDocs(BaseDocServing):
             _serve_symlink_docs(request, project=self.private, filename='/en/latest/usage.html', privacy_level='public')
         self.assertTrue('private_web_root' not in str(exc.exception))
         self.assertTrue('public_web_root' in str(exc.exception))
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    def test_default_robots_txt(self):
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='public.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'User-agent: *\nAllow: /\n')
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    @patch(
+        'builtins.open',
+        new_callable=mock_open,
+        read_data='My own robots.txt',
+    )
+    @patch('readthedocs.core.views.serve.os')
+    def test_custom_robots_txt(self, os_mock, open_mock):
+        os_mock.path.exists.return_value = True
+        self.public.versions.update(active=True, built=True)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='public.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'My own robots.txt')
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    @patch('readthedocs.core.views.serve.os')
+    @patch('readthedocs.core.views.os')
+    def test_custom_404_page(self, os_view_mock, os_serve_mock):
+        os_view_mock.path.exists.return_value = True
+
+        os_serve_mock.path.join.side_effect = os.path.join
+        os_serve_mock.path.exists.return_value = True
+
+        self.public.versions.update(active=True, built=True)
+
+        factory = RequestFactory()
+        request = factory.get(
+            '/en/latest/notfoundpage.html',
+            HTTP_HOST='public.readthedocs.io',
+        )
+
+        middleware = SubdomainMiddleware()
+        middleware.process_request(request)
+        response = server_error_404_subdomain(request)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))

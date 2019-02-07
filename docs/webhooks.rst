@@ -161,9 +161,9 @@ that your VCS provider is not configured correctly. If there is payload
 information on your Read the Docs project, you might need to verify that your
 versions are configured to build correctly.
 
-Either way, it may help to either resync your webhook intergration (see
+Either way, it may help to either resync your webhook integration (see
 `Resyncing webhooks`_ for information on this process), or set up an entirely
-new webhook intergration.
+new webhook integration.
 
 .. _webhook-github-services:
 
@@ -180,7 +180,7 @@ In order for your project to continue automatically building, you will need to
 configure your GitHub repository with a new webhook. You can use either a
 connected GitHub account and a :ref:`GitHub webhook integration <webhook-integration-github>`
 on your Read the Docs project, or you can use a
-:ref:`generic webhook integraiton <webhook-integration-generic>` without a connected
+:ref:`generic webhook integration <webhook-integration-generic>` without a connected
 account.
 
 .. [1] https://developer.github.com/changes/2018-04-25-github-services-deprecation/

@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Project version handling."""
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
 
+"""Project version handling."""
 import unicodedata
 
-import six
 from packaging.version import InvalidVersion, Version
 
 from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG)
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 
 
 def parse_version_failsafe(version_string):
@@ -25,7 +25,7 @@ def parse_version_failsafe(version_string):
 
     :rtype: packaging.version.Version
     """
-    if not isinstance(version_string, six.text_type):
+    if not isinstance(version_string, str):
         uni_version = version_string.decode('utf-8')
     else:
         uni_version = version_string
@@ -89,7 +89,8 @@ def sort_versions(version_list):
             versions,
             key=lambda version_info: version_info[1],
             reverse=True,
-        ))
+        ),
+    )
 
 
 def highest_version(version_list):
@@ -117,9 +118,11 @@ def determine_stable_version(version_list):
     :rtype: readthedocs.builds.models.Version
     """
     versions = sort_versions(version_list)
-    versions = [(version_obj, comparable)
-                for version_obj, comparable in versions
-                if not comparable.is_prerelease]
+    versions = [
+        (version_obj, comparable)
+        for version_obj, comparable in versions
+        if not comparable.is_prerelease
+    ]
 
     if versions:
         # We take preference for tags over branches. If we don't find any tag,
