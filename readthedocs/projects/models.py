@@ -4,15 +4,14 @@
 
 import fnmatch
 import logging
-import re
 import os
+import re
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import NoReverseMatch, reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -47,7 +46,6 @@ from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 log = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class ProjectRelationship(models.Model):
 
     """
@@ -89,7 +87,6 @@ class ProjectRelationship(models.Model):
         return resolve(self.child)
 
 
-@python_2_unicode_compatible
 class Project(models.Model):
 
     """Project model."""
@@ -1070,7 +1067,6 @@ class APIProject(Project):
         return self._environment_variables
 
 
-@python_2_unicode_compatible
 class ImportedFile(models.Model):
 
     """
@@ -1127,7 +1123,11 @@ class HTMLFile(ImportedFile):
         basename = os.path.splitext(self.path)[0]
         if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
             new_basename = re.sub(r'\/index$', '', basename)
-            log.info('Adjusted json file path: %s -> %s', basename, new_basename)
+            log.info(
+                'Adjusted json file path: %s -> %s',
+                basename,
+                new_basename,
+            )
             basename = new_basename
 
         file_path = basename + '.fjson'
@@ -1169,7 +1169,6 @@ class Notification(models.Model):
         abstract = True
 
 
-@python_2_unicode_compatible
 class EmailHook(Notification):
     email = models.EmailField()
 
@@ -1177,7 +1176,6 @@ class EmailHook(Notification):
         return self.email
 
 
-@python_2_unicode_compatible
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
@@ -1189,7 +1187,6 @@ class WebHook(Notification):
         return self.url
 
 
-@python_2_unicode_compatible
 class Domain(models.Model):
 
     """A custom domain name for a project."""
@@ -1261,7 +1258,6 @@ class Domain(models.Model):
         super().delete(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class Feature(models.Model):
 
     """
@@ -1352,7 +1348,6 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
-@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,
