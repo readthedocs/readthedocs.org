@@ -90,19 +90,22 @@ class PageDocument(DocType):
         """Overwrite default queryset to filter certain files to index"""
         queryset = super(PageDocument, self).get_queryset()
 
-        # Exclude some files to not index
-        excluded_files = [
-            'search.html',
-            'genindex.html',
-            'py-modindex.html',
-            'search/index.html',
-            'genindex/index.html',
-            'py-modindex/index.html',
-        ]
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
         queryset = queryset.filter(project__documentation_type__contains='sphinx')
-        for ending in excluded_files:
-            queryset = queryset.exclude(path__endswith=ending)
+
+        # TODO: Make this smarter
+        # This was causing issues excluding some valid user documentation pages
+        # excluded_files = [
+        #     'search.html',
+        #     'genindex.html',
+        #     'py-modindex.html',
+        #     'search/index.html',
+        #     'genindex/index.html',
+        #     'py-modindex/index.html',
+        # ]
+        # for ending in excluded_files:
+        #     queryset = queryset.exclude(path=ending)
+
         return queryset
