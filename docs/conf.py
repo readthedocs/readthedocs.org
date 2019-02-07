@@ -87,7 +87,7 @@ autosectionlabel_prefix_document = True
 notfound_context = {
     'title': 'Page Not Found',
     'body': '''
-<h1>Page not found</h1>
+<h1>Page Not Found</h1>
 
 <p>Sorry, we couldn't find that page.</p>
 
