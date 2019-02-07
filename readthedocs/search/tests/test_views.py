@@ -130,21 +130,6 @@ class TestPageSearch(object):
 
         assert len(result) == 1
 
-    def test_page_search_not_return_removed_page(self, client, project):
-        """Check removed page are not in the search index."""
-        query = get_search_query_from_project_file(project_slug=project.slug)
-        # Make a query to check it returns result
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1
-
-        # Delete all the HTML files of the project
-        HTMLFile.objects.filter(project=project).delete()
-        # Run the query again and this time there should not be any result
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
-        assert len(result) == 0
-
     def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching
         for files."""
