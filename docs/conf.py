@@ -85,6 +85,7 @@ autosectionlabel_prefix_document = True
 # sphinx-notfound-page
 # https://github.com/rtfd/sphinx-notfound-page
 notfound_context = {
+    'title': 'Page Not Found',
     'body': '''
 <h1>Page not found</h1>
 
