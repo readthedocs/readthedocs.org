@@ -6,6 +6,7 @@ Core views, including the main homepage,
 documentation and header rendering, and server errors.
 """
 
+import os
 import logging
 from urllib.parse import urlparse
 
