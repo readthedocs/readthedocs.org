@@ -10,6 +10,9 @@ Version 3.2.1
 * `@humitos <http://github.com/humitos>`__: Remove py2 compatibility (`#5241 <https://github.com/rtfd/readthedocs.org/pull/5241>`__)
 * `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.0 (`#5240 <https://github.com/rtfd/readthedocs.org/pull/5240>`__)
 
+
+.. _version-3.2.0:
+
 Version 3.2.0
 -------------
 
