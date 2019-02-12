@@ -45,7 +45,7 @@ httplib2==0.12.0
 # introduces the usage of ``str`` which behaves differently in Py2 and
 # Py3 We should check if all the tests pass again when we drop Py2
 # support and we should be able to upgrade
-GitPython==2.1.10
+GitPython==2.1.11
 
 # Search
 elasticsearch==6.2.0
