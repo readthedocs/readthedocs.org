@@ -225,36 +225,6 @@ class TestPublicDocs(BaseDocServing):
         self.assertEqual(response.status_code, 404)
         self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))
 
-    def test_default_robots_txt(self):
-        self.public.versions.update(active=True, built=True)
-        self.public.versions.filter(slug=STABLE).update(privacy_level=constants.PRIVATE)
-        response = self.client.get(
-            reverse('sitemap_xml'),
-            HTTP_HOST='public.readthedocs.io',
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content_type, 'application/xml')
-        for version in self.public.versions.filter(privacy_level=constants.PUBLIC):
-            self.assertContains(
-                response,
-                self.public.get_docs_url(
-                    version_slug=version.slug,
-                    lang_slug=self.project.language,
-                    private=False,
-                ),
-            )
-
-        # stable is marked as PRIVATE and should not appear here
-        stable = self.public.versions.get(slug=STABLE)
-        self.assertNotContains(
-            response,
-            self.public.get_docs_url(
-                version_slug=stable.slug,
-                lang_slug=self.project.language,
-                private=True,
-            ),
-        )
-
     def test_sitemap_xml(self):
         self.public.versions.update(active=True)
         private_version = fixture.get(
