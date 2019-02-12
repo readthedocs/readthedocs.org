@@ -1,0 +1,31 @@
+# configure updates globally
+# default: all
+# allowed: all, insecure, False
+update: all
+
+# configure dependency pinning globally
+# default: True
+# allowed: True, False
+pin: True
+
+# update schedule
+# default: empty
+# allowed: "every day", "every week", ..
+schedule: "every week"
+
+# search for requirement files
+# default: True
+# allowed: True, False
+search: True
+
+# configure the branch prefix the bot is using
+# default: pyup-
+branch_prefix: pyup/
+
+# set a global prefix for PRs
+# default: empty
+pr_prefix: pyup: 
+
+# allow to close stale PRs
+# default: True
+close_prs: True
