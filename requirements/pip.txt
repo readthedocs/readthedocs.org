@@ -1,12 +1,12 @@
 # Base packages
-pip==19.0.1
+pip==19.0.2
 appdirs==1.4.3
-virtualenv==16.3.0
+virtualenv==16.4.0
 
-django==1.11.18
+django==1.11.20
 django-tastypie==0.14.2
-django-guardian==1.4.9
-django-extensions==2.1.4
+django-guardian==1.5.0
+django-extensions==2.1.5
 
 djangorestframework==3.9.1
 
@@ -17,9 +17,9 @@ django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
 requests==2.21.0
-requests-toolbelt==0.8.0
+requests-toolbelt==0.9.1
 slumber==0.7.1
-lxml==4.3.0
+lxml==4.3.1
 defusedxml==0.5.0
 pyyaml==3.13
 Pygments==2.3.1
@@ -66,7 +66,7 @@ beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.19.0
+stripe==2.20.3
 
 django-formtools==2.1
 
