@@ -55,7 +55,7 @@ elasticsearch==6.3.1
 #   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
 #     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
 # ImportError: cannot import name 'DocTypeMeta'
-elasticsearch-dsl==6.1.0
+elasticsearch-dsl==6.3.1
 django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
 
