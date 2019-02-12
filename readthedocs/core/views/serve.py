@@ -312,7 +312,14 @@ def robots_txt(request, project):
     if os.path.exists(fullpath):
         return HttpResponse(open(fullpath).read(), content_type='text/plain')
 
-    return HttpResponse('User-agent: *\nAllow: /\n', content_type='text/plain')
+    sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
+        scheme='https',
+        domain=project.subdomain(),
+    )
+    return HttpResponse(
+        'User-agent: *\nAllow: /\nSitemap: {}\n'.format(sitemap_url),
+        content_type='text/plain',
+    )
 
 
 @map_project_slug
