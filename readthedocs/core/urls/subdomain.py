@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """URL configurations for subdomains."""
 from functools import reduce
 from operator import add
@@ -25,7 +23,6 @@ handler404 = server_error_404
 subdomain_urls = [
     url(r'robots\.txt$', robots_txt, name='robots_txt'),
     url(r'sitemap\.xml$', sitemap_xml, name='sitemap_xml'),
-
     url(
         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),

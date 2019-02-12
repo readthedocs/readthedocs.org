@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Doc serving from Python.
 
@@ -265,7 +263,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried),
+        'File not found. Tried these files: {}'.format(','.join(files_tried)),
     )
 
 
@@ -347,6 +345,7 @@ def sitemap_xml(request, project):
 
     :rtype: django.http.HttpResponse
     """
+
     def priorities_generator():
         """
         Generator returning ``priority`` needed by sitemap.xml.
@@ -383,7 +382,10 @@ def sitemap_xml(request, project):
 
     versions = []
     for version, priority, changefreq in zip(
-            sorted_versions, priorities_generator(), changefreqs_generator()):
+            sorted_versions,
+            priorities_generator(),
+            changefreqs_generator(),
+    ):
         element = {
             'loc': version.get_subdomain_url(),
             'priority': priority,
@@ -420,4 +422,9 @@ def sitemap_xml(request, project):
     context = {
         'versions': versions,
     }
-    return render(request, 'sitemap.xml', context, content_type='application/xml')
+    return render(
+        request,
+        'sitemap.xml',
+        context,
+        content_type='application/xml',
+    )
