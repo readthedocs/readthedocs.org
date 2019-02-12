@@ -171,7 +171,7 @@ class TestPublicDocs(BaseDocServing):
             HTTP_HOST='public.readthedocs.io',
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'User-agent: *\nAllow: /\n')
+        self.assertEqual(response.content, b'User-agent: *\nAllow: /\nSitemap: https://public.readthedocs.io/sitemap.xml\n')
 
     @override_settings(
         PYTHON_MEDIA=False,
