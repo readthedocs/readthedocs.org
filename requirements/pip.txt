@@ -3,7 +3,7 @@ pip==19.0.2
 appdirs==1.4.3
 virtualenv==16.4.0
 
-django==1.11.20
+django==2.1.7
 django-tastypie==0.14.2
 django-guardian==1.5.0
 django-extensions==2.1.5
