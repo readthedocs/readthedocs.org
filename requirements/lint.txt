@@ -1,10 +1,10 @@
 -r pip.txt
 # prospector 1.1.6.2 is not compatible with 2.1.0
-astroid<=2.0.4
+astroid<=2.0.4  # pyup: ignore
 # prospector 1.1.6.2 is not compatible with 2.2.2
-pylint<=2.1.1
-pylint-django<2.0.5
+pylint<=2.1.1  # pyup: ignore
+pylint-django<2.0.5  # pyup: ignore
 pylint-celery==0.3
 prospector==1.1.6.2
 # prospector 1.1.6.2 is not compatible with 2.0.0
-pyflakes<2.0.0
+pyflakes<2.0.0  # pyup: ignore
