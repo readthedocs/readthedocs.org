@@ -31,7 +31,7 @@ Pygments==2.3.1
 redis==3.1.0
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
-celery==4.1.1
+celery==4.2.1
 
 django-allauth==0.38.0
 
