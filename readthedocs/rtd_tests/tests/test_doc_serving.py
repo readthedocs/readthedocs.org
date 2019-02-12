@@ -104,7 +104,6 @@ class TestPrivateDocs(BaseDocServing):
         self.assertEqual(response.status_code, 404)
 
     @override_settings(
-        PYTHON_MEDIA=False,
         USE_SUBDOMAIN=True,
         PUBLIC_DOMAIN='readthedocs.io',
         ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
@@ -224,6 +223,11 @@ class TestPublicDocs(BaseDocServing):
         self.assertEqual(response.status_code, 404)
         self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))
 
+    @override_settings(
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
     def test_sitemap_xml(self):
         self.public.versions.update(active=True)
         private_version = fixture.get(
