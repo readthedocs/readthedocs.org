@@ -2,7 +2,7 @@
 {% load static %}
 {% load core_tags %}
 
-          {% get_past_time 5 as 5_mins_ago %}
+          {% minutes_ago 5 as 5_mins_ago %}
 
           {% for build in build_qs %}
           <li class="module-item col-span">
