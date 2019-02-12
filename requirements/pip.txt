@@ -28,7 +28,7 @@ Pygments==2.3.1
 # Redis 3.x has an incompatible change and fails
 # https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
 # https://github.com/sebleier/django-redis-cache/pull/162
-redis==2.10.6
+redis==3.1.0
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
 celery==4.1.1
