@@ -46,11 +46,12 @@ GitHub
 * Go to the **Settings** page for your project
 * Click **Webhooks** and then **Add webhook**
 * For **Payload URL**, use the URL of the integration on Read the Docs,
-  found on the project's **Integrations** Admin dashboard page
+  found on the project's **Integrations** Admin dashboard page. You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
 * Select **Let me select individual events**,
   and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
+* Leave the **Secrets** field black
 * Finish by clicking **Add webhook**
 
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
