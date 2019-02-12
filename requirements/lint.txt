@@ -2,7 +2,7 @@
 # prospector 1.1.6.2 is not compatible with 2.1.0
 astroid==2.1.0
 # prospector 1.1.6.2 is not compatible with 2.2.2
-pylint<=2.1.1
+pylint==2.2.2
 pylint-django<2.0.5
 pylint-celery==0.3
 prospector==1.1.6.2
