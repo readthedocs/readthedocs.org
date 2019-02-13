@@ -634,10 +634,7 @@ class Build(models.Model):
 
     @property
     def is_stale(self):
-        """
-        Return True if build state is triggered
-        and build date is more than 5 mins ago.
-        """
+        """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
         return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
 
