@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
@@ -36,7 +37,6 @@ from .validation import (
     validate_string,
 )
 
-
 __all__ = (
     'ALL',
     'load',
@@ -64,14 +64,16 @@ SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = getattr(settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build')
+DOCKER_DEFAULT_IMAGE = getattr(
+    settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build'
+)
 DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = getattr(
     settings,
     'DOCKER_IMAGE',
-    '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION),
 )
 DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
@@ -243,9 +245,7 @@ class BuildConfigBase:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
             ver = max(
-                v
-                for v in self.get_valid_python_versions()
-                if v < ver + 1
+                v for v in self.get_valid_python_versions() if v < ver + 1
             )
         return ver
 
@@ -275,7 +275,6 @@ class BuildConfigBase:
         Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-
         if build_image not in DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
                 DOCKER_DEFAULT_IMAGE,
@@ -320,7 +319,9 @@ class BuildConfigV1(BuildConfigBase):
         except (KeyError, TypeError):
             versions = set()
             for _, options in DOCKER_IMAGE_SETTINGS.items():
-                versions = versions.union(options['python']['supported_versions'])
+                versions = versions.union(
+                    options['python']['supported_versions']
+                )
             return versions
 
     def get_valid_formats(self):  # noqa
@@ -510,7 +511,8 @@ class BuildConfigV1(BuildConfigBase):
             return None
         with self.catch_validation_error('requirements_file'):
             requirements_file = validate_file(
-                requirements_file, self.base_path
+                requirements_file,
+                self.base_path,
             )
         return requirements_file
 
@@ -546,7 +548,7 @@ class BuildConfigV1(BuildConfigBase):
         python_install.append(
             PythonInstallRequirements(
                 requirements=requirements,
-            )
+            ),
         )
         if python['install_with_pip']:
             python_install.append(
@@ -554,7 +556,7 @@ class BuildConfigV1(BuildConfigBase):
                     path=self.base_path,
                     method=PIP,
                     extra_requirements=python['extra_requirements'],
-                )
+                ),
             )
         elif python['install_with_setup']:
             python_install.append(
@@ -562,7 +564,7 @@ class BuildConfigV1(BuildConfigBase):
                     path=self.base_path,
                     method=SETUPTOOLS,
                     extra_requirements=[],
-                )
+                ),
             )
 
         return Python(
@@ -785,7 +787,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(requirements_key):
                 requirements = validate_file(
                     self.pop_config(requirements_key),
-                    self.base_path
+                    self.base_path,
                 )
                 python_install['requirements'] = requirements
         elif 'path' in raw_install:
@@ -793,7 +795,7 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(path_key):
                 path = validate_directory(
                     self.pop_config(path_key),
-                    self.base_path
+                    self.base_path,
                 )
                 python_install['path'] = path
 
@@ -801,14 +803,14 @@ class BuildConfigV2(BuildConfigBase):
             with self.catch_validation_error(method_key):
                 method = validate_choice(
                     self.pop_config(method_key, PIP),
-                    self.valid_install_method
+                    self.valid_install_method,
                 )
                 python_install['method'] = method
 
             extra_req_key = key + '.extra_requirements'
             with self.catch_validation_error(extra_req_key):
                 extra_requirements = validate_list(
-                    self.pop_config(extra_req_key, [])
+                    self.pop_config(extra_req_key, []),
                 )
                 if extra_requirements and python_install['method'] != PIP:
                     self.error(
@@ -1060,13 +1062,9 @@ class BuildConfigV2(BuildConfigBase):
         python = self._config['python']
         for install in python['install']:
             if 'requirements' in install:
-                python_install.append(
-                    PythonInstallRequirements(**install)
-                )
+                python_install.append(PythonInstallRequirements(**install),)
             elif 'path' in install:
-                python_install.append(
-                    PythonInstall(**install)
-                )
+                python_install.append(PythonInstall(**install),)
         return Python(
             version=python['version'],
             install=python_install,
