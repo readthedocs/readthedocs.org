@@ -7,7 +7,7 @@ pre.highlight {
   padding: 12px 12px;
 }
 
-pre.highlight span.prompt1 {
+pre.highlight span[class^="prompt"] {
   font-size: 12px;
   line-height: 1.4;
 }
