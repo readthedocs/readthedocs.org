@@ -13,15 +13,25 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = logging.getLogger(__name__)
 
+ALL_FACETS = ['project', 'version', 'doc_type', 'language', 'index']
+
 
 class RTDFacetedSearch(FacetedSearch):
 
     def __init__(self, user, **kwargs):
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', None)
+
+        # Set filters properly
         for facet in self.facets:
             if facet in kwargs:
                 kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
+
+        # Don't pass along unnecessary filters
+        for f in ALL_FACETS:
+            if f in kwargs:
+                del kwargs[f]
+
         super().__init__(**kwargs)
 
     def search(self):
@@ -98,6 +108,7 @@ class PageSearch(SettingsOverrideObject):
 
     """
     Allow this class to be overridden based on CLASS_OVERRIDES setting.
+
     This is primary used on the .com to adjust how we filter our search queries
     """
 
@@ -108,6 +119,7 @@ class ProjectSearch(SettingsOverrideObject):
 
     """
     Allow this class to be overridden based on CLASS_OVERRIDES setting.
+
     This is primary used on the .com to adjust how we filter our search queries
     """
 
@@ -118,6 +130,7 @@ class DomainSearch(SettingsOverrideObject):
 
     """
     Allow this class to be overridden based on CLASS_OVERRIDES setting.
+
     This is primary used on the .com to adjust how we filter our search queries
     """
 

@@ -30,15 +30,13 @@
 
 <div class="navigable">
   <ul>
-<!--
       <h5>{% trans 'Object Type' %}</h5>
-      <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
+      {# <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li> #}
       <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
       <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Code API' %}</a></li>
 
       <hr>
--->
 
       {% if facets.index %}
 

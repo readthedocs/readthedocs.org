@@ -12,8 +12,6 @@ from readthedocs.projects.models import Project
 from readthedocs.search.faceted_search import (
     AllSearch, ProjectSearch, PageSearch, DomainSearch, ALL_FACETS
 )
-from readthedocs.search.utils import get_project_list_or_404
-
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
@@ -34,10 +32,21 @@ UserInput = collections.namedtuple(
 
 
 def elastic_search(request, project_slug=None):
-    """Use Elasticsearch for global search."""
+    """
+    Global user search on the dashboard
+
+    This is for both the main search and project search.
+
+    :param project_slug: Sent when the view is a project search
+    """
+
+    if project_slug:
+        queryset = Project.objects.protected(request.user)
+        project_obj = get_object_or_404(queryset, slug=project_slug)
+
     user_input = UserInput(
         query=request.GET.get('q'),
-        type=request.GET.get('type', 'all'),
+        type=request.GET.get('type', 'project'),
         project=project_slug or request.GET.get('project'),
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
@@ -45,57 +54,40 @@ def elastic_search(request, project_slug=None):
         doc_type=request.GET.get('doc_type'),
         index=request.GET.get('index'),
     )
+
     results = ''
     facets = {}
 
     if user_input.query:
         kwargs = {}
 
-        if user_input.project:
-            projects_list = get_project_list_or_404(
-                project_slug=user_input.project, user=request.user
-            )
-            project_slug_list = [project.slug for project in projects_list]
-            kwargs['project'] = project_slug_list
-            log.info('Filtering to project list: %s' % project_slug_list)
-
-        if user_input.version:
-            kwargs['version'] = [user_input.version]
-
-        if user_input.doc_type:
-            kwargs['doc_type'] = user_input.doc_type
-
-        if user_input.language:
-            kwargs['language'] = user_input.language
-
-        if user_input.index:
-            kwargs['index'] = user_input.index
+        for avail_facet in ALL_FACETS:
+            value = getattr(user_input, avail_facet, None)
+            if value:
+                kwargs[avail_facet] = value
 
         if user_input.type == 'project':
-            project_search = ProjectSearch(
+            search = ProjectSearch(
                 query=user_input.query, user=request.user, **kwargs
             )
-            results = project_search.execute()
-            facets = results.facets
-        elif user_input.type == 'domain':
-            project_search = DomainSearch(
-                query=user_input.query, user=request.user, **kwargs
-            )
-            results = project_search.execute()
-            facets = results.facets
-        elif user_input.type == 'file':
 
-            page_search = PageSearch(
+        elif user_input.type == 'domain':
+            search = DomainSearch(
                 query=user_input.query, user=request.user, **kwargs
             )
-            results = page_search.execute()
-            facets = results.facets
+
+        elif user_input.type == 'file':
+            search = PageSearch(
+                query=user_input.query, user=request.user, **kwargs
+            )
+
         elif user_input.type == 'all':
-            project_search = AllSearch(
+            search = AllSearch(
                 query=user_input.query, user=request.user, **kwargs
             )
-            results = project_search.execute()
-            facets = results.facets
+
+        results = search.execute()
+        facets = results.facets
 
         log.info(
             LOG_TEMPLATE.format(
@@ -135,9 +127,7 @@ def elastic_search(request, project_slug=None):
     })
 
     if project_slug:
-        queryset = Project.objects.protected(request.user)
-        project = get_object_or_404(queryset, slug=project_slug)
-        template_vars.update({'project_obj': project})
+        template_vars.update({'project_obj': project_obj})
 
     return render(
         request,
