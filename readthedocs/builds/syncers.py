@@ -14,7 +14,7 @@ import shutil
 
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
-from django.core.files.storage import get_storage_class, FileSystemStorage
+from django.core.files.storage import get_storage_class
 
 from readthedocs.core.utils import safe_makedirs
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -205,27 +205,23 @@ class SelectiveStorageRemotePuller(RemotePuller):
     def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
         RemotePuller.copy(path, target, host, is_file, **kwargs)
 
-        if isinstance(storage, FileSystemStorage):
+        if getattr(storage, 'write_build_media', False):
             # This is a sanity check for the case where
             # storage is backed by the local filesystem
             # In that case, removing the original target file locally
             # would remove the file from storage as well
-            return
 
-        if is_file and os.path.exists(target) and \
-                any([target.lower().endswith(ext) for ext in cls.extensions]):
-            log.info("Selective Copy %s to media storage", target)
+            if is_file and os.path.exists(target) and \
+                    any([target.lower().endswith(ext) for ext in cls.extensions]):
+                log.info("Selective Copy %s to media storage", target)
 
-            storage_path = cls.get_storage_path(target)
+                storage_path = cls.get_storage_path(target)
 
-            if storage.exists(storage_path):
-                storage.delete(storage_path)
+                if storage.exists(storage_path):
+                    storage.delete(storage_path)
 
-            with open(target, 'rb') as fd:
-                storage.save(storage_path, fd)
-
-            # remove the original after copying
-            os.remove(target)
+                with open(target, 'rb') as fd:
+                    storage.save(storage_path, fd)
 
 
 class Syncer(SettingsOverrideObject):

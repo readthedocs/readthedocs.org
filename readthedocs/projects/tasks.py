@@ -20,7 +20,7 @@ from collections import Counter, defaultdict
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
-from django.core.files.storage import get_storage_class, FileSystemStorage
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -727,7 +727,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
         hostname = socket.gethostname()
 
-        if not isinstance(storage, FileSystemStorage):
+        if getattr(storage, 'write_build_media', False):
             # Handle the case where we want to upload some built assets to our storage
             move_files.delay(
                 self.version.pk,
