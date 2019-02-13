@@ -379,19 +379,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Catch unhandled errors in the setup step
         except Exception as e:  # noqa
-            extra = {
-                'stack': True,
-                'tags': {
-                    'build': build_pk,
-                },
-            }
-            if self.project:
-                extra['tags']['project'] = self.project.slug
-            if self.version:
-                extra['tags']['version'] = self.version.slug
             log.exception(
                 'An unhandled exception was raised during build setup',
-                extra=extra
+                extra={
+                    'stack': True,
+                    'tags': {
+                        'build': build_pk,
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                    },
+                },
             )
             if self.setup_env is not None:
                 self.setup_env.failure = BuildEnvironmentError(
