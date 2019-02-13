@@ -20,7 +20,7 @@ mergeable:
           enabled: true
           message: 'Description can not be empty.'
       - do: label
-        # Do not allow PR with label 'PR: work in progress'
+        # Do not allow PR with label 'PR: work in progress' or 'Status: blocked'
         must_exclude:
-          regex: 'PR: work in progress'
-          message: 'This PR is work in progress.'
+          regex: 'PR: work in progress|Status: blocked'
+          message: 'This PR is work in progress or it is still blocked.'

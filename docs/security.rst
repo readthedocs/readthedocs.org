@@ -84,6 +84,17 @@ __ https://pgp.mit.edu/pks/lookup?op=vindex&search=0xFEEF9FC2DD21D271
 Security issue archive
 ----------------------
 
+Version 3.2.0
+~~~~~~~~~~~~~
+
+:ref:`version-3.2.0` resolved an issue where a specially crafted request
+could result in a DNS query to an arbitrary domain.
+
+This issue was found by `Cyber Smart Defence <https://www.cybersmartdefence.com/>`_
+who reported it as part of a security audit to a firm running a local installation
+of Read the Docs.
+
+
 Release 2.3.0
 ~~~~~~~~~~~~~
 

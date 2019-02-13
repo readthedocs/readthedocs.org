@@ -55,7 +55,7 @@ function attach_elastic_search_query(data) {
 
                         // Show highlighted texts
                         if (highlight.content) {
-                            for (index in highlight.content) {
+                            for (var index = 0; index < highlight.content.length; index += 1) {
                                 if (index < 3) {
                                     // Show up to 3 results for search
                                     var content = highlight.content[index];
@@ -77,10 +77,11 @@ function attach_elastic_search_query(data) {
                 if (!hit_list.length) {
                     // Fallback to Sphinx's indexes
                     Search.query_fallback(query);
+                    console.log('Read the Docs search failed. Falling back to Sphinx search.');
                 }
                 else {
                     Search.status.text(
-                        _('Search finished, found %s page(s) matching the search query.').replace('%s', total_count)
+                        _('Search finished, found %s page(s) matching the search query.').replace('%s', hit_list.length)
                     );
                 }
             })
@@ -102,7 +103,11 @@ function attach_elastic_search_query(data) {
                 withCredentials: true,
             },
             complete: function (resp, status_code) {
-                if (status_code !== 'success' || resp.responseJSON.count === 0) {
+                if (
+                    status_code !== 'success' ||
+                    typeof (resp.responseJSON) === 'undefined' ||
+                    resp.responseJSON.count === 0
+                ) {
                     return search_def.reject();
                 }
                 return search_def.resolve(resp.responseJSON);

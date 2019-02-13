@@ -55,7 +55,7 @@ div.ethical-footer {
 }
 .ethical-sidebar,
 .ethical-footer {
-    padding: 1em;
+    padding: 0.5em;
     margin: 1em 0;
 }
 .ethical-sidebar img,
@@ -93,6 +93,30 @@ div.ethical-footer {
     line-height: 20px;
 }
 
+/* Techstack badging */
+.ethical-sidebar ul {
+    margin: 0 !important;
+    padding-left: 0;
+    list-style: none;
+}
+.ethical-sidebar ul li {
+    display: inline-block;
+    background-color: lightskyblue;
+    color: black;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    margin: 0.25em;
+    border-radius: 0.25rem;
+    text-align: center;
+    vertical-align: baseline;
+    white-space: nowrap;
+    line-height: 1.41;
+}
+.ethical-sidebar ul li:not(:last-child) {
+    margin-right: .25rem;
+}
+
 .ethical-sidebar a,
 .ethical-sidebar a:visited,
 .ethical-sidebar a:hover,
@@ -102,7 +126,7 @@ div.ethical-footer {
 .ethical-footer a:hover,
 .ethical-footer a:active {
     color: #0a0a0a;
-    text-decoration: underline !important;
+    text-decoration: none !important;
     border-bottom: 0 !important;
 }
 

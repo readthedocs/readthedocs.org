@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 
 from django.conf import settings
@@ -65,10 +66,12 @@ class ProjectDocument(DocType):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
-    users = fields.NestedField(properties={
-        'username': fields.TextField(),
-        'id': fields.IntegerField(),
-    })
+    users = fields.NestedField(
+        properties={
+            'username': fields.TextField(),
+            'id': fields.IntegerField(),
+        }
+    )
     language = fields.KeywordField()
 
     class Meta(object):
@@ -109,11 +112,15 @@ class PageDocument(DocType):
         ignore_signals = True
 
     @classmethod
-    def faceted_search(cls, query, user, projects_list=None, versions_list=None):
+    def faceted_search(
+            cls, query, user, projects_list=None, versions_list=None,
+            filter_by_user=True
+    ):
         from readthedocs.search.faceted_search import PageSearch
         kwargs = {
             'user': user,
             'query': query,
+            'filter_by_user': filter_by_user,
         }
 
         filters = {}
@@ -127,16 +134,26 @@ class PageDocument(DocType):
         return PageSearch(**kwargs)
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index"""
+        """Overwrite default queryset to filter certain files to index."""
         queryset = super(PageDocument, self).get_queryset()
-
-        # Exclude some files to not index
-        excluded_files = ['search.html', 'genindex.html', 'py-modindex.html',
-                          'search/index.html', 'genindex/index.html', 'py-modindex/index.html']
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
-        queryset = queryset.filter(project__documentation_type__contains='sphinx')
-        for ending in excluded_files:
-            queryset = queryset.exclude(path__endswith=ending)
+        queryset = queryset.filter(
+            project__documentation_type__contains='sphinx'
+        )
+
+        # TODO: Make this smarter
+        # This was causing issues excluding some valid user documentation pages
+        # excluded_files = [
+        #     'search.html',
+        #     'genindex.html',
+        #     'py-modindex.html',
+        #     'search/index.html',
+        #     'genindex/index.html',
+        #     'py-modindex/index.html',
+        # ]
+        # for ending in excluded_files:
+        #     queryset = queryset.exclude(path=ending)
+
         return queryset

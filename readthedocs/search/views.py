@@ -9,7 +9,9 @@ from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
-from readthedocs.search.faceted_search import AllSearch, ProjectSearch, PageSearch, DomainSearch, ALL_FACETS
+from readthedocs.search.faceted_search import (
+    AllSearch, ProjectSearch, PageSearch, DomainSearch, ALL_FACETS
+)
 from readthedocs.search.utils import get_project_list_or_404
 
 
@@ -44,18 +46,14 @@ def elastic_search(request, project_slug=None):
         index=request.GET.get('index'),
     )
     results = ''
-    user = ''
     facets = {}
-
-    if request.user.is_authenticated:
-        user = request.user
 
     if user_input.query:
         kwargs = {}
 
         if user_input.project:
             projects_list = get_project_list_or_404(
-                project_slug=user_input.project, user=user
+                project_slug=user_input.project, user=request.user
             )
             project_slug_list = [project.slug for project in projects_list]
             kwargs['project'] = project_slug_list
@@ -75,33 +73,33 @@ def elastic_search(request, project_slug=None):
 
         if user_input.type == 'project':
             project_search = ProjectSearch(
-                query=user_input.query, user=user, **kwargs
+                query=user_input.query, user=request.user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
         elif user_input.type == 'domain':
             project_search = DomainSearch(
-                query=user_input.query, user=user, **kwargs
+                query=user_input.query, user=request.user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
         elif user_input.type == 'file':
 
             page_search = PageSearch(
-                query=user_input.query, user=user, **kwargs
+                query=user_input.query, user=request.user, **kwargs
             )
             results = page_search.execute()
             facets = results.facets
         elif user_input.type == 'all':
             project_search = AllSearch(
-                query=user_input.query, user=user, **kwargs
+                query=user_input.query, user=request.user, **kwargs
             )
             results = project_search.execute()
             facets = results.facets
 
         log.info(
             LOG_TEMPLATE.format(
-                user=user,
+                user=request.user,
                 project=user_input.project or '',
                 type=user_input.type or '',
                 version=user_input.version or '',
@@ -124,9 +122,8 @@ def elastic_search(request, project_slug=None):
             # https://github.com/rtfd/readthedocs.org/issues/5168
             for result in results:
                 if hasattr(result.meta.highlight, 'content'):
-                    for num, block in enumerate(result.meta.highlight.content):
-                        new_text = block.replace('\n', '. ')
-                        result.meta.highlight.content[num] = new_text
+                    result.meta.highlight.content = [result.replace(
+                        '\n', '. ') for result in result.meta.highlight.content]
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))

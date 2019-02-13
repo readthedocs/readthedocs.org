@@ -7,6 +7,7 @@ import logging
 from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.registries import registry
 
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
@@ -15,14 +16,20 @@ log = logging.getLogger(__name__)
 
 # TODO: Rewrite all the views using this in Class Based View,
 # and move this function to a mixin
-def get_project_list_or_404(project_slug, user):
-    """Return list of project and its subprojects."""
-    queryset = Project.objects.api(user).only('slug')
+def get_project_list_or_404(project_slug, user, version_slug=None):
+    """
+    Return list of project and its subprojects.
 
-    project = get_object_or_404(queryset, slug=project_slug)
-    subprojects = queryset.filter(superprojects__parent_id=project.id)
-
-    project_list = list(subprojects) + [project]
+    It filters by Version privacy instead of Project privacy.
+    """
+    # Support private projects with public versions
+    project_list = []
+    main_project = get_object_or_404(Project, slug=project_slug)
+    subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
+    for project in list(subprojects) + [main_project]:
+        version = Version.objects.public(user).filter(project__slug=project.slug, slug=version_slug)
+        if version.exists():
+            project_list.append(version.first().project)
     return project_list
 
 

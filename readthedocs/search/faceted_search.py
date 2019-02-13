@@ -15,6 +15,7 @@ from readthedocs.search.signals import (
     before_project_search,
 )
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = logging.getLogger(__name__)
 
@@ -24,13 +25,9 @@ ALL_FACETS = ['project', 'version', 'doc_type', 'language', 'index']
 
 class RTDFacetedSearch(FacetedSearch):
 
-    """Overwrite the initialization in order too meet our needs."""
-
-    # TODO: Remove the overwrite when the elastic/elasticsearch-dsl-py#916
-    # See more: https://github.com/elastic/elasticsearch-dsl-py/issues/916
-
     def __init__(self, user, **kwargs):
         self.user = user
+        self.filter_by_user = kwargs.pop('filter_by_user', None)
         for facet in self.facets:
             if facet in kwargs:
                 kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
@@ -43,10 +40,12 @@ class RTDFacetedSearch(FacetedSearch):
 
     def search(self):
         """
-        Filter out full content on search results.
+        Pass in a user in order to filter search results by privacy.
 
-        This was causing all of the indexed content to be returned, which was
-        never used on the client side.
+        .. warning::
+
+            The `self.user` attribute isn't currently used on the .org,
+            but is used on the .com
         """
         s = super().search()
         s = s.source(exclude=['content', 'headers'])
@@ -112,12 +111,11 @@ class ProjectSearch(RTDFacetedSearch):
     fields = ('name^10', 'slug^5', 'description')
 
 
-class PageSearch(RTDFacetedSearch):
+class PageSearchBase(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version')
     }
-    signal = before_file_search
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
     fields = ['title^10', 'headers^5', 'content']

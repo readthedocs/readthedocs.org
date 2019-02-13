@@ -6,6 +6,7 @@ from django_dynamic_fixture import G
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.search.documents import PageDocument
 
 
 @pytest.mark.django_db
@@ -67,6 +68,7 @@ class TestDocumentSearch(object):
             # Make primary key to None, so django will create new object
             f.pk = None
             f.save()
+            PageDocument().update(f)
 
         search_params = {'q': query, 'project': project.slug, 'version': dummy_version.slug}
         resp = api_client.get(self.url, search_params)
@@ -88,6 +90,7 @@ class TestDocumentSearch(object):
             # Make primary key to None, so django will create new object
             html_file.pk = None
             html_file.save()
+            PageDocument().update(html_file)
 
         search_params = {'q': query, 'project': project.slug, 'version': latest_version.slug}
         resp = api_client.get(self.url, search_params)

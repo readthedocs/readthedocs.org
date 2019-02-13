@@ -16,7 +16,7 @@ class CommunityTestSettings(CommunityDevSettings):
 
     DEBUG = False
     TEMPLATE_DEBUG = False
-    ELASTICSEARCH_DSL_AUTOSYNC = True
+    ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
     @property
