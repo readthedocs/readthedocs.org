@@ -4,8 +4,8 @@ import logging
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
-from readthedocs.projects.models import Project, HTMLFile
-from readthedocs.domaindata.models import DomainData
+from readthedocs.projects.models import HTMLFile, Project
+
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -15,50 +15,7 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-domain_conf = settings.ES_INDEXES['domain']
-domain_index = Index(domain_conf['name'])
-domain_index.settings(**domain_conf['settings'])
-
 log = logging.getLogger(__name__)
-
-
-@domain_index.doc_type
-class DomainDocument(DocType):
-    project = fields.KeywordField(attr='project.slug')
-    version = fields.KeywordField(attr='version.slug')
-    doc_type = fields.KeywordField(attr='doc_type')
-    anchor = fields.KeywordField(attr='anchor')
-
-    class Meta(object):
-        model = DomainData
-        fields = ('name', 'display_name', 'doc_name')
-        ignore_signals = True
-
-    @classmethod
-    def faceted_search(cls, query, user, doc_type=None):
-        from readthedocs.search.faceted_search import DomainSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
-
-        if doc_type:
-            kwargs['filters'] = {'doc_type': doc_type}
-
-        return DomainSearch(**kwargs)
-
-    def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index"""
-        queryset = super().get_queryset()
-
-        # Exclude some types to not index
-        excluded_types = ['std:doc', 'std:label']
-
-        # Do not index files that belong to non sphinx project
-        # Also do not index certain files
-        for exclude in excluded_types:
-            queryset = queryset.exclude(type=exclude)
-        return queryset
 
 
 @project_index.doc_type
