@@ -1,3 +1,36 @@
+Version 3.2.2
+-------------
+
+:Date: February 13, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Support old jquery where responseJSON doesn't exist (`#5285 <https://github.com/rtfd/readthedocs.org/pull/5285>`__)
+* `@humitos <http://github.com/humitos>`__: pyup.yml syntax fixed (`#5284 <https://github.com/rtfd/readthedocs.org/pull/5284>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix error of travis (rename migration file) (`#5282 <https://github.com/rtfd/readthedocs.org/pull/5282>`__)
+* `@humitos <http://github.com/humitos>`__: pyup YAML configuration file (`#5279 <https://github.com/rtfd/readthedocs.org/pull/5279>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin ipdb to latest version 0.11 (`#5278 <https://github.com/rtfd/readthedocs.org/pull/5278>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin datadiff to latest version 2.0.0 (`#5277 <https://github.com/rtfd/readthedocs.org/pull/5277>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/rtfd/readthedocs.org/pull/5276>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/rtfd/readthedocs.org/pull/5275>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/rtfd/readthedocs.org/pull/5274>`__)
+* `@discdiver <http://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/rtfd/readthedocs.org/pull/5273>`__)
+* `@humitos <http://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/rtfd/readthedocs.org/pull/5272>`__)
+* `@humitos <http://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/rtfd/readthedocs.org/pull/5269>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/rtfd/readthedocs.org/pull/5263>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don’t delay search delete on project delete (`#5262 <https://github.com/rtfd/readthedocs.org/pull/5262>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Automate docs version from our setup.cfg (`#5259 <https://github.com/rtfd/readthedocs.org/pull/5259>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add admin actions for building versions (`#5255 <https://github.com/rtfd/readthedocs.org/pull/5255>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Give the 404 page a title. (`#5252 <https://github.com/rtfd/readthedocs.org/pull/5252>`__)
+* `@humitos <http://github.com/humitos>`__: Make our SUFFIX default selection py2/3 compatible (`#5251 <https://github.com/rtfd/readthedocs.org/pull/5251>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.1 (`#5248 <https://github.com/rtfd/readthedocs.org/pull/5248>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove excluding files on search. (`#5246 <https://github.com/rtfd/readthedocs.org/pull/5246>`__)
+* `@gorshunovr <http://github.com/gorshunovr>`__: Change version references to :latest tag (`#5245 <https://github.com/rtfd/readthedocs.org/pull/5245>`__)
+* `@humitos <http://github.com/humitos>`__: Remove py2 compatibility (`#5241 <https://github.com/rtfd/readthedocs.org/pull/5241>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow to override trigger_build from demo project (`#5236 <https://github.com/rtfd/readthedocs.org/pull/5236>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Change some info logging to debug to clean up build output (`#5233 <https://github.com/rtfd/readthedocs.org/pull/5233>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fake auth middleware in tests (`#5206 <https://github.com/rtfd/readthedocs.org/pull/5206>`__)
+* `@EJEP <http://github.com/EJEP>`__: Clarify 'more info' link in admin settings page (`#5180 <https://github.com/rtfd/readthedocs.org/pull/5180>`__)
+* `@rexzing <http://github.com/rexzing>`__: Docs reformatting with :guilabel: (`#5161 <https://github.com/rtfd/readthedocs.org/pull/5161>`__)
+
 Version 3.2.1
 -------------
 
