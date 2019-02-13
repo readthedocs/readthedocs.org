@@ -2,13 +2,11 @@
 
 """Template tags for core app."""
 
-import datetime
 import hashlib
 from urllib.parse import urlencode
 
 from django import template
 from django.conf import settings
-from django.utils import timezone
 from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
 
@@ -114,9 +112,3 @@ def key(d, key_name):
 @register.simple_tag
 def readthedocs_version():
     return __version__
-
-
-@register.simple_tag
-def minutes_ago(mins):
-    """Subtracts provided minutes from current time."""
-    return timezone.now() - datetime.timedelta(minutes=int(mins))

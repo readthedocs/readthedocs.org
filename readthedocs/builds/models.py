@@ -2,6 +2,7 @@
 
 """Models for the builds app."""
 
+import datetime
 import logging
 import os.path
 import re
@@ -32,6 +33,7 @@ from .constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -629,6 +631,15 @@ class Build(models.Model):
     def finished(self):
         """Return if build has a finished state."""
         return self.state == BUILD_STATE_FINISHED
+
+    @property
+    def is_stale(self):
+        """
+        Return True if build state is triggered
+        and build date is more than 5 mins ago.
+        """
+        mins_ago = timezone.now() - datetime.timedelta(minutes=5)
+        return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
 
 
 class BuildCommandResultMixin:
