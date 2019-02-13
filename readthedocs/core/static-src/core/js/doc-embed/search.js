@@ -103,7 +103,11 @@ function attach_elastic_search_query(data) {
                 withCredentials: true,
             },
             complete: function (resp, status_code) {
-                if (status_code !== 'success' || resp.responseJSON.count === 0) {
+                if (
+                    status_code !== 'success' ||
+                    typeof (resp.responseJSON) === 'undefined' ||
+                    resp.responseJSON.count === 0
+                ) {
                     return search_def.reject();
                 }
                 return search_def.resolve(resp.responseJSON);
