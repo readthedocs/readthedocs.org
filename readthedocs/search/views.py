@@ -39,14 +39,16 @@ def elastic_search(request, project_slug=None):
 
     :param project_slug: Sent when the view is a project search
     """
+    _type = None
 
     if project_slug:
         queryset = Project.objects.protected(request.user)
         project_obj = get_object_or_404(queryset, slug=project_slug)
+        _type = request.GET.get('type', 'file')
 
     user_input = UserInput(
         query=request.GET.get('q'),
-        type=request.GET.get('type', 'project'),
+        type=_type or request.GET.get('type', 'project'),
         project=project_slug or request.GET.get('project'),
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
