@@ -9,18 +9,9 @@ from readthedocs.search.documents import (
     PageDocument,
     ProjectDocument,
 )
-from readthedocs.search.signals import (
-    before_domain_search,
-    before_file_search,
-    before_project_search,
-)
-
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = logging.getLogger(__name__)
-
-
-ALL_FACETS = ['project', 'version', 'doc_type', 'language', 'index']
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -31,12 +22,7 @@ class RTDFacetedSearch(FacetedSearch):
         for facet in self.facets:
             if facet in kwargs:
                 kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
-
-        # Don't pass along unnecessary filters
-        for f in ALL_FACETS:
-            if f in kwargs:
-                del kwargs[f]
-        super(RTDFacetedSearch, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def search(self):
         """
@@ -49,15 +35,6 @@ class RTDFacetedSearch(FacetedSearch):
         """
         s = super().search()
         s = s.source(exclude=['content', 'headers'])
-        resp = self.signal.send(sender=self, user=self.user, search=s)
-        if resp:
-            # Signal return a search object
-            try:
-                s = resp[0][1]
-            except AttributeError:
-                log.exception(
-                    'Failed to return a search object from search signals'
-                )
         # Return 25 results
         return s[:25]
 
@@ -89,23 +66,8 @@ class RTDFacetedSearch(FacetedSearch):
         return search
 
 
-class DomainSearch(RTDFacetedSearch):
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'doc_type': TermsFacet(field='doc_type'),
-    }
-    signal = before_domain_search
-    doc_types = [DomainDocument]
-    index = DomainDocument._doc_type.index
-    fields = ('display_name^5', 'name')
-
-
-class ProjectSearch(RTDFacetedSearch):
-    facets = {
-        'language': TermsFacet(field='language')
-    }
-    signal = before_project_search
+class ProjectSearchBase(RTDFacetedSearch):
+    facets = {'language': TermsFacet(field='language')}
     doc_types = [ProjectDocument]
     index = ProjectDocument._doc_type.index
     fields = ('name^10', 'slug^5', 'description')
@@ -121,6 +83,47 @@ class PageSearchBase(RTDFacetedSearch):
     fields = ['title^10', 'headers^5', 'content']
 
 
+class DomainSearchBase(RTDFacetedSearch):
+    facets = {
+        'project': TermsFacet(field='project'),
+        'version': TermsFacet(field='version'),
+        'doc_type': TermsFacet(field='doc_type'),
+    }
+    doc_types = [DomainDocument]
+    index = DomainDocument._doc_type.index
+    fields = ('display_name^5', 'name')
+
+
+class PageSearch(SettingsOverrideObject):
+
+    """
+    Allow this class to be overridden based on CLASS_OVERRIDES setting.
+    This is primary used on the .com to adjust how we filter our search queries
+    """
+
+    _default_class = PageSearchBase
+
+
+class ProjectSearch(SettingsOverrideObject):
+
+    """
+    Allow this class to be overridden based on CLASS_OVERRIDES setting.
+    This is primary used on the .com to adjust how we filter our search queries
+    """
+
+    _default_class = ProjectSearchBase
+
+
+class DomainSearch(SettingsOverrideObject):
+
+    """
+    Allow this class to be overridden based on CLASS_OVERRIDES setting.
+    This is primary used on the .com to adjust how we filter our search queries
+    """
+
+    _default_class = DomainSearchBase
+
+
 class AllSearch(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
@@ -129,7 +132,6 @@ class AllSearch(RTDFacetedSearch):
         'doc_type': TermsFacet(field='doc_type'),
         'index': TermsFacet(field='_index'),
     }
-    signal = before_file_search
     doc_types = [DomainDocument, PageDocument, ProjectDocument]
     index = [DomainDocument._doc_type.index,
              PageDocument._doc_type.index,
