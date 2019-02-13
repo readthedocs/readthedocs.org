@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0037_add_htmlfile'),
+        ('projects', '0038_update-doctype-helptext'),
     ]
 
     operations = [
