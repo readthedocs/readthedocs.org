@@ -104,8 +104,8 @@ function attach_elastic_search_query(data) {
             },
             complete: function (resp, status_code) {
                 if (
-                    status_code !== 'success' || 
-                    typeof (resp.responseJSON) === 'undefined' || 
+                    status_code !== 'success' ||
+                    typeof (resp.responseJSON) === 'undefined' ||
                     resp.responseJSON.count === 0
                 ) {
                     return search_def.reject();
