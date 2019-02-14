@@ -1,3 +1,5 @@
+"""Domain API classes"""
+
 from rest_framework import serializers
 
 from readthedocs.restapi.views.model_views import UserSelectViewSet
@@ -19,7 +21,7 @@ class DomainDataAdminSerializer(DomainDataSerializer):
         fields = '__all__'
 
 
-class DomainDataAPIView(UserSelectViewSet):
+class DomainDataAPIView(UserSelectViewSet):  # pylint: disable=too-many-ancestors
     model = DomainData
     serializer_class = DomainDataSerializer
     admin_serializer_class = DomainDataAdminSerializer
