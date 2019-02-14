@@ -27,6 +27,7 @@
 <div class="navigable">
   <ul>
       <h5>{% trans 'Object Type' %}</h5>
+      {# Hidden until we make the UX nicer here. #}
       {# <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li> #}
       {% if not project %}
       <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
@@ -142,9 +143,10 @@
                 <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
                 {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
                 {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
-                {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
                 {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
                 {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
+                {% if doc_type %} <input type="hidden" name="doc_type" value="{{ doc_type }}"> {% endif %}
+                {% if index %} <input type="hidden" name="index" value="{{ index }}"> {% endif %}
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
