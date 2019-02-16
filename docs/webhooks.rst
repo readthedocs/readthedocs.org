@@ -46,11 +46,13 @@ GitHub
 * Go to the :guilabel:`Settings` page for your project
 * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
 * For **Payload URL**, use the URL of the integration on Read the Docs,
-  found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page
+  found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
+  You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
 * Select **Let me select individual events**,
   and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
+* Leave the **Secrets** field black
 * Finish by clicking **Add webhook**
 
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
@@ -87,9 +89,9 @@ Using the generic API integration
 ---------------------------------
 
 For repositories that are not hosted with a supported provider, we also offer a
-generic API endpoint for triggering project builds. Similar to webhook
-integrations, this integration has a specific URL, found on the project's
-:guilabel:`Admin` > :guilabel:`Integrations` dashboard page on readthedocs.org.
+generic API endpoint for triggering project builds. Similar to webhook integrations,
+this integration has a specific URL, which can be found on the project's **Integrations** dashboard page
+(:guilabel:`Admin` > :guilabel:`Integrations`).
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -107,8 +109,8 @@ branches
     Default: **latest**
 
 token
-    The integration token. You'll find this value on the project's
-    :guilabel:`Admin` > :guilabel:`Integrations` dashboard page.
+    The integration token found on the project's **Integrations** dashboard page
+    (:guilabel:`Admin` > :guilabel:`Integrations`).
 
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::

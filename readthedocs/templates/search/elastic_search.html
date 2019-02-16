@@ -127,14 +127,16 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                             {% if result.name %}
 
                               {# Project #}
-                              <a href="{{ result.url }}">{{ result.name }}</a>
+                              <a href="{{ result.url }}">{{ result.name }} (<em>{{ result.slug }}</em>)</a>
                           </p>
                                 {{ result.meta.description }}
                               {% for fragment in result.meta.highlight.description|slice:":3" %}
-                                <p>
+                                <p class="fragment">
                                 ...{{ fragment|safe }}...
                                 </p>
                                 <br>
+                              {% empty %}
+                              <p><em>No description for project.</em></p>
                               {% endfor %}
                               {# End Project #}
 
@@ -143,7 +145,7 @@ Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted
                               {# File #}
                               <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">{{ result.project }} - {{ result.title|safe }}</a>
                               {% for fragment in result.meta.highlight.content|slice:":3" %}
-                                <p>
+                                <p class="fragment">
                                 ...{{ fragment|safe }}...
                                 </p>
                               {% endfor %}

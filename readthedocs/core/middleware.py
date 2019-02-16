@@ -1,19 +1,14 @@
-# -*- coding: utf-8 -*-
-
-"""Middleware for core app."""
-
 import logging
 
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.cache import cache
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import Http404, HttpResponseBadRequest
 from django.urls.base import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import render
 
-from readthedocs.core.utils import cname_to_slug
 from readthedocs.projects.models import Domain, Project
 
 
@@ -112,46 +107,21 @@ class SubdomainMiddleware(MiddlewareMixin):
                 )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
-                try:
-                    slug = cache.get(host)
-                    if not slug:
-                        slug = cname_to_slug(host)
-                        cache.set(host, slug, 60 * 60)
-                        # Cache the slug -> host mapping permanently.
-                        log.info(
-                            LOG_TEMPLATE.format(
-                                msg='CNAME cached: {}->{}'.format(slug, host),
-                                **log_kwargs
-                            ),
-                        )
-                    request.slug = slug
-                    request.urlconf = SUBDOMAIN_URLCONF
-                    log.warning(
-                        LOG_TEMPLATE.format(
-                            msg='CNAME detected: %s' % request.slug,
-                            **log_kwargs
-                        ),
-                    )
-                except:  # noqa
-                    # Some crazy person is CNAMEing to us. 404.
-                    log.warning(
-                        LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs),
-                    )
-                    raise Http404(_('Invalid hostname'))
+                # Some person is CNAMEing to us without configuring a domain - 404.
+                log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                return render(request, 'core/dns-404.html', context={'host': host}, status=404)
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(
-                    LOG_TEMPLATE.format(msg='404ing long domain', **log_kwargs),
-                )
+                log.debug(LOG_TEMPLATE.format(
+                    msg='404ing long domain', **log_kwargs
+                ))
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(
-                LOG_TEMPLATE
-                .format(msg='Allowing long domain name', **log_kwargs),
-            )
-            # raise Http404(_('Invalid hostname'))
+            log.debug(LOG_TEMPLATE.format(
+                msg='Allowing long domain name', **log_kwargs
+            ))
         # Normal request.
         return None
 

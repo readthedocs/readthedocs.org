@@ -27,8 +27,15 @@ from sphinx import version_info
 if globals().get('source_suffix', False):
     if isinstance(source_suffix, string_types):
         SUFFIX = source_suffix
-    else:
+    elif isinstance(source_suffix, (list, tuple)):
+        # Sphinx >= 1.3 supports list/tuple to define multiple suffixes
         SUFFIX = source_suffix[0]
+    elif isinstance(source_suffix, dict):
+        # Sphinx >= 1.8 supports a mapping dictionary for mulitple suffixes
+        SUFFIX = list(source_suffix.keys())[0]  # make a ``list()`` for py2/py3 compatibility
+    else:
+        # default to .rst
+        SUFFIX = '.rst'
 else:
     SUFFIX = '.rst'
 

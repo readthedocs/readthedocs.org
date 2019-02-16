@@ -160,7 +160,7 @@ Users can opt out of seeing paid advertisements on documentation pages:
 Project owners can also opt out of paid advertisements for their projects.
 You can change these options:
 
-* Click on your :guilabel:`Project` page (`/projects/<slug>/`)
+* Go to your **project** page (`/projects/<slug>/`)
 * Go to :guilabel:`Admin` > :guilabel:`Advertising`
 * Change your advertising settings
 
