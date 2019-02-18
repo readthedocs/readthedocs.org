@@ -266,8 +266,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
 
 
 # Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective but as a WARNING for the application itself. These exception are
-# logged as ``INFO`` and they are not sent to Sentry.
+# perspective (the build failed and can continue) but as a WARNING for the
+# application itself (RTD code didn't failed). These exception are logged as
+# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
