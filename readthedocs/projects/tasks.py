@@ -52,6 +52,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
     BuildTimeoutError,
+    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
