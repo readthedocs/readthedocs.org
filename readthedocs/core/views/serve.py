@@ -374,9 +374,9 @@ def sitemap_xml(request, project):
         raise Http404
 
     sorted_versions = sort_version_aware(
-        project.versions.filter(
-            active=True,
-            privacy_level=constants.PUBLIC,
+        Version.objects.public(
+            project=project,
+            only_active=True,
         ),
     )
 
