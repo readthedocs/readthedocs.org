@@ -986,14 +986,12 @@ Version 2.3.1
 * `@humitos <http://github.com/humitos>`__: Upgrade all packages using `pur` tool (`#2916 <https://github.com/rtfd/readthedocs.org/pull/2916>`__)
 * `@rixx <http://github.com/rixx>`__: Fix page redirect preview (`#2711 <https://github.com/rtfd/readthedocs.org/pull/2711>`__)
 
-.. _version-2.3.0:
-
 Version 2.3.0
 -------------
 
 .. warning::
     Version 2.3.0 includes a security fix for project translations. See
-    :ref:`security-2.3.0` for more information
+    :ref:`security:Release 2.3.0` for more information
 
 * `@stsewd <http://github.com/stsewd>`__: Fix tox env for coverage (`#3772 <https://github.com/rtfd/readthedocs.org/pull/3772>`__)
 * `@humitos <http://github.com/humitos>`__: Try to fix end of file (`#3761 <https://github.com/rtfd/readthedocs.org/pull/3761>`__)
