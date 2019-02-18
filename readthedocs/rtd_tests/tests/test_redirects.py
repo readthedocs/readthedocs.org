@@ -58,6 +58,14 @@ class RedirectTests(TestCase):
             'http://readthedocs.org/docs/pip/en/latest/test.html',
         )
 
+    def test_page_redirect_with_query_params(self):
+        r = self.client.get('/docs/pip/page/test.html?foo=bar')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://readthedocs.org/docs/pip/en/latest/test.html?foo=bar'
+        )
+
     # If slug is neither valid lang nor valid version, it should 404.
     # TODO: This should 404 directly, not redirect first
     def test_improper_url_with_nonexistent_slug(self):
@@ -95,6 +103,15 @@ class RedirectTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/',
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_root_redirect_with_query_params(self):
+        r = self.client.get('/?foo=bar', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.readthedocs.org/en/latest/?foo=bar'
         )
 
     # Specific Page Redirects
@@ -188,6 +205,21 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/tutorial/install.html',
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_with_query_params(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='page',
+            from_url='/install.html', to_url='/tutorial/install.html'
+        )
+        r = self.client.get(
+            '/install.html?foo=bar', HTTP_HOST='pip.readthedocs.org'
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.readthedocs.org/en/latest/tutorial/install.html?foo=bar'
         )
 
     @override_settings(USE_SUBDOMAIN=True)

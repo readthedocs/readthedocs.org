@@ -470,7 +470,7 @@ class Conda(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
         pip_cmd = [

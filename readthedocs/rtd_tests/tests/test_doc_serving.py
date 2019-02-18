@@ -2,14 +2,17 @@
 
 import django_dynamic_fixture as fixture
 import mock
+import os
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
+from readthedocs.core.middleware import SubdomainMiddleware
+from readthedocs.core.views import server_error_404_subdomain
 from readthedocs.core.views.serve import _serve_symlink_docs
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project
@@ -169,3 +172,31 @@ class TestPublicDocs(BaseDocServing):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'My own robots.txt')
+
+    @override_settings(
+        PYTHON_MEDIA=False,
+        USE_SUBDOMAIN=True,
+        PUBLIC_DOMAIN='readthedocs.io',
+        ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
+    )
+    @patch('readthedocs.core.views.serve.os')
+    @patch('readthedocs.core.views.os')
+    def test_custom_404_page(self, os_view_mock, os_serve_mock):
+        os_view_mock.path.exists.return_value = True
+
+        os_serve_mock.path.join.side_effect = os.path.join
+        os_serve_mock.path.exists.return_value = True
+
+        self.public.versions.update(active=True, built=True)
+
+        factory = RequestFactory()
+        request = factory.get(
+            '/en/latest/notfoundpage.html',
+            HTTP_HOST='public.readthedocs.io',
+        )
+
+        middleware = SubdomainMiddleware()
+        middleware.process_request(request)
+        response = server_error_404_subdomain(request)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))

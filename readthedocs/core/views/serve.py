@@ -30,6 +30,7 @@ import logging
 import mimetypes
 import os
 from functools import wraps
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -107,15 +108,26 @@ def map_project_slug(view_func):
 @map_subproject_slug
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
-    return HttpResponseRedirect(resolve(subproject or project))
+    urlparse_result = urlparse(request.get_full_path())
+    return HttpResponseRedirect(
+        resolve(
+            subproject or project,
+            query_params=urlparse_result.query,
+        )
+    )
 
 
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /en/latest/file.html."""
+    urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
-        resolve(subproject or project, filename=filename),
+        resolve(
+            subproject or project,
+            filename=filename,
+            query_params=urlparse_result.query,
+        )
     )
 
 
@@ -127,6 +139,23 @@ def _serve_401(request, project):
 
 
 def _serve_file(request, filename, basepath):
+    """
+    Serve media file via Django or NGINX based on ``PYTHON_MEDIA``.
+
+    When using ``PYTHON_MEDIA=True`` (or when ``DEBUG=True``) the file is served
+    by ``django.views.static.serve`` function.
+
+    On the other hand, when ``PYTHON_MEDIA=False`` the file is served by using
+    ``X-Accel-Redirect`` header for NGINX to take care of it and serve the file.
+
+    :param request: Django HTTP request
+    :param filename: path to the filename to be served relative to ``basepath``
+    :param basepath: base path to prepend to the filename
+
+    :returns: Django HTTP response object
+
+    :raises: ``Http404`` on ``UnicodeEncodeError``
+    """
     # Serve the file from the proper location
     if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
         # Serve from Python

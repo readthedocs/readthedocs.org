@@ -25,7 +25,7 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
 from doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
@@ -90,7 +90,6 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
 
         expected_env_config = {
-            'allow_v2': mock.ANY,
             'build': {'image': 'readthedocs/build:1.0'},
             'defaults': {
                 'install_project': self.project.install_project,
@@ -101,7 +100,7 @@ class LoadConfigTests(TestCase):
                 ],
                 'use_system_packages': self.project.use_system_packages,
                 'requirements_file': self.project.requirements_file,
-                'python_version': 2,
+                'python_version': 3,
                 'sphinx_configuration': mock.ANY,
                 'build_image': 'readthedocs/build:1.0',
                 'doctype': self.project.documentation_type,
@@ -116,7 +115,7 @@ class LoadConfigTests(TestCase):
                 path=mock.ANY,
                 env_config=expected_env_config,
         )
-        self.assertEqual(config.python.version, 2)
+        self.assertEqual(config.python.version, 3)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_1_0(self, load_config):
@@ -148,15 +147,15 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6],
+            [2, 2.7, 3, 3.5, 3.6, 3.7],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_default_version(self, load_config):
         load_config.side_effect = create_load()
         config = load_yaml_config(self.version)
-        self.assertEqual(config.python.version, 2)
-        self.assertEqual(config.python_interpreter, 'python2.7')
+        self.assertEqual(config.python.version, 3)
+        self.assertEqual(config.python_interpreter, 'python3.7')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_set_python_version_on_project(self, load_config):
@@ -349,12 +348,6 @@ class TestLoadConfigV2:
             container_image=None,
         )
         self.version = get(Version, project=self.project)
-        # TODO: Remove later
-        get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ALLOW_V2_CONFIG_FILE,
-        )
 
     def create_config_file(self, tmpdir, config):
         base_path = apply_fs(
@@ -510,7 +503,7 @@ class TestLoadConfigV2:
 
         config = self.get_update_docs_task().config
         assert config.python.version == 3
-        assert config.python_full_version == 3.6
+        assert config.python_full_version == 3.7
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
     def test_python_install_requirements(self, run, checkout_path, tmpdir):

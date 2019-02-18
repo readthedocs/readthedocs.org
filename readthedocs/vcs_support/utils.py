@@ -40,23 +40,23 @@ class Lock:
         while os.path.exists(self.fpath):
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.timeout:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, old lockfile',
                     self.name,
                 )
                 os.remove(self.fpath)
                 break
-            log.info('Lock (%s): Locked, waiting..', self.name)
+            log.debug('Lock (%s): Locked, waiting..', self.name)
             time.sleep(self.polling_interval)
             timesince = time.time() - start
             if timesince > self.timeout:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, timeout reached',
                     self.name,
                 )
                 os.remove(self.fpath)
                 break
-            log.info(
+            log.debug(
                 '%s still locked after %.2f seconds; retry for %.2f'
                 ' seconds',
                 self.name,
@@ -64,11 +64,11 @@ class Lock:
                 self.timeout,
             )
         open(self.fpath, 'w').close()
-        log.info('Lock (%s): Lock acquired', self.name)
+        log.debug('Lock (%s): Lock acquired', self.name)
 
     def __exit__(self, exc, value, tb):
         try:
-            log.info('Lock (%s): Releasing', self.name)
+            log.debug('Lock (%s): Releasing', self.name)
             os.remove(self.fpath)
         except OSError as e:
             # We want to ignore "No such file or directory" and log any other
@@ -107,7 +107,7 @@ class NonBlockingLock:
         if path_exists and self.max_lock_age is not None:
             lock_age = time.time() - os.stat(self.fpath)[stat.ST_MTIME]
             if lock_age > self.max_lock_age:
-                log.info(
+                log.debug(
                     'Lock (%s): Force unlock, old lockfile',
                     self.name,
                 )
@@ -123,7 +123,7 @@ class NonBlockingLock:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         try:
-            log.info('Lock (%s): Releasing', self.name)
+            log.debug('Lock (%s): Releasing', self.name)
             os.remove(self.fpath)
         except (IOError, OSError) as e:
             # We want to ignore "No such file or directory" and log any other

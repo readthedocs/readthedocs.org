@@ -24,43 +24,49 @@ function attach_elastic_search_query(data) {
         search_url.href = api_host;
         search_url.pathname = '/api/v2/docsearch/';
         search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
-            '&version=' + version + '&language=' + language;
+                            '&version=' + version + '&language=' + language;
 
         search_def
-            .then(function (results) {
-                var hits = results.hits || {};
-                var hit_list = hits.hits || [];
+            .then(function (data) {
+                var hit_list = data.results || [];
+                var total_count = data.count || 0;
 
                 if (hit_list.length) {
-                    for (var n in hit_list) {
-                        var hit = hit_list[n];
-                        var fields = hit.fields || {};
+                    for (var i = 0; i < hit_list.length; i += 1) {
+                        var doc = hit_list[i];
+                        var highlight = doc.highlight;
                         var list_item = $('<li style="display: none;"></li>');
-                        var item_url = document.createElement('a');
-                        var highlight = hit.highlight;
 
-                        item_url.href += fields.link +
-                            DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        item_url.search = '?highlight=' + $.urlencode(query);
+                        // Creating the result from elements
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
+                                   '?highlight=' + $.urlencode(query);
 
-                        // Result list elements
-                        list_item.append(
-                            $('<a />')
-                            .attr('href', item_url)
-                            .html(fields.title)
-                        );
-                        // fields.project is returned as an array
-                        if (fields.project.indexOf(project) === -1) {
-                            list_item.append(
-                                $('<span>')
-                                .text(" (from project " + fields.project + ")")
-                            );
+                        var item = $('<a>', {'href': link});
+                        item.html(doc.title);
+                        list_item.append(item);
+
+                        // If the document is from subproject, add extra information
+                        if (doc.project !== project) {
+                            var text = " (from project " + doc.project + ")";
+                            var extra = $('<span>', {'text': text});
+
+                            list_item.append(extra);
                         }
-                        if (highlight.content.length) {
-                            var content = $('<div class="context">')
-                                .html(xss(highlight.content[0]));
-                            content.find('em').addClass('highlighted');
-                            list_item.append(content);
+
+                        // Show highlighted texts
+                        if (highlight.content) {
+                            for (var index = 0; index < highlight.content.length; index += 1) {
+                                if (index < 3) {
+                                    // Show up to 3 results for search
+                                    var content = highlight.content[index];
+                                    var content_text = xss(content);
+                                    var contents = $('<div class="context">');
+
+                                    contents.html("..." + content_text + "...");
+                                    contents.find('em').addClass('highlighted');
+                                    list_item.append(contents);
+                                }
+                            }
                         }
 
                         Search.output.append(list_item);
@@ -71,6 +77,7 @@ function attach_elastic_search_query(data) {
                 if (!hit_list.length) {
                     // Fallback to Sphinx's indexes
                     Search.query_fallback(query);
+                    console.log('Read the Docs search failed. Falling back to Sphinx search.');
                 }
                 else {
                     Search.status.text(
@@ -96,11 +103,14 @@ function attach_elastic_search_query(data) {
                 withCredentials: true,
             },
             complete: function (resp, status_code) {
-                if (typeof (resp.responseJSON) === 'undefined' ||
-                        typeof (resp.responseJSON.results) === 'undefined') {
+                if (
+                    status_code !== 'success' ||
+                    typeof (resp.responseJSON) === 'undefined' ||
+                    resp.responseJSON.count === 0
+                ) {
                     return search_def.reject();
                 }
-                return search_def.resolve(resp.responseJSON.results);
+                return search_def.resolve(resp.responseJSON);
             }
         })
         .fail(function (resp, status_code, error) {
