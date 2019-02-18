@@ -36,7 +36,7 @@ celery==4.1.1  # pyup: ignore
 django-allauth==0.38.0
 
 # VCS
-httplib2==0.12.0
+httplib2==0.12.1
 
 # GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
 # of an UnicodeError
