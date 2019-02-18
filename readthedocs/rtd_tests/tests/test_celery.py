@@ -265,12 +265,6 @@ class TestCeleryBuilding(RTDTestCase):
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.builds.managers.log')
-    def test_update_search_logging_when_wrong_version_pk(self, mock_logger):
-        self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.update_search(version_pk=345343, commit=None)
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
-
-    @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.fileify(version_pk=345343, commit=None)

@@ -2,10 +2,11 @@
 
 """Django admin interface for `~builds.models.Build` and related models."""
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.core.utils import trigger_build
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -54,7 +55,26 @@ class VersionAdmin(GuardedModelAdmin):
         'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
+    search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
+    actions = ['build_version']
+
+    def build_version(self, request, queryset):
+        """Trigger a build for the project version."""
+        total = 0
+        for version in queryset:
+            trigger_build(
+                project=version.project,
+                version=version,
+            )
+            total += 1
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Triggered builds for {} version(s).'.format(total),
+        )
+
+    build_version.short_description = 'Build version'
 
 
 admin.site.register(Build, BuildAdmin)

@@ -1666,7 +1666,7 @@ class APIVersionTests(TestCase):
                 'language': 'en',
                 'name': 'Pip',
                 'programming_language': 'words',
-                'python_interpreter': 'python',
+                'python_interpreter': 'python3',
                 'repo': 'https://github.com/pypa/pip',
                 'repo_type': 'git',
                 'requirements_file': None,

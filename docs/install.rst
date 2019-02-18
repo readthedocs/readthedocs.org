@@ -19,7 +19,7 @@ Additionally Read the Docs depends on:
 * `Redis`_
 * `Elasticsearch`_ (only if you want full support for searching inside the site)
 
-    * Ubuntu users could install this package by following :doc:`/custom_installs/elasticsearch`.
+    * Follow :doc:`/development/search` documentation for more instruction.
 
 .. note::
 
@@ -55,8 +55,6 @@ you need these libraries.
          sudo apt-get install redis-server
 
    .. tab:: CentOS/RHEL 7
-
-      Install::
 
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
@@ -129,9 +127,9 @@ you can use the admin interface via http://127.0.0.1:8000/admin
 (logging in with the superuser account you just created).
 
 For builds to properly work as expected,
-it is necessary the port you're serving on
+it is necessary that the port you're serving on
 (i.e. ``python manage.py runserver 0.0.0.0:8080``)
-match the port defined in ``PRODUCTION_DOMAIN``.
+matches the port defined in ``PRODUCTION_DOMAIN``.
 You can use ``readthedocs/settings/local_settings.py`` to modify this
 (by default, it's ``localhost:8000``).
 
@@ -143,8 +141,8 @@ For example to update the ``pip`` repo::
 
 .. note::
 
-    If you have problems building successfully a project,
-    probably is because some missing libraries for ``pdf`` and ``epub`` generation.
+    If you have problems building a project successfully,
+    it is probably because of some missing libraries for ``pdf`` and ``epub`` generation.
     You can uncheck this on the advanced settings of your project.
 
 What's available

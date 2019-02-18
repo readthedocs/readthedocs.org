@@ -1,3 +1,102 @@
+Version 3.2.2
+-------------
+
+:Date: February 13, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Support old jquery where responseJSON doesn't exist (`#5285 <https://github.com/rtfd/readthedocs.org/pull/5285>`__)
+* `@humitos <http://github.com/humitos>`__: pyup.yml syntax fixed (`#5284 <https://github.com/rtfd/readthedocs.org/pull/5284>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix error of travis (rename migration file) (`#5282 <https://github.com/rtfd/readthedocs.org/pull/5282>`__)
+* `@humitos <http://github.com/humitos>`__: pyup YAML configuration file (`#5279 <https://github.com/rtfd/readthedocs.org/pull/5279>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin ipdb to latest version 0.11 (`#5278 <https://github.com/rtfd/readthedocs.org/pull/5278>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin datadiff to latest version 2.0.0 (`#5277 <https://github.com/rtfd/readthedocs.org/pull/5277>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/rtfd/readthedocs.org/pull/5276>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/rtfd/readthedocs.org/pull/5275>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/rtfd/readthedocs.org/pull/5274>`__)
+* `@discdiver <http://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/rtfd/readthedocs.org/pull/5273>`__)
+* `@humitos <http://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/rtfd/readthedocs.org/pull/5272>`__)
+* `@humitos <http://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/rtfd/readthedocs.org/pull/5269>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/rtfd/readthedocs.org/pull/5263>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don’t delay search delete on project delete (`#5262 <https://github.com/rtfd/readthedocs.org/pull/5262>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Automate docs version from our setup.cfg (`#5259 <https://github.com/rtfd/readthedocs.org/pull/5259>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add admin actions for building versions (`#5255 <https://github.com/rtfd/readthedocs.org/pull/5255>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Give the 404 page a title. (`#5252 <https://github.com/rtfd/readthedocs.org/pull/5252>`__)
+* `@humitos <http://github.com/humitos>`__: Make our SUFFIX default selection py2/3 compatible (`#5251 <https://github.com/rtfd/readthedocs.org/pull/5251>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.1 (`#5248 <https://github.com/rtfd/readthedocs.org/pull/5248>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove excluding files on search. (`#5246 <https://github.com/rtfd/readthedocs.org/pull/5246>`__)
+* `@gorshunovr <http://github.com/gorshunovr>`__: Change version references to :latest tag (`#5245 <https://github.com/rtfd/readthedocs.org/pull/5245>`__)
+* `@humitos <http://github.com/humitos>`__: Remove py2 compatibility (`#5241 <https://github.com/rtfd/readthedocs.org/pull/5241>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow to override trigger_build from demo project (`#5236 <https://github.com/rtfd/readthedocs.org/pull/5236>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Change some info logging to debug to clean up build output (`#5233 <https://github.com/rtfd/readthedocs.org/pull/5233>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fake auth middleware in tests (`#5206 <https://github.com/rtfd/readthedocs.org/pull/5206>`__)
+* `@EJEP <http://github.com/EJEP>`__: Clarify 'more info' link in admin settings page (`#5180 <https://github.com/rtfd/readthedocs.org/pull/5180>`__)
+* `@rexzing <http://github.com/rexzing>`__: Docs reformatting with :guilabel: (`#5161 <https://github.com/rtfd/readthedocs.org/pull/5161>`__)
+
+Version 3.2.1
+-------------
+
+:Date: February 07, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Remove excluding files on search. (`#5246 <https://github.com/rtfd/readthedocs.org/pull/5246>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don't update search on HTMLFile save (`#5244 <https://github.com/rtfd/readthedocs.org/pull/5244>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Be more defensive in our 404 handler (`#5243 <https://github.com/rtfd/readthedocs.org/pull/5243>`__)
+* `@humitos <http://github.com/humitos>`__: Install sphinx-notfound-page for building 404.html custom page (`#5242 <https://github.com/rtfd/readthedocs.org/pull/5242>`__)
+* `@humitos <http://github.com/humitos>`__: Remove py2 compatibility (`#5241 <https://github.com/rtfd/readthedocs.org/pull/5241>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.0 (`#5240 <https://github.com/rtfd/readthedocs.org/pull/5240>`__)
+
+Version 3.2.0
+-------------
+
+:Date: February 06, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Support passing an explicit `index_name` for search indexing (`#5239 <https://github.com/rtfd/readthedocs.org/pull/5239>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Tweak some ad styles (`#5237 <https://github.com/rtfd/readthedocs.org/pull/5237>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix conda issue link (`#5226 <https://github.com/rtfd/readthedocs.org/pull/5226>`__)
+* `@humitos <http://github.com/humitos>`__: Add Santos to the development team (`#5224 <https://github.com/rtfd/readthedocs.org/pull/5224>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Update our GSOC page for 2019 (`#5210 <https://github.com/rtfd/readthedocs.org/pull/5210>`__)
+* `@humitos <http://github.com/humitos>`__: Do not allow to merge 'Status: blocked' PRs (`#5205 <https://github.com/rtfd/readthedocs.org/pull/5205>`__)
+* `@stsewd <http://github.com/stsewd>`__: Inject user to middleware tests (`#5203 <https://github.com/rtfd/readthedocs.org/pull/5203>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Remove approvals requirement from mergable (`#5200 <https://github.com/rtfd/readthedocs.org/pull/5200>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Update project notification copy to past tense (`#5199 <https://github.com/rtfd/readthedocs.org/pull/5199>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove feature flag for v2 (`#5198 <https://github.com/rtfd/readthedocs.org/pull/5198>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Refactor search code (`#5197 <https://github.com/rtfd/readthedocs.org/pull/5197>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update mergeable settings to v2 (`#5196 <https://github.com/rtfd/readthedocs.org/pull/5196>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix mergeable bot (`#5195 <https://github.com/rtfd/readthedocs.org/pull/5195>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix broken links for badges (`#5190 <https://github.com/rtfd/readthedocs.org/pull/5190>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Change badge style (`#5189 <https://github.com/rtfd/readthedocs.org/pull/5189>`__)
+* `@humitos <http://github.com/humitos>`__: Allow source_suffix to be a dictionary (`#5183 <https://github.com/rtfd/readthedocs.org/pull/5183>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade all packages removing py2 compatibility (`#5179 <https://github.com/rtfd/readthedocs.org/pull/5179>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Small docs fix (`#5176 <https://github.com/rtfd/readthedocs.org/pull/5176>`__)
+* `@stsewd <http://github.com/stsewd>`__: Sync all services even if  one social accoun fails (`#5171 <https://github.com/rtfd/readthedocs.org/pull/5171>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.1.0 (`#5170 <https://github.com/rtfd/readthedocs.org/pull/5170>`__)
+* `@rvmzes <http://github.com/rvmzes>`__: SyntaxError caused by comma in python3 (`#5156 <https://github.com/rtfd/readthedocs.org/pull/5156>`__)
+* `@humitos <http://github.com/humitos>`__: Use latest docker images as default (`#5155 <https://github.com/rtfd/readthedocs.org/pull/5155>`__)
+* `@stsewd <http://github.com/stsewd>`__:  Remove logic for guessing slug from an unregistered domain (`#5143 <https://github.com/rtfd/readthedocs.org/pull/5143>`__)
+* `@humitos <http://github.com/humitos>`__: Allow custom 404.html on projects (`#5130 <https://github.com/rtfd/readthedocs.org/pull/5130>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Docs for feature flag (`#5043 <https://github.com/rtfd/readthedocs.org/pull/5043>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove usage of project.documentation_type in tasks (`#4896 <https://github.com/rtfd/readthedocs.org/pull/4896>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Reapply the Elastic Search upgrade to `master` (`#4722 <https://github.com/rtfd/readthedocs.org/pull/4722>`__)
+* `@stsewd <http://github.com/stsewd>`__: Config file v2 docs (`#4451 <https://github.com/rtfd/readthedocs.org/pull/4451>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set python3 as default interpreter (`#3581 <https://github.com/rtfd/readthedocs.org/pull/3581>`__)
+
+Version 3.1.0
+-------------
+
+This version greatly improves our search capabilities,
+thanks to the Google Summer of Code.
+We're hoping to have another version of search coming soon after this,
+but this is a large upgrade moving to the latest Elastic Search.
+
+:Date: January 24, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix docs build (`#5164 <https://github.com/rtfd/readthedocs.org/pull/5164>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.0.0 (`#5163 <https://github.com/rtfd/readthedocs.org/pull/5163>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix tests on master (`#5162 <https://github.com/rtfd/readthedocs.org/pull/5162>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Sort versions smartly everywhere (`#5157 <https://github.com/rtfd/readthedocs.org/pull/5157>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow query params in redirects (`#5081 <https://github.com/rtfd/readthedocs.org/pull/5081>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Implement get objects or log (`#4900 <https://github.com/rtfd/readthedocs.org/pull/4900>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove usage of project.documentation_type in tasks (`#4896 <https://github.com/rtfd/readthedocs.org/pull/4896>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Reapply the Elastic Search upgrade to `master` (`#4722 <https://github.com/rtfd/readthedocs.org/pull/4722>`__)
+
 Version 3.0.0
 -------------
 

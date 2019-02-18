@@ -12,7 +12,6 @@ from django.contrib.contenttypes.fields import (
 )
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
@@ -112,7 +111,6 @@ class HttpExchangeManager(models.Manager):
             exchange.delete()
 
 
-@python_2_unicode_compatible
 class HttpExchange(models.Model):
 
     """HTTP request/response exchange."""
@@ -230,7 +228,6 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
-@python_2_unicode_compatible
 class Integration(models.Model):
 
     """Inbound webhook integration for projects."""

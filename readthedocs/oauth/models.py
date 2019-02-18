@@ -10,7 +10,6 @@ from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.constants import REPO_CHOICES
@@ -19,7 +18,6 @@ from readthedocs.projects.models import Project
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
-@python_2_unicode_compatible
 class RemoteOrganization(models.Model):
 
     """
@@ -74,7 +72,6 @@ class RemoteOrganization(models.Model):
             pass
 
 
-@python_2_unicode_compatible
 class RemoteRepository(models.Model):
 
     """

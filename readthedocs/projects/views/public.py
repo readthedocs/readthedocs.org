@@ -25,9 +25,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
-from readthedocs.search.indexes import PageIndex
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.search.views import LOG_TEMPLATE
 
 from .base import ProjectOnboardMixin
 
@@ -238,82 +236,6 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
     response['Content-Disposition'] = 'filename=%s' % filename
     return response
-
-
-def elastic_project_search(request, project_slug):
-    """Use elastic search to search in a project."""
-    queryset = Project.objects.protected(request.user)
-    project = get_object_or_404(queryset, slug=project_slug)
-    version_slug = request.GET.get('version', LATEST)
-    query = request.GET.get('q', None)
-    if query:
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
-        log.info(
-            LOG_TEMPLATE.format(
-                user=user,
-                project=project or '',
-                type='inproject',
-                version=version_slug or '',
-                language='',
-                msg=query or '',
-            ),
-        )
-
-    if query:
-
-        kwargs = {}
-        body = {
-            'query': {
-                'bool': {
-                    'should': [
-                        {'match': {'title': {'query': query, 'boost': 10}}},
-                        {'match': {'headers': {'query': query, 'boost': 5}}},
-                        {'match': {'content': {'query': query}}},
-                    ],
-                },
-            },
-            'highlight': {
-                'fields': {
-                    'title': {},
-                    'headers': {},
-                    'content': {},
-                },
-            },
-            'fields': ['title', 'project', 'version', 'path'],
-            'filter': {
-                'and': [
-                    {'term': {'project': project_slug}},
-                    {'term': {'version': version_slug}},
-                ],
-            },
-            'size': 50,  # TODO: Support pagination.
-        }
-
-        # Add routing to optimize search by hitting the right shard.
-        kwargs['routing'] = project_slug
-
-        results = PageIndex().search(body, **kwargs)
-    else:
-        results = {}
-
-    if results:
-        # pre and post 1.0 compat
-        for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
-                if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
-
-    return render(
-        request,
-        'search/elastic_project_search.html',
-        {
-            'project': project,
-            'query': query,
-            'results': results,
-        },
-    )
 
 
 def project_versions(request, project_slug):

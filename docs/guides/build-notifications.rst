@@ -9,7 +9,7 @@ This makes sure you know when your builds have failed.
 
 Take these steps to enable build notifications using email:
 
-* Go to **Admin > Notifications** in your project.
+* Go to :guilabel:`Admin` > :guilabel:`Notifications` in your project.
 * Fill in the **Email** field under the **New Email Notifications** heading
 * Submit the form
 
@@ -22,7 +22,7 @@ Read the Docs can also send webhooks when builds fail.
 
 Take these steps to enable build notifications using a webhook:
 
-* Go to **Admin > Notifications** in your project.
+* Go to :guilabel:`Admin` > :guilabel:`Notifications` in your project.
 * Fill in the **URL** field under the **New Webhook Notifications** heading
 * Submit the form
 

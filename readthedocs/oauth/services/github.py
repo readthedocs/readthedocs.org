@@ -16,7 +16,8 @@ from readthedocs.integrations.utils import get_secret
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
+
 
 
 log = logging.getLogger(__name__)
@@ -42,10 +43,10 @@ class GitHubService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitHub repositories')
-            raise Exception(
+            log.warning('Error syncing GitHub repositories')
+            raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
-                'try reconnecting your account',
+                'try reconnecting your account'
             )
 
     def sync_organizations(self):
@@ -63,10 +64,10 @@ class GitHubService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitHub organizations')
-            raise Exception(
+            log.warning('Error syncing GitHub organizations')
+            raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
-                'try reconnecting your account',
+                'try reconnecting your account'
             )
 
     def create_repository(self, fields, privacy=None, organization=None):
