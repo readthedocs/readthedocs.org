@@ -83,7 +83,12 @@ class VersionSlugField(models.CharField):
 
     def _normalize(self, content):
         """
-        Normalize some invalid characters to become a dash (``-``).
+        Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
+
+        .. note::
+
+            We replace these characters to a dash to keep compatibility with the
+            old behavior and also because it makes this more readable.
 
         For example, ``release/1.0`` will become ``release-1.0``.
         """
