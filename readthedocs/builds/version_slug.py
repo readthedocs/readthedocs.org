@@ -26,7 +26,7 @@ from operator import truediv
 
 from django.db import models
 from django.utils.encoding import force_text
-from slugify import slugify
+from slugify import slugify as unicode_slugify
 
 
 def get_fields_with_model(cls):
@@ -100,7 +100,7 @@ class VersionSlugField(models.CharField):
             return ''
 
         normalized = self._normalize(content)
-        slugified = slugify(
+        slugified = unicode_slugify(
             normalized,
             only_ascii=True,
             spaces=False,
