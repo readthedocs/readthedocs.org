@@ -132,7 +132,6 @@ Project details
             },
             "default_version": "stable",
             "default_branch": "master",
-            "documentation_type": "sphinx_htmldir",
             "privacy_level": "public",
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
