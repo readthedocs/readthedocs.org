@@ -91,7 +91,7 @@ Projects list
        Considering that we are listing only projects associated with the authenticated user,
        we should not have performance problem with these filters
 
-    :reqheader Authorization: required token to authenticate.
+    :requestheader Authorization: required token to authenticate.
 
 
 Project details
@@ -178,7 +178,7 @@ Project details
 
     .. TODO: complete the returned data docs once agreed on this.
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
@@ -233,7 +233,7 @@ Versions listing
     :query active: one of ``true``, ``false``
     :query built: one of ``true``, ``false``
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
 
 Version detail
@@ -281,7 +281,7 @@ Version detail
     :>json string last_build: Build object representing the last build of this version
     :>json array downloads: URLs to downloads of this version's documentation
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Version`` with this slug for this project
@@ -311,7 +311,7 @@ Version edit
 
     `See Version details <#version-detail>`_
 
-    :reqheader Authorization: required token to authenticate.
+    :requestheader Authorization: required token to authenticate.
 
     :statuscode 204: Edited sucessfully
     :statuscode 400: Some field is invalid
@@ -381,7 +381,7 @@ Build details
     :>json string builder: The hostname server that built the docs
     :>json string cold_storage: Whether the build was removed from database and stored externally
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
@@ -401,7 +401,7 @@ Build details
 
     `See Build details <#build-details>`_
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
 
 Builds listing
@@ -431,7 +431,7 @@ Builds listing
     :query commit: commit hash to filter the builds returned by commit
     :query running: whether or not to filter the builds returned by currently building
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
 
 Build triggering
@@ -454,7 +454,7 @@ Build triggering
 
     `See Build details <#build-details>`_
 
-    :reqheader Authorization: required token to authenticate.
+    :requestheader Authorization: required token to authenticate.
 
     :statuscode 201: Created sucessfully
     :statuscode 400: Some field is invalid
@@ -485,7 +485,7 @@ Build commands listing
             "results": ["BUILDCOMMAND"]
         }
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
 
 
 Build command details
@@ -522,4 +522,4 @@ Build command details
             }
         }
 
-    :reqheader Authorization: optional token to authenticate.
+    :requestheader Authorization: optional token to authenticate.
