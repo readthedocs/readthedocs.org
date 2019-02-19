@@ -138,7 +138,6 @@ Project details
                 "documentation": "http://pip.pypa.io/en/stable/",
                 "project": "https://pip.pypa.io/"
             },
-            "last_build": "{BUILD}",
             "tags": [
                 "disutils",
                 "easy_install",
