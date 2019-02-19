@@ -20,9 +20,9 @@ def get_project_list_or_404(project_slug, user, version_slug=None):
     """
     Return list of project and its subprojects.
 
-    It filters by Version privacy instead of Project privacy.
+    It filters by Version privacy instead of Project privacy,
+    so we can support public versions on private projects.
     """
-    # Support private projects with public versions
     project_list = []
     main_project = get_object_or_404(Project, slug=project_slug)
     subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
