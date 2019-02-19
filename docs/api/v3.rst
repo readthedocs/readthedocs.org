@@ -62,19 +62,19 @@ Projects list
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "count": 25,
             "next": "/api/v3/projects/limit=10&offset=10",
             "previous": null,
-            "results": [PROJECT]
+            "results": ["PROJECT"]
         }
 
-    :>json integer count: Total number of Projects.
-    :>json string next: URI for next set of Projects.
-    :>json string previous: URI for previous set of Projects.
-    :>json array results: Array of ``Project`` objects.
+    :>json integer count: Total number of projects.
+    :>json string next: URI for next set of projects.
+    :>json string previous: URI for previous set of projects.
+    :>json array results: Array of ``project`` objects.
 
     :query privacy_level: one of ``public``, ``private``, ``protected``
 
@@ -91,7 +91,7 @@ Projects list
        Considering that we are listing only projects associated with the authenticated user,
        we should not have performance problem with these filters
 
-    :reqheader Authorization: required token to authenticate
+    :reqheader Authorization: required token to authenticate.
 
 
 Project details
@@ -109,7 +109,7 @@ Project details
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "name": "Pip",
@@ -124,7 +124,7 @@ Project details
             "programming_language": {
                 "code": "py",
                 "name": "Python"
-            }
+            },
             "repository": {
                 "url": "https://github.com/pypa/pip",
                 "type": "git"
@@ -137,8 +137,8 @@ Project details
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
                 "project": "https://pip.pypa.io/"
-            }
-            "last_build": {BUILD},
+            },
+            "last_build": "{BUILD}",
             "tags": [
                 "disutils",
                 "easy_install",
@@ -147,15 +147,15 @@ Project details
                 "virtualenv"
             ],
             "users": {
-                "dstufft": {USER},
-                "pmoore": {USER},
-                "xafer": {USER},
-                "pradyunsg": {USER}
+                "dstufft": "{USER}",
+                "pmoore": "{USER}",
+                "xafer": "{USER}",
+                "pradyunsg": "{USER}"
             },
             "active_versions": {
-                "stable: {VERSION},
-                "latest: {VERSION},
-                "19.0.2: {VERSION}
+                "stable": "{VERSION}",
+                "latest": "{VERSION}",
+                "19.0.2": "{VERSION}"
             },
             "links": {
                 "self": "/api/v3/projects/pip/",
@@ -179,7 +179,7 @@ Project details
 
     .. TODO: complete the returned data docs once agreed on this.
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
@@ -212,13 +212,13 @@ Versions listing
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "count": 25,
             "next": "/api/v3/projects/pip/versions/?limit=10&offset=10",
             "previous": null,
-            "results": [VERSION]
+            "results": ["VERSION"]
         }
 
     :>json integer count: Total number of Projects.
@@ -234,7 +234,7 @@ Versions listing
     :query active: one of ``true``, ``false``
     :query built: one of ``true``, ``false``
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
 
 Version detail
@@ -252,7 +252,7 @@ Version detail
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "slug": "stable",
@@ -261,7 +261,7 @@ Version detail
             "built": true,
             "active": true,
             "type": "tag",
-            "last_build": {BUILD},
+            "last_build": "{BUILD}",
             "downloads": {
                 "pdf": "https://readthedocs.org/projects/pip/downloads/pdf/stable/",
                 "htmlzip": "https://readthedocs.org/projects/pip/downloads/htmlzip/stable/",
@@ -282,7 +282,7 @@ Version detail
     :>json string last_build: Build object representing the last build of this version
     :>json array downloads: URLs to downloads of this version's documentation
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Version`` with this slug for this project
@@ -297,7 +297,7 @@ Version edit
 
     **Example request**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "active": true,
@@ -310,9 +310,9 @@ Version edit
 
     **Example response**:
 
-    *See Version details*
+    `See Version details <#version-detail>`_
 
-    :reqheader Authorization: required token to authenticate
+    :reqheader Authorization: required token to authenticate.
 
     :statuscode 204: Edited sucessfully
     :statuscode 400: Some field is invalid
@@ -347,7 +347,7 @@ Build details
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "id": 8592686,
@@ -382,7 +382,7 @@ Build details
     :>json string builder: The hostname server that built the docs
     :>json string cold_storage: Whether the build was removed from database and stored externally
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
@@ -400,9 +400,9 @@ Build details
 
     **Example response**:
 
-    *See Build details*
+    `See Build details <#build-details>`_
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
 
 Builds listing
@@ -420,19 +420,19 @@ Builds listing
 
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "count": 15,
             "next": "/api/v3/projects/pip/builds?limit=10&offset=10",
             "previous": null,
-            "results": [BUILD]
+            "results": ["BUILD"]
         }
 
     :query commit: commit hash to filter the builds returned by commit
     :query running: whether or not to filter the builds returned by currently building
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
 
 Build triggering
@@ -445,7 +445,7 @@ Build triggering
 
     **Example request**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "version": "latest",
@@ -453,9 +453,9 @@ Build triggering
 
     **Example response**:
 
-    *See Build details*
+    `See Build details <#build-details>`_
 
-    :reqheader Authorization: required token to authenticate
+    :reqheader Authorization: required token to authenticate.
 
     :statuscode 201: Created sucessfully
     :statuscode 400: Some field is invalid
@@ -474,19 +474,19 @@ Build commands listing
     .. sourcecode:: bash
 
         $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/
-.
+
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "count": 15,
             "next": "/api/v3/projects/pip/builds/719263915/commands/?limit=10&offset=10",
             "previous": null,
-            "results": [BUILDCOMMAND]
+            "results": ["BUILDCOMMAND"]
         }
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
 
 
 Build command details
@@ -501,14 +501,14 @@ Build command details
     .. sourcecode:: bash
 
         $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/9182639172/
-.
+
     **Example response**:
 
-    .. sourcecode:: js
+    .. sourcecode:: json
 
         {
             "id": 9182639172,
-            "build": {BUILD},
+            "build": "{BUILD}",
             "created": "2018-06-19T15:15:59+00:00",
             "finished": "2018-06-19T15:16:58+00:00",
             "duration": 59,
@@ -523,4 +523,4 @@ Build command details
             }
         }
 
-    :reqheader Authorization: optional token to authenticate
+    :reqheader Authorization: optional token to authenticate.
