@@ -5,37 +5,35 @@ The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
 and HTTP response status codes are to designate success and failure.
 
+.. warning::
+
+   APIv3 is currently under development and it's not ready to use yet.
+
 
 Authentication and authorization
 --------------------------------
 
 Requests to the Read the Docs public API are for public and private information
-and do require authentication even for requesting public information.
+and do require authentication for all listing endpoints but not for all detailed ones.
 
-Scopes
-~~~~~~
+No authentication
+~~~~~~~~~~~~~~~~~
 
-The API can be accessed by using the HTTP header ``Authorization``
-with a specific ``Token`` that provide access to different resources.
+Some endpoints on read-only requests won't require any kind of authentication.
+Most of them are detailed information for a particular object.
 
-Available scopes
-++++++++++++++++
+Token
+~~~~~
 
-* ``project``
-   * ``project:admin``: access to change admin settings (similar to Admin tab)
-   * ``project:read``: access to read all the information about the projects
-   * ``project:write``: access to anything related to perform write actions (triggering a Build for this project, activate/deactivate versions, etc)
-   * ``project:docs``: access any file from any version of the project's documentation
+All listing endpoints or those that perform non-readonly operations,
+require authentication by using the HTTP header ``Authorization``
+with a specific ``Token`` that provide full access identified as an user.
 
+
+Session
+~~~~~~~
 
 .. TODO:
-
-   We could extend the scopes to be per-project or per-user. I'm not
-   sure if this is possible yet, but we should consider it.
-
-   * per-project: the user could go to the Project Admin tab and create a Token for this specific project
-   * per-user: the user could go to their own User settings and create token for all his projects
-
 
 Resources
 ---------
@@ -43,18 +41,18 @@ Resources
 Projects
 ~~~~~~~~
 
-Project list
-++++++++++++
+Projects list
++++++++++++++
 
-.. http:get::  /api/v3/project/
+.. http:get:: /api/v3/projects/
 
-    Retrieve a list of all the projects of the current logged in user.
+    Retrieve a list of all the projects for the current logged in user.
 
     **Example request**:
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/project/
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
 
     **Example response**:
 
@@ -62,9 +60,9 @@ Project list
 
         {
             "count": 25,
-            "next": "/api/v3/project/limit=10&offset=10",
+            "next": "/api/v3/projects/limit=10&offset=10",
             "previous": null,
-            "results": [PROJECTS]
+            "results": [PROJECT]
         }
 
     :>json integer count: Total number of Projects.
@@ -88,7 +86,7 @@ Project list
 Project details
 +++++++++++++++
 
-.. http:get::  /api/v3/project/(string:slug)/
+.. http:get:: /api/v3/projects/(string:project_slug)/
 
     Retrieve details of a single project.
 
@@ -98,84 +96,72 @@ Project details
             "name": "Pip",
             "slug": "pip",
             "description": "Pip Installs Packages.",
-            "language": "en",
-            "programming_language": "py",
-            "repo": "https://github.com/pypa/pip",
-            "repo_type": "git",
+            "created": "2010-10-23T18:12:31+00:00",
+            "modified": "2018-12-11T07:21:11+00:00",
+            "language": {
+                "code": "en",
+                "name": "English"
+            },
+            "programming_language": {
+                "code": "py",
+                "name": "Python"
+            }
+            "repository": {
+                "url": "https://github.com/pypa/pip",
+                "type": "git"
+            },
             "default_version": "stable",
             "default_branch": "master",
             "documentation_type": "sphinx_htmldir",
-            "canonical_url": "http://pip.pypa.io/en/stable/",
-            "links": [
-                {
-                    "href": "/api/v3/project/pip/users/",
-                    "rel": "users",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/versions/",
-                    "rel": "versions",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/builds/",
-                    "rel": "builds",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/domains/",
-                    "rel": "domains",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/redirects/",
-                    "rel": "redirects",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/notifications/",
-                    "rel": "notifications",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/features/",
-                    "rel": "features",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/subprojects/",
-                    "rel": "subprojects",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/translations/",
-                    "rel": "translations",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/integrations/",
-                    "rel": "translations",
-                    "type": "GET"
-                }
+            "privacy_level": "public",
+            "urls": {
+                "documentation": "http://pip.pypa.io/en/stable/",
+                "project": "https://pip.pypa.io/"
+            }
+            "last_build": {BUILD},
+            "tags": [
+                "disutils",
+                "easy_install",
+                "egg",
+                "setuptools",
+                "virtualenv"
+            ],
+            "maintainers": [
+                "/api/v3/users/<username>/",
+            ],
+            "versions": [
+                "/api/v3/projects/pip/versions/stable/"
+                "/api/v3/projects/pip/versions/latest/",
+                "/api/v3/projects/pip/versions/19.0.2/",
+            ],
+            "subprojects": [
+                "/api/v3/projects/pip-subproject/"
+            ],
+            "translations": [
+                "/api/v3/projects/pip-es/"
             ]
         }
+
+    .. TODO: by default it should return *only active versions*, and
+       having the posibility to return ``?versions__active=False`` or
+       something like that. Otherwise, including all the versions by
+       default will generate ton of data probably.
 
 
     :>json string name: The name of the project.
     :>json string slug: The project slug (used in the URL).
     :>json string description: An RST description of the project
-    :>json string language: The language code of this project
-    :>json string programming_language: The programming language of the project (eg. "py", "js")
-    :>json string repo: The repository URL for the project
-    :>json string repo_type: Version control repository of the project
-    :>json string default_version: The default version of the project (eg. "latest", "stable", "v3")
-    :>json string default_branch: The default version control branch
-    :>json string documentation_type: An RST description of the project
-    :>json string canonical_url: The canonical URL of the default docs
-    :>json array links: Array with HEATEOAS_ links to retrieve related information
+
+    .. TODO: complete the returned data docs once agreed on this.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
+
+
+.. note::
+
+   This endpoint can be accessed anonymously.
+
 
 .. TODO:
 
@@ -185,125 +171,21 @@ Project details
    https://readthedocs.org/api/v2/project/?slug=pip
 
 
-Project import
-++++++++++++++
-
-.. http:post::  /api/v3/project/import/
-
-    Import a new project.
-
-    **Example request**:
-
-    .. sourcecode:: js
-
-        {
-            "name": "Pip",
-            "repo_url": "https://github.com/pypa/pip",
-            "repo_type": "git"
-            "description": "Pip Installs Packages.",
-            "documentation_type": "sphinx_htmldir",
-            "language": "en",
-            "programing_language": "py",
-            "tags": [
-                "pip",
-                "python",
-                "packaging"
-            ],
-            "homepage": "https://pip.readthedocs.io/"
-        }
-
-    ``name``, ``repo_url`` and ``repo_type`` are required.
-
-    **Example response**:
-
-    *See Project details*
-
-    :statuscode 201: Created sucessfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-
-
-Project edit
-++++++++++++
-
-.. http:patch::  /api/v3/project/(string:slug)/
-
-    Edit a project.
-
-    **Example request**:
-
-    .. sourcecode:: js
-
-        {
-            "description": "Pip helps you to install packages.",
-            "default_version": "stable",
-            "homepage": "https://pypi.org/project/pip/"
-        }
-
-    :statuscode 204: Edited successfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-
-
-Add User to Project
-+++++++++++++++++++
-
-
-.. http:post::  /api/v3/project/(string:slug)/users/
-
-    Add a User as mantainer to the project.
-
-    **Example request**:
-
-    .. sourcecode:: js
-
-        {
-            "username": "humitos"
-        }
-
-    :statuscode 201: Added successfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-
-
-Add Domain to Project
-+++++++++++++++++++++
-
-
-.. http:post::  /api/v3/project/(string:slug)/domains/
-
-    Add a Domain to the project.
-
-    **Example request**:
-
-    .. sourcecode:: js
-
-        {
-            "domain": "docs.pip.org"
-            "canonical": true,
-            "use_https": true
-        }
-
-    :statuscode 201: Added successfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-
-
 Versions
 ~~~~~~~~
 
 Versions are different versions of the same project documentation.
 
-The versions for a given project can be viewed in a project's version screen.
-For example, here is the `Pip project's version screen`_.
+The versions for a given project can be viewed in a project's version page.
+For example, here is the `Pip project's version page`_.
 
-.. _Pip project's version screen: https://readthedocs.org/projects/pip/versions/
+.. _Pip project's version page: https://readthedocs.org/projects/pip/versions/
 
 
 Version detail
 ++++++++++++++
 
-.. http:get::  /api/v2/project/(string:project_slug)/version/(string:version_slug)/
+.. http:get:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
     Retrieve details of a single version.
 
@@ -316,42 +198,31 @@ Version detail
             "built": true,
             "active": true,
             "type": "tag",
+            "last_build": {BUILD},
             "downloads": {
                 "pdf": "//readthedocs.org/projects/pip/downloads/pdf/stable/",
                 "htmlzip": "//readthedocs.org/projects/pip/downloads/htmlzip/stable/",
                 "epub": "//readthedocs.org/projects/pip/downloads/epub/stable/"
-            },
-            "links": [
-                {
-                    "href": "/api/v3/project/pip/version/stable/builds/",
-                    "rel": "builds",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/",
-                    "rel": "project",
-                    "type": "GET"
-                }
-            ]
+            }
         }
 
-    :>json string slug: The version slug.
-    :>json string verbose_name: The name of the version.
+    :>json string slug: The slug for this version
+    :>json string verbose_name: The name of the version
     :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
     :>json string built: Whether this version has been built
-    :>json string active: Whether this version is still active
+    :>json string active: Whether this version is active
     :>json string type: The type of this version (typically "tag" or "branch")
+    :>json string last_build: Build object representing the last build of this version
     :>json array downloads: URLs to downloads of this version's documentation
-    :>json array links: Array with HEATEOAS_ links to retrieve related information
 
     :statuscode 200: Success
-    :statuscode 404: There is no ``Version`` with this slug
+    :statuscode 404: There is no ``Version`` with this slug for this project
 
 
 Version edit
 ++++++++++++
 
-.. http:patch::  /api/v3/project/(string:slug)/version/(string:slug)/
+.. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
     Edit a version.
 
@@ -371,7 +242,7 @@ Version edit
     :statuscode 204: Edited sucessfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
-
+    :statuscode 404: There is no ``Version`` with this slug for this project
 
 
 Builds
@@ -380,10 +251,10 @@ Builds
 Builds are created by Read the Docs whenever a ``Project`` has its documentation built.
 Frequently this happens automatically via a web hook but can be triggered manually.
 
-Builds can be viewed in the build screen for a project.
-For example, here is `Pip's build screen`_.
+Builds can be viewed in the build page for a project.
+For example, here is `Pip's build page`_.
 
-.. _Pip's build screen: https://readthedocs.org/projects/pip/builds/
+.. _Pip's build page: https://readthedocs.org/projects/pip/builds/
 
 
 .. TODO:
@@ -394,7 +265,11 @@ For example, here is `Pip's build screen`_.
 Build detail
 ++++++++++++
 
-.. http:get::  /api/v3/build/(int:id)/
+There are two different ways to access to a specific build.
+One is by accessing with the ``id`` of the build object.
+The other way is by accessing by using the commit hash.
+
+.. http:get:: /api/v3/builds/(int:build_id)/
 
     Retrieve details of a single build.
 
@@ -402,60 +277,60 @@ Build detail
 
         {
             "id": 7367364,
-            "date": "2018-06-19T15:15:59.135894",
-            "length": 59,
-            "state": "finished",
-            "state_display": "Finished",
+            "version": "latest",
+            "project": "pip",
+            "created": "2018-06-19T15:15:59+00:00",
+            "finished": "2018-06-19T15:16:58+00:00",
+            "duration": 59,
+            "state": {
+                "code": "finished",
+                "name": "Finished"
+            },
             "success": true,
             "error": null,
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
-            "docs_url": "http://pip.pypa.io/en/latest/",
             "builder": "build03",
             "cold_storage": false,
-            "links": [
-                {
-                    "href": "/api/v3/build/7367364/commands/",
-                    "rel": "commands",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/",
-                    "rel": "project",
-                    "type": "GET"
-                },
-                {
-                    "href": "/api/v3/project/pip/version/latest/",
-                    "rel": "version",
-                    "type": "GET"
-                }
+            "commands": [
+                "/api/v3/buildcommands/7281720376/",
+                "/api/v3/buildcommands/7281720377/",
+            ],
         }
 
 
     :>json integer id: The ID of the build
     :>json string date: The ISO-8601 datetime of the build.
-    :>json integer length: The length of the build in seconds.
-    :>json string type: The type of the build (one of "html", "pdf", "epub")
+    :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of "triggered", "building", "installing", "cloning", or "finished")
-    :>json string state_display: The state of the build to be shown to the user
     :>json boolean success: Whether the build was successful
     :>json string error: An error message if the build was unsuccessful
     :>json string commit: A version control identifier for this build (eg. the commit hash)
-    :>json string docs_url: The canonical URL of the build docs
     :>json string builder: The hostname server that built the docs
-    :>json array links: Array with HEATEOAS_ links to retrieve related information
+    :>json string cold_storage: Whether the build was removed from database and stored externally
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
 
 
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/(str:commit_hash)/
+
+    Retrieve details for all the builds matching the commit hash on this project.
+
+    .. sourcecode:: js
+
+        {
+            "count": 15,
+            "next": "/api/v3/projects/pip/builds/24f652b/?limit=10&offset=10",
+            "previous": null,
+            "results": [BUILD]
+        }
+
+
 Build triggering
 ++++++++++++++++
 
-.. TODO:
 
-   This endpoint may be under Project section
-
-.. http:post::  /api/v3/project/(string:slug)/builds/
+.. http:post:: /api/v3/projects/(string:project_slug)/builds/
 
     Trigger a new build for this project.
 
@@ -476,83 +351,43 @@ Build triggering
     :statuscode 401: Not valid permissions
 
 
-Footer
-~~~~~~
+Build commands listing
+++++++++++++++++++++++
 
+.. http:get:: /api/v3/builds/(int:build_id)/commands/
 
-.. http:get::  /api/v3/footer/(string:project_slug)/
-
-    Retrieve footer data for the project.
-
-    **Example response**:
+    Retrieve build command list of a single build.
 
     .. sourcecode:: js
 
         {
-            "version": {VERSION DETAIL},
-            "project": {PROJECT DETAIL},
-            "sphinx": {
-                "html_theme": "sphinx_rtd_theme",
-                "source_suffix": ".rst"
-            },
-            "analytics": {
-                "user_analytics_code": "UA-00000",
-                "global_analytics_code": "UA-00001"
-            },
-            "vcs": {
-                "type": "github"
-                "user": "pypa",
-                "repo": "pip",
-                "commit": "3a6b3995c141c0888af6591a59240ba5db7d9914",
-                "version": "18.1",
-                "display": true,
-                "conf_py_path": "/docs/conf.py"
-            },
-            "meta": {
-                "API_HOST": "readthedocs.org",
-                "MEDIA_URL": "https://media.readthedocs.org",
-                "PRODUCTION_DOMAIN": "readthedocs.io",
-                "READTHEDOCS": true
-            }
+            "count": 15,
+            "next": "/api/v3/builds/719263915/commands/?limit=10&offset=10",
+            "previous": null,
+            "results": [BUILDCOMMAND]
         }
-    }
 
 
-    .. TODO:
-
-       Complete JSON body response fields
-
-    :query string version_slug: The version slug of the current docs
-    :query string page_slug: Page currently displayed to user for reading
-    :query string theme: Theme used in the documentation
-    :query string docroot: Docroot used to generate external links
-    :query string source_suffix: Source suffix used to generate external links
-    :query string format: Output format (``jsonp``, ``json``)
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Project`` with this slug
+    :>json integer id: The ID of the build
+    :>json string date: The ISO-8601 datetime of the build.
+    :>json integer duration: The length of the build in seconds.
 
 
-    .. TODO:
+Build command details
++++++++++++++++++++++
 
-       We could return less information here and rely on the client to
-       query what is specifically needed to create the footer version
-       flyout but we will probably do all the queries in the general
-       case. I think it's preferable to return what is needed in this
-       case and if less information is required, other endpoints can
-       be used.
+.. http:get:: /api/v3/buildcommands/(int:buildcommand_id)/
 
-       The name of the endpoint could be under
-       ``/api/v3/project/(string:slug)/flyout/`` maybe or similar
-       since it's not a footer I think.
+    Retrieve build command detail.
 
+    .. sourcecode:: js
 
-References
-----------
-
-* https://www.django-rest-framework.org/topics/rest-hypermedia-hateoas/
-* https://blog.majsky.cz/implementing-hateoas-django-rest-framework/
-* https://www.django-rest-framework.org/tutorial/5-relationships-and-hyperlinked-apis/#hyperlinking-our-api
-* https://restfulapi.net/hateoas/
-* https://en.wikipedia.org/wiki/HATEOAS
-* https://martinfowler.com/articles/richardsonMaturityModel.html#level3
+        {
+            "build": 719263915,
+            "created": "2018-06-19T15:15:59+00:00",
+            "finished": "2018-06-19T15:16:58+00:00",
+            "duration": 59,
+            "command": "cat docs/config.py",
+            "output": "...",
+            "exit_code": 0
+        }
