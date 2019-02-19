@@ -13,27 +13,33 @@ and HTTP response status codes are to designate success and failure.
 Authentication and authorization
 --------------------------------
 
-Requests to the Read the Docs public API are for public and private information
-and do require authentication for all listing endpoints but not for all detailed ones.
+Requests to the Read the Docs public API are for public and private information.
+Some listing endpoints and some detailed ones are allowed to access without being authenticated.
+Although, all endpoints that perform non-readonly operations, require authentication.
+
 
 No authentication
 ~~~~~~~~~~~~~~~~~
 
 Some endpoints on read-only requests won't require any kind of authentication.
-Most of them are detailed information for a particular object.
+Most of them are detailed information of specific listings for a particular object.
+
 
 Token
 ~~~~~
 
-All listing endpoints or those that perform non-readonly operations,
-require authentication by using the HTTP header ``Authorization``
-with a specific ``Token`` that provide full access identified as an user.
+The ``Authorization`` HTTP header can be specified with a ``Token`` to authenticate as a user
+and have the same permissions that the user itself.
 
 
 Session
 ~~~~~~~
 
-.. TODO:
+Session authentication is allowed on very specific endpoints,
+to allow hitting the API when reading documentation.
+
+When a user is trying to authenticate via session, CSRF check is performed.
+
 
 Resources
 ---------
@@ -70,17 +76,22 @@ Projects list
     :>json string previous: URI for previous set of Projects.
     :>json array results: Array of ``Project`` objects.
 
-.. TODO:
+    :query privacy_level: one of ``public``, ``private``, ``protected``
 
-   Add query string filters to narrow the query:
-     * privacy level
-     * language
-     * programming language
-     * repo url
-     * repo type
-     * version active
-     * version built
-     * all database?
+    .. TODO:
+
+       Add query string filters to narrow the query:
+         * privacy level
+         * language
+         * programming language
+         * repository url
+         * repository type
+         * all fields?
+
+       Considering that we are listing only projects associated with the authenticated user,
+       we should not have performance problem with these filters
+
+    :reqheader Authorization: required token to authenticate
 
 
 Project details
@@ -89,6 +100,15 @@ Project details
 .. http:get:: /api/v3/projects/(string:project_slug)/
 
     Retrieve details of a single project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/
+
+    **Example response**:
+
 
     .. sourcecode:: js
 
@@ -126,13 +146,16 @@ Project details
                 "setuptools",
                 "virtualenv"
             ],
-            "maintainers": [
-                "/api/v3/users/<username>/",
+            "users": [
+                "/api/v3/users/dstufft/",
+                "/api/v3/users/pmoore/",
+                "/api/v3/users/xafer/",
+                "/api/v3/users/pradyunsg/"
             ],
             "versions": [
-                "/api/v3/projects/pip/versions/stable/"
+                "/api/v3/projects/pip/versions/stable/",
                 "/api/v3/projects/pip/versions/latest/",
-                "/api/v3/projects/pip/versions/19.0.2/",
+                "/api/v3/projects/pip/versions/19.0.2/"
             ],
             "subprojects": [
                 "/api/v3/projects/pip-subproject/"
@@ -143,9 +166,9 @@ Project details
         }
 
     .. TODO: by default it should return *only active versions*, and
-       having the posibility to return ``?versions__active=False`` or
+       having the possibility to return ``?only_active_versions=False`` or
        something like that. Otherwise, including all the versions by
-       default will generate ton of data probably.
+       default will generate ton of data for some projects probably.
 
 
     :>json string name: The name of the project.
@@ -154,21 +177,11 @@ Project details
 
     .. TODO: complete the returned data docs once agreed on this.
 
+    :reqheader Authorization: optional token to authenticate
+
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
 
-
-.. note::
-
-   This endpoint can be accessed anonymously.
-
-
-.. TODO:
-
-   Currently, v2 of this endpoint returns a lot of fields more like
-   ``enable_epub_build``, ``skip``, etc.
-
-   https://readthedocs.org/api/v2/project/?slug=pip
 
 
 Versions
@@ -188,6 +201,14 @@ Version detail
 .. http:get:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
     Retrieve details of a single version.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/versions/latest/
+
+    **Example response**:
 
     .. sourcecode:: js
 
@@ -215,6 +236,8 @@ Version detail
     :>json string last_build: Build object representing the last build of this version
     :>json array downloads: URLs to downloads of this version's documentation
 
+    :reqheader Authorization: optional token to authenticate
+
     :statuscode 200: Success
     :statuscode 404: There is no ``Version`` with this slug for this project
 
@@ -239,6 +262,12 @@ Version edit
             ]
         }
 
+    **Example response**:
+
+    *See Version details*
+
+    :reqheader Authorization: required token to authenticate
+
     :statuscode 204: Edited sucessfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
@@ -257,26 +286,25 @@ For example, here is `Pip's build page`_.
 .. _Pip's build page: https://readthedocs.org/projects/pip/builds/
 
 
-.. TODO:
-
-   for filtering by ``commit`` we need the build listing --the other cases are useless
-
-
-Build detail
-++++++++++++
-
-There are two different ways to access to a specific build.
-One is by accessing with the ``id`` of the build object.
-The other way is by accessing by using the commit hash.
+Build details
++++++++++++++
 
 .. http:get:: /api/v3/builds/(int:build_id)/
 
     Retrieve details of a single build.
 
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/builds/8592686/
+
+    **Example response**:
+
     .. sourcecode:: js
 
         {
-            "id": 7367364,
+            "id": 8592686,
             "version": "latest",
             "project": "pip",
             "created": "2018-06-19T15:15:59+00:00",
@@ -308,13 +336,43 @@ The other way is by accessing by using the commit hash.
     :>json string builder: The hostname server that built the docs
     :>json string cold_storage: Whether the build was removed from database and stored externally
 
+    :reqheader Authorization: optional token to authenticate
+
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
 
 
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/latest/
+
+    Retrieve details for latest build on this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/latest/
+
+    **Example response**:
+
+    *See Build details*
+
+    :reqheader Authorization: optional token to authenticate
+
+
+Builds listing
+++++++++++++++
+
 .. http:get:: /api/v3/projects/(str:project_slug)/builds/(str:commit_hash)/
 
     Retrieve details for all the builds matching the commit hash on this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/24f652b/
+
+    **Example response**:
 
     .. sourcecode:: js
 
@@ -324,6 +382,32 @@ The other way is by accessing by using the commit hash.
             "previous": null,
             "results": [BUILD]
         }
+
+    :reqheader Authorization: optional token to authenticate
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/running/
+
+    Retrieve details for all the builds that are currently building for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/running/
+.
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "count": 15,
+            "next": "/api/v3/projects/pip/builds/running/?limit=10&offset=10",
+            "previous": null,
+            "results": [BUILD]
+        }
+
+    :reqheader Authorization: optional token to authenticate
 
 
 Build triggering
@@ -346,6 +430,8 @@ Build triggering
 
     *See Build details*
 
+    :reqheader Authorization: required token to authenticate
+
     :statuscode 201: Created sucessfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
@@ -357,6 +443,14 @@ Build commands listing
 .. http:get:: /api/v3/builds/(int:build_id)/commands/
 
     Retrieve build command list of a single build.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/builds/719263915/commands/
+.
+    **Example response**:
 
     .. sourcecode:: js
 
@@ -372,6 +466,8 @@ Build commands listing
     :>json string date: The ISO-8601 datetime of the build.
     :>json integer duration: The length of the build in seconds.
 
+    :reqheader Authorization: optional token to authenticate
+
 
 Build command details
 +++++++++++++++++++++
@@ -380,9 +476,18 @@ Build command details
 
     Retrieve build command detail.
 
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/buildcommands/9182639172/
+.
+    **Example response**:
+
     .. sourcecode:: js
 
         {
+            "id": 9182639172,
             "build": 719263915,
             "created": "2018-06-19T15:15:59+00:00",
             "finished": "2018-06-19T15:16:58+00:00",
@@ -391,3 +496,5 @@ Build command details
             "output": "...",
             "exit_code": 0
         }
+
+    :reqheader Authorization: optional token to authenticate
