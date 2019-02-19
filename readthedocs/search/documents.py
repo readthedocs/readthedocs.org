@@ -81,9 +81,9 @@ class PageDocument(DocType):
         }
 
         filters = {}
-        if projects_list:
+        if projects_list is not None:
             filters['project'] = projects_list
-        if versions_list:
+        if versions_list is not None:
             filters['version'] = versions_list
 
         kwargs['filters'] = filters
