@@ -22,6 +22,10 @@ argument::
 
     tox "'--including-search'"
 
+.. warning::
+
+   Running tests for search needs an Elasticsearch :ref:`instance running locally <development/search:Installing and running Elasticsearch>`.
+
 To target a specific environment::
 
     tox -e py27
