@@ -1,3 +1,18 @@
+Version 3.2.3
+-------------
+
+:Date: February 19, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Add basic auth to the generic webhook API. (`#5311 <https://github.com/rtfd/readthedocs.org/pull/5311>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix an issue where we were not properly filtering projects (`#5309 <https://github.com/rtfd/readthedocs.org/pull/5309>`__)
+* `@stsewd <http://github.com/stsewd>`__: Rstrip repo url (`#5308 <https://github.com/rtfd/readthedocs.org/pull/5308>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use autosectionlabel for docs in security (`#5307 <https://github.com/rtfd/readthedocs.org/pull/5307>`__)
+* `@rexzing <http://github.com/rexzing>`__: Incompatible dependency for prospector with pylint-django (`#5306 <https://github.com/rtfd/readthedocs.org/pull/5306>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 07 (`#5305 <https://github.com/rtfd/readthedocs.org/pull/5305>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow extensions to control URL structure (`#5296 <https://github.com/rtfd/readthedocs.org/pull/5296>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade pytest-django (`#5294 <https://github.com/rtfd/readthedocs.org/pull/5294>`__)
+* `@rexzing <http://github.com/rexzing>`__: Docs reformatting with :guilabel: (`#5161 <https://github.com/rtfd/readthedocs.org/pull/5161>`__)
+
 Version 3.2.2
 -------------
 
@@ -986,14 +1001,12 @@ Version 2.3.1
 * `@humitos <http://github.com/humitos>`__: Upgrade all packages using `pur` tool (`#2916 <https://github.com/rtfd/readthedocs.org/pull/2916>`__)
 * `@rixx <http://github.com/rixx>`__: Fix page redirect preview (`#2711 <https://github.com/rtfd/readthedocs.org/pull/2711>`__)
 
-.. _version-2.3.0:
-
 Version 2.3.0
 -------------
 
 .. warning::
     Version 2.3.0 includes a security fix for project translations. See
-    :ref:`security-2.3.0` for more information
+    :ref:`security:Release 2.3.0` for more information
 
 * `@stsewd <http://github.com/stsewd>`__: Fix tox env for coverage (`#3772 <https://github.com/rtfd/readthedocs.org/pull/3772>`__)
 * `@humitos <http://github.com/humitos>`__: Try to fix end of file (`#3761 <https://github.com/rtfd/readthedocs.org/pull/3761>`__)
