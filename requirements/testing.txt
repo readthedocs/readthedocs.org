@@ -2,8 +2,12 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-pytest==4.2.1
-pytest-django==3.4.7
+# pytest 4.2 is incompatible with pytest-django 3.4.6
+pytest==4.1.1  # pyup: <4.2
+# pytest-django 3.4.7 break our tests from corporate site
+# probably a bug related to overriding django settings in
+# previous tests
+pytest-django==3.4.6  # pyup: <3.4.7
 pytest-xdist==1.26.1
 pytest-cov==2.6.1
 apipkg==1.5
