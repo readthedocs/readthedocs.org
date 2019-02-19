@@ -24,13 +24,13 @@ argument::
 
 To target a specific environment::
 
-    tox -e py27
+    tox -e py36
 
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite::
 
-    py27
-        Run our test suite using Python 2.7
+    py36
+        Run our test suite using Python 3.6
 
     lint
         Run code linting using `Prospector`_. This currently runs `pylint`_,
