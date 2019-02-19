@@ -248,7 +248,7 @@ Version detail
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/versions/latest/
+        $ curl https://readthedocs.org/api/v3/projects/pip/versions/stable/
 
     **Example response**:
 
@@ -272,6 +272,8 @@ Version detail
                 "builds": "/api/v3/projects/pip/versions/stable/builds/"
             }
         }
+
+    .. TODO: add a field showing what's the tag where ``stable`` points to
 
     :>json string slug: The slug for this version
     :>json string verbose_name: The name of the version
@@ -371,6 +373,7 @@ Build details
             }
         }
 
+    .. TODO: maybe it's good to return the ``Config`` object used to run this build
 
     :>json integer id: The ID of the build
     :>json string date: The ISO-8601 datetime of the build.
