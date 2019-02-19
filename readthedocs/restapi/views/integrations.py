@@ -8,6 +8,7 @@ import re
 
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
+from rest_framework.authentication import BasicAuthentication
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -367,6 +368,7 @@ class APIWebhookView(WebhookMixin, APIView):
 
     integration_type = Integration.API_WEBHOOK
     permission_classes = [IsAuthenticatedOrHasToken]
+    authentication_classes = [BasicAuthentication]
 
     def get_project(self, **kwargs):
         """
