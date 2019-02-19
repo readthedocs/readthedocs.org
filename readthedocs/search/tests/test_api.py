@@ -60,7 +60,7 @@ class TestDocumentSearch(object):
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(Version, project=project)
+        dummy_version = G(Version, project=project, active=True)
         # Create HTMLFile same as the latest version
         latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
         for f in latest_version_files:
