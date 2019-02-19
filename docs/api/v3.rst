@@ -195,6 +195,46 @@ For example, here is the `Pip project's version page`_.
 .. _Pip project's version page: https://readthedocs.org/projects/pip/versions/
 
 
+Versions listing
+++++++++++++++++
+
+.. http:get:: /api/v3/projects/(string:project_slug)/versions/
+
+    Retrieve a list of all versions for a project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/versions/
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "count": 25,
+            "next": "/api/v3/projects/pip/versions/?limit=10&offset=10",
+            "previous": null,
+            "results": [VERSION]
+        }
+
+    :>json integer count: Total number of Projects.
+    :>json string next: URI for next set of Projects.
+    :>json string previous: URI for previous set of Projects.
+    :>json array results: Array of ``Version`` objects.
+
+    .. TODO: instead of an array, this could potentially be a
+       dictionary with the slug as the key and a VERSION as value.
+
+    :query limit: limit number of object returned
+    :query offset: offset from the whole list returned
+    :query active: one of ``true``, ``false``
+    :query built: one of ``true``, ``false``
+
+    :reqheader Authorization: optional token to authenticate
+
+
 Version detail
 ++++++++++++++
 
