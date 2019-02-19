@@ -8,7 +8,6 @@ import re
 
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -350,7 +349,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super().has_permission(request, view))
+        has_perm = super().has_permission(request, view)
         return has_perm or 'token' in request.data
 
 
@@ -368,9 +367,6 @@ class APIWebhookView(WebhookMixin, APIView):
 
     integration_type = Integration.API_WEBHOOK
     permission_classes = [IsAuthenticatedOrHasToken]
-    # This is to support curl requests with a shared user across projects
-    # curl -X POST -d "branches=branch" -u user:pass -e URL /api/v2/webhook/test-builds/{pk}/
-    authentication_classes = [BasicAuthentication]
 
     def get_project(self, **kwargs):
         """
@@ -424,7 +420,17 @@ class WebhookView(APIView):
     ever get webhook requests for established webhooks on our side. The other
     views can receive webhooks for unknown webhooks, as all legacy webhooks will
     be.
+
+    .. warning::
+        We're turning off Authenication for this view.
+        This fixes a bug where we were double-authenticating these views,
+        because of the way we're passing the request along to the subviews.
+
+        If at any time we add real logic to this view,
+        it will be completely unauthenticated.
     """
+
+    authentication_classes = []
 
     VIEW_MAP = {
         Integration.GITHUB_WEBHOOK: GitHubWebhookView,
