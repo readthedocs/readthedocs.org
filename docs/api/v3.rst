@@ -109,7 +109,6 @@ Project details
 
     **Example response**:
 
-
     .. sourcecode:: js
 
         {
@@ -133,6 +132,8 @@ Project details
             "default_version": "stable",
             "default_branch": "master",
             "privacy_level": "public",
+            "subproject_of": null,
+            "translation_of": null,
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
                 "project": "https://pip.pypa.io/"
@@ -145,23 +146,25 @@ Project details
                 "setuptools",
                 "virtualenv"
             ],
-            "users": [
-                "/api/v3/users/dstufft/",
-                "/api/v3/users/pmoore/",
-                "/api/v3/users/xafer/",
-                "/api/v3/users/pradyunsg/"
-            ],
-            "versions": [
-                "/api/v3/projects/pip/versions/stable/",
-                "/api/v3/projects/pip/versions/latest/",
-                "/api/v3/projects/pip/versions/19.0.2/"
-            ],
-            "subprojects": [
-                "/api/v3/projects/pip-subproject/"
-            ],
-            "translations": [
-                "/api/v3/projects/pip-es/"
-            ]
+            "users": {
+                "dstufft": {USER},
+                "pmoore": {USER},
+                "xafer": {USER},
+                "pradyunsg": {USER}
+            },
+            "active_versions": {
+                "stable: {VERSION},
+                "latest: {VERSION},
+                "19.0.2: {VERSION}
+            },
+            "links": {
+                "self": "/api/v3/projects/pip/",
+                "users": "/api/v3/projects/pip/users/",
+                "versions": "/api/v3/projects/pip/versions/",
+                "builds": "/api/v3/projects/pip/builds/",
+                "subprojects": "/api/v3/projects/pip/subprojects/",
+                "translations": "/api/v3/projects/pip/translations/"
+            }
         }
 
     .. TODO: by default it should return *only active versions*, and
@@ -260,9 +263,13 @@ Version detail
             "type": "tag",
             "last_build": {BUILD},
             "downloads": {
-                "pdf": "//readthedocs.org/projects/pip/downloads/pdf/stable/",
-                "htmlzip": "//readthedocs.org/projects/pip/downloads/htmlzip/stable/",
-                "epub": "//readthedocs.org/projects/pip/downloads/epub/stable/"
+                "pdf": "https://readthedocs.org/projects/pip/downloads/pdf/stable/",
+                "htmlzip": "https://readthedocs.org/projects/pip/downloads/htmlzip/stable/",
+                "epub": "https://readthedocs.org/projects/pip/downloads/epub/stable/"
+            },
+            "links": {
+                "self": "/api/v3/projects/pip/versions/stable/",
+                "builds": "/api/v3/projects/pip/versions/stable/builds/"
             }
         }
 
@@ -328,15 +335,15 @@ For example, here is `Pip's build page`_.
 Build details
 +++++++++++++
 
-.. http:get:: /api/v3/builds/(int:build_id)/
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/
 
-    Retrieve details of a single build.
+    Retrieve details of a single build for a project.
 
     **Example request**:
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/builds/8592686/
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/
 
     **Example response**:
 
@@ -358,10 +365,10 @@ Build details
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
             "builder": "build03",
             "cold_storage": false,
-            "commands": [
-                "/api/v3/buildcommands/7281720376/",
-                "/api/v3/buildcommands/7281720377/",
-            ],
+            "links": {
+                "self": "/api/v3/projects/pip/builds/8592686/",
+                "commands": "/api/v3/projects/pip/builds/8592686/commands/"
+            }
         }
 
 
@@ -401,15 +408,15 @@ Build details
 Builds listing
 ++++++++++++++
 
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/(str:commit_hash)/
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/
 
-    Retrieve details for all the builds matching the commit hash on this project.
+    Retrieve list of all the builds on this project.
 
     **Example request**:
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/24f652b/
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/
 
     **Example response**:
 
@@ -417,34 +424,13 @@ Builds listing
 
         {
             "count": 15,
-            "next": "/api/v3/projects/pip/builds/24f652b/?limit=10&offset=10",
+            "next": "/api/v3/projects/pip/builds?limit=10&offset=10",
             "previous": null,
             "results": [BUILD]
         }
 
-    :reqheader Authorization: optional token to authenticate
-
-
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/running/
-
-    Retrieve details for all the builds that are currently building for this project.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/running/
-.
-    **Example response**:
-
-    .. sourcecode:: js
-
-        {
-            "count": 15,
-            "next": "/api/v3/projects/pip/builds/running/?limit=10&offset=10",
-            "previous": null,
-            "results": [BUILD]
-        }
+    :query commit: commit hash to filter the builds returned by commit
+    :query running: whether or not to filter the builds returned by currently building
 
     :reqheader Authorization: optional token to authenticate
 
@@ -479,7 +465,7 @@ Build triggering
 Build commands listing
 ++++++++++++++++++++++
 
-.. http:get:: /api/v3/builds/(int:build_id)/commands/
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/commands/
 
     Retrieve build command list of a single build.
 
@@ -487,7 +473,7 @@ Build commands listing
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/builds/719263915/commands/
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/
 .
     **Example response**:
 
@@ -495,15 +481,10 @@ Build commands listing
 
         {
             "count": 15,
-            "next": "/api/v3/builds/719263915/commands/?limit=10&offset=10",
+            "next": "/api/v3/projects/pip/builds/719263915/commands/?limit=10&offset=10",
             "previous": null,
             "results": [BUILDCOMMAND]
         }
-
-
-    :>json integer id: The ID of the build
-    :>json string date: The ISO-8601 datetime of the build.
-    :>json integer duration: The length of the build in seconds.
 
     :reqheader Authorization: optional token to authenticate
 
@@ -511,7 +492,7 @@ Build commands listing
 Build command details
 +++++++++++++++++++++
 
-.. http:get:: /api/v3/buildcommands/(int:buildcommand_id)/
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/commands/(int:buildcommand_id)
 
     Retrieve build command detail.
 
@@ -519,7 +500,7 @@ Build command details
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/buildcommands/9182639172/
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/9182639172/
 .
     **Example response**:
 
@@ -527,13 +508,19 @@ Build command details
 
         {
             "id": 9182639172,
-            "build": 719263915,
+            "build": {BUILD},
             "created": "2018-06-19T15:15:59+00:00",
             "finished": "2018-06-19T15:16:58+00:00",
             "duration": 59,
             "command": "cat docs/config.py",
             "output": "...",
-            "exit_code": 0
+            "exit_code": 0,
+            "links": {
+                "self": "/api/v3/projects/pip/builds/719263915/commands/9182639172/",
+                "build": "/api/v3/projects/pip/builds/719263915/",
+                "version": "/api/v3/projects/pip/versions/stable/",
+                "project": "/api/v3/projects/pip/"
+            }
         }
 
     :reqheader Authorization: optional token to authenticate
