@@ -18,7 +18,7 @@ if you provide a good reason your documentation needs more resources.
 You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
 
-Currently in production we're using the ``readthedocs/build:2.0`` docker image as our default image.
+Currently in production we're using the ``readthedocs/build:latest`` docker image as our default image.
 
 How we build documentation
 --------------------------
@@ -118,7 +118,7 @@ The build environment
 ---------------------
 
 The build process is executed inside Docker containers,
-by default the image used is ``readthedocs/build:2.0``,
+by default the image used is ``readthedocs/build:latest``,
 but you can change that using a :doc:`config-file/index`.
 
 .. note::
@@ -133,57 +133,7 @@ but you can change that using a :doc:`config-file/index`.
    If you want to know the specific version of a package that is installed in the image
    you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
-2.0 (stable)
-~~~~~~~~~~~~
-
-:O.S: Ubuntu 16.04
-:Conda: Miniconda 4.3.31
-:Python:
-  * ``m2crypto``
-  * ``matplolib``
-  * ``numpy``
-  * ``pandas``
-  * ``pip``
-  * ``scipy``
-:Other packages:
-  * ``doxygen``
-  * ``graphviz``
-  * ``libevent``
-  * ``libjpeg``
-  * ``libxml2-dev``
-  * ``libxslt1.1``
-  * ``pandoc``
-  * ``textlive-full``
-
-`More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/2.x/Dockerfile>`__
-
-3.0 (latest)
-~~~~~~~~~~~~
-
-:O.S: Ubuntu 16.04
-:Conda: Miniconda 4.4.10
-:Python:
-  * ``matplolib``
-  * ``numpy``,
-  * ``pandas``
-  * ``pip``
-  * ``scipy``
-:JavaScript:
-  * ``jsdoc``
-  * ``nodejs``
-  * ``npm``
-:Other packages:
-  * ``doxygen``
-  * ``libevent-dev``
-  * ``libgraphviz-dev``
-  * ``libjpeg``
-  * ``libxml2-dev``
-  * ``libxslt1-dev``
-  * ``pandoc``
-  * ``plantuml``
-  * ``textlive-full``
-
-`More details <https://github.com/rtfd/readthedocs-docker-images/blob/releases/3.x/Dockerfile>`__
+More details on software installed in images could be found by browsing specific branch in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository.
 
 Writing your own builder
 ------------------------

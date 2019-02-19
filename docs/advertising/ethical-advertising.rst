@@ -154,15 +154,14 @@ or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
 
 Users can opt out of seeing paid advertisements on documentation pages:
 
-* Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking **Settings** (https://readthedocs.org/accounts/edit/).
-* On the **Advertising** tab, you can deselect **See paid advertising**.
+* Go to the drop down user menu in the top right of the Read the Docs dashboard and clicking :guilabel:`Settings` (https://readthedocs.org/accounts/edit/).
+* On the :guilabel:`Advertising` tab, you can deselect **See paid advertising**.
 
 Project owners can also opt out of paid advertisements for their projects.
 You can change these options:
 
-* Click on your **Project** page (`/projects/<slug>/`)
-* Click the  **Admin** dashboard link 
-* Choose the **Advertising** submenu on the left side
+* Go to your **project** page (`/projects/<slug>/`)
+* Go to :guilabel:`Admin` > :guilabel:`Advertising`
 * Change your advertising settings
 
 Project opt out options include:

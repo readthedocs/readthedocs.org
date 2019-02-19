@@ -185,7 +185,7 @@ class Project(models.Model):
         help_text=_(
             'Type of documentation you are building. <a href="'
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
-            'DirectoryHTMLBuilder">More info</a>.',
+            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
 
