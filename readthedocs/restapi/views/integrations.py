@@ -368,6 +368,8 @@ class APIWebhookView(WebhookMixin, APIView):
 
     integration_type = Integration.API_WEBHOOK
     permission_classes = [IsAuthenticatedOrHasToken]
+    # This is to support curl requests with a shared user across projects
+    # curl -X POST -d "branches=branch" -u user:pass -e URL /api/v2/webhook/test-builds/{pk}/
     authentication_classes = [BasicAuthentication]
 
     def get_project(self, **kwargs):
