@@ -38,7 +38,8 @@ Session
 Session authentication is allowed on very specific endpoints,
 to allow hitting the API when reading documentation.
 
-When a user is trying to authenticate via session, CSRF check is performed.
+When a user is trying to authenticate via session,
+:abbr:`CSRF (Cross-site request forgery)` check is performed.
 
 
 Resources
