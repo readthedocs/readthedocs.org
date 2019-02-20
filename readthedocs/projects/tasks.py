@@ -13,7 +13,6 @@ import hashlib
 import json
 import logging
 import os
-import sys
 import shutil
 import socket
 from collections import Counter, defaultdict
@@ -1171,7 +1170,7 @@ def _update_intersphinx_data(version, path, commit):
         config = MockConfig()
 
         def warn(self, msg):
-            log.warning('Sphinx MockApp: {}', msg)
+            log.warning('Sphinx MockApp: %s', msg)
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key in sorted(invdata or {}):
