@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Integration models for external services."""
 
 import json
@@ -169,34 +167,42 @@ class HttpExchange(models.Model):
         return self.formatted_json('response_body')
 
 
-class IntegrationQuerySet(models.QuerySet):
+class SubclassMixin:
 
     """
-    Return a subclass of Integration, based on the integration type.
+    Mixin used to return a subclass of a Model, based on `subclass_field`.
+
+    `subclass_field_id` is the name of the field used as the identifier
+    for each subclass. It should be unique for each subclass.
+    And should be an value existing in `subclass_field`.
 
     .. note::
 
         This doesn't affect queries currently, only fetching of an object
     """
 
-    def _get_subclass(self, integration_type):
-        # Build a mapping of integration_type -> class dynamically
+    subclass_field = None
+    subclass_field_id = None
+
+    def _get_subclass(self, subclass_id):
+        """Build a mapping of subclass_field_id -> class dynamically."""
         class_map = {
-            cls.integration_type_id: cls
+            getattr(cls, self.subclass_field_id): cls
             for cls in self.model.__subclasses__()
-            if hasattr(cls, 'integration_type_id')
-        }  # yapf: disable
-        return class_map.get(integration_type)
+            if hasattr(cls, self.subclass_field_id)
+        }
+        return class_map.get(subclass_id)
 
     def _get_subclass_replacement(self, original):
         """
-        Replace model instance on Integration subclasses.
+        Replace model instance on a Model subclasses.
 
-        This is based on the ``integration_type`` field, and is used to provide
-        specific functionality to and integration via a proxy subclass of the
-        Integration model.
+        This is based on the ``subclass_field`` field, and is used to provide
+        specific functionality to the models via a proxy subclass.
         """
-        cls_replace = self._get_subclass(original.integration_type)
+        cls_replace = self._get_subclass(
+            getattr(original, self.subclass_field)
+        )
         if cls_replace is None:
             return original
         new = cls_replace()
@@ -215,17 +221,25 @@ class IntegrationQuerySet(models.QuerySet):
         """
         Override of create method to use subclass instance instead.
 
-        Instead of using the underlying Integration model to create this
-        instance, we get the correct subclass to use instead. This allows for
+        Instead of using the underlying model to create this instance,
+        we get the correct subclass to use instead. This allows for
         overrides to ``save`` and other model functions on object creation.
         """
-        model_cls = self._get_subclass(kwargs.get('integration_type'))
+        model_cls = self._get_subclass(kwargs.get(self.subclass_field))
         if model_cls is None:
             model_cls = self.model
         obj = model_cls(**kwargs)
         self._for_write = True
         obj.save(force_insert=True, using=self.db)
         return obj
+
+
+class IntegrationQuerySet(SubclassMixin, models.QuerySet):
+
+    """Return a subclass of Integration, based on the integration type."""
+
+    subclass_field = 'integration_type'
+    subclass_field_id = 'integration_type_id'
 
 
 class Integration(models.Model):
