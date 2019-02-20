@@ -87,7 +87,7 @@ Security issue archive
 Version 3.2.0
 ~~~~~~~~~~~~~
 
-:ref:`version-3.2.0` resolved an issue where a specially crafted request
+:ref:`changelog:Version 3.2.0` resolved an issue where a specially crafted request
 could result in a DNS query to an arbitrary domain.
 
 This issue was found by `Cyber Smart Defence <https://www.cybersmartdefence.com/>`_
@@ -98,7 +98,7 @@ of Read the Docs.
 Release 2.3.0
 ~~~~~~~~~~~~~
 
-:ref:`version-2.3.0` resolves a security issue with translations on our community
+:ref:`changelog:Version 2.3.0` resolves a security issue with translations on our community
 hosting site that allowed users to modify the hosted path of a target project by
 adding it as a translation project of their own project. A check was added to
 ensure project ownership before adding the project as a translation.
