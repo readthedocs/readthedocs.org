@@ -364,6 +364,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook_gitlab': {'status_code': 405},
             'api_webhook_bitbucket': {'status_code': 405},
             'api_webhook_generic': {'status_code': 403},
+            'domaindata-detail': {'status_code': 404},
             'remoteorganization-detail': {'status_code': 404},
             'remoterepository-detail': {'status_code': 404},
             'remoteaccount-detail': {'status_code': 404},

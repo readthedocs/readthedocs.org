@@ -5,7 +5,6 @@ http://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html
 """
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
@@ -14,7 +13,6 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 
-@python_2_unicode_compatible
 class DomainData(models.Model):
 
     """
@@ -27,8 +25,11 @@ class DomainData(models.Model):
         Project,
         related_name='domain_data',
     )
-    version = models.ForeignKey(Version, verbose_name=_('Version'),
-                                related_name='domain_data')
+    version = models.ForeignKey(
+        Version,
+        verbose_name=_('Version'),
+        related_name='domain_data',
+    )
     modified_date = models.DateTimeField(_('Publication date'), auto_now=True)
     commit = models.CharField(_('Commit'), max_length=255)
 
@@ -62,7 +63,7 @@ class DomainData(models.Model):
         return f'''
             DomainData [{self.project.slug}:{self.version.slug}]
             [{self.domain}:{self.type}] {self.name} -> {self.doc_name}#{self.anchor}
-            '''
+        '''
 
     @property
     def doc_type(self):
@@ -74,5 +75,8 @@ class DomainData(models.Model):
         if self.anchor:
             path += f'#{self.anchor}'
         full_url = resolve(
-            project=self.project, version_slug=self.version.slug, filename=path)
+            project=self.project,
+            version_slug=self.version.slug,
+            filename=path,
+        )
         return full_url
