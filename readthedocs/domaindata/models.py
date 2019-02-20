@@ -7,13 +7,15 @@ http://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from django_extensions.db.models import TimeStampedModel
+
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 
-class DomainData(models.Model):
+class DomainData(TimeStampedModel):
 
     """
     Information from a project about it's Sphinx domains.
@@ -30,7 +32,6 @@ class DomainData(models.Model):
         verbose_name=_('Version'),
         related_name='domain_data',
     )
-    modified_date = models.DateTimeField(_('Publication date'), auto_now=True)
     commit = models.CharField(_('Commit'), max_length=255)
 
     domain = models.CharField(
