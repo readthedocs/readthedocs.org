@@ -1161,8 +1161,9 @@ def _update_intersphinx_data(version, path, commit):
     """
     object_file = os.path.join(path, 'objects.inv')
 
+    # These classes are from copied from Sphinx tests
     class MockConfig:
-        intersphinx_timeout = None  # type: int
+        intersphinx_timeout = None
         tls_verify = False
 
     class MockApp:
@@ -1170,8 +1171,7 @@ def _update_intersphinx_data(version, path, commit):
         config = MockConfig()
 
         def warn(self, msg):
-            # type: (unicode) -> None
-            print(msg, file=sys.stderr)
+            log.warning('Sphinx MockApp: {}', msg)
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key in sorted(invdata or {}):
