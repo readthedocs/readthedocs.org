@@ -390,6 +390,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     'stack': True,
                     'tags': {
                         'build': build_pk,
+                        # We can't depend on these objects because the api
+                        # could fail. But self.project and self.version are
+                        # initialized as empty dicts in the init method.
                         'project': self.project.slug if self.project else None,
                         'version': self.version.slug if self.version else None,
                     },
