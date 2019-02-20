@@ -67,30 +67,21 @@ Projects list
 
         {
             "count": 25,
-            "next": "/api/v3/projects/limit=10&offset=10",
+            "next": "/api/v3/projects/?limit=10&offset=10",
             "previous": null,
             "results": ["PROJECT"]
         }
 
-    :>json integer count: Total number of projects.
+    :>json integer count: total number of projects.
     :>json string next: URI for next set of projects.
     :>json string previous: URI for previous set of projects.
-    :>json array results: Array of ``project`` objects.
+    :>json array results: array of ``project`` objects.
 
-    :query privacy_level: one of ``public``, ``private``, ``protected``
-
-    .. TODO:
-
-       Add query string filters to narrow the query:
-         * privacy level
-         * language
-         * programming language
-         * repository url
-         * repository type
-         * all fields?
-
-       Considering that we are listing only projects associated with the authenticated user,
-       we should not have performance problem with these filters
+    :query string privacy_level: one of ``public``, ``private``, ``protected``.
+    :query string language: language code as ``en``, ``es``, ``ru``, etc.
+    :query string programming_language: programming language code as ``py``, ``js``, etc.
+    :query string repository_url: URL of the repository.
+    :query string repository_type: one of ``git``, ``hg``, ``bzr``, ``svn``.
 
     :requestheader Authorization: required token to authenticate.
 
@@ -113,6 +104,7 @@ Project details
     .. sourcecode:: json
 
         {
+            "id": 12345,
             "name": "Pip",
             "slug": "pip",
             "description": "Pip Installs Packages.",
@@ -132,7 +124,10 @@ Project details
             },
             "default_version": "stable",
             "default_branch": "master",
-            "privacy_level": "public",
+            "privacy_level": {
+                "code": "public",
+                "name": "Public",
+            },
             "subproject_of": null,
             "translation_of": null,
             "urls": {
@@ -146,12 +141,12 @@ Project details
                 "setuptools",
                 "virtualenv"
             ],
-            "users": {
-                "dstufft": "{USER}",
-                "pmoore": "{USER}",
-                "xafer": "{USER}",
-                "pradyunsg": "{USER}"
-            },
+            "users": [
+                "dstufft",
+                "pmoore",
+                "xafer",
+                "pradyunsg"
+            ],
             "active_versions": {
                 "stable": "{VERSION}",
                 "latest": "{VERSION}",
@@ -167,17 +162,13 @@ Project details
             }
         }
 
-    .. TODO: by default it should return *only active versions*, and
-       having the possibility to return ``?only_active_versions=False`` or
-       something like that. Otherwise, including all the versions by
-       default will generate ton of data for some projects probably.
-
-
     :>json string name: The name of the project.
     :>json string slug: The project slug (used in the URL).
     :>json string description: An RST description of the project
 
     .. TODO: complete the returned data docs once agreed on this.
+
+    :query boolean inactive_versions: whether or not include inactive versions.
 
     :requestheader Authorization: optional token to authenticate.
 
@@ -229,10 +220,10 @@ Versions listing
     .. TODO: instead of an array, this could potentially be a
        dictionary with the slug as the key and a VERSION as value.
 
-    :query limit: limit number of object returned
-    :query offset: offset from the whole list returned
-    :query active: one of ``true``, ``false``
-    :query built: one of ``true``, ``false``
+    :query integer limit: limit number of object returned
+    :query integer offset: offset from the whole list returned
+    :query boolean active: whether return active versions only
+    :query boolean built: whether return only built version
 
     :requestheader Authorization: optional token to authenticate.
 
@@ -240,7 +231,7 @@ Versions listing
 Version detail
 ++++++++++++++
 
-.. http:get:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
+.. http:get:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
 
     Retrieve details of a single version.
 
@@ -255,11 +246,18 @@ Version detail
     .. sourcecode:: json
 
         {
+            "id": 71652437,
             "slug": "stable",
             "verbose_name": "stable",
             "identifier": "3a6b3995c141c0888af6591a59240ba5db7d9914",
+            "ref": "19.0.2",
             "built": true,
             "active": true,
+            "uploaded": true,
+            "privacy_level": {
+                "code": "public",
+                "name": "Public",
+            },
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -267,17 +265,22 @@ Version detail
                 "htmlzip": "https://readthedocs.org/projects/pip/downloads/htmlzip/stable/",
                 "epub": "https://readthedocs.org/projects/pip/downloads/epub/stable/"
             },
+            "urls": {
+                "documentation": "https://pip.pypa.io/en/stable/",
+                "vcs": "https://github.com/pypa/pip/tree/19.0.2"
+            },
             "links": {
                 "self": "/api/v3/projects/pip/versions/stable/",
-                "builds": "/api/v3/projects/pip/versions/stable/builds/"
+                "builds": "/api/v3/projects/pip/versions/stable/builds/",
+                "project": "/api/v3/projects/pip/"
             }
         }
 
-    .. TODO: add a field showing what's the tag where ``stable`` points to
-
+    :>json integer id: ID for this version on the database
     :>json string slug: The slug for this version
     :>json string verbose_name: The name of the version
     :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
+    :>json string ref: tag or branch pointed by this version (available only when version is ``stable`` or ``latest``)
     :>json string built: Whether this version has been built
     :>json string active: Whether this version is active
     :>json string type: The type of this version (typically "tag" or "branch")
@@ -303,11 +306,7 @@ Version edit
 
         {
             "active": true,
-            "privacy_level": "public",
-            "tags": [
-                "python",
-                "packaging"
-            ]
+            "privacy_level": "public"
         }
 
     **Example response**:
@@ -367,18 +366,54 @@ Build details
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
             "builder": "build03",
             "cold_storage": false,
+            "config": {
+                "version": "1",
+                "formats": [
+                    "htmlzip",
+                    "epub",
+                    "pdf"
+                ],
+                "python": {
+                    "version": 3,
+                    "install": [
+                        {
+                            "requirements": ".../stable/tools/docs-requirements.txt"
+                        }
+                    ],
+                    "use_system_site_packages": false
+                },
+                "conda": null,
+                "build": {
+                    "image": "readthedocs/build:latest"
+                },
+                "doctype": "sphinx_htmldir",
+                "sphinx": {
+                    "builder": "sphinx_htmldir",
+                    "configuration": ".../stable/docs/html/conf.py",
+                    "fail_on_warning": false
+                },
+                "mkdocs": {
+                    "configuration": null,
+                    "fail_on_warning": false
+                },
+                "submodules": {
+                    "include": "all",
+                    "exclude": [],
+                    "recursive": true
+                }
+            },
             "links": {
                 "self": "/api/v3/projects/pip/builds/8592686/",
+                "project": "/api/v3/projects/pip/",
+                "version": "/api/v3/projects/pip/versions/latest/",
                 "commands": "/api/v3/projects/pip/builds/8592686/commands/"
             }
         }
 
-    .. TODO: maybe it's good to return the ``Config`` object used to run this build
-
     :>json integer id: The ID of the build
     :>json string date: The ISO-8601 datetime of the build.
     :>json integer duration: The length of the build in seconds.
-    :>json string state: The state of the build (one of "triggered", "building", "installing", "cloning", or "finished")
+    :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, or ``finished``)
     :>json boolean success: Whether the build was successful
     :>json string error: An error message if the build was unsuccessful
     :>json string commit: A version control identifier for this build (eg. the commit hash)
@@ -432,8 +467,8 @@ Builds listing
             "results": ["BUILD"]
         }
 
-    :query commit: commit hash to filter the builds returned by commit
-    :query running: whether or not to filter the builds returned by currently building
+    :query string commit: commit hash to filter the builds returned by commit
+    :query boolean running: whether or not to filter the builds returned by currently building
 
     :requestheader Authorization: optional token to authenticate.
 
@@ -463,6 +498,50 @@ Build triggering
     :statuscode 201: Created sucessfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
+
+
+Build status
+++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/status/
+
+    Retrieve status details of a single build.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/status/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "id": 8592686,
+            "version": "latest",
+            "project": "pip",
+            "created": "2018-06-19T15:15:59+00:00",
+            "finished": null,
+            "duration": null,
+            "state": {
+                "code": "triggered",
+                "name": "Triggered"
+            },
+            "success": null,
+            "error": null,
+            "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
+            "builder": "build03",
+            "links": {
+                "self": "/api/v3/projects/pip/builds/8592686/",
+                "project": "/api/v3/projects/pip/",
+                "version": "/api/v3/projects/pip/versions/latest/",
+                "commands": "/api/v3/projects/pip/builds/8592686/commands/"
+            }
+        }
+
+    :requestheader Authorization: optional token to authenticate.
 
 
 Build commands listing
@@ -511,7 +590,9 @@ Build command details
 
         {
             "id": 9182639172,
-            "build": "{BUILD}",
+            "build": 719263915,
+            "project": "pip",
+            "version": "stable",
             "created": "2018-06-19T15:15:59+00:00",
             "finished": "2018-06-19T15:16:58+00:00",
             "duration": 59,
@@ -527,3 +608,162 @@ Build command details
         }
 
     :requestheader Authorization: optional token to authenticate.
+
+
+Users
+~~~~~
+
+User detail
++++++++++++
+
+
+.. http:get:: /api/v3/users/(str:username)
+
+    Retrieve details of a single user.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/users/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "id": 25,
+            "username": "humitos",
+            "created": "2008-10-23T18:12:31+00:00",
+            "last_login": "2010-10-23T18:12:31+00:00",
+            "first_name": "Manuel",
+            "last_name": "Kaufmann",
+            "email": "humitos@readthedocs.org",
+            "links": {
+                "self": "/api/v3/users/humitos/",
+                "projects": "/api/v3/projects/?user=humitos"
+            }
+        }
+
+    .. TODO: considering that ``/api/v3/projects/`` will return only
+       the projects for the authenticated user, the ``projects`` link
+       here won't work.
+
+       On the other hand, ``/api/v3/projects/all/?user=humitos`` can't
+       be used because we will be mixing ``all`` as project slug with
+       our endpoint URL.
+
+    :>json integer id: ID for the user on the database.
+    :>json string username: username for the user.
+    :>json string created: date and time when the user was created.
+    :>json string last_login: date and time for last time this user was logged in.
+    :>json string first_name: first name of the user.
+    :>json string last_name: last name of the user.
+    :>json string email: email of the user.
+
+    :requestheader Authorization: required token to authenticate.
+
+
+User listing
+++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/users/
+
+    Retrieve list of users for a project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/users/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 25,
+            "next": "/api/v3/projects/pip/users/limit=10&offset=10",
+            "previous": null,
+            "results": ["USER"]
+        }
+
+    :>json integer count: total number of users.
+    :>json string next: URI for next set of users.
+    :>json string previous: URI for previous set of users.
+    :>json array results: array of ``user`` objects.
+
+    :requestheader Authorization: optional token to authenticate.
+
+
+Subprojects
+~~~~~~~~~~~
+
+Subprojects listing
++++++++++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/subprojects/
+
+    Retrieve a list of all sub-projects for a project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 25,
+            "next": "/api/v3/projects/pip/subprojects/?limit=10&offset=10",
+            "previous": null,
+            "results": ["PROJECT"]
+        }
+
+    :>json integer count: total number of projects.
+    :>json string next: URI for next set of projects.
+    :>json string previous: URI for previous set of projects.
+    :>json array results: array of ``project`` objects.
+
+    :requestheader Authorization: required token to authenticate.
+
+
+Translations
+~~~~~~~~~~~~
+
+Translations listing
+++++++++++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/translations/
+
+    Retrieve a list of all translations for a project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/translations/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 25,
+            "next": "/api/v3/projects/pip/translations/?limit=10&offset=10",
+            "previous": null,
+            "results": ["PROJECT"]
+        }
+
+    :>json integer count: total number of projects.
+    :>json string next: URI for next set of projects.
+    :>json string previous: URI for previous set of projects.
+    :>json array results: array of ``project`` objects.
+
+    :requestheader Authorization: required token to authenticate.
