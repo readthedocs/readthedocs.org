@@ -344,7 +344,7 @@ Build details
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/?include_config=true
 
     **Example response**:
 
@@ -419,6 +419,8 @@ Build details
     :>json string commit: A version control identifier for this build (eg. the commit hash)
     :>json string builder: The hostname server that built the docs
     :>json string cold_storage: Whether the build was removed from database and stored externally
+
+    :query boolean include_config: whether or not include the configs used for this build. Default is ``false``
 
     :requestheader Authorization: optional token to authenticate.
 
@@ -498,50 +500,6 @@ Build triggering
     :statuscode 201: Created sucessfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
-
-
-Build status
-++++++++++++
-
-
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/status/
-
-    Retrieve status details of a single build.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/status/
-
-    **Example response**:
-
-    .. sourcecode:: json
-
-        {
-            "id": 8592686,
-            "version": "latest",
-            "project": "pip",
-            "created": "2018-06-19T15:15:59+00:00",
-            "finished": null,
-            "duration": null,
-            "state": {
-                "code": "triggered",
-                "name": "Triggered"
-            },
-            "success": null,
-            "error": null,
-            "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
-            "builder": "build03",
-            "links": {
-                "self": "/api/v3/projects/pip/builds/8592686/",
-                "project": "/api/v3/projects/pip/",
-                "version": "/api/v3/projects/pip/versions/latest/",
-                "commands": "/api/v3/projects/pip/builds/8592686/commands/"
-            }
-        }
-
-    :requestheader Authorization: optional token to authenticate.
 
 
 Build commands listing
