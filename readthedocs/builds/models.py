@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Models for the builds app."""
 
 import logging
@@ -13,10 +11,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
+import readthedocs.builds.automation_actions as actions
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL,
@@ -690,3 +690,128 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         if self.start_time is not None and self.end_time is not None:
             diff = self.end_time - self.start_time
             return diff.seconds
+
+
+# class VersionAutomationRuleQuerySet(SubclassMixin, models.QuerySet):
+#
+#     """Returns a subclass of VersionAutomationRule, based on the rule type."""
+#
+#     subclass_field = 'rule_type'
+#     subclass_field_id = 'rule_type_id'
+
+
+class VersionAutomationRule(TimeStampedModel, models.Model):
+
+    """Versions automation rules for projects."""
+
+    REGEX_RULE = 'regex-rule'
+    RULE_TYPES = (
+        (REGEX_RULE, _('Regular expression rule')),
+    )
+
+    ACTIVATE_VERSION_ACTION = 'activate-version'
+    ACTIONS = (
+        (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
+    )
+
+    project = models.ForeignKey(
+        Project,
+        related_name='automation_rules',
+        on_delete=models.CASCADE,
+    )
+    priority = models.IntegerField(_('Rule priority'))
+    rule_type = models.CharField(
+        _('Rule type'),
+        max_length=32,
+        choices=RULE_TYPES,
+    )
+    rule_arg = models.CharField(
+        _('Value used for the rule to match the version'),
+        max_length=255,
+    )
+    action = models.CharField(
+        _('Action'),
+        max_length=32,
+        choices=ACTIONS,
+    )
+    action_arg = models.CharField(
+        _('Value used for the action to perfom an operation'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    version_type = models.CharField(
+        _('Version type'),
+        max_length=32,
+        choices=VERSION_TYPES,
+    )
+
+    class Meta:
+        unique_together = (('project', 'priority'),)
+        ordering = ('priority', '-modified', '-created')
+
+    def run(self, version, *args, **kwargs):
+        """
+        Run an action if `version` matches the rule.
+
+        :type version: readthedocs.builds.models.Version
+        """
+        if version.type == self.version_type:
+            match_result = self.match(version, self.rule_arg)
+            if match_result is not None:
+                return self.apply_action(version, match_result, self.action_arg)
+        return False
+
+    def match(self, version, arg):
+        """
+        Returns an object different from None if the version matches the rule.
+
+        :type version: readthedocs.builds.models.Version
+        :param str arg: Additional argument to perform the match
+        :returns: An object different from `None` if the match is successful.
+                  The result will be passed to `apply_action`.
+        """
+        return None
+
+    def apply_action(self, version, match_result, arg):
+        """
+        Apply the action from allowed_actions.
+
+        :type version: readthedocs.builds.models.Version
+        :param any match_result: Additional context from the match operation
+        :param str arg: Additional argument to perform the action
+        :raises: NotImplementedError if the action
+                 isn't implemented or supported for this rule.
+        """
+        action = self.allowed_actions.get(self.action)
+        if action is None:
+            raise NotImplementedError
+        return action(version, match_result, arg)
+
+    def __str__(self):
+        return (
+            _('({priority}) {rule}/{action} to {version_tyep} for {project}')
+            .format(
+                priority=self.priority,
+                rule=self.get_rule_type_display(),
+                action=self.get_action_display(),
+                version_type=self.get_version_type_display(),
+                project=self.project.slug,
+            )
+        )
+
+
+class RegexAutomationRule(VersionAutomationRule):
+
+    rule_type_id = VersionAutomationRule.REGEX_RULE
+    allowed_actions = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version_from_regex_action,
+    }
+
+    class Meta:
+        proxy = True
+
+    def match(self, version, arg):
+        regex = re.compile(arg)
+        match = regex.match(version.verbose_name)
+        return match
