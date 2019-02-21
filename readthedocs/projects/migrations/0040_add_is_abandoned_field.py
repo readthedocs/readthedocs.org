@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0036_remove-auto-doctype'),
+        ('projects', '0039_update-doctype-helptext'),
     ]
 
     operations = [
