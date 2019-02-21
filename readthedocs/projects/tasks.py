@@ -259,11 +259,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             )
         return False
 
+
 # Exceptions under ``throws`` argument are considered ERROR from a Build
 # perspective (the build failed and can continue) but as a WARNING for the
 # application itself (RTD code didn't failed). These exception are logged as
 # ``INFO`` and they are not sent to Sentry.
-
 @app.task(
     bind=True,
     max_retries=5,
@@ -277,7 +277,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         RepositoryError,
         ProjectConfigurationError,
         ProjectBuildsSkippedError,
-        MkDocsYAMLParseError
+        MkDocsYAMLParseError,
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
@@ -648,7 +648,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-             # Re raise the exception to stop the build at this point
+            # Re raise the exception to stop the build at this point
             raise
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
