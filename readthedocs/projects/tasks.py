@@ -8,8 +8,6 @@ rebuilding documentation.
 """
 
 import datetime
-import fnmatch
-import hashlib
 import json
 import logging
 import os
@@ -37,9 +35,9 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds.tasks import fileify
 from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
-from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.doc_builder.config import load_yaml_config
@@ -52,7 +50,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
     BuildTimeoutError,
-    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
@@ -65,17 +62,14 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import ProjectConfigurationError, RepositoryError
-from .models import Domain, HTMLFile, ImportedFile, Project
+from .exceptions import RepositoryError
+from .models import Domain, Project
 from .signals import (
     after_build,
     after_vcs,
     before_build,
     before_vcs,
-    bulk_post_create,
-    bulk_post_delete,
     domain_verify,
-    files_changed,
 )
 
 
@@ -188,7 +182,7 @@ class SyncRepositoryMixin:
     def validate_duplicate_reserved_versions(self, data):
         """
         Check if there are duplicated names of reserved versions.
-
+    
         The user can't have a branch and a tag with the same name of
         ``latest`` or ``stable``. Raise a RepositoryError exception
         if there is a duplicated name.
@@ -265,10 +259,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
-# Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective (the build failed and can continue) but as a WARNING for the
-# application itself (RTD code didn't failed). These exception are logged as
-# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
@@ -278,11 +268,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
-        BuildEnvironmentWarning,
-        RepositoryError,
-        ProjectConfigurationError,
         ProjectBuildsSkippedError,
-        MkDocsYAMLParseError,
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
@@ -613,6 +599,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
+
+        :param build_env: Build environment
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
@@ -626,17 +614,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             self.sync_repo()
         except RepositoryError:
+            # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
-            # Re raise the exception to stop the build at this point
-            raise
         except vcs_support_utils.LockTimeout:
             log.info(
                 'Lock still active: project=%s version=%s',
                 self.project.slug,
                 self.version.slug,
             )
-            # Raise the proper exception (won't be sent to Sentry)
-            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
@@ -650,8 +635,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-            # Re raise the exception to stop the build at this point
-            raise
 
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
@@ -1056,7 +1039,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_domain(project_pk, domain, delete=False):
     """
     Symlink domain.
@@ -1105,137 +1088,12 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web')
+@app.task(queue='web', throws=(BuildEnvironmentWarning,))
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.symlink_subprojects()
-
-
-@app.task(queue='web')
-def fileify(version_pk, commit):
-    """
-    Create ImportedFile objects for all of a version's files.
-
-    This is so we have an idea of what files we have in the database.
-    """
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-    project = version.project
-
-    if not commit:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg=(
-                    'Imported File not being built because no commit '
-                    'information'
-                ),
-            ),
-        )
-        return
-
-    path = project.rtd_build_path(version.slug)
-    if path:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=version.project.slug,
-                version=version.slug,
-                msg='Creating ImportedFiles',
-            ),
-        )
-        _manage_imported_files(version, path, commit)
-    else:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg='No ImportedFile files',
-            ),
-        )
-
-
-def _manage_imported_files(version, path, commit):
-    """
-    Update imported files for version.
-
-    :param version: Version instance
-    :param path: Path to search
-    :param commit: Commit that updated path
-    """
-    changed_files = set()
-    created_html_files = []
-    for root, __, filenames in os.walk(path):
-        for filename in filenames:
-            if fnmatch.fnmatch(filename, '*.html'):
-                model_class = HTMLFile
-            else:
-                model_class = ImportedFile
-
-            dirpath = os.path.join(
-                root.replace(path, '').lstrip('/'), filename.lstrip('/')
-            )
-            full_path = os.path.join(root, filename)
-            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-            try:
-                # pylint: disable=unpacking-non-sequence
-                obj, __ = model_class.objects.get_or_create(
-                    project=version.project,
-                    version=version,
-                    path=dirpath,
-                    name=filename,
-                )
-            except model_class.MultipleObjectsReturned:
-                log.warning('Error creating ImportedFile')
-                continue
-            if obj.md5 != md5:
-                obj.md5 = md5
-                changed_files.add(dirpath)
-            if obj.commit != commit:
-                obj.commit = commit
-            obj.save()
-
-            if model_class == HTMLFile:
-                # the `obj` is HTMLFile, so add it to the list
-                created_html_files.append(obj)
-
-    # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
-
-    # Delete the HTMLFile first from previous commit and
-    # send bulk_post_delete signal for bulk removing from Elasticsearch
-    delete_queryset = (
-        HTMLFile.objects.filter(project=version.project,
-                                version=version).exclude(commit=commit)
-    )
-    # Keep the objects into memory to send it to signal
-    instance_list = list(delete_queryset)
-    # Safely delete from database
-    delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
-
-    # Delete ImportedFiles from previous versions
-    (
-        ImportedFile.objects.filter(project=version.project,
-                                    version=version).exclude(commit=commit
-                                                             ).delete()
-    )
-    changed_files = [
-        resolve_path(
-            version.project,
-            filename=file,
-            version_slug=version.slug,
-        ) for file in changed_files
-    ]
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        files=changed_files,
-    )
 
 
 @app.task(queue='web')

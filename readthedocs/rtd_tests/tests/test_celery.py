@@ -9,10 +9,10 @@ from django_dynamic_fixture import get
 from mock import MagicMock, patch
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import Build, Version
+from readthedocs.builds.tasks import fileify
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.projects import tasks
-from readthedocs.builds.models import Version
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -267,5 +267,5 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None)
+        fileify(version_pk=345343, commit=None)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
