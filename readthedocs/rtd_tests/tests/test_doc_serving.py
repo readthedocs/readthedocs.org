@@ -120,7 +120,7 @@ class TestPrivateDocs(BaseDocServing):
             reverse('sitemap_xml'),
             HTTP_HOST='private.readthedocs.io',
         )
-        # Private projects/versions always return 404 for robots.txt
+        # Private projects/versions always return 404 for sitemap.xml
         self.assertEqual(response.status_code, 404)
 
 
