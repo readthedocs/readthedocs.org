@@ -7,7 +7,7 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import HTMLFile, Project, ImportedFile
 from readthedocs.projects.signals import (
-    bulk_post_create, 
+    bulk_post_create,
     bulk_post_delete,
     files_changed
 )
