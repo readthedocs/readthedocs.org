@@ -36,11 +36,11 @@ class Command(BaseCommand):
         auth = None
         user1 = User.objects.filter(pk__gt=0).order_by('pk').first()
 
-        if 'READ_THE_DOCS_USERNAME' in os.environ and 'READ_THE_DOCS_PASSWORD' in os.environ:
+        if 'READTHEDOCS_USERNAME' in os.environ and 'READTHEDOCS_PASSWORD' in os.environ:
             # Authenticating allows returning additional useful fields in the API
             # See: `ProjectAdminSerializer`
-            username = os.environ['READ_THE_DOCS_USERNAME']
-            auth = (username, os.environ['READ_THE_DOCS_PASSWORD'])
+            username = os.environ['READTHEDOCS_USERNAME']
+            auth = (username, os.environ['READTHEDOCS_PASSWORD'])
             self.stdout.write('Using basic auth for user {username}'.format(username=username))
 
         for slug in options['project_slug']:
