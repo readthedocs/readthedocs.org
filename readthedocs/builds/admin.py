@@ -5,7 +5,8 @@
 from django.contrib import admin, messages
 from guardian.admin import GuardedModelAdmin
 
-from readthedocs.builds.models import Build, Version, BuildCommandResult
+from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.general import wipe_version_via_slugs
 
 
@@ -55,8 +56,9 @@ class VersionAdmin(GuardedModelAdmin):
         'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
+    search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['wipe_selected_versions']
+    actions = ['wipe_selected_versions', 'build_version']
 
     def wipe_selected_versions(self, request, queryset):
         """Wipes the selected versions."""
@@ -72,6 +74,23 @@ class VersionAdmin(GuardedModelAdmin):
             )
 
     wipe_selected_versions.short_description = 'Wipe selected versions'
+
+    def build_version(self, request, queryset):
+        """Trigger a build for the project version."""
+        total = 0
+        for version in queryset:
+            trigger_build(
+                project=version.project,
+                version=version,
+            )
+            total += 1
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Triggered builds for {} version(s).'.format(total),
+        )
+
+    build_version.short_description = 'Build version'
 
 
 admin.site.register(Build, BuildAdmin)

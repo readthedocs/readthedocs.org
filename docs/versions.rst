@@ -63,4 +63,4 @@ This is a banner that appears on the top of every page of your docs that aren't 
 This banner has a text with a link redirecting the users to the latest version of your docs.
 
 This feature is disabled by default on new projects,
-you can enable it in the admin section of your docs (Advanced Settings).
+you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).

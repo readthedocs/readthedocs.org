@@ -4,6 +4,7 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import sys
+from configparser import RawConfigParser
 
 import sphinx_rtd_theme
 
@@ -16,6 +17,13 @@ from django.utils import timezone
 
 import django
 django.setup()
+
+
+def get_version():
+    """Return package version from setup.cfg."""
+    config = RawConfigParser()
+    config.read(os.path.join('..', 'setup.cfg'))
+    return config.get('metadata', 'version')
 
 
 sys.path.append(os.path.abspath('_ext'))
@@ -40,7 +48,7 @@ project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '2.7'
+version = get_version()
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'

@@ -65,6 +65,10 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs = {'filter_by_user': False}
         kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
         kwargs['versions_list'] = self.request.query_params.get('version')
+        if not kwargs['projects_list']:
+            raise ValidationError("Unable to find a project to search")
+        if not kwargs['versions_list']:
+            raise ValidationError("Unable to find a version to search")
         user = self.request.user
         queryset = PageDocument.faceted_search(
             query=query, user=user, **kwargs

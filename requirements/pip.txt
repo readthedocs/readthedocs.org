@@ -1,12 +1,12 @@
 # Base packages
-pip==19.0.1
+pip==19.0.2
 appdirs==1.4.3
-virtualenv==16.3.0
+virtualenv==16.4.0
 
-django==1.11.18
+django==1.11.20  # pyup: <1.12
 django-tastypie==0.14.2
-django-guardian==1.4.9
-django-extensions==2.1.4
+django-guardian==1.5.0
+django-extensions==2.1.5
 
 djangorestframework==3.9.1
 
@@ -17,9 +17,9 @@ django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
 requests==2.21.0
-requests-toolbelt==0.8.0
+requests-toolbelt==0.9.1
 slumber==0.7.1
-lxml==4.3.0
+lxml==4.3.1
 defusedxml==0.5.0
 pyyaml==3.13
 Pygments==2.3.1
@@ -28,15 +28,15 @@ Pygments==2.3.1
 # Redis 3.x has an incompatible change and fails
 # https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
 # https://github.com/sebleier/django-redis-cache/pull/162
-redis==2.10.6
+redis==2.10.6  # pyup: ignore
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
-celery==4.1.1
+celery==4.1.1  # pyup: ignore
 
 django-allauth==0.38.0
 
 # VCS
-httplib2==0.12.0
+httplib2==0.12.1
 
 # GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
 # of an UnicodeError
@@ -45,17 +45,17 @@ httplib2==0.12.0
 # introduces the usage of ``str`` which behaves differently in Py2 and
 # Py3 We should check if all the tests pass again when we drop Py2
 # support and we should be able to upgrade
-GitPython==2.1.10
+GitPython==2.1.10  # pyup: ignore
 
 # Search
-elasticsearch==6.2.0
+elasticsearch==6.3.1
 
 
 # elasticsearch-dsl==6.3.1 produces this error
 #   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
 #     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
 # ImportError: cannot import name 'DocTypeMeta'
-elasticsearch-dsl==6.1.0
+elasticsearch-dsl==6.1.0  # pyup: ignore
 django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
 
@@ -66,7 +66,10 @@ beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.19.0
+stripe==2.21.0
+
+# unicode-slugify==0.1.5 is not released on PyPI yet
+git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
 
 django-formtools==2.1
 
@@ -74,7 +77,7 @@ django-formtools==2.1
 # related to timeouts on EXEC with 3.2.1 and 3.3.0 that's not present
 # with 3.1.3
 # https://github.com/rtfd/readthedocs.org/issues/3999
-docker==3.1.3
+docker==3.1.3  # pyup: ignore
 
 django-textclassifier==1.0
 django-annoying==0.10.4

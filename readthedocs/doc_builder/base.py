@@ -66,7 +66,7 @@ class BaseBuilder:
             if os.path.exists(self.target):
                 shutil.rmtree(self.target)
             log.info('Copying %s on the local filesystem', self.type)
-            log.info('Ignoring patterns %s', self.ignore_patterns)
+            log.debug('Ignoring patterns %s', self.ignore_patterns)
             shutil.copytree(
                 self.old_artifact_path,
                 self.target,

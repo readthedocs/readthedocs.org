@@ -73,6 +73,6 @@ def remove_project_delete(instance, *args, **kwargs):
         'objects_id': [instance.id],
     }
 
-    # Do not index if autosync is disabled globally
+    # Don't `delay` this because the objects will be deleted already
     if DEDConfig.autosync_enabled():
-        delete_objects_in_es.delay(**kwargs)
+        delete_objects_in_es(**kwargs)
