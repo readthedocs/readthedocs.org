@@ -2,6 +2,7 @@
 
 """Models for the builds app."""
 
+import datetime
 import logging
 import os.path
 import re
@@ -11,7 +12,6 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
@@ -32,6 +32,7 @@ from .constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -58,7 +59,6 @@ DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
 log = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class Version(models.Model):
 
     """Version of a ``Project``."""
@@ -475,7 +475,6 @@ class APIVersion(Version):
         return 0
 
 
-@python_2_unicode_compatible
 class Build(models.Model):
 
     """Build data."""
@@ -602,10 +601,12 @@ class Build(models.Model):
         """
         if self.pk is None or self._config_changed:
             previous = self.previous
+            # yapf: disable
             if (
                 previous is not None and self._config and
                 self._config == previous.config
             ):
+                # yapf: enable
                 previous_pk = previous._config.get(self.CONFIG_KEY, previous.pk)
                 self._config = {self.CONFIG_KEY: previous_pk}
         super().save(*args, **kwargs)
@@ -629,6 +630,12 @@ class Build(models.Model):
     def finished(self):
         """Return if build has a finished state."""
         return self.state == BUILD_STATE_FINISHED
+
+    @property
+    def is_stale(self):
+        """Return if build state is triggered & date more than 5m ago."""
+        mins_ago = timezone.now() - datetime.timedelta(minutes=5)
+        return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
 
 
 class BuildCommandResultMixin:
@@ -655,7 +662,6 @@ class BuildCommandResultMixin:
         return not self.successful
 
 
-@python_2_unicode_compatible
 class BuildCommandResult(BuildCommandResultMixin, models.Model):
 
     """Build command for a ``Build``."""

@@ -15,15 +15,18 @@ Example
 
 Fabric hosts their docs on Read the Docs.
 They mostly use their own domain for them ``http://docs.fabfile.org``.
-This means that Google will index both ``http://fabric-docs.readthedocs.io`` and ``http://docs.fabfile.org`` for their documentation.
+This means that Google will index both ``http://fabric-docs.readthedocs.io`` and
+``http://docs.fabfile.org`` for their documentation.
 
 Fabric will want to set ``http://docs.fabfile.org`` as their canonical URL.
-This means that when Google indexes ``http://fabric-docs.readthedocs.io``, it will know that it should really point at ``http://docs.fabfile.org``.
+This means that when Google indexes ``http://fabric-docs.readthedocs.io``,
+it will know that it should really point at ``http://docs.fabfile.org``.
 
 Enabling
 --------
 
-You can set the canonical URL for your project in the Project Admin page. Check your `Domains` tab for the domains that we know about.
+You can set the canonical URL for your project in the Project Admin page.
+Check your :guilabel:`Admin` > :guilabel:`Domains` page for the domains that we know about.
 
 Implementation
 --------------

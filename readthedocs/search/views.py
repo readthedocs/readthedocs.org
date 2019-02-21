@@ -3,13 +3,14 @@
 """Search views."""
 import collections
 import logging
-from pprint import pprint
+from pprint import pformat
 
-from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.search import lib as search_lib
+from readthedocs.search.documents import PageDocument, ProjectDocument
+from readthedocs.search.utils import get_project_list_or_404
+from readthedocs.projects.models import Project
 
 
 log = logging.getLogger(__name__)
@@ -39,50 +40,31 @@ def elastic_search(request):
         language=request.GET.get('language'),
     )
     results = ''
-
     facets = {}
 
     if user_input.query:
         if user_input.type == 'project':
-            results = search_lib.search_project(
-                request,
-                user_input.query,
-                language=user_input.language,
+            project_search = ProjectDocument.faceted_search(
+                query=user_input.query, user=request.user, language=user_input.language
             )
+            results = project_search.execute()
+            facets = results.facets
         elif user_input.type == 'file':
-            results = search_lib.search_file(
-                request,
-                user_input.query,
-                project_slug=user_input.project,
-                version_slug=user_input.version,
-                taxonomy=user_input.taxonomy,
+            kwargs = {}
+            if user_input.project:
+                kwargs['projects_list'] = [user_input.project]
+            if user_input.version:
+                kwargs['versions_list'] = [user_input.version]
+
+            page_search = PageDocument.faceted_search(
+                query=user_input.query, user=request.user, **kwargs
             )
+            results = page_search.execute()
+            facets = results.facets
 
-    if results:
-        # pre and post 1.0 compat
-        for num, hit in enumerate(results['hits']['hits']):
-            for key, val in list(hit['fields'].items()):
-                if isinstance(val, list):
-                    results['hits']['hits'][num]['fields'][key] = val[0]
-
-        if 'facets' in results:
-            for facet_type in ['project', 'version', 'taxonomy', 'language']:
-                if facet_type in results['facets']:
-                    facets[facet_type] = collections.OrderedDict()
-                    for term in results['facets'][facet_type]['terms']:
-                        facets[facet_type][term['term']] = term['count']
-
-    if settings.DEBUG:
-        print(pprint(results))
-        print(pprint(facets))
-
-    if user_input.query:
-        user = ''
-        if request.user.is_authenticated:
-            user = request.user
         log.info(
             LOG_TEMPLATE.format(
-                user=user,
+                user=request.user,
                 project=user_input.project or '',
                 type=user_input.type or '',
                 version=user_input.version or '',
@@ -91,13 +73,65 @@ def elastic_search(request):
             ),
         )
 
+    if results:
+        if user_input.type == 'file':
+            # Change results to turn newlines in highlight into periods
+            # https://github.com/rtfd/readthedocs.org/issues/5168
+            for result in results:
+                if hasattr(result.meta.highlight, 'content'):
+                    result.meta.highlight.content = [result.replace(
+                        '\n', '. ') for result in result.meta.highlight.content]
+
+        log.debug('Search results: %s', pformat(results.to_dict()))
+        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
+
     template_vars = user_input._asdict()
-    template_vars.update({
-        'results': results,
-        'facets': facets,
-    })
+    template_vars.update({'results': results, 'facets': facets})
     return render(
         request,
         'search/elastic_search.html',
         template_vars,
+    )
+
+
+def elastic_project_search(request, project_slug):
+    """Use elastic search to search in a project."""
+    queryset = Project.objects.protected(request.user)
+    project = get_object_or_404(queryset, slug=project_slug)
+    version_slug = request.GET.get('version', LATEST)
+    query = request.GET.get('q', None)
+    results = None
+
+    if query:
+        kwargs = {}
+        kwargs['projects_list'] = [project.slug]
+        kwargs['versions_list'] = version_slug
+
+        page_search = PageDocument.faceted_search(
+            query=query, user=request.user, **kwargs
+        )
+        results = page_search.execute()
+
+        log.debug('Search results: %s', pformat(results.to_dict()))
+        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
+
+        log.info(
+            LOG_TEMPLATE.format(
+                user=request.user,
+                project=project or '',
+                type='inproject',
+                version=version_slug or '',
+                language='',
+                msg=query or '',
+            ),
+        )
+
+    return render(
+        request,
+        'search/elastic_project_search.html',
+        {
+            'project': project,
+            'query': query,
+            'results': results,
+        },
     )

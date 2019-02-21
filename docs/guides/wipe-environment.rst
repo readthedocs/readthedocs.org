@@ -12,7 +12,7 @@ Docs to create a new fresh one.
 
 Follow these steps to wipe the build environment:
 
-* Go to **Versions**
+* Go to :guilabel:`Versions`
 * Click on the **Edit** button of the version you want to wipe on the
   right side of the page
 * Go to the bottom of the page and click the **wipe** link, next to
