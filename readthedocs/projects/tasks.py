@@ -50,6 +50,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
     BuildTimeoutError,
+    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
@@ -62,7 +63,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import RepositoryError
+from .exceptions import ProjectConfigurationError, RepositoryError
 from .models import Domain, Project
 from .signals import (
     after_build,
@@ -182,7 +183,7 @@ class SyncRepositoryMixin:
     def validate_duplicate_reserved_versions(self, data):
         """
         Check if there are duplicated names of reserved versions.
-    
+
         The user can't have a branch and a tag with the same name of
         ``latest`` or ``stable``. Raise a RepositoryError exception
         if there is a duplicated name.
@@ -258,6 +259,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             )
         return False
 
+# Exceptions under ``throws`` argument are considered ERROR from a Build
+# perspective (the build failed and can continue) but as a WARNING for the
+# application itself (RTD code didn't failed). These exception are logged as
+# ``INFO`` and they are not sent to Sentry.
 
 @app.task(
     bind=True,
@@ -268,7 +273,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        BuildEnvironmentWarning,
+        RepositoryError,
+        ProjectConfigurationError,
         ProjectBuildsSkippedError,
+        MkDocsYAMLParseError
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
@@ -602,8 +611,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
-
-        :param build_env: Build environment
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
@@ -617,14 +624,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             self.sync_repo()
         except RepositoryError:
-            # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+            # Re raise the exception to stop the build at this point
+            raise
         except vcs_support_utils.LockTimeout:
             log.info(
                 'Lock still active: project=%s version=%s',
                 self.project.slug,
                 self.version.slug,
             )
+            # Raise the proper exception (won't be sent to Sentry)
+            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
@@ -638,7 +648,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-
+             # Re raise the exception to stop the build at this point
+            raise
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
@@ -1042,7 +1053,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web', throws=(BuildEnvironmentWarning,))
+@app.task(queue='web')
 def symlink_domain(project_pk, domain, delete=False):
     """
     Symlink domain.
@@ -1091,7 +1102,7 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web', throws=(BuildEnvironmentWarning,))
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
