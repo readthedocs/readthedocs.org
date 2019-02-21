@@ -14,7 +14,7 @@ def wipe_version_via_slugs(version_slug, project_slug):
     version = get_object_or_404(
         Version,
         slug=version_slug,
-        project__slug=project_slug
+        project__slug=project_slug,
     )
     del_dirs = [
         os.path.join(version.project.doc_path, 'checkouts', version.slug),

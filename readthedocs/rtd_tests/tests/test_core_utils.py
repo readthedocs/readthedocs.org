@@ -190,3 +190,27 @@ class CoreUtilTests(TestCase):
                 project_slug=self.version.project.slug
             )
         mock_broadcast.assert_not_called()
+
+    @mock.patch('readthedocs.core.utils.general.broadcast')
+    def test_wipe_version_via_slugs_same_version_slug_with_diff_proj(self, mock_broadcast):
+        project_2 = get(Project)
+        version_2 = get(Version, project=project_2, slug=self.version.slug)
+        wipe_version_via_slugs(
+            version_slug=version_2.slug,
+            project_slug=project_2.slug,
+        )
+
+        expected_del_dirs = [
+            os.path.join(version_2.project.doc_path, 'checkouts', version_2.slug),
+            os.path.join(version_2.project.doc_path, 'envs', version_2.slug),
+            os.path.join(version_2.project.doc_path, 'conda', version_2.slug),
+        ]
+
+        mock_broadcast.assert_has_calls(
+            [
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[0],)]),
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[1],)]),
+                call(type='build', task=remove_dirs, args=[(expected_del_dirs[2],)]),
+            ],
+            any_order=False
+        )
