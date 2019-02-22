@@ -557,18 +557,10 @@ class TestValidateBuild:
         assert build.build.image == image
 
 
-def test_use_conda_default_false():
+def test_use_conda_default_none():
     build = get_build_config({})
     build.validate()
     assert build.conda is None
-
-
-def test_use_conda_respects_config():
-    build = get_build_config(
-        {'conda': {}},
-    )
-    build.validate()
-    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
