@@ -103,7 +103,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
-            'readthedocs.domaindata',
+            'readthedocs.sphinx_domains',
             'readthedocs.search',
 
 

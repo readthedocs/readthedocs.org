@@ -4,35 +4,35 @@ from rest_framework import serializers
 
 from readthedocs.restapi.views.model_views import UserSelectViewSet
 
-from .models import DomainData
+from .models import SphinxDomain
 
 
-class DomainDataSerializer(serializers.ModelSerializer):
+class SphinxDomainSerializer(serializers.ModelSerializer):
     project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
     version = serializers.SlugRelatedField(slug_field='slug', read_only=True)
 
     class Meta:
-        model = DomainData
+        model = SphinxDomain
         fields = (
             'project',
             'version',
             'name',
             'display_name',
-            'doc_type',
-            'doc_url',
+            'role_name',
+            'docs_url',
         )
 
 
-class DomainDataAdminSerializer(DomainDataSerializer):
+class SphinxDomainAdminSerializer(SphinxDomainSerializer):
 
-    class Meta(DomainDataSerializer.Meta):
+    class Meta(SphinxDomainSerializer.Meta):
         fields = '__all__'
 
 
-class DomainDataAPIView(UserSelectViewSet):  # pylint: disable=too-many-ancestors
-    model = DomainData
-    serializer_class = DomainDataSerializer
-    admin_serializer_class = DomainDataAdminSerializer
+class SphinxDomainAPIView(UserSelectViewSet):  # pylint: disable=too-many-ancestors
+    model = SphinxDomain
+    serializer_class = SphinxDomainSerializer
+    admin_serializer_class = SphinxDomainAdminSerializer
     filter_fields = (
         'project__slug',
         'version__slug',

@@ -15,7 +15,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 
-class DomainData(TimeStampedModel):
+class SphinxDomain(TimeStampedModel):
 
     """
     Information from a project about it's Sphinx domains.
@@ -25,14 +25,14 @@ class DomainData(TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name='domain_data',
+        related_name='sphinx_domains',
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
-        related_name='domain_data',
+        related_name='sphinx_domains',
     )
-    commit = models.CharField(_('Commit'), max_length=255)
+    commit = models.CharField(_('Commit'), max_length=255, null=True)
 
     domain = models.CharField(
         _('Domain'),
@@ -62,16 +62,17 @@ class DomainData(TimeStampedModel):
 
     def __str__(self):
         return f'''
-            DomainData [{self.project.slug}:{self.version.slug}]
-            [{self.domain}:{self.type}] {self.name} -> {self.doc_name}#{self.anchor}
+            SphinxDomain [{self.project.slug}:{self.version.slug}]
+            [{self.domain}:{self.type}] {self.name} ->
+            {self.doc_name}#{self.anchor}
         '''
 
     @property
-    def doc_type(self):
+    def role_name(self):
         return f'{self.domain}:{self.type}'
 
     @property
-    def doc_url(self):
+    def docs_url(self):
         path = self.doc_name
         if self.anchor:
             path += f'#{self.anchor}'

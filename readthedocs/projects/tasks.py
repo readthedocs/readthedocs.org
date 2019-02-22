@@ -60,7 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.domaindata.models import DomainData
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.vcs_support import utils as vcs_support_utils
@@ -1160,7 +1160,8 @@ def _update_intersphinx_data(version, path, commit):
     """
     object_file = os.path.join(path, 'objects.inv')
 
-    # These classes are from copied from Sphinx tests
+    # These classes are from copied from Sphinx
+    # https://git.io/fhFbI
     class MockConfig:
         intersphinx_timeout = None
         tls_verify = False
@@ -1173,16 +1174,18 @@ def _update_intersphinx_data(version, path, commit):
             log.warning('Sphinx MockApp: %s', msg)
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
-    for key in sorted(invdata or {}):
+    for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
-        for name, einfo in sorted(invdata[key].items()):
+        for name, einfo in sorted(value.items()):
+            # project, version, url, display_name
+            # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
             url = einfo[2]
             if '#' in url:
                 doc_name, anchor = url.split('#')
             else:
                 doc_name, anchor = url, ''
             display_name = einfo[3]
-            obj, _ = DomainData.objects.get_or_create(
+            obj, _ = SphinxDomain.objects.get_or_create(
                 project=version.project,
                 version=version,
                 domain=domain,
@@ -1195,9 +1198,9 @@ def _update_intersphinx_data(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
                 obj.save()
-    DomainData.objects.filter(project=version.project,
-                              version=version
-                              ).exclude(commit=commit).delete()
+    SphinxDomain.objects.filter(project=version.project,
+                                version=version
+                                ).exclude(commit=commit).delete()
 
 
 def _manage_imported_files(version, path, commit):
