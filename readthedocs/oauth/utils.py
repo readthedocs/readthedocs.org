@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Support code for OAuth, including webhook support."""
 
 import logging
