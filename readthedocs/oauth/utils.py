@@ -12,7 +12,6 @@ from readthedocs.oauth.services import (
     BitbucketService,
     GitHubService,
     GitLabService,
-    registry,
 )
 from readthedocs.projects.models import Project
 
@@ -32,6 +31,7 @@ def update_webhook(project, integration, request=None):
     if service_cls is None:
         return None
 
+    updated = False
     try:
         account = project.remote_repository.account
         service = service_cls(request.user, account)
