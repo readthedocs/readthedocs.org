@@ -582,6 +582,18 @@ def test_validates_conda_file(tmpdir):
     assert build.conda.environment == str(tmpdir.join('environment.yml'))
 
 
+def test_file_is_required_when_using_conda(tmpdir):
+    apply_fs(tmpdir, {'environment.yml': ''})
+    build = get_build_config(
+        {'conda': {'foo': 'environment.yml'}},
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    with raises(InvalidConfig) as excinfo:
+        build.validate()
+    assert excinfo.value.key == 'conda.file'
+    assert excinfo.value.code == VALUE_NOT_FOUND
+
+
 def test_requirements_file_empty():
     build = get_build_config({})
     build.validate()
