@@ -14,7 +14,7 @@ from readthedocs.projects.models import Project
 class CoreTagsTests(TestCase):
     fixtures = ['eric', 'test_data']
 
-    @pytest.fixture(scope="module", autouse=True)
+    @pytest.fixture(autouse=True)
     def url_scheme(self, request):
         self.url_scheme = request.config.option.url_scheme
 
