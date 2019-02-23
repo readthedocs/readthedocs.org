@@ -14,9 +14,13 @@ from readthedocs.projects.models import Project
 class CoreTagsTests(TestCase):
     fixtures = ['eric', 'test_data']
 
+    @pytest.fixture(scope="module", autouse=True)
+    def url_scheme(self, request):
+        self.url_scheme = request.config.option.url_scheme
+
     def setUp(self):
         url_base = '{scheme}://{domain}/docs/pip{{version}}'.format(
-            scheme=pytest.config.option.url_scheme,
+            scheme=self.url_scheme,
             domain=settings.PRODUCTION_DOMAIN,
         )
 
