@@ -242,10 +242,10 @@ class ProjectAdmin(GuardedModelAdmin):
                     'No active versions of project {}'.format(project),
                     messages.ERROR
                 )
-
-            for version in active_versions.iterator():
-                html_objs = HTMLFile.objects.filter(project=project, version=version)
-                _indexing_helper(html_objs, wipe=False)
+            else:
+                for version in active_versions.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+                    _indexing_helper(html_objs, wipe=False)
 
             self.message_user(
                 request,
