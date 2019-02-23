@@ -13,7 +13,6 @@
 # https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl
 #
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import importlib
 import sys
@@ -28,8 +27,15 @@ from sphinx import version_info
 if globals().get('source_suffix', False):
     if isinstance(source_suffix, string_types):
         SUFFIX = source_suffix
-    else:
+    elif isinstance(source_suffix, (list, tuple)):
+        # Sphinx >= 1.3 supports list/tuple to define multiple suffixes
         SUFFIX = source_suffix[0]
+    elif isinstance(source_suffix, dict):
+        # Sphinx >= 1.8 supports a mapping dictionary for mulitple suffixes
+        SUFFIX = list(source_suffix.keys())[0]  # make a ``list()`` for py2/py3 compatibility
+    else:
+        # default to .rst
+        SUFFIX = '.rst'
 else:
     SUFFIX = '.rst'
 
@@ -82,9 +88,9 @@ context = {
         ("{{ slug }}", "{{ url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
-    'name': '{{ project.name }}',
-    'rtd_language': '{{ project.language }}',
-    'programming_language': '{{ project.programming_language }}',
+    'name': u'{{ project.name }}',
+    'rtd_language': u'{{ project.language }}',
+    'programming_language': u'{{ project.programming_language }}',
     'canonical_url': '{{ project.get_canonical_url }}',
     'analytics_code': '{{ project.analytics_code }}',
     'single_version': {{ project.single_version }},

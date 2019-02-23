@@ -4,9 +4,9 @@ from __future__ import division, print_function, unicode_literals
 
 import os
 import sys
+from configparser import RawConfigParser
 
 import sphinx_rtd_theme
-from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath('..'))
 sys.path.append(os.path.dirname(__file__))
@@ -19,6 +19,13 @@ import django
 django.setup()
 
 
+def get_version():
+    """Return package version from setup.cfg."""
+    config = RawConfigParser()
+    config.read(os.path.join('..', 'setup.cfg'))
+    return config.get('metadata', 'version')
+
+
 sys.path.append(os.path.abspath('_ext'))
 extensions = [
     'sphinx.ext.autosectionlabel',
@@ -29,20 +36,19 @@ extensions = [
     'doc_extensions',
     'sphinx_tabs.tabs',
     'sphinx-prompt',
+    'recommonmark',
+    'notfound.extension',
 ]
 templates_path = ['_templates']
 
 source_suffix = ['.rst', '.md']
-source_parsers = {
-    '.md': CommonMarkParser,
-}
 
 master_doc = 'index'
 project = u'Read the Docs'
 copyright = '2010-{}, Read the Docs, Inc & contributors'.format(
     timezone.now().year
 )
-version = '2.7'
+version = get_version()
 release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
@@ -83,6 +89,19 @@ html_theme_options = {
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+# sphinx-notfound-page
+# https://github.com/rtfd/sphinx-notfound-page
+notfound_context = {
+    'title': 'Page Not Found',
+    'body': '''
+<h1>Page Not Found</h1>
+
+<p>Sorry, we couldn't find that page.</p>
+
+<p>Try using the search box or go to the homepage.</p>
+''',
+}
 
 
 def setup(app):

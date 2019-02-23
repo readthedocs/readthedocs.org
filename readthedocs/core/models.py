@@ -6,7 +6,6 @@ import logging
 from annoying.fields import AutoOneToOneField
 from django.db import models
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,7 +15,6 @@ STANDARD_EMAIL = 'anonymous@readthedocs.org'
 log = logging.getLogger(__name__)
 
 
-@python_2_unicode_compatible
 class UserProfile(models.Model):
 
     """Additional information about a User."""

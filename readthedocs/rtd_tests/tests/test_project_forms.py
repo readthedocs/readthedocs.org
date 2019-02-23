@@ -7,7 +7,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
-from django.core.exceptions import ValidationError
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
@@ -181,6 +180,18 @@ class TestProjectForms(TestCase):
         self.assertTrue(form.has_error('tags'))
         error_msg = 'Length of each tag must be less than or equal to 100 characters.'
         self.assertDictEqual(form.errors, {'tags': [error_msg]})
+
+    def test_strip_repo_url(self):
+        form = ProjectBasicsForm({
+            'name': 'foo',
+            'repo_type': 'git',
+            'repo': 'https://github.com/rtfd/readthedocs.org/'
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(
+            form.cleaned_data['repo'],
+            'https://github.com/rtfd/readthedocs.org'
+        )
 
 
 class TestProjectAdvancedForm(TestCase):
@@ -623,7 +634,7 @@ class TestNotificationForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
-        
+
     def test_webhookform(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 

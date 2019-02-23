@@ -59,6 +59,9 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
+    # Read the Docs
+    READ_THE_DOCS_EXTENSIONS = ext
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
@@ -84,6 +87,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'django_elasticsearch_dsl',
 
             # our apps
             'readthedocs.projects',
@@ -99,6 +103,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.search',
 
 
             # allauth
@@ -271,7 +276,29 @@ class CommunityBaseSettings(Settings):
 
     # Docker
     DOCKER_ENABLE = False
-    DOCKER_IMAGE = 'readthedocs/build:2.0'
+    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    DOCKER_DEFAULT_VERSION = 'latest'
+    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE_SETTINGS = {
+        'readthedocs/build:1.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+        },
+        'readthedocs/build:2.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
+        },
+        'readthedocs/build:3.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+        },
+        'readthedocs/build:4.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+        },
+    }
+
+    # Alias tagged via ``docker tag`` on the build servers
+    DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+    })
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -322,8 +349,45 @@ class CommunityBaseSettings(Settings):
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
-    ES_DEFAULT_NUM_REPLICAS = 0
-    ES_DEFAULT_NUM_SHARDS = 5
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': '127.0.0.1:9200'
+        },
+    }
+    # Chunk size for elasticsearch reindex celery tasks
+    ES_TASK_CHUNK_SIZE = 100
+
+    ES_INDEXES = {
+        'project': {
+            'name': 'project_index',
+            'settings': {'number_of_shards': 2,
+                         'number_of_replicas': 0
+                         }
+        },
+        'page': {
+            'name': 'page_index',
+            'settings': {
+                'number_of_shards': 2,
+                'number_of_replicas': 0,
+                "index": {
+                    "sort.field": ["project", "version"]
+                }
+            }
+        },
+    }
+
+    # ANALYZER = 'analysis': {
+    #     'analyzer': {
+    #         'default_icu': {
+    #             'type': 'custom',
+    #             'tokenizer': 'icu_tokenizer',
+    #             'filter': ['word_delimiter', 'icu_folding', 'icu_normalizer'],
+    #         }
+    #     }
+    # }
+
+    # Disable auto refresh for increasing index performance
+    ELASTICSEARCH_DSL_AUTO_REFRESH = False
 
     ALLOWED_HOSTS = ['*']
 
