@@ -7,7 +7,7 @@ pre.highlight {
   padding: 12px 12px;
 }
 
-/* Tweek css for sphinx_prompt #5281 */
+/* Tweak css for sphinx_prompt #5281 */
 pre.highlight span[class^="prompt"] {
   font-size: 12px;
   line-height: 1.4;
