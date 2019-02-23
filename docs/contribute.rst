@@ -47,7 +47,7 @@ We have a strict code style that is easy to follow since you just have to
 install `pre-commit`_ and it will automatically run different linting tools
 (`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
 and `yapf`_) to check your changes before you commit them. `pre-commit` will let
-you know if there were any problems that is wasn't able to fix automatically.
+you know if there were any problems that it wasn't able to fix automatically.
 
 To run the `pre-commit` command and check your changes:
 

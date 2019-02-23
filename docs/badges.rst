@@ -71,8 +71,8 @@ since it will stay up to date with your Read the Docs project::
 
 .. _Read the Docs README: https://github.com/rtfd/readthedocs.org/blob/master/README.rst
 .. _project page: https://readthedocs.org/projects/pip/
-.. |green| image:: https://media.readthedocs.org/static/projects/badges/passing-flat.svg
-.. |red| image:: https://media.readthedocs.org/static/projects/badges/failing-flat.svg
-.. |yellow| image:: https://media.readthedocs.org/static/projects/badges/unknown-flat.svg
+.. |green| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
+.. |red| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg
+.. |yellow| image:: https://assets.readthedocs.org/static/projects/badges/unknown-flat.svg
 .. |nbsp| unicode:: 0xA0
    :trim:

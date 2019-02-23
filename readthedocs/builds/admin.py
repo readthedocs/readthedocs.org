@@ -2,10 +2,11 @@
 
 """Django admin interface for `~builds.models.Build` and related models."""
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.core.utils import trigger_build
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -54,49 +55,26 @@ class VersionAdmin(GuardedModelAdmin):
         'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
+    search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    # actions = ['reindex', 'wipe_index']
+    actions = ['build_version']
 
-    # def reindex(self, request, queryset):
-    #     """Reindex all selected versions"""
-    #     qs_iterator = queryset.iterator()
-    #     for version in qs_iterator:
-    #         success, err_msg = reindex_version(version)
-    #         if success:
-    #             self.message_user(
-    #                 request,
-    #                 'Reindexing triggered for {}'.format(version.slug),
-    #                 level=messages.SUCCESS
-    #             )
-    #         else:
-    #             self.message_user(
-    #                 request,
-    #                 'Reindexing failed for {}. {}'.format(version.slug, err_msg),
-    #                 level=messages.ERROR
-    #             )
+    def build_version(self, request, queryset):
+        """Trigger a build for the project version."""
+        total = 0
+        for version in queryset:
+            trigger_build(
+                project=version.project,
+                version=version,
+            )
+            total += 1
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Triggered builds for {} version(s).'.format(total),
+        )
 
-    # reindex.short_description = 'Reindex selected versions'
-
-    # def wipe_index(self, request, queryset):
-    #     """Wipe index of selected versions"""
-    #     qs_iterator = queryset.iterator()
-    #     for version in qs_iterator:
-    #         query = get_delete_query(version_slug=version.slug)
-    #         success, err_msg = unindex_via_query(query)
-    #         if success:
-    #             self.message_user(
-    #                 request,
-    #                 'Index wiped for {}'.format(version.slug),
-    #                 level=messages.SUCCESS
-    #             )
-    #         else:
-    #             self.message_user(
-    #                 request,
-    #                 'Error in wiping index for {}. {}'.format(version.slug, err_msg),
-    #                 level=messages.ERROR
-    #             )
-
-    # wipe_index.short_description = 'Wipe index of selected versions'
+    build_version.short_description = 'Build version'
 
 
 admin.site.register(Build, BuildAdmin)
