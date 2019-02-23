@@ -702,6 +702,14 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer label { color: #BCC1C3; font-weight: normal; }
 #footer input[type="text"], #footer input[type="email"] { padding: 4px; font-size: 12px; line-height: 16px; margin-bottom: 5px }
 
+/* Warning Icon for Build List triggered */
+.module-item.col-span a span.icon-warning:before {
+  font-family: FontAwesome;
+  font-size: .9em;
+  padding-right: .3em;
+  font-weight: normal;
+  content: "\f071";
+}
 
 /* utils */
 
@@ -1105,11 +1113,12 @@ select.dropdown { display: none; }
 .dropdown > ul:before { content:' '; visibility: visible; border:8px solid transparent; border-bottom-color: #465158; position:absolute; top:-16px; left:104px; }
 
 
-.badge { position: relative; display: inline-block; width: 700px; left: -350px;}
+.badge { position: absolute; left: 0; top: 0; z-index: 20; }
 .badge > ul:before { visibility: visible; border:8px solid transparent; border-bottom-color: #465158; position:absolute; top:-16px;  }
-.badge > ul { margin-top: 3px; position:absolute; top:100%; background:#465158; padding:4px; border-radius:4px; z-index:1005; min-width:500; box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.2); }
+.badge > ul { margin-top: 3px; position:absolute; top:100%; background:#465158; padding:4px; border-radius:4px; z-index:1005; min-width:500px; box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.2); width: 500px; }
 .badge > ul > li { background: white; padding:8px 10px; border-bottom:1px solid #EEE; }
 .badge pre { font-size: 12px; }
+.badge-info:after { font-family: "FontAwesome"; content: "\f05a"; font-size: 23px; vertical-align: text-bottom; }
 
 /* Modals */
 .modal {

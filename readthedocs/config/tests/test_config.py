@@ -105,7 +105,7 @@ def test_load_version1(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {'allow_v2': True})
+    build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -118,7 +118,7 @@ def test_load_version2(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {'allow_v2': True})
+    build = load(base, {})
     assert isinstance(build, BuildConfigV2)
 
 
@@ -132,7 +132,7 @@ def test_load_unknow_version(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {'allow_v2': True})
+        load(base, {})
     assert excinfo.value.code == VERSION_INVALID
 
 
@@ -363,8 +363,8 @@ class TestValidatePythonVersion:
         )
         build.validate()
         assert build.python.version == 3
-        assert build.python_interpreter == 'python3.5'
-        assert build.python_full_version == 3.5
+        assert build.python_interpreter == 'python3.7'
+        assert build.python_full_version == 3.7
 
     def test_it_validates_env_supported_versions(self):
         build = get_build_config(
@@ -483,7 +483,7 @@ class TestValidateBuild:
         apply_fs(tmpdir, yaml_config_dir)
         build = BuildConfigV1(
             {},
-            {'build': {'image': 3.0}},
+            {'build': {'image': 3.2}},
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
@@ -513,7 +513,7 @@ class TestValidateBuild:
             {},
             {
                 'build': {'image': 'latest'},
-                'python': {'version': '3.3'},
+                'python': {'version': '3.6'},
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -538,7 +538,7 @@ class TestValidateBuild:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.build.image == 'readthedocs/build:2.0'
+        assert build.build.image == 'readthedocs/build:latest'
 
     @pytest.mark.parametrize(
         'image', ['latest', 'readthedocs/build:3.0', 'rtd/build:latest'],
@@ -557,18 +557,10 @@ class TestValidateBuild:
         assert build.build.image == image
 
 
-def test_use_conda_default_false():
+def test_use_conda_default_none():
     build = get_build_config({})
     build.validate()
     assert build.conda is None
-
-
-def test_use_conda_respects_config():
-    build = get_build_config(
-        {'conda': {}},
-    )
-    build.validate()
-    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
@@ -580,6 +572,18 @@ def test_validates_conda_file(tmpdir):
     build.validate()
     assert isinstance(build.conda, Conda)
     assert build.conda.environment == str(tmpdir.join('environment.yml'))
+
+
+def test_file_is_required_when_using_conda(tmpdir):
+    apply_fs(tmpdir, {'environment.yml': ''})
+    build = get_build_config(
+        {'conda': {'foo': 'environment.yml'}},
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    with raises(InvalidConfig) as excinfo:
+        build.validate()
+    assert excinfo.value.key == 'conda.file'
+    assert excinfo.value.code == VALUE_NOT_FOUND
 
 
 def test_requirements_file_empty():
@@ -712,7 +716,7 @@ def test_as_dict(tmpdir):
             'use_system_site_packages': False,
         },
         'build': {
-            'image': 'readthedocs/build:2.0',
+            'image': 'readthedocs/build:latest',
         },
         'conda': None,
         'sphinx': {

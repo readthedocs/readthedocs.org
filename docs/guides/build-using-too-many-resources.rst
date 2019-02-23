@@ -10,7 +10,8 @@ there are a couple fixes that you might try.
 Reduce formats you're building
 ------------------------------
 
-You can change the formats of docs that you're building with our YAML file's :ref:`yaml-config:Formats` option.
+You can change the formats of docs that you're building with our :doc:`/config-file/index`,
+see :ref:`config-file/v2:formats`.
 
 In particular, the ``htmlzip`` takes up a decent amount of memory and time,
 so disabling that format might solve your problem.
@@ -31,7 +32,7 @@ If you don't need ``conda`` to create your *documentation* environment,
 consider using ``pip`` instead since ``conda`` could `require too much memory`_ to calculate the dependency tree
 when using multiple channels.
 
-.. _require too much memory: https://github.com/conda/conda/issues/5003>
+.. _require too much memory: https://github.com/conda/conda/issues/5003
 
 
 .. tip::
@@ -48,6 +49,6 @@ There are a few libraries that Read the Docs has already installed (scipy, numpy
 in the Docker image used to build your docs. You can check the updated list of pre-installed libraries in the `Docker image repository`_.
 
 To use these pre-installed libraries and avoid consuming time re-downloading/compiling them,
-you can use the :ref:`yaml-config:python.use_system_site_packages` option to have access to them.
+you can use the :ref:`config-file/v2:python.system_packages` option to have access to them.
 
 .. _Docker image repository: https://github.com/rtfd/readthedocs-docker-images

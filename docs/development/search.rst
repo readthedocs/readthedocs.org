@@ -37,13 +37,14 @@ By default, Auto Indexing is turned off in development mode. To turn it on, chan
 After that, whenever a documentation successfully builds, or project gets added,
 the search index will update automatically.
 
-
 Architecture
 ------------
 The search architecture is devided into 2 parts.
-One part is responsible for **indexing** the documents and projects and
-the other part is responsible for querying the Index to show the proper results to users.
-We use the `django-elasticsearch-dsl`_ package mostly to the keep the search working.
+
+* One part is responsible for **indexing** the documents and projects (``documents.py``)
+* The other part is responsible for **querying** the Index to show the proper results to users (``faceted_search.py``)
+
+We use the `django-elasticsearch-dsl`_ package for our Document abstraction.
 `django-elasticsearch-dsl`_ is a wrapper around `elasticsearch-dsl`_ for easy configuration
 with Django.
 
@@ -61,7 +62,7 @@ After any build is successfully finished, `HTMLFile` objects are created for eac
 `django-elasticsearch-dsl`_ package listens to the `post_create`/`post_delete` signals
 to index/delete documents, but it has performance drawbacks as it send HTTP request whenever
 any `HTMLFile` objects is created or deleted. To optimize the performance, `bulk_post_create`
-and `bulk_post_delete` Signals_ are dispatched with list of `HTMLFIle` objects so its possible
+and `bulk_post_delete` signals_ are dispatched with list of `HTMLFIle` objects so its possible
 to bulk index documents in elasticsearch ( `bulk_post_create` signal is dispatched for created
 and `bulk_post_delete` is dispatched for deleted objects). Both of the signals are dispatched
 with the list of the instances of `HTMLFile` in `instance_list` parameter.
@@ -72,10 +73,10 @@ and index/delete the documentation content from the `HTMLFile` instances.
 
 How we index projects
 ~~~~~~~~~~~~~~~~~~~~~
-We also index project information in our search index so that the user can search for projects
-from the main site. `django-elasticsearch-dsl`_ listen `post_create` and `post_delete` signals of
-`Project` model and index/delete into Elasticsearch accordingly.
 
+We also index project information in our search index so that the user can search for projects
+from the main site. We listen to the `post_create` and `post_delete` signals of
+`Project` model and index/delete into Elasticsearch accordingly.
 
 Elasticsearch Document
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -88,9 +89,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
     `django-elasticsearch-dsl`_ listens to the `post_save` signal of `Project` model and
     then index/delete into Elasticsearch.
 
-    **PageDocument**: It is used for indexing documentation of projects. By default, the auto
-    indexing is turned off by `ignore_signals = settings.ES_PAGE_IGNORE_SIGNALS`.
-    `settings.ES_PAGE_IGNORE_SIGNALS` is `False` both in development and production.
+    **PageDocument**: It is used for indexing documentation of projects. 
     As mentioned above, our `Search` app listens to the `bulk_post_create` and `bulk_post_delete`
     signals and indexes/deleted documentation into Elasticsearch. The signal listeners are in
     the `readthedocs/search/signals.py` file. Both of the signals are dispatched
@@ -107,4 +106,4 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 .. _Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
-.. _Signals: https://docs.djangoproject.com/en/2.1/topics/signals/
+.. _signals: https://docs.djangoproject.com/en/2.1/topics/signals/
