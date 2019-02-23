@@ -247,11 +247,11 @@ class ProjectAdmin(GuardedModelAdmin):
                     html_objs = HTMLFile.objects.filter(project=project, version=version)
                     _indexing_helper(html_objs, wipe=False)
 
-            self.message_user(
-                request,
-                'Task initiated successfully.',
-                messages.SUCCESS
-            )
+                self.message_user(
+                    request,
+                    'Task initiated successfully.',
+                    messages.SUCCESS
+                )
 
     reindex_active_versions.short_description = 'Reindex active versions'
 
@@ -260,15 +260,22 @@ class ProjectAdmin(GuardedModelAdmin):
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
             version_qs = Version.objects.filter(project=project)
-            for version in version_qs.iterator():
-                html_objs = HTMLFile.objects.filter(project=project, version=version)
-                _indexing_helper(html_objs, wipe=True)
+            if not version_qs.exists():
+                self.message_user(
+                    request,
+                    'No active versions of project {}'.format(project),
+                    messages.ERROR
+                )
+            else:
+                for version in version_qs.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+                    _indexing_helper(html_objs, wipe=True)
 
-        self.message_user(
-            request,
-            'Task initiated successfully.',
-            messages.SUCCESS
-        )
+                self.message_user(
+                    request,
+                    'Task initiated successfully.',
+                    messages.SUCCESS
+                )
 
     wipe_all_versions.short_description = 'Wipe all versions'
 
