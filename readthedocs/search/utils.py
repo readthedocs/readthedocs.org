@@ -8,7 +8,8 @@ from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.search.documents import PageDocument
 
 
 log = logging.getLogger(__name__)
@@ -67,3 +68,25 @@ def _get_document(model, document_class):
     for document in documents:
         if str(document) == document_class:
             return document
+
+
+def _indexing_helper(html_objs, wipe=False):
+    """
+    Helper function for reindexing and wiping indexes of projects and versions.
+
+    If ``wipe`` is set to False, html_objs are deleted from the ES index,
+    else, html_objs are indexed.
+    """
+    from readthedocs.search.tasks import index_objects_to_es, delete_objects_in_es
+
+    kwargs = {
+        'app_label': HTMLFile._meta.app_label,
+        'model_name': HTMLFile.__name__,
+        'document_class': str(PageDocument),
+        'objects_id': [obj.id for obj in html_objs],
+    }
+
+    if not wipe:
+        index_objects_to_es.delay(**kwargs)
+    else:
+        delete_objects_in_es.delay(**kwargs)

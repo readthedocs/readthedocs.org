@@ -7,6 +7,8 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import HTMLFile
+from readthedocs.search.utils import _indexing_helper
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -57,7 +59,7 @@ class VersionAdmin(GuardedModelAdmin):
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['build_version']
+    actions = ['build_version', 'reindex_version', 'wipe_version']
 
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
@@ -75,6 +77,34 @@ class VersionAdmin(GuardedModelAdmin):
         )
 
     build_version.short_description = 'Build version'
+
+    def reindex_version(self, request, queryset):
+        """Reindexes all selected versions to ES."""
+        for version in queryset.iterator():
+            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
+            _indexing_helper(html_objs, wipe=False)
+
+        self.message_user(
+            request,
+            'Task initiated successfully',
+            messages.SUCCESS
+        )
+
+    reindex_version.short_description = 'Reindex version'
+
+    def wipe_version(self, request, queryset):
+        """Wipe selected versions from ES."""
+        for version in queryset.iterator():
+            html_objs = HTMLFile.objects.filter(project=version.project, version=version)
+            _indexing_helper(html_objs, wipe=True)
+
+        self.message_user(
+            request,
+            'Task initiated successfully',
+            messages.SUCCESS,
+        )
+
+    wipe_version.short_description = 'Wipe version'
 
 
 admin.site.register(Build, BuildAdmin)
