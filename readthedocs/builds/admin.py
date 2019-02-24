@@ -90,7 +90,7 @@ class VersionAdmin(GuardedModelAdmin):
             messages.SUCCESS
         )
 
-    reindex_version.short_description = 'Reindex version'
+    reindex_version.short_description = 'Reindex version to ES'
 
     def wipe_version(self, request, queryset):
         """Wipe selected versions from ES."""
@@ -104,7 +104,7 @@ class VersionAdmin(GuardedModelAdmin):
             messages.SUCCESS,
         )
 
-    wipe_version.short_description = 'Wipe version'
+    wipe_version.short_description = 'Wipe version from ES'
 
 
 admin.site.register(Build, BuildAdmin)

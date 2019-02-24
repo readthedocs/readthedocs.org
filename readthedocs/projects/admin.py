@@ -253,7 +253,7 @@ class ProjectAdmin(GuardedModelAdmin):
                     messages.SUCCESS
                 )
 
-    reindex_active_versions.short_description = 'Reindex active versions'
+    reindex_active_versions.short_description = 'Reindex active versions to ES'
 
     def wipe_all_versions(self, request, queryset):
         """Wipe indexes of all versions of selected projects."""
@@ -277,7 +277,7 @@ class ProjectAdmin(GuardedModelAdmin):
                     messages.SUCCESS
                 )
 
-    wipe_all_versions.short_description = 'Wipe all versions'
+    wipe_all_versions.short_description = 'Wipe all versions from ES'
 
     def get_actions(self, request):
         actions = super().get_actions(request)
