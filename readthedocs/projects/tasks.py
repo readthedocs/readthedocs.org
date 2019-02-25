@@ -720,7 +720,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             search=False,
             pdf=False,
             epub=False,
-            delete=True,
     ):
         """
         Update application instances with build artifacts.
@@ -758,7 +757,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             localmedia = False
             pdf = False
             epub = False
-            delete = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -776,7 +774,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 search=search,
                 pdf=pdf,
                 epub=epub,
-                delete=delete,
             ),
             callback=sync_callback.s(
                 version_pk=self.version.pk,
@@ -933,7 +930,6 @@ def sync_files(
         search=False,
         pdf=False,
         epub=False,
-        delete=False,
 ):
     """
     Sync build artifacts to application instances.
@@ -945,41 +941,40 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
-    if delete:
-        if not pdf:
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='pdf',
-                    version_slug=version.slug,
-                ),
-            ])
+    if not pdf:
+        remove_dirs([
+            version.project.get_production_media_path(
+                type_='pdf',
+                version_slug=version.slug,
+            ),
+        ])
 
-            if getattr(storage, 'write_build_media', False):
-                # Remove PDF from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='pdf',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-        if not epub:
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                ),
-            ])
+        if getattr(storage, 'write_build_media', False):
+            # Remove PDF from remote storage if it exists
+            storage_path = version.project.get_storage_path(
+                type_='pdf',
+                version_slug=version.slug,
+            )
+            if storage.exists(storage_path):
+                log.info('Removing %s from media storage', storage_path)
+                storage.delete(storage_path)
+    if not epub:
+        remove_dirs([
+            version.project.get_production_media_path(
+                type_='epub',
+                version_slug=version.slug,
+            ),
+        ])
 
-            if getattr(storage, 'write_build_media', False):
-                # Remove ePub from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
+        if getattr(storage, 'write_build_media', False):
+            # Remove ePub from remote storage if it exists
+            storage_path = version.project.get_storage_path(
+                type_='epub',
+                version_slug=version.slug,
+            )
+            if storage.exists(storage_path):
+                log.info('Removing %s from media storage', storage_path)
+                storage.delete(storage_path)
 
     # Sync files to the web servers
     move_files(
