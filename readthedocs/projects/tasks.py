@@ -1006,11 +1006,14 @@ def move_files(
     # We set `epub=False` for example so data doesn't get re-uploaded on each web,
     # so we need this to protect against deleting in those cases
     if delete_unsynced_media:
+
         if not pdf:
+
             remove_dirs([
                 version.project.get_production_media_path(
                     type_='pdf',
                     version_slug=version.slug,
+                    include_file=False,
                 ),
             ])
 
@@ -1023,11 +1026,14 @@ def move_files(
                 if storage.exists(storage_path):
                     log.info('Removing %s from media storage', storage_path)
                     storage.delete(storage_path)
+
         if not epub:
+
             remove_dirs([
                 version.project.get_production_media_path(
                     type_='epub',
                     version_slug=version.slug,
+                    include_file=False,
                 ),
             ])
 
@@ -1042,10 +1048,12 @@ def move_files(
                     storage.delete(storage_path)
 
         if not localmedia:
+
             remove_dirs([
                 version.project.get_production_media_path(
                     type_='htmlzip',
                     version_slug=version.slug,
+                    include_file=False,
                 ),
             ])
 
