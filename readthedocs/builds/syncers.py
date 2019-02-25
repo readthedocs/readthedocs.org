@@ -172,8 +172,7 @@ class RemotePuller(BaseSyncer):
 class SelectiveStorageRemotePuller(RemotePuller):
 
     """
-    Exactly like RemotePuller except that certain files are copied via Django's
-    storage system.
+    Like RemotePuller but certain files are copied via Django's storage system.
 
     If a file with extensions specified by ``extensions`` is copied, it will be copied to storage
     and the original is removed.
