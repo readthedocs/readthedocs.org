@@ -238,8 +238,6 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/': {'status_code': 302},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-        # URL name is provided
-        'projects_domains_delete': {'status_code': 302},
 
         # This depends on an inactive project
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
@@ -253,6 +251,8 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        # URL name is provided
+        'projects_domains_delete': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
@@ -289,6 +289,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        # URL name is provided
+        'projects_domains_delete': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.

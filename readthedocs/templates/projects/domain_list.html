@@ -32,7 +32,12 @@
                 </span>
                 <ul class="module-item-menu">
                   <li><a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a></li>
-                  <li><a href="{% url 'projects_domains_delete' project.slug domain.pk %}" onclick="return deleteConfirmation()">{% trans "Remove" %}</a></li>
+                  <li>
+                    <form method="post" action="{% url 'projects_domains_delete' project.slug domain.pk %}">
+                      {% csrf_token %}
+                      <a type="submit" href="#" onclick="$(this).closest('form').submit()">{% trans "Remove" %}</a>
+                    </form>
+                  </li>
                 </ul>
                 </li>
               {% endfor %}
