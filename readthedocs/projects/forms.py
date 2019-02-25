@@ -131,6 +131,10 @@ class ProjectBasicsForm(ProjectForm):
 
         return name
 
+    def clean_repo(self):
+        repo = self.cleaned_data.get('repo', '')
+        return repo.rstrip('/')
+
     def clean_remote_repository(self):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if not remote_repo:

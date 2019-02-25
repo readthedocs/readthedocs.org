@@ -9,16 +9,18 @@ All these variables will be exposed to all the commands executed when building y
 
 To define an environment variable, you need to
 
-#. Go to your project **Admin > Environment Variables**
+#. Go to your project :guilabel:`Admin` > :guilabel:`Environment Variables`
 #. Click on "Add Environment Variable" button
 #. Input a ``Name`` and ``Value`` (your secret needed here)
 #. Click "Save" button
 
 .. note::
 
-   Values will never be exposed to users, even to owners of the project. Once you create an environment variable you won't be able to see its value anymore because of security purposes.
+   Values will never be exposed to users, even to owners of the project.
+   Once you create an environment variable you won't be able to see its value anymore because of security purposes.
 
-After adding an environment variable from your project's admin, you can access it from your build process using Python, for example:
+After adding an environment variable from your project's admin, you can access it from your build process using Python,
+for example:
 
 .. code-block:: python
 

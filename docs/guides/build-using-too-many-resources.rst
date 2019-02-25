@@ -32,7 +32,7 @@ If you don't need ``conda`` to create your *documentation* environment,
 consider using ``pip`` instead since ``conda`` could `require too much memory`_ to calculate the dependency tree
 when using multiple channels.
 
-.. _require too much memory: https://github.com/conda/conda/issues/5003>
+.. _require too much memory: https://github.com/conda/conda/issues/5003
 
 
 .. tip::
