@@ -769,7 +769,8 @@ class DomainUpdate(DomainMixin, UpdateView):
 
 
 class DomainDelete(DomainMixin, View):
-    
+
+    # POST request is required for the deletion of the domain.
     def post(self, request, *args, **kwargs):
         domain = get_object_or_404(Domain, pk=kwargs.get('domain_pk'))
         domain.delete()
