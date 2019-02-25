@@ -927,7 +927,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 def sync_files(
         project_pk, version_pk, doctype, hostname=None, html=False,
         localmedia=False, search=False, pdf=False, epub=False,
-        delete_unsynced_media=True
+        delete_unsynced_media=False,
 ):
     """
     Sync build artifacts to application instances.
@@ -970,7 +970,7 @@ def move_files(
         search=False,
         pdf=False,
         epub=False,
-        delete_unsynced_media=True,
+        delete_unsynced_media=False,
 ):
     """
     Task to move built documentation to web servers.
