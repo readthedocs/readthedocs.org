@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 
 from datetime import timedelta
 
-from mock import patch
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
@@ -11,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from allauth.account.models import EmailAddress
+from mock import patch
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version

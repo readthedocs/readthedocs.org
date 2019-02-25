@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Tasks related to projects.
 
@@ -854,7 +852,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 type='app',
                 task=move_files,
                 args=[
-                    self.version.pk, socket.gethostname(), self.config.doctype
+                    self.version.pk,
+                    socket.gethostname(), self.config.doctype
                 ],
                 kwargs=dict(html=True),
             )
@@ -926,15 +925,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk,
-        version_pk,
-        doctype,
-        hostname=None,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
+        project_pk, version_pk, doctype, hostname=None, html=False,
+        localmedia=False, search=False, pdf=False, epub=False,
         delete_unsynced_media=True
 ):
     """

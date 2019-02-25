@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Public project views."""
 
 import json
@@ -15,7 +13,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
@@ -208,7 +206,9 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
-        storage_path = version.project.get_storage_path(type_=type_, version_slug=version_slug)
+        storage_path = version.project.get_storage_path(
+            type_=type_, version_slug=version_slug
+        )
         if storage.exists(storage_path):
             return HttpResponseRedirect(storage.url(storage_path))
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project models."""
 
 import fnmatch
@@ -514,7 +512,7 @@ class Project(models.Model):
 
     def get_storage_path(self, type_, version_slug=LATEST):
         """
-        Get a path to a build artifact for use with Django's storage system
+        Get a path to a build artifact for use with Django's storage system.
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
@@ -748,20 +746,32 @@ class Project(models.Model):
     def has_pdf(self, version_slug=LATEST):
         if not self.enable_pdf_build:
             return False
-        path = self.get_production_media_path(type_='pdf', version_slug=version_slug)
-        storage_path = self.get_storage_path(type_='pdf', version_slug=version_slug)
+        path = self.get_production_media_path(
+            type_='pdf', version_slug=version_slug
+        )
+        storage_path = self.get_storage_path(
+            type_='pdf', version_slug=version_slug
+        )
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
         if not self.enable_epub_build:
             return False
-        path = self.get_production_media_path(type_='epub', version_slug=version_slug)
-        storage_path = self.get_storage_path(type_='epub', version_slug=version_slug)
+        path = self.get_production_media_path(
+            type_='epub', version_slug=version_slug
+        )
+        storage_path = self.get_storage_path(
+            type_='epub', version_slug=version_slug
+        )
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_htmlzip(self, version_slug=LATEST):
-        path = self.get_production_media_path(type_='htmlzip', version_slug=version_slug)
-        storage_path = self.get_storage_path(type_='htmlzip', version_slug=version_slug)
+        path = self.get_production_media_path(
+            type_='htmlzip', version_slug=version_slug
+        )
+        storage_path = self.get_storage_path(
+            type_='htmlzip', version_slug=version_slug
+        )
         return os.path.exists(path) or storage.exists(storage_path)
 
     @property

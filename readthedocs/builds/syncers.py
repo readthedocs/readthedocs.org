@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Classes to copy files between build and web servers.
 
@@ -174,7 +172,8 @@ class RemotePuller(BaseSyncer):
 class SelectiveStorageRemotePuller(RemotePuller):
 
     """
-    Exactly like RemotePuller except that certain files are copied via Django's storage system
+    Exactly like RemotePuller except that certain files are copied via Django's
+    storage system.
 
     If a file with extensions specified by ``extensions`` is copied, it will be copied to storage
     and the original is removed.
@@ -187,7 +186,7 @@ class SelectiveStorageRemotePuller(RemotePuller):
     @classmethod
     def get_storage_path(cls, path):
         """
-        Gets the path to the file within the storage engine
+        Gets the path to the file within the storage engine.
 
         For example, if the path was $MEDIA_ROOT/pdfs/latest.pdf
          the storage_path is 'pdfs/latest.pdf'
@@ -213,7 +212,7 @@ class SelectiveStorageRemotePuller(RemotePuller):
 
             if is_file and os.path.exists(target) and \
                     any([target.lower().endswith(ext) for ext in cls.extensions]):
-                log.info("Selective Copy %s to media storage", target)
+                log.info('Selective Copy %s to media storage', target)
 
                 storage_path = cls.get_storage_path(target)
 
