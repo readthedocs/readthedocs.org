@@ -741,6 +741,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
         hostname = socket.gethostname()
 
+        delete_unsynced_media = True
+
         if getattr(storage, 'write_build_media', False):
             # Handle the case where we want to upload some built assets to our storage
             move_files.delay(
@@ -752,11 +754,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 localmedia=localmedia,
                 pdf=pdf,
                 epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
             )
             # Set variables so they don't get synced in the next broadcast step
             localmedia = False
             pdf = False
             epub = False
+            delete_unsynced_media = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -774,6 +778,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 search=search,
                 pdf=pdf,
                 epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
             ),
             callback=sync_callback.s(
                 version_pk=self.version.pk,
@@ -930,6 +935,7 @@ def sync_files(
         search=False,
         pdf=False,
         epub=False,
+        delete_unsynced_media=True
 ):
     """
     Sync build artifacts to application instances.
@@ -941,40 +947,6 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
-    if not pdf:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-            ),
-        ])
-
-        if getattr(storage, 'write_build_media', False):
-            # Remove PDF from remote storage if it exists
-            storage_path = version.project.get_storage_path(
-                type_='pdf',
-                version_slug=version.slug,
-            )
-            if storage.exists(storage_path):
-                log.info('Removing %s from media storage', storage_path)
-                storage.delete(storage_path)
-    if not epub:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-            ),
-        ])
-
-        if getattr(storage, 'write_build_media', False):
-            # Remove ePub from remote storage if it exists
-            storage_path = version.project.get_storage_path(
-                type_='epub',
-                version_slug=version.slug,
-            )
-            if storage.exists(storage_path):
-                log.info('Removing %s from media storage', storage_path)
-                storage.delete(storage_path)
 
     # Sync files to the web servers
     move_files(
@@ -986,6 +958,7 @@ def sync_files(
         search=search,
         pdf=pdf,
         epub=epub,
+        delete_unsynced_media=delete_unsynced_media,
     )
 
     # Symlink project
@@ -1005,6 +978,7 @@ def move_files(
         search=False,
         pdf=False,
         epub=False,
+        delete_unsynced_media=True,
 ):
     """
     Task to move built documentation to web servers.
@@ -1021,10 +995,70 @@ def move_files(
     :type pdf: bool
     :param epub: Sync ePub files
     :type epub: bool
+    :param delete_unsynced_media: Whether to try and delete files.
+    :type delete_unsynced_media: bool
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
+
+    # This is False if we have already synced media files to blob storage
+    # We set `epub=False` for example so data doesn't get re-uploaded on each web,
+    # so we need this to protect against deleting in those cases
+    if delete_unsynced_media:
+        if not pdf:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='pdf',
+                    version_slug=version.slug,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove PDF from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='pdf',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+        if not epub:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='epub',
+                    version_slug=version.slug,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove ePub from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='epub',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
+        if not localmedia:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='htmlzip',
+                    version_slug=version.slug,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove ePub from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='htmlzip',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
