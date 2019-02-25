@@ -6,7 +6,7 @@ virtualenv==16.4.1
 django==1.11.20  # pyup: <1.12
 django-tastypie==0.14.2
 django-guardian==1.5.0
-django-extensions==2.1.5
+django-extensions==2.1.6
 
 djangorestframework==3.9.1
 
