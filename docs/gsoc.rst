@@ -49,6 +49,7 @@ Currently we have a few folks signed up:
 * Eric Holscher
 * Manuel Kaufmann
 * Anthony Johnson
+* Safwan Rahman
 
 .. warning:: Please do not reach out directly to anyone about the Summer of Code.
              It will **not** increase your chances of being accepted!
