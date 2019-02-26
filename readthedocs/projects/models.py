@@ -1089,6 +1089,10 @@ class ImportedFile(models.Model):
     )
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
+
+    # max_length is set to 4096 because linux has a maximum path length
+    # of 4096 characters for most filesystems (including EXT4).
+    # https://github.com/rtfd/readthedocs.org/issues/5061
     path = models.CharField(_('Path'), max_length=4096)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
