@@ -107,6 +107,8 @@ class CommunityBaseSettings(Settings):
             'guardian',
             'django_gravatar',
             'rest_framework',
+            'rest_framework.authtoken',
+            'rest_framework_serializer_extensions',
             'corsheaders',
             'textclassifier',
             'annoying',
@@ -125,6 +127,10 @@ class CommunityBaseSettings(Settings):
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
             'readthedocs.restapi',
+
+            # TODO: refactor this module to be ``api.v3``
+            'readthedocs.v3',
+
             'readthedocs.gold',
             'readthedocs.payments',
             'readthedocs.notifications',
