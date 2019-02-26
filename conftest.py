@@ -55,4 +55,4 @@ def api_client():
 
 @pytest.fixture(scope="class")
 def url_scheme(request):
-        request.cls.url_scheme = request.config.option.url_scheme
+    request.cls.url_scheme = request.config.option.url_scheme
