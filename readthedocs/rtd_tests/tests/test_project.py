@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import json
 
@@ -121,6 +120,20 @@ class TestProject(ProjectMixin, TestCase):
         ) as cm:
             self.pip.conf_file()
 
+    def test_get_storage_path(self):
+        self.assertEqual(
+            self.pip.get_storage_path('pdf', LATEST),
+            'pdf/pip/latest/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', LATEST),
+            'epub/pip/latest/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', LATEST),
+            'htmlzip/pip/latest/pip.zip',
+        )
+
 
 class TestProjectTranslations(ProjectMixin, TestCase):
 
@@ -239,10 +252,8 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertIsNone(project_b.main_language_project)
 
     def test_previous_users_can_list_and_delete_translations_not_owner(self):
-        """
-        Test to make sure that previous users can list and delete
-        projects where they aren't owners.
-        """
+        """Test to make sure that previous users can list and delete projects
+        where they aren't owners."""
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],

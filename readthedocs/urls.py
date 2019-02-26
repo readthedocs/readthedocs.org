@@ -87,7 +87,7 @@ i18n_urls = [
 ]
 
 admin_urls = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 ]
 
 dnt_urls = [
