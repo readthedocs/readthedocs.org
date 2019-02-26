@@ -11,7 +11,7 @@ import os
 import re
 
 from django.conf import settings
-from django.utils.functional import allow_lazy
+from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 from celery import group, chord
@@ -197,6 +197,7 @@ def send_email(
     )
 
 
+@keep_lazy(str, SafeText)
 def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
@@ -208,9 +209,6 @@ def slugify(value, *args, **kwargs):
     if dns_safe:
         value = mark_safe(re.sub('[-_]+', '-', value))
     return value
-
-
-slugify = allow_lazy(slugify, str, SafeText)
 
 
 def safe_makedirs(directory_name):

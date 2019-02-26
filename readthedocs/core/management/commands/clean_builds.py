@@ -23,7 +23,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--days',
             dest='days',
-            type='int',
+            type=int,
             default=365,
             help='Find builds older than DAYS days, default: 365',
         )

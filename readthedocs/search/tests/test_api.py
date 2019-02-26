@@ -6,17 +6,19 @@ from django_dynamic_fixture import G
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.search.documents import PageDocument
 
 
 @pytest.mark.django_db
 @pytest.mark.search
 class TestDocumentSearch(object):
 
-    def __init__(self):
-        # This reverse needs to be inside the ``__init__`` method because from
+    @classmethod
+    def setup_class(cls):
+        # This reverse needs to be inside the ``setup_class`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        self.url = reverse('doc_search')
+        cls.url = reverse('doc_search')
 
     @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
@@ -58,7 +60,7 @@ class TestDocumentSearch(object):
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(Version, project=project)
+        dummy_version = G(Version, project=project, active=True)
         # Create HTMLFile same as the latest version
         latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
         for f in latest_version_files:
@@ -66,6 +68,7 @@ class TestDocumentSearch(object):
             # Make primary key to None, so django will create new object
             f.pk = None
             f.save()
+            PageDocument().update(f)
 
         search_params = {'q': query, 'project': project.slug, 'version': dummy_version.slug}
         resp = api_client.get(self.url, search_params)
@@ -87,6 +90,7 @@ class TestDocumentSearch(object):
             # Make primary key to None, so django will create new object
             html_file.pk = None
             html_file.save()
+            PageDocument().update(html_file)
 
         search_params = {'q': query, 'project': project.slug, 'version': latest_version.slug}
         resp = api_client.get(self.url, search_params)

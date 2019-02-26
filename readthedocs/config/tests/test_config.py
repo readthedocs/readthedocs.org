@@ -557,18 +557,10 @@ class TestValidateBuild:
         assert build.build.image == image
 
 
-def test_use_conda_default_false():
+def test_use_conda_default_none():
     build = get_build_config({})
     build.validate()
     assert build.conda is None
-
-
-def test_use_conda_respects_config():
-    build = get_build_config(
-        {'conda': {}},
-    )
-    build.validate()
-    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
@@ -580,6 +572,18 @@ def test_validates_conda_file(tmpdir):
     build.validate()
     assert isinstance(build.conda, Conda)
     assert build.conda.environment == str(tmpdir.join('environment.yml'))
+
+
+def test_file_is_required_when_using_conda(tmpdir):
+    apply_fs(tmpdir, {'environment.yml': ''})
+    build = get_build_config(
+        {'conda': {'foo': 'environment.yml'}},
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    with raises(InvalidConfig) as excinfo:
+        build.validate()
+    assert excinfo.value.key == 'conda.file'
+    assert excinfo.value.code == VALUE_NOT_FOUND
 
 
 def test_requirements_file_empty():

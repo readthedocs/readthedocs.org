@@ -349,7 +349,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super().has_permission(request, view))
+        has_perm = super().has_permission(request, view)
         return has_perm or 'token' in request.data
 
 
@@ -420,7 +420,17 @@ class WebhookView(APIView):
     ever get webhook requests for established webhooks on our side. The other
     views can receive webhooks for unknown webhooks, as all legacy webhooks will
     be.
+
+    .. warning::
+        We're turning off Authenication for this view.
+        This fixes a bug where we were double-authenticating these views,
+        because of the way we're passing the request along to the subviews.
+
+        If at any time we add real logic to this view,
+        it will be completely unauthenticated.
     """
+
+    authentication_classes = []
 
     VIEW_MAP = {
         Integration.GITHUB_WEBHOOK: GitHubWebhookView,
