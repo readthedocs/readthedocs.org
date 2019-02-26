@@ -14,7 +14,10 @@ def index_objects_to_es(
     app_label, model_name, document_class, index_name=None, chunk=None, objects_id=None
 ):
 
-    assert not (chunk and objects_id), "You can not pass both chunk and objects_id"
+    assert not (chunk and objects_id), \
+        "You can not pass both chunk and objects_id"
+    assert (chunk or objects_id), \
+        "You must pass a chunk or objects_id"
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
