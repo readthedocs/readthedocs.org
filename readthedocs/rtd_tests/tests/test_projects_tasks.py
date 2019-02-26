@@ -18,8 +18,9 @@ class SyncFilesTests(TestCase):
     @patch('readthedocs.builds.syncers.Syncer.copy')
     @patch('readthedocs.projects.tasks.shutil.rmtree')
     def test_sync_files_clean_old_artifacts(self, rmtree, copy):
-        sync_files(self.project.pk, self.version.pk, 'sphinx', html=True)
-        pdf, epub = rmtree.call_args_list
+        sync_files(self.project.pk, self.version.pk, 'sphinx',
+                   html=True, delete_unsynced_media=True)
+        pdf, epub, htmlzip = rmtree.call_args_list
 
         # pdf and epub are cleaned
         args, _ = pdf
@@ -28,7 +29,7 @@ class SyncFilesTests(TestCase):
         self.assertIn('epub', args[0])
 
         # Artifacts are copied to the rtd-builds directory
-        copy.assert_called_once()
+        assert rmtree.call_count == 3
         args, _ = copy.call_args
         self.assertIn('artifacts', args[0])
         self.assertIn('sphinx', args[0])
@@ -38,16 +39,18 @@ class SyncFilesTests(TestCase):
     @patch('readthedocs.projects.tasks.shutil.rmtree')
     def test_sync_files_pdf(self, rmtree, copy):
         sync_files(
-            self.project.pk, self.version.pk, 'sphinx', pdf=True
+            self.project.pk, self.version.pk, 'sphinx', pdf=True, delete_unsynced_media=True
         )
+        epub, htmlzip = rmtree.call_args_list
 
         # epub is cleaned
-        rmtree.assert_called_once()
-        args, _ = rmtree.call_args
+        args, _ = epub
         self.assertIn('epub', args[0])
+        args, _ = htmlzip
+        self.assertIn('htmlzip', args[0])
 
         # Artifacts are copied to the media directory
-        copy.assert_called_once()
+        assert rmtree.call_count == 2
         args, _ = copy.call_args
         self.assertIn('artifacts', args[0])
         self.assertIn('sphinx_pdf', args[0])
@@ -57,16 +60,19 @@ class SyncFilesTests(TestCase):
     @patch('readthedocs.projects.tasks.shutil.rmtree')
     def test_sync_files_epub(self, rmtree, copy):
         sync_files(
-            self.project.pk, self.version.pk, 'sphinx', epub=True
+            self.project.pk, self.version.pk, 'sphinx', epub=True, delete_unsynced_media=True
         )
 
-        # pdf is cleaned
-        rmtree.assert_called_once()
-        args, _ = rmtree.call_args
+        pdf, htmlzip = rmtree.call_args_list
+
+        # epub is cleaned
+        args, _ = pdf
         self.assertIn('pdf', args[0])
+        args, _ = htmlzip
+        self.assertIn('htmlzip', args[0])
 
         # Artifacts are copied to the media directory
-        copy.assert_called_once()
+        assert rmtree.call_count == 2
         args, _ = copy.call_args
         self.assertIn('artifacts', args[0])
         self.assertIn('sphinx_epub', args[0])
@@ -76,7 +82,7 @@ class SyncFilesTests(TestCase):
     @patch('readthedocs.projects.tasks.shutil.rmtree')
     def test_sync_files_localmedia(self, rmtree, copy):
         sync_files(
-            self.project.pk, self.version.pk, 'sphinx', localmedia=True
+            self.project.pk, self.version.pk, 'sphinx', localmedia=True, delete_unsynced_media=True
         )
         pdf, epub = rmtree.call_args_list
 
@@ -87,7 +93,7 @@ class SyncFilesTests(TestCase):
         self.assertIn('epub', args[0])
 
         # Artifacts are copied to the media directory
-        copy.assert_called_once()
+        assert rmtree.call_count == 2
         args, _ = copy.call_args
         self.assertIn('artifacts', args[0])
         self.assertIn('sphinx_localmedia', args[0])
@@ -97,15 +103,17 @@ class SyncFilesTests(TestCase):
     @patch('readthedocs.projects.tasks.shutil.rmtree')
     def test_sync_files_search(self, rmtree, copy):
         sync_files(
-            self.project.pk, self.version.pk, 'sphinx', search=True
+            self.project.pk, self.version.pk, 'sphinx', search=True, delete_unsynced_media=True
         )
-        pdf, epub = rmtree.call_args_list
+        pdf, epub, htmlzip = rmtree.call_args_list
 
         # pdf and epub are cleaned
         args, _ = pdf
         self.assertIn('pdf', args[0])
         args, _ = epub
         self.assertIn('epub', args[0])
+        args, _ = htmlzip
+        self.assertIn('htmlzip', args[0])
 
         # Artifacts are copied to the media directory
         copy.assert_called_once()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Tasks related to projects.
 
@@ -20,6 +18,7 @@ from collections import Counter, defaultdict
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -80,6 +79,7 @@ from .signals import (
 
 
 log = logging.getLogger(__name__)
+storage = get_storage_class()()
 
 
 class SyncRepositoryMixin:
@@ -737,6 +737,28 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
+        hostname = socket.gethostname()
+
+        delete_unsynced_media = True
+
+        if getattr(storage, 'write_build_media', False):
+            # Handle the case where we want to upload some built assets to our storage
+            move_files.delay(
+                self.version.pk,
+                hostname,
+                self.config.doctype,
+                html=False,
+                search=False,
+                localmedia=localmedia,
+                pdf=pdf,
+                epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
+            )
+            # Set variables so they don't get synced in the next broadcast step
+            localmedia = False
+            pdf = False
+            epub = False
+            delete_unsynced_media = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -748,17 +770,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.config.doctype,
             ],
             kwargs=dict(
-                hostname=socket.gethostname(),
+                hostname=hostname,
                 html=html,
                 localmedia=localmedia,
                 search=search,
                 pdf=pdf,
                 epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
             ),
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
-                search=search,
             ),
         )
 
@@ -830,7 +852,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 type='app',
                 task=move_files,
                 args=[
-                    self.version.pk, socket.gethostname(), self.config.doctype
+                    self.version.pk,
+                    socket.gethostname(), self.config.doctype
                 ],
                 kwargs=dict(html=True),
             )
@@ -902,15 +925,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk,
-        version_pk,
-        doctype,
-        hostname=None,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
+        project_pk, version_pk, doctype, hostname=None, html=False,
+        localmedia=False, search=False, pdf=False, epub=False,
+        delete_unsynced_media=False,
 ):
     """
     Sync build artifacts to application instances.
@@ -922,20 +939,6 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
-    if not pdf:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-            ),
-        ])
-    if not epub:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-            ),
-        ])
 
     # Sync files to the web servers
     move_files(
@@ -947,6 +950,7 @@ def sync_files(
         search=search,
         pdf=pdf,
         epub=epub,
+        delete_unsynced_media=delete_unsynced_media,
     )
 
     # Symlink project
@@ -966,6 +970,7 @@ def move_files(
         search=False,
         pdf=False,
         epub=False,
+        delete_unsynced_media=False,
 ):
     """
     Task to move built documentation to web servers.
@@ -982,10 +987,78 @@ def move_files(
     :type pdf: bool
     :param epub: Sync ePub files
     :type epub: bool
+    :param delete_unsynced_media: Whether to try and delete files.
+    :type delete_unsynced_media: bool
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
+
+    # This is False if we have already synced media files to blob storage
+    # We set `epub=False` for example so data doesn't get re-uploaded on each web,
+    # so we need this to protect against deleting in those cases
+    if delete_unsynced_media:
+
+        if not pdf:
+
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='pdf',
+                    version_slug=version.slug,
+                    include_file=False,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove PDF from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='pdf',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
+        if not epub:
+
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='epub',
+                    version_slug=version.slug,
+                    include_file=False,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove ePub from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='epub',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
+        if not localmedia:
+
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_='htmlzip',
+                    version_slug=version.slug,
+                    include_file=False,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove ePub from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_='htmlzip',
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
@@ -1015,40 +1088,48 @@ def move_files(
         Syncer.copy(from_path, to_path, host=hostname)
 
     if localmedia:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_localmedia',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_localmedia',
+            ),
+            '{}.zip'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='htmlzip',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
-
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     # Always move PDF's because the return code lies.
     if pdf:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_pdf',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_pdf',
+            ),
+            '{}.pdf'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='pdf',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     if epub:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_epub',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_epub',
+            ),
+            '{}.epub'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='epub',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
 
 
 @app.task(queue='web')
