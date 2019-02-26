@@ -70,7 +70,7 @@ def _get_document(model, document_class):
             return document
 
 
-def _indexing_helper(html_objs, wipe=False):
+def _indexing_helper(html_objs_qs, wipe=False):
     """
     Helper function for reindexing and wiping indexes of projects and versions.
 
@@ -79,14 +79,23 @@ def _indexing_helper(html_objs, wipe=False):
     """
     from readthedocs.search.tasks import index_objects_to_es, delete_objects_in_es
 
-    kwargs = {
-        'app_label': HTMLFile._meta.app_label,
-        'model_name': HTMLFile.__name__,
-        'document_class': str(PageDocument),
-        'objects_id': [obj.id for obj in html_objs],
-    }
+    if html_objs_qs:
+        obj_ids = []
+        for html_objs in html_objs_qs:
+            obj_ids.extend([obj.id for obj in html_objs])
 
-    if not wipe:
-        index_objects_to_es.delay(**kwargs)
-    else:
-        delete_objects_in_es.delay(**kwargs)
+        # removing redundant ids if exists.
+        obj_ids = list(set(obj_ids))
+
+        if obj_ids:
+            kwargs = {
+                'app_label': HTMLFile._meta.app_label,
+                'model_name': HTMLFile.__name__,
+                'document_class': str(PageDocument),
+                'objects_id': obj_ids,
+            }
+
+            if not wipe:
+                index_objects_to_es.delay(**kwargs)
+            else:
+                delete_objects_in_es.delay(**kwargs)

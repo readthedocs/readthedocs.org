@@ -243,13 +243,19 @@ class ProjectAdmin(GuardedModelAdmin):
                     messages.ERROR
                 )
             else:
+                html_objs_qs = []
                 for version in active_versions.iterator():
                     html_objs = HTMLFile.objects.filter(project=project, version=version)
-                    _indexing_helper(html_objs, wipe=False)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=False)
 
                 self.message_user(
                     request,
-                    'Task initiated successfully.',
+                    'Task initiated successfully for {}'.format(project),
                     messages.SUCCESS
                 )
 
@@ -263,17 +269,23 @@ class ProjectAdmin(GuardedModelAdmin):
             if not version_qs.exists():
                 self.message_user(
                     request,
-                    'No active versions of project {}'.format(project),
+                    'No active versions of project {}.'.format(project),
                     messages.ERROR
                 )
             else:
+                html_objs_qs = []
                 for version in version_qs.iterator():
                     html_objs = HTMLFile.objects.filter(project=project, version=version)
-                    _indexing_helper(html_objs, wipe=True)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=True)
 
                 self.message_user(
                     request,
-                    'Task initiated successfully.',
+                    'Task initiated successfully for {}.'.format(project),
                     messages.SUCCESS
                 )
 

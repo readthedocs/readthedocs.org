@@ -80,13 +80,19 @@ class VersionAdmin(GuardedModelAdmin):
 
     def reindex_version(self, request, queryset):
         """Reindexes all selected versions to ES."""
+        html_objs_qs = []
         for version in queryset.iterator():
             html_objs = HTMLFile.objects.filter(project=version.project, version=version)
-            _indexing_helper(html_objs, wipe=False)
+
+            if html_objs.exists():
+                html_objs_qs.append(html_objs)
+
+        if html_objs_qs:
+            _indexing_helper(html_objs_qs, wipe=False)
 
         self.message_user(
             request,
-            'Task initiated successfully',
+            'Task initiated successfully.',
             messages.SUCCESS
         )
 
@@ -94,9 +100,15 @@ class VersionAdmin(GuardedModelAdmin):
 
     def wipe_version(self, request, queryset):
         """Wipe selected versions from ES."""
+        html_objs_qs = []
         for version in queryset.iterator():
             html_objs = HTMLFile.objects.filter(project=version.project, version=version)
-            _indexing_helper(html_objs, wipe=True)
+
+            if html_objs.exists():
+                html_objs_qs.append(html_objs)
+
+        if html_objs_qs:
+            _indexing_helper(html_objs_qs, wipe=True)
 
         self.message_user(
             request,
