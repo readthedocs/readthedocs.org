@@ -1256,7 +1256,7 @@ def _update_intersphinx_data(version, path, commit):
     """
     object_file = os.path.join(path, 'objects.inv')
 
-    # These classes are from copied from Sphinx
+    # These classes are copied from Sphinx
     # https://git.io/fhFbI
     class MockConfig:
         intersphinx_timeout = None
