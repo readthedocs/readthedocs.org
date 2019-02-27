@@ -1143,31 +1143,35 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
-    @cached_property
-    def json_file_path(self):
-        basename = os.path.splitext(self.path)[0]
-        if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            log.info(
-                'Adjusted json file path: %s -> %s',
-                basename,
-                new_basename,
-            )
-            basename = new_basename
 
-        file_path = basename + '.fjson'
+    def get_processed_json(self):
+        """
+        Check for two paths for each file
+
+        This is because HTMLDir can generate a file from two different places:
+
+        * foo.rst 
+        * foo/index.rst
+
+        Both lead to `foo/index.html`
+        https://github.com/rtfd/readthedocs.org/issues/5368
+        """
+        paths = []
+        basename = os.path.splitext(self.path)[0]
+        paths.append(basename + '.fjson')
+        if basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            paths.append(new_basename + '.fjson')
 
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
 
-        file_path = os.path.join(full_json_path, file_path)
-        return file_path
-
-    def get_processed_json(self):
-        file_path = self.json_file_path
         try:
-            return process_file(file_path)
+            for path in paths:
+                file_path = os.path.join(full_json_path, path)
+                if os.path.exists(file_path):
+                    return process_file(file_path)
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',
@@ -1181,7 +1185,6 @@ class HTMLFile(ImportedFile):
             'sections': [],
         }
 
-    @cached_property
     def processed_json(self):
         return self.get_processed_json()
 
