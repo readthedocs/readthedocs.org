@@ -2,7 +2,6 @@
 
 # Base packages
 docutils==0.14
-Sphinx==1.8.4
 sphinx_rtd_theme==0.4.3
 sphinx-tabs==1.1.10
 # Required to avoid Transifex error with reserved slug

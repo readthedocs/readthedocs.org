@@ -11,6 +11,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -252,6 +253,7 @@ class GitLabService(Service):
                     },
                 ),
             ),
+            'token': integration.secret,
 
             # Optional
             'issues_events': False,
@@ -275,7 +277,6 @@ class GitLabService(Service):
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
         )
-
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             return (False, None)
@@ -333,6 +334,7 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, None)
 
+        integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
         resp = None

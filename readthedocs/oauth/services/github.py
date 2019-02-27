@@ -12,6 +12,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -178,6 +179,7 @@ class GitHubService(Service):
                         },
                     ),
                 ),
+                'secret': integration.secret,
                 'content_type': 'json',
             },
             'events': ['push', 'pull_request', 'create', 'delete'],
@@ -262,6 +264,7 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
+        integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         url = integration.provider_data.get('url')
         resp = None

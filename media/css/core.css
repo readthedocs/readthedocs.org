@@ -702,6 +702,14 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 #footer label { color: #BCC1C3; font-weight: normal; }
 #footer input[type="text"], #footer input[type="email"] { padding: 4px; font-size: 12px; line-height: 16px; margin-bottom: 5px }
 
+/* Warning Icon for Build List triggered */
+.module-item.col-span a span.icon-warning:before {
+  font-family: FontAwesome;
+  font-size: .9em;
+  padding-right: .3em;
+  font-weight: normal;
+  content: "\f071";
+}
 
 /* utils */
 

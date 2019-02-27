@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+import datetime
 import os
 
 import mock
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
+from django.utils import timezone
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
@@ -531,3 +533,32 @@ class BuildModelTests(TestCase):
         build_two.save()
         self.assertEqual(build_two._config, {})
         self.assertEqual(build_two.config, {})
+
+    def test_build_is_stale(self):
+        now = timezone.now()
+
+        build_one = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            date=now - datetime.timedelta(minutes=8),
+            state='finished'
+        )
+        build_two = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            date=now - datetime.timedelta(minutes=6),
+            state='triggered'
+        )
+        build_three = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            date=now - datetime.timedelta(minutes=2),
+            state='triggered'
+        )
+
+        self.assertFalse(build_one.is_stale)
+        self.assertTrue(build_two.is_stale)
+        self.assertFalse(build_three.is_stale)
