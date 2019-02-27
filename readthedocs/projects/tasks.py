@@ -1255,6 +1255,9 @@ def _update_intersphinx_data(version, path, commit):
     :param commit: Commit that updated path
     """
     object_file = os.path.join(path, 'objects.inv')
+    if not os.path.exists(object_file):
+        log.debug('No objects.inv, skipping intersphinx indexing.')
+        return
 
     # These classes are copied from Sphinx
     # https://git.io/fhFbI
@@ -1559,7 +1562,10 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
 
     The first argument is the result from previous tasks, which we discard.
     """
-    fileify(version_pk, commit=commit)
+    try:
+        fileify(version_pk, commit=commit)
+    except Exception:
+        log.exception('Post sync tasks failed, not stopping build')
 
 
 @app.task()
