@@ -149,6 +149,16 @@ It might be necessary to re-establish a webhook if you are noticing problems.
 To resync a webhook from Read the Docs, visit the integration detail page and
 follow the directions for re-syncing your repository webhook.
 
+Payload validation
+------------------
+
+If your project was imported through a connected account,
+we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
+Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
+offer a way to check this.
+
+When :ref:`resyncing the webhook <webhooks:Resyncing webhooks>`, the secret is changed too.
+
 Troubleshooting
 ---------------
 
