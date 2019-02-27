@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
@@ -1143,7 +1142,6 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
-
     def get_processed_json(self):
         """
         Get the parsed JSON for search indexing.
@@ -1151,7 +1149,7 @@ class HTMLFile(ImportedFile):
         Check for two paths for each index file
         This is because HTMLDir can generate a file from two different places:
 
-        * foo.rst 
+        * foo.rst
         * foo/index.rst
 
         Both lead to `foo/index.html`
