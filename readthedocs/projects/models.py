@@ -1146,8 +1146,9 @@ class HTMLFile(ImportedFile):
 
     def get_processed_json(self):
         """
-        Check for two paths for each file
+        Get the parsed JSON for search indexing.
 
+        Check for two paths for each index file
         This is because HTMLDir can generate a file from two different places:
 
         * foo.rst 
@@ -1166,7 +1167,6 @@ class HTMLFile(ImportedFile):
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
-
         try:
             for path in paths:
                 file_path = os.path.join(full_json_path, path)
