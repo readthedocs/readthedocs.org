@@ -40,11 +40,11 @@ class SphinxDomain(TimeStampedModel):
     )
     name = models.CharField(
         _('Name'),
-        max_length=255,
+        max_length=4092,
     )
     display_name = models.CharField(
         _('Display Name'),
-        max_length=255,
+        max_length=4092,
     )
     type = models.CharField(
         _('Type'),
@@ -52,11 +52,11 @@ class SphinxDomain(TimeStampedModel):
     )
     doc_name = models.CharField(
         _('Doc Name'),
-        max_length=255,
+        max_length=4092,
     )
     anchor = models.CharField(
         _('Anchor'),
-        max_length=255,
+        max_length=4092,
     )
     objects = RelatedProjectQuerySet.as_manager()
 
