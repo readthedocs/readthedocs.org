@@ -1185,6 +1185,7 @@ class HTMLFile(ImportedFile):
             'sections': [],
         }
 
+    @property
     def processed_json(self):
         return self.get_processed_json()
 
