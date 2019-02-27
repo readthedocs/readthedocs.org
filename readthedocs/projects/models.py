@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project models."""
 
 import fnmatch
@@ -10,6 +8,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
@@ -44,6 +43,7 @@ from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
+storage = get_storage_class()()
 
 
 class ProjectRelationship(models.Model):
@@ -510,6 +510,24 @@ class Project(models.Model):
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
 
+    def get_storage_path(self, type_, version_slug=LATEST):
+        """
+        Get a path to a build artifact for use with Django's storage system.
+
+        :param type_: Media content type, ie - 'pdf', 'htmlzip'
+        :param version_slug: Project version slug for lookup
+        :return: the path to an item in storage
+            (can be used with ``storage.url`` to get the URL)
+        """
+        extension = type_.replace('htmlzip', 'zip')
+        return '{}/{}/{}/{}.{}'.format(
+            type_,
+            self.slug,
+            version_slug,
+            self.slug,
+            extension,
+        )
+
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
         Used to see if these files exist so we can offer them for download.
@@ -728,30 +746,33 @@ class Project(models.Model):
     def has_pdf(self, version_slug=LATEST):
         if not self.enable_pdf_build:
             return False
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='pdf',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='pdf', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='pdf', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
         if not self.enable_epub_build:
             return False
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='epub',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='epub', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='epub', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     def has_htmlzip(self, version_slug=LATEST):
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='htmlzip',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='htmlzip', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='htmlzip', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     @property
     def sponsored(self):
@@ -1089,7 +1110,11 @@ class ImportedFile(models.Model):
     )
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
-    path = models.CharField(_('Path'), max_length=255)
+
+    # max_length is set to 4096 because linux has a maximum path length
+    # of 4096 characters for most filesystems (including EXT4).
+    # https://github.com/rtfd/readthedocs.org/issues/5061
+    path = models.CharField(_('Path'), max_length=4096)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)

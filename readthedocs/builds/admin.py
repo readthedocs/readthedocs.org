@@ -7,6 +7,7 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.general import wipe_version_via_slugs
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -57,7 +58,22 @@ class VersionAdmin(GuardedModelAdmin):
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
-    actions = ['build_version']
+    actions = ['wipe_selected_versions', 'build_version']
+
+    def wipe_selected_versions(self, request, queryset):
+        """Wipes the selected versions."""
+        for version in queryset:
+            wipe_version_via_slugs(
+                version_slug=version.slug,
+                project_slug=version.project.slug
+            )
+            self.message_user(
+                request,
+                'Wiped {}.'.format(version.slug),
+                level=messages.SUCCESS
+            )
+
+    wipe_selected_versions.short_description = 'Wipe selected versions'
 
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
