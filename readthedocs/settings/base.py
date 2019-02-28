@@ -108,7 +108,6 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
-            'rest_framework_serializer_extensions',
             'corsheaders',
             'textclassifier',
             'annoying',

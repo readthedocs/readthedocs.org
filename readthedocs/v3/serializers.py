@@ -10,10 +10,11 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.builds.constants import STABLE
 
-from rest_framework_serializer_extensions.serializers import SerializerExtensionsMixin
+from rest_flex_fields import FlexFieldsModelSerializer
+from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(FlexFieldsModelSerializer):
 
     # TODO: return ``null`` when ``last_name`` or ``first_name`` are `''``. I'm
     # thinking on writing a decorator or similar that dynamically creates the
@@ -30,19 +31,30 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class BuildSerializer(serializers.ModelSerializer):
+class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
+
+    def to_representation(self, obj):
+        # For now, we want to return the ``config`` object as it is without
+        # manipulating it.
+        return obj
+
+
+class BuildSerializer(FlexFieldsModelSerializer):
 
     created = serializers.DateTimeField(source='date')
     finished = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
 
+    expandable_fields = dict(
+        config=(
+            BuildConfigSerializer, dict(
+                source='config',
+            ),
+        ),
+    )
+
     class Meta:
         model = Build
-        expandable_fields = dict(
-            version='readthedocs.v3.serializers.VersionSerializer',
-            project='readthedocs.v3.serializers.ProjectSerializer',
-            # config=BuildConfigSerializer,
-        )
         fields = [
             'id',
             'version',
@@ -56,7 +68,7 @@ class BuildSerializer(serializers.ModelSerializer):
             'commit',
             'builder',
             'cold_storage',
-            'config',
+            # 'config',
             # 'links',
         ]
 
@@ -88,22 +100,26 @@ class VersionURLsSerializer(serializers.Serializer):
             return obj.project.repo + f'/tree/{obj.slug}'
 
 
-class VersionSerializer(serializers.ModelSerializer):
+class VersionSerializer(FlexFieldsModelSerializer):
 
     privacy_level = PrivacyLevelSerializer(source='*')
     ref = serializers.SerializerMethodField()
-    last_build = serializers.SerializerMethodField()
 
     # FIXME: generate URLs with HTTPS schema
     downloads = serializers.DictField(source='get_downloads')
 
     urls = VersionURLsSerializer(source='*')
 
+    expandable_fields = dict(
+        last_build=(
+            BuildSerializer, dict(
+                source='last_build',
+            ),
+        ),
+    )
+
     class Meta:
         model = Version
-        # expandable_fields = dict(
-        #     last_build=serializers.SerializerMethodField,
-        # )
         fields = [
             'id',
             'slug',
@@ -116,10 +132,6 @@ class VersionSerializer(serializers.ModelSerializer):
             'privacy_level',
             'type',
 
-            # TODO: make this field expandable also. Nested expandable fields
-            # are not working when using ``SerializerMethodField`` at the moment
-            'last_build',
-
             'downloads',
             'urls',
             # 'links',
@@ -130,10 +142,6 @@ class VersionSerializer(serializers.ModelSerializer):
             stable = determine_stable_version(obj.project.versions.all())
             if stable:
                 return stable.slug
-
-    def get_last_build(self, obj):
-        build = obj.builds.order_by('-date').first()
-        return BuildSerializer(build).data
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -196,14 +204,13 @@ class ProjectLinksSerializer(serializers.Serializer):
         return reverse('projects-detail', kwargs={'project_slug': obj.slug})
 
 
-class ProjectSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):
+class ProjectSerializer(FlexFieldsModelSerializer):
 
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
     privacy_level = PrivacyLevelSerializer(source='*')
     urls = ProjectURLsSerializer(source='*')
-    # active_versions = serializers.SerializerMethodField()
     subproject_of = serializers.SerializerMethodField()
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
@@ -218,17 +225,25 @@ class ProjectSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
 
-    class Meta:
-        model = Project
-        expandable_fields = dict(
-            users=dict(
-                serializer=UserSerializer,
+    expandable_fields = dict(
+        users=(
+            UserSerializer, dict(
+                source='users',
                 many=True,
             ),
-            active_versions=dict(
-                serializer=serializers.SerializerMethodField,
+        ),
+        active_versions=(
+            VersionSerializer, dict(
+                # NOTE: this has to be a Model method, can't be a
+                # ``SerializerMethodField`` as far as I know
+                source='active_versions',
+                many=True,
             ),
-        )
+        ),
+    )
+
+    class Meta:
+        model = Project
         fields = [
             'id',
             'name',
@@ -246,15 +261,18 @@ class ProjectSerializer(SerializerExtensionsMixin, serializers.ModelSerializer):
             'translation_of',
             'urls',
             'tags',
+
+            # NOTE: ``expandable_fields`` must not be included here. Otherwise,
+            # they will be tried to be rendered and fail
+            # 'users',
+            # 'active_versions',
+
             'links',
         ]
 
     def get_description(self, obj):
         # Overridden only to return ``None`` when the description is ``''``
         return obj.description or None
-
-    def get_active_versions(self, obj):
-        return VersionSerializer(obj.versions.filter(active=True), many=True).data
 
     def get_translation_of(self, obj):
         try:
