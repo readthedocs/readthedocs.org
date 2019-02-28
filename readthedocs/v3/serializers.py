@@ -1,5 +1,7 @@
 import datetime
+import urllib
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -66,7 +68,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'commit',
             'builder',
             'cold_storage',
-            # 'config',
             # 'links',
         ]
 
@@ -121,17 +122,20 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'uploaded',
             'privacy_level',
             'type',
-
             'downloads',
             'urls',
             # 'links',
         ]
 
-    def get_ref(self, obj):
-        if obj.slug == STABLE:
-            stable = determine_stable_version(obj.project.versions.all())
-            if stable:
-                return stable.slug
+    def get_downloads(self, obj):
+        downloads = obj.get_downloads()
+        data = {}
+
+        for k, v in downloads.items():
+            if k in ('htmlzip', 'pdf', 'epub'):
+                data[k] = ('http:' if settings.DEBUG else 'https:') + v
+
+        return data
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -182,16 +186,19 @@ class RepositorySerializer(serializers.Serializer):
 class ProjectLinksSerializer(serializers.Serializer):
 
     _self = serializers.SerializerMethodField()
-    # users = serializers.URLField(source='get_link_users')
-    # versions = serializers.URLField(source='get_link_versions')
-    # users = serializers.URLField(source='get_link_users')
-    # builds = serializers.URLField(source='get_link_builds')
-    # subprojects = serializers.URLField(source='get_link_subprojects')
-    # translations = serializers.URLField(source='get_link_translations')
+
+    # TODO: add these once the endpoints get implemented
+    # users = serializers.SerializerMethodField()
+    # versions = serializers.SerializerMethodField()
+    # builds = serializers.SerializerMethodField()
+    # subprojects = serializers.SerializerMethodField()
+    # translations = serializers.SerializerMethodField()
 
     def get__self(self, obj):
-        # TODO: maybe we want to make them full URLs instead of absolute
-        return reverse('projects-detail', kwargs={'project_slug': obj.slug})
+        scheme = 'http' if settings.DEBUG else 'https'
+        domain = settings.PRODUCTION_DOMAIN
+        path = reverse('projects-detail', kwargs={'project_slug': obj.slug})
+        return urllib.parse.urlunparse((scheme, domain, path, '', '', ''))
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
@@ -267,11 +274,11 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     def get_translation_of(self, obj):
         try:
             return obj.main_language_project.slug
-        except:
+        except Exception:
             return None
 
     def get_subproject_of(self, obj):
         try:
             return obj.superprojects.first().slug
-        except:
+        except Exception:
             return None
