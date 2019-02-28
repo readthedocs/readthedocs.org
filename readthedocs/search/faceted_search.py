@@ -5,7 +5,7 @@ from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString
 
 from readthedocs.search.documents import (
-    DomainDocument,
+    SphinxDomainDocument,
     PageDocument,
     ProjectDocument,
 )
@@ -99,8 +99,8 @@ class DomainSearchBase(RTDFacetedSearch):
         'version': TermsFacet(field='version'),
         'doc_type': TermsFacet(field='doc_type'),
     }
-    doc_types = [DomainDocument]
-    index = DomainDocument._doc_type.index
+    doc_types = [SphinxDomainDocument]
+    index = SphinxDomainDocument._doc_type.index
     fields = ('display_name^5', 'name')
 
 
@@ -145,8 +145,8 @@ class AllSearch(RTDFacetedSearch):
         'doc_type': TermsFacet(field='doc_type'),
         'index': TermsFacet(field='_index'),
     }
-    doc_types = [DomainDocument, PageDocument, ProjectDocument]
-    index = [DomainDocument._doc_type.index,
+    doc_types = [SphinxDomainDocument, PageDocument, ProjectDocument]
+    index = [SphinxDomainDocument._doc_type.index,
              PageDocument._doc_type.index,
              ProjectDocument._doc_type.index]
     fields = ('title^10', 'headers^5', 'content', 'name^20',

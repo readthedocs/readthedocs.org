@@ -5,7 +5,7 @@ from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
 from readthedocs.projects.models import Project, HTMLFile
-from readthedocs.domaindata.models import DomainData
+from readthedocs.sphinx_domains.models import SphinxDomain
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -23,27 +23,27 @@ log = logging.getLogger(__name__)
 
 
 @domain_index.doc_type
-class DomainDocument(DocType):
+class SphinxDomainDocument(DocType):
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
-    doc_type = fields.KeywordField(attr='doc_type')
+    role_name = fields.KeywordField(attr='role_name')
     anchor = fields.KeywordField(attr='anchor')
 
     class Meta(object):
-        model = DomainData
+        model = SphinxDomain
         fields = ('name', 'display_name', 'doc_name')
         ignore_signals = True
 
     @classmethod
-    def faceted_search(cls, query, user, doc_type=None):
+    def faceted_search(cls, query, user, role_name=None):
         from readthedocs.search.faceted_search import DomainSearch
         kwargs = {
             'user': user,
             'query': query,
         }
 
-        if doc_type:
-            kwargs['filters'] = {'doc_type': doc_type}
+        if role_name:
+            kwargs['filters'] = {'role_name': role_name}
 
         return DomainSearch(**kwargs)
 
