@@ -480,6 +480,10 @@ class CommunityBaseSettings(Settings):
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '5/minute',
+            'user': '10/minute',
+        },
         'PAGE_SIZE': 10,
     }
     SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
