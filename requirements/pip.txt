@@ -1,14 +1,17 @@
 # Base packages
-pip==19.0.2
+pip==19.0.3
 appdirs==1.4.3
-virtualenv==16.4.0
+virtualenv==16.4.1
 
 django==1.11.20  # pyup: <1.12
 django-tastypie==0.14.2
 django-guardian==1.5.0
-django-extensions==2.1.5
+django-extensions==2.1.6
 
 djangorestframework==3.9.1
+
+# For intersphinx during builds
+Sphinx==1.8.4
 
 # Filtering for the REST API
 django-filter==2.1.0
@@ -83,7 +86,7 @@ django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.23.0
+django-taggit==0.24.0
 dj-pagination==2.4.0
 
 # Version comparison stuff

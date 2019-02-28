@@ -762,7 +762,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta:
         model = Integration
-        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
+        exclude = ['provider_data', 'exchanges', 'secret']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -775,6 +775,9 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
+        # We don't set the secret on the integration
+        # when it's created via the form.
+        self.instance.secret = None
         return super().save(commit)
 
 
