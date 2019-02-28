@@ -241,9 +241,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         active_versions = self.get_all_active_versions()
-        self.fields['default_version'].widget = forms.Select(
-            choices=active_versions,
-        )
+
+        if active_versions:
+            self.fields['default_version'].widget = forms.Select(
+                choices=active_versions,
+            )
+        else:
+            self.fields['default_version'].widget.attrs['readonly'] = True
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -269,7 +273,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             version_qs = sort_version_aware(version_qs)
             all_versions = [(version.slug, version.verbose_name) for version in version_qs]
             return all_versions
-        return [()]
+        return None
 
 
 class UpdateProjectForm(
