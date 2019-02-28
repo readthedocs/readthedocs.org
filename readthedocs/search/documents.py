@@ -29,6 +29,8 @@ class SphinxDomainDocument(DocType):
     role_name = fields.KeywordField(attr='role_name')
     anchor = fields.KeywordField(attr='anchor')
 
+    modified_model_field = 'modified'
+
     class Meta(object):
         model = SphinxDomain
         fields = ('name', 'display_name', 'doc_name')
@@ -74,6 +76,8 @@ class ProjectDocument(DocType):
     )
     language = fields.KeywordField()
 
+    modified_model_field = 'modified_date'
+
     class Meta(object):
         model = Project
         fields = ('name', 'slug', 'description')
@@ -105,6 +109,8 @@ class PageDocument(DocType):
     title = fields.TextField(attr='processed_json.title')
     headers = fields.TextField(attr='processed_json.headers')
     content = fields.TextField(attr='processed_json.content')
+
+    modified_model_field = 'modified_date'
 
     class Meta(object):
         model = HTMLFile

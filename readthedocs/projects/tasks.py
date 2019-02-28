@@ -11,7 +11,6 @@ import hashlib
 import json
 import logging
 import os
-import sys
 import shutil
 import socket
 from collections import Counter, defaultdict
