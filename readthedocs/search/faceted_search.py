@@ -13,7 +13,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 log = logging.getLogger(__name__)
 
-ALL_FACETS = ['project', 'version', 'doc_type', 'language', 'index']
+ALL_FACETS = ['project', 'version', 'role_name', 'language', 'index']
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -63,7 +63,8 @@ class RTDFacetedSearch(FacetedSearch):
 
         # need to search for both 'and' and 'or' operations
         # the score of and should be higher as it satisfies both or and and
-        for operator in ['and', 'or']:
+
+        for operator in self.operators:
             query_string = SimpleQueryString(
                 query=query, fields=self.fields, default_operator=operator
             )
@@ -81,6 +82,7 @@ class ProjectSearchBase(RTDFacetedSearch):
     doc_types = [ProjectDocument]
     index = ProjectDocument._doc_type.index
     fields = ('name^10', 'slug^5', 'description')
+    operators = ['and', 'or']
 
 
 class PageSearchBase(RTDFacetedSearch):
@@ -91,17 +93,19 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
     fields = ['title^10', 'headers^5', 'content']
+    operators = ['and', 'or']
 
 
 class DomainSearchBase(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
-        'doc_type': TermsFacet(field='doc_type'),
+        'role_name': TermsFacet(field='role_name'),
     }
     doc_types = [SphinxDomainDocument]
     index = SphinxDomainDocument._doc_type.index
-    fields = ('display_name^5', 'name')
+    fields = ('display_name^5', 'name', 'project', 'type_display')
+    operators = ['and']
 
 
 class PageSearch(SettingsOverrideObject):
@@ -147,7 +151,7 @@ class AllSearch(RTDFacetedSearch):
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
         'language': TermsFacet(field='language'),
-        'doc_type': TermsFacet(field='doc_type'),
+        'role_name': TermsFacet(field='role_name'),
         'index': TermsFacet(field='_index'),
     }
     doc_types = [SphinxDomainDocument, PageDocument, ProjectDocument]
@@ -156,3 +160,4 @@ class AllSearch(RTDFacetedSearch):
              ProjectDocument._doc_type.index]
     fields = ('title^10', 'headers^5', 'content', 'name^20',
               'slug^5', 'description', 'display_name^5')
+    operators = ['and']

@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
+from cached_property import cached_property
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
@@ -50,8 +51,16 @@ class SphinxDomain(TimeStampedModel):
         _('Type'),
         max_length=255,
     )
+    type_display = models.CharField(
+        _('Type Display'),
+        max_length=4092,
+    )
     doc_name = models.CharField(
         _('Doc Name'),
+        max_length=4092,
+    )
+    doc_display = models.CharField(
+        _('Doc Display'),
         max_length=4092,
     )
     anchor = models.CharField(

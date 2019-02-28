@@ -25,7 +25,7 @@ UserInput = collections.namedtuple(
         'version',
         'taxonomy',
         'language',
-        'doc_type',
+        'role_name',
         'index',
     ),
 )
@@ -40,18 +40,21 @@ def elastic_search(request, project_slug=None):
     :param project_slug: Sent when the view is a project search
     """
 
+    request_type = request.GET.get('type', 'project')
+
     if project_slug:
         queryset = Project.objects.protected(request.user)
         project_obj = get_object_or_404(queryset, slug=project_slug)
+        request_type = 'all'
 
     user_input = UserInput(
         query=request.GET.get('q'),
-        type=request.GET.get('type', 'project'),
+        type=request_type,
         project=project_slug or request.GET.get('project'),
         version=request.GET.get('version', LATEST),
         taxonomy=request.GET.get('taxonomy'),
         language=request.GET.get('language'),
-        doc_type=request.GET.get('doc_type'),
+        role_name=request.GET.get('role_name'),
         index=request.GET.get('index'),
     )
 

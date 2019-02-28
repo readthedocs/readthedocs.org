@@ -28,38 +28,33 @@ class SphinxDomainDocument(DocType):
     version = fields.KeywordField(attr='version.slug')
     role_name = fields.KeywordField(attr='role_name')
     anchor = fields.KeywordField(attr='anchor')
+    doc_display = fields.KeywordField(attr='doc_display')
+    type_display = fields.KeywordField(attr='type_display')
+    name = fields.TextField(attr='name', analyzer='simple')
 
     modified_model_field = 'modified'
 
     class Meta(object):
         model = SphinxDomain
-        fields = ('name', 'display_name', 'doc_name')
+        fields = ('display_name', 'doc_name')
         ignore_signals = True
-
-    @classmethod
-    def faceted_search(cls, query, user, role_name=None):
-        from readthedocs.search.faceted_search import DomainSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
-
-        if role_name:
-            kwargs['filters'] = {'role_name': role_name}
-
-        return DomainSearch(**kwargs)
 
     def get_queryset(self):
         """Overwrite default queryset to filter certain files to index"""
         queryset = super().get_queryset()
 
         # Exclude some types to not index
-        excluded_types = ['std:doc', 'std:label']
+        excluded_types = [
+            {'domain': 'std',
+             'type': 'doc'},
+            {'domain': 'std',
+             'type': 'label'},
+        ]
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
         for exclude in excluded_types:
-            queryset = queryset.exclude(type=exclude)
+            queryset = queryset.exclude(**exclude)
         return queryset
 
 

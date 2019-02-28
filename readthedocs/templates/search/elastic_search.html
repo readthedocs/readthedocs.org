@@ -31,7 +31,7 @@
 <div class="navigable">
   <ul>
       <h5>{% trans 'Object Type' %}</h5>
-      {# <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li> #}
+      <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
       <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
       <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Code API' %}</a></li>
@@ -109,14 +109,14 @@
       {% endif %}
 
 
-      {% if facets.doc_type %}
+      {% if facets.role_name %}
         <h5>{% trans 'Code API Type' %}</h5>
-          {% for name, count, selected in facets.doc_type %}
+          {% for name, count, selected in facets.role_name %}
             <li class="{% if selected %}active{% endif %} language-list">
-              {% if doc_type == name %}
-                <a href="?{% url_replace request 'doc_type' ''  %}">{{ name }}
+              {% if role_name == name %}
+                <a href="?{% url_replace request 'role_name' ''  %}">{{ name }}
               {% else %}
-                <a href="?{% url_replace request 'doc_type' name  %}">{{ name }}
+                <a href="?{% url_replace request 'role_name' name  %}">{{ name }}
               {% endif %}
               ({{ count }})
               </a>
@@ -147,6 +147,7 @@
                 {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
                 {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
                 {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
+                {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
               </div>
               <div class="submit-input-wrapper">
                 {% comment %}Translators: This is about starting a search{% endcomment %}
@@ -163,7 +164,11 @@
         <div class="module">
           <div class="module-wrapper">
             <div class="module-header">
-              <h3>{% blocktrans with query=query|default:"" %}Results for {{ query }}{% endblocktrans %}</h3>
+              <h3>
+              {% blocktrans with count=results.hits.total query=query|default:"" %}
+               {{ count }} results for `{{ query }}`
+               {% endblocktrans %}
+             </h3>
             </div>
 
             <div class="module-list">
@@ -190,13 +195,11 @@
                       {% elif 'domain' in result.meta.index %}
 
                         <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">
-                          {{ result.project }} - {{ result.doc_type }} - {{ result.name }}
+                          {{ result.project }} - {{ result.name }} 
                         </a>
-                        {% for fragment in result.meta.highlight.name %}
-                          <p class="fragment" project={{ result.project }} version={{result.version}} doc_name={{ result.doc_name }} anchor={{ result.anchor }}>
-                          ...{{ fragment|safe }}...
-                          </p>
-                        {% endfor %}
+                        <p class="fragment">
+                        {{ result.type_display|capfirst }} in {{ result.doc_display }}
+                        </p>
 
                       {% elif 'page' in result.meta.index %}
 

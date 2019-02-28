@@ -1259,6 +1259,20 @@ def _update_intersphinx_data(version, path, commit):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
+    full_json_path = version.project.get_production_media_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    types = {}
+    titles = {}
+    if os.path.exists(type_file):
+        try:
+            data = json.load(open(type_file))
+            types = data['types']
+            titles = data['titles']
+        except Exception:
+            log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
+
     # These classes are copied from Sphinx
     # https://git.io/fhFbI
     class MockConfig:
@@ -1295,7 +1309,9 @@ def _update_intersphinx_data(version, path, commit):
                 name=name,
                 display_name=display_name,
                 type=_type,
+                type_display=types.get(domain + ':' + _type, ''),
                 doc_name=doc_name,
+                doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
             )
             if obj.commit != commit:
@@ -1367,11 +1383,8 @@ def _manage_imported_files(version, path, commit):
     bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
-    (
-        ImportedFile.objects.filter(project=version.project,
-                                    version=version).exclude(commit=commit
-                                                             ).delete()
-    )
+    delete_queryset.delete()
+
     changed_files = [
         resolve_path(
             version.project,
