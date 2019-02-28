@@ -87,6 +87,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'messages_extends',
             'tastypie',
+            'django_filters',
             'django_elasticsearch_dsl',
 
             # our apps
@@ -327,8 +328,9 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        r'^http://(.+)\.readthedocs\.io$',
-        r'^https://(.+)\.readthedocs\.io$',
+        '(.*)localhost(.*)',
+        '^http://(.+)\.readthedocs\.io$',
+        '^https://(.+)\.readthedocs\.io$'
     )
     # So people can post to their accounts
     CORS_ALLOW_CREDENTIALS = True
@@ -359,6 +361,12 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 100
 
     ES_INDEXES = {
+        'domain': {
+            'name': 'domain_index',
+            'settings': {'number_of_shards': 2,
+                         'number_of_replicas': 0
+                         }
+        },
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 2,
