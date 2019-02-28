@@ -1280,7 +1280,11 @@ def _update_intersphinx_data(version, path, commit):
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
             url = einfo[2]
             if '#' in url:
-                doc_name, anchor = url.split('#')
+                doc_name, anchor = url.split(
+                    '#',
+                    # The anchor can contain ``#`` characters
+                    maxsplit=1
+                )
             else:
                 doc_name, anchor = url, ''
             display_name = einfo[3]

@@ -213,13 +213,16 @@ class SelectiveStorageRemotePuller(RemotePuller):
                     any([target.lower().endswith(ext) for ext in cls.extensions]):
                 log.info('Selective Copy %s to media storage', target)
 
-                storage_path = cls.get_storage_path(target)
+                try:
+                    storage_path = cls.get_storage_path(target)
 
-                if storage.exists(storage_path):
-                    storage.delete(storage_path)
+                    if storage.exists(storage_path):
+                        storage.delete(storage_path)
 
-                with open(target, 'rb') as fd:
-                    storage.save(storage_path, fd)
+                    with open(target, 'rb') as fd:
+                        storage.save(storage_path, fd)
+                except Exception:
+                    log.exception('Storage access failed for file. Not failing build.')
 
 
 class Syncer(SettingsOverrideObject):
