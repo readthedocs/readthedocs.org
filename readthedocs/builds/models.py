@@ -26,6 +26,7 @@ from readthedocs.projects.constants import (
     PRIVATE,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.version_handling import determine_stable_version
 
 from .constants import (
     BRANCH,
@@ -126,6 +127,33 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def ref(self):
+        if self.slug == STABLE:
+            stable = determine_stable_version(self.project.versions.all())
+            if stable:
+                return stable.slug
+
+    @property
+    def vcs_url(self):
+        url = ''
+        if self.slug == STABLE:
+            slug_url = self.ref
+        elif self.slug == LATEST:
+            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+        else:
+            slug_url = self.slug
+
+        if self.project.repo_type in ('git', 'gitlab'):
+            url = f'/tree/{slug_url}/'
+
+        if self.project.repo_type == 'bitbucket':
+            slug_url = self.identifier
+            url = f'/src/{slug_url}'
+
+        # TODO: improve this replacing
+        return self.project.repo.replace('git://', 'https://').replace('.git', '') + url
 
     @property
     def last_build(self):

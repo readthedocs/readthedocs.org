@@ -7,8 +7,6 @@ from rest_framework import serializers
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import Project
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.builds.constants import STABLE
 
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
@@ -87,27 +85,19 @@ class PrivacyLevelSerializer(serializers.Serializer):
 
 class VersionURLsSerializer(serializers.Serializer):
     documentation = serializers.SerializerMethodField()
-    vcs = serializers.SerializerMethodField()
+    vcs = serializers.URLField(source='vcs_url')
 
     def get_documentation(self, obj):
         return obj.project.get_docs_url(
             version_slug=obj.slug,
         )
 
-    def get_vcs(self, obj):
-        # TODO: make this method to work properly
-        if obj.project.repo_type == 'git':
-            return obj.project.repo + f'/tree/{obj.slug}'
-
 
 class VersionSerializer(FlexFieldsModelSerializer):
 
     privacy_level = PrivacyLevelSerializer(source='*')
-    ref = serializers.SerializerMethodField()
-
-    # FIXME: generate URLs with HTTPS schema
-    downloads = serializers.DictField(source='get_downloads')
-
+    ref = serializers.CharField()
+    downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source='*')
 
     expandable_fields = dict(
