@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from jsonfield import JSONField
+from polymorphic.models import PolymorphicModel
 from taggit.managers import TaggableManager
 
 import readthedocs.builds.automation_actions as actions
@@ -700,15 +701,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
             return diff.seconds
 
 
-# class VersionAutomationRuleQuerySet(SubclassMixin, models.QuerySet):
-#
-#     """Returns a subclass of VersionAutomationRule, based on the rule type."""
-#
-#     subclass_field = 'rule_type'
-#     subclass_field_id = 'rule_type_id'
-
-
-class VersionAutomationRule(TimeStampedModel, models.Model):
+class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     """Versions automation rules for projects."""
 
@@ -728,11 +721,6 @@ class VersionAutomationRule(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
     )
     priority = models.IntegerField(_('Rule priority'))
-    rule_type = models.CharField(
-        _('Rule type'),
-        max_length=32,
-        choices=RULE_TYPES,
-    )
     rule_arg = models.CharField(
         _('Value used for the rule to match the version'),
         max_length=255,
@@ -811,7 +799,6 @@ class VersionAutomationRule(TimeStampedModel, models.Model):
 
 class RegexAutomationRule(VersionAutomationRule):
 
-    rule_type_id = VersionAutomationRule.REGEX_RULE
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version_from_regex_action,
     }
