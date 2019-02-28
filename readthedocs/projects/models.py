@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.urls import NoReverseMatch, reverse
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
@@ -1143,31 +1142,34 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
-    @cached_property
-    def json_file_path(self):
-        basename = os.path.splitext(self.path)[0]
-        if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            log.info(
-                'Adjusted json file path: %s -> %s',
-                basename,
-                new_basename,
-            )
-            basename = new_basename
+    def get_processed_json(self):
+        """
+        Get the parsed JSON for search indexing.
 
-        file_path = basename + '.fjson'
+        Check for two paths for each index file
+        This is because HTMLDir can generate a file from two different places:
+
+        * foo.rst
+        * foo/index.rst
+
+        Both lead to `foo/index.html`
+        https://github.com/rtfd/readthedocs.org/issues/5368
+        """
+        paths = []
+        basename = os.path.splitext(self.path)[0]
+        paths.append(basename + '.fjson')
+        if basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            paths.append(new_basename + '.fjson')
 
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
-
-        file_path = os.path.join(full_json_path, file_path)
-        return file_path
-
-    def get_processed_json(self):
-        file_path = self.json_file_path
         try:
-            return process_file(file_path)
+            for path in paths:
+                file_path = os.path.join(full_json_path, path)
+                if os.path.exists(file_path):
+                    return process_file(file_path)
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',
@@ -1181,7 +1183,7 @@ class HTMLFile(ImportedFile):
             'sections': [],
         }
 
-    @cached_property
+    @property
     def processed_json(self):
         return self.get_processed_json()
 
