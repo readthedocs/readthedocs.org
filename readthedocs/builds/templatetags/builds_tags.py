@@ -12,7 +12,8 @@ def is_latest_built_success(version):
     Checks the build status of the passed version.
 
     Returns true if the latest build for the ``version``
-    is passed else returns false.
+    is success else returns false. Returns None if no
+    build is found for the given version.
     """
     res = version.builds.all().order_by('-date')
     if res.exists():
