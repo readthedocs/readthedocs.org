@@ -1,15 +1,15 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import (
-    SphinxDomainDocument,
     PageDocument,
     ProjectDocument,
+    SphinxDomainDocument,
 )
-from readthedocs.core.utils.extend import SettingsOverrideObject
+
 
 log = logging.getLogger(__name__)
 
@@ -142,6 +142,7 @@ class DomainSearch(SettingsOverrideObject):
 
 
 class AllSearch(RTDFacetedSearch):
+
     """
     This is simplfy for testing.
 
