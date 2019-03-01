@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.faceted_search import PageSearch
 from readthedocs.search.utils import get_project_list_or_404
 
 log = logging.getLogger(__name__)
@@ -62,15 +62,15 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        kwargs = {'filter_by_user': False}
-        kwargs['projects_list'] = [p.slug for p in self.get_all_projects()]
-        kwargs['versions_list'] = self.request.query_params.get('version')
-        if not kwargs['projects_list']:
+        kwargs = {'filter_by_user': False, 'filters': {}}
+        kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
+        kwargs['filters']['version'] = self.request.query_params.get('version')
+        if not kwargs['filters']['project']:
             raise ValidationError("Unable to find a project to search")
-        if not kwargs['versions_list']:
+        if not kwargs['filters']['version']:
             raise ValidationError("Unable to find a version to search")
         user = self.request.user
-        queryset = PageDocument.faceted_search(
+        queryset = PageSearch(
             query=query, user=user, **kwargs
         )
         return queryset

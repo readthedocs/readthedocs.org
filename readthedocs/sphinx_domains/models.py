@@ -8,7 +8,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
-from cached_property import cached_property
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
