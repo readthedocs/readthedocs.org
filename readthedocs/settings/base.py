@@ -328,7 +328,6 @@ class CommunityBaseSettings(Settings):
 
     # CORS
     CORS_ORIGIN_REGEX_WHITELIST = (
-        '(.*)localhost(.*)',
         '^http://(.+)\.readthedocs\.io$',
         '^https://(.+)\.readthedocs\.io$'
     )

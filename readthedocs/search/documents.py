@@ -27,16 +27,23 @@ class SphinxDomainDocument(DocType):
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
     role_name = fields.KeywordField(attr='role_name')
+
+    # For linking to the URL
+    doc_name = fields.KeywordField(attr='doc_name')
     anchor = fields.KeywordField(attr='anchor')
-    doc_display = fields.KeywordField(attr='doc_display')
-    type_display = fields.KeywordField(attr='type_display')
+
+    # For showing in the search result
+    type_display = fields.TextField(attr='type_display')
+    doc_display = fields.TextField(attr='doc_display')
+    # Simple analyzer breaks on `.`,
+    # otherwise search results are too strict for this use case
     name = fields.TextField(attr='name', analyzer='simple')
+    display_name = fields.TextField(attr='display_name', analyzer='simple')
 
     modified_model_field = 'modified'
 
     class Meta(object):
         model = SphinxDomain
-        fields = ('display_name', 'doc_name')
         ignore_signals = True
 
     def get_queryset(self):

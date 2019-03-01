@@ -12,6 +12,7 @@ from django.core.files.storage import get_storage_class
 from django.db import models
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from six.moves import shlex_quote
@@ -1183,7 +1184,7 @@ class HTMLFile(ImportedFile):
             'sections': [],
         }
 
-    @property
+    @cached_property
     def processed_json(self):
         return self.get_processed_json()
 

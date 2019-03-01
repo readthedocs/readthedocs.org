@@ -104,7 +104,7 @@ class DomainSearchBase(RTDFacetedSearch):
     }
     doc_types = [SphinxDomainDocument]
     index = SphinxDomainDocument._doc_type.index
-    fields = ('display_name^5', 'name', 'project', 'type_display')
+    fields = ('display_name^5', 'name^3', 'project^3', 'type_display')
     operators = ['and']
 
 
@@ -152,7 +152,8 @@ class AllSearch(RTDFacetedSearch):
         'version': TermsFacet(field='version'),
         'language': TermsFacet(field='language'),
         'role_name': TermsFacet(field='role_name'),
-        'index': TermsFacet(field='_index'),
+        # Need to improve UX here for exposing to users
+        # 'index': TermsFacet(field='_index'),
     }
     doc_types = [SphinxDomainDocument, PageDocument, ProjectDocument]
     index = [SphinxDomainDocument._doc_type.index,

@@ -13,11 +13,6 @@
 
 {% endblock %}
 
-{% block extra_scripts %}
-<script type="text/javascript" src="{% static 'search/readthedocs-client.js' %}"></script>
-<!--<script type="text/javascript" src="{% static 'search/search-embed.js' %}"></script>-->
-{% endblock %}
-
 {% block project_editing %}
   {% if project_obj %}
     {% with search_active="active" project=project_obj %}
@@ -31,10 +26,12 @@
 <div class="navigable">
   <ul>
       <h5>{% trans 'Object Type' %}</h5>
-      <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li>
+      {% if not project_obj %}
       <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
+      {% endif %}
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
       <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Code API' %}</a></li>
+      {# <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li> #}
 
       <hr>
 
@@ -195,7 +192,7 @@
                       {% elif 'domain' in result.meta.index %}
 
                         <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">
-                          {{ result.project }} - {{ result.name }} 
+                          {{ result.project }} - {% if result.meta.highlight.name|length %} {{ result.meta.highlight.name.0|safe }} {% else %} {{ result.name }} {% endif %}
                         </a>
                         <p class="fragment">
                         {{ result.type_display|capfirst }} in {{ result.doc_display }}

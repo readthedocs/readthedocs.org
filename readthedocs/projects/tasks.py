@@ -60,6 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.search.documents import PageDocument, SphinxDomainDocument
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
@@ -1213,13 +1214,12 @@ def fileify(version_pk, commit):
     project = version.project
 
     if not commit:
-        log.info(
+        log.warning(
             LOG_TEMPLATE.format(
                 project=project.slug,
                 version=version.slug,
                 msg=(
-                    'Imported File not being built because no commit '
-                    'information'
+                    'Search index not being built because no commit information'
                 ),
             ),
         )
@@ -1234,16 +1234,15 @@ def fileify(version_pk, commit):
                 msg='Creating ImportedFiles',
             ),
         )
-        _manage_imported_files(version, path, commit)
-        _update_intersphinx_data(version, path, commit)
-    else:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg='No ImportedFile files',
-            ),
-        )
+        try:
+            _manage_imported_files(version, path, commit)
+        except Exception:
+            log.exception('Failed during ImportedFile creation')
+
+        try:
+            _update_intersphinx_data(version, path, commit)
+        except Exception:
+            log.exception('Failed during SphinxDomain creation')
 
 
 def _update_intersphinx_data(version, path, commit):
@@ -1286,6 +1285,8 @@ def _update_intersphinx_data(version, path, commit):
         def warn(self, msg):
             log.warning('Sphinx MockApp: %s', msg)
 
+    created_sphinx_domains = []
+
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
@@ -1302,7 +1303,7 @@ def _update_intersphinx_data(version, path, commit):
             else:
                 doc_name, anchor = url, ''
             display_name = einfo[3]
-            obj, _ = SphinxDomain.objects.get_or_create(
+            obj, created = SphinxDomain.objects.get_or_create(
                 project=version.project,
                 version=version,
                 domain=domain,
@@ -1317,9 +1318,25 @@ def _update_intersphinx_data(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
                 obj.save()
-    SphinxDomain.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
+            created_sphinx_domains.append(obj)
+
+    # Send bulk_post_create signal for bulk indexing to Elasticsearch
+    bulk_post_create.send(sender=SphinxDomainDocument, instance_list=created_sphinx_domains)
+
+    # Delete the HTMLFile first from previous commit and
+    # send bulk_post_delete signal for bulk removing from Elasticsearch
+    delete_queryset = (
+        SphinxDomain.objects.filter(project=version.project,
+                                    version=version
+                                    ).exclude(commit=commit)
+    )
+    # Keep the objects into memory to send it to signal
+    instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    bulk_post_delete.send(sender=SphinxDomainDocument, instance_list=instance_list)
+
+    # Delete from previous versions
+    delete_queryset.delete()
 
 
 def _manage_imported_files(version, path, commit):
@@ -1367,7 +1384,7 @@ def _manage_imported_files(version, path, commit):
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
+    bulk_post_create.send(sender=PageDocument, instance_list=created_html_files)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1377,10 +1394,8 @@ def _manage_imported_files(version, path, commit):
     )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
-    # Safely delete from database
-    delete_queryset.delete()
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
+    bulk_post_delete.send(sender=PageDocument, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     delete_queryset.delete()
