@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-import os
-
 from mock import patch
 from pytest import raises
 
@@ -133,10 +130,10 @@ class TestValidatePath:
         path = str(tmpdir.mkdir('a directory'))
         validate_path(path, 'does not matter')
 
-    def test_it_returns_absolute_path(self, tmpdir):
+    def test_it_returns_relative_path(self, tmpdir):
         tmpdir.mkdir('a directory')
         path = validate_path('a directory', str(tmpdir))
-        assert path == os.path.abspath(path)
+        assert path == 'a directory'
 
     def test_it_only_accepts_strings(self):
         with raises(ValidationError) as excinfo:

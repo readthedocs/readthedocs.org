@@ -78,6 +78,11 @@ class BaseMkdocs(BaseBuilder):
             )
             if not os.path.exists(mkdoc_path):
                 return None
+        else:
+            mkdoc_path = os.path.join(
+                self.project.checkout_path(self.version.slug),
+                self.config.mkdocs.configuration
+            )
         return mkdoc_path
 
     def load_yaml_config(self):
