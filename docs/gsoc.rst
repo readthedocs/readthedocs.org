@@ -81,6 +81,19 @@ we would allow them to do a few sets of actions on them:
 
 There is likely other ideas that could be done with `Collections` over time.
 
+Integration with OpenAPI/Swagger
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integrate the existing tooling around OpenAPI & Swagger into Sphinx and Read the Docs.
+This will include building some extensions that generate reStructuredText,
+and backend Django code that powers the frontend Javascript.
+
+This could include:
+
+* Building a live preview for testing an API in the documentation
+* Taking a swagger YAML file and generating HTML properly with Sphinx
+* Integration with our existing API to generate Swagger output
+
 Autobuild docs for Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
