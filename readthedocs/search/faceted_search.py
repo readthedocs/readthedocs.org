@@ -144,10 +144,11 @@ class DomainSearch(SettingsOverrideObject):
 class AllSearch(RTDFacetedSearch):
 
     """
-    This is simplfy for testing.
+    Simplfy for testing.
 
     It has some UI/UX problems that need to be addressed.
     """
+
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
