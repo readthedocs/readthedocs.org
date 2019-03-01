@@ -1,11 +1,11 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
-from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.sphinx_domains.models import SphinxDomain
+
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -47,19 +47,14 @@ class SphinxDomainDocument(DocType):
         ignore_signals = True
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index"""
+        """Overwrite default queryset to filter certain files to index."""
         queryset = super().get_queryset()
 
-        # Exclude some types to not index
         excluded_types = [
-            {'domain': 'std',
-             'type': 'doc'},
-            {'domain': 'std',
-             'type': 'label'},
+            {'domain': 'std', 'type': 'doc'},
+            {'domain': 'std', 'type': 'label'},
         ]
 
-        # Do not index files that belong to non sphinx project
-        # Also do not index certain files
         for exclude in excluded_types:
             queryset = queryset.exclude(**exclude)
         return queryset
