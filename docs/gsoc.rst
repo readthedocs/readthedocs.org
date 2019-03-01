@@ -115,6 +115,23 @@ This project would include:
 This is not as well defined as the other tasks,
 so would require a higher level of skill from an incoming student.
 
+Better MkDocs integration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently we don't have a good integration with MkDocs as we do with Sphinx.
+And it's hard to maintain compatibility with new versions.
+
+This project would include:
+
+* Support the latest version of MkDocs
+* Support downloads (`#1939`_)
+* Write a plugin to allow us to have more control over the build process (`#4924`_)
+* Support search (`#1088`_)
+
+.. _#1939: https://github.com/rtfd/readthedocs.org/issues/1939
+.. _#4924: https://github.com/rtfd/readthedocs.org/issues/4924
+.. _#1088: https://github.com/rtfd/readthedocs.org/issues/1088
+
 Integrated Redirects
 ~~~~~~~~~~~~~~~~~~~~
 
