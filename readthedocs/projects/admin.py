@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Django administration interface for `projects.models`"""
+"""Django administration interface for `projects.models`."""
 
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
@@ -9,9 +9,10 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
-from readthedocs.core.utils import broadcast
+from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
+from readthedocs.search.utils import _indexing_helper
 
 from .forms import FeatureForm
 from .models import (
@@ -47,7 +48,7 @@ class ProjectSendNotificationView(SendNotificationView):
 
 class ProjectRelationshipInline(admin.TabularInline):
 
-    """Project inline relationship view for :py:class:`ProjectAdmin`"""
+    """Project inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = ProjectRelationship
     fk_name = 'parent'
@@ -56,14 +57,14 @@ class ProjectRelationshipInline(admin.TabularInline):
 
 class VersionInline(admin.TabularInline):
 
-    """Version inline relationship view for :py:class:`ProjectAdmin`"""
+    """Version inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = Version
 
 
 class RedirectInline(admin.TabularInline):
 
-    """Redirect inline relationship view for :py:class:`ProjectAdmin`"""
+    """Redirect inline relationship view for :py:class:`ProjectAdmin`."""
 
     model = Redirect
 
@@ -77,7 +78,15 @@ class DomainInline(admin.TabularInline):
 # class ImpressionInline(admin.TabularInline):
 #     from readthedocs.donate.models import ProjectImpressions
 #     model = ProjectImpressions
-#     readonly_fields = ('date', 'promo', 'offers', 'views', 'clicks', 'view_ratio', 'click_ratio')
+#     readonly_fields = (
+#         'date',
+#         'promo',
+#         'offers',
+#         'views',
+#         'clicks',
+#         'view_ratio',
+#         'click_ratio',
+#     )
 #     extra = 0
 #     can_delete = False
 #     max_num = 15
@@ -137,7 +146,13 @@ class ProjectAdmin(GuardedModelAdmin):
     ]
     readonly_fields = ('feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
-    actions = ['send_owner_email', 'ban_owner']
+    actions = [
+        'send_owner_email',
+        'ban_owner',
+        'build_default_version',
+        'reindex_active_versions',
+        'wipe_all_versions',
+    ]
 
     def feature_flags(self, obj):
         return ', '.join([str(f.get_feature_display()) for f in obj.features])
@@ -162,8 +177,9 @@ class ProjectAdmin(GuardedModelAdmin):
         for project in queryset:
             if project.users.count() == 1:
                 count = (
-                    UserProfile.objects.filter(user__projects=project
-                                               ).update(banned=True)
+                    UserProfile.objects.filter(
+                        user__projects=project,
+                    ).update(banned=True)
                 )  # yapf: disabled
                 total += count
             else:
@@ -199,6 +215,82 @@ class ProjectAdmin(GuardedModelAdmin):
                 )
         return delete_selected(self, request, queryset)
 
+    def build_default_version(self, request, queryset):
+        """Trigger a build for the project version."""
+        total = 0
+        for project in queryset:
+            trigger_build(project=project)
+            total += 1
+        messages.add_message(
+            request,
+            messages.INFO,
+            'Triggered builds for {} project(s).'.format(total),
+        )
+
+    build_default_version.short_description = 'Build default version'
+
+    def reindex_active_versions(self, request, queryset):
+        """Reindex all active versions of the selected projects to ES."""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            version_qs = Version.objects.filter(project=project)
+            active_versions = version_qs.filter(active=True)
+
+            if not active_versions.exists():
+                self.message_user(
+                    request,
+                    'No active versions of project {}'.format(project),
+                    messages.ERROR
+                )
+            else:
+                html_objs_qs = []
+                for version in active_versions.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=False)
+
+                self.message_user(
+                    request,
+                    'Task initiated successfully for {}'.format(project),
+                    messages.SUCCESS
+                )
+
+    reindex_active_versions.short_description = 'Reindex active versions to ES'
+
+    def wipe_all_versions(self, request, queryset):
+        """Wipe indexes of all versions of selected projects."""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            version_qs = Version.objects.filter(project=project)
+            if not version_qs.exists():
+                self.message_user(
+                    request,
+                    'No active versions of project {}.'.format(project),
+                    messages.ERROR
+                )
+            else:
+                html_objs_qs = []
+                for version in version_qs.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=True)
+
+                self.message_user(
+                    request,
+                    'Task initiated successfully for {}.'.format(project),
+                    messages.SUCCESS
+                )
+
+    wipe_all_versions.short_description = 'Wipe all versions from ES'
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         actions['delete_selected'] = (
@@ -211,7 +303,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
 class ImportedFileAdmin(admin.ModelAdmin):
 
-    """Admin view for :py:class:`ImportedFile`"""
+    """Admin view for :py:class:`ImportedFile`."""
 
     raw_id_fields = ('project', 'version')
     list_display = ('path', 'name', 'version')

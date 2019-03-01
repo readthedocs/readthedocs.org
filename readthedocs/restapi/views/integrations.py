@@ -2,6 +2,8 @@
 
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
+import hashlib
+import hmac
 import json
 import logging
 import re
@@ -11,6 +13,7 @@ from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from readthedocs.core.signals import (
@@ -20,16 +23,17 @@ from readthedocs.core.signals import (
 )
 from readthedocs.core.views.hooks import build_branches, sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.integrations.utils import normalize_request_payload
 from readthedocs.projects.models import Project
 
 
 log = logging.getLogger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
+GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
+GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
 GITLAB_PUSH = 'push'
 GITLAB_NULL_HASH = '0' * 40
 GITLAB_TAG_PUSH = 'tag_push'
@@ -45,10 +49,18 @@ class WebhookMixin:
     renderer_classes = (JSONRenderer,)
     integration = None
     integration_type = None
+    invalid_payload_msg = 'Payload not valid'
 
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
         self.request = request
+        # WARNING: this is a hack to allow us access to `request.body` later.
+        # Due to a limitation of DRF, we can't access `request.body`
+        # after accessing `request.data`.
+        # By accessing `request.body` we are able to access `request.body` and
+        # `request.data` later without any problem (mostly black magic).
+        # See #4940 for more background.
+        self.request.body  # noqa
         self.project = None
         self.data = self.get_data()
         try:
@@ -58,6 +70,15 @@ class WebhookMixin:
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Project.DoesNotExist:
             raise NotFound('Project not found')
+        if not self.is_payload_valid():
+            log.warning(
+                'Invalid payload for project: %s and integration: %s',
+                project_slug, self.integration_type
+            )
+            return Response(
+                {'detail': self.invalid_payload_msg},
+                status=HTTP_400_BAD_REQUEST
+            )
         resp = self.handle_webhook()
         if resp is None:
             log.info('Unhandled webhook event')
@@ -80,12 +101,20 @@ class WebhookMixin:
         return resp
 
     def get_data(self):
-        """Normalize posted data."""
-        return normalize_request_payload(self.request)
+        """
+        Normalize posted data.
+
+        This can be overriden to support multiples content types.
+        """
+        return self.request.data
 
     def handle_webhook(self):
         """Handle webhook payload."""
         raise NotImplementedError
+
+    def is_payload_valid(self):
+        """Validates the webhook's payload using the integration's secret."""
+        return False
 
     def get_integration(self):
         """
@@ -102,10 +131,19 @@ class WebhookMixin:
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        integration, _ = Integration.objects.get_or_create(
-            project=self.project,
-            integration_type=self.integration_type,
-        )
+        try:
+            integration = Integration.objects.get(
+                project=self.project,
+                integration_type=self.integration_type,
+            )
+        except Integration.DoesNotExist:
+            integration = Integration.objects.create(
+                project=self.project,
+                integration_type=self.integration_type,
+                # If we didn't create the integration,
+                # we didn't set a secret.
+                secret=None,
+            )
         return integration
 
     def get_response_push(self, project, branches):
@@ -172,6 +210,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
+    invalid_payload_msg = 'Payload not valid, invalid or missing signature'
 
     def get_data(self):
         if self.request.content_type == 'application/x-www-form-urlencoded':
@@ -180,6 +219,41 @@ class GitHubWebhookView(WebhookMixin, APIView):
             except (ValueError, KeyError):
                 pass
         return super().get_data()
+
+    def is_payload_valid(self):
+        """
+        GitHub use a HMAC hexdigest hash to sign the payload.
+
+        It is sent in the request's header.
+        See https://developer.github.com/webhooks/securing/
+        """
+        signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
+        secret = self.get_integration().secret
+        if not secret:
+            log.info(
+                'Skipping payload validation for project: %s',
+                self.project.slug
+            )
+            return True
+        if not signature:
+            return False
+        msg = self.request.body.decode()
+        digest = GitHubWebhookView.get_digest(secret, msg)
+        result = hmac.compare_digest(
+            b'sha1=' + digest.encode(),
+            signature.encode()
+        )
+        return result
+
+    @staticmethod
+    def get_digest(secret, msg):
+        """Get a HMAC digest of `msg` using `secret.`"""
+        digest = hmac.new(
+            secret.encode(),
+            msg=msg.encode(),
+            digestmod=hashlib.sha1
+        )
+        return digest.hexdigest()
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
@@ -230,6 +304,26 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
+    invalid_payload_msg = 'Payload not valid, invalid or missing token'
+
+    def is_payload_valid(self):
+        """
+        GitLab only sends back the token from the webhook.
+
+        It is sent in the request's header.
+        See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token.
+        """
+        token = self.request.META.get(GITLAB_TOKEN_HEADER)
+        secret = self.get_integration().secret
+        if not secret:
+            log.info(
+                'Skipping payload validation for project: %s',
+                self.project.slug
+            )
+            return True
+        if not token:
+            return False
+        return token == secret
 
     def handle_webhook(self):
         """
@@ -338,6 +432,10 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 raise ParseError('Invalid request')
         return None
 
+    def is_payload_valid(self):
+        """BitBucket doesn't have an option for payload validation."""
+        return True
+
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
 
@@ -349,7 +447,7 @@ class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
     """
 
     def has_permission(self, request, view):
-        has_perm = (super().has_permission(request, view))
+        has_perm = super().has_permission(request, view)
         return has_perm or 'token' in request.data
 
 
@@ -410,6 +508,15 @@ class APIWebhookView(WebhookMixin, APIView):
         except TypeError:
             raise ParseError('Invalid request')
 
+    def is_payload_valid(self):
+        """
+        We can't have payload validation in the generic webhook.
+
+        Since we don't know the system that would trigger the webhook.
+        We have a token for authentication.
+        """
+        return True
+
 
 class WebhookView(APIView):
 
@@ -420,7 +527,17 @@ class WebhookView(APIView):
     ever get webhook requests for established webhooks on our side. The other
     views can receive webhooks for unknown webhooks, as all legacy webhooks will
     be.
+
+    .. warning::
+        We're turning off Authenication for this view.
+        This fixes a bug where we were double-authenticating these views,
+        because of the way we're passing the request along to the subviews.
+
+        If at any time we add real logic to this view,
+        it will be completely unauthenticated.
     """
+
+    authentication_classes = []
 
     VIEW_MAP = {
         Integration.GITHUB_WEBHOOK: GitHubWebhookView,
@@ -431,6 +548,13 @@ class WebhookView(APIView):
 
     def post(self, request, project_slug, integration_pk):
         """Set up webhook post view with request and project objects."""
+        # WARNING: this is a hack to allow us access to `request.body` later.
+        # Due to a limitation of DRF, we can't access `request.body`
+        # after accessing `request.data`.
+        # By accessing `request.body` we are able to access `request.body` and
+        # `request.data` later without any problem (mostly black magic).
+        # See #4940 for more background.
+        request.body  # noqa
         integration = get_object_or_404(
             Integration,
             project__slug=project_slug,

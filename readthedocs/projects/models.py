@@ -1,19 +1,16 @@
-# -*- coding: utf-8 -*-
-
 """Project models."""
 
 import fnmatch
 import logging
-import re
 import os
+import re
 from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.urls import NoReverseMatch, reverse
-from django.utils.encoding import python_2_unicode_compatible
-from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
@@ -45,9 +42,9 @@ from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 
 log = logging.getLogger(__name__)
+storage = get_storage_class()()
 
 
-@python_2_unicode_compatible
 class ProjectRelationship(models.Model):
 
     """
@@ -89,7 +86,6 @@ class ProjectRelationship(models.Model):
         return resolve(self.child)
 
 
-@python_2_unicode_compatible
 class Project(models.Model):
 
     """Project model."""
@@ -188,7 +184,7 @@ class Project(models.Model):
         help_text=_(
             'Type of documentation you are building. <a href="'
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
-            'DirectoryHTMLBuilder">More info</a>.',
+            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
 
@@ -303,7 +299,7 @@ class Project(models.Model):
         _('Python Interpreter'),
         max_length=20,
         choices=constants.PYTHON_CHOICES,
-        default='python',
+        default='python3',
         help_text=_(
             'The Python interpreter used to create the virtual '
             'environment.',
@@ -512,6 +508,24 @@ class Project(models.Model):
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
+
+    def get_storage_path(self, type_, version_slug=LATEST):
+        """
+        Get a path to a build artifact for use with Django's storage system.
+
+        :param type_: Media content type, ie - 'pdf', 'htmlzip'
+        :param version_slug: Project version slug for lookup
+        :return: the path to an item in storage
+            (can be used with ``storage.url`` to get the URL)
+        """
+        extension = type_.replace('htmlzip', 'zip')
+        return '{}/{}/{}/{}.{}'.format(
+            type_,
+            self.slug,
+            version_slug,
+            self.slug,
+            extension,
+        )
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -731,30 +745,33 @@ class Project(models.Model):
     def has_pdf(self, version_slug=LATEST):
         if not self.enable_pdf_build:
             return False
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='pdf',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='pdf', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='pdf', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
         if not self.enable_epub_build:
             return False
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='epub',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='epub', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='epub', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     def has_htmlzip(self, version_slug=LATEST):
-        return os.path.exists(
-            self.get_production_media_path(
-                type_='htmlzip',
-                version_slug=version_slug,
-            )
+        path = self.get_production_media_path(
+            type_='htmlzip', version_slug=version_slug
         )
+        storage_path = self.get_storage_path(
+            type_='htmlzip', version_slug=version_slug
+        )
+        return os.path.exists(path) or storage.exists(storage_path)
 
     @property
     def sponsored(self):
@@ -1070,7 +1087,6 @@ class APIProject(Project):
         return self._environment_variables
 
 
-@python_2_unicode_compatible
 class ImportedFile(models.Model):
 
     """
@@ -1093,7 +1109,11 @@ class ImportedFile(models.Model):
     )
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
-    path = models.CharField(_('Path'), max_length=255)
+
+    # max_length is set to 4096 because linux has a maximum path length
+    # of 4096 characters for most filesystems (including EXT4).
+    # https://github.com/rtfd/readthedocs.org/issues/5061
+    path = models.CharField(_('Path'), max_length=4096)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -1122,37 +1142,48 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager()
 
-    @cached_property
-    def json_file_path(self):
-        basename = os.path.splitext(self.path)[0]
-        if self.project.documentation_type == 'sphinx_htmldir' and basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            log.info('Adjusted json file path: %s -> %s', basename, new_basename)
-            basename = new_basename
+    def get_processed_json(self):
+        """
+        Get the parsed JSON for search indexing.
 
-        file_path = basename + '.fjson'
+        Check for two paths for each index file
+        This is because HTMLDir can generate a file from two different places:
+
+        * foo.rst
+        * foo/index.rst
+
+        Both lead to `foo/index.html`
+        https://github.com/rtfd/readthedocs.org/issues/5368
+        """
+        paths = []
+        basename = os.path.splitext(self.path)[0]
+        paths.append(basename + '.fjson')
+        if basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            paths.append(new_basename + '.fjson')
 
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
-
-        file_path = os.path.join(full_json_path, file_path)
-        return file_path
-
-    def get_processed_json(self):
-        file_path = self.json_file_path
         try:
-            return process_file(file_path)
+            for path in paths:
+                file_path = os.path.join(full_json_path, path)
+                if os.path.exists(file_path):
+                    return process_file(file_path)
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file: %s' % file_path
+                'Unhandled exception during search processing file: %s',
+                file_path,
             )
         return {
-            'headers': [], 'content': '', 'path': file_path, 'title': '',
-            'sections': []
+            'headers': [],
+            'content': '',
+            'path': file_path,
+            'title': '',
+            'sections': [],
         }
 
-    @cached_property
+    @property
     def processed_json(self):
         return self.get_processed_json()
 
@@ -1165,7 +1196,6 @@ class Notification(models.Model):
         abstract = True
 
 
-@python_2_unicode_compatible
 class EmailHook(Notification):
     email = models.EmailField()
 
@@ -1173,7 +1203,6 @@ class EmailHook(Notification):
         return self.email
 
 
-@python_2_unicode_compatible
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
@@ -1185,7 +1214,6 @@ class WebHook(Notification):
         return self.url
 
 
-@python_2_unicode_compatible
 class Domain(models.Model):
 
     """A custom domain name for a project."""
@@ -1257,7 +1285,6 @@ class Domain(models.Model):
         super().delete(*args, **kwargs)
 
 
-@python_2_unicode_compatible
 class Feature(models.Model):
 
     """
@@ -1348,7 +1375,6 @@ class Feature(models.Model):
         return dict(self.FEATURES).get(self.feature_id, self.feature_id)
 
 
-@python_2_unicode_compatible
 class EnvironmentVariable(TimeStampedModel, models.Model):
     name = models.CharField(
         max_length=128,

@@ -282,10 +282,10 @@ class BuildCommand(BuildCommandResultMixin):
                     'Content-Type': encoder.content_type,
                 }
             )
-            log.info('Post response via multipart form: %s', resp)
+            log.debug('Post response via multipart form: %s', resp)
         else:
             resp = api_v2.command.post(data)
-            log.info('Post response via JSON encoded data: %s', resp)
+            log.debug('Post response via JSON encoded data: %s', resp)
 
 
 class DockerBuildCommand(BuildCommand):
