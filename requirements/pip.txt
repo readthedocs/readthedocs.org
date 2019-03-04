@@ -8,7 +8,7 @@ django-tastypie==0.14.2
 django-guardian==1.5.0
 django-extensions==2.1.6
 
-djangorestframework==3.9.1
+djangorestframework==3.9.2
 
 # For intersphinx during builds
 Sphinx==1.8.4
