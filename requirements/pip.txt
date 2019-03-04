@@ -1,7 +1,7 @@
 # Base packages
 pip==19.0.3
 appdirs==1.4.3
-virtualenv==16.4.1
+virtualenv==16.4.3
 
 django==1.11.20  # pyup: <1.12
 django-tastypie==0.14.2
