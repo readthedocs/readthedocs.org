@@ -81,6 +81,19 @@ we would allow them to do a few sets of actions on them:
 
 There is likely other ideas that could be done with `Collections` over time.
 
+Integration with OpenAPI/Swagger
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integrate the existing tooling around OpenAPI & Swagger into Sphinx and Read the Docs.
+This will include building some extensions that generate reStructuredText,
+and backend Django code that powers the frontend Javascript.
+
+This could include:
+
+* Building a live preview for testing an API in the documentation
+* Taking a swagger YAML file and generating HTML properly with Sphinx
+* Integration with our existing API to generate Swagger output
+
 Autobuild docs for Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -114,6 +127,23 @@ This project would include:
 
 This is not as well defined as the other tasks,
 so would require a higher level of skill from an incoming student.
+
+Better MkDocs integration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently we don't have a good integration with MkDocs as we do with Sphinx.
+And it's hard to maintain compatibility with new versions.
+
+This project would include:
+
+* Support the latest version of MkDocs
+* Support downloads (`#1939`_)
+* Write a plugin to allow us to have more control over the build process (`#4924`_)
+* Support search (`#1088`_)
+
+.. _#1939: https://github.com/rtfd/readthedocs.org/issues/1939
+.. _#4924: https://github.com/rtfd/readthedocs.org/issues/4924
+.. _#1088: https://github.com/rtfd/readthedocs.org/issues/1088
 
 Integrated Redirects
 ~~~~~~~~~~~~~~~~~~~~

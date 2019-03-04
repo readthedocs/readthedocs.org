@@ -1,3 +1,27 @@
+Version 3.3.1
+-------------
+
+:Date: February 28, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Be more defensive with our storage uploading (`#5371 <https://github.com/rtfd/readthedocs.org/pull/5371>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Check for two paths for each file (`#5370 <https://github.com/rtfd/readthedocs.org/pull/5370>`__)
+* `@stsewd <http://github.com/stsewd>`__: Protect against anchors with # (`#5369 <https://github.com/rtfd/readthedocs.org/pull/5369>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don't show projects in Sphinx Domain Admin sidebar (`#5367 <https://github.com/rtfd/readthedocs.org/pull/5367>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix sphinx domain models and migrations (`#5363 <https://github.com/rtfd/readthedocs.org/pull/5363>`__)
+* `@stsewd <http://github.com/stsewd>`__: Try to put back codecov integration (`#5362 <https://github.com/rtfd/readthedocs.org/pull/5362>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.3.0 (`#5361 <https://github.com/rtfd/readthedocs.org/pull/5361>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix search bug when an empty list of objects_id was passed (`#5357 <https://github.com/rtfd/readthedocs.org/pull/5357>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add admin methods for reindexing versions from project and version admin. (`#5343 <https://github.com/rtfd/readthedocs.org/pull/5343>`__)
+* `@stsewd <http://github.com/stsewd>`__: Cleanup a little of documentation_type from footer (`#5315 <https://github.com/rtfd/readthedocs.org/pull/5315>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add modeling for intersphinx data (`#5289 <https://github.com/rtfd/readthedocs.org/pull/5289>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove doctype from resolver (`#5230 <https://github.com/rtfd/readthedocs.org/pull/5230>`__)
+* `@stsewd <http://github.com/stsewd>`__: Validate webhook's payload (`#4940 <https://github.com/rtfd/readthedocs.org/pull/4940>`__)
+* `@stsewd <http://github.com/stsewd>`__: Start testing config v2 on our project (`#4838 <https://github.com/rtfd/readthedocs.org/pull/4838>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Merge pull request #4636 from rtfd/search_upgrade" (`#4716 <https://github.com/rtfd/readthedocs.org/pull/4716>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add schema for configuration file with yamale (`#4084 <https://github.com/rtfd/readthedocs.org/pull/4084>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add note about mercurial on tests (`#3358 <https://github.com/rtfd/readthedocs.org/pull/3358>`__)
+
 Version 3.3.0
 -------------
 
