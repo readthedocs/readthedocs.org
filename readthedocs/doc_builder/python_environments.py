@@ -278,7 +278,7 @@ class Virtualenv(PythonEnvironment):
         )
 
         requirements = [
-            'Pygments==2.2.0',
+            'Pygments==2.3.1',
             # Assume semver for setuptools version, support up to next backwards
             # incompatible release
             self.project.get_feature_value(
