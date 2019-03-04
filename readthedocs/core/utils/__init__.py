@@ -97,8 +97,7 @@ def prepare_build(
     if not version:
         version = project.versions.get(slug=LATEST)
         if not version.active:
-            default_version_slug = project.default_branch
-            version = project.versions.get(slug=default_version_slug)
+            version = project.versions.get(slug=project.get_default_branch())
 
     kwargs = {
         'version_pk': version.pk,
