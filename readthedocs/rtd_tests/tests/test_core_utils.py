@@ -14,6 +14,7 @@ from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.tasks import remove_dirs
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.projects.models import Project
+from readthedocs.builds.constants import LATEST
 
 
 class CoreUtilTests(TestCase):
@@ -33,6 +34,34 @@ class CoreUtilTests(TestCase):
         self.assertEqual(result, (None, None))
         self.assertFalse(update_docs_task.signature.called)
         self.assertFalse(update_docs_task.signature().apply_async.called)
+    
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_build_when_latest_is_not_activated(self, update_docs_task):
+        self.assertFalse(Version.objects.filter(slug='test-slug').exists())
+
+        project_1 = get(Project)
+        version_1 = get(Version, project=project_1, slug='test-slug')
+        active_version = project_1.versions.filter(slug=LATEST).update(active=False)
+
+        project_1.default_branch = 'test-slug'
+        project_1.save()
+
+        trigger_build(project=project_1)
+        kwargs = {
+            'version_pk': version_1.pk,
+            'record': True,
+            'force': False,
+            'build_pk': mock.ANY,
+        }
+
+        update_docs_task.signature.assert_has_calls([
+            mock.call(
+                args=(project_1.pk,),
+                kwargs=kwargs,
+                options=mock.ANY,
+                immutable=True,
+            ),
+        ])
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_custom_queue(self, update_docs):
