@@ -95,7 +95,7 @@ def prepare_build(
         return (None, None)
 
     if not version:
-        default_branch = project.get_default_branch()
+        default_branch = project.default_branch
         version_ = project.versions.filter(slug=default_branch)
         if version_.exists():
             version = version_.first()
