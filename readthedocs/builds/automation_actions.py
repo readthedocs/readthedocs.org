@@ -12,4 +12,5 @@ Each function will receive the following args:
 def activate_version_from_regex(
         version, match_result, action_arg, *args, **kwargs
 ):
-    pass
+    version.active = True
+    version.save()
