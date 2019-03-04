@@ -720,7 +720,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         help_text=_('A lower number (0) means a higher priority'),
     )
     match_arg = models.CharField(
-        _('Value used for the rule to match the version'),
+        _('Match argument'),
+        help_text=_('Value used for the rule to match the version'),
         max_length=255,
     )
     action = models.CharField(
@@ -729,7 +730,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         choices=ACTIONS,
     )
     action_arg = models.CharField(
-        _('Value used for the action to perfom an operation'),
+        _('Action argument'),
+        help_text=_('Value used for the action to perfom an operation'),
         max_length=255,
         null=True,
         blank=True,
