@@ -9,8 +9,6 @@ Each function will receive the following args:
 """
 
 
-def activate_version_from_regex(
-        version, match_result, action_arg, *args, **kwargs
-):
+def activate_version(version, match_result, action_arg, *args, **kwargs):
     version.active = True
     version.save()

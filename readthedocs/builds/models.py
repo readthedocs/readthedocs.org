@@ -796,7 +796,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 class RegexAutomationRule(VersionAutomationRule):
 
     allowed_actions = {
-        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version_from_regex,
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
     }
 
     class Meta:
