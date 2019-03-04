@@ -724,7 +724,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
     )
-    rule_arg = models.CharField(
+    match_arg = models.CharField(
         _('Value used for the rule to match the version'),
         max_length=255,
     )
@@ -756,7 +756,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :type version: readthedocs.builds.models.Version
         """
         if version.type == self.version_type:
-            match_result = self.match(version, self.rule_arg)
+            match_result = self.match(version, self.match_arg)
             if match_result is not None:
                 return self.apply_action(version, match_result, self.action_arg)
         return False
