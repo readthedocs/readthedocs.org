@@ -41,8 +41,6 @@ class CoreUtilTests(TestCase):
 
         project_1 = get(Project)
         version_1 = get(Version, project=project_1, slug='test-slug')
-        active_version = project_1.versions.filter(slug=LATEST).update(active=False)
-
         project_1.default_branch = 'test-slug'
         project_1.save()
 
