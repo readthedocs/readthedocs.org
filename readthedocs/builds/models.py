@@ -720,7 +720,10 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         related_name='automation_rules',
         on_delete=models.CASCADE,
     )
-    priority = models.IntegerField(_('Rule priority'))
+    priority = models.IntegerField(
+        _('Rule priority'),
+        help_text=_('A lower number (0) means a higher priority'),
+    )
     rule_arg = models.CharField(
         _('Value used for the rule to match the version'),
         max_length=255,
@@ -758,55 +761,50 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
                 return self.apply_action(version, match_result, self.action_arg)
         return False
 
-    def match(self, version, arg):
+    def match(self, version, match_arg):
         """
         Returns an object different from None if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
-        :param str arg: Additional argument to perform the match
+        :param str match_arg: Additional argument to perform the match
         :returns: An object different from `None` if the match is successful.
                   The result will be passed to `apply_action`.
         """
         return None
 
-    def apply_action(self, version, match_result, arg):
+    def apply_action(self, version, match_result, action_arg):
         """
         Apply the action from allowed_actions.
 
         :type version: readthedocs.builds.models.Version
         :param any match_result: Additional context from the match operation
-        :param str arg: Additional argument to perform the action
+        :param str action_arg: Additional argument to perform the action
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
         action = self.allowed_actions.get(self.action)
         if action is None:
             raise NotImplementedError
-        return action(version, match_result, arg)
+        return action(version, match_result, action_arg)
 
     def __str__(self):
         return (
-            _('({priority}) {rule}/{action} to {version_tyep} for {project}')
-            .format(
-                priority=self.priority,
-                rule=self.get_rule_type_display(),
-                action=self.get_action_display(),
-                version_type=self.get_version_type_display(),
-                project=self.project.slug,
-            )
+            f'({self.priority}) '
+            f'{self.get_rule_type_display()}/{self.get_action_display()} '
+            f'for {self.project.slug}:{self.get_version_type_display()}'
         )
 
 
 class RegexAutomationRule(VersionAutomationRule):
 
     allowed_actions = {
-        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version_from_regex_action,
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version_from_regex,
     }
 
     class Meta:
         proxy = True
 
-    def match(self, version, arg):
-        regex = re.compile(arg)
+    def match(self, version, match_arg):
+        regex = re.compile(match_arg)
         match = regex.match(version.verbose_name)
         return match
