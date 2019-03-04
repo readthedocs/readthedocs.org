@@ -1,15 +1,23 @@
-# -*- coding: utf-8 -*-
-
 """Django admin interface for `~builds.models.Build` and related models."""
 
 from django.contrib import admin, messages
 from guardian.admin import GuardedModelAdmin
+from polymorphic.admin import (
+    PolymorphicChildModelAdmin,
+    PolymorphicParentModelAdmin,
+)
 
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import (
+    Build,
+    BuildCommandResult,
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
-from readthedocs.core.utils.general import wipe_version_via_slugs
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -48,7 +56,6 @@ class BuildAdmin(admin.ModelAdmin):
 
 
 class VersionAdmin(GuardedModelAdmin):
-    search_fields = ('slug', 'project__name')
     list_display = (
         'slug',
         'type',
@@ -58,7 +65,7 @@ class VersionAdmin(GuardedModelAdmin):
         'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
-    search_fields = ('slug', 'project__slug')
+    search_fields = ('slug', 'project__slug', 'project__name')
     raw_id_fields = ('project',)
     actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
 
@@ -133,6 +140,24 @@ class VersionAdmin(GuardedModelAdmin):
         )
 
     wipe_version.short_description = 'Wipe version from ES'
+
+
+@admin.register(RegexAutomationRule)
+class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
+    base_model = RegexAutomationRule
+
+
+@admin.register(VersionAutomationRule)
+class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
+    base_model = VersionAutomationRule
+    list_display = (
+        'project',
+        'priority',
+        'match_arg',
+        'action',
+        'version_type',
+    )
+    child_models = (RegexAutomationRule,)
 
 
 admin.site.register(Build, BuildAdmin)
