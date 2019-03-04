@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from django.http import Http404
@@ -169,7 +168,7 @@ class RedirectAppTests(TestCase):
             project=self.pip, redirect_type='prefix',
             from_url='/',
         )
-        r = self.client.get('/redirect', HTTP_HOST='pip.readthedocs.org')
+        r = self.client.get('/redirect.html', HTTP_HOST='pip.readthedocs.org')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://pip.readthedocs.org/en/latest/redirect.html',
@@ -448,7 +447,7 @@ class GetFullPathTests(TestCase):
     def test_redirects_no_subdomain(self):
         self.assertEqual(
             self.redirect.get_full_path('index.html'),
-            '/docs/read-the-docs/en/latest/',
+            '/docs/read-the-docs/en/latest/index.html',
         )
 
     @override_settings(

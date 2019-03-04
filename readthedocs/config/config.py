@@ -490,15 +490,14 @@ class BuildConfigV1(BuildConfigBase):
             raw_conda = self.raw_config['conda']
             with self.catch_validation_error('conda'):
                 validate_dict(raw_conda)
-            conda_environment = None
-            if 'file' in raw_conda:
-                with self.catch_validation_error('conda.file'):
-                    conda_environment = validate_file(
-                        raw_conda['file'],
-                        self.base_path,
-                    )
-            conda['environment'] = conda_environment
-
+            with self.catch_validation_error('conda.file'):
+                if 'file' not in raw_conda:
+                    raise ValidationError('file', VALUE_NOT_FOUND)
+                conda_environment = validate_file(
+                    raw_conda['file'],
+                    self.base_path,
+                )
+                conda['environment'] = conda_environment
             return conda
         return None
 

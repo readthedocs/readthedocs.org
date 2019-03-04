@@ -60,7 +60,7 @@ FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification
     Some older setups configured a CNAME record pointing to ``readthedocs.org``
     or another variation. While these continue to resolve,
     they do not yet allow us to acquire SSL certificates for those domains.
-    Point the CNAME to ``readthedocs.io`` and re-request a certificate
+    Point the CNAME to ``readthedocs.io``, with no subdomain, and re-request a certificate
     by saving the domain in the project admin (:guilabel:`Domains` >
     :guilabel:`Edit Domain`).
 

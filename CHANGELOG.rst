@@ -1,3 +1,83 @@
+Version 3.3.1
+-------------
+
+:Date: February 28, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Be more defensive with our storage uploading (`#5371 <https://github.com/rtfd/readthedocs.org/pull/5371>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Check for two paths for each file (`#5370 <https://github.com/rtfd/readthedocs.org/pull/5370>`__)
+* `@stsewd <http://github.com/stsewd>`__: Protect against anchors with # (`#5369 <https://github.com/rtfd/readthedocs.org/pull/5369>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Don't show projects in Sphinx Domain Admin sidebar (`#5367 <https://github.com/rtfd/readthedocs.org/pull/5367>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix sphinx domain models and migrations (`#5363 <https://github.com/rtfd/readthedocs.org/pull/5363>`__)
+* `@stsewd <http://github.com/stsewd>`__: Try to put back codecov integration (`#5362 <https://github.com/rtfd/readthedocs.org/pull/5362>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.3.0 (`#5361 <https://github.com/rtfd/readthedocs.org/pull/5361>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix search bug when an empty list of objects_id was passed (`#5357 <https://github.com/rtfd/readthedocs.org/pull/5357>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add admin methods for reindexing versions from project and version admin. (`#5343 <https://github.com/rtfd/readthedocs.org/pull/5343>`__)
+* `@stsewd <http://github.com/stsewd>`__: Cleanup a little of documentation_type from footer (`#5315 <https://github.com/rtfd/readthedocs.org/pull/5315>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add modeling for intersphinx data (`#5289 <https://github.com/rtfd/readthedocs.org/pull/5289>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove doctype from resolver (`#5230 <https://github.com/rtfd/readthedocs.org/pull/5230>`__)
+* `@stsewd <http://github.com/stsewd>`__: Validate webhook's payload (`#4940 <https://github.com/rtfd/readthedocs.org/pull/4940>`__)
+* `@stsewd <http://github.com/stsewd>`__: Start testing config v2 on our project (`#4838 <https://github.com/rtfd/readthedocs.org/pull/4838>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Merge pull request #4636 from rtfd/search_upgrade" (`#4716 <https://github.com/rtfd/readthedocs.org/pull/4716>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add schema for configuration file with yamale (`#4084 <https://github.com/rtfd/readthedocs.org/pull/4084>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add note about mercurial on tests (`#3358 <https://github.com/rtfd/readthedocs.org/pull/3358>`__)
+
+Version 3.3.0
+-------------
+
+:Date: February 27, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix search bug when an empty list of objects_id was passed (`#5357 <https://github.com/rtfd/readthedocs.org/pull/5357>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Update UI translations (`#5354 <https://github.com/rtfd/readthedocs.org/pull/5354>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Update GSOC page to mention we're accepted. (`#5353 <https://github.com/rtfd/readthedocs.org/pull/5353>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 08 (`#5352 <https://github.com/rtfd/readthedocs.org/pull/5352>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Increase path's max_length for ImportedFile model to 4096 (`#5345 <https://github.com/rtfd/readthedocs.org/pull/5345>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: improvement on inserting mkdocs media (`#5344 <https://github.com/rtfd/readthedocs.org/pull/5344>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add admin methods for reindexing versions from project and version admin. (`#5343 <https://github.com/rtfd/readthedocs.org/pull/5343>`__)
+* `@stsewd <http://github.com/stsewd>`__: Initialize local variable before using it (`#5342 <https://github.com/rtfd/readthedocs.org/pull/5342>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove deprecated code (`#5341 <https://github.com/rtfd/readthedocs.org/pull/5341>`__)
+* `@stsewd <http://github.com/stsewd>`__: Require conda.file when using conda in v1 (`#5338 <https://github.com/rtfd/readthedocs.org/pull/5338>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove unused setting (`#5336 <https://github.com/rtfd/readthedocs.org/pull/5336>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix comment (`#5329 <https://github.com/rtfd/readthedocs.org/pull/5329>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't depend on specific data when catching exception (`#5326 <https://github.com/rtfd/readthedocs.org/pull/5326>`__)
+* `@regisb <http://github.com/regisb>`__: Fix "clean_builds" command argument parsing (`#5320 <https://github.com/rtfd/readthedocs.org/pull/5320>`__)
+* `@stsewd <http://github.com/stsewd>`__: Cleanup a little of documentation_type from footer (`#5315 <https://github.com/rtfd/readthedocs.org/pull/5315>`__)
+* `@humitos <http://github.com/humitos>`__: Warning note about running ES locally for tests (`#5314 <https://github.com/rtfd/readthedocs.org/pull/5314>`__)
+* `@humitos <http://github.com/humitos>`__: Update documentation on running test for python environment (`#5313 <https://github.com/rtfd/readthedocs.org/pull/5313>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.2.3 (`#5312 <https://github.com/rtfd/readthedocs.org/pull/5312>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add basic auth to the generic webhook API. (`#5311 <https://github.com/rtfd/readthedocs.org/pull/5311>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix an issue where we were not properly filtering projects (`#5309 <https://github.com/rtfd/readthedocs.org/pull/5309>`__)
+* `@stsewd <http://github.com/stsewd>`__: Rstrip repo url (`#5308 <https://github.com/rtfd/readthedocs.org/pull/5308>`__)
+* `@rexzing <http://github.com/rexzing>`__: Incompatible dependency for prospector with pylint-django (`#5306 <https://github.com/rtfd/readthedocs.org/pull/5306>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow extensions to control URL structure (`#5296 <https://github.com/rtfd/readthedocs.org/pull/5296>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade pytest-django (`#5294 <https://github.com/rtfd/readthedocs.org/pull/5294>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add modeling for intersphinx data (`#5289 <https://github.com/rtfd/readthedocs.org/pull/5289>`__)
+* `@ovc <http://github.com/ovc>`__: Tweek css for sphinx_prompt (`#5281 <https://github.com/rtfd/readthedocs.org/pull/5281>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: #4036 Updated build list to include an alert state (`#5222 <https://github.com/rtfd/readthedocs.org/pull/5222>`__)
+* `@humitos <http://github.com/humitos>`__: Use unicode-slugify to generate Version.slug (`#5186 <https://github.com/rtfd/readthedocs.org/pull/5186>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add admin functions for wiping a version (`#5140 <https://github.com/rtfd/readthedocs.org/pull/5140>`__)
+* `@humitos <http://github.com/humitos>`__: Generate general sitemap.xml for projects (`#5122 <https://github.com/rtfd/readthedocs.org/pull/5122>`__)
+* `@humitos <http://github.com/humitos>`__: Logging exceptions rework (`#5118 <https://github.com/rtfd/readthedocs.org/pull/5118>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Store ePubs and PDFs in media storage (`#4947 <https://github.com/rtfd/readthedocs.org/pull/4947>`__)
+* `@stsewd <http://github.com/stsewd>`__: Validate webhook's payload (`#4940 <https://github.com/rtfd/readthedocs.org/pull/4940>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Revert "Merge pull request #4636 from rtfd/search_upgrade" (`#4716 <https://github.com/rtfd/readthedocs.org/pull/4716>`__)
+* `@safwanrahman <http://github.com/safwanrahman>`__: [GSoC 2018] All Search Improvements (`#4636 <https://github.com/rtfd/readthedocs.org/pull/4636>`__)
+
+Version 3.2.3
+-------------
+
+:Date: February 19, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Add basic auth to the generic webhook API. (`#5311 <https://github.com/rtfd/readthedocs.org/pull/5311>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix an issue where we were not properly filtering projects (`#5309 <https://github.com/rtfd/readthedocs.org/pull/5309>`__)
+* `@stsewd <http://github.com/stsewd>`__: Rstrip repo url (`#5308 <https://github.com/rtfd/readthedocs.org/pull/5308>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use autosectionlabel for docs in security (`#5307 <https://github.com/rtfd/readthedocs.org/pull/5307>`__)
+* `@rexzing <http://github.com/rexzing>`__: Incompatible dependency for prospector with pylint-django (`#5306 <https://github.com/rtfd/readthedocs.org/pull/5306>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 07 (`#5305 <https://github.com/rtfd/readthedocs.org/pull/5305>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow extensions to control URL structure (`#5296 <https://github.com/rtfd/readthedocs.org/pull/5296>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade pytest-django (`#5294 <https://github.com/rtfd/readthedocs.org/pull/5294>`__)
+* `@rexzing <http://github.com/rexzing>`__: Docs reformatting with :guilabel: (`#5161 <https://github.com/rtfd/readthedocs.org/pull/5161>`__)
+
 Version 3.2.2
 -------------
 
@@ -986,14 +1066,12 @@ Version 2.3.1
 * `@humitos <http://github.com/humitos>`__: Upgrade all packages using `pur` tool (`#2916 <https://github.com/rtfd/readthedocs.org/pull/2916>`__)
 * `@rixx <http://github.com/rixx>`__: Fix page redirect preview (`#2711 <https://github.com/rtfd/readthedocs.org/pull/2711>`__)
 
-.. _version-2.3.0:
-
 Version 2.3.0
 -------------
 
 .. warning::
     Version 2.3.0 includes a security fix for project translations. See
-    :ref:`security-2.3.0` for more information
+    :ref:`security:Release 2.3.0` for more information
 
 * `@stsewd <http://github.com/stsewd>`__: Fix tox env for coverage (`#3772 <https://github.com/rtfd/readthedocs.org/pull/3772>`__)
 * `@humitos <http://github.com/humitos>`__: Try to fix end of file (`#3761 <https://github.com/rtfd/readthedocs.org/pull/3761>`__)

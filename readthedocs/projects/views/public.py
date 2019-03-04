@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Public project views."""
 
 import json
@@ -14,6 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.files.storage import get_storage_class
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -33,6 +32,7 @@ from .base import ProjectOnboardMixin
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
+storage = get_storage_class()()
 
 
 class ProjectIndex(ListView):
@@ -164,7 +164,7 @@ def project_badge(request, project_slug):
 
 
 def project_downloads(request, project_slug):
-    """A detail view for a project with various dataz."""
+    """A detail view for a project with various downloads."""
     project = get_object_or_404(
         Project.objects.protected(request.user),
         slug=project_slug,
@@ -206,14 +206,20 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
     privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
     if privacy_level == 'public' or settings.DEBUG:
-        path = os.path.join(
+        storage_path = version.project.get_storage_path(
+            type_=type_, version_slug=version_slug
+        )
+        if storage.exists(storage_path):
+            return HttpResponseRedirect(storage.url(storage_path))
+
+        media_path = os.path.join(
             settings.MEDIA_URL,
             type_,
             project_slug,
             version_slug,
-            '{}.{}'.format(project_slug, type_.replace('htmlzip', 'zip')),
+            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
         )
-        return HttpResponseRedirect(path)
+        return HttpResponseRedirect(media_path)
 
     # Get relative media path
     path = (
