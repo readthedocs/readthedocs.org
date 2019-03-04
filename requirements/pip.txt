@@ -22,8 +22,6 @@ jsonfield==2.0.2
 requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-lxml==4.3.1
-defusedxml==0.5.0
 pyyaml==3.13
 Pygments==2.3.1
 
@@ -37,9 +35,6 @@ redis==2.10.6  # pyup: ignore
 celery==4.1.1  # pyup: ignore
 
 django-allauth==0.38.0
-
-# VCS
-httplib2==0.12.1
 
 # GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
 # of an UnicodeError
@@ -65,7 +60,6 @@ pyquery==1.4.0
 # Utils
 django-gravatar2==1.4.2
 pytz==2018.9
-beautifulsoup4==4.7.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
