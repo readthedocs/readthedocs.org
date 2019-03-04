@@ -705,11 +705,6 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     """Versions automation rules for projects."""
 
-    REGEX_RULE = 'regex-rule'
-    RULE_TYPES = (
-        (REGEX_RULE, _('Regular expression rule')),
-    )
-
     ACTIVATE_VERSION_ACTION = 'activate-version'
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
@@ -754,11 +749,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
+        :returns: True if the action was performed
         """
         if version.type == self.version_type:
             match_result = self.match(version, self.match_arg)
             if match_result is not None:
-                return self.apply_action(version, match_result, self.action_arg)
+                self.apply_action(version, match_result, self.action_arg)
+                return True
         return False
 
     def match(self, version, match_arg):
@@ -785,12 +782,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         action = self.allowed_actions.get(self.action)
         if action is None:
             raise NotImplementedError
-        return action(version, match_result, action_arg)
+        action(version, match_result, action_arg)
 
     def __str__(self):
+        class_name = self.__class__.__name__
         return (
             f'({self.priority}) '
-            f'{self.get_rule_type_display()}/{self.get_action_display()} '
+            f'{class_name}/{self.get_action_display()} '
             f'for {self.project.slug}:{self.get_version_type_display()}'
         )
 
@@ -805,6 +803,11 @@ class RegexAutomationRule(VersionAutomationRule):
         proxy = True
 
     def match(self, version, match_arg):
-        regex = re.compile(match_arg)
-        match = regex.match(version.verbose_name)
-        return match
+        try:
+            match = re.search(
+                match_arg, version.verbose_name
+            )
+            return match
+        except Exception as e:
+            log.info('Error parsing regex: %s', e)
+            return None
