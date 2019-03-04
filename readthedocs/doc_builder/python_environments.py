@@ -286,7 +286,7 @@ class Virtualenv(PythonEnvironment):
                 positive='setuptools<41',
                 negative='setuptools<40',
             ),
-            'docutils==0.13.1',
+            'docutils==0.14',
             'mock==1.0.1',
             'pillow==2.6.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
