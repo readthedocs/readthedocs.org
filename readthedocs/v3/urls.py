@@ -1,10 +1,17 @@
-from rest_framework import routers
+from rest_framework_extensions.routers import ExtendedSimpleRouter
 
 from .views import (
     ProjectsViewSet,
+    VersionsViewSet,
 )
 
-router = routers.DefaultRouter()
-router.register(r'projects', ProjectsViewSet, basename='projects')
+router = ExtendedSimpleRouter()
+router.register(r'projects', ProjectsViewSet, basename='projects') \
+      .register(
+          r'versions',
+          VersionsViewSet,
+          base_name='projects-versions',
+          parents_query_lookups=['project__slug'],
+      )
 
 urlpatterns = router.urls

@@ -138,6 +138,16 @@ class VersionSerializer(FlexFieldsModelSerializer):
         return data
 
 
+class VersionUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = [
+            'active',
+            'privacy_level',
+        ]
+
+
 class LanguageSerializer(serializers.Serializer):
 
     code = serializers.SerializerMethodField()
