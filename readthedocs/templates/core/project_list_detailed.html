@@ -32,10 +32,10 @@
     <ul class="module-item-menu">
       <li>
         {% if project.has_good_build %}
-          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}
-          {% else %}
-            <a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a>
-          {% endif %}
+          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+        {% else %}
+          <a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a>
+        {% endif %}
       </li>
     </ul>
 
