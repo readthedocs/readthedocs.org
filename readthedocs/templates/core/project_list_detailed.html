@@ -33,14 +33,7 @@
     <span class="dropdown" style="position:absolute; right:0px; top:0px;">
       <span>
           <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
-        <a href="#">&#x25BC;</a>
       </span>
-      <ul>
-          <li><input type="search" placeholder="{% trans "Search" %}&hellip;" /></li>
-          {% for version in project.ordered_active_versions reversed %}
-              <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-          {% endfor %}
-      </ul>
     </span>
     {% else %}
     <ul class="module-item-menu">
