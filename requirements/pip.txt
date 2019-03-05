@@ -22,6 +22,8 @@ jsonfield==2.0.2
 requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
+lxml==4.3.1
+defusedxml==0.5.0
 pyyaml==3.13
 Pygments==2.3.1
 
