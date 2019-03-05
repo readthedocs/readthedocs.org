@@ -44,4 +44,3 @@ class UserProfile(models.Model):
             'profiles_profile_detail',
             kwargs={'username': self.user.username},
         )
-
