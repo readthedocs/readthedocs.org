@@ -31,6 +31,49 @@ class UserSerializer(FlexFieldsModelSerializer):
         ]
 
 
+class BaseLinksSerializer(serializers.Serializer):
+
+    def _absolute_url(self, path):
+        scheme = 'http' if settings.DEBUG else 'https'
+        domain = settings.PRODUCTION_DOMAIN
+        return urllib.parse.urlunparse((scheme, domain, path, '', '', ''))
+
+
+class BuildLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-builds-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'build_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_version(self, obj):
+        path = reverse(
+            'projects-versions-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'version_slug': obj.version.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
 
     def to_representation(self, obj):
@@ -46,6 +89,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     created = serializers.DateTimeField(source='date')
     finished = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
+    links = BuildLinksSerializer(source='*')
 
     expandable_fields = dict(
         config=(
@@ -70,7 +114,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'commit',
             'builder',
             'cold_storage',
-            # 'links',
+            'links',
         ]
 
     def get_finished(self, obj):
@@ -84,6 +128,41 @@ class PrivacyLevelSerializer(serializers.Serializer):
 
     def get_name(self, obj):
         return obj.privacy_level.title()
+
+
+class VersionLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    builds = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-versions-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'version_slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_builds(self, obj):
+        path = reverse(
+            'projects-versions-builds-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'parent_lookup_version__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
 
 
 class VersionURLsSerializer(serializers.Serializer):
@@ -102,6 +181,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source='*')
+    links = VersionLinksSerializer(source='*')
 
     expandable_fields = dict(
         last_build=(
@@ -126,7 +206,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'type',
             'downloads',
             'urls',
-            # 'links',
+            'links',
         ]
 
     def get_downloads(self, obj):
@@ -195,22 +275,66 @@ class RepositorySerializer(serializers.Serializer):
     type = serializers.CharField(source='repo_type')
 
 
-class ProjectLinksSerializer(serializers.Serializer):
+class ProjectLinksSerializer(BaseLinksSerializer):
 
     _self = serializers.SerializerMethodField()
 
     # TODO: add these once the endpoints get implemented
     # users = serializers.SerializerMethodField()
-    # versions = serializers.SerializerMethodField()
-    # builds = serializers.SerializerMethodField()
-    # subprojects = serializers.SerializerMethodField()
-    # translations = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+    builds = serializers.SerializerMethodField()
+    subprojects = serializers.SerializerMethodField()
+    superprojects = serializers.SerializerMethodField()
+    translations = serializers.SerializerMethodField()
 
     def get__self(self, obj):
-        scheme = 'http' if settings.DEBUG else 'https'
-        domain = settings.PRODUCTION_DOMAIN
         path = reverse('projects-detail', kwargs={'project_slug': obj.slug})
-        return urllib.parse.urlunparse((scheme, domain, path, '', '', ''))
+        return self._absolute_url(path)
+
+    def get_versions(self, obj):
+        path = reverse(
+            'projects-versions-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_builds(self, obj):
+        path = reverse(
+            'projects-builds-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_subprojects(self, obj):
+        path = reverse(
+            'projects-subprojects',
+            kwargs={
+                'project_slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_superprojects(self, obj):
+        path = reverse(
+            'projects-superprojects',
+            kwargs={
+                'project_slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_translations(self, obj):
+        path = reverse(
+            'projects-translations',
+            kwargs={
+                'project_slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
