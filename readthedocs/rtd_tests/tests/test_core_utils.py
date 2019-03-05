@@ -34,13 +34,46 @@ class CoreUtilTests(TestCase):
         self.assertEqual(result, (None, None))
         self.assertFalse(update_docs_task.signature.called)
         self.assertFalse(update_docs_task.signature().apply_async.called)
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_build_when_version_not_provided_default_version_exist(self, update_docs_task):
+        self.assertFalse(Version.objects.filter(slug='test-default-version').exists())
+
+        project_1 = get(Project)
+        version_1 = get(Version, project=project_1, slug='test-default-version', active=True)
+
+        project_1.default_version = 'test-default-version'
+        project_1.save()
+
+        default_version = project_1.get_default_version()
+        self.assertEqual(default_version, 'test-default-version')
+
+        trigger_build(project=project_1)
+        kwargs = {
+            'version_pk': version_1.pk,
+            'record': True,
+            'force': False,
+            'build_pk': mock.ANY,
+        }
+
+        update_docs_task.signature.assert_has_calls([
+            mock.call(
+                args=(project_1.pk,),
+                kwargs=kwargs,
+                options=mock.ANY,
+                immutable=True,
+            ),
+        ])
     
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_when_version_not_provided(self, update_docs_task):
+    def test_trigger_build_when_version_not_provided_default_version_doesnt_exist(self, update_docs_task):
 
         trigger_build(project=self.project)
         default_version = self.project.get_default_version()
         version_ = self.project.versions.get(slug=default_version)
+
+        self.assertEqual(version_.slug, LATEST)
+
         kwargs = {
             'version_pk': version_.pk,
             'record': True,
