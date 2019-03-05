@@ -112,7 +112,6 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
         return Response(data=serializer.errors, status=400)
 
 
-
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
     model = Build
     lookup_field = 'pk'
