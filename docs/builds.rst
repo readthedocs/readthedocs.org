@@ -73,8 +73,9 @@ If the code is already checked out, we update the copy to the branch that you ha
 
 Then we build the proper backend code for the type of documentation you've selected.
 
-If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment.
-You can also define additional packages to install with the *Requirements File* option.
+At this point, if you need extra requirements,
+or even install your own package in the virtual environment to build your documentation,
+you can use a :doc:`config-file/index`.
 
 When we build your Sphinx documentation, we run ``sphinx-build -b html . _build/html``,
 where ``html`` would be replaced with the correct backend.
