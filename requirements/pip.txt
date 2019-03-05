@@ -1,14 +1,14 @@
 # Base packages
 pip==19.0.3
 appdirs==1.4.3
-virtualenv==16.4.1
+virtualenv==16.4.3
 
 django==1.11.20  # pyup: <1.12
 django-tastypie==0.14.2
 django-guardian==1.5.0
 django-extensions==2.1.6
 
-djangorestframework==3.9.1
+djangorestframework==3.9.2
 
 # For intersphinx during builds
 Sphinx==1.8.4
@@ -40,7 +40,7 @@ redis==2.10.6  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.38.0
+django-allauth==0.39.1
 
 # GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
 # of an UnicodeError
