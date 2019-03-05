@@ -12,7 +12,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 
-from .filters import ProjectFilter, VersionFilter
+from .filters import ProjectFilter, VersionFilter, BuildFilter
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
 
@@ -94,7 +94,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
     serializer_class = BuildSerializer
-    # filterset_class = VersionFilter
+    filterset_class = BuildFilter
     queryset = Build.objects.all()
     permit_list_expands = [
         'config',
