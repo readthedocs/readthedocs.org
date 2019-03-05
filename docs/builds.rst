@@ -9,8 +9,8 @@ Files: `tasks.py`_ - `doc_builder/`_
 Every documentation build has limited resources.
 Our current build limits are:
 
-* 15 minutes
-* 1GB of memory
+* 15 minutes of CPU
+* 1GB of RAM memory
 
 We can increase build limits on a per-project basis,
 if you provide a good reason your documentation needs more resources.
