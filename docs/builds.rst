@@ -90,12 +90,16 @@ An example in code:
 .. code-block:: python
 
     update_docs_from_vcs(version)
-    if exists('setup.py'):
+    config = get_config(project)
+    if config.python.install.method.setuptools:
         run('python setup.py install')
-    if project.requirements_file:
-        run('pip install -r %s' % project.requirements_file)
+    if config.python.install.method.pip:
+        run('pip install .')
+    if config.python.install.requirement:
+        run('pip install -r %s' % config.python.install.requirement)
     build_docs(version=version)
     copy_files(artifact_dir)
+
 
 .. note::
 
