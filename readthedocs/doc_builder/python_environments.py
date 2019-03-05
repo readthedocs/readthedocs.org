@@ -290,8 +290,8 @@ class Virtualenv(PythonEnvironment):
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
+            'commonmark==0.8.1',
+            'recommonmark==0.5.0',
         ]
 
         if self.config.doctype == 'mkdocs':
