@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 import django_filters.rest_framework as filters
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAdminUser
@@ -7,11 +8,12 @@ from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_flex_fields import FlexFieldsModelViewSet
 
-from readthedocs.builds.models import Version
+from readthedocs.core.utils import trigger_build
+from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 
 from .filters import ProjectFilter, VersionFilter
-from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer
+from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
 
 class APIv3Settings:
@@ -84,3 +86,57 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
             return Response(status=204)
 
         return Response(data=serializer.errors, status=400)
+
+
+
+class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
+    model = Build
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'build_pk'
+    serializer_class = BuildSerializer
+    # filterset_class = VersionFilter
+    queryset = Build.objects.all()
+    permit_list_expands = [
+        'config',
+    ]
+
+    def get_queryset(self):
+        # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
+        queryset = super().get_queryset()
+
+        # we force to filter only by the versions the user has access to
+        user = self.request.user
+        queryset = queryset.filter(project__users=user)
+        return queryset
+
+    def create(self, request, **kwargs):
+        parent_lookup_project__slug = kwargs.get('parent_lookup_project__slug')
+        parent_lookup_version__slug = kwargs.get('parent_lookup_version__slug')
+
+        version = None
+        project = get_object_or_404(
+            Project,
+            slug=parent_lookup_project__slug,
+            users=request.user,
+        )
+
+        if parent_lookup_version__slug:
+            version = get_object_or_404(
+                project.versions.all(),
+                slug=parent_lookup_version__slug,
+            )
+
+        _, build = trigger_build(project, version=version)
+        data = {
+            'build': BuildSerializer(build).data,
+            'project': ProjectSerializer(project).data,
+            'version': VersionSerializer(build.version).data,
+        }
+
+        if build:
+            data.update({'triggered': True})
+            status = 202
+        else:
+            data.update({'triggered': False})
+            status = 400
+        return Response(data=data, status=status)

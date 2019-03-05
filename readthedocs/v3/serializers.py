@@ -41,6 +41,8 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
 
 class BuildSerializer(FlexFieldsModelSerializer):
 
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    version = serializers.SlugRelatedField(slug_field='slug', read_only=True)
     created = serializers.DateTimeField(source='date')
     finished = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
