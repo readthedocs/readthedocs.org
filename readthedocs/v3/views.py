@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 import django_filters.rest_framework as filters
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -11,7 +12,6 @@ from rest_flex_fields import FlexFieldsModelViewSet
 from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
-
 from .filters import ProjectFilter, VersionFilter, BuildFilter
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
@@ -46,6 +46,30 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(users=self.request.user)
+
+    @action(detail=True, methods=['get'])
+    def translations(self, request, project_slug):
+        project = self.get_object()
+        return self._related_projects(project.translations.all())
+
+    @action(detail=True, methods=['get'])
+    def superprojects(self, request, project_slug):
+        project = self.get_object()
+        return self._related_projects(project.superprojects.all())
+
+    @action(detail=True, methods=['get'])
+    def subprojects(self, request, project_slug):
+        project = self.get_object()
+        return self._related_projects(project.subprojects.all())
+
+    def _related_projects(self, queryset):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
