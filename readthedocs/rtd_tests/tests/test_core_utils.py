@@ -36,17 +36,13 @@ class CoreUtilTests(TestCase):
         self.assertFalse(update_docs_task.signature().apply_async.called)
     
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_when_default_branch_exists(self, update_docs_task):
-        self.assertFalse(Version.objects.filter(slug='test-slug').exists())
+    def test_trigger_build_when_version_not_provided(self, update_docs_task):
 
-        project_1 = get(Project)
-        version_1 = get(Version, project=project_1, slug='test-slug')
-        project_1.default_branch = 'test-slug'
-        project_1.save()
-
-        trigger_build(project=project_1)
+        trigger_build(project=self.project)
+        default_version = self.project.get_default_version()
+        version_ = self.project.versions.get(slug=default_version)
         kwargs = {
-            'version_pk': version_1.pk,
+            'version_pk': version_.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -54,29 +50,7 @@ class CoreUtilTests(TestCase):
 
         update_docs_task.signature.assert_has_calls([
             mock.call(
-                args=(project_1.pk,),
-                kwargs=kwargs,
-                options=mock.ANY,
-                immutable=True,
-            ),
-        ])
-
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_when_default_branch_doesnt_exist(self, update_docs_task):
-        project_1 = get(Project, default_branch=None)
-        latest_version = project_1.versions.get(slug=LATEST)
-
-        trigger_build(project=project_1)
-        kwargs = {
-            'version_pk': latest_version.pk,
-            'record': True,
-            'force': False,
-            'build_pk': mock.ANY
-        }
-
-        update_docs_task.signature.assert_has_calls([
-            mock.call(
-                args=(project_1.pk,),
+                args=(self.project.pk,),
                 kwargs=kwargs,
                 options=mock.ANY,
                 immutable=True,

@@ -16,7 +16,7 @@ from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 from celery import group, chord
 
-from readthedocs.builds.constants import LATEST, BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 log = logging.getLogger(__name__)
@@ -95,12 +95,8 @@ def prepare_build(
         return (None, None)
 
     if not version:
-        default_branch = project.default_branch
-        version_ = project.versions.filter(slug=default_branch)
-        if version_.exists():
-            version = version_.first()
-        else:
-            version = project.versions.get(slug=LATEST)
+        default_version = project.get_default_version()
+        version = project.versions.get(slug=default_version)
 
     kwargs = {
         'version_pk': version.pk,
