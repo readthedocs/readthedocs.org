@@ -65,7 +65,7 @@ class VersionAdmin(GuardedModelAdmin):
         'built',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
-    search_fields = ('slug', 'project__slug', 'project__name')
+    search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
     actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
 
