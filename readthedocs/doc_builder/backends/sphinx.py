@@ -217,7 +217,7 @@ class BaseSphinx(BaseBuilder):
             '-b',
             self.sphinx_builder,
             '-d',
-            '_build/doctrees-{format}'.format(format=self.sphinx_builder),
+            '_build/doctrees',
             '-D',
             'language={lang}'.format(lang=project.language),
             '.',
