@@ -202,7 +202,6 @@ class BaseSphinx(BaseBuilder):
         )
 
     def build(self):
-        self.clean()
         project = self.project
         build_command = [
             'python',
@@ -237,28 +236,34 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+        self.json_path = os.path.abspath(
+            os.path.join(self.old_artifact_path, '..', 'json'),
+        )
 
     def move(self, **__):
         super().move()
         # Copy JSON artifacts to its own directory
         # to keep compatibility with the older builder.
-        json_path = os.path.abspath(
-            os.path.join(self.old_artifact_path, '..', 'json'),
-        )
         json_path_target = self.project.artifact_path(
             version=self.version.slug,
             type_='sphinx_search',
         )
-        if os.path.exists(json_path):
+        if os.path.exists(self.json_path):
             if os.path.exists(json_path_target):
                 shutil.rmtree(json_path_target)
             log.info('Copying json on the local filesystem')
             shutil.copytree(
-                json_path,
+                self.json_path,
                 json_path_target,
             )
         else:
             log.warning('Not moving json because the build dir is unknown.',)
+
+    def clean(self, **__):
+        super().clean()
+        if os.path.exists(self.json_path):
+            shutil.rmtree(self.json_path)
+            log.info('Removing old artifact path: %s', self.json_path)
 
 
 class HtmlDirBuilder(HtmlBuilder):
@@ -367,7 +372,6 @@ class PdfBuilder(BaseSphinx):
     pdf_file_name = None
 
     def build(self):
-        self.clean()
         cwd = os.path.dirname(self.config_file)
 
         # Default to this so we can return it always.

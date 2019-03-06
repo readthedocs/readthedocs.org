@@ -845,9 +845,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if self.build_force:
             html_builder.force()
         html_builder.append_conf()
+        html_builder.clean()
         success = html_builder.build()
         if success:
             html_builder.move()
+        html_builder.clean()
 
         # Gracefully attempt to move files via task on web workers.
         try:
@@ -912,8 +914,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.build_env,
             python_env=self.python_env,
         )
+        builder.clean()
         success = builder.build()
         builder.move()
+        builder.clean()
         return success
 
     def send_notifications(self):
