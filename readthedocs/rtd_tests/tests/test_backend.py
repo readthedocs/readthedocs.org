@@ -148,13 +148,6 @@ class TestGitBackend(RTDTestCase):
         repo.update()
         repo.checkout('submodule')
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.SKIP_SUBMODULES,
-        )
-        self.assertTrue(self.project.has_feature(Feature.SKIP_SUBMODULES))
-        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
 
     def test_use_shallow_clone(self):
         repo = self.project.vcs_repo()

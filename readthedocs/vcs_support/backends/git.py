@@ -68,15 +68,10 @@ class Backend(BaseVCS):
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
-        # TODO remove this after users migrate to a config file
-        from readthedocs.projects.models import Feature
         submodules_in_config = (
             config.submodules.exclude != ALL or config.submodules.include
         )
-        if (
-            self.project.has_feature(Feature.SKIP_SUBMODULES) or
-            not submodules_in_config
-        ):
+        if not submodules_in_config:
             return False
 
         # Keep compatibility with previous projects
