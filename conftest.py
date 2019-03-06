@@ -47,6 +47,12 @@ def pytest_configure(config):
 def settings_modification(settings):
     settings.CELERY_ALWAYS_EAGER = True
 
+
 @pytest.fixture
 def api_client():
     return APIClient()
+
+
+@pytest.fixture(scope="class")
+def url_scheme(request):
+    request.cls.url_scheme = request.config.option.url_scheme
