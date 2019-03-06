@@ -392,10 +392,17 @@ class PdfBuilder(BaseSphinx):
             raise BuildEnvironmentError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
-        pdflatex_cmds = [
-            ['pdflatex', '-interaction=nonstopmode', tex_file]
+        # https://github.com/rtfd/readthedocs.org/issues/4454
+        if self.project.has_feature(Feature.USE_XELATEX_BINARY):
+            latex_cmd = 'xelatex'
+        else:
+            latex_cmd = 'pdflatex'
+
+        latex_cmds = [
+            [latex_cmd, '-interaction=nonstopmode', tex_file]
             for tex_file in tex_files
         ]  # yapf: disable
+
         makeindex_cmds = [
             [
                 'makeindex', '-s', 'python.ist', '{}.idx'.format(
@@ -410,7 +417,7 @@ class PdfBuilder(BaseSphinx):
         else:
             latex_class = LatexBuildCommand
         pdf_commands = []
-        for cmd in pdflatex_cmds:
+        for cmd in latex_cmds:
             cmd_ret = self.build_env.run_command_class(
                 cls=latex_class,
                 cmd=cmd,
@@ -426,7 +433,7 @@ class PdfBuilder(BaseSphinx):
                 warn_only=True,
             )
             pdf_commands.append(cmd_ret)
-        for cmd in pdflatex_cmds:
+        for cmd in latex_cmds:
             cmd_ret = self.build_env.run_command_class(
                 cls=latex_class,
                 cmd=cmd,

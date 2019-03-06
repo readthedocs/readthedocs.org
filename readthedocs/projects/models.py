@@ -1313,12 +1313,14 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
+    USE_XELATEX_BINARY = 'use_xelatex_binary'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
+        (USE_XELATEX_BINARY, _('Use "xelatex" binary to build PDF files')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1337,7 +1339,7 @@ class Feature(models.Model):
             _(
                 'Use Docker image labelled as `testing` to build the docs',
             ),
-        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
+        ), (API_LARGE_DATA, _('Try alternative method of posting large data')),
     )
 
     projects = models.ManyToManyField(
