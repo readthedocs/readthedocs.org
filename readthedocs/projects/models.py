@@ -1314,6 +1314,8 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     USE_XELATEX_BINARY = 'use_xelatex_binary'
+    USE_LUALATEX_BINARY = 'use_lualatex_binary'
+    USE_PLATEX_BINARY = 'use_platex_binary'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1321,6 +1323,8 @@ class Feature(models.Model):
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (USE_XELATEX_BINARY, _('Use "xelatex" binary to build PDF files')),
+        (USE_LUALATEX_BINARY, _('Use "lualatex" binary to build PDF files')),
+        (USE_PLATEX_BINARY, _('Use "platex" binary to build PDF files')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(

@@ -395,6 +395,10 @@ class PdfBuilder(BaseSphinx):
         # https://github.com/rtfd/readthedocs.org/issues/4454
         if self.project.has_feature(Feature.USE_XELATEX_BINARY):
             latex_cmd = 'xelatex'
+        elif self.project.has_feature(Feature.USE_LUALATEX_BINARY):
+            latex_cmd = 'lualatex'
+        elif self.project.has_feature(Feature.USE_PLATEX_BINARY):
+            latex_cmd = 'platex'
         else:
             latex_cmd = 'pdflatex'
 
