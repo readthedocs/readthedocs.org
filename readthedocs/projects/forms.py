@@ -364,15 +364,15 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         return child
 
     def clean_alias(self):
-            alias = self.cleaned_data['alias']
-            subproject = self.project.subprojects.filter(
-                alias=alias).exclude(id=self.instance.pk)
+        alias = self.cleaned_data['alias']
+        subproject = self.project.subprojects.filter(
+            alias=alias).exclude(id=self.instance.pk)
 
-            if subproject.exists():
-                raise forms.ValidationError(
-                    _('A subprojects with this alias already exists'),
-                )
-            return alias
+        if subproject.exists():
+            raise forms.ValidationError(
+                _('A subprojects with this alias already exists'),
+            )
+        return alias
 
     def get_subproject_queryset(self):
         """
