@@ -73,7 +73,7 @@ def prepare_build(
     project has ``skip=True``, the build is not triggered.
 
     :param project: project's documentation to be built
-    :param version: version of the project to be built. Default: ``latest``
+    :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
