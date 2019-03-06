@@ -395,21 +395,30 @@ class PdfBuilder(BaseSphinx):
         # https://github.com/rtfd/readthedocs.org/issues/4454
         if self.project.has_feature(Feature.USE_XELATEX_BINARY):
             latex_cmd = 'xelatex'
+            makeindex_cmd = 'xindy'
         elif self.project.has_feature(Feature.USE_LUALATEX_BINARY):
             latex_cmd = 'lualatex'
+            makeindex_cmd = 'xindy'
         elif self.project.has_feature(Feature.USE_PLATEX_BINARY):
             latex_cmd = 'platex'
+            makeindex_cmd = 'xindy'
         else:
             latex_cmd = 'pdflatex'
+            makeindex_cmd = 'makeindex'
 
         latex_cmds = [
             [latex_cmd, '-interaction=nonstopmode', tex_file]
             for tex_file in tex_files
         ]  # yapf: disable
 
+        if makeindex_cmd == 'xindy':
+            makeindex_args = ['-C', 'utf8', '-M', 'texindy']
+        else:
+            makeindex_args = ['-s', 'python.ist']
+
         makeindex_cmds = [
             [
-                'makeindex', '-s', 'python.ist', '{}.idx'.format(
+                makeindex_cmd, *makeindex_args, '{}.idx'.format(
                 os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
                 ),
             ]
