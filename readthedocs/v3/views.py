@@ -77,6 +77,10 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
     model = Version
     lookup_field = 'slug'
     lookup_url_kwarg = 'version_slug'
+
+    # Allow ``.`` (dots) on version slug
+    lookup_value_regex = r'[^/]+'
+
     serializer_class = VersionSerializer
     filterset_class = VersionFilter
     queryset = Version.objects.all()
