@@ -370,7 +370,7 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
 
         if subproject.exists():
             raise forms.ValidationError(
-                _('A subprojects with this alias already exists'),
+                _('A subproject with this alias already exists'),
             )
         return alias
 
