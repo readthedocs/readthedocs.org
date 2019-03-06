@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
@@ -36,6 +35,7 @@ from .validation import (
     validate_list,
     validate_string,
 )
+
 
 __all__ = (
     'ALL',
@@ -232,11 +232,6 @@ class BuildConfigBase:
 
     def validate(self):
         raise NotImplementedError()
-
-    @property
-    def python_interpreter(self):
-        ver = self.python_full_version
-        return 'python{}'.format(ver)
 
     @property
     def python_full_version(self):
@@ -1091,6 +1086,11 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def submodules(self):
         return Submodules(**self._config['submodules'])
+
+
+def python_interpreter(self):
+    ver = self.python_full_version
+    return 'python{}'.format(ver)
 
 
 def load(path, env_config):
