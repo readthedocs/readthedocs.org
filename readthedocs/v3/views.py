@@ -17,6 +17,7 @@ from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 from rest_framework.metadata import SimpleMetadata
 from .filters import ProjectFilter, VersionFilter, BuildFilter
+from .renderer import BuildsBrowsableAPIRenderer
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
 
@@ -192,10 +193,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
     permit_list_expands = [
         'config',
     ]
-
-    # TODO: browsable API shows the BuildSerializer for POST method, but it
-    # should be empty. This can be achieved by using a custom ``metadata_class``
-    # and overriding the ``actions`` field
+    renderer_classes = (JSONRenderer, BuildsBrowsableAPIRenderer)
 
     def get_queryset(self):
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
