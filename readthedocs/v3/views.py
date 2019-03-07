@@ -181,6 +181,10 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         return queryset
 
     def partial_update(self, request, pk=None, **kwargs):
+        # NOTE: ``Authorization: `` is mandatory to use this method from
+        # Browsable API since SessionAuthentication can't be used because we set
+        # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
+        # via Javascript
         version = self.get_object()
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(
