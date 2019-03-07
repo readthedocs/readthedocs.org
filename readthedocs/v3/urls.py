@@ -1,5 +1,12 @@
-from .routers import DefaultRouterWithNesting
+from django.conf.urls import url
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+
+from .routers import DefaultRouterWithNesting
 from .views import (
     BuildsViewSet,
     ProjectsViewSet,
@@ -46,4 +53,10 @@ projects.register(
     parents_query_lookups=['project__slug'],
 )
 
-urlpatterns = router.urls
+urlpatterns = [
+    url(r'^token/$', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^token/refresh/$', TokenRefreshView.as_view(), name='token_refresh'),
+    url(r'^token/verify/$', TokenVerifyView.as_view(), name='token_verify'),
+]
+
+urlpatterns += router.urls
