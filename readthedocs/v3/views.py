@@ -19,8 +19,8 @@ from readthedocs.projects.models import Project
 from rest_framework.metadata import SimpleMetadata
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .filters import ProjectFilter, VersionFilter, BuildFilter
-from .renderer import BuildsBrowsableAPIRenderer, AlphaneticalSortedJSONRenderer
-from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer, UserSerializer
+from .renderer import AlphaneticalSortedJSONRenderer
+from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildTriggerSerializer, BuildSerializer, UserSerializer
 
 
 class APIv3Settings:
@@ -152,7 +152,6 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
     # Allow ``.`` (dots) on version slug
     lookup_value_regex = r'[^/]+'
 
-    serializer_class = VersionSerializer
     filterset_class = VersionFilter
     queryset = Version.objects.all()
     permit_list_expands = [
@@ -163,6 +162,14 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
     # NOTE: ``NestedViewSetMixin`` is really good, but if the ``project.slug``
     # does not exist it does not return 404, but 200 instead:
     # /api/v3/projects/nonexistent/versions/
+
+    def get_serializer_class(self):
+        """
+        Return correct serializer depending on the action (GET or PUT/PATCH/POST).
+        """
+        if self.action in ('list', 'retrieve'):
+            return VersionSerializer
+        return VersionUpdateSerializer
 
     def get_queryset(self):
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
@@ -175,7 +182,8 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
 
     def partial_update(self, request, pk=None, **kwargs):
         version = self.get_object()
-        serializer = VersionUpdateSerializer(
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(
             version,
             data=request.data,
             partial=True,
@@ -191,13 +199,11 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
-    serializer_class = BuildSerializer
     filterset_class = BuildFilter
     queryset = Build.objects.all()
     permit_list_expands = [
         'config',
     ]
-    renderer_classes = (AlphaneticalSortedJSONRenderer, BuildsBrowsableAPIRenderer)
 
     def get_queryset(self):
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
@@ -207,6 +213,11 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
         user = self.request.user
         queryset = queryset.filter(project__users=user)
         return queryset
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return BuildSerializer
+        return BuildTriggerSerializer
 
     def create(self, request, **kwargs):
         parent_lookup_project__slug = kwargs.get('parent_lookup_project__slug')
@@ -226,6 +237,9 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
             )
 
         _, build = trigger_build(project, version=version)
+
+        # TODO: refactor this to be a serializer
+        # BuildTriggeredSerializer(build, project, version).data
         data = {
             'build': BuildSerializer(build).data,
             'project': ProjectSerializer(project).data,

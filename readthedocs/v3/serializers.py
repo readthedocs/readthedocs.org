@@ -39,6 +39,13 @@ class BaseLinksSerializer(serializers.Serializer):
         return urllib.parse.urlunparse((scheme, domain, path, '', '', ''))
 
 
+class BuildTriggerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Build
+        fields = []
+
+
 class BuildLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
