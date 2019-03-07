@@ -218,13 +218,14 @@ class ProjectViewSet(UserSelectViewSet):
         promoted_version = project.update_stable_version()
         if promoted_version:
             new_stable = project.get_stable_version()
-            log.info(
-                'Triggering new stable build: {project}:{version}'.format(
-                    project=project.slug,
-                    version=new_stable.identifier,
-                ),
-            )
-            trigger_build(project=project, version=new_stable)
+            if new_stable.active:
+                log.info(
+                    'Triggering new stable build: {project}:{version}'.format(
+                        project=project.slug,
+                        version=new_stable.identifier,
+                    ),
+                )
+                trigger_build(project=project, version=new_stable)
 
             # Marking the tag that is considered the new stable version as
             # active and building it if it was just added.

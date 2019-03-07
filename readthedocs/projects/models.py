@@ -918,7 +918,7 @@ class Project(models.Model):
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.active and current_stable.machine:
+                if identifier_updated and current_stable.machine:
                     log.info(
                         'Update stable version: {project}:{version}'.format(
                             project=self.slug,
