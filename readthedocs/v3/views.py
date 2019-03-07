@@ -17,7 +17,7 @@ from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 from rest_framework.metadata import SimpleMetadata
 from .filters import ProjectFilter, VersionFilter, BuildFilter
-from .renderer import BuildsBrowsableAPIRenderer
+from .renderer import BuildsBrowsableAPIRenderer, AlphaneticalSortedJSONRenderer
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
 
@@ -25,13 +25,15 @@ class APIv3Settings:
 
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAdminUser,)
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (AlphaneticalSortedJSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
     metadata_class = SimpleMetadata
 
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
+
+    # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
     """
     Endpoints related to ``Project`` objects.
@@ -193,7 +195,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
     permit_list_expands = [
         'config',
     ]
-    renderer_classes = (JSONRenderer, BuildsBrowsableAPIRenderer)
+    renderer_classes = (AlphaneticalSortedJSONRenderer, BuildsBrowsableAPIRenderer)
 
     def get_queryset(self):
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
