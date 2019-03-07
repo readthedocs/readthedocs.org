@@ -1017,7 +1017,7 @@ def move_files(
             ])
 
             if getattr(storage, 'write_build_media', False):
-                # Remove artifacts from remote storage if it exists
+                # Remove the media from remote storage if it exists
                 storage_path = version.project.get_storage_path(
                     type_=media_type,
                     version_slug=version.slug,
