@@ -82,6 +82,14 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
         return obj
 
 
+class BuildStateSerializer(serializers.Serializer):
+    code = serializers.CharField(source='state')
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        return obj.state.title()
+
+
 class BuildSerializer(FlexFieldsModelSerializer):
 
     project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
@@ -89,6 +97,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     created = serializers.DateTimeField(source='date')
     finished = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
+    state = BuildStateSerializer(source='*')
     links = BuildLinksSerializer(source='*')
 
     expandable_fields = dict(
