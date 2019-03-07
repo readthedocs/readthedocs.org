@@ -180,23 +180,19 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         queryset = queryset.filter(project__users=user)
         return queryset
 
-    def partial_update(self, request, pk=None, **kwargs):
+    def update(self, request, *args, **kwargs):
+        """
+        Make PUT/PATCH behaves in the same way.
+
+        Force to return 204 is the update was good.
+        """
+
         # NOTE: ``Authorization: `` is mandatory to use this method from
         # Browsable API since SessionAuthentication can't be used because we set
         # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
         # via Javascript
-        version = self.get_object()
-        serializer_class = self.get_serializer_class()
-        serializer = serializer_class(
-            version,
-            data=request.data,
-            partial=True,
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=204)
-
-        return Response(data=serializer.errors, status=400)
+        response = super().update(request, *args, **kwargs)
+        return Response(status=204)
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
