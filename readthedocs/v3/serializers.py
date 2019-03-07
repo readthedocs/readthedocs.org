@@ -288,8 +288,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     _self = serializers.SerializerMethodField()
 
-    # TODO: add these once the endpoints get implemented
-    # users = serializers.SerializerMethodField()
+    users = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
@@ -298,6 +297,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     def get__self(self, obj):
         path = reverse('projects-detail', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_users(self, obj):
+        path = reverse(
+            'projects-users-list',
+            kwargs={
+                'parent_lookup_projects__slug': obj.slug,
+            },
+        )
         return self._absolute_url(path)
 
     def get_versions(self, obj):

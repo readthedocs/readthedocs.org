@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 import django_filters.rest_framework as filters
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.renderers import BrowsableAPIRenderer
@@ -19,7 +20,7 @@ from rest_framework.metadata import SimpleMetadata
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .filters import ProjectFilter, VersionFilter, BuildFilter
 from .renderer import BuildsBrowsableAPIRenderer, AlphaneticalSortedJSONRenderer
-from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
+from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer, UserSerializer
 
 
 class APIv3Settings:
@@ -238,3 +239,20 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
             data.update({'triggered': False})
             status = 400
         return Response(data=data, status=status)
+
+
+class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    model = User
+    lookup_field = 'username'
+    lookup_url_kwarg = 'user_username'
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def get_queryset(self):
+        # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
+        queryset = super().get_queryset()
+
+        # we force to filter only by the projects the user has access to
+        user = self.request.user
+        queryset = queryset.filter(projects__in=user.projects.all()).distinct()
+        return queryset

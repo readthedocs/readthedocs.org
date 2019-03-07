@@ -11,6 +11,7 @@ from .views import (
     BuildsViewSet,
     ProjectsViewSet,
     VersionsViewSet,
+    UsersViewSet,
 )
 
 router = DefaultRouterWithNesting()
@@ -51,6 +52,13 @@ projects.register(
     BuildsViewSet,
     base_name='projects-builds',
     parents_query_lookups=['project__slug'],
+)
+
+projects.register(
+    r'users',
+    UsersViewSet,
+    base_name='projects-users',
+    parents_query_lookups=['projects__slug'],
 )
 
 urlpatterns = [
