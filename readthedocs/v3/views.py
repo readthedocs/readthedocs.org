@@ -3,11 +3,13 @@ import django_filters.rest_framework as filters
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
-from rest_framework.renderers import JSONRenderer
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin, CreateModelMixin
+from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_flex_fields import FlexFieldsModelViewSet
+from rest_flex_fields.views import FlexFieldsMixin
 
 from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version, Build
@@ -20,12 +22,55 @@ class APIv3Settings:
 
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAdminUser,)
-    renderer_classes = (JSONRenderer,)
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
 
 
-class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
+class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
+
+    """
+    Endpoints related to ``Project`` objects.
+
+    * Listing objects.
+    * Detailed object.
+
+    Retrieving only needed data using ``?fields=`` URL attribute is allowed.
+
+    ### Filters
+
+    Allowed via URL attributes:
+
+    * slug
+    * slug__contains
+    * name
+    * name__contains
+
+    ### Expandable fields
+
+    There are some fields that are not returned by default because they are
+    expensive to calculate. Although, they are available for those cases where
+    they are needed.
+
+    Allowed via ``?expand=`` URL attribue:
+
+    * users
+    * active_versions
+    * active_versions.last_build
+    * active_versions.last_build.confg
+
+
+    ### Examples:
+
+    * List my projects: ``/api/v3/projects/``
+    * Filter list: ``/api/v3/projects/?name__contains=test``
+    * Retrieve only needed data: ``/api/v3/projects/?fields=slug,created``
+    * Retrieve specific project: ``/api/v3/projects/pip/``
+    * Expand required fields: ``/api/v3/projects/pip/?expand=active_versions``
+    * Translations of a projects: ``/api/v3/projects/pip/translations/``
+    * Subprojects of a projects: ``/api/v3/projects/pip/subprojects/``
+    * Superprojects of a projects: ``/api/v3/projects/pip/superprojects/``
+    """
 
     model = Project
     lookup_field = 'slug'
@@ -72,7 +117,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
         return Response(serializer.data)
 
 
-class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
+class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -116,7 +161,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet)
         return Response(data=serializer.errors, status=400)
 
 
-class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsModelViewSet):
+class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'

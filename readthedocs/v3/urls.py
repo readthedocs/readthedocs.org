@@ -1,4 +1,4 @@
-from rest_framework_extensions.routers import ExtendedSimpleRouter
+from .routers import DefaultRouterWithNesting
 
 from .views import (
     BuildsViewSet,
@@ -6,7 +6,7 @@ from .views import (
     VersionsViewSet,
 )
 
-router = ExtendedSimpleRouter()
+router = DefaultRouterWithNesting()
 
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
