@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 import django_filters.rest_framework as filters
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ from rest_flex_fields.views import FlexFieldsMixin
 from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
+from rest_framework.metadata import SimpleMetadata
 from .filters import ProjectFilter, VersionFilter, BuildFilter
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildSerializer
 
@@ -25,6 +27,7 @@ class APIv3Settings:
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
+    metadata_class = SimpleMetadata
 
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
@@ -65,11 +68,11 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
     * List my projects: ``/api/v3/projects/``
     * Filter list: ``/api/v3/projects/?name__contains=test``
     * Retrieve only needed data: ``/api/v3/projects/?fields=slug,created``
-    * Retrieve specific project: ``/api/v3/projects/pip/``
-    * Expand required fields: ``/api/v3/projects/pip/?expand=active_versions``
-    * Translations of a projects: ``/api/v3/projects/pip/translations/``
-    * Subprojects of a projects: ``/api/v3/projects/pip/subprojects/``
-    * Superprojects of a projects: ``/api/v3/projects/pip/superprojects/``
+    * Retrieve specific project: ``/api/v3/projects/{project_slug}/``
+    * Expand required fields: ``/api/v3/projects/{project_slug}/?expand=active_versions``
+    * Translations of a projects: ``/api/v3/projects/{project_slug}/translations/``
+    * Subprojects of a projects: ``/api/v3/projects/{project_slug}/subprojects/``
+    * Superprojects of a projects: ``/api/v3/projects/{project_slug}/superprojects/``
     """
 
     model = Project
@@ -87,6 +90,24 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
 
     # NOTE: accessing a existent project when we don't have permissions to
     # access it, returns 404 instead of 403.
+
+    def get_view_description(self, *args, **kwargs):
+        """
+        Make valid links for the user's documentation browseable API.
+
+        If the user has already one project, we pick the first and make all the
+        links for that project. Otherwise, we default to the placeholder.
+        """
+        description = super().get_view_description(*args, **kwargs)
+        project = self.request.user.projects.first()
+
+        # TODO: make the links clickable when ``kwargs.html=True``
+
+        if project:
+            return mark_safe(description.format(
+                project_slug=project.slug,
+            ))
+        return description
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -171,6 +192,10 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
     permit_list_expands = [
         'config',
     ]
+
+    # TODO: browsable API shows the BuildSerializer for POST method, but it
+    # should be empty. This can be achieved by using a custom ``metadata_class``
+    # and overriding the ``actions`` field
 
     def get_queryset(self):
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
