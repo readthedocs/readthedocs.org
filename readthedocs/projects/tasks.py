@@ -17,7 +17,6 @@ from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
-from sphinx.ext import intersphinx
 
 
 from readthedocs.builds.constants import (
@@ -52,7 +51,6 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.vcs_support import utils as vcs_support_utils
@@ -1187,66 +1185,6 @@ def symlink_subproject(project_pk):
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.symlink_subprojects()
-
-
-def _update_intersphinx_data(version, path, commit):
-    """
-    Update intersphinx data for this version
-
-    :param version: Version instance
-    :param path: Path to search
-    :param commit: Commit that updated path
-    """
-    object_file = os.path.join(path, 'objects.inv')
-    if not os.path.exists(object_file):
-        log.debug('No objects.inv, skipping intersphinx indexing.')
-        return
-
-    # These classes are copied from Sphinx
-    # https://git.io/fhFbI
-    class MockConfig:
-        intersphinx_timeout = None
-        tls_verify = False
-
-    class MockApp:
-        srcdir = ''
-        config = MockConfig()
-
-        def warn(self, msg):
-            log.warning('Sphinx MockApp: %s', msg)
-
-    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
-    for key, value in sorted(invdata.items() or {}):
-        domain, _type = key.split(':')
-        for name, einfo in sorted(value.items()):
-            # project, version, url, display_name
-            # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
-            url = einfo[2]
-            if '#' in url:
-                doc_name, anchor = url.split(
-                    '#',
-                    # The anchor can contain ``#`` characters
-                    maxsplit=1
-                )
-            else:
-                doc_name, anchor = url, ''
-            display_name = einfo[3]
-            obj, _ = SphinxDomain.objects.get_or_create(
-                project=version.project,
-                version=version,
-                domain=domain,
-                name=name,
-                display_name=display_name,
-                type=_type,
-                doc_name=doc_name,
-                anchor=anchor,
-            )
-            if obj.commit != commit:
-                obj.commit = commit
-                obj.save()
-    SphinxDomain.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
 
 
 @app.task(queue='web')
