@@ -7,9 +7,9 @@ from django.test import TestCase
 from mock import patch
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.tasks import send_notifications
 from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import EmailHook, Project, WebHook
-from readthedocs.projects.tasks import send_notifications
 
 
 class BuildNotificationsTests(TestCase):
