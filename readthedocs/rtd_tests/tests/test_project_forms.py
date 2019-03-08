@@ -20,17 +20,12 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectBasicsForm,
     ProjectExtraForm,
-    ProjectRelationshipForm,
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
     EmailHookForm,
 )
-from readthedocs.projects.models import (
-    EnvironmentVariable,
-    Project,
-    ProjectRelationship
-)
+from readthedocs.projects.models import EnvironmentVariable, Project
 
 
 class TestProjectForms(TestCase):
@@ -674,84 +669,3 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
         self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
         self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
-
-
-class TestProjectRelationshipForm(TestCase):
-
-    def setUp(self):
-        self.user_1 = get(User)
-        self.user_2 = get(User)
-        self.project_1 = self.get_project(users=[self.user_1])
-        self.project_2 = self.get_project(users=[self.user_1])
-        self.project_3 = self.get_project(users=[self.user_1])
-        self.project_4 = self.get_project(users=[self.user_2])
-        self.subproject1 = get(
-            ProjectRelationship, parent=self.project_1,
-            child=self.project_3, alias='project_3'
-        )
-
-    def get_project(self, users):
-        return get(Project, users=users)
-
-    def test_list_only_owner_projects_in_child_choices(self):
-        form = ProjectRelationshipForm(
-            project=self.project_1,
-            user=self.user_1,
-        )
-        expected_childs = [
-            '',
-            self.project_2.id,
-        ]
-        self.assertEqual(
-            {child_id for child_id, _ in form.fields['child'].choices},
-            {child_id for child_id in expected_childs},
-        )
-
-    def test_user_cant_add_other_user_project_as_subprojects(self):
-        data = {
-            'child': self.project_4.id,
-            'alias': 'project_4',
-        }
-        form = ProjectRelationshipForm(
-            data,
-            project=self.project_1,
-            user=self.user_1,
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            'Select a valid choice',
-            ''.join(form.errors['child']),
-        )
-        self.assertNotIn(
-            self.project_4.id,
-            [child_id for child_id, _ in form.fields['child'].choices],
-        )
-
-    def test_alias_already_exists_for_a_project(self):
-        data = {
-            'child': self.project_2.id,
-            'alias': 'project_3',
-        }
-        form = ProjectRelationshipForm(
-            data,
-            project=self.project_1,
-            user=self.user_1,
-        )
-        self.assertFalse(form.is_valid())
-        error_msg = 'A subproject with this alias already exists'
-        self.assertDictEqual(form.errors, {'alias': [error_msg]})
-
-    def test_edit_only_lists_instance_project_in_child_choices(self):
-        form = ProjectRelationshipForm(
-            instance=self.subproject1,
-            project=self.project_1,
-            user=self.user_1,
-        )
-        expected_childs = [
-            '',
-            self.subproject1.child.id,
-        ]
-        self.assertEqual(
-            {child_id for child_id, _ in form.fields['child'].choices},
-            {child_id for child_id in expected_childs},
-        )
