@@ -176,11 +176,10 @@ class BaseSphinx(BaseBuilder):
                 self.config_file or self.project.conf_file(self.version.slug)
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
-        except (ProjectConfigurationError, IOError):
-            trace = sys.exc_info()[2]
+        except IOError:
             raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND,
-            ).with_traceback(trace)
+                ProjectConfigurationError.NOT_FOUND
+            )
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
