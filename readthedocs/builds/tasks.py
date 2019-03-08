@@ -1,8 +1,8 @@
 """
 Tasks related to builds.
 
-This includes creating and updating imported files, 
-sending email and webhook notifications, and finishing 
+This includes creating and updating imported files,
+sending email and webhook notifications, and finishing
 inactive builds.
 
 """
