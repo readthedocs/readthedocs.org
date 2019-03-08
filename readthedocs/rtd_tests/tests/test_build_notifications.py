@@ -17,7 +17,7 @@ class BuildNotificationsTests(TestCase):
         self.project = fixture.get(Project)
         self.version = fixture.get(Version, project=self.project)
         self.build = fixture.get(Build, version=self.version)
-    
+
     @patch('readthedocs.builds.managers.log')
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
@@ -31,7 +31,7 @@ class BuildNotificationsTests(TestCase):
 
     def test_send_webhook_notification(self):
         fixture.get(WebHook, project=self.project)
-        with patch('readthedocs.projects.tasks.requests.post') as mock:
+        with patch('readthedocs.builds.tasks.requests.post') as mock:
             mock.return_value = None
             send_notifications(self.version.pk, self.build.pk)
             mock.assert_called_once()
@@ -46,7 +46,7 @@ class BuildNotificationsTests(TestCase):
     def test_send_email_and_webhook__notification(self):
         fixture.get(EmailHook, project=self.project)
         fixture.get(WebHook, project=self.project)
-        with patch('readthedocs.projects.tasks.requests.post') as mock:
+        with patch('readthedocs.builds.tasks.requests.post') as mock:
             mock.return_value = None
             send_notifications(self.version.pk, self.build.pk)
             mock.assert_called_once()
