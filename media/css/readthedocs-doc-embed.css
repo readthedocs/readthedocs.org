@@ -167,13 +167,20 @@ div.ethical-footer {
     z-index: 100;
     background-color: #eee;
     border-top: 1px solid #bfbfbf;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.5;
     padding: 0.5em 1.5em;
     text-align: center;
     color: #404040;
     width: 100%;    /* Fallback for Opera Mini */
     width: 100vw;
+}
+@media (min-width: 769px) {
+    /* Improve viewing on non-mobile */
+    .ethical-fixedfooter {
+        font-size: 13px;
+        padding: 1em 1.5em;
+    }
 }
 .ethical-fixedfooter .ethical-text:before {
     margin-right: 4px;
@@ -185,7 +192,8 @@ div.ethical-footer {
 }
 .ethical-fixedfooter .ethical-callout {
     color: #999;
-    padding-left: 4px;
+    padding-left: 6px;
+    white-space: nowrap;
 }
 .ethical-fixedfooter a,
 .ethical-fixedfooter a:hover,
@@ -198,8 +206,8 @@ div.ethical-footer {
     position: absolute;
     top: 0;
     right: 5px;
-    font-size: 15px;
-    line-height: 15px;
+    font-size: 20px;
+    line-height: 20px;
 }
 
 /* RTD Theme specific customizations */
