@@ -75,9 +75,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
     * Retrieve only needed data: ``/api/v3/projects/?fields=slug,created``
     * Retrieve specific project: ``/api/v3/projects/{project_slug}/``
     * Expand required fields: ``/api/v3/projects/{project_slug}/?expand=active_versions``
-    * Translations of a projects: ``/api/v3/projects/{project_slug}/translations/``
-    * Subprojects of a projects: ``/api/v3/projects/{project_slug}/subprojects/``
-    * Superprojects of a projects: ``/api/v3/projects/{project_slug}/superprojects/``
+    * Translations of a project: ``/api/v3/projects/{project_slug}/translations/``
+    * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
+    * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
     """
 
     model = Project
@@ -124,14 +124,19 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         return self._related_projects(project.translations.all())
 
     @action(detail=True, methods=['get'])
-    def superprojects(self, request, project_slug):
+    def superproject(self, request, project_slug):
         project = self.get_object()
-        return self._related_projects(project.superprojects.all())
+        superproject = getattr(project, 'main_project', None)
+        data = None
+        if superproject:
+            data = self.get_serializer(superproject).data
+            return Response(data)
+        return Response(status=404)
 
     @action(detail=True, methods=['get'])
     def subprojects(self, request, project_slug):
         project = self.get_object()
-        return self._related_projects(project.subprojects.all())
+        return self._related_projects(project.superprojects.all())
 
     def _related_projects(self, queryset):
         page = self.paginate_queryset(queryset)

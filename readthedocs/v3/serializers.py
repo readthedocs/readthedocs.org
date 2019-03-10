@@ -344,7 +344,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     def get_superprojects(self, obj):
         path = reverse(
-            'projects-superprojects',
+            'projects-superproject',
             kwargs={
                 'project_slug': obj.slug,
             },
