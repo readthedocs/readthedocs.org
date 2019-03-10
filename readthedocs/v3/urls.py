@@ -1,11 +1,5 @@
 from django.conf.urls import url
 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView,
-)
-
 from .routers import DefaultRouterWithNesting
 from .views import (
     BuildsViewSet,

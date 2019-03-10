@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 import django_filters.rest_framework as filters
-from rest_framework.authentication import SessionAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.renderers import BrowsableAPIRenderer
@@ -17,7 +17,6 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
 from rest_framework.metadata import SimpleMetadata
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from .filters import ProjectFilter, VersionFilter, BuildFilter
 from .renderer import AlphaneticalSortedJSONRenderer
 from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildTriggerSerializer, BuildSerializer, UserSerializer
@@ -25,7 +24,7 @@ from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSeri
 
 class APIv3Settings:
 
-    authentication_classes = (SessionAuthentication, JWTAuthentication)
+    authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAdminUser,)
     renderer_classes = (AlphaneticalSortedJSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
