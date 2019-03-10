@@ -299,7 +299,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
-    superprojects = serializers.SerializerMethodField()
+    superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
 
     def get__self(self, obj):
@@ -342,7 +342,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         )
         return self._absolute_url(path)
 
-    def get_superprojects(self, obj):
+    def get_superproject(self, obj):
         path = reverse(
             'projects-superproject',
             kwargs={
