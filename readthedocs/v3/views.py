@@ -104,14 +104,15 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         links for that project. Otherwise, we default to the placeholder.
         """
         description = super().get_view_description(*args, **kwargs)
-        project = self.request.user.projects.first()
 
-        # TODO: make the links clickable when ``kwargs.html=True``
-
-        if project:
-            return mark_safe(description.format(
-                project_slug=project.slug,
-            ))
+        project = None
+        if self.request and self.request.user.is_authenticated():
+            project = self.request.user.projects.first()
+            if project:
+                # TODO: make the links clickable when ``kwargs.html=True``
+                return mark_safe(description.format(
+                    project_slug=project.slug,
+                ))
         return description
 
     def get_queryset(self):
