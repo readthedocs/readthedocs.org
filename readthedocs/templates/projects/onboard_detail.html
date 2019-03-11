@@ -60,11 +60,14 @@
         {% endif %}
       {% else %}
         <h2>{% trans "Your documentation is building" %}</h2>
-
+        
+        {% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk as latest_build_url %}
         <p>
         {% blocktrans trimmed %}
           You'll be able to view your documentation in a minute or two,
           once your project is done building.
+          For more information about the build,
+          click <a href="{{ latest_build_url }}">here.</a>
         {% endblocktrans %}
         </p>
       {% endif %}
