@@ -262,8 +262,8 @@ class HtmlBuilder(BaseSphinx):
     def clean(self, **__):
         super().clean()
         if os.path.exists(self.json_path):
-            shutil.rmtree(self.json_path)
             log.info('Removing old artifact path: %s', self.json_path)
+            shutil.rmtree(self.json_path)
 
 
 class HtmlDirBuilder(HtmlBuilder):

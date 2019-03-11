@@ -78,8 +78,8 @@ class BaseBuilder:
     def clean(self, **__):
         """Clean the path where documentation will be built."""
         if os.path.exists(self.old_artifact_path):
-            shutil.rmtree(self.old_artifact_path)
             log.info('Removing old artifact path: %s', self.old_artifact_path)
+            shutil.rmtree(self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
