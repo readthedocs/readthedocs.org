@@ -11,7 +11,7 @@ django-extensions==2.1.6
 djangorestframework==3.9.2
 
 # For intersphinx during builds
-Sphinx==1.8.4
+Sphinx==1.8.5
 
 # Filtering for the REST API
 django-filter==2.1.0
