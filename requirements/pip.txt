@@ -28,7 +28,7 @@ Pygments==2.3.1
 # These has to be removed once APIv1 is removed
 # https://github.com/rtfd/readthedocs.org/pull/5293
 # https://github.com/rtfd/readthedocs.org/pull/3082
-lxml==4.3.1
+lxml==4.3.2
 defusedxml==0.5.0
 
 # Basic tools
