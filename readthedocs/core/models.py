@@ -32,11 +32,6 @@ class UserProfile(models.Model):
         help_text=_('If unchecked, you will still see community ads.'),
         default=True,
     )
-    allow_email = models.BooleanField(
-        _('Allow email'),
-        help_text=_('Show your email on VCS contributions.'),
-        default=True,
-    )
 
     def __str__(self):
         return (
@@ -49,19 +44,3 @@ class UserProfile(models.Model):
             'profiles_profile_detail',
             kwargs={'username': self.user.username},
         )
-
-    def get_contribution_details(self):
-        """
-        Get the line to put into commits to attribute the author.
-
-        Returns a tuple (name, email)
-        """
-        if self.user.first_name and self.user.last_name:
-            name = '{} {}'.format(self.user.first_name, self.user.last_name)
-        else:
-            name = self.user.username
-        if self.allow_email:
-            email = self.user.email
-        else:
-            email = STANDARD_EMAIL
-        return (name, email)
