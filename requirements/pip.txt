@@ -24,12 +24,6 @@ slumber==0.7.1
 pyyaml==3.13
 Pygments==2.3.1
 
-# These has to be removed once APIv1 is removed
-# https://github.com/rtfd/readthedocs.org/pull/5293
-# https://github.com/rtfd/readthedocs.org/pull/3082
-lxml==4.3.2
-defusedxml==0.5.0
-
 # Basic tools
 # Redis 3.x has an incompatible change and fails
 # https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
@@ -61,6 +55,11 @@ elasticsearch==6.3.1
 elasticsearch-dsl==6.1.0  # pyup: ignore
 django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
+
+# lxml is used by pyquery
+# defusedxml is recommended when using lxml
+lxml==4.3.2
+defusedxml==0.5.0
 
 # Utils
 django-gravatar2==1.4.2
