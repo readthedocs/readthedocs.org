@@ -77,10 +77,13 @@ Projects list
     :>json string previous: URI for previous set of projects.
     :>json array results: array of ``project`` objects.
 
-    :query string privacy_level: one of ``public``, ``private``, ``protected``.
+    :query string name: name of the project.
+    :query string name__contains: part of the name of the project.
+    :query string slug: slug of the project.
+    :query string slug__contains: part of the slug of the project.
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
+    :query string privacy_level: one of ``public``, ``private``, ``protected``.
     :query string programming_language: programming language code as ``py``, ``js``, etc.
-    :query string repository_url: URL of the repository.
     :query string repository_type: one of ``git``, ``hg``, ``bzr``, ``svn``.
 
     :requestheader Authorization: required token to authenticate.
