@@ -213,11 +213,14 @@ class BaseSphinx(BaseBuilder):
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
             build_command.append('-W')
+        doctree_path = f'_build/doctrees-{self.sphinx_builder}'
+        if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
+            doctree_path = '_build/doctrees'
         build_command.extend([
             '-b',
             self.sphinx_builder,
             '-d',
-            '_build/doctrees-{format}'.format(format=self.sphinx_builder),
+            doctree_path,
             '-D',
             'language={lang}'.format(lang=project.language),
             '.',

@@ -1313,31 +1313,40 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
+    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
             ),
-        ), (
+        ),
+        (
             MKDOCS_THEME_RTD,
-            _('Use Read the Docs theme for MkDocs as default theme')
-        ), (
+            _('Use Read the Docs theme for MkDocs as default theme'),
+        ),
+        (
             DONT_SHALLOW_CLONE,
-            _(
-                'Do not shallow clone when cloning git repos',
-            ),
-        ), (
+            _('Do not shallow clone when cloning git repos'),
+        ),
+        (
             USE_TESTING_BUILD_IMAGE,
-            _(
-                'Use Docker image labelled as `testing` to build the docs',
-            ),
-        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
+            _('Use Docker image labelled as `testing` to build the docs'),
+        ),
+        (
+            API_LARGE_DATA,
+            _('Try alternative method of posting large data'),
+        ),
+        (
+            SHARE_SPHINX_DOCTREE,
+            _('Use shared directory for doctrees'),
+        ),
     )
 
     projects = models.ManyToManyField(
