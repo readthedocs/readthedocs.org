@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 from rest_framework.test import APIClient
@@ -25,9 +24,11 @@ class HttpExchangeTests(TestCase):
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
-            Integration, project=project,
+            Integration,
+            project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data='',
+            secret=None,
         )
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(project.slug),
@@ -64,9 +65,11 @@ class HttpExchangeTests(TestCase):
         client.login(username='super', password='test')
         project = fixture.get(Project, main_language_project=None)
         integration = fixture.get(
-            Integration, project=project,
+            Integration,
+            project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data='',
+            secret=None,
         )
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(project.slug),

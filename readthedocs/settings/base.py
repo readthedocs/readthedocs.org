@@ -58,6 +58,9 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
+    # Read the Docs
+    READ_THE_DOCS_EXTENSIONS = ext
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
@@ -98,6 +101,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.sphinx_domains',
             'readthedocs.search',
 
 

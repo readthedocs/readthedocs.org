@@ -73,7 +73,7 @@ i18n_urls = [
 ]
 
 admin_urls = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
 ]
 
 dnt_urls = [
@@ -122,17 +122,11 @@ if settings.DO_NOT_TRACK_ENABLED:
     # Include Do Not Track URLs if DNT is supported
     groups.append(dnt_urls)
 
-if settings.USE_PROMOS:
-    # Include donation URL's
-    groups.append([
-        url(r'^sustainability/', include('readthedocsext.donate.urls')),
-    ])
 
-if 'readthedocsext.embed' in settings.INSTALLED_APPS:
-    api_urls.insert(
-        0,
-        url(r'^api/v1/embed/', include('readthedocsext.embed.urls')),
-    )
+if settings.READ_THE_DOCS_EXTENSIONS:
+    groups.append([
+        url(r'^', include('readthedocsext.urls'))
+    ])
 
 if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
     groups.insert(0, docs_urls)
