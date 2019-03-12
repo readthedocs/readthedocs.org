@@ -347,7 +347,7 @@ Build details
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/?include_config=true
+        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
 
     **Example response**:
 
@@ -484,15 +484,7 @@ Build triggering
 
 .. http:post:: /api/v3/projects/(string:project_slug)/builds/
 
-    Trigger a new build for this project.
-
-    **Example request**:
-
-    .. sourcecode:: json
-
-        {
-            "version": "latest",
-        }
+    Trigger a new build for the default version of this project.
 
     **Example response**:
 
@@ -500,7 +492,22 @@ Build triggering
 
     :requestheader Authorization: required token to authenticate.
 
-    :statuscode 201: Created sucessfully
+    :statuscode 202: Accepted
+    :statuscode 400: Some field is invalid
+    :statuscode 401: Not valid permissions
+
+
+.. http:post:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/
+
+    Trigger a new build for the ``version_slug`` version of this project.
+
+    **Example response**:
+
+    `See Build details <#build-details>`_
+
+    :requestheader Authorization: required token to authenticate.
+
+    :statuscode 202: Accepted
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
 
