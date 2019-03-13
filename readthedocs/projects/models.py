@@ -116,6 +116,7 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_('Hosted documentation repository URL'),
+        db_index=True,
     )
     repo_type = models.CharField(
         _('Repository type'),
