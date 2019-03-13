@@ -428,6 +428,12 @@ class PdfBuilder(BaseSphinx):
         if self.project.language == 'ja':
             rcfile = 'latexmkjarc'
 
+        self.run(
+            'cat',
+            rcfile,
+            cwd=latex_cwd,
+        )
+
         cmd_ret = self.run(
             'latexmk',
             '-r',
