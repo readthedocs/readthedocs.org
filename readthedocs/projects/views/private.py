@@ -258,8 +258,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
-        kwargs = {'user': self.request.user}
-        return kwargs
+        return {'user': self.request.user}
 
     def get_template_names(self):
         """Return template names based on step name."""
