@@ -60,3 +60,10 @@ class ProjectSpamError(Exception):
     This error is not raised to users, we use this for banning users in the
     background.
     """
+
+
+class InvalidParamsException(Exception):
+
+    """Error raised when incorrect parameters are passed to a function/class."""
+
+    pass
