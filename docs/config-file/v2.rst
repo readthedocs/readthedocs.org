@@ -8,15 +8,26 @@ Here is an example of how this file looks like:
 
 .. code:: yaml
 
-   # .readthedocs.yml
+    # .readthedocs.yml
+    # Read the Docs configuration file
+    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-   version: 2
+    # Required
+    version: 2
 
-   python:
-     version: 3.7
-     install:
-        - method: pip
-          path: .
+    # Build documentation in the docs/ directory with Sphinx
+    sphinx:
+      configuration: docs/conf.py
+
+    # Optionally build your docs in additional formats such as PDFs and ePubs
+    formats: all
+
+    # Optionally set the version of Python and requirements required to build your docs
+    python:
+      version: 3.7
+      install:
+        - requirements: docs/requirements.txt
+
 
 Supported settings
 ------------------

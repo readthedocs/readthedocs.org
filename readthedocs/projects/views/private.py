@@ -39,7 +39,6 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
-    ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -255,16 +254,11 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
 
     form_list = [
         ('basics', ProjectBasicsForm),
-        ('extra', ProjectExtraForm),
     ]
-    condition_dict = {'extra': lambda self: self.is_advanced()}
 
     def get_form_kwargs(self, step=None):
         """Get args to pass into form instantiation."""
-        kwargs = {}
-        kwargs['user'] = self.request.user
-        if step == 'basics':
-            kwargs['show_advanced'] = True
+        kwargs = {'user': self.request.user}
         return kwargs
 
     def get_template_names(self):
@@ -280,7 +274,6 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         finish by added the members to the project and saving.
         """
         form_data = self.get_all_cleaned_data()
-        extra_fields = ProjectExtraForm.Meta.fields
         # expect the first form; manually wrap in a list in case it's a
         # View Object, as it is in Python 3.
         basics_form = list(form_list)[0]
@@ -290,9 +283,6 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         tags = form_data.pop('tags', [])
         for tag in tags:
             project.tags.add(tag)
-        for field, value in list(form_data.items()):
-            if field in extra_fields:
-                setattr(project, field, value)
         project.save()
 
         # TODO: this signal could be removed, or used for sync task
@@ -315,11 +305,6 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         )
         async_result = task_promise.apply_async()
         return async_result
-
-    def is_advanced(self):
-        """Determine if the user selected the `show advanced` field."""
-        data = self.get_cleaned_data_for_step('basics') or {}
-        return data.get('advanced', True)
 
 
 class ImportDemoView(PrivateViewMixin, View):

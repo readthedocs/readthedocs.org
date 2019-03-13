@@ -95,13 +95,7 @@ class ProjectBasicsForm(ProjectForm):
     )
 
     def __init__(self, *args, **kwargs):
-        show_advanced = kwargs.pop('show_advanced', False)
         super().__init__(*args, **kwargs)
-        if show_advanced:
-            self.fields['advanced'] = forms.BooleanField(
-                required=False,
-                label=_('Edit advanced project options'),
-            )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
 
