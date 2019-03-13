@@ -9,14 +9,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
-from tastypie.api import Api
 
-from readthedocs.api.base import (
-    FileResource,
-    ProjectResource,
-    UserResource,
-    VersionResource,
-)
 from readthedocs.core.urls import core_urls, deprecated_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
@@ -28,12 +21,6 @@ from readthedocs.core.views import (
 from readthedocs.search import views as search_views
 from readthedocs.search.api import PageSearchAPIView
 
-
-v1_api = Api(api_name='v1')
-v1_api.register(UserResource())
-v1_api.register(ProjectResource())
-v1_api.register(VersionResource())
-v1_api.register(FileResource())
 
 admin.autodiscover()
 
@@ -72,7 +59,6 @@ project_urls = [
 ]
 
 api_urls = [
-    url(r'^api/', include(v1_api.urls)),
     url(r'^api/v2/', include('readthedocs.restapi.urls')),
     # Keep the `doc_search` at root level, so the test does not fail for other API
     url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
