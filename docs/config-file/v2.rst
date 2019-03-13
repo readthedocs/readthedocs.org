@@ -4,7 +4,7 @@ Configuration File V2
 Read the Docs supports configuring your documentation builds with a YAML file.
 :doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
-Here is an example of how this file looks like:
+Below is an example YAML file which may require some changes for your project's configuration:
 
 .. code:: yaml
 
@@ -19,7 +19,11 @@ Here is an example of how this file looks like:
     sphinx:
       configuration: docs/conf.py
 
-    # Optionally build your docs in additional formats such as PDFs and ePubs
+    # Build documentation with MkDocs
+    #mkdocs:
+    #  configuration: mkdocs.yml
+
+    # Optionally build your docs in additional formats such as PDF and ePub
     formats: all
 
     # Optionally set the version of Python and requirements required to build your docs
