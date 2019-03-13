@@ -284,7 +284,7 @@ class Virtualenv(PythonEnvironment):
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
                 positive='setuptools<41',
-                negative='setuptools<40',
+                negative='setuptools<41',
             ),
             'docutils==0.13.1',
             'mock==1.0.1',
