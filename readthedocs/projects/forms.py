@@ -480,47 +480,6 @@ def build_versions_form(project):
     return type(str('VersionsForm'), (BaseVersionsForm,), attrs)
 
 
-class BaseUploadHTMLForm(forms.Form):
-    content = forms.FileField(label=_('Zip file of HTML'))
-    overwrite = forms.BooleanField(
-        required=False,
-        label=_('Overwrite existing HTML?'),
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        version_slug = self.cleaned_data['version']
-        filename = self.request.FILES['content']
-        version = self.project.versions.get(slug=version_slug)
-
-        # Validation
-        if version.active and not self.cleaned_data.get('overwrite', False):
-            raise forms.ValidationError(_('That version is already active!'))
-        if not filename.name.endswith('zip'):
-            raise forms.ValidationError(_('Must upload a zip file.'))
-
-        return self.cleaned_data
-
-
-def build_upload_html_form(project):
-    """Upload HTML form with list of versions to upload HTML for."""
-    attrs = {
-        'project': project,
-    }
-    active = project.versions.public()
-    if active.exists():
-        choices = []
-        choices += [(version.slug, version.verbose_name) for version in active]
-        attrs['version'] = forms.ChoiceField(
-            label=_('Version of the project you are uploading HTML for'),
-            choices=choices,
-        )
-    return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)
-
-
 class UserForm(forms.Form):
 
     """Project user association form."""
