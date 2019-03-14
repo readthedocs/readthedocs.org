@@ -9,11 +9,11 @@ class AdminPermissionBase:
 
     @classmethod
     def is_admin(cls, user, project):
-        return user in project.users.all() or user.is_superuser
+        return user.is_superuser or project.users.filter(pk=user.pk).exists()
 
     @classmethod
     def is_member(cls, user, obj):
-        return user in obj.users.all() or user.is_superuser
+        return user.is_superuser or obj.users.filter(pk=user.pk).exists()
 
 
 class AdminPermission(SettingsOverrideObject):
