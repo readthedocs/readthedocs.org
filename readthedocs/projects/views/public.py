@@ -272,7 +272,7 @@ def project_versions(request, project_slug):
     if wiped and wiped_version.count():
         messages.success(request, 'Version wiped: ' + wiped)
 
-    # Optimize for the future project permission checks
+    # Optimize project permission checks
     prefetch_related_objects([project], 'users')
 
     return render(
