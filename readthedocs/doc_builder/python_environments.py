@@ -278,7 +278,7 @@ class Virtualenv(PythonEnvironment):
         )
 
         requirements = [
-            'Pygments==2.2.0',
+            'Pygments==2.3.1',
             # Assume semver for setuptools version, support up to next backwards
             # incompatible release
             self.project.get_feature_value(
@@ -286,12 +286,12 @@ class Virtualenv(PythonEnvironment):
                 positive='setuptools<41',
                 negative='setuptools<40',
             ),
-            'docutils==0.13.1',
+            'docutils==0.14',
             'mock==1.0.1',
-            'pillow==2.6.1',
+            'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
+            'commonmark==0.8.1',
+            'recommonmark==0.5.0',
         ]
 
         if self.config.doctype == 'mkdocs':
