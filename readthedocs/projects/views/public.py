@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -270,6 +271,9 @@ def project_versions(request, project_slug):
     wiped_version = versions.filter(slug=wiped)
     if wiped and wiped_version.count():
         messages.success(request, 'Version wiped: ' + wiped)
+
+    # Optimize for the future project permission checks
+    prefetch_related_objects([project], 'users')
 
     return render(
         request,
