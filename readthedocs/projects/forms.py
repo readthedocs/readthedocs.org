@@ -218,12 +218,12 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
             # Options that can be set per-version using a config file.
             'documentation_type',
-            'install_project',
             'requirements_file',
+            'install_project',
+            'use_system_packages',
             'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
-            'use_system_packages',
             'python_interpreter',
         )
 
