@@ -133,6 +133,11 @@ if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
 if getattr(settings, 'ALLOW_ADMIN', True):
     groups.append(admin_urls)
 if getattr(settings, 'DEBUG', False):
+    import debug_toolbar
+
+    debug_urls += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
     groups.append(debug_urls)
 
 urlpatterns = reduce(add, groups)
