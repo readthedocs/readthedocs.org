@@ -434,7 +434,7 @@ class PdfBuilder(BaseSphinx):
             cwd=latex_cwd,
         )
 
-        cmd_ret = self.run(
+        cmd = self.run(
             'latexmk',
             '-r',
             rcfile,
@@ -451,7 +451,7 @@ class PdfBuilder(BaseSphinx):
 
         self.pdf_file_name = f'{self.project.slug}.pdf'
 
-        return True  # :)
+        return cmd.successful
 
     def _build_pdflatex(self, tex_files, latex_cwd):
         pdflatex_cmds = [
