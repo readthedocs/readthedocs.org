@@ -93,11 +93,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
+        # Filters the builds for a perticular project.
         builds = Build.objects.filter(
             project=OuterRef('pk'), type='html', state='finished')
+        # Creates a Subquery object which returns
+        # the value of Build.success of the latest build.
         sub_query = Subquery(builds.values('success')[:1])
         return Project.objects.dashboard(self.request.user).annotate(
-            Count('builds'), build_success=sub_query)
+            build_count=Count('builds'), latest_build_success=sub_query)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)

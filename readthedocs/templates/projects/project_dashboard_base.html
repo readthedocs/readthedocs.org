@@ -66,7 +66,7 @@
                       {% block project-name %}
                         {{ project.name }}
                       {% endblock %}
-                      {% with builds=project.builds__count %}
+                      {% with builds=project.build_count %}
                         {% if builds == 0 %}
                           <span class="right quiet">
                             {% trans "No builds yet" %}
@@ -80,7 +80,7 @@
                                 {{ builds }} builds
                               {% endblocktrans %}
                             </span>
-                            {% if project.build_success %}
+                            {% if project.latest_build_success %}
                               <span class="build-state build-state-passing">{% trans "passing" %}</span>
                             {% else %}
                               <span class="build-state build-state-failing">{% trans "failing" %}</span>
