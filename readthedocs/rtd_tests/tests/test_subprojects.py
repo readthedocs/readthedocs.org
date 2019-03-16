@@ -65,6 +65,10 @@ class SubprojectFormTests(TestCase):
             form.errors['child'][0],
             r'Select a valid choice.',
         )
+        self.assertEqual(
+            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [''],
+        )
 
     def test_adding_subproject_passes_when_user_is_admin(self):
         user = fixture.get(User)
@@ -161,27 +165,6 @@ class SubprojectFormTests(TestCase):
             [proj_id for (proj_id, __) in form.fields['child'].choices],
         )
 
-    def test_user_cant_add_other_users_project_as_subproject(self):
-        user = fixture.get(User)
-        user_2 = fixture.get(User)
-        project = fixture.get(Project, slug='mainproject', users=[user])
-        subproject = fixture.get(Project, slug='subproject', users=[user_2])
-
-        form = ProjectRelationshipForm(
-            {'child': subproject.pk},
-            project=project,
-            user=user,
-        )
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            'Select a valid choice',
-            ''.join(form.errors['child']),
-        )
-        self.assertNotIn(
-            subproject.id,
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
-        )
-
     def test_alias_already_exists_for_a_project(self):
         user = fixture.get(User)
         project = fixture.get(Project, users=[user])
@@ -202,22 +185,6 @@ class SubprojectFormTests(TestCase):
         self.assertFalse(form.is_valid())
         error_msg = 'A subproject with this alias already exists'
         self.assertDictEqual(form.errors, {'alias': [error_msg]})
-
-    def test_list_only_owner_projects_in_child_choices(self):
-        user = fixture.get(User)
-        user_2 = fixture.get(User)
-        project = fixture.get(Project, users=[user])
-        subproject = fixture.get(Project, users=[user])
-        subproject_2 = fixture.get(Project, users=[user_2])
-
-        form = ProjectRelationshipForm(
-            project=project,
-            user=user,
-        )
-        self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
-            ['', subproject.id],
-        )
 
     def test_edit_only_lists_instance_project_in_child_choices(self):
         user = fixture.get(User)
