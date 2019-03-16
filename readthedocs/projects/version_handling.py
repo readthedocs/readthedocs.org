@@ -43,8 +43,8 @@ def comparable_version(version_string):
     """
     Can be used as ``key`` argument to ``sorted``.
 
-    The ``LATEST`` version shall always beat other versions in comparison.
-    ``STABLE`` should be listed second. If we cannot figure out the version
+    The ``STABLE`` version shall always beat other versions in comparison.
+    ``LATEST`` should be listed second. If we cannot figure out the version
     number then we sort it to the bottom of the list.
 
     :param version_string: version as string object (e.g. '3.10.1' or 'latest')
@@ -56,9 +56,9 @@ def comparable_version(version_string):
     """
     comparable = parse_version_failsafe(version_string)
     if not comparable:
-        if version_string == LATEST_VERBOSE_NAME:
+        if version_string == STABLE_VERBOSE_NAME:
             comparable = Version('99999.0')
-        elif version_string == STABLE_VERBOSE_NAME:
+        elif version_string == LATEST_VERBOSE_NAME:
             comparable = Version('9999.0')
         else:
             comparable = Version('0.01')
@@ -72,7 +72,7 @@ def sort_versions(version_list):
     :param version_list: list of Version models
     :type version_list: list(readthedocs.builds.models.Version)
 
-    :returns: sorted list in descending order (latest version first) of versions
+    :returns: sorted list in descending order (stable version first) of versions
 
     :rtype: list(tupe(readthedocs.builds.models.Version,
             packaging.version.Version))
