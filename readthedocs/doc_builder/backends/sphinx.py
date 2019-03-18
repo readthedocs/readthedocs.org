@@ -417,6 +417,10 @@ class PdfBuilder(BaseSphinx):
         # ``latex_engine`` is ``platex``
         pdfs = []
         if self.project.language == 'ja':
+            # Japanese language is the only one that requires this extra
+            # step. I don't know exactly why but most of the documentation that
+            # I read differentiate this language from the others. I suppose
+            # it's because it mix kanji (Chinese) with its own symbols.
             pdfs = latex_path.glob('*.pdf')
 
         for image in itertools.chain(images, pdfs):
