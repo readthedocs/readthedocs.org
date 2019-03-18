@@ -440,8 +440,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         for key in ['name', 'repo', 'repo_type', 'remote_repository']:
             initial_data['basics'][key] = request.POST.get(key)
         initial_data['extra'] = {}
-        for key in ['description', 'project_url']:
-            initial_data['extra'][key] = request.POST.get(key)
+        initial_data['extra']['project_url'] = request.POST.get(key)
         request.method = 'GET'
         return self.wizard_class.as_view(initial_dict=initial_data)(request)
 

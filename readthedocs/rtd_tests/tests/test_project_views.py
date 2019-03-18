@@ -42,7 +42,6 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
                 'repo_type': 'git',
             },
             'extra': {
-                'description': 'Describe foobar',
                 'language': 'en',
                 'documentation_type': 'sphinx',
             },
@@ -151,7 +150,6 @@ class TestAdvancedForm(TestBasicsForm):
         super().setUp()
         self.step_data['basics']['advanced'] = True
         self.step_data['extra'] = {
-            'description': 'Describe foobar',
             'language': 'en',
             'documentation_type': 'sphinx',
             'tags': 'foo, bar, baz',
@@ -204,54 +202,6 @@ class TestAdvancedForm(TestBasicsForm):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
-
-    @patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam(self, mocked_validator):
-        """Don't add project on a spammy description."""
-        self.user.date_joined = timezone.now() - timedelta(days=365)
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertFalse(self.user.profile.banned)
-
-    @patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam_ban_user(self, mocked_validator):
-        """Don't add spam and ban new user."""
-        self.user.date_joined = timezone.now()
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertTrue(self.user.profile.banned)
 
 
 class TestImportDemoView(MockBuildTestCase):

@@ -13,7 +13,6 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
-from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
@@ -21,7 +20,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.models import (
     Domain,
@@ -166,19 +164,12 @@ class ProjectExtraForm(ProjectForm):
     class Meta:
         model = Project
         fields = (
-            'description',
             'documentation_type',
             'language',
             'programming_language',
             'tags',
             'project_url',
         )
-
-    description = forms.CharField(
-        validators=[ClassifierValidator(raises=ProjectSpamError)],
-        required=False,
-        widget=forms.Textarea,
-    )
 
     def clean_tags(self):
         tags = self.cleaned_data.get('tags', [])
@@ -289,7 +280,6 @@ class UpdateProjectForm(
             'repo',
             'repo_type',
             # Extra
-            'description',
             'language',
             'programming_language',
             'project_url',
