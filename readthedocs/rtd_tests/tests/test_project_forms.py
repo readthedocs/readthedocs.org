@@ -270,6 +270,17 @@ class TestProjectAdvancedForm(TestCase):
             },
         )
 
+    def test_default_version_field_if_no_active_version(self):
+        project_1 = get(Project)
+        project_1.versions.filter(active=True).update(active=False)
+
+        # No active versions of project exists
+        self.assertFalse(project_1.versions.filter(active=True).exists())
+
+        form = ProjectAdvancedForm(instance=project_1)
+        self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
+        self.assertEqual(form.fields['default_version'].initial, 'latest')
+
 
 class TestTranslationForms(TestCase):
 

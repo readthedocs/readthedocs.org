@@ -208,24 +208,23 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     class Meta:
         model = Project
         fields = (
-            # Standard build edits
-            'install_project',
-            'requirements_file',
-            'single_version',
-            'conf_py_file',
-            'default_branch',
+            # Global settings.
             'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
             'show_version_warning',
+            'single_version',
+
+            # Options that can be set per-version using a config file.
+            'documentation_type',
+            'requirements_file',
+            'python_interpreter',
+            'install_project',
+            'use_system_packages',
+            'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
-            # Privacy
-            'privacy_level',
-            # 'version_privacy_level',
-            # Python specific
-            'use_system_packages',
-            'python_interpreter',
-            # Fringe
-            'analytics_code',
         )
 
     def __init__(self, *args, **kwargs):
@@ -241,9 +240,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         active_versions = self.get_all_active_versions()
-        self.fields['default_version'].widget = forms.Select(
-            choices=active_versions,
-        )
+
+        if active_versions:
+            self.fields['default_version'].widget = forms.Select(
+                choices=active_versions,
+            )
+        else:
+            self.fields['default_version'].widget.attrs['readonly'] = True
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -269,7 +272,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             version_qs = sort_version_aware(version_qs)
             all_versions = [(version.slug, version.verbose_name) for version in version_qs]
             return all_versions
-        return [()]
+        return None
 
 
 class UpdateProjectForm(
@@ -287,7 +290,6 @@ class UpdateProjectForm(
             'repo_type',
             # Extra
             'description',
-            'documentation_type',
             'language',
             'programming_language',
             'project_url',

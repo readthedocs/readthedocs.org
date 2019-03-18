@@ -173,6 +173,8 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
     """Remote service repository serializer."""
 
     organization = RemoteOrganizationSerializer()
+
+    # This field does create an additional query per object returned
     matches = serializers.SerializerMethodField()
 
     class Meta:
