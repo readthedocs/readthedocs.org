@@ -21,7 +21,7 @@ jsonfield==2.0.2
 requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==3.13
+pyyaml==5.1
 Pygments==2.3.1
 
 # Basic tools
