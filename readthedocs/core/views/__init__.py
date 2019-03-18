@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Core views, including the main homepage,
 
@@ -87,7 +85,7 @@ def wipe_version(request, project_slug, version_slug):
     if request.method == 'POST':
         wipe_version_via_slugs(
             version_slug=version_slug,
-            project_slug=project_slug
+            project_slug=project_slug,
         )
         return redirect('project_version_list', project_slug)
     return render(
