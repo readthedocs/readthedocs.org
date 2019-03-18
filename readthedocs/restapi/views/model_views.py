@@ -337,6 +337,10 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                 service.adapter.provider_id for service in registry
             ],
         )
+
+        # optimizes for the RemoteOrganizationSerializer
+        query = query.select_related('organization')
+
         return query
 
 
