@@ -99,7 +99,7 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--ignore-installed',
+                '--force-reinstall',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
