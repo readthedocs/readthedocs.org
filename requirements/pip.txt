@@ -80,7 +80,6 @@ django-formtools==2.1
 # https://github.com/rtfd/readthedocs.org/issues/3999
 docker==3.1.3  # pyup: ignore
 
-django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2

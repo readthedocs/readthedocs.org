@@ -81,7 +81,6 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'corsheaders',
-            'textclassifier',
             'annoying',
             'django_extensions',
             'messages_extends',
