@@ -208,24 +208,23 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     class Meta:
         model = Project
         fields = (
-            # Standard build edits
-            'install_project',
-            'requirements_file',
-            'single_version',
-            'conf_py_file',
-            'default_branch',
+            # Global settings.
             'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
             'show_version_warning',
+            'single_version',
+
+            # Options that can be set per-version using a config file.
+            'documentation_type',
+            'requirements_file',
+            'python_interpreter',
+            'install_project',
+            'use_system_packages',
+            'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
-            # Privacy
-            'privacy_level',
-            # 'version_privacy_level',
-            # Python specific
-            'use_system_packages',
-            'python_interpreter',
-            # Fringe
-            'analytics_code',
         )
 
     def __init__(self, *args, **kwargs):
@@ -291,7 +290,6 @@ class UpdateProjectForm(
             'repo_type',
             # Extra
             'description',
-            'documentation_type',
             'language',
             'programming_language',
             'project_url',
