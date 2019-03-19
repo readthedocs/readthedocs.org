@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /search/
+Disallow: /api/
 Disallow: /builds/
 Disallow: /sustainability/click/
