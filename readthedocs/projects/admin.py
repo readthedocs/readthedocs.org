@@ -11,14 +11,10 @@ from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import broadcast, trigger_build, send_email
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
-<<<<<<< HEAD
-from readthedocs.core.utils import send_email
-=======
 from readthedocs.search.utils import _indexing_helper
->>>>>>> master
 
 from .forms import FeatureForm
 from .models import (
