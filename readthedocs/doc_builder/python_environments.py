@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
@@ -8,8 +6,6 @@ import json
 import logging
 import os
 import shutil
-
-from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
@@ -295,7 +291,7 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.config.doctype == 'mkdocs':
-            requirements.append('mkdocs==0.17.3')
+            requirements.append('mkdocs<1.1')
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
