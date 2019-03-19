@@ -998,64 +998,28 @@ def move_files(
         return
 
     # This is False if we have already synced media files to blob storage
-    # We set `epub=False` for example so data doesn't get re-uploaded on each web,
-    # so we need this to protect against deleting in those cases
+    # We set `epub=False` for example so data doesn't get re-uploaded on each
+    # web, so we need this to protect against deleting in those cases
     if delete_unsynced_media:
-
-        if not pdf:
-
+        downloads = {
+            'pdf': pdf,
+            'epub': epub,
+            'htmlzip': localmedia,
+        }
+        unsync_downloads = (k for k, v in downloads.items() if not v)
+        for media_type in unsync_downloads:
             remove_dirs([
                 version.project.get_production_media_path(
-                    type_='pdf',
+                    type_=media_type,
                     version_slug=version.slug,
                     include_file=False,
                 ),
             ])
 
             if getattr(storage, 'write_build_media', False):
-                # Remove PDF from remote storage if it exists
+                # Remove the media from remote storage if it exists
                 storage_path = version.project.get_storage_path(
-                    type_='pdf',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-
-        if not epub:
-
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-            if getattr(storage, 'write_build_media', False):
-                # Remove ePub from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-
-        if not localmedia:
-
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='htmlzip',
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-            if getattr(storage, 'write_build_media', False):
-                # Remove ePub from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='htmlzip',
+                    type_=media_type,
                     version_slug=version.slug,
                 )
                 if storage.exists(storage_path):
@@ -1104,7 +1068,6 @@ def move_files(
             include_file=True,
         )
         Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    # Always move PDF's because the return code lies.
     if pdf:
         from_path = os.path.join(
             version.project.artifact_path(
