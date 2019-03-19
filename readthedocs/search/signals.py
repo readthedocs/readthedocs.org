@@ -12,11 +12,15 @@ from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
 
 @receiver(bulk_post_create)
-def index_indexed_file(sender, instance_list, **_):
+def index_indexed_file(sender, instance_list, **kwargs):
     """Handle indexing from the build process."""
+
+    if not instance_list:
+        return
+
     model = sender
-    document = registry.get_documents(models=[model])[0]
-    kwargs = {
+    document = list(registry.get_documents(models=[model]))[0]
+    index_kwargs = {
         'app_label': model._meta.app_label,
         'model_name': model.__name__,
         'document_class': str(document),
@@ -25,16 +29,22 @@ def index_indexed_file(sender, instance_list, **_):
 
     # Do not index if autosync is disabled globally
     if DEDConfig.autosync_enabled():
-        index_objects_to_es(**kwargs)
+        index_objects_to_es(**index_kwargs)
 
 
 @receiver(bulk_post_delete)
-def remove_indexed_file(sender, instance_list, **_):
+def remove_indexed_file(sender, instance_list, **kwargs):
     """Remove deleted files from the build process."""
-    model = sender
-    document = registry.get_documents(models=[model])[0]
 
-    kwargs = {
+    if not instance_list:
+        return
+
+    model = sender
+    document = list(registry.get_documents(models=[model]))[0]
+    version = kwargs.get('version')
+    commit = kwargs.get('commit')
+
+    index_kwargs = {
         'app_label': model._meta.app_label,
         'model_name': model.__name__,
         'document_class': str(document),
@@ -43,7 +53,17 @@ def remove_indexed_file(sender, instance_list, **_):
 
     # Do not index if autosync is disabled globally
     if DEDConfig.autosync_enabled():
-        delete_objects_in_es(**kwargs)
+        delete_objects_in_es(**index_kwargs)
+
+        if version and commit:
+            # Sanity check by deleting all old files not in this commit
+            document().search().filter(
+                'term', version=version.slug,
+            ).filter(
+                'term', project=version.project.slug,
+            ).exclude(
+                'term', commit=commit,
+            ).delete()
 
 
 @receiver(post_save, sender=Project)

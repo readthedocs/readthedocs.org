@@ -1347,7 +1347,7 @@ def _manage_imported_files(version, path, commit):
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files, commit=commit)
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files, version=version, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1360,7 +1360,7 @@ def _manage_imported_files(version, path, commit):
     instance_list = list(delete_queryset)
 
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list, commit=commit)
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list, version=version, commit=commit)
 
     # Delete ImportedFiles from previous versions
     delete_queryset.delete()
