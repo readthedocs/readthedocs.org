@@ -45,8 +45,7 @@ class RTDFacetedSearch(FacetedSearch):
         """
         s = super().search()
         s = s.source(exclude=['content', 'headers'])
-        # Return 25 results
-        return s[:25]
+        return s
 
     def query(self, search, query):
         """

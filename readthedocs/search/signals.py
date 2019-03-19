@@ -4,6 +4,7 @@
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
+from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
@@ -13,11 +14,12 @@ from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 @receiver(bulk_post_create)
 def index_indexed_file(sender, instance_list, **_):
     """Handle indexing from the build process."""
-    model = sender._doc_type.model
+    model = sender
+    document = registry.get_documents(models=[model])[0]
     kwargs = {
         'app_label': model._meta.app_label,
         'model_name': model.__name__,
-        'document_class': str(sender),
+        'document_class': str(document),
         'objects_id': [obj.id for obj in instance_list],
     }
 
@@ -29,11 +31,13 @@ def index_indexed_file(sender, instance_list, **_):
 @receiver(bulk_post_delete)
 def remove_indexed_file(sender, instance_list, **_):
     """Remove deleted files from the build process."""
-    model = sender._doc_type.model
+    model = sender
+    document = registry.get_documents(models=[model])[0]
+
     kwargs = {
         'app_label': model._meta.app_label,
         'model_name': model.__name__,
-        'document_class': str(sender),
+        'document_class': str(document),
         'objects_id': [obj.id for obj in instance_list],
     }
 

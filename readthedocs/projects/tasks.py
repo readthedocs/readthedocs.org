@@ -60,7 +60,6 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.search.documents import PageDocument, SphinxDomainDocument
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
@@ -1273,7 +1272,7 @@ def _update_intersphinx_data(version, path, commit):
                 name=name,
                 display_name=display_name,
                 type=_type,
-                type_display=types.get(domain + ':' + _type, ''),
+                type_display=types.get(f'{domain}:{_type}', ''),
                 doc_name=doc_name,
                 doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
@@ -1281,10 +1280,11 @@ def _update_intersphinx_data(version, path, commit):
             if obj.commit != commit:
                 obj.commit = commit
                 obj.save()
-            created_sphinx_domains.append(obj)
+            if created:
+                created_sphinx_domains.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=SphinxDomainDocument, instance_list=created_sphinx_domains)
+    bulk_post_create.send(sender=SphinxDomain, instance_list=created_sphinx_domains, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1296,7 +1296,7 @@ def _update_intersphinx_data(version, path, commit):
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=SphinxDomainDocument, instance_list=instance_list)
+    bulk_post_delete.send(sender=SphinxDomain, instance_list=instance_list, commit=commit)
 
     # Delete from previous versions
     delete_queryset.delete()
@@ -1326,7 +1326,7 @@ def _manage_imported_files(version, path, commit):
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
                 # pylint: disable=unpacking-non-sequence
-                obj, __ = model_class.objects.get_or_create(
+                obj, created = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
@@ -1342,12 +1342,12 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-            if model_class == HTMLFile:
+            if created and model_class == HTMLFile:
                 # the `obj` is HTMLFile, so add it to the list
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=PageDocument, instance_list=created_html_files)
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1355,10 +1355,12 @@ def _manage_imported_files(version, path, commit):
         HTMLFile.objects.filter(project=version.project,
                                 version=version).exclude(commit=commit)
     )
+
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=PageDocument, instance_list=instance_list)
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list, commit=commit)
 
     # Delete ImportedFiles from previous versions
     delete_queryset.delete()
