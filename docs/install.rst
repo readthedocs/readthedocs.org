@@ -11,6 +11,12 @@ First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them.
 Using a virtual environment is strongly recommended,
 since it will help you to avoid clutter in your system-wide libraries.
 
+.. note::
+
+    Currently the recommended version of python is Python 3.6.7. Which uses a 
+    lower version of sqlite3. The next version of Python can be used when the 
+    project starts using the latest Django version.
+
 Additionally Read the Docs depends on:
 
 * `Git`_ (version >=2.17.0)
