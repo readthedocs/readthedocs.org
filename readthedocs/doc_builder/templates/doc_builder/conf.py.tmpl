@@ -154,7 +154,7 @@ chinese = any([
     project_language in ('zh_CN', 'zh_TW'),
 ])
 
-japanase = any([
+japanese = any([
     language_user == 'ja',
     project_language == 'ja',
 ])
@@ -171,7 +171,7 @@ if chinese:
         'preamble': '\\usepackage[UTF8]{ctex}\n',
     }
     latex_elements = latex_elements_user or latex_elements_rtd
-elif japanase:
+elif japanese:
     latex_engine = latex_engine_user or 'platex'
     latex_use_xindy = False
 {% endif %}
