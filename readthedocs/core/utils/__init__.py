@@ -11,12 +11,12 @@ import os
 import re
 
 from django.conf import settings
-from django.utils.functional import allow_lazy
+from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 from celery import group, chord
 
-from readthedocs.builds.constants import LATEST, BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 log = logging.getLogger(__name__)
@@ -73,7 +73,7 @@ def prepare_build(
     project has ``skip=True``, the build is not triggered.
 
     :param project: project's documentation to be built
-    :param version: version of the project to be built. Default: ``latest``
+    :param version: version of the project to be built. Default: ``project.get_default_version()``
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
@@ -95,7 +95,8 @@ def prepare_build(
         return (None, None)
 
     if not version:
-        version = project.versions.get(slug=LATEST)
+        default_version = project.get_default_version()
+        version = project.versions.get(slug=default_version)
 
     kwargs = {
         'version_pk': version.pk,
@@ -197,6 +198,7 @@ def send_email(
     )
 
 
+@keep_lazy(str, SafeText)
 def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
@@ -208,9 +210,6 @@ def slugify(value, *args, **kwargs):
     if dns_safe:
         value = mark_safe(re.sub('[-_]+', '-', value))
     return value
-
-
-slugify = allow_lazy(slugify, str, SafeText)
 
 
 def safe_makedirs(directory_name):

@@ -14,7 +14,11 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
+<<<<<<< HEAD
 from readthedocs.core.utils import send_email
+=======
+from readthedocs.search.utils import _indexing_helper
+>>>>>>> master
 
 from .forms import FeatureForm
 from .models import (
@@ -155,6 +159,8 @@ class ProjectAdmin(GuardedModelAdmin):
         'mark_as_abandoned',
         'request_namespace',
         'build_default_version',
+        'reindex_active_versions',
+        'wipe_all_versions',
     ]
 
     def feature_flags(self, obj):
@@ -296,6 +302,68 @@ class ProjectAdmin(GuardedModelAdmin):
         )
 
     build_default_version.short_description = 'Build default version'
+
+    def reindex_active_versions(self, request, queryset):
+        """Reindex all active versions of the selected projects to ES."""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            version_qs = Version.objects.filter(project=project)
+            active_versions = version_qs.filter(active=True)
+
+            if not active_versions.exists():
+                self.message_user(
+                    request,
+                    'No active versions of project {}'.format(project),
+                    messages.ERROR
+                )
+            else:
+                html_objs_qs = []
+                for version in active_versions.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=False)
+
+                self.message_user(
+                    request,
+                    'Task initiated successfully for {}'.format(project),
+                    messages.SUCCESS
+                )
+
+    reindex_active_versions.short_description = 'Reindex active versions to ES'
+
+    def wipe_all_versions(self, request, queryset):
+        """Wipe indexes of all versions of selected projects."""
+        qs_iterator = queryset.iterator()
+        for project in qs_iterator:
+            version_qs = Version.objects.filter(project=project)
+            if not version_qs.exists():
+                self.message_user(
+                    request,
+                    'No active versions of project {}.'.format(project),
+                    messages.ERROR
+                )
+            else:
+                html_objs_qs = []
+                for version in version_qs.iterator():
+                    html_objs = HTMLFile.objects.filter(project=project, version=version)
+
+                    if html_objs.exists():
+                        html_objs_qs.append(html_objs)
+
+                if html_objs_qs:
+                    _indexing_helper(html_objs_qs, wipe=True)
+
+                self.message_user(
+                    request,
+                    'Task initiated successfully for {}.'.format(project),
+                    messages.SUCCESS
+                )
+
+    wipe_all_versions.short_description = 'Wipe all versions from ES'
 
     def get_actions(self, request):
         actions = super().get_actions(request)

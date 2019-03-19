@@ -140,15 +140,25 @@ class BaseMkdocs(BaseBuilder):
                     ),
                 )
 
-        user_config.setdefault('extra_javascript', []).extend([
+        extra_javascript_list = [
             'readthedocs-data.js',
             '%score/js/readthedocs-doc-embed.js' % static_url,
             '%sjavascript/readthedocs-analytics.js' % static_url,
-        ])
-        user_config.setdefault('extra_css', []).extend([
+        ]
+        extra_css_list = [
             '%scss/badge_only.css' % static_url,
             '%scss/readthedocs-doc-embed.css' % static_url,
-        ])
+        ]
+
+        # Only add static file if the files are not already in the list
+        user_config.setdefault('extra_javascript', []).extend(
+            [js for js in extra_javascript_list if js not in user_config.get(
+                'extra_javascript')]
+        )
+        user_config.setdefault('extra_css', []).extend(
+            [css for css in extra_css_list if css not in user_config.get(
+                'extra_css')]
+        )
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.

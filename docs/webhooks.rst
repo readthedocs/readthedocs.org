@@ -52,7 +52,7 @@ GitHub
   *application/x-www-form-urlencoded* work
 * Select **Let me select individual events**,
   and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
-* Leave the **Secrets** field black
+* Leave the **Secrets** field blank
 * Finish by clicking **Add webhook**
 
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
@@ -148,6 +148,16 @@ Resyncing webhooks
 It might be necessary to re-establish a webhook if you are noticing problems.
 To resync a webhook from Read the Docs, visit the integration detail page and
 follow the directions for re-syncing your repository webhook.
+
+Payload validation
+------------------
+
+If your project was imported through a connected account,
+we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
+Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
+offer a way to check this.
+
+When :ref:`resyncing the webhook <webhooks:Resyncing webhooks>`, the secret is changed too.
 
 Troubleshooting
 ---------------
