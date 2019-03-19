@@ -90,9 +90,9 @@ class BaseMkdocs(BaseBuilder):
         try:
             yaml_config = yaml.safe_load(open(self.yaml_file, 'r'),)
             if not isinstance(yaml_config, dict): 
-                raise ParseError('Expected dict') 
+                raise MkDocsYAMLParseError('Expected dict') 
             if not yaml_config: 
-                raise ParseError('Unable to load YAML config') 
+                raise MkDocsYAMLParseError('Unable to load YAML config') 
             return yaml_config
         except IOError:
             return {
