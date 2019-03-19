@@ -11,7 +11,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 
 class Testmaker(TestCase):
@@ -170,10 +170,10 @@ class RandomPageTests(TestCase):
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.pip_version = self.pip.versions.all()[0]
-        ImportedFile.objects.create(
+        HTMLFile.objects.create(
             project=self.pip,
             version=self.pip_version,
-            name='File',
+            name='file.html',
             slug='file',
             path='file.html',
             md5='abcdef',
@@ -193,8 +193,8 @@ class RandomPageTests(TestCase):
         response = self.client.get('/random/not-existent/')
         self.assertEqual(response.status_code, 404)
 
-    def test_404_for_with_no_imported_files(self):
-        ImportedFile.objects.all().delete()
+    def test_404_for_with_no_html_files(self):
+        HTMLFile.objects.all().delete()
         response = self.client.get('/random/pip/')
         self.assertEqual(response.status_code, 404)
 

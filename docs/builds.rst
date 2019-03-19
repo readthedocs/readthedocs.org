@@ -9,8 +9,8 @@ Files: `tasks.py`_ - `doc_builder/`_
 Every documentation build has limited resources.
 Our current build limits are:
 
-* 15 minutes
-* 1GB of memory
+* 15 minutes of CPU
+* 1GB of RAM memory
 
 We can increase build limits on a per-project basis,
 if you provide a good reason your documentation needs more resources.
@@ -73,8 +73,9 @@ If the code is already checked out, we update the copy to the branch that you ha
 
 Then we build the proper backend code for the type of documentation you've selected.
 
-If you have the *Install Project* option enabled, we will run ``setup.py install`` on your package, installing it into a virtual environment.
-You can also define additional packages to install with the *Requirements File* option.
+At this point, if you need extra requirements,
+or even install your own package in the virtual environment to build your documentation,
+you can use a :doc:`config-file/index`.
 
 When we build your Sphinx documentation, we run ``sphinx-build -b html . _build/html``,
 where ``html`` would be replaced with the correct backend.
@@ -89,12 +90,16 @@ An example in code:
 .. code-block:: python
 
     update_docs_from_vcs(version)
-    if exists('setup.py'):
+    config = get_config(project)
+    if config.python.install.method.setuptools:
         run('python setup.py install')
-    if project.requirements_file:
-        run('pip install -r %s' % project.requirements_file)
+    if config.python.install.method.pip:
+        run('pip install .')
+    if config.python.install.requirement:
+        run('pip install -r %s' % config.python.install.requirement)
     build_docs(version=version)
     copy_files(artifact_dir)
+
 
 .. note::
 
@@ -179,4 +184,5 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 .. tip::
 
    In case extra environment variables are needed to the build process (like secrets, tokens, etc),
-   you can add them going to **Admin > Environment Variables** in your project. See :doc:`guides/environment-variables`.
+   you can add them going to :guilabel:`Admin` > :guilabel:`Environment Variables` in your project.
+   See :doc:`guides/environment-variables`.

@@ -1,13 +1,13 @@
 Google Summer of Code
 =====================
 
-.. 
-    .. note:: Thanks for your interest in Read the Docs!
-              We are working hard to update the ideas list now that we are accepted in GSOC.
-              Please give us a little while to work on things,
-              and check back on this page for updates.
+.. note:: Thanks for your interest in Read the Docs!
+          Please follow the instructions in `Getting Started`_,
+          as a good place to start.
+          **Contacting us will not increase your chance of being accepted,
+          but opening Pull Requests with docs and tests will.**
 
-Read the Docs is hoping to be in the Google Summer of Code in 2019.
+Read the Docs is excited to be in the Google Summer of Code in 2019.
 This page will contain all the information for students and anyone else interested in helping.
 
 Skills
@@ -26,18 +26,6 @@ We're happy to help you get up to speed,
 but the more you are able to demonstrate ability in advance,
 the more likely we are to choose your application! 
 
-Mentors
--------
-
-Currently we have a few folks signed up:
-
-* Eric Holscher
-* Manuel Kaufmann
-* Anthony Johnson
-
-.. warning:: Please do not reach out directly to anyone about the Summer of Code.
-             It will **not** increase your chances of being accepted!
-
 Getting Started
 ---------------
 
@@ -52,6 +40,19 @@ Want to get involved?
 ---------------------
 
 If you're interested in participating in GSoC as a student, you can apply during the normal process provided by Google. We are currently overwhelmed with interest, so we are not able to respond individually to each person who is interested.
+
+Mentors
+-------
+
+Currently we have a few folks signed up:
+
+* Eric Holscher
+* Manuel Kaufmann
+* Anthony Johnson
+* Safwan Rahman
+
+.. warning:: Please do not reach out directly to anyone about the Summer of Code.
+             It will **not** increase your chances of being accepted!
 
 Project Ideas
 -------------
@@ -79,6 +80,19 @@ we would allow them to do a few sets of actions on them:
 * Build a landing page for the collection that lists out all the projects, and could even have a user-editable description, similar to our project listing page.
 
 There is likely other ideas that could be done with `Collections` over time.
+
+Integration with OpenAPI/Swagger
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Integrate the existing tooling around OpenAPI & Swagger into Sphinx and Read the Docs.
+This will include building some extensions that generate reStructuredText,
+and backend Django code that powers the frontend Javascript.
+
+This could include:
+
+* Building a live preview for testing an API in the documentation
+* Taking a swagger YAML file and generating HTML properly with Sphinx
+* Integration with our existing API to generate Swagger output
 
 Autobuild docs for Pull Requests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -113,6 +127,23 @@ This project would include:
 
 This is not as well defined as the other tasks,
 so would require a higher level of skill from an incoming student.
+
+Better MkDocs integration
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Currently we don't have a good integration with MkDocs as we do with Sphinx.
+And it's hard to maintain compatibility with new versions.
+
+This project would include:
+
+* Support the latest version of MkDocs
+* Support downloads (`#1939`_)
+* Write a plugin to allow us to have more control over the build process (`#4924`_)
+* Support search (`#1088`_)
+
+.. _#1939: https://github.com/rtfd/readthedocs.org/issues/1939
+.. _#4924: https://github.com/rtfd/readthedocs.org/issues/4924
+.. _#1088: https://github.com/rtfd/readthedocs.org/issues/1088
 
 Integrated Redirects
 ~~~~~~~~~~~~~~~~~~~~

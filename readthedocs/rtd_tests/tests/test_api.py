@@ -27,10 +27,14 @@ from readthedocs.restapi.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITHUB_PUSH,
+    GITHUB_SIGNATURE_HEADER,
     GITLAB_NULL_HASH,
     GITLAB_PUSH,
     GITLAB_TAG_PUSH,
+    GITLAB_TOKEN_HEADER,
     GitHubWebhookView,
+    GitLabWebhookView,
 )
 from readthedocs.restapi.views.task_views import get_status_data
 
@@ -562,20 +566,6 @@ class APIBuildTests(TestCase):
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
-    def test_cant_make_project(self):
-        """Test that a user can't use the API to create projects."""
-        post_data = {
-            'name': 'awesome-project',
-            'repo': 'https://github.com/ericholscher/django-kong.git',
-        }
-        resp = self.client.post(
-            '/api/v1/project/',
-            data=json.dumps(post_data),
-            content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' % super_auth,
-        )
-        self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
-
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
@@ -592,44 +582,6 @@ class APITests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn('conf_py_file', resp.data)
         self.assertEqual(resp.data['conf_py_file'], 'foo')
-
-    def test_invalid_make_project(self):
-        """Test that the authentication is turned on."""
-        post_data = {
-            'user': '/api/v1/user/2/',
-            'name': 'awesome-project-2',
-            'repo': 'https://github.com/ericholscher/django-bob.git',
-        }
-        resp = self.client.post(
-            '/api/v1/project/',
-            data=json.dumps(post_data),
-            content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' %
-            base64.b64encode(b'tester:notapass').decode('utf-8'),
-        )
-        self.assertEqual(resp.status_code, 401)
-
-    def test_make_project_dishonest_user(self):
-        """Test that you can't create a project for another user."""
-        # represents dishonest data input, authentication happens for user 2
-        post_data = {
-            'users': ['/api/v1/user/1/'],
-            'name': 'awesome-project-2',
-            'repo': 'https://github.com/ericholscher/django-bob.git',
-        }
-        resp = self.client.post(
-            '/api/v1/project/',
-            data=json.dumps(post_data),
-            content_type='application/json',
-            HTTP_AUTHORIZATION='Basic %s' %
-            base64.b64encode(b'tester:test').decode('utf-8'),
-        )
-        self.assertEqual(resp.status_code, 401)
-
-    def test_ensure_get_unauth(self):
-        """Test that GET requests work without authenticating."""
-        resp = self.client.get('/api/v1/project/', data={'format': 'json'})
-        self.assertEqual(resp.status_code, 200)
 
     def test_project_features(self):
         user = get(User, is_staff=True)
@@ -982,6 +934,108 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
+    def test_github_invalid_payload(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        wrong_signature = '1234'
+        self.assertNotEqual(integration.secret, wrong_signature)
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: wrong_signature,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitHubWebhookView.invalid_payload_msg
+        )
+
+    def test_github_valid_payload(self, trigger_build):
+        client = APIClient()
+        payload = '{"ref":"master"}'
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        digest = GitHubWebhookView.get_digest(
+            integration.secret,
+            payload,
+        )
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: 'sha1=' + digest,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            json.loads(payload),
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 200)
+
+    def test_github_empty_signature(self, trigger_build):
+        client = APIClient()
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: '',
+        }
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            self.github_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitHubWebhookView.invalid_payload_msg
+        )
+
+    def test_github_skip_signature_validation(self, trigger_build):
+        client = APIClient()
+        payload = '{"ref":"master"}'
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            secret=None,
+        )
+        self.assertFalse(integration.secret)
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: 'skipped',
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            json.loads(payload),
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 200)
+
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
@@ -1144,6 +1198,98 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_gitlab_invalid_payload(self, trigger_build):
+        client = APIClient()
+        wrong_secret = '1234'
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        self.assertNotEqual(integration.secret, wrong_secret)
+        headers = {
+            GITLAB_TOKEN_HEADER: wrong_secret,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            self.gitlab_payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitLabWebhookView.invalid_payload_msg
+        )
+
+    def test_gitlab_valid_payload(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        headers = {
+            GITLAB_TOKEN_HEADER: integration.secret,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            {'object_kind': 'pull_request'},
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 200)
+
+    def test_gitlab_empty_token(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        headers = {
+            GITLAB_TOKEN_HEADER: '',
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            {'object_kind': 'pull_request'},
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(
+            resp.data['detail'],
+            GitLabWebhookView.invalid_payload_msg
+        )
+
+    def test_gitlab_skip_token_validation(self, trigger_build):
+        client = APIClient()
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+            secret=None,
+        )
+        self.assertFalse(integration.secret)
+        headers = {
+            GITLAB_TOKEN_HEADER: 'skipped',
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            {'object_kind': 'pull_request'},
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 200)
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
