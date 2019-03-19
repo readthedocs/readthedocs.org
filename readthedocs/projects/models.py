@@ -732,6 +732,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
+        # Check if there is `_good_build` annotation in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_good_build'):
+            return self._good_build
         return self.builds.filter(success=True).exists()
 
     @property

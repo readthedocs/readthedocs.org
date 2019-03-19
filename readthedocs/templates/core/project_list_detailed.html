@@ -22,7 +22,7 @@
       {% endif %}
     {% endwith %}
 
-    {% if project.good_build %}
+    {% if project.has_good_build %}
     <span class="right-menu quiet">{% blocktrans with date=project.latest_build_date|timesince %}{{ date }} ago{% endblocktrans %}</span>
     {% else %}
     <span class="right-menu quiet">{% trans "No builds" %}</span>
@@ -30,7 +30,7 @@
 
     <ul class="module-item-menu">
       <li>
-        {% if project.good_build %}
+        {% if project.has_good_build %}
           <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
         {% else %}
           <a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a>

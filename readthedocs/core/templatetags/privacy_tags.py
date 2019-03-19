@@ -32,7 +32,7 @@ def get_public_projects(context, user):
         viewer=context['request'].user,
     ).prefetch_related('users').annotate(
         latest_build_date=date_sub_query,
-        good_build=Exists(builds.filter(success=True))
+        _good_build=Exists(builds.filter(success=True))
     )
     context['public_projects'] = projects
     return ''
