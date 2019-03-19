@@ -1365,6 +1365,11 @@ def _manage_imported_files(version, path, commit):
     # Delete ImportedFiles from previous versions
     delete_queryset.delete()
 
+    # This is required to delete ImportedFile objects that aren't HTMLFile objects,
+    ImportedFile.objects.filter(
+        project=version.project, version=version
+    ).exclude(commit=commit).delete()
+
     changed_files = [
         resolve_path(
             version.project,
