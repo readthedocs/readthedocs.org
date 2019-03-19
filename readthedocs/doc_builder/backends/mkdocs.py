@@ -16,6 +16,7 @@ from django.template import loader as template_loader
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
+from readthedocs.config import ParseError
 
 
 log = logging.getLogger(__name__)
@@ -87,7 +88,12 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            return yaml.safe_load(open(self.yaml_file, 'r'),)
+            yaml_config = yaml.safe_load(open(self.yaml_file, 'r'),)
+            if not isinstance(yaml_config, dict):
+                raise ParseError('Expected dict')
+            if not yaml_config: 
+                raise ParseError('Empty config')
+            return yaml_config
         except IOError:
             return {
                 'site_name': self.version.project.name,
