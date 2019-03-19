@@ -66,7 +66,7 @@
                       {% block project-name %}
                         {{ project.name }}
                       {% endblock %}
-                      {% with builds=project.builds.count %}
+                      {% with builds=project.build_count %}
                         {% if builds == 0 %}
                           <span class="right quiet">
                             {% trans "No builds yet" %}
@@ -80,13 +80,11 @@
                                 {{ builds }} builds
                               {% endblocktrans %}
                             </span>
-                            {% with build=project.get_latest_build %}
-                              {% if build.success %}
-                                <span class="build-state build-state-passing">{% trans "passing" %}</span>
-                              {% else %}
-                                <span class="build-state build-state-failing">{% trans "failing" %}</span>
-                              {% endif %}
-                            {% endwith %}
+                            {% if project.latest_build_success %}
+                              <span class="build-state build-state-passing">{% trans "passing" %}</span>
+                            {% else %}
+                              <span class="build-state build-state-failing">{% trans "failing" %}</span>
+                            {% endif %}
                           </span>
                         {% endif %}
                       {% endwith %}
@@ -152,7 +150,7 @@
     <div class="module info info-docs">
       <h3>{% trans "Learn More" %}</h3>
       <p>
-        {% blocktrans trimmed with rtd_docs_url="http://docs.readthedocs.io/en/latest/index.html" %}
+        {% blocktrans trimmed with rtd_docs_url="https://docs.readthedocs.io/" %}
           Check out the <a href="{{ rtd_docs_url }}">documentation for Read the Docs</a>.
           It contains lots of information about how to get the most out of RTD.
         {% endblocktrans %}

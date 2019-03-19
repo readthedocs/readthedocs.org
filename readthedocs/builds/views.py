@@ -41,7 +41,7 @@ class BuildBase:
         queryset = Build.objects.public(
             user=self.request.user,
             project=self.project,
-        )
+        ).select_related('project', 'version')
 
         return queryset
 

@@ -21,6 +21,9 @@ You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
+If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
+
+
 How do I change the version slug of my project?
 -----------------------------------------------
 
