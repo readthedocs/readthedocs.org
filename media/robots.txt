@@ -3,3 +3,7 @@ Disallow: /search/
 Disallow: /api/
 Disallow: /builds/
 Disallow: /sustainability/click/
+
+# This was hitting our site and causing a lot of issues
+User-agent: AhrefsBot 
+Disallow: /
