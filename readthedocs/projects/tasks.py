@@ -67,7 +67,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import ProjectConfigurationError, RepositoryError
+from .exceptions import ProjectConfigurationError, RepositoryError, InvalidParamsException
 from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
@@ -101,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise InvalidParamsException('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:

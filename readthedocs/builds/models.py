@@ -173,7 +173,8 @@ class Version(models.Model):
             return self.identifier
 
         # By now we must have handled all special versions.
-        assert self.slug not in NON_REPOSITORY_VERSIONS
+        if self.slug in NON_REPOSITORY_VERSIONS:
+            raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will
