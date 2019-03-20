@@ -60,10 +60,8 @@ class Testmaker(APITestCase):
             response = self.render()
         self.assertIn('pdf', response.data['html'])
 
-    def test_pdf_not_mentioned_in_footer_when_build_is_disabled(self):
-        self.pip.enable_pdf_build = False
-        self.pip.save()
-        with fake_paths_by_regex(r'\.pdf$'):
+    def test_pdf_not_mentioned_in_footer_when_doesnt_exists(self):
+        with fake_paths_by_regex(r'\.pdf$', exists=False):
             response = self.render()
         self.assertNotIn('pdf', response.data['html'])
 
@@ -72,10 +70,8 @@ class Testmaker(APITestCase):
             response = self.render()
         self.assertIn('epub', response.data['html'])
 
-    def test_epub_not_mentioned_in_footer_when_build_is_disabled(self):
-        self.pip.enable_epub_build = False
-        self.pip.save()
-        with fake_paths_by_regex(r'\.epub$'):
+    def test_epub_not_mentioned_in_footer_when_doesnt_exists(self):
+        with fake_paths_by_regex(r'\.epub$', exists=False):
             response = self.render()
         self.assertNotIn('epub', response.data['html'])
 

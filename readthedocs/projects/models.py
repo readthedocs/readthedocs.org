@@ -744,8 +744,6 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        if not self.enable_pdf_build:
-            return False
         path = self.get_production_media_path(
             type_='pdf', version_slug=version_slug
         )
@@ -755,8 +753,6 @@ class Project(models.Model):
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
-        if not self.enable_epub_build:
-            return False
         path = self.get_production_media_path(
             type_='epub', version_slug=version_slug
         )
@@ -919,7 +915,7 @@ class Project(models.Model):
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.active and current_stable.machine:
+                if identifier_updated and current_stable.machine:
                     log.info(
                         'Update stable version: {project}:{version}'.format(
                             project=self.slug,
@@ -1315,10 +1311,12 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
+    USE_PDF_LATEXMK = 'use_pdf_latexmk'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
