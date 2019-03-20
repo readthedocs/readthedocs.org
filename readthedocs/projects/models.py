@@ -745,8 +745,6 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        if not self.enable_pdf_build:
-            return False
         path = self.get_production_media_path(
             type_='pdf', version_slug=version_slug
         )
@@ -756,8 +754,6 @@ class Project(models.Model):
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
-        if not self.enable_epub_build:
-            return False
         path = self.get_production_media_path(
             type_='epub', version_slug=version_slug
         )

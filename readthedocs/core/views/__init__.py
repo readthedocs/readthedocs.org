@@ -20,12 +20,14 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import broadcast
 from readthedocs.core.views.serve import _serve_file
 from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dirs
-from readthedocs.redirects.utils import get_redirect_response, project_and_path_from_request, language_and_version_from_path
+from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.redirects.utils import (
+    get_redirect_response,
+    project_and_path_from_request,
+    language_and_version_from_path
+)
 
 log = logging.getLogger(__name__)
 
@@ -66,13 +68,13 @@ class SupportView(TemplateView):
 
 
 def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    imported_file = ImportedFile.objects.order_by('?')
+    html_file = HTMLFile.objects.order_by('?')
     if project_slug:
-        imported_file = imported_file.filter(project__slug=project_slug)
-    imported_file = imported_file.first()
-    if imported_file is None:
+        html_file = html_file.filter(project__slug=project_slug)
+    html_file = html_file.first()
+    if html_file is None:
         raise Http404
-    url = imported_file.get_absolute_url()
+    url = html_file.get_absolute_url()
     return HttpResponseRedirect(url)
 
 

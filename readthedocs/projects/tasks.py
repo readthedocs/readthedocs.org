@@ -67,7 +67,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import ProjectConfigurationError, RepositoryError
+from .exceptions import ProjectConfigurationError, RepositoryError, InvalidParamsException
 from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
@@ -101,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise InvalidParamsException('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -1347,7 +1348,8 @@ def _manage_imported_files(version, path, commit):
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files, version=version, commit=commit)
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files,
+                          version=version, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1358,9 +1360,10 @@ def _manage_imported_files(version, path, commit):
 
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
-
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list, version=version, commit=commit)
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     delete_queryset.delete()

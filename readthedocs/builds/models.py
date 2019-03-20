@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Models for the builds app."""
 
 import datetime
@@ -175,7 +173,8 @@ class Version(models.Model):
             return self.identifier
 
         # By now we must have handled all special versions.
-        assert self.slug not in NON_REPOSITORY_VERSIONS
+        if self.slug in NON_REPOSITORY_VERSIONS:
+            raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will
@@ -258,32 +257,25 @@ class Version(models.Model):
     def get_downloads(self, pretty=False):
         project = self.project
         data = {}
-        if pretty:
-            if project.has_pdf(self.slug):
-                data['PDF'] = project.get_production_media_url('pdf', self.slug)
-            if project.has_htmlzip(self.slug):
-                data['HTML'] = project.get_production_media_url(
-                    'htmlzip',
-                    self.slug,
-                )
-            if project.has_epub(self.slug):
-                data['Epub'] = project.get_production_media_url(
-                    'epub',
-                    self.slug,
-                )
-        else:
-            if project.has_pdf(self.slug):
-                data['pdf'] = project.get_production_media_url('pdf', self.slug)
-            if project.has_htmlzip(self.slug):
-                data['htmlzip'] = project.get_production_media_url(
-                    'htmlzip',
-                    self.slug,
-                )
-            if project.has_epub(self.slug):
-                data['epub'] = project.get_production_media_url(
-                    'epub',
-                    self.slug,
-                )
+
+        def prettify(k):
+            return k if pretty else k.lower()
+
+        if project.has_pdf(self.slug):
+            data[prettify('PDF')] = project.get_production_media_url(
+                'pdf',
+                self.slug,
+            )
+        if project.has_htmlzip(self.slug):
+            data[prettify('HTML')] = project.get_production_media_url(
+                'htmlzip',
+                self.slug,
+            )
+        if project.has_epub(self.slug):
+            data[prettify('Epub')] = project.get_production_media_url(
+                'epub',
+                self.slug,
+            )
         return data
 
     def get_conf_py_path(self):
