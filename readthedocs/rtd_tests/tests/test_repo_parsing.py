@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 
 from readthedocs.projects.models import Project
@@ -36,10 +35,6 @@ class TestRepoParsing(TestCase):
 
         self.pip.repo = 'https://github.com/user/repo/'
         self.assertEqual(
-            self.version.get_github_url(docroot='/docs/', filename=None),
-            'https://github.com/user/repo/blob/master/docs/',
-        )
-        self.assertEqual(
             self.version.get_github_url(docroot='/docs/', filename=''),
             'https://github.com/user/repo/blob/master/docs/',
         )
@@ -75,10 +70,6 @@ class TestRepoParsing(TestCase):
 
         self.pip.repo = 'https://gitlab.com/user/repo.git'
         self.assertEqual(
-            self.version.get_gitlab_url(docroot='/foo/bar/', filename=None),
-            'https://gitlab.com/user/repo/blob/master/foo/bar/',
-        )
-        self.assertEqual(
             self.version.get_gitlab_url(docroot='/foo/bar/', filename=''),
             'https://gitlab.com/user/repo/blob/master/foo/bar/',
         )
@@ -113,10 +104,6 @@ class TestRepoParsing(TestCase):
         self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.git/src/master/foo/bar/file.rst')
 
         self.pip.repo = 'https://bitbucket.org/user/repo/'
-        self.assertEqual(
-            self.version.get_bitbucket_url(docroot='/foo/bar/', filename=None),
-            'https://bitbucket.org/user/repo/src/master/foo/bar/',
-        )
         self.assertEqual(
             self.version.get_bitbucket_url(docroot='/foo/bar/', filename=''),
             'https://bitbucket.org/user/repo/src/master/foo/bar/',

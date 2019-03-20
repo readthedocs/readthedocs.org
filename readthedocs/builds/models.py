@@ -359,7 +359,6 @@ class Version(models.Model):
         repo = repo.rstrip('/')
 
         if not filename:
-            filename = ''
             source_suffix = ''
 
         return GITHUB_URL.format(
@@ -400,7 +399,6 @@ class Version(models.Model):
         repo = repo.rstrip('/')
 
         if not filename:
-            filename = ''
             source_suffix = ''
 
         return GITLAB_URL.format(
@@ -429,7 +427,6 @@ class Version(models.Model):
         repo = repo.rstrip('/')
 
         if not filename:
-            filename = ''
             source_suffix = ''
 
         return BITBUCKET_URL.format(
