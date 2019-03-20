@@ -18,7 +18,6 @@ from celery import group, chord
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.projects.exceptions import InvalidParamsException
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +34,7 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     after all of the broadcast tasks have finished running.
     """
     if type not in ['web', 'app', 'build']:
-        raise InvalidParamsException('allowed value of `type` are web, app and build.')
+        raise ValueError('allowed value of `type` are web, app and build.')
     if kwargs is None:
         kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
