@@ -1331,6 +1331,12 @@ def _manage_imported_files(version, path, commit):
     # Safely delete from database
     delete_queryset.delete()
 
+    # Delete ImportedFiles from previous versions
+    (
+        ImportedFile.objects.filter(project=version.project,
+                                    version=version).exclude(commit=commit
+                                                             ).delete()
+    )
     changed_files = [
         resolve_path(
             version.project,
