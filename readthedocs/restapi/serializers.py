@@ -12,6 +12,15 @@ from readthedocs.projects.models import Domain, Project
 
 class ProjectSerializer(serializers.ModelSerializer):
     canonical_url = serializers.ReadOnlyField(source='get_docs_url')
+    description = serializers.SerializerMethodField()
+
+    def get_description(self, obj):
+        """
+        Forcing the description field to be an empty string.
+
+        See https://github.com/rtfd/readthedocs.org/issues/3689.
+        """
+        return ''
 
     class Meta:
         model = Project

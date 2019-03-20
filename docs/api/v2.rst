@@ -93,7 +93,7 @@ Project details
             "default_branch": "master",
             "repo_type": "git",
             "repo": "https://github.com/pypa/pip",
-            "description": "Pip Installs Packages.",
+            "description": "",
             "language": "en",
             "documentation_type": "sphinx_htmldir",
             "canonical_url": "http://pip.pypa.io/en/stable/",
@@ -109,7 +109,7 @@ Project details
     :>json string default_branch: The default version control branch
     :>json string repo_type: Version control repository of the project
     :>json string repo: The repository URL for the project
-    :>json string description: An RST description of the project
+    :>json string description: An empty string. This will be removed in future.
     :>json string language: The language code of this project
     :>json string documentation_type: An RST description of the project
     :>json string canonical_url: The canonical URL of the default docs
