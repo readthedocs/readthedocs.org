@@ -21,7 +21,7 @@ jsonfield==2.0.2
 requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==3.13
+pyyaml==5.1
 Pygments==2.3.1
 
 # Basic tools
@@ -67,7 +67,7 @@ pytz==2018.9
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.21.0
+stripe==2.22.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
@@ -84,7 +84,7 @@ django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.24.0
+django-taggit==1.0.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
