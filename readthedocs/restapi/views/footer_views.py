@@ -69,7 +69,7 @@ def footer_html(request):
     # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
-    page_slug = request.GET.get('page') or ''
+    page_slug = request.GET.get('page', '')
     theme = request.GET.get('theme', False)
     docroot = request.GET.get('docroot', '')
     subproject = request.GET.get('subproject', False)
