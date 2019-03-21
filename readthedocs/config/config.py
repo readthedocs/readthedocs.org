@@ -48,6 +48,7 @@ __all__ = (
     'InvalidConfig',
     'PIP',
     'SETUPTOOLS',
+    'LATEST_CONFIGURATION_VERSION',
 )
 
 ALL = 'all'
@@ -77,6 +78,8 @@ DOCKER_IMAGE = getattr(
     '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION),
 )
 DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
+
+LATEST_CONFIGURATION_VERSION = 2
 
 
 class ConfigError(Exception):

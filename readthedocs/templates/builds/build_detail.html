@@ -135,6 +135,18 @@ $(document).ready(function () {
           </p>
         </div>
       {% endif %}
+      {% if build.finished and not build.using_latest_config %}
+        <div class="build-ideas">
+          <p>
+            {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
+              <strong>Configure your documentation builds!</strong>
+              Adding a <a href="{{ config_file_link }}">.readthedocs.yml</a> file to your project
+              is the recommended way to configure your documentation builds.
+              You can declare dependencies, set up submodules, build for different output formats, and many other great features.
+            {% endblocktrans %}
+          </p>
+        </div>
+      {% endif %}
     {% endif %}
 
     {% if build.output %}
