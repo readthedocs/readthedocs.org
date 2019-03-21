@@ -1,13 +1,23 @@
 import django_filters.rest_framework as filters
+
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-    name__contains = filters.CharFilter(field_name='name', lookup_expr='contains')
-    slug__contains = filters.CharFilter(field_name='slug', lookup_expr='contains')
-    repository_type = filters.CharFilter(field_name='repo_type', lookup_expr='exact')
+    name__contains = filters.CharFilter(
+        field_name='name',
+        lookup_expr='contains',
+    )
+    slug__contains = filters.CharFilter(
+        field_name='slug',
+        lookup_expr='contains',
+    )
+    repository_type = filters.CharFilter(
+        field_name='repo_type',
+        lookup_expr='exact',
+    )
 
     class Meta:
         model = Project
@@ -28,7 +38,10 @@ class VersionFilter(filters.FilterSet):
         field_name='versbose_name',
         lookup_expr='contains',
     )
-    slug__contains = filters.CharFilter(field_name='slug', lookup_expr='contains')
+    slug__contains = filters.CharFilter(
+        field_name='slug',
+        lookup_expr='contains',
+    )
 
     class Meta:
         model = Version

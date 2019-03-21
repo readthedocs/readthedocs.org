@@ -1,25 +1,41 @@
+import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
-import django_filters.rest_framework as filters
-from rest_framework.authentication import SessionAuthentication, TokenAuthentication
+from rest_flex_fields.views import FlexFieldsMixin
+from rest_framework.authentication import (
+    SessionAuthentication,
+    TokenAuthentication,
+)
 from rest_framework.decorators import action
+from rest_framework.metadata import SimpleMetadata
+from rest_framework.mixins import (
+    CreateModelMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+)
 from rest_framework.permissions import IsAdminUser
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
-from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin, CreateModelMixin
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_flex_fields.views import FlexFieldsMixin
 
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.builds.models import Version, Build
 from readthedocs.projects.models import Project
-from rest_framework.metadata import SimpleMetadata
-from .filters import ProjectFilter, VersionFilter, BuildFilter
+
+from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .renderer import AlphaneticalSortedJSONRenderer
-from .serializers import ProjectSerializer, VersionSerializer, VersionUpdateSerializer, BuildTriggerSerializer, BuildSerializer, UserSerializer
+from .serializers import (
+    BuildSerializer,
+    BuildTriggerSerializer,
+    ProjectSerializer,
+    UserSerializer,
+    VersionSerializer,
+    VersionUpdateSerializer,
+)
 
 
 class APIv3Settings:
@@ -32,7 +48,8 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
+                      ListModelMixin, RetrieveModelMixin, GenericViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
@@ -109,9 +126,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
             project = self.request.user.projects.first()
             if project:
                 # TODO: make the links clickable when ``kwargs.html=True``
-                return mark_safe(description.format(
-                    project_slug=project.slug,
-                ))
+                return mark_safe(description.format(project_slug=project.slug))
         return description
 
     def get_queryset(self):
@@ -148,7 +163,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         return Response(serializer.data)
 
 
-class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
+                      ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
+                      GenericViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -196,11 +213,13 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMo
         # Browsable API since SessionAuthentication can't be used because we set
         # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
         # via Javascript
-        response = super().update(request, *args, **kwargs)
+        super().update(request, *args, **kwargs)
         return Response(status=204)
 
 
-class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListModelMixin, RetrieveModelMixin, CreateModelMixin, GenericViewSet):
+class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
+                    ListModelMixin, RetrieveModelMixin, CreateModelMixin,
+                    GenericViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
@@ -260,7 +279,8 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin, ListMode
         return Response(data=data, status=status)
 
 
-class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin,
+                   RetrieveModelMixin, GenericViewSet):
     model = User
     lookup_field = 'username'
     lookup_url_kwarg = 'user_username'

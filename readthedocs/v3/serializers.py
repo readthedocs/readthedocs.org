@@ -2,16 +2,15 @@ import datetime
 import urllib
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-
-from rest_framework import serializers
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
-from readthedocs.projects.models import Project
-from readthedocs.builds.models import Build, Version
-
+from django.core.urlresolvers import reverse
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
+from rest_framework import serializers
+
+from readthedocs.builds.models import Build, Version
+from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
+from readthedocs.projects.models import Project
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -109,7 +108,8 @@ class BuildSerializer(FlexFieldsModelSerializer):
 
     expandable_fields = dict(
         config=(
-            BuildConfigSerializer, dict(
+            BuildConfigSerializer,
+            dict(
                 source='config',
             ),
         ),
@@ -186,9 +186,7 @@ class VersionURLsSerializer(serializers.Serializer):
     vcs = serializers.URLField(source='vcs_url')
 
     def get_documentation(self, obj):
-        return obj.project.get_docs_url(
-            version_slug=obj.slug,
-        )
+        return obj.project.get_docs_url(version_slug=obj.slug,)
 
 
 class VersionSerializer(FlexFieldsModelSerializer):
@@ -201,7 +199,8 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
     expandable_fields = dict(
         last_build=(
-            BuildSerializer, dict(
+            BuildSerializer,
+            dict(
                 source='last_build',
             ),
         ),
@@ -384,13 +383,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
     expandable_fields = dict(
         users=(
-            UserSerializer, dict(
+            UserSerializer,
+            dict(
                 source='users',
                 many=True,
             ),
         ),
         active_versions=(
-            VersionSerializer, dict(
+            VersionSerializer,
+            dict(
                 # NOTE: this has to be a Model method, can't be a
                 # ``SerializerMethodField`` as far as I know
                 source='active_versions',
