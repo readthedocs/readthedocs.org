@@ -225,3 +225,37 @@ class TestVersionCompareFooter(TestCase):
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
+
+
+class TestFooterPerformance(APITestCase):
+    fixtures = ['test_data']
+    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
+    factory = APIRequestFactory()
+
+    # The expected number of queries for generating the footer
+    # This shouldn't increase unless we modify the footer API
+    EXPECTED_QUERIES = 2
+
+    def setUp(self):
+        self.pip = Project.objects.get(slug='pip')
+
+    def render(self):
+        request = self.factory.get(self.url)
+        response = footer_html(request)
+        response.render()
+        return response
+
+    def test_version_queries(self):
+        # The number of Versions shouldn't impact the number of queries
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            self.render()
+
+    def test_domain_queries(self):
+        # Setting up a custom domain shouldn't impact the number of queries
+        self.pip.domains.create(
+            domain='http://docs.foobar.com',
+            canonical=True,
+        )
+
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            self.render()
