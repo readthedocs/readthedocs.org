@@ -234,10 +234,11 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 2
+    EXPECTED_QUERIES = 9
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
+        self.pip.versions.create_latest()
 
     def render(self):
         request = self.factory.get(self.url)
@@ -248,7 +249,21 @@ class TestFooterPerformance(APITestCase):
     def test_version_queries(self):
         # The number of Versions shouldn't impact the number of queries
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            self.render()
+            response = self.render()
+            self.assertContains(response, '0.8.1')
+
+        for patch in range(3):
+            identifier = '0.99.{}'.format(patch)
+            self.pip.versions.create(
+                verbose_name=identifier,
+                identifier=identifier,
+                type=TAG,
+                active=True,
+            )
+
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            response = self.render()
+            self.assertContains(response, '0.99.0')
 
     def test_domain_queries(self):
         # Setting up a custom domain shouldn't impact the number of queries
@@ -258,4 +273,5 @@ class TestFooterPerformance(APITestCase):
         )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            self.render()
+            response = self.render()
+            self.assertContains(response, 'docs.foobar.com')
