@@ -232,11 +232,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
-            'identifier',
             'verbose_name',
+            flat=True
         )
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(all_versions),
+            choices=[default_choice] + list(zip(all_versions, all_versions)),
         )
 
         active_versions = self.get_all_active_versions()
