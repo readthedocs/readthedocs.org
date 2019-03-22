@@ -234,7 +234,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 *self.Meta.per_project_settings,
             ),
             Fieldset(
-                _("Other settings"),
+                _("Default settings"),
                 HTML(help_text),
                 *self.Meta.per_version_settings,
             ),
