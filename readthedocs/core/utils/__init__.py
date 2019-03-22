@@ -33,7 +33,8 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
     `callback` should be a task signature that will be run once,
     after all of the broadcast tasks have finished running.
     """
-    assert type in ['web', 'app', 'build']
+    if type not in ['web', 'app', 'build']:
+        raise ValueError('allowed value of `type` are web, app and build.')
     if kwargs is None:
         kwargs = {}
     default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
