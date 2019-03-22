@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Project forms."""
-
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Fieldset, Layout, HTML
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -22,7 +21,6 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
@@ -32,6 +30,7 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
 
@@ -196,27 +195,18 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
-    python_interpreter = forms.ChoiceField(
-        choices=constants.PYTHON_CHOICES,
-        initial='python',
-        help_text=_(
-            'The Python interpreter used to create the virtual '
-            'environment.',
-        ),
-    )
-
     class Meta:
         model = Project
-        fields = (
-            # Global settings.
+        per_project_settings = (
             'default_version',
             'default_branch',
             'privacy_level',
             'analytics_code',
             'show_version_warning',
             'single_version',
-
-            # Options that can be set per-version using a config file.
+        )
+        # These that can be set per-version using a config file.
+        per_version_settings = (
             'documentation_type',
             'requirements_file',
             'python_interpreter',
@@ -226,9 +216,29 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'enable_pdf_build',
             'enable_epub_build',
         )
+        fields = (
+            *per_project_settings,
+            *per_version_settings,
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        help_text = render_to_string(
+            'projects/project_advanced_settings_helptext.html'
+        )
+        self.helper.layout = Layout(
+            Fieldset(
+                _("Global settings"),
+                *self.Meta.per_project_settings,
+            ),
+            Fieldset(
+                _("Default settings"),
+                HTML(help_text),
+                *self.Meta.per_version_settings,
+            ),
+        )
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(

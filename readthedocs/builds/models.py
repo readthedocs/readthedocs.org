@@ -16,6 +16,7 @@ from guardian.shortcuts import assign
 from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
+from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL,
@@ -639,6 +640,9 @@ class Build(models.Model):
         """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
         return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
+
+    def using_latest_config(self):
+        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
 
 
 class BuildCommandResultMixin:
