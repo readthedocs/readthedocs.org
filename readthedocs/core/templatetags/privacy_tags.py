@@ -3,7 +3,7 @@
 """Template tags to query projects by privacy."""
 
 from django import template
-from django.db.models import Exists, OuterRef, Subquery
+from django.db.models import Exists, OuterRef, Subquery, Prefetch
 
 from readthedocs.builds.models import Build
 from readthedocs.core.permissions import AdminPermission
@@ -20,19 +20,23 @@ def is_admin(user, project):
 
 @register.simple_tag(takes_context=True)
 def get_public_projects(context, user):
-    # Filters the builds for a perticular project.
-    builds = Build.objects.filter(project=OuterRef('pk'))
-    # Creates a Subquery object which returns
-    # the value of Build.date of the latest build.
+    # Creates a Subquery object which returns the latest builds 'id'.
     # Used for optimization purpose.
-    date_sub_query = Subquery(builds.values('date')[:1])
-    # "Exists()" checks if the project has any good builds.
+    subquery = Subquery(
+        Build.objects.filter(
+            project=OuterRef('project_id')).values_list('id', flat=True)[:1]
+    )
+    # Filters the latest builds of projects.
+    latest_build = Prefetch('builds', Build.objects.filter(
+        pk__in=subquery), to_attr='_latest_build'
+    )
+    # 'Exists()' checks if the project has any good builds.
     projects = Project.objects.for_user_and_viewer(
         user=user,
         viewer=context['request'].user,
-    ).prefetch_related('users').annotate(
-        latest_build_date=date_sub_query,
-        _good_build=Exists(builds.filter(success=True))
+    ).prefetch_related('users', latest_build).annotate(
+        _good_build=Exists(
+            Build.objects.filter(success=True, project=OuterRef('pk')))
     )
     context['public_projects'] = projects
     return ''

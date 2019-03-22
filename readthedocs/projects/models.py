@@ -859,6 +859,13 @@ class Project(models.Model):
 
         :param finished: Return only builds that are in a finished state
         """
+        # Check if there is `_latest_build` attribute in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_latest_build'):
+            if self._latest_build:
+                return self._latest_build[0]
+            return None
+
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'
