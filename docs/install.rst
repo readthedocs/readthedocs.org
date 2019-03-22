@@ -56,6 +56,8 @@ you need these libraries.
 
    .. tab:: CentOS/RHEL 7
 
+      Install::
+      
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
    .. tab:: Other OS
