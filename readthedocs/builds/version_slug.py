@@ -196,9 +196,9 @@ class VersionSlugField(models.CharField):
             kwargs[self.attname] = slug
             count += 1
 
-        assert self.test_pattern.match(slug), (
-            'Invalid generated slug: {slug}'.format(slug=slug)
-        )
+        is_slug_valid = self.test_pattern.match(slug)
+        if not is_slug_valid:
+            raise Exception('Invalid generated slug: {slug}'.format(slug=slug))
         return slug
 
     def pre_save(self, model_instance, add):

@@ -10,8 +10,6 @@ from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 
 
-STANDARD_EMAIL = 'anonymous@readthedocs.org'
-
 log = logging.getLogger(__name__)
 
 
