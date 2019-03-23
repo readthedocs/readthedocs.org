@@ -4,7 +4,7 @@
 <div class="onboard onboard-import-project">
   <h2>{% trans "Ready to share your documentation" %}{% if request.user.first_name %}, {{ request.user.first_name }}{% endif %}?</h2>
 
-  {% with getting_started_url="http://docs.readthedocs.io/en/latest/getting_started.html" %}
+  {% with getting_started_url="https://docs.readthedocs.io/page/intro/getting-started-with-sphinx.html" %}
     <form method="get" action="{% url "projects_import" %}">
       <p>
         {% blocktrans trimmed %}
