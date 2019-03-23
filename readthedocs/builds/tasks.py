@@ -144,10 +144,12 @@ def _manage_imported_files(version, path, commit):
     )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting.
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
     # Safely delete from database
     delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     (
