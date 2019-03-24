@@ -19,7 +19,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
