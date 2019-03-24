@@ -83,6 +83,7 @@ class CommunityBaseSettings(Settings):
             'corsheaders',
             'annoying',
             'django_extensions',
+            'crispy_forms',
             'messages_extends',
             'django_elasticsearch_dsl',
 
