@@ -242,7 +242,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.only(
-            # commit_name only needs access to this attributes
+            # commit_name only needs access to these attributes
             'slug',
             'verbose_name',
         )
