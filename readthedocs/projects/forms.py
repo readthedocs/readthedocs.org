@@ -243,7 +243,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         default_choice = (None, '-' * 9)
         all_versions_choices = [
             (v.commit_name, v.verbose_name)
-            for v in self.instance.versions
+            for v in self.instance.versions.all()
         ]
         self.fields['default_branch'].widget = forms.Select(
             choices=([default_choice] + all_versions_choices),
