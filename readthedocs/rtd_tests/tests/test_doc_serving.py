@@ -235,6 +235,20 @@ class TestPublicDocs(BaseDocServing):
             privacy_level=constants.PRIVATE,
             project=self.public,
         )
+        public_version_2 = fixture.get(
+            Version,
+            identifier='stable',
+            verbose_name='stable',
+            slug='stable',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
+        translation = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='es'
+        )
         response = self.client.get(
             reverse('sitemap_xml'),
             HTTP_HOST='public.readthedocs.io',
@@ -258,5 +272,13 @@ class TestPublicDocs(BaseDocServing):
                 version_slug=private_version.slug,
                 lang_slug=self.public.language,
                 private=True,
+            ),
+        )
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=public_version_2.slug,
+                lang_slug=translation.language,
+                private=False,
             ),
         )
