@@ -244,6 +244,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         all_versions = self.instance.versions.only(
             # commit_name only needs access to these attributes
             'slug',
+            'type',
             'verbose_name',
         )
         self.fields['default_branch'].widget = forms.Select(
