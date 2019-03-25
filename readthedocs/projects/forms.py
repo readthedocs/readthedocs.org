@@ -246,7 +246,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             for v in self.instance.versions.all()
         ]
         self.fields['default_branch'].widget = forms.Select(
-            choices=([default_choice] + all_versions_choices),
+            choices=[default_choice] + all_versions_choices,
         )
 
         active_versions = self.get_all_active_versions()
