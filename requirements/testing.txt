@@ -8,7 +8,7 @@ pytest==4.1.1  # pyup: <4.2
 # probably a bug related to overriding django settings in
 # previous tests
 pytest-django==3.4.6  # pyup: <3.4.7
-pytest-xdist==1.26.1
+pytest-xdist==1.27.0
 pytest-cov==2.6.1
 apipkg==1.5
 execnet==1.5.0
