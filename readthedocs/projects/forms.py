@@ -241,17 +241,12 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         default_choice = (None, '-' * 9)
-        all_versions = self.instance.versions.only(
-            # commit_name only needs access to these attributes
-            'slug',
-            'type',
-            'verbose_name',
-        )
+        all_versions_choices = [
+            (v.commit_name, v.verbose_name)
+            for v in self.instance.versions
+        ]
         self.fields['default_branch'].widget = forms.Select(
-            choices=(
-                [default_choice] +
-                [(v.commit_name, v.verbose_name) for v in all_versions]
-            ),
+            choices=([default_choice] + all_versions_choices),
         )
 
         active_versions = self.get_all_active_versions()
