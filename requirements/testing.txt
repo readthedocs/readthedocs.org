@@ -8,7 +8,7 @@ pytest==4.1.1  # pyup: <4.2
 # probably a bug related to overriding django settings in
 # previous tests
 pytest-django==3.4.6  # pyup: <3.4.7
-pytest-xdist==1.26.1
+pytest-xdist==1.27.0
 pytest-cov==2.6.1
 apipkg==1.5
 execnet==1.5.0
@@ -21,9 +21,9 @@ execnet==1.5.0
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==1.9.0
-pytest-mock==1.10.1
+yamale==1.10.0
+pytest-mock==1.10.2
 
 # local debugging tools
 datadiff==2.0.0
-ipdb==0.11
+ipdb==0.12
