@@ -67,14 +67,6 @@ Default: :djangosetting:`DOCUMENT_PYQUERY_PATH`
 The Pyquery path to an HTML element that is the root of your document. 
 This is used for making sure we are only searching the main content of a document.
 
-USE_PIP_INSTALL
----------------
-
-Default: :djangosetting:`USE_PIP_INSTALL`
-
-Whether to use `pip install .` or `python setup.py install` when installing packages into the Virtualenv. Default is to use `python setup.py install`.
-
-
 PUBLIC_DOMAIN
 -------------
 

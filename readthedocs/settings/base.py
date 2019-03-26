@@ -36,7 +36,6 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
-    TASTYPIE_FULL_DEBUG = True
 
     # Domains and URLs
     PRODUCTION_DOMAIN = 'readthedocs.org'
@@ -86,7 +85,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'messages_extends',
-            'tastypie',
             'django_elasticsearch_dsl',
 
             # our apps
@@ -103,6 +101,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
+            'readthedocs.sphinx_domains',
             'readthedocs.search',
 
 

@@ -25,6 +25,7 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
+from readthedocs.sphinx_domains.api import SphinxDomainAPIView
 
 
 router = routers.DefaultRouter()
@@ -34,6 +35,7 @@ router.register(r'version', VersionViewSet, basename='version')
 router.register(r'project', ProjectViewSet, basename='project')
 router.register(r'notification', NotificationViewSet, basename='emailhook')
 router.register(r'domain', DomainViewSet, basename='domain')
+router.register(r'sphinx_domains', SphinxDomainAPIView, basename='sphinxdomain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
