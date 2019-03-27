@@ -1470,7 +1470,7 @@ class AutoWipeEnvironmentBase:
         )
 
         self.assertFalse(self.pip.environmentvariable_set.all().exists())
-        get(EnvironmentVariable, project=self.version.project, name='ABCD', value='1234')
+        get(EnvironmentVariable, project=self.pip, name='ABCD', value='1234')
         env_vars_hash = hash((
             ('ABCD', '1234'),
         ))
