@@ -110,9 +110,6 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to known type errors
                  (i.e. expecting a list and a string is found).
         """
-        if not self.yaml_file:
-            self.yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
-
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
