@@ -1476,6 +1476,9 @@ class AutoWipeEnvironmentBase:
             python_env.save_environment_json()
             json_data = json.load(open(python_env.environment_json_path()))
 
+        envvars = self.version.project.environmentvariable_set.values_list('name', 'value')
+        envvars_hash = hash(tuple(envvars))
+
         expected_data = {
             'build': {
                 'image': 'readthedocs/build:2.0',
@@ -1484,6 +1487,7 @@ class AutoWipeEnvironmentBase:
             'python': {
                 'version': 2.7,
             },
+            'envvars_hash': envvars_hash
         }
         self.assertDictEqual(json_data, expected_data)
 
@@ -1610,9 +1614,10 @@ class AutoWipeEnvironmentBase:
             build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}}'  # noqa
-        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "envvars_hash": 1234}'  # noqa
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.PythonEnvironment._get_envvars_hash') as get_hash, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
+            get_hash.return_value = 1234
             self.assertFalse(python_env.is_obsolete)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')

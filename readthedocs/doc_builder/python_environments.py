@@ -195,6 +195,7 @@ class PythonEnvironment:
         # (e.g. ``2`` or ``3``) we won't know exactly which exact version was
         # used to create the venv but we can still compare it against the new
         # one coming from the project version config.
+        print(envvars_hash, self._get_envvars_hash())
         return any([
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
