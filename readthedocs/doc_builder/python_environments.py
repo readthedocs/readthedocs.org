@@ -149,6 +149,7 @@ class PythonEnvironment:
         * the Python version (e.g. 2.7, 3, 3.6, etc)
         * the Docker image name
         * the Docker image hash
+        * the environment variables hash
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
@@ -174,6 +175,7 @@ class PythonEnvironment:
 
         env_python = environment_conf.get('python', {})
         env_build = environment_conf.get('build', {})
+        envvars_hash = environment_conf.get('envvars_hash', None)
 
         # By defaulting non-existent options to ``None`` we force a wipe since
         # we don't know how the environment was created
@@ -197,7 +199,12 @@ class PythonEnvironment:
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
             env_build_hash != image_hash,
+            envvars_hash != self._get_envvars_hash(),
         ])
+
+    def _get_envvars_hash(self):
+        env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
+        return hash(tuple(env_vars))
 
     def save_environment_json(self):
         """
@@ -208,6 +215,7 @@ class PythonEnvironment:
         - python.version
         - build.image
         - build.hash
+        - envvars_hash
         """
         data = {
             'python': {
@@ -223,6 +231,10 @@ class PythonEnvironment:
                     'hash': self.build_env.image_hash,
                 },
             })
+
+        data.update({
+            'envvars_hash': self._get_envvars_hash(),
+        })
 
         with open(self.environment_json_path(), 'w') as fpath:
             # Compatibility for Py2 and Py3. ``io.TextIOWrapper`` expects

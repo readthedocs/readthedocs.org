@@ -1402,60 +1402,6 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def __str__(self):
         return self.name
 
-    def _get_last_built_version(self):
-        """Returns the version that was last built."""
-        version = self.project.versions.all().order_by('-builds__date').first()
-        return version
-
-    def _get_env_json_paths(self, version):
-        """
-        Returns the list containing paths to ``readthedocs-environment.json`` file.
-
-        It returns paths for both python and conda environment.
-        """
-        paths = [
-            os.path.join(
-                self.project.doc_path,
-                'conda',  # if conda env
-                version.slug,
-                'readthedocs-environment.json'
-            ),
-            os.path.join(
-                self.project.doc_path,
-                'envs',  # if python env
-                version.slug,
-                'readthedocs-environment.json'
-            ),
-        ]
-
-        return paths
-
-    def update_env_json(self):
-        """Updates the hash value of ``envvars_hash`` in ``readthedocs-environment.json``."""
-        version = self._get_last_built_version()
-        paths = self._get_env_json_paths(version)
-        for path in paths:
-            if os.path.exists(path):
-                env_vars = self.project.environmentvariable_set.values_list('name', 'value')
-                with open(path, 'r+') as file:
-                    data = json.loads(file.read())
-                    data['envvars_hash'] = hash(tuple(env_vars))
-                    file.seek(0)
-                    file.write(json.dumps(data))
-
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         self.value = shlex_quote(self.value)
-        saved = super().save(*args, **kwargs)
-
-        # Updates the ``readthedocs-environment.json`` file.
-        self.update_env_json()
-
-        return saved
-
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        deleted = super().delete(*args, **kwargs)
-
-        # Updates the ``readthedocs-environment.json`` file.
-        self.update_env_json()
-
-        return deleted
+        return super().save(*args, **kwargs)
