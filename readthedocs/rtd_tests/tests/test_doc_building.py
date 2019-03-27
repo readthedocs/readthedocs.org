@@ -30,7 +30,7 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -1469,6 +1469,12 @@ class AutoWipeEnvironmentBase:
             config=config,
         )
 
+        self.assertFalse(self.pip.environmentvariable_set.all().exists())
+        get(EnvironmentVariable, project=self.version.project, name='ABCD', value='1234')
+        env_vars_hash = hash((
+            ('ABCD', '1234'),
+        ))
+
         with patch(
                 'readthedocs.doc_builder.python_environments.PythonEnvironment.environment_json_path',
                 return_value=tempfile.mktemp(suffix='envjson'),
@@ -1476,9 +1482,7 @@ class AutoWipeEnvironmentBase:
             python_env.save_environment_json()
             json_data = json.load(open(python_env.environment_json_path()))
 
-        envvars = self.version.project.environmentvariable_set.values_list('name', 'value')
-        envvars_hash = hash(tuple(envvars))
-
+        
         expected_data = {
             'build': {
                 'image': 'readthedocs/build:2.0',
@@ -1487,7 +1491,7 @@ class AutoWipeEnvironmentBase:
             'python': {
                 'version': 2.7,
             },
-            'envvars_hash': envvars_hash
+            'env_vars_hash': env_vars_hash
         }
         self.assertDictEqual(json_data, expected_data)
 
@@ -1614,10 +1618,16 @@ class AutoWipeEnvironmentBase:
             build_env=self.build_env,
             config=config,
         )
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "envvars_hash": 1234}'  # noqa
-        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.PythonEnvironment._get_envvars_hash') as get_hash, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
+
+        self.assertFalse(self.pip.environmentvariable_set.all().exists())
+        get(EnvironmentVariable, project=self.pip, name='ABCD', value='1234')
+        env_vars_hash = hash((
+            ('ABCD', '1234'),
+        ))
+
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "env_vars_hash": %s}' % env_vars_hash  # noqa
+        with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
-            get_hash.return_value = 1234
             self.assertFalse(python_env.is_obsolete)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
