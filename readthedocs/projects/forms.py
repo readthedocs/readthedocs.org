@@ -4,7 +4,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, HTML
+from crispy_forms.layout import Fieldset, Layout, HTML, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -239,6 +239,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 *self.Meta.per_version_settings,
             ),
         )
+        self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
         all_versions = self.instance.versions.values_list(
