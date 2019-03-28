@@ -101,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise ValueError('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -699,9 +700,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['has_valid_clone'] = True
-        api_v2.project(self.project.pk).put(project_data)
+        api_v2.project(self.project.pk).patch(
+            {'has_valid_clone': True}
+        )
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
@@ -998,64 +999,28 @@ def move_files(
         return
 
     # This is False if we have already synced media files to blob storage
-    # We set `epub=False` for example so data doesn't get re-uploaded on each web,
-    # so we need this to protect against deleting in those cases
+    # We set `epub=False` for example so data doesn't get re-uploaded on each
+    # web, so we need this to protect against deleting in those cases
     if delete_unsynced_media:
-
-        if not pdf:
-
+        downloads = {
+            'pdf': pdf,
+            'epub': epub,
+            'htmlzip': localmedia,
+        }
+        unsync_downloads = (k for k, v in downloads.items() if not v)
+        for media_type in unsync_downloads:
             remove_dirs([
                 version.project.get_production_media_path(
-                    type_='pdf',
+                    type_=media_type,
                     version_slug=version.slug,
                     include_file=False,
                 ),
             ])
 
             if getattr(storage, 'write_build_media', False):
-                # Remove PDF from remote storage if it exists
+                # Remove the media from remote storage if it exists
                 storage_path = version.project.get_storage_path(
-                    type_='pdf',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-
-        if not epub:
-
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-            if getattr(storage, 'write_build_media', False):
-                # Remove ePub from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='epub',
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-
-        if not localmedia:
-
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_='htmlzip',
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-            if getattr(storage, 'write_build_media', False):
-                # Remove ePub from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_='htmlzip',
+                    type_=media_type,
                     version_slug=version.slug,
                 )
                 if storage.exists(storage_path):
@@ -1104,7 +1069,6 @@ def move_files(
             include_file=True,
         )
         Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    # Always move PDF's because the return code lies.
     if pdf:
         from_path = os.path.join(
             version.project.artifact_path(
@@ -1361,10 +1325,12 @@ def _manage_imported_files(version, path, commit):
     )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
     # Safely delete from database
     delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     (

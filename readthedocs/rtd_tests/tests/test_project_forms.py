@@ -16,6 +16,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
+    EmailHookForm,
     EnvironmentVariableForm,
     ProjectAdvancedForm,
     ProjectBasicsForm,
@@ -23,7 +24,6 @@ from readthedocs.projects.forms import (
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
-    EmailHookForm,
 )
 from readthedocs.projects.models import EnvironmentVariable, Project
 
@@ -201,6 +201,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PUBLIC,
             identifier='public-1',
+            verbose_name='public-1',
         )
         get(
             Version,
@@ -209,6 +210,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PUBLIC,
             identifier='public-2',
+            verbose_name='public-2',
         )
         get(
             Version,
@@ -217,6 +219,7 @@ class TestProjectAdvancedForm(TestCase):
             active=False,
             privacy_level=PROTECTED,
             identifier='public-3',
+            verbose_name='public-3',
         )
         get(
             Version,
@@ -225,6 +228,7 @@ class TestProjectAdvancedForm(TestCase):
             active=False,
             privacy_level=PUBLIC,
             identifier='public/4',
+            verbose_name='public/4',
         )
         get(
             Version,
@@ -233,6 +237,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PRIVATE,
             identifier='private',
+            verbose_name='private',
         )
         get(
             Version,
@@ -241,6 +246,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PROTECTED,
             identifier='protected',
+            verbose_name='protected',
         )
 
     def test_list_only_active_versions_on_default_version(self):
@@ -269,6 +275,17 @@ class TestProjectAdvancedForm(TestCase):
                 'public-3', 'public/4', 'protected', 'private',
             },
         )
+
+    def test_default_version_field_if_no_active_version(self):
+        project_1 = get(Project)
+        project_1.versions.filter(active=True).update(active=False)
+
+        # No active versions of project exists
+        self.assertFalse(project_1.versions.filter(active=True).exists())
+
+        form = ProjectAdvancedForm(instance=project_1)
+        self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
+        self.assertEqual(form.fields['default_version'].initial, 'latest')
 
 
 class TestTranslationForms(TestCase):

@@ -33,7 +33,7 @@ class SphinxDomainAPIView(UserSelectViewSet):  # pylint: disable=too-many-ancest
     model = SphinxDomain
     serializer_class = SphinxDomainSerializer
     admin_serializer_class = SphinxDomainAdminSerializer
-    filter_fields = (
+    filterset_fields = (
         'project__slug',
         'version__slug',
         'domain',

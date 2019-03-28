@@ -11,6 +11,12 @@ First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them.
 Using a virtual environment is strongly recommended,
 since it will help you to avoid clutter in your system-wide libraries.
 
+.. warning::
+
+    Currently the recommended version of python is Python 3.6.7. Which uses a 
+    lower version of sqlite3. The next version of Python can be used when the 
+    project starts using the latest Django version.
+
 Additionally Read the Docs depends on:
 
 * `Git`_ (version >=2.17.0)
@@ -30,14 +36,14 @@ In order to get all the dependencies successfully installed,
 you need these libraries.
 
 .. tabs::
-   
+
    .. tab:: Mac OS
 
       If you are having trouble on OS X Mavericks
       (or possibly other versions of OS X) with building ``lxml``,
       you probably might need to use Homebrew_ to ``brew install libxml2``,
       and invoke the install with::
-      
+
           CFLAGS=-I/usr/local/opt/libxml2/include/libxml2 \
           LDFLAGS=-L/usr/local/opt/libxml2/lib \
           pip install -r requirements.txt
@@ -51,11 +57,13 @@ you need these libraries.
          sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
 
       If you don't have redis installed yet, you can do it with::
-         
+
          sudo apt-get install redis-server
 
    .. tab:: CentOS/RHEL 7
 
+      Install::
+      
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
    .. tab:: Other OS
@@ -79,7 +87,7 @@ Get and run Read the Docs
 
 Clone the repository somewhere on your disk and enter to the repository::
 
-    git clone https://github.com/rtfd/readthedocs.org.git
+    git clone --recurse-submodules https://github.com/rtfd/readthedocs.org.git
     cd readthedocs.org
 
 Create a virtual environment and activate it::
@@ -163,7 +171,7 @@ See our :doc:`/intro/import-guide` page to learn more.
 Further steps
 -------------
 
-By now you can trigger builds on your local environment, 
+By now you can trigger builds on your local environment,
 to encapsulate the build process inside a Docker container,
 see :doc:`development/buildenvironments`.
 
