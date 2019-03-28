@@ -261,7 +261,7 @@ class TestProjectAdvancedForm(TestCase):
             {'latest', 'public-1', 'public-2', 'private', 'protected'},
         )
 
-    def test_list_all_versions_on_default_branch(self):
+    def test_list_only_non_auto_generated_versions_on_default_branch(self):
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
