@@ -202,7 +202,7 @@ class PythonEnvironment:
             env_build_hash != image_hash,
             env_vars_hash != self._get_env_vars_hash(),
         ])
-    
+
     def _get_env_vars(self):
         """
         Returns environment variables with their values of the associated project.
@@ -216,7 +216,7 @@ class PythonEnvironment:
     def _get_env_vars_hash(self):
         """
         Returns the sha256 hash of all the environment variables and their values.
-        
+
         If there are no environment variables, it returns the sha256 hash of 'None'.
         """
         env_vars = self._get_env_vars()
