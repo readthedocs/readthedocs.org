@@ -3,6 +3,7 @@
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
+import hashlib
 import itertools
 import json
 import logging
@@ -201,11 +202,36 @@ class PythonEnvironment:
             env_build_hash != image_hash,
             env_vars_hash != self._get_env_vars_hash(),
         ])
+    
+    def _get_env_vars(self):
+        """
+        Returns environment variables with their values of the associated project.
+
+        If there are no environment variables, it returns None.
+        """
+        env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
+        if env_vars.exists():
+            return tuple(env_vars)
 
     def _get_env_vars_hash(self):
-        """Returns the hash of tuple of tuples of all the environment variables and their values."""
-        env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
-        return hash(tuple(env_vars))
+        """
+        Returns the sha256 hash of all the environment variables and their values.
+        
+        If there are no environment variables, it returns the sha256 hash of 'None'.
+        """
+        env_vars = self._get_env_vars()
+        m = hashlib.sha256()
+        if env_vars:
+            for env_var in env_vars:
+                hash_str = '_{var}_{value}_'.format(
+                    var=env_var[0],
+                    value=env_var[1]
+                )
+                m.update(hash_str.encode('utf-8'))
+        else:
+            m.update('None'.encode('utf-8'))
+
+        return m.hexdigest()
 
     def save_environment_json(self):
         """

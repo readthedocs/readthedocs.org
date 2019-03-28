@@ -5,6 +5,7 @@ Things to know:
 * raw subprocess calls like .communicate expects bytes
 * the Command wrappers encapsulate the bytes and expose unicode
 """
+import hashlib
 import json
 import os
 import re
@@ -1471,9 +1472,10 @@ class AutoWipeEnvironmentBase:
 
         self.assertFalse(self.pip.environmentvariable_set.all().exists())
         get(EnvironmentVariable, project=self.pip, name='ABCD', value='1234')
-        env_vars_hash = hash((
-            ('ABCD', '1234'),
-        ))
+        env_var_str = '_ABCD_1234_'
+        m = hashlib.sha256()
+        m.update(env_var_str.encode('utf-8'))
+        env_vars_hash = m.hexdigest()
 
         with patch(
                 'readthedocs.doc_builder.python_environments.PythonEnvironment.environment_json_path',
@@ -1620,12 +1622,15 @@ class AutoWipeEnvironmentBase:
         )
 
         self.assertFalse(self.pip.environmentvariable_set.all().exists())
-        get(EnvironmentVariable, project=self.pip, name='ABCD', value='1234')
-        env_vars_hash = hash((
-            ('ABCD', '1234'),
-        ))
+        get(EnvironmentVariable, project=self.pip, name='HELLO', value='WORLD')
+        env_var_str = '_HELLO_WORLD_'
+        m = hashlib.sha256()
+        m.update(env_var_str.encode('utf-8'))
+        env_vars_hash = m.hexdigest()
 
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "env_vars_hash": %s}' % env_vars_hash  # noqa
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "env_vars_hash": "%s"}' % env_vars_hash  # noqa
+        import json
+        json.loads(env_json_data)
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
