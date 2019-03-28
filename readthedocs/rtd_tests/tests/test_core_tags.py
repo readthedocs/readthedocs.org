@@ -9,13 +9,14 @@ from readthedocs.core.templatetags import core_tags
 from readthedocs.projects.models import Project
 
 
+@pytest.mark.usefixtures("url_scheme")
 @override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
         url_base = '{scheme}://{domain}/docs/pip{{version}}'.format(
-            scheme=pytest.config.option.url_scheme,
+            scheme=self.url_scheme,
             domain=settings.PRODUCTION_DOMAIN,
         )
 

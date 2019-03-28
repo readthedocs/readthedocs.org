@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Models for the builds app."""
 
 import datetime
@@ -18,6 +16,7 @@ from guardian.shortcuts import assign
 from jsonfield import JSONField
 from taggit.managers import TaggableManager
 
+from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL,
@@ -175,7 +174,8 @@ class Version(models.Model):
             return self.identifier
 
         # By now we must have handled all special versions.
-        assert self.slug not in NON_REPOSITORY_VERSIONS
+        if self.slug in NON_REPOSITORY_VERSIONS:
+            raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will
@@ -258,32 +258,25 @@ class Version(models.Model):
     def get_downloads(self, pretty=False):
         project = self.project
         data = {}
-        if pretty:
-            if project.has_pdf(self.slug):
-                data['PDF'] = project.get_production_media_url('pdf', self.slug)
-            if project.has_htmlzip(self.slug):
-                data['HTML'] = project.get_production_media_url(
-                    'htmlzip',
-                    self.slug,
-                )
-            if project.has_epub(self.slug):
-                data['Epub'] = project.get_production_media_url(
-                    'epub',
-                    self.slug,
-                )
-        else:
-            if project.has_pdf(self.slug):
-                data['pdf'] = project.get_production_media_url('pdf', self.slug)
-            if project.has_htmlzip(self.slug):
-                data['htmlzip'] = project.get_production_media_url(
-                    'htmlzip',
-                    self.slug,
-                )
-            if project.has_epub(self.slug):
-                data['epub'] = project.get_production_media_url(
-                    'epub',
-                    self.slug,
-                )
+
+        def prettify(k):
+            return k if pretty else k.lower()
+
+        if project.has_pdf(self.slug):
+            data[prettify('PDF')] = project.get_production_media_url(
+                'pdf',
+                self.slug,
+            )
+        if project.has_htmlzip(self.slug):
+            data[prettify('HTML')] = project.get_production_media_url(
+                'htmlzip',
+                self.slug,
+            )
+        if project.has_epub(self.slug):
+            data[prettify('Epub')] = project.get_production_media_url(
+                'epub',
+                self.slug,
+            )
         return data
 
     def get_conf_py_path(self):
@@ -353,10 +346,8 @@ class Version(models.Model):
         if not docroot:
             return ''
 
-        if docroot[0] != '/':
-            docroot = '/{}'.format(docroot)
-        if docroot[-1] != '/':
-            docroot = '{}/'.format(docroot)
+        # Normalize /docroot/
+        docroot = '/' + docroot.strip('/') + '/'
 
         if action == 'view':
             action_string = 'blob'
@@ -367,6 +358,10 @@ class Version(models.Model):
         if not user and not repo:
             return ''
         repo = repo.rstrip('/')
+
+        if not filename:
+            # If there isn't a filename, we don't need a suffix
+            source_suffix = ''
 
         return GITHUB_URL.format(
             user=user,
@@ -392,10 +387,8 @@ class Version(models.Model):
         if not docroot:
             return ''
 
-        if docroot[0] != '/':
-            docroot = '/{}'.format(docroot)
-        if docroot[-1] != '/':
-            docroot = '{}/'.format(docroot)
+        # Normalize /docroot/
+        docroot = '/' + docroot.strip('/') + '/'
 
         if action == 'view':
             action_string = 'blob'
@@ -406,6 +399,10 @@ class Version(models.Model):
         if not user and not repo:
             return ''
         repo = repo.rstrip('/')
+
+        if not filename:
+            # If there isn't a filename, we don't need a suffix
+            source_suffix = ''
 
         return GITLAB_URL.format(
             user=user,
@@ -424,10 +421,17 @@ class Version(models.Model):
         if not docroot:
             return ''
 
+        # Normalize /docroot/
+        docroot = '/' + docroot.strip('/') + '/'
+
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
             return ''
         repo = repo.rstrip('/')
+
+        if not filename:
+            # If there isn't a filename, we don't need a suffix
+            source_suffix = ''
 
         return BITBUCKET_URL.format(
             user=user,
@@ -636,6 +640,9 @@ class Build(models.Model):
         """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
         return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
+
+    def using_latest_config(self):
+        return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
 
 
 class BuildCommandResultMixin:

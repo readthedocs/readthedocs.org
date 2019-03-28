@@ -34,7 +34,7 @@ To manually set up a webhook, go to :guilabel:`Admin` > :guilabel:`Integrations`
 dashboard page and select the integration type you'd like to add.
 After you have added the integration, you'll see a link to information about the integration.
 
-As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
+As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
 Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
 
@@ -50,14 +50,18 @@ GitHub
   You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
+* Leave the **Secrets** field blank
 * Select **Let me select individual events**,
-  and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
-* Leave the **Secrets** field black
-* Finish by clicking **Add webhook**
+  and mark **Branch or tag creation**, **Branch or tag deletion** and **Pushes** events
+* Ensure **Active** is enabled; it is by default
+* Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
 
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
 If you see a Response 200, then the webhook is correctly configured.
 For a 403 error, it's likely that the Payload URL is incorrect.
+
+GitHub will emit an initial HTTP request (`X-GitHub-Event: ping`) upon creating the webhook and you may notice that the Read the Docs responds with `{"detail":"Unhandled webhook event"}` – this is normal and expected.
+Push changes to your repository and webhooks will work from this point.
 
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 

@@ -75,7 +75,7 @@ to help you create fantastic documentation for your project.
 
    webhooks
    badges
-   alternate_domains
+   custom_domains
    localization
    vcs
    subprojects
