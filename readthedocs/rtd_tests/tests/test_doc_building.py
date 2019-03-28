@@ -1628,7 +1628,8 @@ class AutoWipeEnvironmentBase:
         m.update(env_var_str.encode('utf-8'))
         env_vars_hash = m.hexdigest()
 
-        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}, "env_vars_hash": "%s"}' % env_vars_hash  # noqa
+        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": 3.5}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
+        print(env_json_data)
         import json
         json.loads(env_json_data)
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
