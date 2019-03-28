@@ -264,16 +264,22 @@ class TestProjectAdvancedForm(TestCase):
     def test_list_all_versions_on_default_branch(self):
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
-        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
+        latest = self.project.versions.filter(slug=LATEST)
+        self.assertTrue(latest.exists())
         self.assertEqual(
             {
                 identifier
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'master', 'public-1', 'public-2',
+                None, 'public-1', 'public-2',
                 'public-3', 'public/4', 'protected', 'private',
             },
+        )
+        self.assertNotIn(
+            latest.first().identifier,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
         )
 
     def test_default_version_field_if_no_active_version(self):

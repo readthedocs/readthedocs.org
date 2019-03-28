@@ -246,7 +246,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         # the special cases of LATEST and STABLE.
         all_versions_choices = [
             (v.commit_name, v.verbose_name)
-            for v in self.instance.versions.all()
+            for v in self.instance.versions.filter(machine=False)
         ]
         self.fields['default_branch'].widget = forms.Select(
             choices=[default_choice] + all_versions_choices,
