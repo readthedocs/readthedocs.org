@@ -564,24 +564,33 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 # TODO the build object should have an idea of these states,
                 # extend the model to include an idea of these outcomes
                 outcomes = self.build_docs()
-                build_id = self.build.get('id')
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
             except SoftTimeLimitExceeded:
                 raise BuildTimeoutError
-
-            # Finalize build and update web servers
-            if build_id:
-                self.update_app_instances(
-                    html=bool(outcomes['html']),
-                    search=bool(outcomes['search']),
-                    localmedia=bool(outcomes['localmedia']),
-                    pdf=bool(outcomes['pdf']),
-                    epub=bool(outcomes['epub']),
-                )
             else:
-                log.warning('No build ID, not syncing files')
+                build_id = self.build.get('id')
+                if build_id:
+                    # Store build artifacts to storage (local or cloud storage)
+                    self.store_build_artifacts(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
+
+                    # Finalize build and update web servers
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
+                else:
+                    log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
             self.send_notifications()
@@ -715,6 +724,39 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         })
         self.build['config'] = config
 
+    def store_build_artifacts(
+            self,
+            html=False,
+            localmedia=False,
+            search=False,
+            pdf=False,
+            epub=False,
+    ):
+        """
+        Save build artifacts to "storage" using Django's storage API
+
+        The storage could be local filesystem storage OR cloud blob storage
+        such as S3, Azure storage or Google Cloud Storage.
+
+        Remove build artifacts of types not included in this build.
+
+        :param html: whether to save HTML output
+        :param localmedia: whether to save localmedia (htmlzip) output
+        :param search: whether to save search artifacts
+        :param pdf: whether to save PDF output
+        :param epub: whether to save ePub output
+        :return:
+        """
+        if getattr(settings, 'WRITE_BUILD_MEDIA', False):
+            log.info(
+                LOG_TEMPLATE.format(
+                    project=self.version.project.slug,
+                    version=self.version.slug,
+                    msg='Write build artifacts to media storage',
+                ),
+            )
+            # TODO: This will be where we actually implement this
+
     def update_app_instances(
             self,
             html=False,
@@ -744,25 +786,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         hostname = socket.gethostname()
 
         delete_unsynced_media = True
-
-        if getattr(storage, 'write_build_media', False):
-            # Handle the case where we want to upload some built assets to our storage
-            move_files.delay(
-                self.version.pk,
-                hostname,
-                self.config.doctype,
-                html=False,
-                search=False,
-                localmedia=localmedia,
-                pdf=pdf,
-                epub=epub,
-                delete_unsynced_media=delete_unsynced_media,
-            )
-            # Set variables so they don't get synced in the next broadcast step
-            localmedia = False
-            pdf = False
-            epub = False
-            delete_unsynced_media = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -1016,16 +1039,6 @@ def move_files(
                     include_file=False,
                 ),
             ])
-
-            if getattr(storage, 'write_build_media', False):
-                # Remove the media from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
 
     log.debug(
         LOG_TEMPLATE.format(
