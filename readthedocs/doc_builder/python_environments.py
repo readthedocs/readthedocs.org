@@ -204,33 +204,21 @@ class PythonEnvironment:
         ])
 
     def _get_env_vars(self):
-        """
-        Returns environment variables with their values of the associated project.
-
-        If there are no environment variables, it returns None.
-        """
+        """Return tuple of tuples of environment variables with their values of the associated project."""
         env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
-        if env_vars.exists():
-            return tuple(env_vars)
+        return tuple(env_vars)
 
     def _get_env_vars_hash(self):
         """
         Returns the sha256 hash of all the environment variables and their values.
 
-        If there are no environment variables, it returns the sha256 hash of 'None'.
+        If there are no environment variables configured for the associated project,
+        it returns sha256 hash of empty string.
         """
-        env_vars = self._get_env_vars()
         m = hashlib.sha256()
-        if env_vars:
-            for env_var in env_vars:
-                hash_str = '_{var}_{value}_'.format(
-                    var=env_var[0],
-                    value=env_var[1]
-                )
-                m.update(hash_str.encode('utf-8'))
-        else:
-            m.update('None'.encode('utf-8'))
-
+        for variable, value in self._get_env_vars():
+            hash_str = f'_{variable}_{value}_'
+            m.update(hash_str.encode('utf-8'))
         return m.hexdigest()
 
     def save_environment_json(self):
