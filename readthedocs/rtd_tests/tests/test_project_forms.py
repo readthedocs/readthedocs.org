@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
@@ -233,6 +233,15 @@ class TestProjectAdvancedForm(TestCase):
         get(
             Version,
             project=self.project,
+            slug='stable',
+            active=True,
+            privacy_level=PUBLIC,
+            identifier='ab96cbff71a8f40a4240aaf9d12e6c10',
+            verbose_name='stable',
+        )
+        get(
+            Version,
+            project=self.project,
             slug='private',
             active=True,
             privacy_level=PRIVATE,
@@ -258,13 +267,14 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'stable', 'private', 'protected'},
         )
 
     def test_list_only_non_auto_generated_versions_on_default_branch(self):
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
+        stable = self.project.versions.filter(slug=STABLE)
         self.assertTrue(latest.exists())
         self.assertEqual(
             {
@@ -273,11 +283,16 @@ class TestProjectAdvancedForm(TestCase):
             },
             {
                 None, 'public-1', 'public-2',
-                'public-3', 'public/4', 'protected', 'private',
+                'public-3', 'public/4', 'stable', 'protected', 'private',
             },
         )
         self.assertNotIn(
-            latest.first().identifier,
+            latest.first().verbose_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+        self.assertNotIn(
+            stable.first().commit_name,
             [identifier for identifier, _ in form.fields[
                 'default_branch'].widget.choices],
         )
