@@ -35,7 +35,7 @@ router.register(r'version', VersionViewSet, basename='version')
 router.register(r'project', ProjectViewSet, basename='project')
 router.register(r'notification', NotificationViewSet, basename='emailhook')
 router.register(r'domain', DomainViewSet, basename='domain')
-router.register(r'sphinx_domains', SphinxDomainAPIView, base_name='sphinxdomain')
+router.register(r'sphinx_domains', SphinxDomainAPIView, basename='sphinxdomain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
