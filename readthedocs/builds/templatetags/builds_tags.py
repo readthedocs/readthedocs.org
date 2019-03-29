@@ -15,6 +15,6 @@ def is_latest_built_success(version):
     is success else returns false. Returns None if no
     build is found for the given version.
     """
-    res = version.builds.all().order_by('-date')
+    res = version.builds.all().order_by('-date').values_list('success', flat=True)
     if res.exists():
-        return res.first().success
+        return res.first()
