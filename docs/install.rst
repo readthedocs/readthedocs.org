@@ -92,7 +92,7 @@ Clone the repository somewhere on your disk and enter to the repository::
 
 Create a virtual environment and activate it::
 
-    virtualenv venv
+    virtualenv --python=python3 venv
     source venv/bin/activate
 
 Next, install the dependencies using ``pip``
