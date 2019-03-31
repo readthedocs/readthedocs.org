@@ -1,0 +1,47 @@
+version: '3'
+volumes:
+  web:
+
+services:
+
+  nginx:
+    image: nginx
+    ports:
+      - "80:80"
+    links:
+      - web
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - web:/usr/src/app/static
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD}/readthedocs/settings/web-docker.py:/usr/src/app/readthedocs/settings/dev.py
+      - web:/usr/src/app/static
+    links:
+      - database
+      - redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ${PWD}/readthedocs/settings/web-docker.py:/usr/src/app/readthedocs/settings/dev.py
+    links:
+      - database
+      - redis
+    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "default,celery,web01,web,reindex", "-l", "DEBUG"]
+
+  redis:
+    image: redis:3.2.7
+
+  database:
+    image: postgres:11.1
+    environment:
+      - POSTGRES_USER=docs_user
+      - POSTGRES_PASSWORD=docs_pwd
+      - POSTGRES_DB=docs_db
