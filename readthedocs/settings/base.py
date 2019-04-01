@@ -340,6 +340,15 @@ class CommunityBaseSettings(Settings):
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
     DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    # User used to create the container.
+    # In production we use the same user than the one defined by the
+    # ``USER docs`` instruction inside the Dockerfile.
+    # In development, we can use the "UID:GID" of the current user running the
+    # instance to avoid file permissions issues.
+    # https://docs.docker.com/engine/reference/run/#user
+    DOCKER_USER = 'docs:docs'
+
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
