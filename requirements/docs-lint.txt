@@ -1,2 +1,2 @@
-Sphinx==1.8.5
+Sphinx==2.0.0
 rstcheck==3.3.1
