@@ -1,4 +1,5 @@
 version: '3'
+
 volumes:
   web:
 
@@ -11,29 +12,37 @@ services:
     links:
       - web
     volumes:
-      - ./nginx:/etc/nginx/conf.d
-      - web:/usr/src/app/static
+      - ${PWD}/docker/nginx:/etc/nginx/conf.d
+      - web:/usr/src/app/checkouts/readthedocs.org/static
 
   web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ${PWD}/docker/Dockerfile
     volumes:
-      - ${PWD}/readthedocs/settings/web-docker.py:/usr/src/app/readthedocs/settings/dev.py
-      - web:/usr/src/app/static
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+      - web:/usr/src/app/checkouts/readthedocs.org/static
     links:
       - database
       - redis
+    environment:
+      - DJANGO_SETTINGS_SKIP_LOCAL=t
 
   celery:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ${PWD}/docker/Dockerfile
     volumes:
-      - ${PWD}/readthedocs/settings/web-docker.py:/usr/src/app/readthedocs/settings/dev.py
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
     links:
       - database
       - redis
+    environment:
+      - DJANGO_SETTINGS_SKIP_LOCAL=t
     command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "default,celery,web01,web,reindex", "-l", "DEBUG"]
 
   redis:
