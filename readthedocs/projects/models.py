@@ -1312,6 +1312,7 @@ class Feature(models.Model):
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     USE_PDF_LATEXMK = 'use_pdf_latexmk'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1345,6 +1346,10 @@ class Feature(models.Model):
         (
             SHARE_SPHINX_DOCTREE,
             _('Use shared directory for doctrees'),
+        ),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default')
         ),
     )
 

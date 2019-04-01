@@ -291,7 +291,13 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.config.doctype == 'mkdocs':
-            requirements.append('mkdocs<1.1')
+            requirements.append(
+                self.project.get_feature_value(
+                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
+                    positive='mkdocs==0.17.3',
+                    negative='mkdocs<1.1',
+                ),
+            )
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
