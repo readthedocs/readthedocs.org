@@ -347,6 +347,15 @@ class CommunityBaseSettings(Settings):
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     RTD_DOCKER_BUILD_IMAGES = None
     RTD_DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    # User used to create the container.
+    # In production we use the same user than the one defined by the
+    # ``USER docs`` instruction inside the Dockerfile.
+    # In development, we can use the "UID:GID" of the current user running the
+    # instance to avoid file permissions issues.
+    # https://docs.docker.com/engine/reference/run/#user
+    RTD_DOCKER_USER = 'docs:docs'
+
     RTD_DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     RTD_DOCKER_VERSION = 'auto'
     RTD_DOCKER_DEFAULT_VERSION = 'latest'
