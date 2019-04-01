@@ -16,6 +16,6 @@ Markdown==3.1
 # Docs
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
-sphinx-notfound-page==0.1
+sphinx-notfound-page==0.2.1
 commonmark==0.8.1
 recommonmark==0.5.0
