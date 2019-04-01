@@ -12,15 +12,12 @@ class CommunityDevSettings(CommunityBaseSettings):
     DOCKER_ENABLE = True
     DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
 
-    PRODUCTION_DOMAIN = "localhost:8000"
-    WEBSOCKET_HOST = "localhost:8088"
+    PRODUCTION_DOMAIN = "localhost"
+    WEBSOCKET_HOST = "localhost"
 
     @property
     def DATABASES(self):  # noqa
-        return {
-            "default": {
-            }
-        }
+        return {}
 
     DONT_HIT_DB = True
 

@@ -53,6 +53,14 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+
+      # The python code at readthedocs/doc_builder/environments.py
+      # mounts `self.project.doc_path`. We need to share this path
+      # between our host, the build container, and the container that
+      # is created inside the build container. Because of this, we
+      # need the path in the main host.
+      - /usr/src/app/checkouts/readthedocs.org/user_builds:/usr/src/app/checkouts/readthedocs.org/user_builds
+
       - /var/run/docker.sock:/var/run/docker.sock
     links:
       - redis
