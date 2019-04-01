@@ -1,6 +1,7 @@
 language: python
 python:
   - 3.6
+dist: xenial
 matrix:
   include:
     - python: 3.6
@@ -21,8 +22,6 @@ cache:
     - ~/.cache/pip
     - ~/.nvm/nvm.sh
     - ~/.npm
-before_install:
-  - sudo apt-get install -y git
 install:
   - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis

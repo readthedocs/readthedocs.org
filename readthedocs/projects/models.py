@@ -116,6 +116,7 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_('Hosted documentation repository URL'),
+        db_index=True,
     )
     repo_type = models.CharField(
         _('Repository type'),
@@ -743,8 +744,6 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        if not self.enable_pdf_build:
-            return False
         path = self.get_production_media_path(
             type_='pdf', version_slug=version_slug
         )
@@ -754,8 +753,6 @@ class Project(models.Model):
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
-        if not self.enable_epub_build:
-            return False
         path = self.get_production_media_path(
             type_='epub', version_slug=version_slug
         )
@@ -918,7 +915,7 @@ class Project(models.Model):
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.active and current_stable.machine:
+                if identifier_updated and current_stable.machine:
                     log.info(
                         'Update stable version: {project}:{version}'.format(
                             project=self.slug,
@@ -1313,31 +1310,42 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
+    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
+    USE_PDF_LATEXMK = 'use_pdf_latexmk'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
             ),
-        ), (
+        ),
+        (
             MKDOCS_THEME_RTD,
-            _('Use Read the Docs theme for MkDocs as default theme')
-        ), (
+            _('Use Read the Docs theme for MkDocs as default theme'),
+        ),
+        (
             DONT_SHALLOW_CLONE,
-            _(
-                'Do not shallow clone when cloning git repos',
-            ),
-        ), (
+            _('Do not shallow clone when cloning git repos'),
+        ),
+        (
             USE_TESTING_BUILD_IMAGE,
-            _(
-                'Use Docker image labelled as `testing` to build the docs',
-            ),
-        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
+            _('Use Docker image labelled as `testing` to build the docs'),
+        ),
+        (
+            API_LARGE_DATA,
+            _('Try alternative method of posting large data'),
+        ),
+        (
+            SHARE_SPHINX_DOCTREE,
+            _('Use shared directory for doctrees'),
+        ),
     )
 
     projects = models.ManyToManyField(

@@ -1,1 +1,1 @@
-Policy: https://docs.readthedocs.io/en/latest/security.html
+Policy: https://docs.readthedocs.io/page/security.html

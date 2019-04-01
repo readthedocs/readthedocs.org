@@ -1214,6 +1214,7 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
                 # Required defaults
                 'python_interpreter': 'python',
                 'default_version': 'latest',
+                'documentation_type': 'sphinx',
 
                 'privacy_level': 'private',
             },

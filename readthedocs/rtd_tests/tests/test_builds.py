@@ -562,3 +562,21 @@ class BuildModelTests(TestCase):
         self.assertFalse(build_one.is_stale)
         self.assertTrue(build_two.is_stale)
         self.assertFalse(build_three.is_stale)
+
+    def test_using_latest_config(self):
+        now = timezone.now()
+
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            date=now - datetime.timedelta(minutes=8),
+            state='finished',
+        )
+
+        self.assertFalse(build.using_latest_config())
+
+        build.config = {'version': 2}
+        build.save()
+
+        self.assertTrue(build.using_latest_config())

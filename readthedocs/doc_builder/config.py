@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """An API to load config from a readthedocs.yml file."""
 
 from os import path
 
-from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig
+from readthedocs.config import BuildConfigV1, ConfigFileNotFound
 from readthedocs.config import load as load_config
 from readthedocs.projects.models import ProjectConfigurationError
 
@@ -59,10 +57,9 @@ def load_yaml_config(version):
             path=checkout_path,
             env_config=env_config,
         )
-    except InvalidConfig:
-        # This is a subclass of ConfigError, so has to come first
-        raise
-    except ConfigError:
+    except ConfigFileNotFound:
+        # Dafault to use v1 with some defaults from the web interface
+        # if we don't find a configuration file.
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
