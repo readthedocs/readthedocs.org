@@ -22,7 +22,7 @@ execnet==1.6.0
 Mercurial==4.4.2  # pyup: ignore
 
 yamale==1.10.0
-pytest-mock==1.10.2
+pytest-mock==1.10.3
 
 # local debugging tools
 datadiff==2.0.0
