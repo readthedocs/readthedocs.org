@@ -347,6 +347,15 @@ class CommunityBaseSettings(Settings):
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
     DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    # User used to create the container.
+    # In production we use the same user than the one defined by the
+    # ``USER docs`` instruction inside the Dockerfile.
+    # In development, we can use the "UID:GID" of the current user running the
+    # instance to avoid file permissions issues.
+    # https://docs.docker.com/engine/reference/run/#user
+    RTD_DOCKER_USER = 'docs:docs'
+
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
@@ -370,9 +379,9 @@ class CommunityBaseSettings(Settings):
     }
 
     # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+    RTD_DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth
