@@ -37,13 +37,28 @@ services:
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
-      - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+      - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
     links:
       - database
       - redis
     environment:
       - DJANGO_SETTINGS_SKIP_LOCAL=t
-    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "default,celery,web01,web,reindex", "-l", "DEBUG"]
+    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "web,web01,reindex", "-l", "DEBUG"]
+
+  build:
+    build:
+      context: .
+      dockerfile: ${PWD}/docker/Dockerfile
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}/docker/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - redis
+    environment:
+      - DJANGO_SETTINGS_SKIP_LOCAL=t
+    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "builder,celery,default,build01", "-l", "DEBUG"]
 
   redis:
     image: redis:3.2.7
