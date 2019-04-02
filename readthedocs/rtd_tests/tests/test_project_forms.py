@@ -233,15 +233,6 @@ class TestProjectAdvancedForm(TestCase):
         get(
             Version,
             project=self.project,
-            slug='stable',
-            active=True,
-            privacy_level=PUBLIC,
-            identifier='ab96cbff71a8f40a4240aaf9d12e6c10',
-            verbose_name='stable',
-        )
-        get(
-            Version,
-            project=self.project,
             slug='private',
             active=True,
             privacy_level=PRIVATE,
@@ -267,30 +258,43 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'stable', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'private', 'protected'},
         )
 
     def test_list_only_non_auto_generated_versions_on_default_branch(self):
+        user_created_stable_version = get(
+            Version,
+            project=self.project,
+            slug='stable',
+            active=True,
+            privacy_level=PUBLIC,
+            identifier='ab96cbff71a8f40a4240aaf9d12e6c10',
+            verbose_name='stable',
+        )
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
+        # User created `stable` version
         stable = self.project.versions.filter(slug=STABLE)
         self.assertTrue(latest.exists())
+        # show only the versions that are not auto generated as choices
         self.assertEqual(
             {
                 identifier
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'public-1', 'public-2',
-                'public-3', 'public/4', 'stable', 'protected', 'private',
+                None, 'stable', 'public-1', 'public-2',
+                'public-3', 'public/4', 'protected', 'private',
             },
         )
+        # Auto generated version `latest` should not be among the choices
         self.assertNotIn(
             latest.first().verbose_name,
             [identifier for identifier, _ in form.fields[
                 'default_branch'].widget.choices],
         )
+        # `commit_name` can not be used as the value of the choice for `stable`
         self.assertNotIn(
             stable.first().commit_name,
             [identifier for identifier, _ in form.fields[
