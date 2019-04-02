@@ -30,6 +30,8 @@ services:
     environment:
       - DJANGO_SETTINGS_SKIP_LOCAL=t
 
+  # TODO: how do we configure this `celery` container to sync the files into `web`?
+  # There is a FILE_SYNCER setting that uses readthedocs.builder.syncers classes
   celery:
     build:
       context: .
