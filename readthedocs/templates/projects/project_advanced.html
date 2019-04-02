@@ -13,10 +13,5 @@
 {% block project_edit_content_header %}{% trans "Advanced Settings" %}{% endblock %}
 
 {% block project_edit_content %}
-  <form method="post" action=".">{% csrf_token %}
-    {% crispy form %}
-    <p>
-      <input style="display: inline;" type="submit" value="{% trans "Save" %}">
-    </p>
-  </form>
+  {% crispy form %}
 {% endblock %}
