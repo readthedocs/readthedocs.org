@@ -204,9 +204,9 @@ class PythonEnvironment:
         ])
 
     def _get_env_vars(self):
-        """Return tuple of tuples of env vars with their values of the project."""
+        """Return env vars with their values of the project."""
         env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
-        return tuple(env_vars)
+        return env_vars
 
     def _get_env_vars_hash(self):
         """
