@@ -54,6 +54,10 @@ class CommunityDevSettings(CommunityBaseSettings):
     # Disable password validators on development
     AUTH_PASSWORD_VALIDATORS = []
 
+    # UID and GID used to create the Docker container. It defaults to the
+    # current UID and GID that it's running the Django app.
+    DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
