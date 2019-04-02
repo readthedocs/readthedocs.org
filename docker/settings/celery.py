@@ -12,6 +12,9 @@ class CommunityDevSettings(CommunityBaseSettings):
     PRODUCTION_DOMAIN = "localhost:8000"
     WEBSOCKET_HOST = "localhost:8088"
 
+    MULTIPLE_APP_SERVERS = ['web']
+    MULTIPLE_BUILD_SERVERS = ['build']
+
     @property
     def DATABASES(self):  # noqa
         return {
@@ -43,7 +46,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-    FILE_SYNCER = "readthedocs.builds.syncers.LocalSyncer"
+    FILE_SYNCER = "readthedocs.builds.syncers.RemotePuller"
 
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test
