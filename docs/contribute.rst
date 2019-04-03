@@ -2,7 +2,7 @@ Contributing to Read the Docs
 =============================
 
 You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know how to ask questions and how to work on something. 
+following sections in order to know how to ask questions and how to work on something.
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
@@ -96,6 +96,14 @@ command will be run immediately and will inform you of the changes and errors.
 .. _prospector: https://prospector.landscape.io/en/master
 .. _unify: https://github.com/myint/unify
 .. _yapf: https://github.com/google/yapf
+
+Contributing to documentation
+-----------------------------
+
+Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.io (likely the website you are currently reading).
+
+There are guidelines around writing and formatting documentation for the project.
+For full details, including how to build it, see :doc:`docs`.
 
 Triaging tickets
 ----------------

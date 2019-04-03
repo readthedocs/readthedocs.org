@@ -101,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise ValueError('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -699,9 +700,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['has_valid_clone'] = True
-        api_v2.project(self.project.pk).put(project_data)
+        api_v2.project(self.project.pk).patch(
+            {'has_valid_clone': True}
+        )
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
@@ -1324,10 +1325,12 @@ def _manage_imported_files(version, path, commit):
     )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
     # Safely delete from database
     delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     (
