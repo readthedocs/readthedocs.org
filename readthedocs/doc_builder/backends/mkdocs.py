@@ -44,12 +44,12 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.yaml_file = self.get_yaml_config()
         self.old_artifact_path = os.path.join(
-            self.version.project.checkout_path(self.version.slug),
+            os.path.dirname(self.yaml_file),
             self.build_dir,
         )
         self.root_path = self.version.project.checkout_path(self.version.slug)
-        self.yaml_file = self.get_yaml_config()
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -75,8 +75,6 @@ class BaseMkdocs(BaseBuilder):
                 self.project.checkout_path(self.version.slug),
                 'mkdocs.yml',
             )
-            if not os.path.exists(mkdoc_path):
-                return None
         return mkdoc_path
 
     def load_yaml_config(self):
@@ -111,9 +109,6 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to known type errors
                  (i.e. expecting a list and a string is found).
         """
-        if not self.yaml_file:
-            self.yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
-
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
