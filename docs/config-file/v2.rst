@@ -90,7 +90,7 @@ Example:
 
 .. note::
 
-   PDF/epub output is not supported when using MkDocs  
+   PDF/epub/htmlzip output is not supported when using MkDocs  
 
 python
 ~~~~~~
