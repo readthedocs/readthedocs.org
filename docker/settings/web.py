@@ -12,8 +12,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     DOCKER_ENABLE = True
     DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
 
-    PRODUCTION_DOMAIN = "localhost:8000"
-    WEBSOCKET_HOST = "localhost:8088"
+    PRODUCTION_DOMAIN = "localhost"
+    WEBSOCKET_HOST = "localhost"
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
@@ -42,8 +42,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_API_HOST = "http://127.0.0.1:8000"
     PUBLIC_API_URL = "http://127.0.0.1:8000"
 
-    BROKER_URL = "redis://redis:6379/0"
-    CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+    BROKER_URL = "redis://cache:6379/0"
+    CELERY_RESULT_BACKEND = "redis://cache:6379/0"
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ALWAYS_EAGER = False
     CELERY_TASK_IGNORE_RESULT = False
