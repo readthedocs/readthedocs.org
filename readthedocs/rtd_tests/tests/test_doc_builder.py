@@ -524,7 +524,6 @@ class MkdocsBuilderTest(TestCase):
                 mkdocs_config=mock.ANY,
             )
 
-
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_append_conf_existing_yaml_with_extra(self, checkout_path, run):
