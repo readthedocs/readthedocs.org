@@ -67,7 +67,13 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
         'string with relative or absolute path.',
     )
 
+    INVALID_DOCS_DIR_PATH = ugettext_noop(
+        'The "docs_dir" config from your MkDocs YAML config file does not '
+        'contain a valid path.',
+    )
+
     INVALID_EXTRA_CONFIG = ugettext_noop(
         'The "{config}" config from your MkDocs YAML config file has to be a '
         'a list of relative paths.',
     )
+

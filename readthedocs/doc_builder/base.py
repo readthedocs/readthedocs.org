@@ -7,6 +7,8 @@ import os
 import shutil
 from functools import wraps
 
+from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+
 
 log = logging.getLogger(__name__)
 
@@ -84,6 +86,13 @@ class BaseBuilder:
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
         checkout_path = self.project.checkout_path(self.version.slug)
+        if docs_dir:
+            possible_path = os.path.join(checkout_path, docs_dir)
+            # if user puts an invalid `docs_dir` path raise Exception
+            if not os.path.exists(possible_path):
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
+                )
         if not docs_dir:
             for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
                 possible_path = os.path.join(checkout_path, doc_dir_name)
