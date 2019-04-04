@@ -76,4 +76,3 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
         'The "{config}" config from your MkDocs YAML config file has to be a '
         'a list of relative paths.',
     )
-
