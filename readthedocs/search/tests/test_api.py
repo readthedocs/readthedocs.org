@@ -96,11 +96,11 @@ class TestDocumentSearch(object):
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
-        # Check the count is 31 (1 existing and 30 new created)
+        # Check the count is 61 (1 existing and 60 new created)
         assert resp.data['count'] == 61
         # Check there are next url
         assert resp.data['next'] is not None
-        # There should be only 25 data as the pagination is 25 by default
+        # There should be only 50 data as the pagination is 50 by default
         assert len(resp.data['results']) == 50
 
         # Add `page_size` parameter and check the data is paginated accordingly
