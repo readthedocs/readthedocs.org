@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """We define custom Django signals to trigger before executing searches."""
+import logging
+
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
@@ -9,6 +11,8 @@ from django_elasticsearch_dsl.registries import registry
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
+
+log = logging.getLogger(__name__)
 
 
 @receiver(bulk_post_create)
@@ -57,6 +61,7 @@ def remove_indexed_file(sender, instance_list, **kwargs):
 
         if version and commit:
             # Sanity check by deleting all old files not in this commit
+            log.info('Deleting old commits from search index')
             document().search().filter(
                 'term', version=version.slug,
             ).filter(

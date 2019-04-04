@@ -88,7 +88,7 @@ def elastic_search(request, project_slug=None):
                 query=user_input.query, user=request.user, **kwargs
             )
 
-        results = search.execute()
+        results = search[:50].execute()
         facets = results.facets
 
         log.info(

@@ -35,6 +35,7 @@ class SphinxDomainDocument(DocType):
     # For showing in the search result
     type_display = fields.TextField(attr='type_display')
     doc_display = fields.TextField(attr='doc_display')
+
     # Simple analyzer breaks on `.`,
     # otherwise search results are too strict for this use case
     name = fields.TextField(attr='name', analyzer='simple')
@@ -44,6 +45,7 @@ class SphinxDomainDocument(DocType):
 
     class Meta(object):
         model = SphinxDomain
+        fields = ('commit',)
         ignore_signals = True
 
     def get_queryset(self):

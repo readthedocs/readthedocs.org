@@ -195,7 +195,17 @@
                           {{ result.project }} - {% if result.meta.highlight.name|length %} {{ result.meta.highlight.name.0|safe }} {% else %} {{ result.name }} {% endif %}
                         </a>
                         <p class="fragment">
-                        {{ result.type_display|capfirst }} in {{ result.doc_display }}
+                          {% if result.type_display %}
+                            {{ result.type_display|capfirst }}
+                          {% else %}
+                            {{ result.role_name }}
+                          {% endif %}
+                          in
+                          {% if result.doc_display %}
+                            {{ result.doc_display|capfirst }}
+                          {% else %}
+                            {{ result.doc_name }}
+                          {% endif %}
                         </p>
 
                       {% elif 'page' in result.meta.index %}

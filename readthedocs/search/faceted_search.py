@@ -19,8 +19,16 @@ ALL_FACETS = ['project', 'version', 'role_name', 'language', 'index']
 class RTDFacetedSearch(FacetedSearch):
 
     def __init__(self, user, **kwargs):
+        """
+        Pass in a user in order to filter search results by privacy.
+
+        .. warning::
+
+            The `self.user` and `self.filter_by_user` attributes
+            aren't currently used on the .org, but are used on the .com.
+        """
         self.user = user
-        self.filter_by_user = kwargs.pop('filter_by_user', None)
+        self.filter_by_user = kwargs.pop('filter_by_user', True)
 
         # Set filters properly
         for facet in self.facets:
@@ -34,19 +42,6 @@ class RTDFacetedSearch(FacetedSearch):
 
         super().__init__(**kwargs)
 
-    def search(self):
-        """
-        Pass in a user in order to filter search results by privacy.
-
-        .. warning::
-
-            The `self.user` attribute isn't currently used on the .org,
-            but is used on the .com
-        """
-        s = super().search()
-        s = s.source(exclude=['content', 'headers'])
-        return s
-
     def query(self, search, query):
         """
         Add query part to ``search`` when needed.
@@ -57,6 +52,7 @@ class RTDFacetedSearch(FacetedSearch):
         * Adds HTML encoding of results to avoid XSS issues.
         """
         search = search.highlight_options(encoder='html', number_of_fragments=3)
+        search = search.source(exclude=['content', 'headers'])
 
         all_queries = []
 

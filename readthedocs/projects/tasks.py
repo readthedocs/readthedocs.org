@@ -1287,7 +1287,7 @@ def _update_intersphinx_data(version, path, commit):
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
     bulk_post_create.send(sender=SphinxDomain, instance_list=created_sphinx_domains, commit=commit)
 
-    # Delete the HTMLFile first from previous commit and
+    # Delete the SphinxDomain first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
     delete_queryset = (
         SphinxDomain.objects.filter(project=version.project,
