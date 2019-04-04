@@ -84,6 +84,7 @@ class CommunityBaseSettings(Settings):
             'textclassifier',
             'annoying',
             'django_extensions',
+            'crispy_forms',
             'messages_extends',
             'django_filters',
             'django_elasticsearch_dsl',

@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
@@ -883,7 +884,21 @@ class Project(models.Model):
         }
         if user:
             kwargs['user'] = user
-        versions = Version.objects.public(**kwargs)
+        versions = Version.objects.public(**kwargs).select_related(
+            'project',
+            'project__main_language_project',
+        ).prefetch_related(
+            Prefetch(
+                'project__superprojects',
+                ProjectRelationship.objects.all().select_related('parent'),
+                to_attr='_superprojects',
+            ),
+            Prefetch(
+                'project__domains',
+                Domain.objects.filter(canonical=True),
+                to_attr='_canonical_domains',
+            ),
+        )
         return sort_version_aware(versions)
 
     def all_active_versions(self):
@@ -980,6 +995,26 @@ class Project(models.Model):
 
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
+
+    def get_parent_relationship(self):
+        """Get the parent project relationship or None if this is a top level project"""
+        if hasattr(self, '_superprojects'):
+            # Cached parent project relationship
+            if self._superprojects:
+                return self._superprojects[0]
+            return None
+
+        return self.superprojects.select_related('parent').first()
+
+    def get_canonical_custom_domain(self):
+        """Get the canonical custom domain or None"""
+        if hasattr(self, '_canonical_domains'):
+            # Cached custom domains
+            if self._canonical_domains:
+                return self._canonical_domains[0]
+            return None
+
+        return self.domains.filter(canonical=True).first()
 
     @property
     def features(self):
@@ -1313,6 +1348,7 @@ class Feature(models.Model):
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     USE_PDF_LATEXMK = 'use_pdf_latexmk'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1346,6 +1382,10 @@ class Feature(models.Model):
         (
             SHARE_SPHINX_DOCTREE,
             _('Use shared directory for doctrees'),
+        ),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default')
         ),
     )
 

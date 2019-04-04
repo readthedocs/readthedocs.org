@@ -4,7 +4,6 @@ from django.apps import apps
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.worker import app
-from readthedocs.projects.exceptions import InvalidParamsException
 from .utils import _get_index, _get_document
 
 log = logging.getLogger(__name__)
@@ -16,10 +15,10 @@ def index_objects_to_es(
 ):
 
     if chunk and objects_id:
-        raise InvalidParamsException('You can not pass both chunk and objects_id.')
+        raise ValueError('You can not pass both chunk and objects_id.')
 
     if not (chunk or objects_id):
-        raise InvalidParamsException('You must pass a chunk or objects_id.')
+        raise ValueError('You must pass a chunk or objects_id.')
 
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
