@@ -1,7 +1,9 @@
 version: '3'
 
 volumes:
-  web:
+  web-static:
+  web-public-web-root:
+  web-user-builds:
 
 services:
 
@@ -13,7 +15,9 @@ services:
       - web
     volumes:
       - ${PWD}/docker/nginx:/etc/nginx/conf.d
-      - web:/usr/src/app/checkouts/readthedocs.org/static
+      - web-static:/usr/src/app/checkouts/readthedocs.org/static
+      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
+      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
 
   web:
     build:
@@ -23,15 +27,19 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
-      - web:/usr/src/app/checkouts/readthedocs.org/static
+      - web-static:/usr/src/app/checkouts/readthedocs.org/static
+      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
+      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
     links:
       - database
-      - redis
+      - cache
     environment:
       - DJANGO_SETTINGS_SKIP_LOCAL=t
 
   # TODO: how do we configure this `celery` container to sync the files into `web`?
   # There is a FILE_SYNCER setting that uses readthedocs.builder.syncers classes
+  # This needs ``rsync`` and ``openssh`` to be installed in celery image,
+  # and ``openssh`` server configured and running on build
   celery:
     build:
       context: .
@@ -40,9 +48,12 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
+      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
     links:
       - database
-      - redis
+      - cache
+      - search
     environment:
       - DJANGO_SETTINGS_SKIP_LOCAL=t
     command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "web,web01,reindex", "-l", "DEBUG"]
@@ -65,13 +76,18 @@ services:
 
       - /var/run/docker.sock:/var/run/docker.sock
     links:
-      - redis
+      - cache
     environment:
       - DJANGO_SETTINGS_SKIP_LOCAL=t
     command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "builder,celery,default,build01", "-l", "DEBUG"]
 
-  redis:
+  cache:
     image: redis:3.2.7
+
+  # You may need to increase the memory for vm
+  # sudo sysctl -w vm.max_map_count=262144
+  search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
 
   database:
     image: postgres:11.1

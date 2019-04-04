@@ -39,8 +39,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_API_HOST = "http://web:8000"
     PUBLIC_API_URL = "http://web:8000"
 
-    BROKER_URL = "redis://redis:6379/0"
-    CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+    BROKER_URL = "redis://cache:6379/0"
+    CELERY_RESULT_BACKEND = "redis://cache:6379/0"
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ALWAYS_EAGER = False
     CELERY_TASK_IGNORE_RESULT = False
