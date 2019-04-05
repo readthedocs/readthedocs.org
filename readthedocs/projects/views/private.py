@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project views for authenticated users."""
 
 import logging
@@ -9,6 +7,7 @@ from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count, OuterRef, Subquery
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -25,7 +24,7 @@ from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, prepare_build, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -58,9 +57,9 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
+from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects.notifications import EmailConfirmNotification
 
 from ..tasks import retry_domain_verification
 
@@ -94,7 +93,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        # Filters the builds for a perticular project.
+        builds = Build.objects.filter(
+            project=OuterRef('pk'), type='html', state='finished')
+        # Creates a Subquery object which returns
+        # the value of Build.success of the latest build.
+        sub_query = Subquery(builds.values('success')[:1])
+        return Project.objects.dashboard(self.request.user).annotate(
+            build_count=Count('builds'), latest_build_success=sub_query)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
@@ -354,7 +360,7 @@ class ImportDemoView(PrivateViewMixin, View):
             if form.is_valid():
                 project = form.save()
                 project.save()
-                trigger_build(project)
+                self.trigger_initial_build(project)
                 messages.success(
                     request,
                     _('Your demo project is currently being imported'),
@@ -380,6 +386,14 @@ class ImportDemoView(PrivateViewMixin, View):
     def get_form_kwargs(self):
         """Form kwargs passed in during instantiation."""
         return {'user': self.request.user}
+
+    def trigger_initial_build(self, project):
+        """
+        Trigger initial build.
+
+        Allow to override the behavior from outside.
+        """
+        return trigger_build(project)
 
 
 class ImportView(PrivateViewMixin, TemplateView):

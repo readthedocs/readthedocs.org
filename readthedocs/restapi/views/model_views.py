@@ -105,7 +105,6 @@ class ProjectViewSet(UserSelectViewSet):
     admin_serializer_class = ProjectAdminSerializer
     model = Project
     pagination_class = api_utils.ProjectPagination
-    filter_fields = ('slug',)  # django-filter<2.0.0
     filterset_fields = ('slug',)
 
     @decorators.action(detail=True)
@@ -217,8 +216,8 @@ class ProjectViewSet(UserSelectViewSet):
             )
 
         promoted_version = project.update_stable_version()
-        if promoted_version:
-            new_stable = project.get_stable_version()
+        new_stable = project.get_stable_version()
+        if promoted_version and new_stable and new_stable.active:
             log.info(
                 'Triggering new stable build: {project}:{version}'.format(
                     project=project.slug,
@@ -250,10 +249,6 @@ class VersionViewSet(UserSelectViewSet):
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
-    filter_fields = (
-        'active',
-        'project__slug',
-    )  # django-filter<2.0.0
     filterset_fields = (
         'active',
         'project__slug',
@@ -266,7 +261,6 @@ class BuildViewSetBase(UserSelectViewSet):
     serializer_class = BuildSerializer
     admin_serializer_class = BuildAdminSerializer
     model = Build
-    filter_fields = ('project__slug', 'commit')  # django-filter<2.0.0
     filterset_fields = ('project__slug', 'commit')
 
 
@@ -343,6 +337,10 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                 service.adapter.provider_id for service in registry
             ],
         )
+
+        # optimizes for the RemoteOrganizationSerializer
+        query = query.select_related('organization')
+
         return query
 
 

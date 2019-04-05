@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """OAuth utility functions."""
 
 import json
@@ -13,10 +11,12 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
+
 
 
 try:
@@ -92,10 +92,10 @@ class GitLabService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitLab repositories')
-            raise Exception(
-                'Could not sync your GitLab repositories, try reconnecting '
-                'your account',
+            log.warning('Error syncing GitLab repositories')
+            raise SyncServiceError(
+                'Could not sync your GitLab repositories, '
+                'try reconnecting your account'
             )
 
     def sync_organizations(self):
@@ -123,10 +123,10 @@ class GitLabService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitLab organizations')
-            raise Exception(
-                'Could not sync your GitLab organization, try reconnecting '
-                'your account',
+            log.warning('Error syncing GitLab organizations')
+            raise SyncServiceError(
+                'Could not sync your GitLab organization, '
+                'try reconnecting your account'
             )
 
     def is_owned_by(self, owner_id):
@@ -253,6 +253,7 @@ class GitLabService(Service):
                     },
                 ),
             ),
+            'token': integration.secret,
 
             # Optional
             'issues_events': False,
@@ -276,7 +277,6 @@ class GitLabService(Service):
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
         )
-
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             return (False, None)
@@ -334,6 +334,7 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, None)
 
+        integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
         resp = None

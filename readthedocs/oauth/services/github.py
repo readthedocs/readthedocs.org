@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """OAuth utility functions."""
 
 import json
@@ -14,10 +12,12 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
+from readthedocs.integrations.utils import get_secret
 from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
-from .base import Service
+from .base import Service, SyncServiceError
+
 
 
 log = logging.getLogger(__name__)
@@ -43,10 +43,10 @@ class GitHubService(Service):
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitHub repositories')
-            raise Exception(
+            log.warning('Error syncing GitHub repositories')
+            raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
-                'try reconnecting your account',
+                'try reconnecting your account'
             )
 
     def sync_organizations(self):
@@ -64,10 +64,10 @@ class GitHubService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError):
-            log.exception('Error syncing GitHub organizations')
-            raise Exception(
+            log.warning('Error syncing GitHub organizations')
+            raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
-                'try reconnecting your account',
+                'try reconnecting your account'
             )
 
     def create_repository(self, fields, privacy=None, organization=None):
@@ -179,6 +179,7 @@ class GitHubService(Service):
                         },
                     ),
                 ),
+                'secret': integration.secret,
                 'content_type': 'json',
             },
             'events': ['push', 'pull_request', 'create', 'delete'],
@@ -263,6 +264,7 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
+        integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         url = integration.provider_data.get('url')
         resp = None

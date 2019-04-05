@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """
 MkDocs_ backend for building docs.
 
 .. _MkDocs: http://www.mkdocs.org/
 """
+
 import json
 import logging
 import os
@@ -45,12 +44,12 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.yaml_file = self.get_yaml_config()
         self.old_artifact_path = os.path.join(
-            self.version.project.checkout_path(self.version.slug),
+            os.path.dirname(self.yaml_file),
             self.build_dir,
         )
         self.root_path = self.version.project.checkout_path(self.version.slug)
-        self.yaml_file = self.get_yaml_config()
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -76,8 +75,6 @@ class BaseMkdocs(BaseBuilder):
                 self.project.checkout_path(self.version.slug),
                 'mkdocs.yml',
             )
-            if not os.path.exists(mkdoc_path):
-                return None
         return mkdoc_path
 
     def load_yaml_config(self):
@@ -112,9 +109,6 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to known type errors
                  (i.e. expecting a list and a string is found).
         """
-        if not self.yaml_file:
-            self.yaml_file = os.path.join(self.root_path, 'mkdocs.yml')
-
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
@@ -140,15 +134,25 @@ class BaseMkdocs(BaseBuilder):
                     ),
                 )
 
-        user_config.setdefault('extra_javascript', []).extend([
+        extra_javascript_list = [
             'readthedocs-data.js',
             '%score/js/readthedocs-doc-embed.js' % static_url,
             '%sjavascript/readthedocs-analytics.js' % static_url,
-        ])
-        user_config.setdefault('extra_css', []).extend([
+        ]
+        extra_css_list = [
             '%scss/badge_only.css' % static_url,
             '%scss/readthedocs-doc-embed.css' % static_url,
-        ])
+        ]
+
+        # Only add static file if the files are not already in the list
+        user_config.setdefault('extra_javascript', []).extend(
+            [js for js in extra_javascript_list if js not in user_config.get(
+                'extra_javascript')]
+        )
+        user_config.setdefault('extra_css', []).extend(
+            [css for css in extra_css_list if css not in user_config.get(
+                'extra_css')]
+        )
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.
@@ -237,8 +241,9 @@ class BaseMkdocs(BaseBuilder):
     def build(self):
         checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
-            'python',
-            self.python_env.venv_bin(filename='mkdocs'),
+            self.python_env.venv_bin(filename='python'),
+            '-m',
+            'mkdocs',
             self.builder,
             '--clean',
             '--site-dir',

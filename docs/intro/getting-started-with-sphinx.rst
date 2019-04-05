@@ -96,13 +96,7 @@ Then in your ``conf.py``:
 
 .. code-block:: python
 
-    from recommonmark.parser import CommonMarkParser
-
-    source_parsers = {
-        '.md': CommonMarkParser,
-    }
-
-    source_suffix = ['.rst', '.md']
+   extensions = ['recommonmark']
 
 .. warning:: Markdown doesn't support a lot of the features of Sphinx,
           like inline markup and directives. However, it works for

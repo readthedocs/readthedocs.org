@@ -10,7 +10,6 @@ from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.constants import REPO_CHOICES
@@ -19,7 +18,6 @@ from readthedocs.projects.models import Project
 from .querysets import RemoteOrganizationQuerySet, RemoteRepositoryQuerySet
 
 
-@python_2_unicode_compatible
 class RemoteOrganization(models.Model):
 
     """
@@ -74,7 +72,6 @@ class RemoteOrganization(models.Model):
             pass
 
 
-@python_2_unicode_compatible
 class RemoteRepository(models.Model):
 
     """
@@ -182,19 +179,23 @@ class RemoteRepository(models.Model):
     def matches(self, user):
         """Projects that exist with repository URL already."""
         # Support Git scheme GitHub url format that may exist in database
-        fuzzy_url = self.clone_url.replace('git://', '').replace('.git', '')
-        projects = (Project
-                    .objects
-                    .public(user)
-                    .filter(Q(repo=self.clone_url) |
-                            Q(repo__iendswith=fuzzy_url) |
-                            Q(repo__iendswith=fuzzy_url + '.git')))  # yapf: disable
+        truncated_url = self.clone_url.replace('.git', '')
+        http_url = self.clone_url.replace('git://', 'https://').replace('.git', '')
+
+        projects = Project.objects.public(user).filter(
+            Q(repo=self.clone_url) |
+            Q(repo=truncated_url) |
+            Q(repo=truncated_url + '.git') |
+            Q(repo=http_url) |
+            Q(repo=http_url + '.git')
+        ).values('slug')
+
         return [{
-            'id': project.slug,
+            'id': project['slug'],
             'url': reverse(
                 'projects_detail',
                 kwargs={
-                    'project_slug': project.slug,
+                    'project_slug': project['slug'],
                 },
             ),
         } for project in projects]

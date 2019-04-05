@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """An API to load config from a readthedocs.yml file."""
 
 from os import path
 
-from readthedocs.config import BuildConfigV1, ConfigError, InvalidConfig
+from readthedocs.config import BuildConfigV1, ConfigFileNotFound
 from readthedocs.config import load as load_config
-from readthedocs.projects.models import Feature, ProjectConfigurationError
+from readthedocs.projects.models import ProjectConfigurationError
 
 from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
 
@@ -27,7 +25,6 @@ def load_yaml_config(version):
 
     img_name = project.container_image or DOCKER_IMAGE
     python_version = 3 if project.python_interpreter == 'python3' else 2
-    allow_v2 = project.has_feature(Feature.ALLOW_V2_CONFIG_FILE)
     try:
         sphinx_configuration = path.join(
             version.get_conf_py_path(),
@@ -37,7 +34,6 @@ def load_yaml_config(version):
         sphinx_configuration = None
 
     env_config = {
-        'allow_v2': allow_v2,
         'build': {
             'image': img_name,
         },
@@ -61,10 +57,9 @@ def load_yaml_config(version):
             path=checkout_path,
             env_config=env_config,
         )
-    except InvalidConfig:
-        # This is a subclass of ConfigError, so has to come first
-        raise
-    except ConfigError:
+    except ConfigFileNotFound:
+        # Dafault to use v1 with some defaults from the web interface
+        # if we don't find a configuration file.
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},

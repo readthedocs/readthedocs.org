@@ -12,7 +12,6 @@ from django.contrib.contenttypes.fields import (
 )
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from jsonfield import JSONField
@@ -24,7 +23,7 @@ from rest_framework import status
 from readthedocs.core.fields import default_token
 from readthedocs.projects.models import Project
 
-from .utils import normalize_request_payload
+from .utils import get_secret, normalize_request_payload
 
 
 class HttpExchangeManager(models.Manager):
@@ -112,7 +111,6 @@ class HttpExchangeManager(models.Manager):
             exchange.delete()
 
 
-@python_2_unicode_compatible
 class HttpExchange(models.Model):
 
     """HTTP request/response exchange."""
@@ -230,7 +228,6 @@ class IntegrationQuerySet(models.QuerySet):
         return obj
 
 
-@python_2_unicode_compatible
 class Integration(models.Model):
 
     """Inbound webhook integration for projects."""
@@ -260,11 +257,22 @@ class Integration(models.Model):
         'HttpExchange',
         related_query_name='integrations',
     )
+    secret = models.CharField(
+        help_text=_('Secret used to validate the payload of the webhook'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default=get_secret,
+    )
 
     objects = IntegrationQuerySet.as_manager()
 
     # Integration attributes
     has_sync = False
+
+    def recreate_secret(self):
+        self.secret = get_secret()
+        self.save(update_fields=['secret'])
 
     def __str__(self):
         return (

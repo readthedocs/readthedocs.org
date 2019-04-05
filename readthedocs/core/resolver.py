@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
-
 """URL resolver for documentation."""
 
-import re
+import logging
 from urllib.parse import urlunparse
 
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import PRIVATE, PUBLIC
+
+log = logging.getLogger(__name__)
 
 
 class ResolverBase:
@@ -102,7 +102,7 @@ class ResolverBase:
             private=None,
     ):
         """Resolve a URL with a subset of fields defined."""
-        cname = cname or project.domains.filter(canonical=True).first()
+        cname = cname or project.get_canonical_custom_domain()
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
@@ -118,7 +118,7 @@ class ResolverBase:
         # translations, only loop twice to avoid sticking in the loop
         for _ in range(0, 2):
             main_language_project = current_project.main_language_project
-            relation = current_project.superprojects.first()
+            relation = current_project.get_parent_relationship()
 
             if main_language_project:
                 current_project = main_language_project
@@ -150,7 +150,7 @@ class ResolverBase:
     def resolve_domain(self, project, private=None):
         # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
-        domain = self._get_project_custom_domain(canonical_project)
+        domain = canonical_project.get_canonical_custom_domain()
         if domain:
             return domain.domain
 
@@ -170,7 +170,7 @@ class ResolverBase:
             private = self._get_private(project, version_slug)
 
         canonical_project = self._get_canonical_project(project)
-        custom_domain = self._get_project_custom_domain(canonical_project)
+        custom_domain = canonical_project.get_canonical_custom_domain()
         use_custom_domain = self._use_custom_domain(custom_domain)
 
         if use_custom_domain:
@@ -216,9 +216,9 @@ class ResolverBase:
             projects = [project]
         else:
             projects.append(project)
-        next_project = None
 
-        relation = project.superprojects.first()
+        next_project = None
+        relation = project.get_parent_relationship()
         if project.main_language_project:
             next_project = project.main_language_project
         elif relation:
@@ -234,9 +234,6 @@ class ResolverBase:
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
             return '{}.{}'.format(subdomain_slug, public_domain)
-
-    def _get_project_custom_domain(self, project):
-        return project.domains.filter(canonical=True).first()
 
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version
@@ -255,29 +252,10 @@ class ResolverBase:
         """
         Force filenames that might be HTML file paths into proper URL's.
 
-        This basically means stripping / and .html endings and then re-adding
-        them properly.
+        This basically means stripping /.
         """
-        # Bail out on non-html files
-        if '.' in filename and '.html' not in filename:
-            return filename
         filename = filename.lstrip('/')
-        filename = re.sub(r'(^|/)index(?:.html)?$', '\\1', filename)
-        if filename:
-            if filename.endswith('/') or filename.endswith('.html'):
-                path = filename
-            elif project.documentation_type == 'sphinx_singlehtml':
-                path = 'index.html#document-' + filename
-            elif project.documentation_type in ['sphinx_htmldir', 'mkdocs']:
-                path = filename + '/'
-            elif '#' in filename:
-                # do nothing if the filename contains URL fragments
-                path = filename
-            else:
-                path = filename + '.html'
-        else:
-            path = ''
-        return path
+        return filename
 
     def _use_custom_domain(self, custom_domain):
         """

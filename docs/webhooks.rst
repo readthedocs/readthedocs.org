@@ -30,11 +30,11 @@ a webhook will be set up automatically for your repository. However, if your
 project was not imported through a connected account, you may need to
 manually configure a webhook for your project.
 
-To manually set up a webhook, click **Add integration** on your project's
-**Integrations** Admin dashboard page and select the integration type you'd like
-to add. After you have added the integration, you'll see a link to information about the integration.
+To manually set up a webhook, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
+dashboard page and select the integration type you'd like to add.
+After you have added the integration, you'll see a link to information about the integration.
 
-As an example, the URL pattern looks like this: *readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
+As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
 Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
 
@@ -43,18 +43,25 @@ Use this URL when setting up a new webhook with your provider -- these steps var
 GitHub
 ~~~~~~
 
-* Go to the **Settings** page for your project
-* Click **Webhooks** and then **Add webhook**
+* Go to the :guilabel:`Settings` page for your project
+* Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
 * For **Payload URL**, use the URL of the integration on Read the Docs,
-  found on the project's **Integrations** Admin dashboard page
+  found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
+  You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
   *application/x-www-form-urlencoded* work
+* Leave the **Secrets** field blank
 * Select **Let me select individual events**,
-  and mark **Pushes**, **Branch or tag creation**, and **Branch or tag deletion** events
-* Finish by clicking **Add webhook**
+  and mark **Branch or tag creation**, **Branch or tag deletion** and **Pushes** events
+* Ensure **Active** is enabled; it is by default
+* Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
 
-You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**. If you see a Response 200, then the webhook is correctly configured.
+You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
+If you see a Response 200, then the webhook is correctly configured.
 For a 403 error, it's likely that the Payload URL is incorrect.
+
+GitHub will emit an initial HTTP request (`X-GitHub-Event: ping`) upon creating the webhook and you may notice that the Read the Docs responds with `{"detail":"Unhandled webhook event"}` – this is normal and expected.
+Push changes to your repository and webhooks will work from this point.
 
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
@@ -63,10 +70,9 @@ For a 403 error, it's likely that the Payload URL is incorrect.
 Bitbucket
 ~~~~~~~~~
 
-* Go to the **Settings** page for your project
-* Click **Webhooks** and then **Add webhook**
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
 * For **URL**, use the URL of the integration on Read the Docs,
-  found on the **Dashboard** > **Admin** > **Integrations** page
+  found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
 * Under **Triggers**, **Repository push** should be selected
 * Finish by clicking **Save**
 
@@ -75,10 +81,9 @@ Bitbucket
 GitLab
 ~~~~~~
 
-* Go to the **Settings** page for your project
-* Click **Integrations**
+* Go to the :guilabel:`Settings` > :guilabel:`Integrations` page for your project
 * For **URL**, use the URL of the integration on Read the Docs,
-  found on the **Dashboard** > **Admin** > **Integrations** page
+  found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
 * Leave the default **Push events** selected and mark **Tag push events** also
 * Finish by clicking **Add Webhook**
 
@@ -88,9 +93,9 @@ Using the generic API integration
 ---------------------------------
 
 For repositories that are not hosted with a supported provider, we also offer a
-generic API endpoint for triggering project builds. Similar to webhook
-integrations, this integration has a specific URL, found on the project's
-**Integrations** Admin dashboard page on readthedocs.org.
+generic API endpoint for triggering project builds. Similar to webhook integrations,
+this integration has a specific URL, which can be found on the project's **Integrations** dashboard page
+(:guilabel:`Admin` > :guilabel:`Integrations`).
 
 Token authentication is required to use the generic endpoint, you will find this
 token on the integration details page. The token should be passed in as a
@@ -108,8 +113,8 @@ branches
     Default: **latest**
 
 token
-    The integration token. You'll find this value on the project's
-    **Integrations** Admin dashboard page.
+    The integration token found on the project's **Integrations** dashboard page
+    (:guilabel:`Admin` > :guilabel:`Integrations`).
 
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
@@ -147,6 +152,16 @@ Resyncing webhooks
 It might be necessary to re-establish a webhook if you are noticing problems.
 To resync a webhook from Read the Docs, visit the integration detail page and
 follow the directions for re-syncing your repository webhook.
+
+Payload validation
+------------------
+
+If your project was imported through a connected account,
+we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
+Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
+offer a way to check this.
+
+When :ref:`resyncing the webhook <webhooks:Resyncing webhooks>`, the secret is changed too.
 
 Troubleshooting
 ---------------

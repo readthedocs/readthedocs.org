@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoint to generate footer HTML."""
 
 from django.conf import settings
@@ -71,7 +69,7 @@ def footer_html(request):
     # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
-    page_slug = request.GET.get('page', None)
+    page_slug = request.GET.get('page', '')
     theme = request.GET.get('theme', False)
     docroot = request.GET.get('docroot', '')
     subproject = request.GET.get('subproject', False)
@@ -95,13 +93,8 @@ def footer_html(request):
     main_project = project.main_language_project or project
 
     if page_slug and page_slug != 'index':
-        if (
-            main_project.documentation_type == 'sphinx_htmldir' or
-            main_project.documentation_type == 'mkdocs'
-        ):
+        if main_project.documentation_type == 'sphinx_htmldir':
             path = page_slug + '/'
-        elif main_project.documentation_type == 'sphinx_singlehtml':
-            path = 'index.html#document-' + page_slug
         else:
             path = page_slug + '.html'
     else:

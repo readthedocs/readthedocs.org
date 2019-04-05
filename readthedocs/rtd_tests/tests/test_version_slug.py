@@ -105,3 +105,15 @@ class VersionSlugFieldTests(TestCase):
         self.assertEqual(field.uniquifying_suffix(25), '_z')
         self.assertEqual(field.uniquifying_suffix(26), '_ba')
         self.assertEqual(field.uniquifying_suffix(52), '_ca')
+
+    def test_unicode(self):
+        version = Version.objects.create(
+            verbose_name='camión',
+            project=self.pip,
+        )
+        self.assertEqual(version.slug, 'camion')
+        version = Version.objects.create(
+            verbose_name='ŭñíč°də-branch',
+            project=self.pip,
+        )
+        self.assertEqual(version.slug, 'unicd-branch')

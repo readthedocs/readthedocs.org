@@ -9,6 +9,8 @@ This will point at the default branch for your VCS control: ``master``, ``defaul
 We also create a ``stable`` version,
 if your project has any tagged releases.
 ``stable`` will be automatically kept up to date to point at your highest version.
+If you want a custom ``stable`` version,
+create either a tag or branch in your project with that name.
 
 How we envision versions working
 --------------------------------
@@ -63,4 +65,4 @@ This is a banner that appears on the top of every page of your docs that aren't 
 This banner has a text with a link redirecting the users to the latest version of your docs.
 
 This feature is disabled by default on new projects,
-you can enable it in the admin section of your docs (Advanced Settings).
+you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).

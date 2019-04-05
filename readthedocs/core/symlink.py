@@ -158,7 +158,7 @@ class Symlink:
                 dom,
                 self.project.slug,
             )
-            log.info(
+            log.debug(
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version='',
@@ -190,7 +190,7 @@ class Symlink:
         :type domain: str
         """
         log_msg = 'Removing symlink for CNAME {}'.format(domain)
-        log.info(
+        log.debug(
             constants.LOG_TEMPLATE.format(
                 project=self.project.slug,
                 version='',
@@ -225,7 +225,7 @@ class Symlink:
                     from_slug,
                     to_slug,
                 )
-                log.info(
+                log.debug(
                     constants.LOG_TEMPLATE.format(
                         project=self.project.slug,
                         version='',
@@ -279,7 +279,7 @@ class Symlink:
         for (language, slug) in list(translations.items()):
 
             log_msg = 'Symlinking translation: {}->{}'.format(language, slug)
-            log.info(
+            log.debug(
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version='',
@@ -348,7 +348,7 @@ class Symlink:
                 safe_makedirs(version_dir)
         for version in version_queryset:
             log_msg = 'Symlinking Version: {}'.format(version)
-            log.info(
+            log.debug(
                 constants.LOG_TEMPLATE.format(
                     project=self.project.slug,
                     version='',

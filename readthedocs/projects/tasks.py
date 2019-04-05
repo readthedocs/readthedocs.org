@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Tasks related to projects.
 
@@ -20,11 +18,14 @@ from collections import Counter, defaultdict
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
+from sphinx.ext import intersphinx
+
 
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
@@ -52,19 +53,21 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
     BuildTimeoutError,
+    MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
 from readthedocs.restapi.client import api as api_v2
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import RepositoryError
+from .exceptions import ProjectConfigurationError, RepositoryError
 from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
@@ -79,6 +82,7 @@ from .signals import (
 
 
 log = logging.getLogger(__name__)
+storage = get_storage_class()()
 
 
 class SyncRepositoryMixin:
@@ -97,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise ValueError('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -264,6 +269,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         return False
 
 
+# Exceptions under ``throws`` argument are considered ERROR from a Build
+# perspective (the build failed and can continue) but as a WARNING for the
+# application itself (RTD code didn't failed). These exception are logged as
+# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
@@ -273,7 +282,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
+        BuildEnvironmentWarning,
+        RepositoryError,
+        ProjectConfigurationError,
         ProjectBuildsSkippedError,
+        MkDocsYAMLParseError,
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
@@ -381,8 +394,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     'stack': True,
                     'tags': {
                         'build': build_pk,
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        # We can't depend on these objects because the api
+                        # could fail. But self.project and self.version are
+                        # initialized as empty dicts in the init method.
+                        'project': self.project.slug if self.project else None,
+                        'version': self.version.slug if self.version else None,
                     },
                 },
             )
@@ -604,8 +620,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
-
-        :param build_env: Build environment
         """
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
@@ -619,14 +633,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             self.sync_repo()
         except RepositoryError:
-            # Do not log as ERROR handled exceptions
             log.warning('There was an error with the repository', exc_info=True)
+            # Re raise the exception to stop the build at this point
+            raise
         except vcs_support_utils.LockTimeout:
             log.info(
                 'Lock still active: project=%s version=%s',
                 self.project.slug,
                 self.version.slug,
             )
+            # Raise the proper exception (won't be sent to Sentry)
+            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
@@ -640,6 +657,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+            # Re raise the exception to stop the build at this point
+            raise
 
         commit = self.project.vcs_repo(self.version.slug).commit
         if commit:
@@ -681,9 +700,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['has_valid_clone'] = True
-        api_v2.project(self.project.pk).put(project_data)
+        api_v2.project(self.project.pk).patch(
+            {'has_valid_clone': True}
+        )
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
@@ -722,6 +741,28 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
+        hostname = socket.gethostname()
+
+        delete_unsynced_media = True
+
+        if getattr(storage, 'write_build_media', False):
+            # Handle the case where we want to upload some built assets to our storage
+            move_files.delay(
+                self.version.pk,
+                hostname,
+                self.config.doctype,
+                html=False,
+                search=False,
+                localmedia=localmedia,
+                pdf=pdf,
+                epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
+            )
+            # Set variables so they don't get synced in the next broadcast step
+            localmedia = False
+            pdf = False
+            epub = False
+            delete_unsynced_media = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -733,17 +774,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.config.doctype,
             ],
             kwargs=dict(
-                hostname=socket.gethostname(),
+                hostname=hostname,
                 html=html,
                 localmedia=localmedia,
                 search=search,
                 pdf=pdf,
                 epub=epub,
+                delete_unsynced_media=delete_unsynced_media,
             ),
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
-                search=search,
             ),
         )
 
@@ -815,7 +856,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 type='app',
                 task=move_files,
                 args=[
-                    self.version.pk, socket.gethostname(), self.config.doctype
+                    self.version.pk,
+                    socket.gethostname(), self.config.doctype
                 ],
                 kwargs=dict(html=True),
             )
@@ -887,15 +929,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk,
-        version_pk,
-        doctype,
-        hostname=None,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
+        project_pk, version_pk, doctype, hostname=None, html=False,
+        localmedia=False, search=False, pdf=False, epub=False,
+        delete_unsynced_media=False,
 ):
     """
     Sync build artifacts to application instances.
@@ -907,20 +943,6 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
-    if not pdf:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='pdf',
-                version_slug=version.slug,
-            ),
-        ])
-    if not epub:
-        remove_dirs([
-            version.project.get_production_media_path(
-                type_='epub',
-                version_slug=version.slug,
-            ),
-        ])
 
     # Sync files to the web servers
     move_files(
@@ -932,6 +954,7 @@ def sync_files(
         search=search,
         pdf=pdf,
         epub=epub,
+        delete_unsynced_media=delete_unsynced_media,
     )
 
     # Symlink project
@@ -951,6 +974,7 @@ def move_files(
         search=False,
         pdf=False,
         epub=False,
+        delete_unsynced_media=False,
 ):
     """
     Task to move built documentation to web servers.
@@ -967,10 +991,42 @@ def move_files(
     :type pdf: bool
     :param epub: Sync ePub files
     :type epub: bool
+    :param delete_unsynced_media: Whether to try and delete files.
+    :type delete_unsynced_media: bool
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
+
+    # This is False if we have already synced media files to blob storage
+    # We set `epub=False` for example so data doesn't get re-uploaded on each
+    # web, so we need this to protect against deleting in those cases
+    if delete_unsynced_media:
+        downloads = {
+            'pdf': pdf,
+            'epub': epub,
+            'htmlzip': localmedia,
+        }
+        unsync_downloads = (k for k, v in downloads.items() if not v)
+        for media_type in unsync_downloads:
+            remove_dirs([
+                version.project.get_production_media_path(
+                    type_=media_type,
+                    version_slug=version.slug,
+                    include_file=False,
+                ),
+            ])
+
+            if getattr(storage, 'write_build_media', False):
+                # Remove the media from remote storage if it exists
+                storage_path = version.project.get_storage_path(
+                    type_=media_type,
+                    version_slug=version.slug,
+                )
+                if storage.exists(storage_path):
+                    log.info('Removing %s from media storage', storage_path)
+                    storage.delete(storage_path)
+
     log.debug(
         LOG_TEMPLATE.format(
             project=version.project.slug,
@@ -1000,40 +1056,47 @@ def move_files(
         Syncer.copy(from_path, to_path, host=hostname)
 
     if localmedia:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_localmedia',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_localmedia',
+            ),
+            '{}.zip'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='htmlzip',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
-
-    # Always move PDF's because the return code lies.
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     if pdf:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_pdf',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_pdf',
+            ),
+            '{}.pdf'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='pdf',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
     if epub:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_epub',
+        from_path = os.path.join(
+            version.project.artifact_path(
+                version=version.slug,
+                type_='sphinx_epub',
+            ),
+            '{}.epub'.format(version.project.slug),
         )
         to_path = version.project.get_production_media_path(
             type_='epub',
             version_slug=version.slug,
-            include_file=False,
+            include_file=True,
         )
-        Syncer.copy(from_path, to_path, host=hostname)
+        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
 
 
 @app.task(queue='web')
@@ -1044,7 +1107,7 @@ def symlink_project(project_pk):
         sym.run()
 
 
-@app.task(queue='web', throws=(BuildEnvironmentWarning,))
+@app.task(queue='web')
 def symlink_domain(project_pk, domain, delete=False):
     """
     Symlink domain.
@@ -1093,7 +1156,7 @@ def broadcast_remove_orphan_symlinks():
     broadcast(type='web', task=remove_orphan_symlinks, args=[])
 
 
-@app.task(queue='web', throws=(BuildEnvironmentWarning,))
+@app.task(queue='web')
 def symlink_subproject(project_pk):
     project = Project.objects.get(pk=project_pk)
     for symlink in [PublicSymlink, PrivateSymlink]:
@@ -1136,6 +1199,7 @@ def fileify(version_pk, commit):
             ),
         )
         _manage_imported_files(version, path, commit)
+        _update_intersphinx_data(version, path, commit)
     else:
         log.info(
             LOG_TEMPLATE.format(
@@ -1144,6 +1208,66 @@ def fileify(version_pk, commit):
                 msg='No ImportedFile files',
             ),
         )
+
+
+def _update_intersphinx_data(version, path, commit):
+    """
+    Update intersphinx data for this version
+
+    :param version: Version instance
+    :param path: Path to search
+    :param commit: Commit that updated path
+    """
+    object_file = os.path.join(path, 'objects.inv')
+    if not os.path.exists(object_file):
+        log.debug('No objects.inv, skipping intersphinx indexing.')
+        return
+
+    # These classes are copied from Sphinx
+    # https://git.io/fhFbI
+    class MockConfig:
+        intersphinx_timeout = None
+        tls_verify = False
+
+    class MockApp:
+        srcdir = ''
+        config = MockConfig()
+
+        def warn(self, msg):
+            log.warning('Sphinx MockApp: %s', msg)
+
+    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
+    for key, value in sorted(invdata.items() or {}):
+        domain, _type = key.split(':')
+        for name, einfo in sorted(value.items()):
+            # project, version, url, display_name
+            # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
+            url = einfo[2]
+            if '#' in url:
+                doc_name, anchor = url.split(
+                    '#',
+                    # The anchor can contain ``#`` characters
+                    maxsplit=1
+                )
+            else:
+                doc_name, anchor = url, ''
+            display_name = einfo[3]
+            obj, _ = SphinxDomain.objects.get_or_create(
+                project=version.project,
+                version=version,
+                domain=domain,
+                name=name,
+                display_name=display_name,
+                type=_type,
+                doc_name=doc_name,
+                anchor=anchor,
+            )
+            if obj.commit != commit:
+                obj.commit = commit
+                obj.save()
+    SphinxDomain.objects.filter(project=version.project,
+                                version=version
+                                ).exclude(commit=commit).delete()
 
 
 def _manage_imported_files(version, path, commit):
@@ -1201,10 +1325,12 @@ def _manage_imported_files(version, path, commit):
     )
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
     # Safely delete from database
     delete_queryset.delete()
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
 
     # Delete ImportedFiles from previous versions
     (
@@ -1406,7 +1532,10 @@ def sync_callback(_, version_pk, commit, *args, **kwargs):
 
     The first argument is the result from previous tasks, which we discard.
     """
-    fileify(version_pk, commit=commit)
+    try:
+        fileify(version_pk, commit=commit)
+    except Exception:
+        log.exception('Post sync tasks failed, not stopping build')
 
 
 @app.task()

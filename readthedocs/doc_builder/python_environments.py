@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
@@ -8,8 +6,6 @@ import json
 import logging
 import os
 import shutil
-
-from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
@@ -99,7 +95,7 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--ignore-installed',
+                '--force-reinstall',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
@@ -278,24 +274,30 @@ class Virtualenv(PythonEnvironment):
         )
 
         requirements = [
-            'Pygments==2.2.0',
+            'Pygments==2.3.1',
             # Assume semver for setuptools version, support up to next backwards
             # incompatible release
             self.project.get_feature_value(
                 Feature.USE_SETUPTOOLS_LATEST,
                 positive='setuptools<41',
-                negative='setuptools<40',
+                negative='setuptools<41',
             ),
-            'docutils==0.13.1',
+            'docutils==0.14',
             'mock==1.0.1',
-            'pillow==2.6.1',
+            'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.5.4',
-            'recommonmark==0.4.0',
+            'commonmark==0.8.1',
+            'recommonmark==0.5.0',
         ]
 
         if self.config.doctype == 'mkdocs':
-            requirements.append('mkdocs==0.17.3')
+            requirements.append(
+                self.project.get_feature_value(
+                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
+                    positive='mkdocs==0.17.3',
+                    negative='mkdocs<1.1',
+                ),
+            )
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
@@ -303,7 +305,7 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
                     positive='sphinx<2',
-                    negative='sphinx<1.8',
+                    negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
                 'readthedocs-sphinx-ext<0.6',
@@ -443,7 +445,7 @@ class Conda(PythonEnvironment):
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
         pip_cmd = [

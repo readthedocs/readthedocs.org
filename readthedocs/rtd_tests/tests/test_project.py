@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import datetime
 import json
 
@@ -56,10 +55,10 @@ class TestProject(ProjectMixin, TestCase):
             self.assertFalse(self.pip.has_pdf(LATEST))
 
     def test_has_pdf_with_pdf_build_disabled(self):
-        # The project has NO pdf if pdf builds are disabled
+        # The project doesn't depend on `enable_pdf_build`
         self.pip.enable_pdf_build = False
         with fake_paths_by_regex(r'\.pdf$'):
-            self.assertFalse(self.pip.has_pdf(LATEST))
+            self.assertTrue(self.pip.has_pdf(LATEST))
 
     def test_has_epub(self):
         # The project has a epub if the PDF file exists on disk.
@@ -71,10 +70,10 @@ class TestProject(ProjectMixin, TestCase):
             self.assertFalse(self.pip.has_epub(LATEST))
 
     def test_has_epub_with_epub_build_disabled(self):
-        # The project has NO epub if epub builds are disabled
+        # The project doesn't depend on `enable_epub_build`
         self.pip.enable_epub_build = False
         with fake_paths_by_regex(r'\.epub$'):
-            self.assertFalse(self.pip.has_epub(LATEST))
+            self.assertTrue(self.pip.has_epub(LATEST))
 
     @patch('readthedocs.projects.models.Project.find')
     def test_conf_file_found(self, find_method):
@@ -120,6 +119,20 @@ class TestProject(ProjectMixin, TestCase):
                 ProjectConfigurationError.MULTIPLE_CONF_FILES,
         ) as cm:
             self.pip.conf_file()
+
+    def test_get_storage_path(self):
+        self.assertEqual(
+            self.pip.get_storage_path('pdf', LATEST),
+            'pdf/pip/latest/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', LATEST),
+            'epub/pip/latest/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', LATEST),
+            'htmlzip/pip/latest/pip.zip',
+        )
 
 
 class TestProjectTranslations(ProjectMixin, TestCase):
@@ -239,10 +252,8 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertIsNone(project_b.main_language_project)
 
     def test_previous_users_can_list_and_delete_translations_not_owner(self):
-        """
-        Test to make sure that previous users can list and delete
-        projects where they aren't owners.
-        """
+        """Test to make sure that previous users can list and delete projects
+        where they aren't owners."""
         user_a = User.objects.get(username='eric')
         project_a = get(
             Project, users=[user_a],

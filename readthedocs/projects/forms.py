@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Project forms."""
-
 from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Fieldset, Layout, HTML, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -22,7 +21,6 @@ from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.models import (
     Domain,
     EmailHook,
@@ -32,6 +30,7 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.models import Redirect
 
 
@@ -131,6 +130,10 @@ class ProjectBasicsForm(ProjectForm):
 
         return name
 
+    def clean_repo(self):
+        repo = self.cleaned_data.get('repo', '')
+        return repo.rstrip('/')
+
     def clean_remote_repository(self):
         remote_repo = self.cleaned_data.get('remote_repository', None)
         if not remote_repo:
@@ -192,54 +195,71 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
-    python_interpreter = forms.ChoiceField(
-        choices=constants.PYTHON_CHOICES,
-        initial='python',
-        help_text=_(
-            'The Python interpreter used to create the virtual '
-            'environment.',
-        ),
-    )
-
     class Meta:
         model = Project
-        fields = (
-            # Standard build edits
-            'install_project',
-            'requirements_file',
-            'single_version',
-            'conf_py_file',
-            'default_branch',
+        per_project_settings = (
             'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
             'show_version_warning',
+            'single_version',
+        )
+        # These that can be set per-version using a config file.
+        per_version_settings = (
+            'documentation_type',
+            'requirements_file',
+            'python_interpreter',
+            'install_project',
+            'use_system_packages',
+            'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
-            # Privacy
-            'privacy_level',
-            # 'version_privacy_level',
-            # Python specific
-            'use_system_packages',
-            'python_interpreter',
-            # Fringe
-            'analytics_code',
+        )
+        fields = (
+            *per_project_settings,
+            *per_version_settings,
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        default_choice = (None, '-' * 9)
-        all_versions = self.instance.versions.values_list(
-            'identifier',
-            'verbose_name',
+        self.helper = FormHelper()
+        help_text = render_to_string(
+            'projects/project_advanced_settings_helptext.html'
         )
+        self.helper.layout = Layout(
+            Fieldset(
+                _("Global settings"),
+                *self.Meta.per_project_settings,
+            ),
+            Fieldset(
+                _("Default settings"),
+                HTML(help_text),
+                *self.Meta.per_version_settings,
+            ),
+        )
+        self.helper.add_input(Submit('save', _('Save')))
+
+        default_choice = (None, '-' * 9)
+        # commit_name is used as the id because it handles
+        # the special cases of LATEST and STABLE.
+        all_versions_choices = [
+            (v.commit_name, v.verbose_name)
+            for v in self.instance.versions.all()
+        ]
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + list(all_versions),
+            choices=[default_choice] + all_versions_choices,
         )
 
         active_versions = self.get_all_active_versions()
-        self.fields['default_version'].widget = forms.Select(
-            choices=active_versions,
-        )
+
+        if active_versions:
+            self.fields['default_version'].widget = forms.Select(
+                choices=active_versions,
+            )
+        else:
+            self.fields['default_version'].widget.attrs['readonly'] = True
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -265,7 +285,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             version_qs = sort_version_aware(version_qs)
             all_versions = [(version.slug, version.verbose_name) for version in version_qs]
             return all_versions
-        return [()]
+        return None
 
 
 class UpdateProjectForm(
@@ -283,7 +303,6 @@ class UpdateProjectForm(
             'repo_type',
             # Extra
             'description',
-            'documentation_type',
             'language',
             'programming_language',
             'project_url',
@@ -358,6 +377,17 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
                 _('A project can not be a subproject of itself'),
             )
         return child
+
+    def clean_alias(self):
+        alias = self.cleaned_data['alias']
+        subproject = self.project.subprojects.filter(
+            alias=alias).exclude(id=self.instance.pk)
+
+        if subproject.exists():
+            raise forms.ValidationError(
+                _('A subproject with this alias already exists'),
+            )
+        return alias
 
     def get_subproject_queryset(self):
         """
@@ -758,7 +788,7 @@ class IntegrationForm(forms.ModelForm):
 
     class Meta:
         model = Integration
-        exclude = ['provider_data', 'exchanges']  # pylint: disable=modelform-uses-exclude
+        exclude = ['provider_data', 'exchanges', 'secret']  # pylint: disable=modelform-uses-exclude
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -771,6 +801,9 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
+        # We don't set the secret on the integration
+        # when it's created via the form.
+        self.instance.secret = None
         return super().save(commit)
 
 

@@ -106,7 +106,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd
         self.environment = os.environ.copy()
         if environment is not None:
-            assert 'PATH' not in environment, "PATH can't be set"
+            if 'PATH' in environment:
+                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
             self.environment.update(environment)
 
         self.combine_output = combine_output
@@ -282,10 +283,10 @@ class BuildCommand(BuildCommandResultMixin):
                     'Content-Type': encoder.content_type,
                 }
             )
-            log.info('Post response via multipart form: %s', resp)
+            log.debug('Post response via multipart form: %s', resp)
         else:
             resp = api_v2.command.post(data)
-            log.info('Post response via JSON encoded data: %s', resp)
+            log.debug('Post response via JSON encoded data: %s', resp)
 
 
 class DockerBuildCommand(BuildCommand):
@@ -434,7 +435,8 @@ class BaseEnvironment:
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
-        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        if 'environment' in kwargs:
+            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
         kwargs['environment'] = self.environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
