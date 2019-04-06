@@ -82,7 +82,6 @@ from .signals import (
 
 
 log = logging.getLogger(__name__)
-storage = get_storage_class()()
 
 
 class SyncRepositoryMixin:
@@ -738,24 +737,86 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         The storage could be local filesystem storage OR cloud blob storage
         such as S3, Azure storage or Google Cloud Storage.
 
-        Remove build artifacts of types not included in this build.
+        Remove build artifacts of types not included in this build (PDF, ePub, zip only).
+
+        This looks very similar to `move_files` and is intended to replace it!
 
         :param html: whether to save HTML output
         :param localmedia: whether to save localmedia (htmlzip) output
         :param search: whether to save search artifacts
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
-        :return:
         """
-        if getattr(settings, 'WRITE_BUILD_MEDIA', False):
+        if getattr(settings, 'BUILD_MEDIA_STORAGE', None):
             log.info(
                 LOG_TEMPLATE.format(
                     project=self.version.project.slug,
                     version=self.version.slug,
-                    msg='Write build artifacts to media storage',
+                    msg='Writing build artifacts to media storage',
                 ),
             )
-            # TODO: This will be where we actually implement this
+
+            storage = get_storage_class(settings.BUILD_MEDIA_STORAGE)()
+
+            types_to_copy = []
+            types_to_delete = []
+
+            # HTML media
+            if html:
+                types_to_copy.append(('html', self.config.doctype))
+
+            # Search media (JSON)
+            if search:
+                types_to_copy.append(('json', 'sphinx_search'))
+
+            if localmedia:
+                types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+            else:
+                types_to_delete.append('htmlzip')
+
+            if pdf:
+                types_to_copy.append(('pdf', 'sphinx_pdf'))
+            else:
+                types_to_delete.append('pdf')
+
+            if epub:
+                types_to_copy.append(('epub', 'sphinx_epub'))
+            else:
+                types_to_delete.append('epub')
+
+            for media_type, build_type in types_to_copy:
+                from_path = self.version.project.artifact_path(
+                    version=self.version.slug,
+                    type_=build_type,
+                )
+                to_path = self.version.project.get_storage_path(
+                    type_=media_type,
+                    version_slug=self.version.slug,
+                    include_file=False,
+                )
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=self.version.project.slug,
+                        version=self.version.slug,
+                        msg=f'Writing {media_type} to media storage - {to_path}',
+                    ),
+                )
+                storage.copy_directory(from_path, to_path)
+
+            for media_type in types_to_delete:
+                media_path = self.version.project.get_storage_path(
+                    type_=media_type,
+                    version_slug=self.version.slug,
+                    include_file=False,
+                )
+                log.info(
+                    LOG_TEMPLATE.format(
+                        project=self.version.project.slug,
+                        version=self.version.slug,
+                        msg=f'Deleting {media_type} from media storage - {media_path}',
+                    ),
+                )
+                storage.delete_directory(media_path)
 
     def update_app_instances(
             self,

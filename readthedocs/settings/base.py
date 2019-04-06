@@ -180,6 +180,10 @@ class CommunityBaseSettings(Settings):
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     ]
 
+    # Optional storage class to use to upload build artifacts to cloud storage
+    # https://docs.readthedocs.io/en/stable/settings.html#build-media-storage
+    BUILD_MEDIA_STORAGE = None
+
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
