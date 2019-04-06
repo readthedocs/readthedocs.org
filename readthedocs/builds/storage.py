@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from django.core.files.storage import FileSystemStorage
 from storages.utils import safe_join, get_available_overwrite_name
 
 
@@ -15,7 +16,7 @@ class BuildMediaStorageMixin:
     This adds and modifies some functionality to Django's File Storage API.
     By default, classes mixing this in will now overwrite files by default instead
     of finding an available name.
-    This adds functionality to copy and delete entire directories.
+    This mixin also adds convenience methods to copy and delete entire directories.
 
     See: https://docs.djangoproject.com/en/1.11/ref/files/storage
     """
@@ -77,3 +78,28 @@ class BuildMediaStorageMixin:
             elif filepath.is_file():
                 with filepath.open('rb') as fd:
                     self.save(sub_destination, fd)
+
+
+class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
+
+    """Storage subclass that writes build artifacts under MEDIA_ROOT"""
+
+    def get_available_name(self, name, max_length=None):
+        """
+        A hack to overwrite by default with the FileSystemStorage
+
+        After upgrading to Django 2.2, this method can be removed
+        because subclasses can set OS_OPEN_FLAGS such that FileSystemStorage._save
+        will properly overwrite files.
+        See: https://github.com/django/django/pull/8476
+        """
+        name = super().get_available_name(name, max_length=max_length)
+        if self.exists(name):
+            self.delete(name)
+        return name
+
+    def listdir(self, path):
+        """Return empty lists for nonexistent directories (as cloud storages do)"""
+        if not self.exists(path):
+            return [], []
+        return super().listdir(path)
