@@ -519,10 +519,6 @@ class MkdocsBuilderTest(TestCase):
         )
         with self.assertRaises(MkDocsYAMLParseError):
             self.searchbuilder.append_conf()
-            generate_rtd_data.assert_called_with(
-                docs_dir='docs',
-                mkdocs_config=mock.ANY,
-            )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
