@@ -199,6 +199,9 @@ Promo.prototype.display = function () {
     $(window).on('DOMContentLoaded.rtdinview load.rtdinview scroll.rtdinview resize.rtdinview', handler);
     $('.wy-side-scroll').on('scroll.rtdinview', handler);
 
+    // Add a handler to close the ad on mobile
+    $('.ethical-close').on('click', function () { $(ad_selector).hide(); return false; });
+
     this.post_promo_display();
 };
 
