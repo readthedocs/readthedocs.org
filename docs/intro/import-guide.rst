@@ -46,6 +46,10 @@ project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`In
 configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:Webhook Creation>`
 for more information on this process.
 
+.. note::
+    The `Admin` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``
+
+    You can access all of the project settings from the admin page sidebar.
 
 Building your documentation
 ---------------------------
