@@ -23,7 +23,7 @@ def get_override_class(proxy_class, default_class=None):
         inspect.getmodule(proxy_class).__name__,
         proxy_class.__name__,
     ])
-    class_path = getattr(settings, 'CLASS_OVERRIDES', {}).get(class_id)
+    class_path = settings.CLASS_OVERRIDES.get(class_id)
     # pylint: disable=protected-access
     if class_path is None and proxy_class._override_setting is not None:
         class_path = getattr(settings, proxy_class._override_setting, None)

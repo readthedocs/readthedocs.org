@@ -64,8 +64,8 @@ class RemoteSyncer(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
-        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
+        sync_user = settings.SYNC_USER
+        app_servers = settings.MULTIPLE_APP_SERVERS
         if app_servers:
             log.info('Remote Copy %s to %s on %s', path, target, app_servers)
             for server in app_servers:
@@ -103,8 +103,8 @@ class DoubleRemotePuller(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
-        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
+        sync_user = settings.SYNC_USER
+        app_servers = settings.MULTIPLE_APP_SERVERS
         if not is_file:
             path += '/'
         log.info('Remote Copy %s to %s', path, target)
@@ -143,7 +143,7 @@ class RemotePuller(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
+        sync_user = settings.SYNC_USER
         if not is_file:
             path += '/'
         log.info('Remote Pull %s to %s', path, target)

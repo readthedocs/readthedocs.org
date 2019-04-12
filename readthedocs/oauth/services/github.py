@@ -315,11 +315,11 @@ class GitHubService(Service):
     def get_token_for_project(cls, project, force_local=False):
         """Get access token for project by iterating over project users."""
         # TODO why does this only target GitHub?
-        if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
+        if not settings.ALLOW_PRIVATE_REPOS:
             return None
         token = None
         try:
-            if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
+            if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
                 for user in project.users.all():
