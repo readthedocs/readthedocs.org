@@ -71,7 +71,7 @@ DOCKER_DEFAULT_VERSION = settings.DOCKER_DEFAULT_VERSION
 # These map to corresponding settings in the .org,
 # so they haven't been renamed.
 DOCKER_IMAGE = settings.DOCKER_IMAGE
-DOCKER_IMAGE_SETTINGS =settings.DOCKER_IMAGE_SETTINGS
+DOCKER_IMAGE_SETTINGS = settings.DOCKER_IMAGE_SETTINGS
 
 LATEST_CONFIGURATION_VERSION = 2
 
