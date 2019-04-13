@@ -44,7 +44,6 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
-    USE_SUBDOMAINS = None
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
     # slumber settings

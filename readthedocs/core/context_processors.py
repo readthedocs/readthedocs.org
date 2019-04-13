@@ -10,7 +10,7 @@ def readthedocs_processor(request):
     exports = {
         'PUBLIC_DOMAIN': settings.PUBLIC_DOMAIN,
         'PRODUCTION_DOMAIN': settings.PRODUCTION_DOMAIN,
-        'USE_SUBDOMAINS': settings.USE_SUBDOMAINS,
+        'USE_SUBDOMAINS': settings.USE_SUBDOMAIN,
         'GLOBAL_ANALYTICS_CODE': settings.GLOBAL_ANALYTICS_CODE,
         'DASHBOARD_ANALYTICS_CODE': settings.DASHBOARD_ANALYTICS_CODE,
         'SITE_ROOT': settings.SITE_ROOT + '/',
