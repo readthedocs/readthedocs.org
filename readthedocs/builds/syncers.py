@@ -5,7 +5,6 @@ Classes to copy files between build and web servers.
 local machine.
 """
 
-import getpass
 import logging
 import os
 import shutil
