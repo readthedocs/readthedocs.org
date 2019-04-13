@@ -47,9 +47,13 @@ configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:W
 for more information on this process.
 
 .. note::
-    The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``
-
+    The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``.
     You can access all of the project settings from the admin page sidebar.
+
+    .. figure:: ../_static/images/first-steps/admin-panel.png
+        :figwidth: 400px
+        :target: ../_static/images/first-steps/admin-panel.png
+
 
 Building your documentation
 ---------------------------
