@@ -301,6 +301,15 @@ class GitLabService(Service):
                     project,
                 )
                 return (True, resp)
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'Gitlab project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return (False, resp)
+
         except (RequestException, ValueError):
             log.exception(
                 'GitLab webhook creation failed for project: %s',
