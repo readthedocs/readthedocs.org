@@ -46,6 +46,10 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
+    # Doc Builder Backends
+    MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
+    SPHINX_BACKEND = 'readthedocs.doc_builder.backends.sphinx'
+
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
     SLUMBER_USERNAME = None
@@ -376,6 +380,7 @@ class CommunityBaseSettings(Settings):
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
+    DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
     ALLOW_ADMIN = True
