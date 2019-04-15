@@ -235,6 +235,21 @@ class TestPublicDocs(BaseDocServing):
             privacy_level=constants.PRIVATE,
             project=self.public,
         )
+        not_translated_public_version = fixture.get(
+            Version,
+            identifier='not-translated-version',
+            verbose_name='not-translated-version',
+            slug='not-translated-version',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
+        # This also creates a Version `latest` Automatically for this project
+        translation = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='translation-es'
+        )
         response = self.client.get(
             reverse('sitemap_xml'),
             HTTP_HOST='public.readthedocs.io',
@@ -258,5 +273,17 @@ class TestPublicDocs(BaseDocServing):
                 version_slug=private_version.slug,
                 lang_slug=self.public.language,
                 private=True,
+            ),
+        )
+        # The `translation` project doesn't have a version named `not-translated-version`
+        # so, the sitemap should not have a doc url for
+        # `not-translated-version` with `translation-es` language.
+        # ie: http://public.readthedocs.io/translation-es/not-translated-version/
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=not_translated_public_version.slug,
+                lang_slug=translation.language,
+                private=False,
             ),
         )

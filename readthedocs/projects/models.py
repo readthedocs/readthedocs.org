@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -116,6 +117,7 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_('Hosted documentation repository URL'),
+        db_index=True,
     )
     repo_type = models.CharField(
         _('Repository type'),
@@ -743,8 +745,6 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        if not self.enable_pdf_build:
-            return False
         path = self.get_production_media_path(
             type_='pdf', version_slug=version_slug
         )
@@ -754,8 +754,6 @@ class Project(models.Model):
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
-        if not self.enable_epub_build:
-            return False
         path = self.get_production_media_path(
             type_='epub', version_slug=version_slug
         )
@@ -885,7 +883,21 @@ class Project(models.Model):
         }
         if user:
             kwargs['user'] = user
-        versions = Version.objects.public(**kwargs)
+        versions = Version.objects.public(**kwargs).select_related(
+            'project',
+            'project__main_language_project',
+        ).prefetch_related(
+            Prefetch(
+                'project__superprojects',
+                ProjectRelationship.objects.all().select_related('parent'),
+                to_attr='_superprojects',
+            ),
+            Prefetch(
+                'project__domains',
+                Domain.objects.filter(canonical=True),
+                to_attr='_canonical_domains',
+            ),
+        )
         return sort_version_aware(versions)
 
     def all_active_versions(self):
@@ -918,7 +930,7 @@ class Project(models.Model):
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.active and current_stable.machine:
+                if identifier_updated and current_stable.machine:
                     log.info(
                         'Update stable version: {project}:{version}'.format(
                             project=self.slug,
@@ -982,6 +994,26 @@ class Project(models.Model):
 
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
+
+    def get_parent_relationship(self):
+        """Get the parent project relationship or None if this is a top level project"""
+        if hasattr(self, '_superprojects'):
+            # Cached parent project relationship
+            if self._superprojects:
+                return self._superprojects[0]
+            return None
+
+        return self.superprojects.select_related('parent').first()
+
+    def get_canonical_custom_domain(self):
+        """Get the canonical custom domain or None"""
+        if hasattr(self, '_canonical_domains'):
+            # Cached custom domains
+            if self._canonical_domains:
+                return self._canonical_domains[0]
+            return None
+
+        return self.domains.filter(canonical=True).first()
 
     @property
     def features(self):
@@ -1313,31 +1345,47 @@ class Feature(models.Model):
     API_LARGE_DATA = 'api_large_data'
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
+    SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
+    USE_PDF_LATEXMK = 'use_pdf_latexmk'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')), (
+        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
+        (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
             ),
-        ), (
+        ),
+        (
             MKDOCS_THEME_RTD,
-            _('Use Read the Docs theme for MkDocs as default theme')
-        ), (
+            _('Use Read the Docs theme for MkDocs as default theme'),
+        ),
+        (
             DONT_SHALLOW_CLONE,
-            _(
-                'Do not shallow clone when cloning git repos',
-            ),
-        ), (
+            _('Do not shallow clone when cloning git repos'),
+        ),
+        (
             USE_TESTING_BUILD_IMAGE,
-            _(
-                'Use Docker image labelled as `testing` to build the docs',
-            ),
-        ), (API_LARGE_DATA, _('Try alternative method of posting large data'))
+            _('Use Docker image labelled as `testing` to build the docs'),
+        ),
+        (
+            API_LARGE_DATA,
+            _('Try alternative method of posting large data'),
+        ),
+        (
+            SHARE_SPHINX_DOCTREE,
+            _('Use shared directory for doctrees'),
+        ),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default')
+        ),
     )
 
     projects = models.ManyToManyField(

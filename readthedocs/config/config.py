@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
@@ -37,6 +36,7 @@ from .validation import (
     validate_string,
 )
 
+
 __all__ = (
     'ALL',
     'load',
@@ -44,9 +44,11 @@ __all__ = (
     'BuildConfigV2',
     'ConfigError',
     'ConfigOptionNotSupportedError',
+    'ConfigFileNotFound',
     'InvalidConfig',
     'PIP',
     'SETUPTOOLS',
+    'LATEST_CONFIGURATION_VERSION',
 )
 
 ALL = 'all'
@@ -58,7 +60,7 @@ CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
 CONFIG_REQUIRED = 'config-required'
-CONF_FILE_REQUIRED = 'conf-file-required'
+CONFIG_FILE_REQUIRED = 'config-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
@@ -77,6 +79,8 @@ DOCKER_IMAGE = getattr(
 )
 DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
 
+LATEST_CONFIGURATION_VERSION = 2
+
 
 class ConfigError(Exception):
 
@@ -85,6 +89,17 @@ class ConfigError(Exception):
     def __init__(self, message, code):
         self.code = code
         super().__init__(message)
+
+
+class ConfigFileNotFound(ConfigError):
+
+    """Error when we can't find a configuration file."""
+
+    def __init__(self, directory):
+        super().__init__(
+            f"Configuration file not found in: {directory}",
+            CONFIG_FILE_REQUIRED,
+        )
 
 
 class ConfigOptionNotSupportedError(ConfigError):
@@ -298,7 +313,6 @@ class BuildConfigV1(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
-    CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
         '"python.extra_requirements" section must be a list.'
@@ -1104,14 +1118,14 @@ def load(path, env_config):
     filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        raise ConfigError('No configuration file found', code=CONFIG_REQUIRED)
+        raise ConfigFileNotFound(path)
     with open(filename, 'r') as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
-                    filename=filename,
+                    filename=os.path.relpath(filename, path),
                     message=str(error),
                 ),
                 code=CONFIG_SYNTAX_INVALID,

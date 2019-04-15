@@ -70,15 +70,6 @@ def validate_choice(value, choices):
     return value
 
 
-def validate_value_exists(value, container):
-    """Check that ``value`` exists in ``container``."""
-    if value not in container:
-        raise ValidationError(value, VALUE_NOT_FOUND)
-    if isinstance(container, dict):
-        return container[value]
-    return value
-
-
 def validate_bool(value):
     """Check that ``value`` is an boolean value."""
     if value not in (0, 1, False, True):

@@ -379,7 +379,6 @@ def sitemap_xml(request, project):
             only_active=True,
         ),
     )
-
     versions = []
     for version, priority, changefreq in zip(
             sorted_versions,
@@ -401,15 +400,18 @@ def sitemap_xml(request, project):
 
         if project.translations.exists():
             for translation in project.translations.all():
-                href = project.get_docs_url(
-                    version_slug=version.slug,
-                    lang_slug=translation.language,
-                    private=version.privacy_level == constants.PRIVATE,
-                )
-                element['languages'].append({
-                    'hreflang': translation.language,
-                    'href': href,
-                })
+                translation_versions = translation.versions.public(
+                    ).values_list('slug', flat=True)
+                if version.slug in translation_versions:
+                    href = project.get_docs_url(
+                        version_slug=version.slug,
+                        lang_slug=translation.language,
+                        private=False,
+                    )
+                    element['languages'].append({
+                        'hreflang': translation.language,
+                        'href': href,
+                    })
 
             # Add itself also as protocol requires
             element['languages'].append({
