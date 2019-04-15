@@ -952,7 +952,7 @@ class TestLoadConfigV2:
 
         args, kwargs = run.call_args
         assert '--config-file' in args
-        assert path.join(str(tmpdir), 'docx/mkdocs.yml') in args
+        assert 'docx/mkdocs.yml' in args
         append_conf.assert_called_once()
         move.assert_called_once()
 
