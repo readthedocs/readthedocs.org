@@ -2,7 +2,7 @@ Read the Docs: Documentation Simplified
 =======================================
 
 .. meta::
-   :description: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
+   :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
 
 
 `Read the Docs`_ simplifies software documentation

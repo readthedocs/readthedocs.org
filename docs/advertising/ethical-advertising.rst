@@ -2,7 +2,7 @@ Ethical Ads
 ===========
 
 .. meta::
-   :description: To fund Read the Docs, we built an ad platform that doesn't track users and respects their privacy.
+   :description lang=en: To fund Read the Docs, we built an ad platform that doesn't track users and respects their privacy.
 
 
 Read the Docs is a large, free web service.

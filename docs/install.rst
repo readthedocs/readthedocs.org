@@ -2,7 +2,7 @@ Installation
 ============
 
 .. meta::
-   :description: Install a local instance of Read the Docs on your own servers with our step by step guide.
+   :description lang=en: Install a local instance of Read the Docs on your own servers with our step by step guide.
 
 
 Here is a step by step guide on how to install Read the Docs.

@@ -2,7 +2,7 @@ Advertising
 ===========
 
 .. meta::
-   :description: Read the Docs is a large open source project funded by ethical advertising which respects user privacy and doesn't track people.
+   :description lang=en: Read the Docs is a large open source project funded by ethical advertising which respects user privacy and doesn't track people.
 
 
 Advertising is the single largest source of funding for Read the Docs.
