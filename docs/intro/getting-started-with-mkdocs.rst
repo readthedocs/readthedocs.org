@@ -1,6 +1,10 @@
 Getting Started with MkDocs
 ===========================
 
+.. meta::
+   :description: Get started writing technical documentation with MkDocs and publishing to Read the Docs.
+
+
 MkDocs is a documentation generator that focuses on speed and simplicity.
 It has many great features including:
 

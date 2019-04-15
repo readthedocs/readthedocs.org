@@ -1,6 +1,10 @@
 Getting Started with Sphinx
 ===========================
 
+.. meta::
+   :description: Get started writing technical documentation with Sphinx and publishing to Read the Docs.
+
+
 Sphinx is a powerful documentation generator that
 has many great features for writing technical documentation including:
 
