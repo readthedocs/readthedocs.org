@@ -1429,7 +1429,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_('Name of the environment variable'),
     )
     value = models.CharField(
-        max_length=256,
+        max_length=2048,
         help_text=_('Value of the environment variable'),
     )
     project = models.ForeignKey(
