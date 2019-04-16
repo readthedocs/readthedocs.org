@@ -414,6 +414,20 @@ class TestPrivateViews(MockBuildTestCase):
                 args=[(project.doc_path,)],
             )
 
+    def test_delete_superproject(self):
+        super_proj = get(Project, slug='pip', users=[self.user])
+        sub_proj = get(Project, slug='test-sub-project', users=[self.user])
+
+        self.assertFalse(super_proj.subprojects.all().exists())
+        super_proj.add_subproject(sub_proj)
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            'This project has subprojects under it. Deleting this will make them as regular projects. This will effect the URLs of the subprojects and they will be served normally as other projects.',
+            response.content.decode('utf-8')
+        )
+
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])
         subproject = get(Project, users=[self.user])
