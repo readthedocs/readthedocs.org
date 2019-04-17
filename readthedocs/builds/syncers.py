@@ -11,7 +11,6 @@ import os
 import shutil
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import get_storage_class
 
 from readthedocs.core.utils import safe_makedirs
@@ -29,6 +28,15 @@ class BaseSyncer:
     @classmethod
     def copy(cls, path, target, is_file=False, **kwargs):
         raise NotImplementedError
+
+
+class NullSyncer:
+
+    """A syncer that doesn't actually do anything"""
+
+    @classmethod
+    def copy(cls, path, target, is_file=False, **kwargs):
+        pass  # noqa
 
 
 class LocalSyncer(BaseSyncer):
