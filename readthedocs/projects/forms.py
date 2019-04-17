@@ -465,47 +465,6 @@ class BaseVersionsForm(forms.Form):
             trigger_build(project=self.project, version=version)
 
 
-def build_versions_form(project):
-    """Versions form with a list of versions and version privacy levels."""
-    attrs = {
-        'project': project,
-    }
-    versions_qs = project.versions.all()  # Admin page, so show all versions
-    active = versions_qs.filter(active=True)
-    if active.exists():
-        active = sort_version_aware(active)
-        choices = [(version.slug, version.verbose_name) for version in active]
-        attrs['default-version'] = forms.ChoiceField(
-            label=_('Default Version'),
-            choices=choices,
-            initial=project.get_default_version(),
-        )
-    versions_qs = sort_version_aware(versions_qs)
-    for version in versions_qs:
-        field_name = 'version-{}'.format(version.slug)
-        privacy_name = 'privacy-{}'.format(version.slug)
-        if version.type == TAG:
-            label = '{} ({})'.format(
-                version.verbose_name,
-                version.identifier[:8],
-            )
-        else:
-            label = version.verbose_name
-        attrs[field_name] = forms.BooleanField(
-            label=label,
-            widget=DualCheckboxWidget(version),
-            initial=version.active,
-            required=False,
-        )
-        attrs[privacy_name] = forms.ChoiceField(
-            # This isn't a real label, but just a slug for the template
-            label='privacy',
-            choices=constants.PRIVACY_CHOICES,
-            initial=version.privacy_level,
-        )
-    return type(str('VersionsForm'), (BaseVersionsForm,), attrs)
-
-
 class BaseUploadHTMLForm(forms.Form):
     content = forms.FileField(label=_('Zip file of HTML'))
     overwrite = forms.BooleanField(
