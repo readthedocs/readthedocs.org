@@ -17,15 +17,23 @@ log = logging.getLogger(__name__)  # noqa
 
 
 def get_client_ip(request):
-    """Gets the real IP based on a request object."""
-    ip_address = request.META.get('REMOTE_ADDR')
+    """
+    Gets the real client's IP address.
 
-    # Get the original IP address (eg. "X-Forwarded-For: client, proxy1, proxy2")
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0]
+    It returns the real IP address of the client based on ``HTTP_X_FORWARDED_FOR``
+    header. If the header is not found, it returns ``None``.
+    """
+
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
+
     if x_forwarded_for:
-        ip_address = x_forwarded_for.rsplit(':')[0]
+        # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs.
+        # The client's IP will be the first one.
+        # (eg. "X-Forwarded-For: client, proxy1, proxy2")
+        real_ip = x_forwarded_for.split(',')[0].strip()
+        return real_ip
 
-    return ip_address
+    return None
 
 
 def anonymize_ip_address(ip_address):
