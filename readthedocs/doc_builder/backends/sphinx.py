@@ -56,20 +56,6 @@ class BaseSphinx(BaseBuilder):
                 self.sphinx_build_dir,
             )
 
-    def _write_config(self, master_doc='index'):
-        """Create ``conf.py`` if it doesn't exist."""
-        docs_dir = self.docs_dir()
-        conf_template = render_to_string(
-            'sphinx/conf.py.conf',
-            {
-                'project': self.project,
-                'version': self.version,
-                'master_doc': master_doc,
-            },
-        )
-        conf_file = os.path.join(docs_dir, 'conf.py')
-        safe_write(conf_file, conf_template)
-
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
         # TODO this should be handled better in the theme
@@ -168,14 +154,10 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self, **__):
         """
-        Find or create a ``conf.py`` and appends default content.
+        Find a ``conf.py`` and appends default content.
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
-        if self.config_file is None:
-            master_doc = self.create_index(extension='rst')
-            self._write_config(master_doc=master_doc)
-
         try:
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
