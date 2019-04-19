@@ -21,19 +21,19 @@ def get_client_ip(request):
     Gets the real client's IP address.
 
     It returns the real IP address of the client based on ``HTTP_X_FORWARDED_FOR``
-    header. If the header is not found, it returns ``None``.
+    header. If ``HTTP_X_FORWARDED_FOR`` is not found, it returns the value of
+    ``REMOTE_ADDR`` header and returns ``None`` if both the headers are not found.
     """
-
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', '')
-
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR', None)
     if x_forwarded_for:
         # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs.
         # The client's IP will be the first one.
         # (eg. "X-Forwarded-For: client, proxy1, proxy2")
-        real_ip = x_forwarded_for.split(',')[0].strip()
-        return real_ip
+        client_ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        client_ip = request.META.get('REMOTE_ADDR', None)
 
-    return None
+    return client_ip
 
 
 def anonymize_ip_address(ip_address):
