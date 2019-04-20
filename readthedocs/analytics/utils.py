@@ -30,6 +30,9 @@ def get_client_ip(request):
         # The client's IP will be the first one.
         # (eg. "X-Forwarded-For: client, proxy1, proxy2")
         client_ip = x_forwarded_for.split(',')[0].strip()
+
+        # Removing the port number (if present)
+        client_ip = x_forwarded_for.rsplit(':')[0]
     else:
         client_ip = request.META.get('REMOTE_ADDR', None)
 
