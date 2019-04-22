@@ -35,7 +35,7 @@ class ProjectFilter(filters.FilterSet):
 
 class VersionFilter(filters.FilterSet):
     verbose_name__contains = filters.CharFilter(
-        field_name='versbose_name',
+        field_name='verbose_name',
         lookup_expr='contains',
     )
     slug__contains = filters.CharFilter(
