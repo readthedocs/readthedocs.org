@@ -1,6 +1,3 @@
-from django.conf.urls import include, url
-from rest_framework.documentation import include_docs_urls
-
 from .routers import DefaultRouterWithNesting
 from .views import BuildsViewSet, ProjectsViewSet, UsersViewSet, VersionsViewSet
 
@@ -52,17 +49,5 @@ projects.register(
     parents_query_lookups=['projects__slug'],
 )
 
-urlpatterns = [
-    url(
-        r'^docs/',
-        include_docs_urls(
-            title='Read the Docs API',
-            patterns=[
-                url(r'/api/v3/', include(router.urls)),
-            ],
-            public=True,
-        ),
-    ),
-]
-
+urlpatterns = []
 urlpatterns += router.urls
