@@ -65,7 +65,7 @@ defusedxml==0.6.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.9
+pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
