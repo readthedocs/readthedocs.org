@@ -72,7 +72,7 @@ mock==2.0.0
 stripe==2.24.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
+git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
 django-crispy-forms==1.7.2 
