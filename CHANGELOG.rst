@@ -1,3 +1,28 @@
+Version 3.4.2
+-------------
+
+:Date: April 22, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Add explicit egg versoin to unicode-slugify (`#5612 <https://github.com/rtfd/readthedocs.org/pull/5612>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update Environmental Variable character limit (`#5597 <https://github.com/rtfd/readthedocs.org/pull/5597>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add meta descriptions to top documentation (`#5593 <https://github.com/rtfd/readthedocs.org/pull/5593>`__)
+* `@stsewd <http://github.com/stsewd>`__: Ignore pytest-xdist from pyupdate (`#5590 <https://github.com/rtfd/readthedocs.org/pull/5590>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Note about admin page in the docs (`#5585 <https://github.com/rtfd/readthedocs.org/pull/5585>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 14 (`#5580 <https://github.com/rtfd/readthedocs.org/pull/5580>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use downloads.html in template (`#5579 <https://github.com/rtfd/readthedocs.org/pull/5579>`__)
+* `@ihnorton <http://github.com/ihnorton>`__: Fix typo in conda.rst (`#5576 <https://github.com/rtfd/readthedocs.org/pull/5576>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix for Firefox to close the ad correctly (`#5571 <https://github.com/rtfd/readthedocs.org/pull/5571>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Non mobile fixed footer ads (`#5567 <https://github.com/rtfd/readthedocs.org/pull/5567>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.4.1 (`#5566 <https://github.com/rtfd/readthedocs.org/pull/5566>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update ``readthedocs-environment.json`` file when env vars are added/deleted (`#5540 <https://github.com/rtfd/readthedocs.org/pull/5540>`__)
+* `@stsewd <http://github.com/stsewd>`__: Allow build mkdocs outside root (`#5539 <https://github.com/rtfd/readthedocs.org/pull/5539>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Sitemap assumes that all versions are translated Fix. (`#5535 <https://github.com/rtfd/readthedocs.org/pull/5535>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Remove Header Login button from login page (`#5534 <https://github.com/rtfd/readthedocs.org/pull/5534>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Optimize database performance of the footer API (`#5530 <https://github.com/rtfd/readthedocs.org/pull/5530>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't depend of enabled pdf/epub to show downloads  (`#5502 <https://github.com/rtfd/readthedocs.org/pull/5502>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Don't allow to create subprojects with same alias (`#5404 <https://github.com/rtfd/readthedocs.org/pull/5404>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Improve project translation listing Design under admin tab (`#5380 <https://github.com/rtfd/readthedocs.org/pull/5380>`__)
+
 Version 3.4.1
 -------------
 
