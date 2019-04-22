@@ -27,7 +27,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .renderer import AlphaneticalSortedJSONRenderer
+from .renderer import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildSerializer,
     BuildTriggerSerializer,
@@ -42,7 +42,7 @@ class APIv3Settings:
 
     authentication_classes = (SessionAuthentication, TokenAuthentication)
     permission_classes = (IsAdminUser,)
-    renderer_classes = (AlphaneticalSortedJSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
     metadata_class = SimpleMetadata

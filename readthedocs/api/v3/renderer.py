@@ -8,7 +8,7 @@ from rest_framework.compat import (
 from rest_framework.renderers import JSONRenderer
 
 
-class AlphaneticalSortedJSONRenderer(JSONRenderer):
+class AlphabeticalSortedJSONRenderer(JSONRenderer):
 
     """
     Renderer that sort they keys from the JSON alphabetically.
