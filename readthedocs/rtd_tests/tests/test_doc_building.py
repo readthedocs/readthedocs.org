@@ -5,7 +5,6 @@ Things to know:
 * raw subprocess calls like .communicate expects bytes
 * the Command wrappers encapsulate the bytes and expose unicode
 """
-import hashlib
 import json
 import os
 import re
@@ -31,7 +30,7 @@ from readthedocs.doc_builder.environments import (
 )
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.environment import EnvironmentMockGroup
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -1470,13 +1469,6 @@ class AutoWipeEnvironmentBase:
             config=config,
         )
 
-        self.assertFalse(self.pip.environmentvariable_set.all().exists())
-        get(EnvironmentVariable, project=self.pip, name='ABCD', value='1234')
-        env_var_str = '_ABCD_1234_'
-        m = hashlib.sha256()
-        m.update(env_var_str.encode('utf-8'))
-        env_vars_hash = m.hexdigest()
-
         with patch(
                 'readthedocs.doc_builder.python_environments.PythonEnvironment.environment_json_path',
                 return_value=tempfile.mktemp(suffix='envjson'),
@@ -1484,7 +1476,6 @@ class AutoWipeEnvironmentBase:
             python_env.save_environment_json()
             json_data = json.load(open(python_env.environment_json_path()))
 
-        
         expected_data = {
             'build': {
                 'image': 'readthedocs/build:2.0',
@@ -1493,7 +1484,6 @@ class AutoWipeEnvironmentBase:
             'python': {
                 'version': 2.7,
             },
-            'env_vars_hash': env_vars_hash
         }
         self.assertDictEqual(json_data, expected_data)
 
@@ -1620,15 +1610,7 @@ class AutoWipeEnvironmentBase:
             build_env=self.build_env,
             config=config,
         )
-
-        self.assertFalse(self.pip.environmentvariable_set.all().exists())
-        get(EnvironmentVariable, project=self.pip, name='HELLO', value='WORLD')
-        env_var_str = '_HELLO_WORLD_'
-        m = hashlib.sha256()
-        m.update(env_var_str.encode('utf-8'))
-        env_vars_hash = m.hexdigest()
-
-        env_json_data = '{{"build": {{"image": "readthedocs/build:2.0", "hash": "a1b2c3"}}, "python": {{"version": 3.5}}, "env_vars_hash": "{}"}}'.format(env_vars_hash)  # noqa
+        env_json_data = '{"build": {"image": "readthedocs/build:2.0", "hash": "a1b2c3"}, "python": {"version": 3.5}}'  # noqa
         with patch('os.path.exists') as exists, patch('readthedocs.doc_builder.python_environments.open', mock_open(read_data=env_json_data)) as _open:  # noqa
             exists.return_value = True
             self.assertFalse(python_env.is_obsolete)
