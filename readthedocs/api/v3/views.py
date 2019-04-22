@@ -134,12 +134,16 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(users=self.request.user)
+        return queryset.api(user=self.request.user)
 
     @action(detail=True, methods=['get'])
     def translations(self, request, project_slug):
         project = self.get_object()
-        return self._related_projects(project.translations.all())
+        return self._related_projects(
+            project.translations.api(
+                user=request.user,
+            ),
+        )
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
@@ -154,7 +158,11 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
     @action(detail=True, methods=['get'])
     def subprojects(self, request, project_slug):
         project = self.get_object()
-        return self._related_projects(project.superprojects.all())
+        return self._related_projects(
+            project.superprojects.api(
+                user=request.user,
+            ),
+        )
 
     def _related_projects(self, queryset):
         page = self.paginate_queryset(queryset)
@@ -201,8 +209,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
         queryset = super().get_queryset()
 
         # we force to filter only by the versions the user has access to
-        user = self.request.user
-        queryset = queryset.filter(project__users=user)
+        queryset = queryset.api(user=self.request.user)
         return queryset
 
     def update(self, request, *args, **kwargs):
@@ -237,8 +244,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
         queryset = super().get_queryset()
 
         # we force to filter only by the versions the user has access to
-        user = self.request.user
-        queryset = queryset.filter(project__users=user)
+        queryset = queryset.api(user=self.request.user)
         return queryset
 
     def get_serializer_class(self):
@@ -294,7 +300,8 @@ class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin,
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
         queryset = super().get_queryset()
 
-        # we force to filter only by the projects the user has access to
-        user = self.request.user
-        queryset = queryset.filter(projects__in=user.projects.all()).distinct()
+        # the user can only see profiles from people they share a project with
+        queryset = queryset.filter(
+            projects__in=Project.objects.api(user=self.request.user),
+        ).distinct()
         return queryset
