@@ -63,7 +63,7 @@ api_urls = [
     # Keep the `doc_search` at root level, so the test does not fail for other API
     url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
     url(
-        r'^api/auth/',
+        r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
     ),
     url(r'^api/v3/', include('readthedocs.api.v3.urls')),
