@@ -86,6 +86,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'crispy_forms',
             'messages_extends',
+            'django_filters',
             'django_elasticsearch_dsl',
 
             # our apps
@@ -358,6 +359,12 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 100
 
     ES_INDEXES = {
+        'domain': {
+            'name': 'domain_index',
+            'settings': {'number_of_shards': 2,
+                         'number_of_replicas': 0
+                         }
+        },
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 2,

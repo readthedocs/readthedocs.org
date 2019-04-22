@@ -50,9 +50,19 @@ class SphinxDomain(TimeStampedModel):
         _('Type'),
         max_length=255,
     )
+    type_display = models.CharField(
+        _('Type Display'),
+        max_length=4092,
+        null=True,
+    )
     doc_name = models.CharField(
         _('Doc Name'),
         max_length=4092,
+    )
+    doc_display = models.CharField(
+        _('Doc Display'),
+        max_length=4092,
+        null=True,
     )
     anchor = models.CharField(
         _('Anchor'),
