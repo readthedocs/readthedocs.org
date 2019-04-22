@@ -271,9 +271,9 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
 
 class ProjectURLsSerializer(serializers.Serializer):
     documentation = serializers.CharField(source='get_docs_url')
-    project = serializers.SerializerMethodField()
+    project_homepage = serializers.SerializerMethodField()
 
-    def get_project(self, obj):
+    def get_project_homepage(self, obj):
         # Overridden only to return ``None`` when the description is ``''``
         return obj.project_url or None
 
