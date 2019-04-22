@@ -87,6 +87,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
     ### Examples:
 
     * List my projects: ``/api/v3/projects/``
+    * List my projects with offset and limit: ``/api/v3/projects/?offset=10&limit=25``
     * Filter list: ``/api/v3/projects/?name__contains=test``
     * Retrieve only needed data: ``/api/v3/projects/?fields=slug,created``
     * Retrieve specific project: ``/api/v3/projects/{project_slug}/``
@@ -94,6 +95,8 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
     * Translations of a project: ``/api/v3/projects/{project_slug}/translations/``
     * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
     * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
+
+    Go to https://docs.readthedocs.io/en/stable/api/v3.html for a complete documentation of the APIv3.
     """
 
     model = Project
