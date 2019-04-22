@@ -375,9 +375,9 @@ class APIMixin(URLAccessMixin):
 
 class APIUnauthAccessTest(APIMixin, TestCase):
 
-    @mock.patch('readthedocs.restapi.views.task_views.get_public_task_data')
+    @mock.patch('readthedocs.api.v2.views.task_views.get_public_task_data')
     def test_api_urls(self, get_public_task_data):
-        from readthedocs.restapi.urls import urlpatterns
+        from readthedocs.api.v2.urls import urlpatterns
         get_public_task_data.side_effect = TaskNoPermission('Nope')
         self._test_url(urlpatterns)
 

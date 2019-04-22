@@ -13,7 +13,7 @@ from requests.exceptions import RequestException
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 from readthedocs.integrations.utils import get_secret
-from readthedocs.restapi.client import api
+from readthedocs.api.v2.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError

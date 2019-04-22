@@ -15,7 +15,7 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
-from readthedocs.restapi.signals import footer_response
+from readthedocs.api.v2.signals import footer_response
 
 
 def get_version_compare_data(project, base_version=None):

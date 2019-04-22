@@ -89,7 +89,7 @@ class MockApi:
 @contextmanager
 def mock_api(repo):
     api_mock = MockApi(repo)
-    with mock.patch('readthedocs.restapi.client.api', api_mock), \
+    with mock.patch('readthedocs.api.v2.client.api', api_mock), \
             mock.patch('readthedocs.projects.tasks.api_v2', api_mock), \
             mock.patch('readthedocs.doc_builder.environments.api_v2', api_mock):
         yield api_mock

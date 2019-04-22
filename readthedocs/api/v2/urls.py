@@ -7,7 +7,7 @@ from django.conf.urls import include, url
 from rest_framework import routers
 
 from readthedocs.constants import pattern_opts
-from readthedocs.restapi.views import (
+from readthedocs.api.v2.views import (
     core_views,
     footer_views,
     integrations,

@@ -23,7 +23,7 @@ from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
-from readthedocs.restapi.client import api
+from readthedocs.api.v2.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE

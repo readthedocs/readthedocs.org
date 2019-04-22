@@ -127,10 +127,8 @@ class CommunityBaseSettings(Settings):
             'readthedocs.oauth',
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
-            'readthedocs.restapi',
-
-            # TODO: refactor this module to be ``api.v3``
-            'readthedocs.v3',
+            'readthedocs.api.v2',
+            'readthedocs.api.v3',
 
             'readthedocs.gold',
             'readthedocs.payments',

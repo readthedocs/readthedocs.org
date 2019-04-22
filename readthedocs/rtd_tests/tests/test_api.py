@@ -23,7 +23,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
-from readthedocs.restapi.views.integrations import (
+from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
@@ -36,7 +36,7 @@ from readthedocs.restapi.views.integrations import (
     GitHubWebhookView,
     GitLabWebhookView,
 )
-from readthedocs.restapi.views.task_views import get_status_data
+from readthedocs.api.v2.views.task_views import get_status_data
 
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')

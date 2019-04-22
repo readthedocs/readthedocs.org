@@ -62,7 +62,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
