@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import getpass
 import os
 import datetime
@@ -115,7 +112,6 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'crispy_forms',
             'messages_extends',
-            'django_filters',
             'django_elasticsearch_dsl',
             'django_filters',
 
