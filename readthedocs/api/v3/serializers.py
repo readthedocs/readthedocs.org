@@ -15,18 +15,12 @@ from readthedocs.projects.models import Project
 
 class UserSerializer(FlexFieldsModelSerializer):
 
-    # TODO: return ``null`` when ``last_name`` or ``first_name`` are `''``. I'm
-    # thinking on writing a decorator or similar that dynamically creates the
-    # methods based on a field with a list
-
     class Meta:
         model = User
         fields = [
             'username',
             'date_joined',
             'last_login',
-            'first_name',
-            'last_name',
         ]
 
 
