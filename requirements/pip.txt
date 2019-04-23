@@ -47,7 +47,7 @@ django-allauth==0.39.1
 GitPython==2.1.10  # pyup: ignore
 
 # Search
-elasticsearch==7.0.0
+elasticsearch==6.3.1  # pyup: <7.0.0
 
 
 # elasticsearch-dsl==6.3.1 produces this error
