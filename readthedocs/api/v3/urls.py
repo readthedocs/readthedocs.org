@@ -42,6 +42,8 @@ projects.register(
     parents_query_lookups=['project__slug'],
 )
 
+# allows /api/v3/projects/pip/users/
+# allows /api/v3/projects/pip/users/humitos/
 projects.register(
     r'users',
     UsersViewSet,

@@ -8,6 +8,7 @@ from rest_framework.authentication import (
     TokenAuthentication,
 )
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
     CreateModelMixin,
@@ -27,6 +28,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
+from .mixins import APIAuthMixin
 from .renderer import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildSerializer,
@@ -48,8 +50,9 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
-                      ListModelMixin, RetrieveModelMixin, GenericViewSet):
+class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
+                      GenericViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
@@ -132,10 +135,6 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
                 return mark_safe(description.format(project_slug=project.slug))
         return description
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.api(user=self.request.user)
-
     @action(detail=True, methods=['get'])
     def translations(self, request, project_slug):
         project = self.get_object()
@@ -174,9 +173,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
         return Response(serializer.data)
 
 
-class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
-                      ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
-                      GenericViewSet):
+class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
+                      UpdateModelMixin, GenericViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -204,14 +203,6 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
             return VersionSerializer
         return VersionUpdateSerializer
 
-    def get_queryset(self):
-        # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
-        queryset = super().get_queryset()
-
-        # we force to filter only by the versions the user has access to
-        queryset = queryset.api(user=self.request.user)
-        return queryset
-
     def update(self, request, *args, **kwargs):
         """
         Make PUT/PATCH behaves in the same way.
@@ -227,9 +218,9 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
         return Response(status=204)
 
 
-class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
-                    ListModelMixin, RetrieveModelMixin, CreateModelMixin,
-                    GenericViewSet):
+class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+                    FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
+                    CreateModelMixin, GenericViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
@@ -238,14 +229,6 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, FlexFieldsMixin,
     permit_list_expands = [
         'config',
     ]
-
-    def get_queryset(self):
-        # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
-        queryset = super().get_queryset()
-
-        # we force to filter only by the versions the user has access to
-        queryset = queryset.api(user=self.request.user)
-        return queryset
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -300,8 +283,11 @@ class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin,
         # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
         queryset = super().get_queryset()
 
-        # the user can only see profiles from people they share a project with
-        queryset = queryset.filter(
-            projects__in=Project.objects.api(user=self.request.user),
-        ).distinct()
-        return queryset
+        if self.detail:
+            return queryset
+
+        # give access to the user if it's maintainer of the project
+        if self.request.user in self.model.objects.filter(**self.get_parents_query_dict()):
+            return queryset
+
+        raise PermissionDenied
