@@ -16,7 +16,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
@@ -42,8 +42,11 @@ from .serializers import (
 
 class APIv3Settings:
 
-    authentication_classes = (SessionAuthentication, TokenAuthentication)
-    permission_classes = (IsAdminUser,)
+    # Using only ``TokenAuthentication`` for now, so we can give access to
+    # specific carefully selected users only
+    authentication_classes = (TokenAuthentication,)
+
+    permission_classes = (IsAuthenticated,)
     renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
