@@ -97,6 +97,7 @@ Currently we show ads on:
 * Sphinx theme provided by Read the Docs
 * MkDocs theme provided by Read the Docs (beginning in May 2018)
 * Alabaster Sphinx theme
+* [Pylons Sphinx Themes](https://github.com/Pylons/pylons-sphinx-themes), including pyramid, pylons, and pylonsfw.
 
 This list will expand as we strive to put advertising on a
 larger percentage of the documentation served by us.

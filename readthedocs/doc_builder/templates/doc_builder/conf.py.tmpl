@@ -149,12 +149,17 @@ language_user = globals().get('language', None)
 latex_engine_user = globals().get('latex_engine', None)
 latex_elements_user = globals().get('latex_elements', None)
 
+# Remove this once xindy gets installed in Docker image and XINDYOPS
+# env variable is supported
+# https://github.com/rtfd/readthedocs-docker-images/pull/98
+latex_use_xindy = False
+
 chinese = any([
     language_user in ('zh_CN', 'zh_TW'),
     project_language in ('zh_CN', 'zh_TW'),
 ])
 
-japanase = any([
+japanese = any([
     language_user == 'ja',
     project_language == 'ja',
 ])
@@ -162,16 +167,10 @@ japanase = any([
 if chinese:
     latex_engine = latex_engine_user or 'xelatex'
 
-    # Remove this once xindy gets installed in Docker image and XINDYOPS
-    # env variable is supported
-    # https://github.com/rtfd/readthedocs-docker-images/pull/98
-    latex_use_xindy = False
-
     latex_elements_rtd = {
         'preamble': '\\usepackage[UTF8]{ctex}\n',
     }
     latex_elements = latex_elements_user or latex_elements_rtd
-elif japanase:
+elif japanese:
     latex_engine = latex_engine_user or 'platex'
-    latex_use_xindy = False
 {% endif %}

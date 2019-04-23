@@ -101,7 +101,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise ValueError('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -699,9 +700,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['has_valid_clone'] = True
-        api_v2.project(self.project.pk).put(project_data)
+        api_v2.project(self.project.pk).patch(
+            {'has_valid_clone': True}
+        )
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 

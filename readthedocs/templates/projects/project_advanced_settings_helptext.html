@@ -1,0 +1,10 @@
+{% load i18n %}
+<p class="empty">
+  {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
+    These settings can be configured using a
+    <a href="{{ config_file_link }}">configuration file</a>.
+    That's the recommended way to set up your project.
+    Settings in the configuration
+    file override the settings listed here.
+  {% endblocktrans %}
+</p>
