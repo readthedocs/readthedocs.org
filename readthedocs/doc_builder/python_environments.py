@@ -200,8 +200,8 @@ class PythonEnvironment:
         ])
 
     def _get_env_vars(self):
-        """Return env vars with their values of the project."""
-        env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
+        """Return env vars with their values of the project as a dictionary."""
+        env_vars = self.version.project.environment_variables
         return env_vars
 
     def _get_env_vars_hash(self):
@@ -212,7 +212,8 @@ class PythonEnvironment:
         it returns sha256 hash of empty string.
         """
         m = hashlib.sha256()
-        for variable, value in self._get_env_vars():
+        env_vars = self._get_env_vars()
+        for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
             m.update(hash_str.encode('utf-8'))
         return m.hexdigest()
