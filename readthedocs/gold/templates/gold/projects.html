@@ -11,6 +11,13 @@ Gold Projects
 
 {% block edit_content %}
 
+  <p class="empty">
+    {% blocktrans trimmed %}
+      <strong>Note:</strong> this is a legacy feature.
+      New gold members cannot sponsor projects to be ad-free.
+    {% endblocktrans %}
+  </p>
+
   <p class="help_text">
     {% trans "Choose projects that will have all promos removed, and extra features added to them. You get to pick one for every $5/mo you support Read the Docs with." %}
   </p>
@@ -24,17 +31,16 @@ Gold Projects
     {% endblocktrans %}
   </p>
 
-    <ul>
-    {% for project in projects %}
-        <li>
-        <a href="{{ project.get_absolute_url }}">
-        {{ project }}
-        </a>
-        (<a href="{% url "gold_projects_remove" project.slug %}">{% trans "Remove" %}</a>)
-        </li>
-    {% endfor %}
-    </ul>
-  </p>
+  <ul>
+  {% for project in projects %}
+      <li>
+      <a href="{{ project.get_absolute_url }}">
+      {{ project }}
+      </a>
+      (<a href="{% url "gold_projects_remove" project.slug %}">{% trans "Remove" %}</a>)
+      </li>
+  {% endfor %}
+  </ul>
 
   <h3>{% trans "Add a project" %}</h3>
   <p>

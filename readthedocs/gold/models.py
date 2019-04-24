@@ -2,9 +2,11 @@
 
 """Django models for recurring donations aka Gold Membership."""
 import math
+from datetime import datetime
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+import pytz
 
 from readthedocs.projects.models import Project
 
@@ -26,6 +28,9 @@ DOLLARS_PER_PROJECT = 5
 class GoldUser(models.Model):
 
     """A user subscription for gold membership."""
+
+    # Gold members created after this date can no longer sponsor projects to be ad-free
+    SPONSOR_PROJECT_CUTOFF = pytz.utc.localize(datetime(year=2019, month=5, day=1))
 
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -61,3 +66,9 @@ class GoldUser(models.Model):
         dollars = int(self.level.split('-')[-1])
         num_projects = int(math.floor(dollars // DOLLARS_PER_PROJECT))
         return num_projects
+
+    def can_sponsor_projects(self):
+        if self.pub_date < self.SPONSOR_PROJECT_CUTOFF:
+            return True
+
+        return False
