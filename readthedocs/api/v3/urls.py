@@ -1,5 +1,5 @@
 from .routers import DefaultRouterWithNesting
-from .views import BuildsViewSet, ProjectsViewSet, UsersViewSet, VersionsViewSet
+from .views import BuildsViewSet, ProjectsViewSet, UsersViewSet, VersionsViewSet, SubprojectRelationshipViewSet
 
 
 router = DefaultRouterWithNesting()
@@ -10,6 +10,14 @@ projects = router.register(
     r'projects',
     ProjectsViewSet,
     basename='projects',
+)
+
+# allows /api/v3/projects/pip/subprojects/
+subprojects = projects.register(
+    r'subprojects',
+    SubprojectRelationshipViewSet,
+    base_name='projects-subprojects',
+    parents_query_lookups=['parent__slug'],
 )
 
 # allows /api/v3/projects/pip/versions/

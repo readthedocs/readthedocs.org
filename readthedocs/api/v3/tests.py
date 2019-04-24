@@ -47,9 +47,9 @@ class APIEndpointTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
-                'projects-subprojects',
+                'projects-subprojects-list',
                 kwargs={
-                    'project_slug': self.project.slug,
+                    'parent_lookup_parent__slug': self.project.slug,
                 }),
 
         )

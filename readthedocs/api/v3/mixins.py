@@ -9,7 +9,6 @@ from readthedocs.projects.models import Project
 class NestedParentProjectMixin:
 
     def get_parent_project(self):
-
         project_slug = None
         for kwarg_name, kwarg_value in self.kwargs.items():
             if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX) and 'project' in kwarg_name:

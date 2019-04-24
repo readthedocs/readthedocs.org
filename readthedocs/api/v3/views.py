@@ -25,7 +25,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, ProjectRelationship
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import APIAuthMixin
@@ -169,32 +169,6 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             return Response(data)
         return Response(status=404)
 
-    @action(detail=True, methods=['get'])
-    def subprojects(self, request, project_slug):
-        project = self.get_object()
-        # queryset = self.get_queryset().filter(
-        #     pk__in=project.subprojects.api(
-        #         user=request.user,
-        #         # ``detail`` is not implemented in
-        #         # ``RelatedProjectQuerySetBase`` yet
-        #         # detail=self.detail,
-        #     ).values_list('child__pk', flat=True),
-        # )
-        # return self._related_projects(queryset)
-
-        # HACK: ``NestedRouterMixin`` does not generate the proper URL when
-        # ``detail=False`` on the decorator.
-        self.detail = False
-
-        if project in self.get_queryset():
-            queryset = self.get_queryset().filter(
-                pk__in=project.subprojects.all().values_list(
-                    'child__pk', flat=True),
-            )
-            return self._related_projects(queryset)
-
-        raise PermissionDenied
-
     def _related_projects(self, queryset):
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -203,6 +177,22 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
+                                    NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
+                                    RetrieveModelMixin, GenericViewSet):
+
+    model = ProjectRelationship
+    lookup_field = 'child__slug'
+    lookup_url_kwarg = 'project_slug'
+    serializer_class = ProjectSerializer
+    queryset = ProjectRelationship.objects.all()
+
+    def get_queryset(self):
+        # HACK: to use the same ProjectSerializer over ProjectRelationship
+        queryset = super().get_queryset()
+        return [related.child for related in queryset]
 
 
 class VersionsViewSet(APIv3Settings, APIAuthMixin,
