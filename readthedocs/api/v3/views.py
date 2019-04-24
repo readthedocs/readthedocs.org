@@ -4,7 +4,6 @@ from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework.authentication import (
-    SessionAuthentication,
     TokenAuthentication,
 )
 from rest_framework.decorators import action
@@ -134,9 +133,6 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         'active_versions.last_build.config',
     ]
 
-    # NOTE: accessing a existent project when we don't have permissions to
-    # access it, returns 404 instead of 403.
-
     def get_view_description(self, *args, **kwargs):
         """
         Make valid links for the user's documentation browseable API.
@@ -176,15 +172,28 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     @action(detail=True, methods=['get'])
     def subprojects(self, request, project_slug):
         project = self.get_object()
-        queryset = self.get_queryset().filter(
-            pk__in=project.subprojects.api(
-                user=request.user,
-                # ``detail`` is not implemented in
-                # ``RelatedProjectQuerySetBase`` yet
-                # detail=self.detail,
-            ).values_list('child__pk', flat=True),
-        )
-        return self._related_projects(queryset)
+        # queryset = self.get_queryset().filter(
+        #     pk__in=project.subprojects.api(
+        #         user=request.user,
+        #         # ``detail`` is not implemented in
+        #         # ``RelatedProjectQuerySetBase`` yet
+        #         # detail=self.detail,
+        #     ).values_list('child__pk', flat=True),
+        # )
+        # return self._related_projects(queryset)
+
+        # HACK: ``NestedRouterMixin`` does not generate the proper URL when
+        # ``detail=False`` on the decorator.
+        self.detail = False
+
+        if project in self.get_queryset():
+            queryset = self.get_queryset().filter(
+                pk__in=project.subprojects.all().values_list(
+                    'child__pk', flat=True),
+            )
+            return self._related_projects(queryset)
+
+        raise PermissionDenied
 
     def _related_projects(self, queryset):
         page = self.paginate_queryset(queryset)
@@ -196,9 +205,9 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return Response(serializer.data)
 
 
-class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
-                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
-                      UpdateModelMixin, GenericViewSet):
+class VersionsViewSet(APIv3Settings, APIAuthMixin,
+                      NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
+                      RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -294,23 +303,10 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return Response(data=data, status=status)
 
 
-class UsersViewSet(APIv3Settings, NestedViewSetMixin, ListModelMixin,
+class UsersViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin, ListModelMixin,
                    RetrieveModelMixin, GenericViewSet):
     model = User
     lookup_field = 'username'
     lookup_url_kwarg = 'user_username'
     serializer_class = UserSerializer
     queryset = User.objects.all()
-
-    def get_queryset(self):
-        # ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
-        queryset = super().get_queryset()
-
-        if self.detail:
-            return queryset
-
-        # give access to the user if it's maintainer of the project
-        if self.request.user in self.model.objects.filter(**self.get_parents_query_dict()):
-            return queryset
-
-        raise PermissionDenied
