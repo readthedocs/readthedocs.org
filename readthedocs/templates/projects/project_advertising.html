@@ -126,6 +126,12 @@
     {% endblocktrans %}
   </p>
 
+  <p>
+    {% blocktrans trimmed %}
+      To discuss alternatives to advertising, please <a href="mailto:ads@readthedocs.org?subject=Alternatives+to+advertising">contact us</a>.
+    {% endblocktrans %}
+  </p>
+
   <form method="post" action=".">
     {% csrf_token %}
     {{ form.as_p }}
