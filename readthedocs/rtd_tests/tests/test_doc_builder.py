@@ -254,7 +254,7 @@ class MkdocsBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_create_yaml(self, checkout_path, run):
+    def test_append_conf_does_not_create_yaml(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir
@@ -268,40 +268,9 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
 
-        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
-
-        # There is a mkdocs.yml file created
-        generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
-        self.assertTrue(os.path.exists(generated_yaml))
-        config = yaml.safe_load(open(generated_yaml))
-        self.assertEqual(
-            config['docs_dir'],
-            os.path.join(tmpdir, 'docs'),
-        )
-        self.assertEqual(
-            config['extra_css'],
-            [
-                'http://readthedocs.org/static/css/badge_only.css',
-                'http://readthedocs.org/static/css/readthedocs-doc-embed.css',
-            ],
-        )
-        self.assertEqual(
-            config['extra_javascript'],
-            [
-                'readthedocs-data.js',
-                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
-                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
-            ],
-        )
-        self.assertIsNone(
-            config['google_analytics'],
-        )
-        self.assertEqual(
-            config['site_name'],
-            'mkdocs',
-        )
+        with self.assertRaises(MkDocsYAMLParseError):
+            self.searchbuilder.append_conf()
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')

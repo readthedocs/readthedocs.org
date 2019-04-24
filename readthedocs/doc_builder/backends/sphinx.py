@@ -22,7 +22,6 @@ from django.template.loader import render_to_string
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
-from readthedocs.projects.utils import safe_write
 from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
@@ -158,6 +157,11 @@ class BaseSphinx(BaseBuilder):
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
+        if self.config_file is None:
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND
+            )
+
         try:
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
