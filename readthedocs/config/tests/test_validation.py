@@ -1,22 +1,15 @@
-# -*- coding: utf-8 -*-
 import os
 
-from mock import patch
 from pytest import raises
 
 from readthedocs.config.validation import (
     INVALID_BOOL,
     INVALID_CHOICE,
-    INVALID_DIRECTORY,
-    INVALID_FILE,
     INVALID_LIST,
-    INVALID_PATH,
     INVALID_STRING,
     ValidationError,
     validate_bool,
     validate_choice,
-    validate_directory,
-    validate_file,
     validate_list,
     validate_path,
     validate_string,
@@ -83,42 +76,6 @@ class TestValidateList:
         assert excinfo.value.code == INVALID_LIST
 
 
-class TestValidateDirectory:
-
-    def test_it_uses_validate_path(self, tmpdir):
-        patcher = patch('readthedocs.config.validation.validate_path')
-        with patcher as validate_path:
-            path = str(tmpdir.mkdir('a directory'))
-            validate_path.return_value = path
-            validate_directory(path, str(tmpdir))
-            validate_path.assert_called_with(path, str(tmpdir))
-
-    def test_it_rejects_files(self, tmpdir):
-        tmpdir.join('file').write('content')
-        with raises(ValidationError) as excinfo:
-            validate_directory('file', str(tmpdir))
-        assert excinfo.value.code == INVALID_DIRECTORY
-
-
-class TestValidateFile:
-
-    def test_it_uses_validate_path(self, tmpdir):
-        patcher = patch('readthedocs.config.validation.validate_path')
-        with patcher as validate_path:
-            path = tmpdir.join('a file')
-            path.write('content')
-            path = str(path)
-            validate_path.return_value = path
-            validate_file(path, str(tmpdir))
-            validate_path.assert_called_with(path, str(tmpdir))
-
-    def test_it_rejects_directories(self, tmpdir):
-        tmpdir.mkdir('directory')
-        with raises(ValidationError) as excinfo:
-            validate_file('directory', str(tmpdir))
-        assert excinfo.value.code == INVALID_FILE
-
-
 class TestValidatePath:
 
     def test_it_accepts_relative_path(self, tmpdir):
@@ -142,11 +99,6 @@ class TestValidatePath:
         with raises(ValidationError) as excinfo:
             validate_path(None, '')
         assert excinfo.value.code == INVALID_STRING
-
-    def test_it_rejects_non_existent_path(self, tmpdir):
-        with raises(ValidationError) as excinfo:
-            validate_path('does not exist', str(tmpdir))
-        assert excinfo.value.code == INVALID_PATH
 
 
 class TestValidateString:
