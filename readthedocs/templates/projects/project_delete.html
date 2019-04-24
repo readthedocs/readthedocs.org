@@ -11,7 +11,9 @@
     {% url "projects_subprojects" project.slug as subproject_url %}
     <p>
       {% blocktrans %}
-        This project <a href="{{ subproject_url }}">has subprojects</a> under it. Deleting this will make them as regular projects. This will effect the URLs of the subprojects and they will be served normally as other projects.
+        This project <a href="{{ subproject_url }}">has subprojects</a> under it.
+        Deleting this will make them as regular projects.
+        This will effect the URLs of the subprojects and they will be served normally as other projects.
       {% endblocktrans %}
     </p>
   {% endif %}

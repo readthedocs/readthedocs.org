@@ -423,9 +423,12 @@ class TestPrivateViews(MockBuildTestCase):
 
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
+        resp_content = response.content.decode('utf-8')
         self.assertIn(
-            'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. Deleting this will make them as regular projects. This will effect the URLs of the subprojects and they will be served normally as other projects.',
-            response.content.decode('utf-8')
+            'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
+            'Deleting this will make them as regular projects. '
+            'This will effect the URLs of the subprojects and they will be served normally as other projects.',
+            ' '.join(resp_content.split())  # this is done to remove all escapte sequences and new lines characters.
         )
 
     def test_subproject_create(self):
