@@ -245,15 +245,8 @@ def project_delete(request, project_slug):
 
     context = {
         'project': project,
+        'is_superproject': project.subprojects.all().exists()
     }
-
-    if project.subprojects.all().exists():
-        context['message'] = _(
-            'This project has subprojects under it. '
-            'Deleting this will make them as regular projects. '
-            'This will effect the URLs of the subprojects and '
-            'they will be served normally as other projects.'
-        )
 
     if request.method == 'POST':
         broadcast(
