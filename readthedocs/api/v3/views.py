@@ -160,11 +160,15 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     @action(detail=True, methods=['get'])
     def subprojects(self, request, project_slug):
         project = self.get_object()
-        return self._related_projects(
-            project.superprojects.api(
+        queryset = self.get_queryset().filter(
+            pk__in=project.subprojects.api(
                 user=request.user,
-            ),
+                # ``detail`` is not implemented in
+                # ``RelatedProjectQuerySetBase`` yet
+                # detail=self.detail,
+            ).values_list('child__pk', flat=True),
         )
+        return self._related_projects(queryset)
 
     def _related_projects(self, queryset):
         page = self.paginate_queryset(queryset)
