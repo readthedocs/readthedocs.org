@@ -423,11 +423,13 @@ class TestPrivateViews(MockBuildTestCase):
 
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(
+        self.assertContains(
+            response,
             'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
             'Deleting this will make them as regular projects. '
             'This will effect the URLs of the subprojects and they will be served normally as other projects.',
-            response.content.decode('utf-8')
+            count=1,
+            html=True,
         )
 
     def test_subproject_create(self):
