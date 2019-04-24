@@ -16,6 +16,7 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
     UpdateModelMixin,
 )
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -42,11 +43,26 @@ from .serializers import (
 
 class APIv3Settings:
 
+    """
+    Django REST Framework settings for APIv3.
+
+    Override global DRF settings for APIv3 in particular. All ViewSet should
+    inherit from this class to share/apply the same settings all over the APIv3.
+
+    .. note::
+
+        The only settings used from ``settings.REST_FRAMEWORK`` is
+        ``DEFAULT_THROTTLE_RATES`` since it's not possible to define here.
+    """
+
     # Using only ``TokenAuthentication`` for now, so we can give access to
     # specific carefully selected users only
     authentication_classes = (TokenAuthentication,)
-
     permission_classes = (IsAuthenticated,)
+
+    pagination_class = LimitOffsetPagination
+    LimitOffsetPagination.default_limit = 10
+
     renderer_classes = (AlphabeticalSortedJSONRenderer, BrowsableAPIRenderer)
     throttle_classes = (UserRateThrottle, AnonRateThrottle)
     filter_backends = (filters.DjangoFilterBackend,)
