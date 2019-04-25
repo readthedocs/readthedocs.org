@@ -20,6 +20,8 @@ Once you have Docker set up, you will need to pull down our build image. These
 images are found on our `Docker Hub repository`_, the source comes from our
 `container image repo`_.
 
+.. note:: The size of the Docker images is around 5 to 9 GB.
+
 To get started using Docker for build environments, you'll need to pull down at
 least one build image. For example, to pull down our latest image::
 
@@ -29,8 +31,6 @@ The default image used by our build servers is :djangosetting:`DOCKER_IMAGE`.
 This would be a good place to start testing as the ``latest`` version could
 operate differently. See ``DOCKER_IMAGE`` below for setting this configuration
 option.
-
-.. note:: The size of the Docker images is around 5 to 9 GB.
 
 After this image is downloaded, you can update your settings to use the new
 image -- see `Configuration`_.
