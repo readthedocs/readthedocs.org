@@ -266,7 +266,7 @@ class BuildConfigBase:
                 images.add(version)
         return images
 
-    def get_valid_python_versions_for_image(self, build_image): # pylint disable=no-self-use
+    def get_valid_python_versions_for_image(self, build_image):  # pylint: disable=no-self-use
         """
         Return all the valid Python versions for a Docker image.
 
