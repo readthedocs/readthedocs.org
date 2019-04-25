@@ -242,9 +242,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     files_tried = []
 
-    serve_docs = settings.SERVE_DOCS
-
-    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PUBLIC in settings.SERVE_DOCS) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -252,7 +250,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
         files_tried.append(os.path.join(basepath, filename))
 
-    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PRIVATE in settings.SERVE_DOCS) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root

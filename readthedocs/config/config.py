@@ -66,13 +66,6 @@ SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = settings.DOCKER_DEFAULT_IMAGE
-DOCKER_DEFAULT_VERSION = settings.DOCKER_DEFAULT_VERSION
-# These map to corresponding settings in the .org,
-# so they haven't been renamed.
-DOCKER_IMAGE = settings.DOCKER_IMAGE
-DOCKER_IMAGE_SETTINGS = settings.DOCKER_IMAGE_SETTINGS
-
 LATEST_CONFIGURATION_VERSION = 2
 
 
@@ -159,7 +152,6 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    default_build_image = DOCKER_DEFAULT_VERSION
     version = None
 
     def __init__(self, env_config, raw_config, source_file):
@@ -268,7 +260,7 @@ class BuildConfigBase:
         ``readthedocs/build`` part) plus ``stable`` and ``latest``.
         """
         images = {'stable', 'latest'}
-        for k in DOCKER_IMAGE_SETTINGS:
+        for k in settings.DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
@@ -284,12 +276,12 @@ class BuildConfigBase:
         Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-        if build_image not in DOCKER_IMAGE_SETTINGS:
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
-                self.default_build_image,
+                settings.DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_VERSION,
             )
-        return DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
     def as_dict(self):
         config = {}
@@ -326,7 +318,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for _, options in DOCKER_IMAGE_SETTINGS.items():
+            for _, options in settings.DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(
                     options['python']['supported_versions']
                 )
@@ -381,7 +373,7 @@ class BuildConfigV1(BuildConfigBase):
         if 'build' in self.env_config:
             build = self.env_config['build'].copy()
         else:
-            build = {'image': DOCKER_IMAGE}
+            build = {'image': settings.DOCKER_IMAGE}
 
         # User specified
         if 'build' in self.raw_config:
@@ -395,12 +387,12 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE,
+                    settings.DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
-        if build['image'] in DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(DOCKER_IMAGE_SETTINGS[build['image']])
+        if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
+            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -700,9 +692,11 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
-            image = self.pop_config('build.image', self.default_build_image)
+            image = self.pop_config(
+                'build.image', settings.DOCKER_DEFAULT_VERSION
+            )
             build['image'] = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,

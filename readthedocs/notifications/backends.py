@@ -26,8 +26,7 @@ def send_notification(request, notification):
     should be a list of class paths to be loaded, using the standard Django
     string module loader.
     """
-    backends = settings.NOTIFICATION_BACKENDS
-    for cls_name in backends:
+    for cls_name in settings.NOTIFICATION_BACKENDS:
         backend = import_string(cls_name)(request)
         backend.send(notification)
 
@@ -93,8 +92,8 @@ class SiteBackend(Backend):
         # manipulates the storage directly. This is because we don't have a
         # request object and need to mock one out to fool the message storage
         # into saving a message for a separate user.
-        cls_name = settings.MESSAGE_STORAGE
-        cls = import_string(cls_name)
+
+        cls = import_string(settings.MESSAGE_STORAGE)
         req = HttpRequest()
         setattr(req, 'session', '')
         storage = cls(req)

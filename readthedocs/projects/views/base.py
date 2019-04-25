@@ -16,8 +16,6 @@ from ..models import Project
 
 log = logging.getLogger(__name__)
 
-USER_MATURITY_DAYS = settings.USER_MATURITY_DAYS
-
 
 class ProjectOnboardMixin:
 
@@ -101,7 +99,9 @@ class ProjectSpamMixin:
         try:
             return super().post(request, *args, **kwargs)
         except ProjectSpamError:
-            date_maturity = timezone.now() - timedelta(days=USER_MATURITY_DAYS)
+            date_maturity = timezone.now() - timedelta(
+                days=settings.USER_MATURITY_DAYS
+            )
             if request.user.date_joined > date_maturity:
                 request.user.profile.banned = True
                 request.user.profile.save()

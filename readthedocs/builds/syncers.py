@@ -63,10 +63,13 @@ class RemoteSyncer(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        app_servers = settings.MULTIPLE_APP_SERVERS
-        if app_servers:
-            log.info('Remote Copy %s to %s on %s', path, target, app_servers)
-            for server in app_servers:
+        if settings.MULTIPLE_APP_SERVERS:
+            log.info(
+                'Remote Copy %s to %s on %s',
+                path, target,
+                settings.MULTIPLE_APP_SERVERS
+            )
+            for server in settings.MULTIPLE_APP_SERVERS:
                 mkdir_cmd = (
                     'ssh {}@{} mkdir -p {}'.format(settings.SYNC_USER, server, target)
                 )
@@ -101,11 +104,10 @@ class DoubleRemotePuller(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        app_servers = settings.MULTIPLE_APP_SERVERS
         if not is_file:
             path += '/'
         log.info('Remote Copy %s to %s', path, target)
-        for server in app_servers:
+        for server in settings.MULTIPLE_APP_SERVERS:
             if not is_file:
                 mkdir_cmd = 'ssh {user}@{server} mkdir -p {target}'.format(
                     user=settings.SYNC_USER,

@@ -133,11 +133,11 @@ if not settings.USE_SUBDOMAIN or settings.DEBUG:
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
 if settings.DEBUG:
-    import debug_toolbar
-
-    debug_urls += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+    # import debug_toolbar
+    #
+    # debug_urls += [
+    #     url(r'^__debug__/', include(debug_toolbar.urls)),
+    # ]
     groups.append(debug_urls)
 
 urlpatterns = reduce(add, groups)

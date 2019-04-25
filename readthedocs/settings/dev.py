@@ -59,17 +59,17 @@ class CommunityDevSettings(CommunityBaseSettings):
         logging['disable_existing_loggers'] = False
         return logging
 
-    @property
-    def INSTALLED_APPS(self):
-        apps = super().INSTALLED_APPS
-        apps.append('debug_toolbar')
-        return apps
-
-    @property
-    def MIDDLEWARE(self):
-        middlewares = list(super().MIDDLEWARE)
-        middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        return middlewares
+    # @property
+    # def INSTALLED_APPS(self):
+    #     apps = super().INSTALLED_APPS
+    #     apps.append('debug_toolbar')
+    #     return apps
+    #
+    # @property
+    # def MIDDLEWARE(self):
+    #     middlewares = list(super().MIDDLEWARE)
+    #     middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    #     return middlewares
 
 
 CommunityDevSettings.load_settings(__name__)

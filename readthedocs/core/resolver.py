@@ -180,16 +180,15 @@ class ResolverBase:
         else:
             domain = settings.PRODUCTION_DOMAIN
 
-        public_domain = settings.PUBLIC_DOMAIN
-        use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
-
         use_https_protocol = any([
             # Rely on the ``Domain.https`` field
             use_custom_domain and custom_domain.https,
             # or force it if specified
             require_https,
             # or fallback to settings
-            use_https and public_domain and public_domain in domain,
+            settings.PUBLIC_DOMAIN_USES_HTTPS
+            and settings.PUBLIC_DOMAIN
+            and settings.PUBLIC_DOMAIN in domain,
         ])
         protocol = 'https' if use_https_protocol else 'http'
 
@@ -229,11 +228,10 @@ class ResolverBase:
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        public_domain = settings.PUBLIC_DOMAIN
         if self._use_subdomain():
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
-            return '{}.{}'.format(subdomain_slug, public_domain)
+            return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
     def _get_private(self, project, version_slug):
         from readthedocs.builds.models import Version
@@ -266,9 +264,7 @@ class ResolverBase:
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""
-        use_subdomain = settings.USE_SUBDOMAIN
-        public_domain = settings.PUBLIC_DOMAIN
-        return use_subdomain and public_domain is not None
+        return settings.USE_SUBDOMAIN and settings.PUBLIC_DOMAIN is not None
 
 
 class Resolver(SettingsOverrideObject):
