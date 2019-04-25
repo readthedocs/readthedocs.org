@@ -761,7 +761,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if version.type == self.version_type:
             match, result = self.match(version, self.match_arg)
             if match:
-                self.apply_action(version, result, self.action_arg)
+                self.apply_action(version, result)
                 return True
         return False
 
@@ -776,20 +776,19 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         """
         return False, None
 
-    def apply_action(self, version, match_result, action_arg):
+    def apply_action(self, version, match_result):
         """
         Apply the action from allowed_actions.
 
         :type version: readthedocs.builds.models.Version
         :param any match_result: Additional context from the match operation
-        :param str action_arg: Additional argument to perform the action
         :raises: NotImplementedError if the action
                  isn't implemented or supported for this rule.
         """
         action = self.allowed_actions.get(self.action)
         if action is None:
             raise NotImplementedError
-        action(version, match_result, action_arg)
+        action(version, match_result, self.action_arg)
 
     def __str__(self):
         class_name = self.__class__.__name__
