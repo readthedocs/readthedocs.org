@@ -26,7 +26,7 @@ def send_notification(request, notification):
     should be a list of class paths to be loaded, using the standard Django
     string module loader.
     """
-    backends = getattr(settings, 'NOTIFICATION_BACKENDS', [])
+    backends = settings.NOTIFICATION_BACKENDS
     for cls_name in backends:
         backend = import_string(cls_name)(request)
         backend.send(notification)
