@@ -254,7 +254,7 @@ class MkdocsBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_does_not_create_yaml(self, checkout_path, run):
+    def test_mkdocs_yaml_not_found(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
         checkout_path.return_value = tmpdir

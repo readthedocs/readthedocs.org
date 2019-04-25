@@ -172,6 +172,9 @@ class BaseSphinx(BaseBuilder):
                 ProjectConfigurationError.NOT_FOUND
             )
 
+        # Create an index file if there is None.
+        self.create_index(extension='rst')
+
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
         rendered = tmpl.render(self.get_config_params())
