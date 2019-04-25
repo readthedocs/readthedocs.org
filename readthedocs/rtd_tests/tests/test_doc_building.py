@@ -1375,6 +1375,7 @@ class TestPythonEnvironment(TestCase):
             'install',
             '--yes',
             '--quiet',
+            '--satisfied-skip-solve',
             '--name',
             self.version_sphinx.slug,
         ]
@@ -1416,6 +1417,7 @@ class TestPythonEnvironment(TestCase):
             'install',
             '--yes',
             '--quiet',
+            '--satisfied-skip-solve',
             '--name',
             self.version_mkdocs.slug,
         ]

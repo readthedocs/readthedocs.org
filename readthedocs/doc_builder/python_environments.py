@@ -463,6 +463,7 @@ class Conda(PythonEnvironment):
             'install',
             '--yes',
             '--quiet',
+            '--satisfied-skip-solve',
             '--name',
             self.version.slug,
         ]
