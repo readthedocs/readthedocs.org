@@ -30,6 +30,8 @@ This would be a good place to start testing as the ``latest`` version could
 operate differently. See ``DOCKER_IMAGE`` below for setting this configuration
 option.
 
+.. note:: The size of the Docker images is around 5 to 9 GB.
+
 After this image is downloaded, you can update your settings to use the new
 image -- see `Configuration`_.
 
