@@ -15,7 +15,7 @@ log = logging.getLogger(__name__)
 def version_from_slug(slug, version):
     from readthedocs.builds.models import Version, APIVersion
     from readthedocs.restapi.client import api
-    if getattr(settings, 'DONT_HIT_DB', True):
+    if settings.DONT_HIT_DB:
         version_data = api.version().get(
             project=slug,
             slug=version,

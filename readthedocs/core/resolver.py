@@ -157,7 +157,7 @@ class ResolverBase:
         if self._use_subdomain():
             return self._get_project_subdomain(canonical_project)
 
-        return getattr(settings, 'PRODUCTION_DOMAIN')
+        return settings.PRODUCTION_DOMAIN
 
     def resolve(
             self, project, require_https=False, filename='', query_params='',
@@ -178,10 +178,10 @@ class ResolverBase:
         elif self._use_subdomain():
             domain = self._get_project_subdomain(canonical_project)
         else:
-            domain = getattr(settings, 'PRODUCTION_DOMAIN')
+            domain = settings.PRODUCTION_DOMAIN
 
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        use_https = getattr(settings, 'PUBLIC_DOMAIN_USES_HTTPS', False)
+        public_domain = settings.PUBLIC_DOMAIN
+        use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
 
         use_https_protocol = any([
             # Rely on the ``Domain.https`` field
@@ -229,7 +229,7 @@ class ResolverBase:
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        public_domain = settings.PUBLIC_DOMAIN
         if self._use_subdomain():
             project = self._get_canonical_project(project)
             subdomain_slug = project.slug.replace('_', '-')
@@ -241,11 +241,7 @@ class ResolverBase:
             version = project.versions.get(slug=version_slug)
             private = version.privacy_level == PRIVATE
         except Version.DoesNotExist:
-            private = getattr(
-                settings,
-                'DEFAULT_PRIVACY_LEVEL',
-                PUBLIC,
-            ) == PRIVATE
+            private = settings.DEFAULT_PRIVACY_LEVEL == PRIVATE
         return private
 
     def _fix_filename(self, project, filename):
@@ -270,8 +266,8 @@ class ResolverBase:
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""
-        use_subdomain = getattr(settings, 'USE_SUBDOMAIN', False)
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
+        use_subdomain = settings.USE_SUBDOMAIN
+        public_domain = settings.PUBLIC_DOMAIN
         return use_subdomain and public_domain is not None
 
 

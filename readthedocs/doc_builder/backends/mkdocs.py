@@ -29,7 +29,7 @@ def get_absolute_static_url():
     static_url = settings.STATIC_URL
 
     if not static_url.startswith('http'):
-        domain = getattr(settings, 'PRODUCTION_DOMAIN')
+        domain = settings.PRODUCTION_DOMAIN
         static_url = 'http://{}{}'.format(domain, static_url)
 
     return static_url
@@ -213,18 +213,10 @@ class BaseMkdocs(BaseBuilder):
             'builder': 'mkdocs',
             'docroot': docs_dir,
             'source_suffix': '.md',
-            'api_host': getattr(
-                settings,
-                'PUBLIC_API_URL',
-                'https://readthedocs.org',
-            ),
+            'api_host': settings.PUBLIC_API_URL,
             'ad_free': not self.project.show_advertising,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
-            'global_analytics_code': getattr(
-                settings,
-                'GLOBAL_ANALYTICS_CODE',
-                'UA-17997319-1',
-            ),
+            'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
         }
         data_json = json.dumps(readthedocs_data, indent=4)

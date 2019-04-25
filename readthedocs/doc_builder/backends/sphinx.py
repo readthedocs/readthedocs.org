@@ -104,7 +104,7 @@ class BaseSphinx(BaseBuilder):
         display_gitlab = gitlab_user is not None
 
         # Avoid hitting database and API if using Docker build environment
-        if getattr(settings, 'DONT_HIT_API', False):
+        if settings.DONT_HIT_API:
             versions = self.project.active_versions()
             downloads = self.version.get_downloads(pretty=True)
         else:
@@ -119,11 +119,7 @@ class BaseSphinx(BaseBuilder):
             'version': self.version,
             'settings': settings,
             'conf_py_path': conf_py_path,
-            'api_host': getattr(
-                settings,
-                'PUBLIC_API_URL',
-                'https://readthedocs.org',
-            ),
+            'api_host': settings.PUBLIC_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,

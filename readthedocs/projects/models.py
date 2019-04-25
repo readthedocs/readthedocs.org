@@ -321,11 +321,7 @@ class Project(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Level of privacy that you want on the repository. '
             'Protected means public but not in listings.',
@@ -335,11 +331,7 @@ class Project(models.Model):
         _('Version Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Default level of privacy you want on built '
             'versions of documentation.',
@@ -496,7 +488,7 @@ class Project(models.Model):
         )
 
     def get_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return api.project(self.pk).canonical_url().get()['url']
         return self.get_docs_url()
 
@@ -506,7 +498,7 @@ class Project(models.Model):
 
         This is used in search result linking
         """
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return [(proj['slug'], proj['canonical_url']) for proj in
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
@@ -541,8 +533,7 @@ class Project(models.Model):
 
         :returns: Full path to media file or path
         """
-        if getattr(settings, 'DEFAULT_PRIVACY_LEVEL',
-                   'public') == 'public' or settings.DEBUG:
+        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
             path = os.path.join(
                 settings.MEDIA_ROOT,
                 type_,
@@ -619,7 +610,7 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
@@ -809,8 +800,8 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
-                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+                settings.DOCKER_LIMITS.get('time') or
+                settings.REPO_LOCK_SECONDS
             )
 
         return NonBlockingLock(

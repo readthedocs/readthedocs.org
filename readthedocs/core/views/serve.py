@@ -158,7 +158,7 @@ def _serve_file(request, filename, basepath):
     :raises: ``Http404`` on ``UnicodeEncodeError``
     """
     # Serve the file from the proper location
-    if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
+    if settings.DEBUG or settings.PYTHON_MEDIA:
         # Serve from Python
         return serve(request, filename, basepath)
 
@@ -242,7 +242,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     files_tried = []
 
-    serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
+    serve_docs = settings.SERVE_DOCS
 
     if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)

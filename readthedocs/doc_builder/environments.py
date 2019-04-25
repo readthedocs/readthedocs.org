@@ -941,7 +941,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             },
         }
 
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             binds.update({
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,

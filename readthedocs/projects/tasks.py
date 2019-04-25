@@ -1435,11 +1435,11 @@ def email_notification(version, build, email):
             'error': build.error,
         },
         'build_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             build.get_absolute_url(),
         ),
         'unsub_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             reverse('projects_notifications', args=[version.project.slug]),
         ),
     }
