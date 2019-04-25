@@ -759,22 +759,22 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :returns: True if the action was performed
         """
         if version.type == self.version_type:
-            match_result = self.match(version, self.match_arg)
-            if match_result is not None:
-                self.apply_action(version, match_result, self.action_arg)
+            match, result = self.match(version, self.match_arg)
+            if match:
+                self.apply_action(version, result, self.action_arg)
                 return True
         return False
 
     def match(self, version, match_arg):
         """
-        Returns an object different from None if the version matches the rule.
+        Returns True and the match result if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match
-        :returns: An object different from `None` if the match is successful.
+        :returns: A tuple of (boolean, match_resul).
                   The result will be passed to `apply_action`.
         """
-        return None
+        return False, None
 
     def apply_action(self, version, match_result, action_arg):
         """
@@ -814,7 +814,7 @@ class RegexAutomationRule(VersionAutomationRule):
             match = re.search(
                 match_arg, version.verbose_name
             )
-            return match
+            return bool(match), match
         except Exception as e:
             log.info('Error parsing regex: %s', e)
-            return None
+            return False, None
