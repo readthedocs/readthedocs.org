@@ -1,2 +1,5 @@
-Sphinx==1.8.5
+# Use <2.x until we fix some issues in our theme.
+# Some things are not rendering properly and sidebar shows titles in gray.
+Sphinx==1.8.5  # pyup: <2.0.0
+
 rstcheck==3.3.1

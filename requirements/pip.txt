@@ -11,7 +11,9 @@ django_polymorphic==2.0.3
 djangorestframework==3.9.2
 
 # For intersphinx during builds
-Sphinx==1.8.5
+# Use <2.x until we fix some issues in our theme.
+# Some things are not rendering properly and sidebar shows titles in gray.
+Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
 django-filter==2.1.0
@@ -46,7 +48,7 @@ django-allauth==0.39.1
 GitPython==2.1.10  # pyup: ignore
 
 # Search
-elasticsearch==6.3.1
+elasticsearch==6.3.1  # pyup: <7.0.0
 
 
 # elasticsearch-dsl==6.3.1 produces this error
@@ -59,19 +61,19 @@ pyquery==1.4.0
 
 # lxml is used by pyquery
 # defusedxml is recommended when using lxml
-lxml==4.3.2
-defusedxml==0.5.0
+lxml==4.3.3
+defusedxml==0.6.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.9
+pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.23.0
+stripe==2.25.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
+git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
 django-crispy-forms==1.7.2 

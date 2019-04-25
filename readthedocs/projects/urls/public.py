@@ -51,7 +51,7 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
-        search_views.elastic_project_search,
+        search_views.elastic_search,
         name='elastic_project_search',
     ),
     url(

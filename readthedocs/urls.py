@@ -128,11 +128,11 @@ if settings.READ_THE_DOCS_EXTENSIONS:
         url(r'^', include('readthedocsext.urls'))
     ])
 
-if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
+if not settings.USE_SUBDOMAIN or settings.DEBUG:
     groups.insert(0, docs_urls)
-if getattr(settings, 'ALLOW_ADMIN', True):
+if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
-if getattr(settings, 'DEBUG', False):
+if settings.DEBUG:
     import debug_toolbar
 
     debug_urls += [

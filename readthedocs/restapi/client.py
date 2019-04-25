@@ -14,10 +14,10 @@ from slumber import API, serialize
 
 log = logging.getLogger(__name__)
 
-PRODUCTION_DOMAIN = getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org')
-API_HOST = getattr(settings, 'SLUMBER_API_HOST', 'https://readthedocs.org')
-USER = getattr(settings, 'SLUMBER_USERNAME', None)
-PASS = getattr(settings, 'SLUMBER_PASSWORD', None)
+PRODUCTION_DOMAIN = settings.PRODUCTION_DOMAIN
+API_HOST = settings.SLUMBER_API_HOST
+USER = settings.SLUMBER_USERNAME
+PASS = settings.SLUMBER_PASSWORD
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):

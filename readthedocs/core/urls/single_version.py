@@ -35,14 +35,14 @@ single_version_urls = [
 groups = [single_version_urls]
 
 # Needed to serve media locally
-if getattr(settings, 'DEBUG', False):
+if settings.DEBUG:
     groups.insert(
         0,
         static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
     )
 
 # Allow `/docs/<foo>` URL's when not using subdomains or during local dev
-if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
+if not settings.USE_SUBDOMAIN or settings.DEBUG:
     docs_url = [
         url(
             (

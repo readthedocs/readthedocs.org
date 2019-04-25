@@ -50,8 +50,6 @@ class Testmaker(TestCase):
         _ = form.save()
         _ = Project.objects.get(slug='django-kong')
 
-        r = self.client.get('/dashboard/django-kong/versions/', {})
-        self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/builds/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/edit/', {})
@@ -103,10 +101,6 @@ class PrivateViewsAreProtectedTests(TestCase):
 
     def test_version_detail(self):
         response = self.client.get('/dashboard/pip/version/0.8.1/')
-        self.assertRedirectToLogin(response)
-
-    def test_versions(self):
-        response = self.client.get('/dashboard/pip/versions/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):

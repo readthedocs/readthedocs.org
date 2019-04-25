@@ -4,6 +4,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals)
 
+import getpass
 import os
 
 from celery.schedules import crontab
@@ -29,6 +30,7 @@ class CommunityBaseSettings(Settings):
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
     SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
+    SINGLE_VERSION_URLCONF = 'readthedocs.core.urls.single_version'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -44,9 +46,19 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
+    # Doc Builder Backends
+    MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
+    SPHINX_BACKEND = 'readthedocs.doc_builder.backends.sphinx'
+
+    # slumber settings
+    SLUMBER_API_HOST = 'https://readthedocs.org'
+    SLUMBER_USERNAME = None
+    SLUMBER_PASSWORD = None
+
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
+    SUPPORT_EMAIL = None
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -60,6 +72,21 @@ class CommunityBaseSettings(Settings):
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
+    RTD_LATEST = 'latest'
+    RTD_LATEST_VERBOSE_NAME = 'latest'
+    RTD_STABLE = 'stable'
+    RTD_STABLE_VERBOSE_NAME = 'stable'
+
+    # Database and API hitting settings
+    DONT_HIT_API = False
+    DONT_HIT_DB = True
+
+    SYNC_USER = getpass.getuser()
+
+    USER_MATURITY_DAYS = 7
+
+    # override classes
+    CLASS_OVERRIDES = {}
 
     # Application classes
     @property
@@ -86,6 +113,7 @@ class CommunityBaseSettings(Settings):
             'django_extensions',
             'crispy_forms',
             'messages_extends',
+            'django_filters',
             'django_elasticsearch_dsl',
             'polymorphic',
 
@@ -180,6 +208,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     ]
+    PYTHON_MEDIA = False
 
     TEMPLATES = [
         {
@@ -213,6 +242,7 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
+    GLOBAL_PIP_CACHE = False
 
     # I18n
     TIME_ZONE = 'UTC'
@@ -271,13 +301,20 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
         },
     }
+    MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
+    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
     DOCKER_ENABLE = False
+    DOCKER_SOCKET = 'unix:///var/run/docker.sock'
+    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
+    DOCKER_BUILD_IMAGES = None
+    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
@@ -345,8 +382,10 @@ class CommunityBaseSettings(Settings):
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
+    DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
+    ALLOW_ADMIN = True
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
@@ -359,6 +398,12 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 100
 
     ES_INDEXES = {
+        'domain': {
+            'name': 'domain_index',
+            'settings': {'number_of_shards': 2,
+                         'number_of_replicas': 0
+                         }
+        },
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 2,

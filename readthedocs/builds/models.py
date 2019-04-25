@@ -52,11 +52,7 @@ from .utils import (
 from .version_slug import VersionSlugField
 
 
-DEFAULT_VERSION_PRIVACY_LEVEL = getattr(
-    settings,
-    'DEFAULT_VERSION_PRIVACY_LEVEL',
-    'public',
-)
+DEFAULT_VERSION_PRIVACY_LEVEL = settings.DEFAULT_VERSION_PRIVACY_LEVEL
 
 log = logging.getLogger(__name__)
 

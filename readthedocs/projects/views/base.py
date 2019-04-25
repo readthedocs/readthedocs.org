@@ -16,7 +16,7 @@ from ..models import Project
 
 log = logging.getLogger(__name__)
 
-USER_MATURITY_DAYS = getattr(settings, 'USER_MATURITY_DAYS', 7)
+USER_MATURITY_DAYS = settings.USER_MATURITY_DAYS
 
 
 class ProjectOnboardMixin:

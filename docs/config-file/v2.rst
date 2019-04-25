@@ -88,6 +88,10 @@ Example:
       # Build all formats
       formats: all
 
+.. note::
+
+   PDF/epub/htmlzip output is not supported when using MkDocs  
+
 python
 ~~~~~~
 

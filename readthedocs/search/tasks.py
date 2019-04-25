@@ -107,7 +107,8 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
     """
     model = apps.get_model(app_label, model_name)
     document = _get_document(model=model, document_class=document_class)
-    queryset = document().get_queryset().exclude(modified_date__lte=index_generation_time)
+    query_string = '{}__lte'.format(document.modified_model_field)
+    queryset = document().get_queryset().exclude(**{query_string: index_generation_time})
     document().update(queryset.iterator())
 
     log.info("Indexed {} missing objects from model: {}'".format(queryset.count(), model.__name__))

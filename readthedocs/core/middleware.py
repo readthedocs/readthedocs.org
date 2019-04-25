@@ -15,16 +15,8 @@ from readthedocs.projects.models import Domain, Project
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = '(Middleware) {msg} [{host}{path}]'
-SUBDOMAIN_URLCONF = getattr(
-    settings,
-    'SUBDOMAIN_URLCONF',
-    'readthedocs.core.urls.subdomain',
-)
-SINGLE_VERSION_URLCONF = getattr(
-    settings,
-    'SINGLE_VERSION_URLCONF',
-    'readthedocs.core.urls.single_version',
-)
+SUBDOMAIN_URLCONF = settings.SUBDOMAIN_URLCONF
+SINGLE_VERSION_URLCONF = settings.SINGLE_VERSION_URLCONF
 
 
 class SubdomainMiddleware(MiddlewareMixin):
@@ -39,18 +31,14 @@ class SubdomainMiddleware(MiddlewareMixin):
         is not set and the request is for a subdomain on ``PRODUCTION_DOMAIN``,
         process the request as a request a documentation project.
         """
-        if not getattr(settings, 'USE_SUBDOMAIN', False):
+        if not settings.USE_SUBDOMAIN:
             return None
 
         full_host = host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        production_domain = getattr(
-            settings,
-            'PRODUCTION_DOMAIN',
-            'readthedocs.org',
-        )
+        public_domain = settings.PUBLIC_DOMAIN
+        production_domain = settings.PRODUCTION_DOMAIN
 
         if public_domain is None:
             public_domain = production_domain
