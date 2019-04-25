@@ -47,7 +47,6 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     UserForm,
     WebHookForm,
-    build_versions_form,
 )
 from readthedocs.projects.models import (
     Domain,
@@ -155,39 +154,6 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
-
-
-@login_required
-def project_versions(request, project_slug):
-    """
-    Project versions view.
-
-    Shows the available versions and lets the user choose which ones he would
-    like to have built.
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-    if not project.is_imported:
-        raise Http404
-
-    form_class = build_versions_form(project)
-
-    form = form_class(data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project versions updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
-
-    return render(
-        request,
-        'projects/project_versions.html',
-        {'form': form, 'project': project},
-    )
 
 
 @login_required
