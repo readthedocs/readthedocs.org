@@ -35,7 +35,6 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
-    MKDOCS_TEMPLATE_DIR,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -931,10 +930,6 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            MKDOCS_TEMPLATE_DIR: {
-                'bind': MKDOCS_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             self.project.doc_path: {
                 'bind': self.project.doc_path,
                 'mode': 'rw',
