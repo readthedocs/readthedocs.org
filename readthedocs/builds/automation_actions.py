@@ -8,10 +8,17 @@ Each function will receive the following args:
 - action_arg: An additional argument to apply the action
 """
 
+from readthedocs.core.utils import trigger_build
+
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
     version.active = True
     version.save()
+    if version.active and not version.built:
+        trigger_build(
+            project=version.project,
+            version=version
+        )
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
