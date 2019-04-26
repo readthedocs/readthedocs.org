@@ -7,14 +7,17 @@ from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.sphinx_domains.models import SphinxDomain
 
 
-project_index = Index(settings.ES_INDEXES['project']['name'])
-project_index.settings(**settings.ES_INDEXES['project']['settings'])
+project_conf = settings.ES_INDEXES['project']
+project_index = Index(project_conf['name'])
+project_index.settings(**project_conf['settings'])
 
-page_index = Index(settings.ES_INDEXES['page']['name'])
-page_index.settings(**settings.ES_INDEXES['page']['settings'])
+page_conf = settings.ES_INDEXES['page']
+page_index = Index(page_conf['name'])
+page_index.settings(**page_conf['settings'])
 
-domain_index = Index(settings.ES_INDEXES['domain']['name'])
-domain_index.settings(**settings.ES_INDEXES['domain']['settings'])
+domain_conf = settings.ES_INDEXES['domain']
+domain_index = Index(domain_conf['name'])
+domain_index.settings(**domain_conf['settings'])
 
 log = logging.getLogger(__name__)
 

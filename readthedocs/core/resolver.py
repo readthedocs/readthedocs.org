@@ -186,9 +186,9 @@ class ResolverBase:
             # or force it if specified
             require_https,
             # or fallback to settings
-            settings.PUBLIC_DOMAIN_USES_HTTPS
-            and settings.PUBLIC_DOMAIN
-            and settings.PUBLIC_DOMAIN in domain,
+            settings.PUBLIC_DOMAIN_USES_HTTPS and
+            settings.PUBLIC_DOMAIN and
+            settings.PUBLIC_DOMAIN in domain,
         ])
         protocol = 'https' if use_https_protocol else 'http'
 

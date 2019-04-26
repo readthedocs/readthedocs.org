@@ -152,6 +152,8 @@ class BuildConfigBase:
         'submodules',
     ]
 
+    default_build_image = settings.DOCKER_DEFAULT_VERSION
+
     version = None
 
     def __init__(self, env_config, raw_config, source_file):
@@ -266,7 +268,7 @@ class BuildConfigBase:
                 images.add(version)
         return images
 
-    def get_valid_python_versions_for_image(self, build_image):  # pylint: disable=no-self-use
+    def get_valid_python_versions_for_image(self, build_image):
         """
         Return all the valid Python versions for a Docker image.
 
@@ -279,7 +281,7 @@ class BuildConfigBase:
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
                 settings.DOCKER_DEFAULT_IMAGE,
-                settings.DOCKER_DEFAULT_VERSION,
+                self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
@@ -692,9 +694,7 @@ class BuildConfigV2(BuildConfigBase):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
-            image = self.pop_config(
-                'build.image', settings.DOCKER_DEFAULT_VERSION
-            )
+            image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
                 settings.DOCKER_DEFAULT_IMAGE,
                 validate_choice(

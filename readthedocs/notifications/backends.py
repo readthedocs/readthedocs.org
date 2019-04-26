@@ -92,8 +92,8 @@ class SiteBackend(Backend):
         # manipulates the storage directly. This is because we don't have a
         # request object and need to mock one out to fool the message storage
         # into saving a message for a separate user.
-
-        cls = import_string(settings.MESSAGE_STORAGE)
+        cls_name = settings.MESSAGE_STORAGE
+        cls = import_string(cls_name)
         req = HttpRequest()
         setattr(req, 'session', '')
         storage = cls(req)

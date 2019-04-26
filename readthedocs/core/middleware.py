@@ -59,8 +59,10 @@ class SubdomainMiddleware(MiddlewareMixin):
 
         # Serve CNAMEs
         if (
-            public_domain not in host and settings.PRODUCTION_DOMAIN not in host
-            and 'localhost' not in host and 'testserver' not in host
+            public_domain not in host and
+            settings.PRODUCTION_DOMAIN not in host and
+            'localhost' not in host and
+            'testserver' not in host
         ):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
