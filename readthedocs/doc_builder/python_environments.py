@@ -96,7 +96,9 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--force-reinstall',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
