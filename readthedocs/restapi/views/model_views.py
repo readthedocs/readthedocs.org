@@ -218,7 +218,7 @@ class ProjectViewSet(UserSelectViewSet):
         try:
             api_utils.run_automation_rules(project, added_versions)
         except Exception:
-            # Don't interrupt the request is something goes wrong
+            # Don't interrupt the request if something goes wrong
             # in the automation rules.
             log.exception(
                 'Failed to execute automation rules for [%s]: %s',
