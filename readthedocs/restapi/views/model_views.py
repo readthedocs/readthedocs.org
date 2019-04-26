@@ -8,7 +8,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
-from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
@@ -215,6 +215,17 @@ class ProjectViewSet(UserSelectViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        try:
+            api_utils.run_automation_rules(project, added_versions)
+        except Exception:
+            # Don't interrupt the request is something goes wrong
+            # in the automation rules.
+            log.exception(
+                'Failed to execute automation rules for [%s]: %s',
+                project.slug, added_versions
+            )
+
+        # TODO: move this to an automation rule
         promoted_version = project.update_stable_version()
         new_stable = project.get_stable_version()
         if promoted_version and new_stable and new_stable.active:
