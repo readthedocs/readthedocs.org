@@ -845,6 +845,12 @@ class Project(models.Model):
 
         :param finished: Return only builds that are in a finished state
         """
+        if hasattr(self, '_latest_build'):
+            # Cached latest build
+            if self._latest_build:
+                return self._latest_build[0]
+            return None
+
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'

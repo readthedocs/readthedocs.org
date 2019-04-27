@@ -3,7 +3,7 @@
 """Project model QuerySet classes."""
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery, Prefetch
 from guardian.shortcuts import get_objects_for_user
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -80,7 +80,22 @@ class ProjectQuerySetBase(models.QuerySet):
     # Aliases
 
     def dashboard(self, user=None):
-        return self.for_admin_user(user)
+        """Get the projects for this user including the latest build"""
+        from readthedocs.builds.models import Build
+
+        projects = self.for_admin_user(user)
+
+        # Prefetch the latest build for each project.
+        subquery = Subquery(
+            Build.objects.filter(project=OuterRef('project_id')).values_list('id', flat=True)[:1]
+        )
+        latest_build = Prefetch(
+            'builds',
+            Build.objects.filter(pk__in=subquery),
+            to_attr='_latest_build',
+        )
+
+        return projects.prefetch_related(latest_build)
 
     def api(self, user=None):
         return self.public(user)
