@@ -1,0 +1,22 @@
+{
+    "builder": "builder01",
+    "cold_storage": null,
+    "commit": "a1b2c3",
+    "created": "2019-04-29T10:00:00Z",
+    "duration": 60,
+    "error": "",
+    "finished": "2019-04-29T10:01:00Z",
+    "id": 1,
+    "links": {
+        "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
+        "project": "https://readthedocs.org/api/v3/projects/project/",
+        "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
+    },
+    "project": "project",
+    "state": {
+        "code": "finished",
+        "name": "Finished"
+    },
+    "success": true,
+    "version": "v1.0"
+}

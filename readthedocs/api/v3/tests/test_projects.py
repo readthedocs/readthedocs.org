@@ -125,23 +125,7 @@ class APIEndpointTests(TestCase):
             self._get_response_dict('projects-list'),
         )
 
-    def test_subprojects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-subprojects-list',
-                kwargs={
-                    'parent_lookup_superprojects__parent__slug': self.project.slug,
-                }),
-
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict('projects-subprojects-list'),
-        )
-
-    def test_detail_own_project(self):
+    def test_own_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -164,7 +148,64 @@ class APIEndpointTests(TestCase):
             self._get_response_dict('projects-detail'),
         )
 
-    def test_detail_others_project(self):
+    def test_projects_superproject(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-superproject',
+                kwargs={
+                    'project_slug': self.subproject.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict('projects-superproject'),
+        )
+
+    def test_projects_subprojects_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-subprojects-list',
+                kwargs={
+                    'parent_lookup_superprojects__parent__slug': self.project.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict('projects-subprojects-list'),
+        )
+
+    def test_others_projects_builds_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-builds-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.others_project.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_others_projects_users_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-users-list',
+                kwargs={
+                    'parent_lookup_projects__slug': self.others_project.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_others_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -176,7 +217,7 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_unauthed_detail_others_project(self):
+    def test_unauthed_others_projects_detail(self):
         response = self.client.get(
             reverse(
                 'projects-detail',
@@ -187,7 +228,7 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-    def test_detail_nonexistent_project(self):
+    def test_nonexistent_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -199,7 +240,31 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
-    def test_detail_version_of_project(self):
+    def test_projects_versions_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-versions-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_others_projects_versions_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-versions-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.others_project.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_versions_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -216,8 +281,7 @@ class APIEndpointTests(TestCase):
             self._get_response_dict('projects-versions-detail'),
         )
 
-
-    def test_detail_version_of_nonexistent_project(self):
+    def test_nonexistent_project_version_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -229,3 +293,31 @@ class APIEndpointTests(TestCase):
 
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_projects_builds_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-builds-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_projects_builds_detail(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-builds-detail',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                    'build_pk': self.build.pk,
+                }),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict('projects-builds-detail'),
+        )

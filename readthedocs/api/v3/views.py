@@ -164,11 +164,12 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
         project = self.get_object()
-        superproject = getattr(project, 'main_project', None)
-        if superproject:
+        try:
+            superproject = project.superprojects.first().parent
             data = self.get_serializer(superproject).data
             return Response(data)
-        return Response(status=404)
+        except Exception:
+            return Response(status=404)
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
