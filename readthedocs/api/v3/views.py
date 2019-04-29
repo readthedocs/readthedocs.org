@@ -132,6 +132,17 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         'active_versions.last_build.config',
     ]
 
+    def get_queryset(self):
+        # This could be a class attribute and managed on the ``APIAuthMixin`` in
+        # case we want to extend the ``prefetch_related`` to other views as
+        # well.
+        queryset = super().get_queryset()
+        return queryset.prefetch_related(
+            'related_projects',
+            'domains',
+            'tags',
+        )
+
     def get_view_description(self, *args, **kwargs):
         """
         Make valid links for the user's documentation browseable API.
