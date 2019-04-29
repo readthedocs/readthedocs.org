@@ -13,7 +13,7 @@ from readthedocs.core.utils import trigger_build
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
     """
-    Sets version as active
+    Sets version as active.
 
     It triggers a build if the version isn't built.
     """
