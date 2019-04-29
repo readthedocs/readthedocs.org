@@ -427,13 +427,11 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         return obj.description or None
 
     def get_translation_of(self, obj):
-        try:
-            return obj.main_language_project.slug
-        except Exception:
-            return None
+        if obj.main_language_project:
+            return self.__class__(obj.main_language_project).data
 
     def get_subproject_of(self, obj):
         try:
-            return obj.superprojects.first().slug
+            return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
