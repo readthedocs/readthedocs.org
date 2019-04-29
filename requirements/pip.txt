@@ -1,7 +1,7 @@
 # Base packages
 pip==19.1
 appdirs==1.4.3
-virtualenv==16.4.3
+virtualenv==16.5.0
 
 django==1.11.20  # pyup: <1.12
 django-guardian==1.5.0
