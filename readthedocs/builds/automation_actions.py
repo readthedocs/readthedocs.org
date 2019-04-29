@@ -23,5 +23,5 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
     project = version.project
-    project.default_version = version.verbose_name
+    project.default_version = version.slug
     project.save()

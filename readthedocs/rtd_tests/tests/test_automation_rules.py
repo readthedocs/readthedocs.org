@@ -2,7 +2,7 @@ import mock
 import pytest
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, TAG
+from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -65,9 +65,8 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
-    def test_action_activation_match(
-            self, trigger_build, version_name, regex, result, version_type):
+    def test_match(
+            self, version_name, regex, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -85,6 +84,44 @@ class TestRegexAutomationRules:
             version_type=version_type,
         )
         assert rule.run(version) is result
-        assert version.active is result
-        if result:
-            trigger_build.assert_called_once()
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_action_activation(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=False,
+            type=TAG,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        assert rule.run(version) is True
+        assert version.active is True
+        trigger_build.assert_called_once()
+
+    def test_action_set_default_version(self):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=True,
+            type=TAG,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.SET_DEFAULT_VERSION_ACTION,
+            version_type=TAG,
+        )
+        assert self.project.get_default_version() == LATEST
+        assert rule.run(version) is True
+        assert self.project.get_default_version() == version.slug
