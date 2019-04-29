@@ -13,6 +13,7 @@ class NestedParentProjectMixin:
         'project__slug',
         'projects__slug',
         'parent__slug',
+        'main_language_project__slug',
     ]
 
     def _get_parent_project(self):

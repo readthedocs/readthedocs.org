@@ -150,37 +150,18 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return description
 
     @action(detail=True, methods=['get'])
-    def translations(self, request, project_slug):
-        project = self.get_object()
-        return self._related_projects(
-            project.translations.api(
-                user=request.user,
-            ),
-        )
-
-    @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
         project = self.get_object()
         superproject = getattr(project, 'main_project', None)
-        data = None
         if superproject:
             data = self.get_serializer(superproject).data
             return Response(data)
         return Response(status=404)
 
-    def _related_projects(self, queryset):
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
 
 class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                     NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
-                                    RetrieveModelMixin, GenericViewSet):
+                                    GenericViewSet):
 
     model = ProjectRelationship
     lookup_field = 'child__slug'
@@ -192,6 +173,17 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
         # HACK: to use the same ProjectSerializer over ProjectRelationship
         queryset = super().get_queryset()
         return [related.child for related in queryset]
+
+
+class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
+                                     NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
+                                     GenericViewSet):
+
+    model = Project
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'project_slug'
+    serializer_class = ProjectSerializer
+    queryset = Project.objects.all()
 
 
 class VersionsViewSet(APIv3Settings, APIAuthMixin,

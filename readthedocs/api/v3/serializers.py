@@ -346,9 +346,9 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     def get_translations(self, obj):
         path = reverse(
-            'projects-translations',
+            'projects-translations-list',
             kwargs={
-                'project_slug': obj.slug,
+                'parent_lookup_main_language_project__slug': obj.slug,
             },
         )
         return self._absolute_url(path)
