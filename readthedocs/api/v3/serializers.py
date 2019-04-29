@@ -32,7 +32,13 @@ class BaseLinksSerializer(serializers.Serializer):
         return urllib.parse.urlunparse((scheme, domain, path, '', '', ''))
 
 
-class BuildTriggerSerializer(serializers.ModelSerializer):
+class BuildCreateSerializer(serializers.ModelSerializer):
+
+    """
+    Used when triggering (create action) a ``Build`` for a specific ``Version``.
+
+    This serializer validates that no field is sent at all in the request.
+    """
 
     class Meta:
         model = Build
@@ -75,6 +81,15 @@ class BuildLinksSerializer(BaseLinksSerializer):
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
+
+    """
+    Render ``Build.config`` property without modifying it.
+
+    .. note::
+
+       Any change on the output of that property will be reflected here,
+       which may produce incompatible changes in the API.
+    """
 
     def to_representation(self, obj):
         # For now, we want to return the ``config`` object as it is without
@@ -230,6 +245,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
 
 
 class VersionUpdateSerializer(serializers.ModelSerializer):
+
+    """
+    Used when modifying (update action) a ``Version``.
+
+    It only allows to make the Version active/non-active and private/public.
+    """
 
     class Meta:
         model = Version

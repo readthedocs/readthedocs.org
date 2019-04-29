@@ -31,7 +31,7 @@ from .mixins import APIAuthMixin
 from .renderer import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildSerializer,
-    BuildTriggerSerializer,
+    BuildCreateSerializer,
     ProjectSerializer,
     UserSerializer,
     VersionSerializer,
@@ -252,7 +252,7 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return BuildSerializer
-        return BuildTriggerSerializer
+        return BuildCreateSerializer
 
     def create(self, request, **kwargs):
         parent_lookup_project__slug = kwargs.get('parent_lookup_project__slug')
