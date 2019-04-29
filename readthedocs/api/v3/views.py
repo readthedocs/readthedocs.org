@@ -28,6 +28,7 @@ from readthedocs.projects.models import Project
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import APIAuthMixin
+from .permissions import PublicDetailPrivateListing
 from .renderer import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildSerializer,
@@ -56,7 +57,7 @@ class APIv3Settings:
     # Using only ``TokenAuthentication`` for now, so we can give access to
     # specific carefully selected users only
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (PublicDetailPrivateListing,)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10
@@ -255,21 +256,8 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return BuildCreateSerializer
 
     def create(self, request, **kwargs):
-        parent_lookup_project__slug = kwargs.get('parent_lookup_project__slug')
-        parent_lookup_version__slug = kwargs.get('parent_lookup_version__slug')
-
-        version = None
-        project = get_object_or_404(
-            Project,
-            slug=parent_lookup_project__slug,
-            users=request.user,
-        )
-
-        if parent_lookup_version__slug:
-            version = get_object_or_404(
-                project.versions.all(),
-                slug=parent_lookup_version__slug,
-            )
+        project = self._get_parent_project()
+        version = self._get_parent_version()
 
         _, build = trigger_build(project, version=version)
 

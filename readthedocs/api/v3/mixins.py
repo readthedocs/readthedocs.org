@@ -1,34 +1,45 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound
 
+from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
-class NestedParentProjectMixin:
+class NestedParentObjectMixin:
 
     # Lookup names defined on ``readthedocs/api/v3/urls.py`` when defining the
     # mapping between URLs and views through the router.
-    LOOKUP_NAMES = [
+    PROJECT_LOOKUP_NAMES = [
         'project__slug',
         'projects__slug',
         'superprojects__parent__slug',
         'main_language_project__slug',
     ]
 
-    def _get_parent_project(self):
+    VERSION_LOOKUP_NAMES = [
+        'version__slug',
+    ]
+
+    def _get_parent_object(self, model, lookup_names):
         project_slug = None
         query_dict = self.get_parents_query_dict()
-        for lookup in self.LOOKUP_NAMES:
+        for lookup in lookup_names:
             value = query_dict.get(lookup)
             if value:
-                project_slug = value
+                slug = value
                 break
 
-        return get_object_or_404(Project, slug=project_slug)
+        return get_object_or_404(model, slug=slug)
+
+    def _get_parent_project(self):
+        return self._get_parent_object(Project, self.PROJECT_LOOKUP_NAMES)
+
+    def _get_parent_version(self):
+        return self._get_parent_object(Version, self.VERSION_LOOKUP_NAMES)
 
 
-class APIAuthMixin(NestedParentProjectMixin):
+class APIAuthMixin(NestedParentObjectMixin):
 
     """
     Mixin to define queryset permissions for ViewSet only in one place.
@@ -37,40 +48,58 @@ class APIAuthMixin(NestedParentProjectMixin):
     required. In that case, an specific mixin for that case should be defined.
     """
 
+    def detail_objects(self, queryset, user):
+        # Filter results by user
+        # NOTE: we don't override the manager in User model, so we don't have
+        # ``.api`` method there
+        if self.model is not User:
+            queryset = queryset.api(user=user)
+
+        return queryset
+
+    def listing_objects(self, queryset, user):
+        project = self._get_parent_project()
+        if self.has_admin_permission(user, project):
+            return queryset
+
+    def has_admin_permission(self, user, project):
+        if project in self.admin_projects(user):
+            return True
+
+        return False
+
+    def admin_projects(self, user):
+        return Project.objects.for_admin_user(user=user)
+
     def get_queryset(self):
         """
         Filter results based on user permissions.
 
-        1. filters by parent ``project_slug`` (NestedViewSetMixin).
-        2. return those results if it's a detail view.
-        3. if it's a list view, it checks if the user is admin of the parent
-           object (project) and return the same results.
-        4. raise a ``PermissionDenied`` exception if the user is not an admin.
+        1. returns ``Projects`` where the user is admin if ``/projects/`` is hit
+        2. filters by parent ``project_slug`` (NestedViewSetMixin)
+        2. returns ``detail_objects`` results if it's a detail view
+        3. returns ``listing_objects`` results if it's a listing view
+        4. raise a ``NotFound`` exception otherwise
         """
+
+        # Allow hitting ``/api/v3/projects/`` to list their own projects
+        if self.basename == 'projects' and self.action == 'list':
+            # We force returning ``Project`` objects here because it's under the
+            # ``projects`` view. This could be moved to a specific
+            # ``get_queryset`` in the view.
+            return self.admin_projects(self.request.user)
 
         # NOTE: ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
         # we need to have defined the class attribute as ``queryset = Model.objects.all()``
         queryset = super().get_queryset()
 
-        # Filter results by user
-        # NOTE: we don't override the manager in User model, so we don't have
-        # ``.api`` method there
-        if self.model is not User:
-            queryset = queryset.api(user=self.request.user)
-
         # Detail requests are public
         if self.detail:
-            return queryset
-
-        allowed_projects = Project.objects.for_admin_user(user=self.request.user)
-
-        # Allow hitting ``/api/v3/projects/`` to list their own projects
-        if self.basename == 'projects' and self.action == 'list':
-            return allowed_projects
+            return self.detail_objects(queryset, self.request.user)
 
         # List view are only allowed if user is owner of parent project
-        project = self._get_parent_project()
-        if project in allowed_projects:
-            return queryset
+        listing_objects = self.listing_objects(queryset, self.request.user)
+        if listing_objects:
+            return listing_objects
 
-        raise PermissionDenied
+        raise NotFound
