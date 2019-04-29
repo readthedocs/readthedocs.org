@@ -137,6 +137,11 @@ class Version(models.Model):
 
     @property
     def vcs_url(self):
+        """
+        Generate VCS (github, gitlab, bitbucket) URL for this version.
+
+        Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
+        """
         url = ''
         if self.slug == STABLE:
             slug_url = self.ref
@@ -145,10 +150,10 @@ class Version(models.Model):
         else:
             slug_url = self.slug
 
-        if self.project.repo_type in ('git', 'gitlab'):
+        if ('github' in self.project.repo) or ('gitlab' in self.project.repo):
             url = f'/tree/{slug_url}/'
 
-        if self.project.repo_type == 'bitbucket':
+        if 'bitbucket' in self.project.repo:
             slug_url = self.identifier
             url = f'/src/{slug_url}'
 
