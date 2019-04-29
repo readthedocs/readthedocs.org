@@ -834,6 +834,7 @@ class TestSyncVersions(TestCase):
             data=json.dumps(version_post_data),
             content_type='application/json',
         )
+        self.pip.refresh_from_db()
         self.assertEqual(self.pip.get_default_version(), 'new_tag')
 
 
