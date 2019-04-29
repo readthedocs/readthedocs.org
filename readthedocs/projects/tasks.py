@@ -801,7 +801,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         msg=f'Writing {media_type} to media storage - {to_path}',
                     ),
                 )
-                storage.copy_directory(from_path, to_path)
+                try:
+                    storage.copy_directory(from_path, to_path)
+                except Exception:
+                    # Ideally this should just be an IOError
+                    # but some storage backends unfortunately throw other errors
+                    log.warning(
+                        LOG_TEMPLATE.format(
+                            project=self.version.project.slug,
+                            version=self.version.slug,
+                            msg=f'Error copying {from_path} to storage (not failing build)',
+                        ),
+                    )
 
             for media_type in types_to_delete:
                 media_path = self.version.project.get_storage_path(
@@ -816,7 +827,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         msg=f'Deleting {media_type} from media storage - {media_path}',
                     ),
                 )
-                storage.delete_directory(media_path)
+                try:
+                    storage.delete_directory(media_path)
+                except Exception:
+                    # Ideally this should just be an IOError
+                    # but some storage backends unfortunately throw other errors
+                    log.warning(
+                        LOG_TEMPLATE.format(
+                            project=self.version.project.slug,
+                            version=self.version.slug,
+                            msg=f'Error deleting {media_path} from storage (not failing build)',
+                        ),
+                    )
 
     def update_app_instances(
             self,
