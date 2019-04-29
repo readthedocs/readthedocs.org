@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -100,6 +101,10 @@ class APIEndpointTests(TestCase):
         )
 
         self.client = APIClient()
+
+    def tearDown(self):
+        # Cleanup cache to avoid throttling on tests
+        cache.clear()
 
     def _get_response_dict(self, view_name):
         filename = Path(__file__).absolute().parent / 'responses' / f'{view_name}.json'
