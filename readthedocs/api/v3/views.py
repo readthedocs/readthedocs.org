@@ -163,16 +163,11 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                     NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
                                     GenericViewSet):
 
-    model = ProjectRelationship
-    lookup_field = 'child__slug'
+    model = Project
+    lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
     serializer_class = ProjectSerializer
-    queryset = ProjectRelationship.objects.all()
-
-    def get_queryset(self):
-        # HACK: to use the same ProjectSerializer over ProjectRelationship
-        queryset = super().get_queryset()
-        return [related.child for related in queryset]
+    queryset = Project.objects.all()
 
 
 class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,

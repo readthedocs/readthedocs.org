@@ -330,7 +330,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         path = reverse(
             'projects-subprojects-list',
             kwargs={
-                'parent_lookup_parent__slug': obj.slug,
+                'parent_lookup_subprojects__parent__slug': obj.slug,
             },
         )
         return self._absolute_url(path)
