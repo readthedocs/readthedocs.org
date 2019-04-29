@@ -242,14 +242,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        # commit_name is used as the id because it handles
-        # the special cases of LATEST and STABLE.
-        all_versions_choices = [
-            (v.commit_name, v.verbose_name)
-            for v in self.instance.versions.all()
-        ]
+        versions_choices = self.instance.versions.filter(
+            machine=False).values_list('verbose_name', flat=True)
+
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + all_versions_choices,
+            choices=[default_choice] + list(
+                zip(versions_choices, versions_choices)
+            ),
         )
 
         active_versions = self.get_all_active_versions()

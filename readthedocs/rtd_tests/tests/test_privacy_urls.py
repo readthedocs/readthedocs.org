@@ -171,6 +171,7 @@ class ProjectMixin(URLAccessMixin):
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
+            'invalid_project_slug': 'invalid_slug',
         }
 
 
@@ -185,6 +186,7 @@ class PublicProjectMixin(ProjectMixin):
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
         '/projects/pip/badge/': {'status_code': 200},
+        '/projects/invalid_slug/': {'status_code': 302},
     }
 
     def test_public_urls(self):

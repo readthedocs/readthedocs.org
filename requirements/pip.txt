@@ -1,14 +1,14 @@
 # Base packages
-pip==19.0.3
+pip==19.1
 appdirs==1.4.3
-virtualenv==16.4.3
+virtualenv==16.5.0
 
 django==1.11.20  # pyup: <1.12
 django-guardian==1.5.0
 django-extensions==2.1.6
 django_polymorphic==2.0.3
 
-djangorestframework==3.9.2
+djangorestframework==3.9.3
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -70,7 +70,7 @@ pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==2.0.0
-stripe==2.25.0
+stripe==2.27.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5

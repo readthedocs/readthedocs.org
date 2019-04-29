@@ -299,13 +299,7 @@ class Virtualenv(PythonEnvironment):
 
         requirements = [
             'Pygments==2.3.1',
-            # Assume semver for setuptools version, support up to next backwards
-            # incompatible release
-            self.project.get_feature_value(
-                Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<41',
-                negative='setuptools<41',
-            ),
+            'setuptools==41.0.1',
             'docutils==0.14',
             'mock==1.0.1',
             'pillow==5.4.1',

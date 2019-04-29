@@ -3,20 +3,12 @@
 """Doc build constants."""
 
 import logging
-import os
 import re
 
 from django.conf import settings
 
 
 log = logging.getLogger(__name__)
-
-MKDOCS_TEMPLATE_DIR = os.path.join(
-    settings.SITE_ROOT,
-    'readthedocs',
-    'templates',
-    'mkdocs',
-)
 
 PDF_RE = re.compile('Output written on (.*?)')
 
