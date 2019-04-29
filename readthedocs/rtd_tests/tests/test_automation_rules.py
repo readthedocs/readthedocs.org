@@ -1,3 +1,4 @@
+import mock
 import pytest
 from django_dynamic_fixture import get
 
@@ -64,14 +65,16 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_action_activation_match(
-            self, version_name, regex, result, version_type):
+            self, trigger_build, version_name, regex, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
             project=self.project,
             active=False,
             type=version_type,
+            built=False,
         )
         rule = get(
             RegexAutomationRule,
@@ -83,3 +86,5 @@ class TestRegexAutomationRules:
         )
         assert rule.run(version) is result
         assert version.active is result
+        if result:
+            trigger_build.assert_called_once()
