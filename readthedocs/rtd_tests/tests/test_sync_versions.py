@@ -5,9 +5,8 @@ import mock
 
 from django.test import TestCase
 from django.urls import reverse
-from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, STABLE, TAG
+from readthedocs.builds.constants import BRANCH, STABLE, TAG, LATEST
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -808,6 +807,34 @@ class TestSyncVersions(TestCase):
         )
         new_tag = self.pip.versions.get(verbose_name='new_tag')
         self.assertTrue(new_tag.active)
+
+    def test_automation_rule_set_default_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^new_tag$',
+            action=VersionAutomationRule.SET_DEFAULT_VERSION_ACTION,
+            version_type=TAG,
+        )
+        self.assertEqual(self.pip.get_default_version(), LATEST)
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertEqual(self.pip.get_default_version(), 'new_tag')
 
 
 class TestStableVersion(TestCase):

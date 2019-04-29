@@ -14,7 +14,7 @@ from readthedocs.core.utils import trigger_build
 def activate_version(version, match_result, action_arg, *args, **kwargs):
     version.active = True
     version.save()
-    if version.active and not version.built:
+    if not version.built:
         trigger_build(
             project=version.project,
             version=version
@@ -22,6 +22,7 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
+    activate_version(version, match_result, action_arg)
     project = version.project
     project.default_version = version.slug
     project.save()
