@@ -7,7 +7,6 @@ from rest_framework.authentication import (
     TokenAuthentication,
 )
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
     CreateModelMixin,

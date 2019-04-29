@@ -1,4 +1,3 @@
-import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -32,17 +31,13 @@ class APIEndpointTests(TestCase):
 
         self.client = APIClient()
 
-    @pytest.mark.xfail(strict=True)
     def test_list_my_projects(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse('projects-list'),
         )
-
-        # returns 404 because ``get_parent_project`` does not found any project.
         self.assertEqual(response.status_code, 200)
 
-    @pytest.mark.xfail(strict=True)
     def test_subprojects(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
@@ -53,8 +48,6 @@ class APIEndpointTests(TestCase):
                 }),
 
         )
-
-        # ``get_parent_object`` is not receiving any ``parent_lookup_project__slug`` kwargs
         self.assertEqual(response.status_code, 200)
 
     def test_detail_own_project(self):

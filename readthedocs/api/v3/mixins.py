@@ -1,18 +1,28 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
-from rest_framework_extensions.settings import extensions_api_settings
 
 from readthedocs.projects.models import Project
 
 
 class NestedParentProjectMixin:
 
-    def get_parent_project(self):
+    # Lookup names defined on ``readthedocs/api/v3/urls.py`` when defining the
+    # mapping between URLs and views through the router.
+    LOOKUP_NAMES = [
+        'project__slug',
+        'projects__slug',
+        'parent__slug',
+    ]
+
+    def _get_parent_project(self):
         project_slug = None
-        for kwarg_name, kwarg_value in self.kwargs.items():
-            if kwarg_name.startswith(extensions_api_settings.DEFAULT_PARENT_LOOKUP_KWARG_NAME_PREFIX) and 'project' in kwarg_name:
-                project_slug = kwarg_value
+        query_dict = self.get_parents_query_dict()
+        for lookup in self.LOOKUP_NAMES:
+            value = query_dict.get(lookup)
+            if value:
+                project_slug = value
+                break
 
         return get_object_or_404(Project, slug=project_slug)
 
@@ -51,8 +61,15 @@ class APIAuthMixin(NestedParentProjectMixin):
         if self.detail:
             return queryset
 
-        # List view are only allowed if user is owner
-        if self.get_parent_project() in Project.objects.for_admin_user(user=self.request.user):
+        allowed_projects = Project.objects.for_admin_user(user=self.request.user)
+
+        # Allow hitting ``/api/v3/projects/`` to list their own projects
+        if self.basename == 'projects' and self.action == 'list':
+            return allowed_projects
+
+        # List view are only allowed if user is owner of parent project
+        project = self._get_parent_project()
+        if project in allowed_projects:
             return queryset
 
         raise PermissionDenied
