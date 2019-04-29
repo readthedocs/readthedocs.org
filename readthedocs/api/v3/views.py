@@ -24,7 +24,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project, ProjectRelationship
+from readthedocs.projects.models import Project
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import APIAuthMixin
