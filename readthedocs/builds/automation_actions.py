@@ -12,6 +12,11 @@ from readthedocs.core.utils import trigger_build
 
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
+    """
+    Sets version as active
+
+    It triggers a build if the version isn't built.
+    """
     version.active = True
     version.save()
     if not version.built:
@@ -22,6 +27,11 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
+    """
+    Sets version as the project's default version.
+
+    The version is activated first.
+    """
     activate_version(version, match_result, action_arg)
     project = version.project
     project.default_version = version.slug

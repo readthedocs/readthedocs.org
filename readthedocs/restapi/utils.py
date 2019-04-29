@@ -162,6 +162,11 @@ def delete_versions(project, version_data):
 
 
 def run_automation_rules(project, versions_slug):
+    """
+    Runs the automation rules on each version
+
+    The rules are sorted by priority.
+    """
     versions = project.versions.filter(slug__in=versions_slug)
     rules = project.automation_rules.all()
     for version, rule in itertools.product(versions, rules):
