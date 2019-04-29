@@ -44,7 +44,7 @@ class APIEndpointTests(TestCase):
             reverse(
                 'projects-subprojects-list',
                 kwargs={
-                    'parent_lookup_subprojects__parent__slug': self.project.slug,
+                    'parent_lookup_superprojects__parent__slug': self.project.slug,
                 }),
 
         )
