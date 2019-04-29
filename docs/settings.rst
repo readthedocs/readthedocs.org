@@ -94,8 +94,8 @@ Default: :djangosetting:`ALLOW_ADMIN`
 Whether to include `django.contrib.admin` in the URL's.
 
 
-BUILD_MEDIA_STORAGE
--------------------
+RTD_BUILD_MEDIA_STORAGE
+-----------------------
 
 Default: ``None``
 

@@ -747,7 +747,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if getattr(settings, 'BUILD_MEDIA_STORAGE', None):
+        if settings.RTD_BUILD_MEDIA_STORAGE:
             log.info(
                 LOG_TEMPLATE.format(
                     project=self.version.project.slug,
@@ -756,7 +756,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 ),
             )
 
-            storage = get_storage_class(settings.BUILD_MEDIA_STORAGE)()
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
             types_to_copy = []
             types_to_delete = []
