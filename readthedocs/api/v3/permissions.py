@@ -3,6 +3,14 @@ from rest_framework.permissions import IsAuthenticated
 
 class PublicDetailPrivateListing(IsAuthenticated):
 
+    """
+    Permission class for our custom use case.
+
+    * Always give permission for a ``detail`` request
+    * Only give permission for ``listing`` request if user is admin of the project
+    * Allow access to ``/projects`` (user's projects listing)
+    """
+
     def has_permission(self, request, view):
         is_authenticated = super().has_permission(request, view)
         if is_authenticated:

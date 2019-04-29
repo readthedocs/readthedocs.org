@@ -175,6 +175,13 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                     NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
                                     GenericViewSet):
 
+    """
+    List subprojects of a ``Project``.
+
+    The main query is done via the ``NestedViewSetMixin`` using the
+    ``parents_query_lookups`` defined when registering the urls.
+    """
+
     model = Project
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
@@ -185,6 +192,13 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
 class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                      NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
                                      GenericViewSet):
+
+    """
+    List translations of a ``Project``.
+
+    The main query is done via the ``NestedViewSetMixin`` using the
+    ``parents_query_lookups`` defined when registering the urls.
+    """
 
     model = Project
     lookup_field = 'slug'
@@ -211,10 +225,6 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin,
         'last_build.config',
     ]
 
-    # NOTE: ``NestedViewSetMixin`` is really good, but if the ``project.slug``
-    # does not exist it does not return 404, but 200 instead:
-    # /api/v3/projects/nonexistent/versions/
-
     def get_serializer_class(self):
         """
         Return correct serializer depending on the action (GET or PUT/PATCH/POST).
@@ -230,7 +240,7 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin,
         Force to return 204 is the update was good.
         """
 
-        # NOTE: ``Authorization: `` is mandatory to use this method from
+        # NOTE: ``Authorization:`` header is mandatory to use this method from
         # Browsable API since SessionAuthentication can't be used because we set
         # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
         # via Javascript
