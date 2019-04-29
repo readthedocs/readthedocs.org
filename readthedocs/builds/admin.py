@@ -144,6 +144,7 @@ class VersionAdmin(GuardedModelAdmin):
 
 @admin.register(RegexAutomationRule)
 class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
+    raw_id_fields = ('project',)
     base_model = RegexAutomationRule
 
 
@@ -151,6 +152,7 @@ class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
 class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
     base_model = VersionAutomationRule
     list_display = (
+        'id',
         'project',
         'priority',
         'match_arg',
