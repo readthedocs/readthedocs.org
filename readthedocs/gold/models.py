@@ -68,7 +68,7 @@ class GoldUser(models.Model):
         return num_projects
 
     def can_sponsor_projects(self):
-        if self.pub_date < self.SPONSOR_PROJECT_CUTOFF:
+        if self.pub_date < self.SPONSOR_PROJECT_CUTOFF or self.projects.exists():
             return True
 
         return False
