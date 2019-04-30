@@ -205,7 +205,6 @@ class TestPublicDocs(BaseDocServing):
     @patch('readthedocs.core.views.os')
     def test_custom_404_page(self, os_view_mock, static_serve_mock):
         os_view_mock.path.exists.return_value = True
-        static_serve_mock.os.path.exists.return_value = True
 
         self.public.versions.update(active=True, built=True)
 
