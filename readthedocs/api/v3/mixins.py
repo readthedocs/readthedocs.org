@@ -62,6 +62,8 @@ class APIAuthMixin(NestedParentObjectMixin):
         if self.has_admin_permission(user, project):
             return queryset
 
+        return queryset.none()
+
     def has_admin_permission(self, user, project):
         if project in self.admin_projects(user):
             return True
