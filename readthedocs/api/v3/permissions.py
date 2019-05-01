@@ -14,7 +14,10 @@ class PublicDetailPrivateListing(IsAuthenticated):
     def has_permission(self, request, view):
         is_authenticated = super().has_permission(request, view)
         if is_authenticated:
-            if view.basename == 'projects' and view.action == 'list':
+            if view.basename == 'projects' and any([
+                    view.action == 'list',
+                    view.action is None,  # needed for BrowsableAPIRenderer
+            ]):
                 # hitting ``/projects/``, allowing
                 return True
 
