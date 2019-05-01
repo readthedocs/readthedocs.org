@@ -14,15 +14,7 @@ Authentication and authorization
 --------------------------------
 
 Requests to the Read the Docs public API are for public and private information.
-Some listing endpoints and some detailed ones are allowed to access without being authenticated.
-Although, all endpoints that perform non-readonly operations, require authentication.
-
-
-No authentication
-~~~~~~~~~~~~~~~~~
-
-Some endpoints on read-only requests won't require any kind of authentication.
-Most of them are detailed information of specific listings for a particular object.
+All endpoints require authentication.
 
 
 Token
@@ -34,6 +26,10 @@ and have the same permissions that the user itself.
 
 Session
 ~~~~~~~
+
+.. warning::
+
+   Authentication via session is not enabled yet.
 
 Session authentication is allowed on very specific endpoints,
 to allow hitting the API when reading documentation.
@@ -86,7 +82,7 @@ Projects list
     :query string programming_language: programming language code as ``py``, ``js``, etc.
     :query string repository_type: one of ``git``, ``hg``, ``bzr``, ``svn``.
 
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 Project details
@@ -100,7 +96,7 @@ Project details
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/
 
     **Example response**:
 
@@ -171,9 +167,7 @@ Project details
 
     .. TODO: complete the returned data docs once agreed on this.
 
-    :query boolean inactive_versions: whether or not include inactive versions.
-
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
@@ -202,7 +196,7 @@ Versions listing
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/versions/
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
 
     **Example response**:
 
@@ -228,7 +222,7 @@ Versions listing
     :query boolean active: whether return active versions only
     :query boolean built: whether return only built version
 
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 Version detail
@@ -242,7 +236,7 @@ Version detail
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/versions/stable/
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/stable/
 
     **Example response**:
 
@@ -290,7 +284,7 @@ Version detail
     :>json string last_build: Build object representing the last build of this version
     :>json array downloads: URLs to downloads of this version's documentation
 
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Version`` with this slug for this project
@@ -312,11 +306,7 @@ Version edit
             "privacy_level": "public"
         }
 
-    **Example response**:
-
-    `See Version details <#version-detail>`_
-
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
     :statuscode 204: Edited sucessfully
     :statuscode 400: Some field is invalid
@@ -347,7 +337,7 @@ Build details
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
 
     **Example response**:
 
@@ -425,27 +415,10 @@ Build details
 
     :query boolean include_config: whether or not include the configs used for this build. Default is ``false``
 
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
     :statuscode 200: Success
     :statuscode 404: There is no ``Build`` with this ID
-
-
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/latest/
-
-    Retrieve details for latest build on this project.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/latest/
-
-    **Example response**:
-
-    `See Build details <#build-details>`_
-
-    :requestheader Authorization: optional token to authenticate.
 
 
 Builds listing
@@ -475,26 +448,11 @@ Builds listing
     :query string commit: commit hash to filter the builds returned by commit
     :query boolean running: whether or not to filter the builds returned by currently building
 
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 Build triggering
 ++++++++++++++++
-
-
-.. http:post:: /api/v3/projects/(string:project_slug)/builds/
-
-    Trigger a new build for the default version of this project.
-
-    **Example response**:
-
-    `See Build details <#build-details>`_
-
-    :requestheader Authorization: required token to authenticate.
-
-    :statuscode 202: Accepted
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
 
 
 .. http:post:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/
@@ -505,77 +463,11 @@ Build triggering
 
     `See Build details <#build-details>`_
 
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
     :statuscode 202: Accepted
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
-
-
-Build commands listing
-++++++++++++++++++++++
-
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/commands/
-
-    Retrieve build command list of a single build.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/
-
-    **Example response**:
-
-    .. sourcecode:: json
-
-        {
-            "count": 15,
-            "next": "/api/v3/projects/pip/builds/719263915/commands/?limit=10&offset=10",
-            "previous": null,
-            "results": ["BUILDCOMMAND"]
-        }
-
-    :requestheader Authorization: optional token to authenticate.
-
-
-Build command details
-+++++++++++++++++++++
-
-.. http:get:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/commands/(int:buildcommand_id)
-
-    Retrieve build command detail.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/719263915/commands/9182639172/
-
-    **Example response**:
-
-    .. sourcecode:: json
-
-        {
-            "id": 9182639172,
-            "build": 719263915,
-            "project": "pip",
-            "version": "stable",
-            "created": "2018-06-19T15:15:59+00:00",
-            "finished": "2018-06-19T15:16:58+00:00",
-            "duration": 59,
-            "command": "cat docs/config.py",
-            "output": "...",
-            "exit_code": 0,
-            "links": {
-                "self": "/api/v3/projects/pip/builds/719263915/commands/9182639172/",
-                "build": "/api/v3/projects/pip/builds/719263915/",
-                "version": "/api/v3/projects/pip/versions/stable/",
-                "project": "/api/v3/projects/pip/"
-            }
-        }
-
-    :requestheader Authorization: optional token to authenticate.
 
 
 Users
@@ -600,36 +492,16 @@ User detail
     .. sourcecode:: json
 
         {
-            "id": 25,
             "username": "humitos",
             "created": "2008-10-23T18:12:31+00:00",
-            "last_login": "2010-10-23T18:12:31+00:00",
-            "first_name": "Manuel",
-            "last_name": "Kaufmann",
-            "email": "humitos@readthedocs.org",
-            "links": {
-                "self": "/api/v3/users/humitos/",
-                "projects": "/api/v3/projects/?user=humitos"
-            }
+            "last_login": "2010-10-23T18:12:31+00:00"
         }
 
-    .. TODO: considering that ``/api/v3/projects/`` will return only
-       the projects for the authenticated user, the ``projects`` link
-       here won't work.
-
-       On the other hand, ``/api/v3/projects/all/?user=humitos`` can't
-       be used because we will be mixing ``all`` as project slug with
-       our endpoint URL.
-
-    :>json integer id: ID for the user on the database.
     :>json string username: username for the user.
     :>json string created: date and time when the user was created.
     :>json string last_login: date and time for last time this user was logged in.
-    :>json string first_name: first name of the user.
-    :>json string last_name: last name of the user.
-    :>json string email: email of the user.
 
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 User listing
@@ -662,7 +534,7 @@ User listing
     :>json string previous: URI for previous set of users.
     :>json array results: array of ``user`` objects.
 
-    :requestheader Authorization: optional token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 Subprojects
@@ -698,7 +570,7 @@ Subprojects listing
     :>json string previous: URI for previous set of projects.
     :>json array results: array of ``project`` objects.
 
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
 
 
 Translations
@@ -734,4 +606,4 @@ Translations listing
     :>json string previous: URI for previous set of projects.
     :>json array results: array of ``project`` objects.
 
-    :requestheader Authorization: required token to authenticate.
+    :requestheader Authorization: token to authenticate.
