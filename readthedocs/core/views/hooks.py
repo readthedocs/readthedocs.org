@@ -121,11 +121,12 @@ def get_project_from_url(url):
 
 def log_info(project, msg):
     log.info(
-        constants.LOG_TEMPLATE.format(
-            project=project,
-            version='',
-            msg=msg,
-        ),
+        constants.LOG_TEMPLATE,
+        {
+            'project': project,
+            'version': '',
+            'msg': msg,
+        }
     )
 
 
