@@ -22,15 +22,15 @@ class NestedParentObjectMixin:
     ]
 
     def _get_parent_object(self, model, lookup_names):
-        project_slug = None
+        object_slug = None
         query_dict = self.get_parents_query_dict()
         for lookup in lookup_names:
             value = query_dict.get(lookup)
             if value:
-                slug = value
+                object_slug = value
                 break
 
-        return get_object_or_404(model, slug=slug)
+        return get_object_or_404(model, slug=object_slug)
 
     def _get_parent_project(self):
         return self._get_parent_object(Project, self.PROJECT_LOOKUP_NAMES)
