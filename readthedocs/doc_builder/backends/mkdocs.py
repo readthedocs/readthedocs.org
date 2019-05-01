@@ -119,6 +119,7 @@ class BaseMkdocs(BaseBuilder):
             )
 
         docs_dir = self.docs_dir(docs_dir=user_docs_dir)
+
         self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
@@ -160,6 +161,12 @@ class BaseMkdocs(BaseBuilder):
             os.path.dirname(self.yaml_file),
             docs_dir,
         )
+
+        # if user puts an invalid `docs_dir` path raise an Exception
+        if not os.path.exists(docs_path):
+            raise MkDocsYAMLParseError(
+                MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
+            )
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
