@@ -29,7 +29,7 @@ from readthedocs.projects.models import Project
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import APIAuthMixin
 from .permissions import PublicDetailPrivateListing
-from .renderer import AlphabeticalSortedJSONRenderer
+from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildSerializer,
     BuildCreateSerializer,
