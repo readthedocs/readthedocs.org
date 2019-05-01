@@ -47,6 +47,13 @@ This includes:
 * Expected result
 * Actual result
 
+Specific Requests
+~~~~~~~~~~~~~~~~~
+
+If you need a specific request for your project,
+like more resources or change of the project's slug.
+Send an email to support@readthedocs.org.
+
 Commercial Support
 ------------------
 
