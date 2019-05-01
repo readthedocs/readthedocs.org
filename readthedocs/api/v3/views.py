@@ -265,7 +265,11 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
 class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
 
-    serializer_class = BuildCreateSerializer
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return BuildCreateSerializer
+
+        return super().get_serializer_class()
 
     def create(self, request, **kwargs):  # pylint: disable=arguments-differ
         project = self._get_parent_project()
