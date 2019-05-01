@@ -3,7 +3,6 @@
 
 import getpass
 import os
-import datetime
 
 from celery.schedules import crontab
 
