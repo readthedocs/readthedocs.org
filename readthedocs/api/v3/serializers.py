@@ -15,11 +15,13 @@ from readthedocs.projects.models import Project
 
 class UserSerializer(FlexFieldsModelSerializer):
 
+    created = serializers.DateTimeField(source='date_joined')
+
     class Meta:
         model = User
         fields = [
             'username',
-            'date_joined',
+            'created',
             'last_login',
         ]
 
