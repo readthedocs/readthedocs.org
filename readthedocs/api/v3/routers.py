@@ -10,7 +10,7 @@ class DocsAPIRootView(APIRootView):
     Read the Docs APIv3 root endpoint.
 
     Full documentation at [https://docs.readthedocs.io/en/latest/api/v3.html](https://docs.readthedocs.io/en/latest/api/v3.html).
-    """
+    """  # noqa
 
     def get_view_name(self):
         return 'Read the Docs APIv3'

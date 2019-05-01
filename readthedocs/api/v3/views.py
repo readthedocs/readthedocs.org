@@ -117,7 +117,8 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
     * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
 
-    Go to https://docs.readthedocs.io/en/stable/api/v3.html for a complete documentation of the APIv3.
+    Go to https://docs.readthedocs.io/en/stable/api/v3.html
+    for a complete documentation of the APIv3.
     """
 
     model = Project
@@ -144,7 +145,7 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             'tags',
         )
 
-    def get_view_description(self, *args, **kwargs):
+    def get_view_description(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """
         Make valid links for the user's documentation browseable API.
 
@@ -228,7 +229,10 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin,
 
     def get_serializer_class(self):
         """
-        Return correct serializer depending on the action (GET or PUT/PATCH/POST).
+        Return correct serializer depending on the action.
+
+        For GET it returns a serializer with many fields and on PUT/PATCH/POST,
+        it return a serializer to validate just a few fields.
         """
         if self.action in ('list', 'retrieve'):
             return VersionSerializer
@@ -266,7 +270,7 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             return BuildSerializer
         return BuildCreateSerializer
 
-    def create(self, request, **kwargs):
+    def create(self, request, **kwargs):  # pylint: disable=arguments-differ
         project = self._get_parent_project()
         version = self._get_parent_version()
 

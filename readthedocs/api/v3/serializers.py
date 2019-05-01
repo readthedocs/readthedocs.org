@@ -91,10 +91,10 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, obj):
+    def to_representation(self, instance):
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
-        return obj
+        return instance
 
 
 class BuildStateSerializer(serializers.Serializer):

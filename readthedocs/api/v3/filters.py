@@ -70,5 +70,5 @@ class BuildFilter(filters.FilterSet):
     def get_running(self, queryset, name, value):
         if value:
             return queryset.exclude(state=BUILD_STATE_FINISHED)
-        else:
-            return queryset.filter(state=BUILD_STATE_FINISHED)
+
+        return queryset.filter(state=BUILD_STATE_FINISHED)
