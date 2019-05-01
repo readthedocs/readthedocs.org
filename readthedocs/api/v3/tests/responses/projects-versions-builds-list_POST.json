@@ -18,7 +18,7 @@
             "code": "triggered",
             "name": "Triggered"
         },
-        "success": true,
+        "success": null,
         "version": "v1.0"
     },
     "project": {

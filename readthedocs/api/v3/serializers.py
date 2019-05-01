@@ -111,6 +111,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     version = serializers.SlugRelatedField(slug_field='slug', read_only=True)
     created = serializers.DateTimeField(source='date')
     finished = serializers.SerializerMethodField()
+    success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
     links = BuildLinksSerializer(source='*')
@@ -145,6 +146,17 @@ class BuildSerializer(FlexFieldsModelSerializer):
     def get_finished(self, obj):
         if obj.date and obj.length:
             return obj.date + datetime.timedelta(seconds=obj.length)
+
+    def get_success(self, obj):
+        """
+        Return ``None`` if the build is not finished.
+
+        This is needed becase ``default=True`` in the model field.
+        """
+        if obj.finished:
+            return obj.success
+
+        return None
 
 
 class PrivacyLevelSerializer(serializers.Serializer):
