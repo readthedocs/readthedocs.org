@@ -77,6 +77,7 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     * Detailed object.
 
     Retrieving only needed data using ``?fields=`` URL attribute is allowed.
+    On the other hand, you can use ``?omit=`` and list the fields you want to skip in the response.
 
     ### Filters
 
@@ -113,9 +114,9 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
     * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
 
-    Go to https://docs.readthedocs.io/en/stable/api/v3.html
+    Go to [https://docs.readthedocs.io/en/stable/api/v3.html](https://docs.readthedocs.io/en/stable/api/v3.html)
     for a complete documentation of the APIv3.
-    """
+    """  # noqa
 
     model = Project
     lookup_field = 'slug'
@@ -160,6 +161,9 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
+        """
+        Return the superproject of a ``Project``.
+        """
         project = self.get_object()
         try:
             superproject = project.superprojects.first().parent
@@ -173,9 +177,13 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                     NestedViewSetMixin, FlexFieldsMixin,
                                     ListModelMixin, GenericViewSet):
 
+    # Markdown docstring exposed at BrowsableAPIRenderer.
     """
     List subprojects of a ``Project``.
+    """
 
+    # Private/Internal docstring
+    """
     The main query is done via the ``NestedViewSetMixin`` using the
     ``parents_query_lookups`` defined when registering the urls.
     """
@@ -191,9 +199,13 @@ class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
                                      NestedViewSetMixin, FlexFieldsMixin,
                                      ListModelMixin, GenericViewSet):
 
+    # Markdown docstring exposed at BrowsableAPIRenderer.
     """
     List translations of a ``Project``.
+    """
 
+    # Private/Internal docstring
+    """
     The main query is done via the ``NestedViewSetMixin`` using the
     ``parents_query_lookups`` defined when registering the urls.
     """
@@ -296,6 +308,11 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
 
 class UsersViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
                    ListModelMixin, RetrieveModelMixin, GenericViewSet):
+
+    """
+    List users of a ``Project``.
+    """
+
     model = User
     lookup_field = 'username'
     lookup_url_kwarg = 'user_username'
