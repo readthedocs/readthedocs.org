@@ -806,7 +806,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 except Exception:
                     # Ideally this should just be an IOError
                     # but some storage backends unfortunately throw other errors
-                    log.warning(
+                    log.exception(
                         LOG_TEMPLATE.format(
                             project=self.version.project.slug,
                             version=self.version.slug,
@@ -832,7 +832,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 except Exception:
                     # Ideally this should just be an IOError
                     # but some storage backends unfortunately throw other errors
-                    log.warning(
+                    log.exception(
                         LOG_TEMPLATE.format(
                             project=self.version.project.slug,
                             version=self.version.slug,
