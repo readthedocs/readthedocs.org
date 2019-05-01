@@ -1,19 +1,16 @@
 import datetime
 import json
-
 from pathlib import Path
 
-
-from django.core.cache import cache
+import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
-
-import django_dynamic_fixture as fixture
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from readthedocs.builds.models import Version, Build
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 
 

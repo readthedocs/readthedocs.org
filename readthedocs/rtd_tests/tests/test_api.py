@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import base64
 import datetime
 import json
@@ -13,16 +12,6 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.integrations.models import Integration
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import (
-    APIProject,
-    EnvironmentVariable,
-    Feature,
-    Project,
-)
 from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
@@ -37,6 +26,16 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
+from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.integrations.models import Integration
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
+from readthedocs.projects.models import (
+    APIProject,
+    EnvironmentVariable,
+    Feature,
+    Project,
+)
 
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')

@@ -1,5 +1,12 @@
 from .routers import DefaultRouterWithNesting
-from .views import BuildsViewSet, ProjectsViewSet, UsersViewSet, VersionsViewSet, SubprojectRelationshipViewSet, TranslationRelationshipViewSet
+from .views import (
+    BuildsViewSet,
+    ProjectsViewSet,
+    SubprojectRelationshipViewSet,
+    TranslationRelationshipViewSet,
+    UsersViewSet,
+    VersionsViewSet,
+)
 
 
 router = DefaultRouterWithNesting()

@@ -1,11 +1,8 @@
 import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
-from rest_framework.authentication import (
-    TokenAuthentication,
-)
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -15,7 +12,6 @@ from rest_framework.mixins import (
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
@@ -31,8 +27,8 @@ from .mixins import APIAuthMixin
 from .permissions import PublicDetailPrivateListing
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
-    BuildSerializer,
     BuildCreateSerializer,
+    BuildSerializer,
     ProjectSerializer,
     UserSerializer,
     VersionSerializer,
@@ -174,8 +170,8 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
-                                    NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
-                                    GenericViewSet):
+                                    NestedViewSetMixin, FlexFieldsMixin,
+                                    ListModelMixin, GenericViewSet):
 
     """
     List subprojects of a ``Project``.
@@ -192,8 +188,8 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
 
 
 class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
-                                     NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
-                                     GenericViewSet):
+                                     NestedViewSetMixin, FlexFieldsMixin,
+                                     ListModelMixin, GenericViewSet):
 
     """
     List translations of a ``Project``.
@@ -209,9 +205,9 @@ class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
     queryset = Project.objects.all()
 
 
-class VersionsViewSet(APIv3Settings, APIAuthMixin,
-                      NestedViewSetMixin, FlexFieldsMixin, ListModelMixin,
-                      RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
+                      UpdateModelMixin, GenericViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -293,8 +289,8 @@ class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return Response(data=data, status=status)
 
 
-class UsersViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin, ListModelMixin,
-                   RetrieveModelMixin, GenericViewSet):
+class UsersViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+                   ListModelMixin, RetrieveModelMixin, GenericViewSet):
     model = User
     lookup_field = 'username'
     lookup_url_kwarg = 'user_username'

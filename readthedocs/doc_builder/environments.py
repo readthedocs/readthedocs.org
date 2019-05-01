@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Documentation Builder Environments."""
 
 import logging
@@ -20,12 +18,12 @@ from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-from readthedocs.api.v2.client import api as api_v2
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,

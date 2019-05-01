@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Views pertaining to builds."""
 
 import json

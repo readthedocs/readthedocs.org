@@ -78,7 +78,7 @@ stripe==2.27.0
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
-django-crispy-forms==1.7.2 
+django-crispy-forms==1.7.2
 
 docker==3.7.2
 

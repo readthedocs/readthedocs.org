@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project model QuerySet classes."""
 
 from django.db import models

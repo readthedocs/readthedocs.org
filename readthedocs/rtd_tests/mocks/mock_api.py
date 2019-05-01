@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Mock versions of many API-related classes."""
 import json
 from contextlib import contextmanager

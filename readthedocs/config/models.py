@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Models for the response of the configuration object."""
 
 from readthedocs.config.utils import to_dict
@@ -45,7 +43,11 @@ class PythonInstallRequirements(Base):
 
 class PythonInstall(Base):
 
-    __slots__ = ('path', 'method', 'extra_requirements',)
+    __slots__ = (
+        'path',
+        'method',
+        'extra_requirements',
+    )
 
 
 class Conda(Base):

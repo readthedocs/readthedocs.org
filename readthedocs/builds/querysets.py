@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Build and Version QuerySet classes."""
 
 from django.db import models

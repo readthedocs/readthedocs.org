@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 import mock
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from readthedocs.builds.constants import BRANCH, LATEST, TAG
-from readthedocs.builds.models import Version
-from readthedocs.core.middleware import FooterNoSessionMiddleware
-from readthedocs.projects.models import Project
 from readthedocs.api.v2.views.footer_views import (
     footer_html,
     get_version_compare_data,
 )
+from readthedocs.builds.constants import BRANCH, LATEST, TAG
+from readthedocs.builds.models import Version
+from readthedocs.core.middleware import FooterNoSessionMiddleware
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
