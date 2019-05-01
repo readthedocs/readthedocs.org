@@ -251,20 +251,21 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
 class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
                     FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
-                    CreateModelMixin, GenericViewSet):
+                    GenericViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
+    serializer_class = BuildSerializer
     filterset_class = BuildFilter
     queryset = Build.objects.all()
     permit_list_expands = [
         'config',
     ]
 
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return BuildSerializer
-        return BuildCreateSerializer
+
+class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
+
+    serializer_class = BuildCreateSerializer
 
     def create(self, request, **kwargs):  # pylint: disable=arguments-differ
         project = self._get_parent_project()

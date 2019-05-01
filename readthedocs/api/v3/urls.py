@@ -1,6 +1,7 @@
 from .routers import DefaultRouterWithNesting
 from .views import (
     BuildsViewSet,
+    BuildsCreateViewSet,
     ProjectsViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
@@ -49,7 +50,7 @@ versions = projects.register(
 # allows /api/v3/projects/pip/versions/v3.6.2/builds/1053/
 versions.register(
     r'builds',
-    BuildsViewSet,
+    BuildsCreateViewSet,
     base_name='projects-versions-builds',
     parents_query_lookups=[
         'project__slug',

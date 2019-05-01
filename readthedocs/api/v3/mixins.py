@@ -21,22 +21,25 @@ class NestedParentObjectMixin:
         'version__slug',
     ]
 
-    def _get_parent_object(self, model, lookup_names):
-        object_slug = None
+    def _get_parent_object_lookup(self, lookup_names):
         query_dict = self.get_parents_query_dict()
         for lookup in lookup_names:
             value = query_dict.get(lookup)
             if value:
-                object_slug = value
-                break
-
-        return get_object_or_404(model, slug=object_slug)
+                return value
 
     def _get_parent_project(self):
-        return self._get_parent_object(Project, self.PROJECT_LOOKUP_NAMES)
+        slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        return get_object_or_404(Project, slug=slug)
 
     def _get_parent_version(self):
-        return self._get_parent_object(Version, self.VERSION_LOOKUP_NAMES)
+        project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+        slug = self._get_parent_object_lookup(self.VERSION_LOOKUP_NAMES)
+        return get_object_or_404(
+            Version,
+            slug=slug,
+            project__slug=project_slug,
+        )
 
 
 class APIAuthMixin(NestedParentObjectMixin):
