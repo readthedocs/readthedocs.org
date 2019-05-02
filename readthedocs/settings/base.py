@@ -330,7 +330,7 @@ class CommunityBaseSettings(Settings):
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.6, 3.7]},
+            'python': {'supported_versions': [2, 2.7, 3, 3.6, 3.7, 'pypy3.5']},
         },
     }
 
