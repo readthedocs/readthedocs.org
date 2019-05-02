@@ -149,9 +149,6 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
-            'use_pdf_latexmk': self.project.has_feature(
-                Feature.USE_PDF_LATEXMK,
-            ),
         }
 
         finalize_sphinx_context_data.send(

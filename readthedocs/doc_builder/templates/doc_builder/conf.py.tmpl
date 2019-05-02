@@ -141,7 +141,6 @@ if 'extensions' in globals():
 else:
     extensions = ["readthedocs_ext.readthedocs"]
 
-{% if use_pdf_latexmk %}
 project_language = '{{ project.language }}'
 
 # User's Sphinx configurations
@@ -173,4 +172,3 @@ if chinese:
     latex_elements = latex_elements_user or latex_elements_rtd
 elif japanese:
     latex_engine = latex_engine_user or 'platex'
-{% endif %}
