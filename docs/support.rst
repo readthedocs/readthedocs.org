@@ -50,8 +50,8 @@ This includes:
 Specific Requests
 ~~~~~~~~~~~~~~~~~
 
-If you need a specific request for your project,
-like more resources or change of the project's slug.
+If you need a specific request for your project or account,
+like more resources, change of the project's slug or username.
 Send an email to support@readthedocs.org.
 
 Commercial Support
