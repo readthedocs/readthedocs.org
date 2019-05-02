@@ -10,7 +10,6 @@ import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -18,6 +17,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
+from packaging.version import Version
 
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -232,6 +232,32 @@ class BaseSphinx(BaseBuilder):
         )
         return cmd_ret.successful
 
+    def venv_sphinx_version(self):
+        """
+        Execute Python from the venv to query the ``sphinx`` version.
+
+        Example,
+
+            >>> import sphinx
+            >>> print(sphinx.__version__)
+            '2.0.0'
+
+        In this case, the output will be ``2.0.0``.
+        """
+
+
+        command = [
+            self.python_env.venv_bin(filename='python'),
+            '-c'
+            '"import sphinx;print(sphinx.__version__)"',
+        ]
+        cmd_ret = self.run(
+            *command,
+            cwd=self.project.checkout_path(self.version.slug),
+            bin_path=self.python_env.venv_bin(),
+        )
+        return cmd_ret.output
+
 
 class HtmlBuilder(BaseSphinx):
     type = 'sphinx'
@@ -395,7 +421,10 @@ class PdfBuilder(BaseSphinx):
             raise BuildEnvironmentError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
-        if self.project.has_feature(Feature.USE_PDF_LATEXMK):
+        # Build PDF with ``latexmk`` if Sphinx > 1.6, otherwise fallback to
+        # ``pdflatex`` to support old versions
+        sphinx_version = Version(self.venv_sphinx_version())
+        if sphinx_version > Version('1.6'):
             return self._build_latexmk(cwd, latex_cwd)
 
         return self._build_pdflatex(tex_files, latex_cwd)
