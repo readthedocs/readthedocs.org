@@ -242,16 +242,17 @@ class BaseSphinx(BaseBuilder):
         In this case, the output will be ``2.0.0``.
         """
 
-
         command = [
             self.python_env.venv_bin(filename='python'),
             '-c'
-            '"import sphinx;print(sphinx.__version__)"',
+            '"import sphinx; print(sphinx.__version__)"',
         ]
+
         cmd_ret = self.run(
             *command,
-            cwd=self.project.checkout_path(self.version.slug),
             bin_path=self.python_env.venv_bin(),
+            cwd=self.project.checkout_path(self.version.slug),
+            escape_command=False,
         )
         return cmd_ret.output
 
