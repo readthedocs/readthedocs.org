@@ -14,7 +14,7 @@ from readthedocs.search.faceted_search import (
 )
 
 log = logging.getLogger(__name__)
-LOG_TEMPLATE = '(Elastic Search) [{user}:{type}] [{project}:{version}:{language}] {msg}'
+LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
 
 UserInput = collections.namedtuple(
     'UserInput',
@@ -92,14 +92,15 @@ def elastic_search(request, project_slug=None):
         facets = results.facets
 
         log.info(
-            LOG_TEMPLATE.format(
-                user=request.user,
-                project=user_input.project or '',
-                type=user_input.type or '',
-                version=user_input.version or '',
-                language=user_input.language or '',
-                msg=user_input.query or '',
-            ),
+            LOG_TEMPLATE,
+            {
+                'user': request.user,
+                'project': user_input.project or '',
+                'type': user_input.type or '',
+                'version': user_input.version or '',
+                'language': user_input.language or '',
+                'msg': user_input.query or '',
+            }
         )
 
     # Make sure our selected facets are displayed even when they return 0 results
