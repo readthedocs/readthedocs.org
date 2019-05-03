@@ -219,10 +219,11 @@ class ProjectViewSet(UserSelectViewSet):
         new_stable = project.get_stable_version()
         if promoted_version and new_stable and new_stable.active:
             log.info(
-                'Triggering new stable build: {project}:{version}'.format(
-                    project=project.slug,
-                    version=new_stable.identifier,
-                ),
+                'Triggering new stable build: %(project)s:%(version)s',
+                {
+                    'project': project.slug,
+                    'version': new_stable.identifier,
+                }
             )
             trigger_build(project=project, version=new_stable)
 
