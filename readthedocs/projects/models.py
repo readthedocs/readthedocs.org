@@ -924,18 +924,22 @@ class Project(models.Model):
                 )
                 if identifier_updated and current_stable.machine:
                     log.info(
-                        'Update stable version: {project}:{version}'.format(
-                            project=self.slug,
-                            version=new_stable.identifier,
-                        ),
+                        'Update stable version: %(project)s:%(version)s',
+                        {
+                            'project': self.slug,
+                            'version': new_stable.identifier,
+                        }
                     )
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
                     return new_stable
             else:
                 log.info(
-                    'Creating new stable version: {project}:{version}'
-                    .format(project=self.slug, version=new_stable.identifier),
+                    'Creating new stable version: %(project)s:%(version)s',
+                    {
+                        'project': self.slug,
+                        'version': new_stable.identifier,
+                    }
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -1161,7 +1165,7 @@ class HTMLFile(ImportedFile):
     This tracks only the HTML files for indexing to search.
     """
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     objects = HTMLFileManager()
