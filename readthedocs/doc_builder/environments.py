@@ -463,11 +463,12 @@ class BaseEnvironment:
 
             if warn_only:
                 log.warning(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version='latest',
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': 'latest',
+                        'msg': msg,
+                    }
                 )
             else:
                 raise BuildEnvironmentWarning(msg)
@@ -551,11 +552,12 @@ class BuildEnvironment(BaseEnvironment):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Build finished',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Build finished',
+            }
         )
         return ret
 
@@ -586,11 +588,12 @@ class BuildEnvironment(BaseEnvironment):
                 self.failure = exc_value
 
             log_level_function(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=exc_value,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': exc_value,
+                },
                 exc_info=True,
                 extra={
                     'stack': True,
@@ -820,15 +823,16 @@ class DockerBuildEnvironment(BuildEnvironment):
                     raise exc
                 else:
                     log.warning(
-                        LOG_TEMPLATE.format(
-                            project=self.project.slug,
-                            version=self.version.slug,
-                            msg=(
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.project.slug,
+                            'version': self.version.slug,
+                            'msg': (
                                 'Removing stale container {}'.format(
                                     self.container_id,
                                 )
                             ),
-                        ),
+                        }
                     )
                     client = self.get_client()
                     client.remove_container(self.container_id)
@@ -874,11 +878,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             # request. These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg="Couldn't remove container",
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': "Couldn't remove container",
+                    }
                 )
             self.container = None
         except BuildEnvironmentError:
@@ -902,11 +907,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Could not connect to Docker API',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': "Could not connect to Docker API",
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1024,14 +1030,15 @@ class DockerBuildEnvironment(BuildEnvironment):
             client.start(container=self.container_id)
         except ConnectionError:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
                         'Could not connect to the Docker API, '
                         'make sure Docker is running'
                     ),
-                ),
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1043,10 +1050,11 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         except DockerAPIError as e:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=e.explanation,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': e.explanation,
+                }
             )
             raise BuildEnvironmentCreationFailed
