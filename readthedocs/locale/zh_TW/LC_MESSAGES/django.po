@@ -2528,7 +2528,7 @@ msgstr ""
 
 #: templates/projects/environmentvariable_detail.html:21
 msgid ""
-"The value of the environment variable is not shown here for sercurity "
+"The value of the environment variable is not shown here for security "
 "purposes."
 msgstr ""
 
