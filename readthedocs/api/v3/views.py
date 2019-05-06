@@ -125,7 +125,6 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     filterset_class = ProjectFilter
     queryset = Project.objects.all()
     permit_list_expands = [
-        'users',
         'active_versions',
         'active_versions.last_build',
         'active_versions.last_build.config',
@@ -140,6 +139,7 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             'related_projects',
             'domains',
             'tags',
+            'users',
         )
 
     def get_view_description(self, *args, **kwargs):  # pylint: disable=arguments-differ

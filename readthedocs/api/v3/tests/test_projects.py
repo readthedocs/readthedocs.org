@@ -19,15 +19,22 @@ class APIEndpointTests(TestCase):
     fixtures = []
 
     def setUp(self):
+        created = datetime.datetime(2019, 4, 29, 10, 0, 0)
+        modified = datetime.datetime(2019, 4, 29, 12, 0, 0)
 
-        self.me = fixture.get(User, projects=[])
+        self.me = fixture.get(
+            User,
+            date_joined=created,
+            username='testuser',
+            projects=[],
+        )
         self.token = fixture.get(Token, key='me', user=self.me)
         # Defining all the defaults helps to avoid creating ghost / unwanted
         # objects (like a Project for translations/subprojects)
         self.project = fixture.get(
             Project,
-            pub_date=datetime.datetime(2019, 4, 29, 10, 0, 0),
-            modified_date=datetime.datetime(2019, 4, 29, 12, 0, 0),
+            pub_date=created,
+            modified_date=modified,
             description='Project description',
             repo='https://github.com/rtfd/project',
             project_url='http://project.com',
@@ -43,8 +50,8 @@ class APIEndpointTests(TestCase):
 
         self.subproject = fixture.get(
             Project,
-            pub_date=datetime.datetime(2019, 4, 29, 10, 0, 0),
-            modified_date=datetime.datetime(2019, 4, 29, 12, 0, 0),
+            pub_date=created,
+            modified_date=modified,
             description='SubProject description',
             repo='https://github.com/rtfd/subproject',
             project_url='http://subproject.com',
@@ -73,7 +80,7 @@ class APIEndpointTests(TestCase):
 
         self.build = fixture.get(
             Build,
-            date=datetime.datetime(2019, 4, 29, 10, 0, 0),
+            date=created,
             type='html',
             state='finished',
             error='',

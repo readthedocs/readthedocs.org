@@ -400,6 +400,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
+    users = UserSerializer(many=True)
 
     description = serializers.SerializerMethodField()
 
@@ -411,13 +412,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     modified = serializers.DateTimeField(source='modified_date')
 
     expandable_fields = dict(
-        users=(
-            UserSerializer,
-            dict(
-                source='users',
-                many=True,
-            ),
-        ),
         active_versions=(
             VersionSerializer,
             dict(
@@ -446,6 +440,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'privacy_level',
             'subproject_of',
             'translation_of',
+            'users',
             'urls',
             'tags',
 
