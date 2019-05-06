@@ -477,7 +477,7 @@ class CommunityBaseSettings(Settings):
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
         'DEFAULT_THROTTLE_RATES': {
             'anon': '5/minute',
-            'user': '10/minute',
+            'user': '60/minute',
         },
         'PAGE_SIZE': 10,
     }
