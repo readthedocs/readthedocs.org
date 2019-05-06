@@ -163,9 +163,7 @@ class ProjectsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
-        """
-        Return the superproject of a ``Project``.
-        """
+        """Return the superproject of a ``Project``."""
         project = self.get_object()
         try:
             superproject = project.superprojects.first().parent
@@ -180,15 +178,15 @@ class SubprojectRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
                                     ListModelMixin, GenericViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
-    """
-    List subprojects of a ``Project``.
-    """
+
+    """List subprojects of a ``Project``."""
 
     # Private/Internal docstring
+
     """
     The main query is done via the ``NestedViewSetMixin`` using the
     ``parents_query_lookups`` defined when registering the urls.
-    """
+    """  # noqa
 
     model = Project
     lookup_field = 'slug'
@@ -202,15 +200,14 @@ class TranslationRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
                                      ListModelMixin, GenericViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
-    """
-    List translations of a ``Project``.
-    """
+
+    """List translations of a ``Project``."""
 
     # Private/Internal docstring
     """
     The main query is done via the ``NestedViewSetMixin`` using the
     ``parents_query_lookups`` defined when registering the urls.
-    """
+    """  # noqa
 
     model = Project
     lookup_field = 'slug'

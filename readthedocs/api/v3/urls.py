@@ -1,7 +1,7 @@
 from .routers import DefaultRouterWithNesting
 from .views import (
-    BuildsViewSet,
     BuildsCreateViewSet,
+    BuildsViewSet,
     ProjectsViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
