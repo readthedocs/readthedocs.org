@@ -45,7 +45,7 @@
                     "username": "testuser"
                 }
             ],
-            "links": {
+            "_links": {
                 "_self": "https://readthedocs.org/api/v3/projects/project/",
                 "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
                 "builds": "https://readthedocs.org/api/v3/projects/project/builds/",

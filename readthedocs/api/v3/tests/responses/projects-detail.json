@@ -16,7 +16,7 @@
                 "error": "",
                 "finished": "2019-04-29T10:01:00Z",
                 "id": 1,
-                "links": {
+                "_links": {
                     "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/",
                     "project": "https://readthedocs.org/api/v3/projects/project/",
                     "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
@@ -29,7 +29,7 @@
                 "success": true,
                 "version": "v1.0"
             },
-            "links": {
+            "_links": {
                 "_self": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/",
                 "builds": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/builds/",
                 "project": "https://readthedocs.org/api/v3/projects/project/"
@@ -57,7 +57,7 @@
         "code": "en",
         "name": "English"
     },
-    "links": {
+    "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/project/",
         "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
         "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",

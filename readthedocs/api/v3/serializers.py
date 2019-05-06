@@ -115,7 +115,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     success = serializers.SerializerMethodField()
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
-    links = BuildLinksSerializer(source='*')
+    _links = BuildLinksSerializer(source='*')
 
     expandable_fields = dict(
         config=(
@@ -139,7 +139,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'success',
             'error',
             'commit',
-            'links',
+            '_links',
         ]
 
     def get_finished(self, obj):
@@ -215,7 +215,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source='*')
-    links = VersionLinksSerializer(source='*')
+    _links = VersionLinksSerializer(source='*')
 
     expandable_fields = dict(
         last_build=(
@@ -240,7 +240,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'type',
             'downloads',
             'urls',
-            'links',
+            '_links',
         ]
 
     def get_downloads(self, obj):
@@ -390,7 +390,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
     description = serializers.SerializerMethodField()
 
-    links = ProjectLinksSerializer(source='*')
+    _links = ProjectLinksSerializer(source='*')
 
     # TODO: adapt these fields with the proper names in the db and then remove
     # them from here
@@ -435,7 +435,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             # 'users',
             # 'active_versions',
 
-            'links',
+            '_links',
         ]
 
     def get_description(self, obj):

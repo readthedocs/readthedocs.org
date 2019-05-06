@@ -4,7 +4,7 @@
     "downloads": {},
     "id": 3,
     "identifier": "a1b2c3",
-    "links": {
+    "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/",
         "builds": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/builds/",
         "project": "https://readthedocs.org/api/v3/projects/project/"
