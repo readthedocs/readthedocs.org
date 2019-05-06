@@ -5,7 +5,6 @@ from .views import (
     ProjectsViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
-    UsersViewSet,
     VersionsViewSet,
 )
 
@@ -65,15 +64,6 @@ projects.register(
     BuildsViewSet,
     base_name='projects-builds',
     parents_query_lookups=['project__slug'],
-)
-
-# allows /api/v3/projects/pip/users/
-# allows /api/v3/projects/pip/users/humitos/
-projects.register(
-    r'users',
-    UsersViewSet,
-    base_name='projects-users',
-    parents_query_lookups=['projects__slug'],
 )
 
 urlpatterns = []

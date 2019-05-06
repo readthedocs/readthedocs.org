@@ -1,5 +1,4 @@
 import django_filters.rest_framework as filters
-from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework.authentication import TokenAuthentication
@@ -30,7 +29,6 @@ from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     ProjectSerializer,
-    UserSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -310,17 +308,3 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
             data.update({'triggered': False})
             status = 400
         return Response(data=data, status=status)
-
-
-class UsersViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
-                   ListModelMixin, RetrieveModelMixin, GenericViewSet):
-
-    """
-    List users of a ``Project``.
-    """
-
-    model = User
-    lookup_field = 'username'
-    lookup_url_kwarg = 'user_username'
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
