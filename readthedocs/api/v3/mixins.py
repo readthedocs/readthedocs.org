@@ -53,12 +53,7 @@ class APIAuthMixin(NestedParentObjectMixin):
 
     def detail_objects(self, queryset, user):
         # Filter results by user
-        # NOTE: we don't override the manager in User model, so we don't have
-        # ``.api`` method there
-        if self.model is not User:
-            queryset = queryset.api(user=user)
-
-        return queryset
+        return queryset.api(user=user)
 
     def listing_objects(self, queryset, user):
         project = self._get_parent_project()
