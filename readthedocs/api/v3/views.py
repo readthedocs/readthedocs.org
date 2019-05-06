@@ -21,7 +21,7 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import APIAuthMixin
+from .mixins import ProjectQuerySetMixin
 from .permissions import PublicDetailPrivateListing
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -61,7 +61,7 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+class ProjectsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
                       FlexFieldsMixin, ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
@@ -133,7 +133,7 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             # ``projects`` view.
             return self.admin_projects(self.request.user)
 
-        # This could be a class attribute and managed on the ``APIAuthMixin`` in
+        # This could be a class attribute and managed on the ``ProjectQuerySetMixin`` in
         # case we want to extend the ``prefetch_related`` to other views as
         # well.
         queryset = super().get_queryset()
@@ -175,7 +175,7 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
             return Response(status=404)
 
 
-class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
+class SubprojectRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
                                     NestedViewSetMixin, FlexFieldsMixin,
                                     ListModelMixin, GenericViewSet):
 
@@ -197,7 +197,7 @@ class SubprojectRelationshipViewSet(APIv3Settings, APIAuthMixin,
     queryset = Project.objects.all()
 
 
-class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
+class TranslationRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
                                      NestedViewSetMixin, FlexFieldsMixin,
                                      ListModelMixin, GenericViewSet):
 
@@ -219,7 +219,7 @@ class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
     queryset = Project.objects.all()
 
 
-class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+class VersionsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
                       FlexFieldsMixin, UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
@@ -262,7 +262,7 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
         return Response(status=204)
 
 
-class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
+class BuildsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
                     FlexFieldsMixin, ReadOnlyModelViewSet):
     model = Build
     lookup_field = 'pk'

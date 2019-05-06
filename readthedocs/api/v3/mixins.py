@@ -42,7 +42,7 @@ class NestedParentObjectMixin:
         )
 
 
-class APIAuthMixin(NestedParentObjectMixin):
+class ProjectQuerySetMixin(NestedParentObjectMixin):
 
     """
     Mixin to define queryset permissions for ViewSet only in one place.
