@@ -39,9 +39,14 @@
                 "project",
                 "test"
             ],
+            "users": [
+                {
+                    "created": "2019-04-29T10:00:00Z",
+                    "username": "testuser"
+                }
+            ],
             "links": {
                 "_self": "https://readthedocs.org/api/v3/projects/project/",
-                "users": "https://readthedocs.org/api/v3/projects/project/users/",
                 "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
                 "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
                 "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",

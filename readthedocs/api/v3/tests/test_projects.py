@@ -202,18 +202,6 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_others_projects_users_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-users-list',
-                kwargs={
-                    'parent_lookup_projects__slug': self.others_project.slug,
-                }),
-
-        )
-        self.assertEqual(response.status_code, 403)
-
     def test_others_projects_detail(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(

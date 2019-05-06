@@ -1,6 +1,4 @@
 {
-    "builder": "builder01",
-    "cold_storage": null,
     "commit": "a1b2c3",
     "created": "2019-04-29T10:00:00Z",
     "duration": 60,

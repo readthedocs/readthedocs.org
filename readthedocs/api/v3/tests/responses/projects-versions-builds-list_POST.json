@@ -1,7 +1,5 @@
 {
     "build": {
-        "builder": null,
-        "cold_storage": null,
         "commit": null,
         "created": "2019-04-29T14:00:00Z",
         "duration": null,
@@ -37,7 +35,6 @@
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
-            "users": "https://readthedocs.org/api/v3/projects/project/users/",
             "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
         },
         "modified": "2019-04-29T12:00:00Z",
@@ -65,7 +62,13 @@
         "urls": {
             "documentation": "http://readthedocs.org/docs/project/en/latest/",
             "project_homepage": "http://project.com"
-        }
+        },
+        "users": [
+            {
+                "created": "2019-04-29T10:00:00Z",
+                "username": "testuser"
+            }
+        ]
     },
     "triggered": true,
     "version": {
@@ -86,7 +89,6 @@
         "ref": null,
         "slug": "v1.0",
         "type": "tag",
-        "uploaded": false,
         "urls": {
             "documentation": "http://readthedocs.org/docs/project/en/v1.0/",
             "vcs": "https://github.com/rtfd/project/tree/v1.0/"

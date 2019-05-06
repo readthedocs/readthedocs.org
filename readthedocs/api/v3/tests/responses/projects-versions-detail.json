@@ -16,7 +16,6 @@
     "ref": null,
     "slug": "v1.0",
     "type": "tag",
-    "uploaded": false,
     "urls": {
         "documentation": "http://readthedocs.org/docs/project/en/v1.0/",
         "vcs": "https://github.com/rtfd/project/tree/v1.0/"

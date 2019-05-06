@@ -14,7 +14,6 @@
         "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
         "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
-        "users": "https://readthedocs.org/api/v3/projects/project/users/",
         "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
     },
     "modified": "2019-04-29T12:00:00Z",
@@ -42,5 +41,11 @@
     "urls": {
         "documentation": "http://readthedocs.org/docs/project/en/latest/",
         "project_homepage": "http://project.com"
-    }
+    },
+    "users": [
+        {
+            "created": "2019-04-29T10:00:00Z",
+            "username": "testuser"
+        }
+    ]
 }
