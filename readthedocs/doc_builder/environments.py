@@ -83,6 +83,7 @@ class BuildCommand(BuildCommandResultMixin):
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
+    :param kwargs: allow to subclass this class and extend it
     """
 
     def __init__(
@@ -97,6 +98,7 @@ class BuildCommand(BuildCommandResultMixin):
             bin_path=None,
             description=None,
             record_as_success=False,
+            **kwargs,
     ):
         self.command = command
         self.shell = shell
