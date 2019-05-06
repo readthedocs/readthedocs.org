@@ -48,7 +48,7 @@ class APIAuthMixin(NestedParentObjectMixin):
     Mixin to define queryset permissions for ViewSet only in one place.
 
     All APIv3 ViewSet should inherit this mixin, unless specific permissions
-    required. In that case, an specific mixin for that case should be defined.
+    required. In that case, a specific mixin for that case should be defined.
     """
 
     def detail_objects(self, queryset, user):
