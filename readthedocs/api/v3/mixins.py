@@ -87,13 +87,6 @@ class APIAuthMixin(NestedParentObjectMixin):
         4. raise a ``NotFound`` exception otherwise
         """
 
-        # Allow hitting ``/api/v3/projects/`` to list their own projects
-        if self.basename == 'projects' and self.action == 'list':
-            # We force returning ``Project`` objects here because it's under the
-            # ``projects`` view. This could be moved to a specific
-            # ``get_queryset`` in the view.
-            return self.admin_projects(self.request.user)
-
         # NOTE: ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
         # we need to have defined the class attribute as ``queryset = Model.objects.all()``
         queryset = super().get_queryset()

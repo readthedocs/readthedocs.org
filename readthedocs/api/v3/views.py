@@ -131,6 +131,12 @@ class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
     ]
 
     def get_queryset(self):
+        # Allow hitting ``/api/v3/projects/`` to list their own projects
+        if self.basename == 'projects' and self.action == 'list':
+            # We force returning ``Project`` objects here because it's under the
+            # ``projects`` view.
+            return self.admin_projects(self.request.user)
+
         # This could be a class attribute and managed on the ``APIAuthMixin`` in
         # case we want to extend the ``prefetch_related`` to other views as
         # well.
