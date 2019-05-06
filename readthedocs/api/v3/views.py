@@ -7,14 +7,13 @@ from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
     CreateModelMixin,
     ListModelMixin,
-    RetrieveModelMixin,
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
@@ -63,8 +62,7 @@ class APIv3Settings:
 
 
 class ProjectsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
-                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
-                      GenericViewSet):
+                      FlexFieldsMixin, ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
@@ -222,8 +220,7 @@ class TranslationRelationshipViewSet(APIv3Settings, APIAuthMixin,
 
 
 class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
-                      FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
-                      UpdateModelMixin, GenericViewSet):
+                      FlexFieldsMixin, UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -266,8 +263,7 @@ class VersionsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
 
 
 class BuildsViewSet(APIv3Settings, APIAuthMixin, NestedViewSetMixin,
-                    FlexFieldsMixin, ListModelMixin, RetrieveModelMixin,
-                    GenericViewSet):
+                    FlexFieldsMixin, ReadOnlyModelViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
