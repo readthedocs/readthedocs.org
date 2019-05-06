@@ -11,7 +11,7 @@ class DocsAPIRootView(APIRootView):
 
     API is browseable by sending the header ``Authorization: Token <token>`` on each request.
 
-    Full documentation at [https://docs.readthedocs.io/en/latest/api/v3.html](https://docs.readthedocs.io/en/latest/api/v3.html).
+    Full documentation at [https://docs.readthedocs.io/page/api/v3.html](https://docs.readthedocs.io/page/api/v3.html).
     """  # noqa
 
     def get_view_name(self):
