@@ -457,7 +457,7 @@ class TestLoadConfigV2:
         )
 
         update_docs = self.get_update_docs_task()
-        update_docs.run_build(docker=False, record=False)
+        update_docs.run_build(record=False)
 
         conda_file = path.join(str(base_path), conda_file)
         assert update_docs.config.conda.environment == conda_file

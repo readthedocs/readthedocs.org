@@ -342,7 +342,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, pk, version_pk=None, build_pk=None, record=True, docker=None,
+            self, pk, version_pk=None, build_pk=None, record=True,
             force=False, **__
     ):
         """
@@ -365,8 +365,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param version_pk int: Project Version id (latest if None)
         :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project (if ``None``,
-            ``settings.DOCKER_ENABLE`` is used)
         :param force bool: force Sphinx build
 
         :returns: whether build was successful or not
@@ -374,9 +372,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: bool
         """
         try:
-            if docker is None:
-                docker = settings.DOCKER_ENABLE
-
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
@@ -418,7 +413,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
-                self.run_build(docker=docker, record=record)
+                self.run_build(record=record)
             except Exception as e:  # noqa
                 log.exception(
                     'An unhandled exception was raised during project build',
@@ -451,7 +446,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         Return True if successful.
         """
-        self.setup_env = LocalBuildEnvironment(
+        if settings.DOCKER_ENABLE:
+            env_cls = DockerBuildEnvironment
+        else:
+            env_cls = LocalBuildEnvironment
+        self.setup_env = env_cls(
             project=self.project,
             version=self.version,
             build=self.build,
@@ -517,19 +516,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def run_build(self, docker, record):
+    def run_build(self, record):
         """
         Build the docs in an environment.
 
-        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
-            otherwise it uses a ``LocalBuildEnvironment`` to run all the
-            commands to build the docs
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
         env_vars = self.get_env_vars()
 
-        if docker:
+        if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
