@@ -339,3 +339,35 @@ class APIEndpointTests(TestCase):
             response_json,
             self._get_response_dict('projects-versions-builds-list_POST'),
         )
+
+    def test_projects_versions_detail_unique(self):
+        second_project = fixture.get(
+            Project,
+            name='second project',
+            slug='second-project',
+            related_projects=[],
+            main_language_project=None,
+            users=[self.me],
+            versions=[],
+        )
+        second_version = fixture.get(
+            Version,
+            slug=self.version.slug,
+            verbose_name=self.version.verbose_name,
+            identifier='a1b2c3',
+            project=second_project,
+            active=True,
+            built=True,
+            type='tag',
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-versions-detail',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                    'version_slug': self.version.slug,
+                }),
+
+        )
+        self.assertEqual(response.status_code, 200)

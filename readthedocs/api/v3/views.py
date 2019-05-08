@@ -61,7 +61,7 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
+class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                       FlexFieldsMixin, ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
@@ -173,8 +173,8 @@ class ProjectsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
             return Response(status=404)
 
 
-class SubprojectRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
-                                    NestedViewSetMixin, FlexFieldsMixin,
+class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
+                                    ProjectQuerySetMixin, FlexFieldsMixin,
                                     ListModelMixin, GenericViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
@@ -195,8 +195,8 @@ class SubprojectRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
     queryset = Project.objects.all()
 
 
-class TranslationRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
-                                     NestedViewSetMixin, FlexFieldsMixin,
+class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
+                                     ProjectQuerySetMixin, FlexFieldsMixin,
                                      ListModelMixin, GenericViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
@@ -216,7 +216,10 @@ class TranslationRelationshipViewSet(APIv3Settings, ProjectQuerySetMixin,
     queryset = Project.objects.all()
 
 
-class VersionsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
+# Inherit order is important here. ``NestedViewSetMixin`` has to be on the left
+# of ``ProjectQuerySetMixin`` to make calling ``super().get_queryset()`` work
+# properly and filter nested dependencies
+class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                       FlexFieldsMixin, UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
@@ -259,7 +262,7 @@ class VersionsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
         return Response(status=204)
 
 
-class BuildsViewSet(APIv3Settings, ProjectQuerySetMixin, NestedViewSetMixin,
+class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                     FlexFieldsMixin, ReadOnlyModelViewSet):
     model = Build
     lookup_field = 'pk'
