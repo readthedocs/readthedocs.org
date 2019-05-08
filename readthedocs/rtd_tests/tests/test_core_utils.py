@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """Test core util functions."""
 
 import os
-import mock
 
-from mock import call
+import mock
 from django.http import Http404
 from django.test import TestCase
 from django_dynamic_fixture import get
+from mock import call
 
-from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
-from readthedocs.projects.tasks import remove_dirs
-from readthedocs.core.utils import slugify, trigger_build
-from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.projects.models import Project
+from readthedocs.projects.tasks import remove_dirs
 
 
 class CoreUtilTests(TestCase):
@@ -64,7 +63,7 @@ class CoreUtilTests(TestCase):
                 immutable=True,
             ),
         ])
-    
+
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_when_version_not_provided_default_version_doesnt_exist(self, update_docs_task):
 
@@ -90,8 +89,10 @@ class CoreUtilTests(TestCase):
             ),
         ])
 
+    @mock.patch('readthedocs.projects.tasks.clean_build_task')
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_custom_queue(self, update_docs):
+    @mock.patch('readthedocs.core.utils.chain')
+    def test_trigger_custom_queue(self, chain, update_docs, clean_build_task):
         """Use a custom queue when routing the task."""
         self.project.build_queue = 'build03'
         trigger_build(project=self.project, version=self.version)
@@ -106,18 +107,23 @@ class CoreUtilTests(TestCase):
             'time_limit': 720,
             'soft_time_limit': 600,
         }
-        update_docs.signature.assert_has_calls([
-            mock.call(
+        chain.assert_called_with(
+            update_docs.signature(
                 args=(self.project.pk,),
                 kwargs=kwargs,
                 options=options,
                 immutable=True,
             ),
-        ])
-        update_docs.signature().apply_async.assert_called()
+            clean_build_task.signature(
+                args=(self.version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.projects.tasks.clean_build_task')
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_time_limit(self, update_docs):
+    @mock.patch('readthedocs.core.utils.chain')
+    def test_trigger_build_time_limit(self, chain, update_docs, clean_build_task):
         """Pass of time limit."""
         trigger_build(project=self.project, version=self.version)
         kwargs = {
@@ -139,10 +145,23 @@ class CoreUtilTests(TestCase):
                 immutable=True,
             ),
         ])
-        update_docs.signature().apply_async.assert_called()
+        chain.assert_called_with(
+            update_docs.signature(
+                args=(self.project.pk,),
+                kwargs=kwargs,
+                options=options,
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(self.version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.projects.tasks.clean_build_task')
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_invalid_time_limit(self, update_docs):
+    @mock.patch('readthedocs.core.utils.chain')
+    def test_trigger_build_invalid_time_limit(self, chain, update_docs, clean_build_task):
         """Time limit as string."""
         self.project.container_time_limit = '200s'
         trigger_build(project=self.project, version=self.version)
@@ -165,10 +184,23 @@ class CoreUtilTests(TestCase):
                 immutable=True,
             ),
         ])
-        update_docs.signature().apply_async.assert_called()
+        chain.assert_called_with(
+            update_docs.signature(
+                args=(self.project.pk,),
+                kwargs=kwargs,
+                options=options,
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(self.version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.projects.tasks.clean_build_task')
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
-    def test_trigger_build_rounded_time_limit(self, update_docs):
+    @mock.patch('readthedocs.core.utils.chain')
+    def test_trigger_build_rounded_time_limit(self, chain, update_docs, clean_build_task):
         """Time limit should round down."""
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
@@ -191,7 +223,18 @@ class CoreUtilTests(TestCase):
                 immutable=True,
             ),
         ])
-        update_docs.signature().apply_async.assert_called()
+        chain.assert_called_with(
+            update_docs.signature(
+                args=(self.project.pk,),
+                kwargs=kwargs,
+                options=options,
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(self.version.pk,),
+                immutable=True,
+            ),
+        )
 
     def test_slugify(self):
         """Test additional slugify."""
