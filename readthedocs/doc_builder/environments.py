@@ -168,8 +168,13 @@ class BuildCommand(BuildCommandResultMixin):
             environment['PATH'] = ':'.join(env_paths)
 
         try:
+            # When using ``shell=True`` the command should be flatten
+            command = self.command
+            if self.shell:
+                command = self.get_command()
+
             proc = subprocess.Popen(
-                self.command,
+                command,
                 shell=self.shell,
                 # This is done here for local builds, but not for docker,
                 # as we want docker to expand inside the container

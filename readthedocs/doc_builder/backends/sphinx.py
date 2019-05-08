@@ -244,7 +244,7 @@ class BaseSphinx(BaseBuilder):
 
         command = [
             self.python_env.venv_bin(filename='python'),
-            '-c'
+            '-c',
             '"import sphinx; print(sphinx.__version__)"',
         ]
 
@@ -253,6 +253,7 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin(),
             cwd=self.project.checkout_path(self.version.slug),
             escape_command=False,
+            shell=True,
             record=False,
         )
         return cmd_ret.output
