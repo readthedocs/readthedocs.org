@@ -252,8 +252,8 @@ class BaseSphinx(BaseBuilder):
             *command,
             bin_path=self.python_env.venv_bin(),
             cwd=self.project.checkout_path(self.version.slug),
-            escape_command=False,
-            shell=True,
+            escape_command=False,  # used on DockerBuildCommand
+            shell=True,  # used on BuildCommand
             record=False,
         )
         return cmd_ret.output
