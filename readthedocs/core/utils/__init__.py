@@ -2,21 +2,20 @@
 
 """Common utilty functions."""
 
-from __future__ import absolute_import
-
 import errno
 import logging
 import os
 import re
 
+from celery import chain, chord, group
 from django.conf import settings
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
-from celery import group, chord
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +82,7 @@ def prepare_build(
     # Avoid circular import
     from readthedocs.builds.models import Build
     from readthedocs.projects.models import Project
-    from readthedocs.projects.tasks import update_docs_task
+    from readthedocs.projects.tasks import clean_build_task, update_docs_task
 
     build = None
 
@@ -132,11 +131,17 @@ def prepare_build(
     options['time_limit'] = int(time_limit * 1.2)
 
     return (
-        update_docs_task.signature(
-            args=(project.pk,),
-            kwargs=kwargs,
-            options=options,
-            immutable=True,
+        chain(
+            update_docs_task.signature(
+                args=(project.pk,),
+                kwargs=kwargs,
+                options=options,
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(version.pk,),
+                inmutable=True,
+            )
         ),
         build,
     )

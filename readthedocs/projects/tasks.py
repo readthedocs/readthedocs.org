@@ -1310,6 +1310,20 @@ def _update_intersphinx_data(version, path, commit):
     delete_queryset.delete()
 
 
+@app.task(max_retries=5, default_retry_delay=7 * 60)
+def clean_build_task(version_id):
+    """Clean the build artifacts of the given version."""
+    version = Version.objects.get_object_or_log(pk=version_id)
+    if not version:
+        return
+    del_dirs = [
+        os.path.join(version.project.doc_path, dir_, version.slug)
+        for dir_ in ('checkout', 'envs', 'conda')
+    ]
+    for del_dir in del_dirs:
+        broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
+
+
 def _manage_imported_files(version, path, commit):
     """
     Update imported files for version.
