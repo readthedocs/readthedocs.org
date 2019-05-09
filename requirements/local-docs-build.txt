@@ -1,9 +1,8 @@
 -r pip.txt
 
-# Base packages 
+# Base packages
 docutils==0.14
-Sphinx==1.8.3
-sphinx_rtd_theme==0.4.2
+sphinx_rtd_theme==0.4.3
 sphinx-tabs==1.1.10
 # Required to avoid Transifex error with reserved slug
 # https://github.com/sphinx-doc/sphinx-intl/pull/27
@@ -12,10 +11,11 @@ git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c
 Pygments==2.3.1
 
 mkdocs==1.0.4
-Markdown==3.0.1
+Markdown==3.1
 
 # Docs
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
-commonmark==0.8.1
+sphinx-notfound-page==0.2.1
+commonmark==0.9.0
 recommonmark==0.5.0

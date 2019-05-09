@@ -1,6 +1,10 @@
 Importing Your Documentation
 ============================
 
+.. meta::
+   :description lang=en: Import your existing technical documentation from version control into Read the Docs.
+
+
 To import a documentation repository, visit your `Read the Docs dashboard`_ and click Import_.
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
@@ -42,9 +46,17 @@ Add an optional homepage URL and some tags, and then click **Next**.
 
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changes trigger builds for your
-project on Read the Docs. Go to your project's **Integrations** page to
+project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
 configure a new webhook, or see :ref:`our steps for webhook creation <webhooks:Webhook Creation>`
 for more information on this process.
+
+.. note::
+    The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``.
+    You can access all of the project settings from the admin page sidebar.
+
+    .. figure:: ../_static/images/first-steps/admin-panel.png
+        :figwidth: 400px
+        :target: ../_static/images/first-steps/admin-panel.png
 
 
 Building your documentation

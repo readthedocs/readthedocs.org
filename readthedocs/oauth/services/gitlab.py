@@ -17,7 +17,6 @@ from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
 
 
-
 try:
     from urlparse import urljoin, urlparse
 except ImportError:
@@ -252,6 +251,7 @@ class GitLabService(Service):
                     },
                 ),
             ),
+            'token': integration.secret,
 
             # Optional
             'issues_events': False,
@@ -275,7 +275,6 @@ class GitLabService(Service):
             project=project,
             integration_type=Integration.GITLAB_WEBHOOK,
         )
-
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             return (False, None)
@@ -300,6 +299,15 @@ class GitLabService(Service):
                     project,
                 )
                 return (True, resp)
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'Gitlab project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return (False, resp)
+
         except (RequestException, ValueError):
             log.exception(
                 'GitLab webhook creation failed for project: %s',
@@ -333,6 +341,7 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, None)
 
+        integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
         hook_id = integration.provider_data.get('id')
         resp = None

@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 
 from datetime import timedelta
 
-from mock import patch
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import User
 from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
@@ -11,8 +10,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from allauth.account.models import EmailAddress
+from mock import patch
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
@@ -367,6 +367,16 @@ class TestImportDemoView(MockBuildTestCase):
         )
 
 
+class TestPublicViews(MockBuildTestCase):
+    def setUp(self):
+        self.pip = get(Project, slug='pip')
+
+    def test_project_download_media(self):
+        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 302)
+
+
 class TestPrivateViews(MockBuildTestCase):
     def setUp(self):
         self.user = new(User, username='eric')
@@ -488,6 +498,13 @@ class TestBadges(TestCase):
 
         # The social badge (but not the other badges) has this element
         self.assertContains(res, 'rlink')
+
+    def test_badge_redirect(self):
+        # Test that a project with an underscore redirects
+        badge_url = reverse('project_badge', args=['project_slug'])
+        resp = self.client.get(badge_url, {'version': 'latest'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue('project-slug' in resp['location'])
 
 
 class TestTags(TestCase):

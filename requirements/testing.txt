@@ -2,12 +2,17 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-pytest==4.1.1
-pytest-django==3.4.5
-pytest-xdist==1.26.0
-pytest-cov
+# pytest 4.2 is incompatible with pytest-django 3.4.6
+pytest==4.1.1  # pyup: <4.2
+# pytest-django 3.4.7 break our tests from corporate site
+# probably a bug related to overriding django settings in
+# previous tests
+pytest-django==3.4.6  # pyup: <3.4.7
+# pytest-xdist >1.27 requires pytest >4.1
+pytest-xdist==1.27.0  # pyup: ignore
+pytest-cov==2.7.1
 apipkg==1.5
-execnet==1.5.0
+execnet==1.6.0
 
 # Mercurial 4.3 and newer require Python 2.7
 # Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
@@ -15,11 +20,11 @@ execnet==1.5.0
 # supported platform.
 # mercurial-scm.org/wiki/SupportedPythonVersions
 # (Pinned to 4.4.2 since what we need for testing is still useful)
-Mercurial==4.4.2
+Mercurial==4.4.2  # pyup: ignore
 
-yamale==1.8.0
-pytest-mock==1.10.0
+yamale==1.10.0
+pytest-mock==1.10.4
 
 # local debugging tools
-datadiff
-ipdb
+datadiff==2.0.0
+ipdb==0.12

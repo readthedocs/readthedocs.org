@@ -15,14 +15,17 @@ from readthedocs.config import (
     BuildConfigV1,
     BuildConfigV2,
     ConfigError,
+    ConfigFileNotFound,
     ConfigOptionNotSupportedError,
     InvalidConfig,
     load,
 )
 from readthedocs.config.config import (
+    CONFIG_FILE_REQUIRED,
     CONFIG_FILENAME_REGEX,
     CONFIG_NOT_SUPPORTED,
     CONFIG_REQUIRED,
+    CONFIG_SYNTAX_INVALID,
     INVALID_KEY,
     PYTHON_INVALID,
     VERSION_INVALID,
@@ -73,9 +76,9 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
-    with raises(ConfigError) as e:
+    with raises(ConfigFileNotFound) as e:
         load(base, {})
-    assert e.value.code == CONFIG_REQUIRED
+    assert e.value.code == CONFIG_FILE_REQUIRED
 
 
 def test_load_empty_config_file(tmpdir):
@@ -134,6 +137,27 @@ def test_load_unknow_version(tmpdir):
     with raises(ConfigError) as excinfo:
         load(base, {})
     assert excinfo.value.code == VERSION_INVALID
+
+
+def test_load_raise_exception_invalid_syntax(tmpdir):
+    apply_fs(
+        tmpdir, {
+            'readthedocs.yml': textwrap.dedent('''
+                version: 2
+                python:
+                  install:
+                    - method: pip
+                      path: .
+                        # bad indentation here
+                        extra_requirements:
+                          - build
+            '''),
+        },
+    )
+    base = str(tmpdir)
+    with raises(ConfigError) as excinfo:
+        load(base, {})
+    assert excinfo.value.code == CONFIG_SYNTAX_INVALID
 
 
 def test_yaml_extension(tmpdir):
@@ -557,18 +581,10 @@ class TestValidateBuild:
         assert build.build.image == image
 
 
-def test_use_conda_default_false():
+def test_use_conda_default_none():
     build = get_build_config({})
     build.validate()
     assert build.conda is None
-
-
-def test_use_conda_respects_config():
-    build = get_build_config(
-        {'conda': {}},
-    )
-    build.validate()
-    assert isinstance(build.conda, Conda)
 
 
 def test_validates_conda_file(tmpdir):
@@ -580,6 +596,18 @@ def test_validates_conda_file(tmpdir):
     build.validate()
     assert isinstance(build.conda, Conda)
     assert build.conda.environment == str(tmpdir.join('environment.yml'))
+
+
+def test_file_is_required_when_using_conda(tmpdir):
+    apply_fs(tmpdir, {'environment.yml': ''})
+    build = get_build_config(
+        {'conda': {'foo': 'environment.yml'}},
+        source_file=str(tmpdir.join('readthedocs.yml')),
+    )
+    with raises(InvalidConfig) as excinfo:
+        build.validate()
+    assert excinfo.value.key == 'conda.file'
+    assert excinfo.value.code == VALUE_NOT_FOUND
 
 
 def test_requirements_file_empty():

@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 class Command(BaseCommand):
 
     @staticmethod
-    def _get_indexing_tasks(app_label, model_name, queryset, document_class, index_name):
+    def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
         total = queryset.count()
         chunks = get_chunk(total, settings.ES_TASK_CHUNK_SIZE)
 
@@ -35,7 +35,7 @@ class Command(BaseCommand):
     def _run_reindex_tasks(self, models, queue):
         apply_async_kwargs = {'priority': 0}
         if queue:
-            log.info('Adding indexing tasks to queue {0}'.format(queue))
+            log.info('Adding indexing tasks to queue %s', queue)
             apply_async_kwargs['queue'] = queue
         else:
             log.info('Adding indexing tasks to default queue')
@@ -52,6 +52,9 @@ class Command(BaseCommand):
 
             index_name = doc._doc_type.index
             new_index_name = "{}_{}".format(index_name, timestamp)
+            # Set index temporarily for indexing,
+            # this will only get set during the running of this command
+            doc._doc_type.index = new_index_name
 
             pre_index_task = create_new_es_index.si(app_label=app_label,
                                                     model_name=model_name,
@@ -60,8 +63,8 @@ class Command(BaseCommand):
 
             indexing_tasks = self._get_indexing_tasks(app_label=app_label, model_name=model_name,
                                                       queryset=queryset,
-                                                      document_class=str(doc),
-                                                      index_name=new_index_name)
+                                                      index_name=new_index_name,
+                                                      document_class=str(doc))
 
             post_index_task = switch_es_index.si(app_label=app_label, model_name=model_name,
                                                  index_name=index_name,

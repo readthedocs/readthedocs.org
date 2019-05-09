@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Doc serving from Python.
 
@@ -26,6 +24,7 @@ PYTHON_MEDIA (False) - Set this to True to serve docs & media from Python
 SERVE_DOCS (['private']) - The list of ['private', 'public'] docs to serve.
 """
 
+import itertools
 import logging
 import mimetypes
 import os
@@ -36,6 +35,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
+from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
 from readthedocs.builds.models import Version
@@ -44,6 +44,7 @@ from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects import constants
 from readthedocs.projects.models import Project, ProjectRelationship
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
 
 log = logging.getLogger(__name__)
@@ -139,8 +140,25 @@ def _serve_401(request, project):
 
 
 def _serve_file(request, filename, basepath):
+    """
+    Serve media file via Django or NGINX based on ``PYTHON_MEDIA``.
+
+    When using ``PYTHON_MEDIA=True`` (or when ``DEBUG=True``) the file is served
+    by ``django.views.static.serve`` function.
+
+    On the other hand, when ``PYTHON_MEDIA=False`` the file is served by using
+    ``X-Accel-Redirect`` header for NGINX to take care of it and serve the file.
+
+    :param request: Django HTTP request
+    :param filename: path to the filename to be served relative to ``basepath``
+    :param basepath: base path to prepend to the filename
+
+    :returns: Django HTTP response object
+
+    :raises: ``Http404`` on ``UnicodeEncodeError``
+    """
     # Serve the file from the proper location
-    if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
+    if settings.DEBUG or settings.PYTHON_MEDIA:
         # Serve from Python
         return serve(request, filename, basepath)
 
@@ -224,7 +242,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     files_tried = []
 
-    serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
+    serve_docs = settings.SERVE_DOCS
 
     if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
@@ -245,7 +263,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
         files_tried.append(os.path.join(basepath, filename))
 
     raise Http404(
-        'File not found. Tried these files: %s' % ','.join(files_tried),
+        'File not found. Tried these files: {}'.format(','.join(files_tried)),
     )
 
 
@@ -292,4 +310,123 @@ def robots_txt(request, project):
     if os.path.exists(fullpath):
         return HttpResponse(open(fullpath).read(), content_type='text/plain')
 
-    return HttpResponse('User-agent: *\nAllow: /\n', content_type='text/plain')
+    sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
+        scheme='https',
+        domain=project.subdomain(),
+    )
+    return HttpResponse(
+        'User-agent: *\nAllow: /\nSitemap: {}\n'.format(sitemap_url),
+        content_type='text/plain',
+    )
+
+
+@map_project_slug
+@cache_page(60 * 60 * 24 * 3)  # 3 days
+def sitemap_xml(request, project):
+    """
+    Generate and serve a ``sitemap.xml`` for a particular ``project``.
+
+    The sitemap is generated from all the ``active`` and public versions of
+    ``project``. These versions are sorted by using semantic versioning
+    prepending ``latest`` and ``stable`` (if they are enabled) at the beginning.
+
+    Following this order, the versions are assigned priorities and change
+    frequency. Starting from 1 and decreasing by 0.1 for priorities and starting
+    from daily, weekly to monthly for change frequency.
+
+    If the project is private, the view raises ``Http404``. On the other hand,
+    if the project is public but a version is private, this one is not included
+    in the sitemap.
+
+    :param request: Django request object
+    :param project: Project instance to generate the sitemap
+
+    :returns: response with the ``sitemap.xml`` template rendered
+
+    :rtype: django.http.HttpResponse
+    """
+
+    def priorities_generator():
+        """
+        Generator returning ``priority`` needed by sitemap.xml.
+
+        It generates values from 1 to 0.1 by decreasing in 0.1 on each
+        iteration. After 0.1 is reached, it will keep returning 0.1.
+        """
+        priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+        yield from itertools.chain(priorities, itertools.repeat(0.1))
+
+    def changefreqs_generator():
+        """
+        Generator returning ``changefreq`` needed by sitemap.xml.
+
+        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        will return always ``monthly``.
+
+        We are using ``monthly`` as last value because ``never`` is too
+        aggressive. If the tag is removed and a branch is created with the same
+        name, we will want bots to revisit this.
+        """
+        changefreqs = ['daily', 'weekly']
+        yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
+
+    if project.privacy_level == constants.PRIVATE:
+        raise Http404
+
+    sorted_versions = sort_version_aware(
+        Version.objects.public(
+            project=project,
+            only_active=True,
+        ),
+    )
+    versions = []
+    for version, priority, changefreq in zip(
+            sorted_versions,
+            priorities_generator(),
+            changefreqs_generator(),
+    ):
+        element = {
+            'loc': version.get_subdomain_url(),
+            'priority': priority,
+            'changefreq': changefreq,
+            'languages': [],
+        }
+
+        # Version can be enabled, but not ``built`` yet. We want to show the
+        # link without a ``lastmod`` attribute
+        last_build = version.builds.order_by('-date').first()
+        if last_build:
+            element['lastmod'] = last_build.date.isoformat()
+
+        if project.translations.exists():
+            for translation in project.translations.all():
+                translation_versions = translation.versions.public(
+                    ).values_list('slug', flat=True)
+                if version.slug in translation_versions:
+                    href = project.get_docs_url(
+                        version_slug=version.slug,
+                        lang_slug=translation.language,
+                        private=False,
+                    )
+                    element['languages'].append({
+                        'hreflang': translation.language,
+                        'href': href,
+                    })
+
+            # Add itself also as protocol requires
+            element['languages'].append({
+                'hreflang': project.language,
+                'href': element['loc'],
+            })
+
+        versions.append(element)
+
+    context = {
+        'versions': versions,
+    }
+    return render(
+        request,
+        'sitemap.xml',
+        context,
+        content_type='application/xml',
+    )

@@ -279,7 +279,6 @@ class MkdocsBuilderTest(TestCase):
                 mock.ANY,
             )
 
-
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_append_conf_create_yaml(self, checkout_path, run):
@@ -420,7 +419,6 @@ class MkdocsBuilderTest(TestCase):
             with self.assertRaises(MkDocsYAMLParseError):
                 self.searchbuilder.append_conf()
 
-
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_dont_override_theme(self, checkout_path, run):
@@ -488,4 +486,87 @@ class MkdocsBuilderTest(TestCase):
         generate_rtd_data.assert_called_with(
             docs_dir='docs',
             mkdocs_config=mock.ANY,
+        )
+
+    @patch('readthedocs.doc_builder.backends.mkdocs.BaseMkdocs.generate_rtd_data')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_write_js_data_on_invalid_docs_dir(self, checkout_path, generate_rtd_data):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'google_analytics': ['UA-1234-5', 'mkdocs.org'],
+                'docs_dir': 'invalid_docs_dir',
+                'extra_css': [
+                    'http://readthedocs.org/static/css/badge_only.css'
+                ],
+                'extra_javascript': ['readthedocs-data.js'],
+            },
+            open(yaml_file, 'w'),
+        )
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        with self.assertRaises(MkDocsYAMLParseError):
+            self.searchbuilder.append_conf()
+
+    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_append_conf_existing_yaml_with_extra(self, checkout_path, run):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            {
+                'site_name': 'mkdocs',
+                'google_analytics': ['UA-1234-5', 'mkdocs.org'],
+                'docs_dir': 'docs',
+                'extra_css': [
+                    'http://readthedocs.org/static/css/badge_only.css'
+                ],
+                'extra_javascript': ['readthedocs-data.js'],
+            },
+            open(yaml_file, 'w'),
+        )
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.searchbuilder.append_conf()
+
+        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
+
+        config = yaml.safe_load(open(yaml_file))
+
+        self.assertEqual(
+            config['extra_css'],
+            [
+                'http://readthedocs.org/static/css/badge_only.css',
+                'http://readthedocs.org/static/css/readthedocs-doc-embed.css',
+            ],
+        )
+        self.assertEqual(
+            config['extra_javascript'],
+            [
+                'readthedocs-data.js',
+                'http://readthedocs.org/static/core/js/readthedocs-doc-embed.js',
+                'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
+            ],
         )

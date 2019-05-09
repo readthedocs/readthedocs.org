@@ -11,7 +11,7 @@ import stripe
 from django.conf import settings
 
 
-stripe.api_key = getattr(settings, 'STRIPE_SECRET', None)
+stripe.api_key = settings.STRIPE_SECRET
 
 
 def delete_customer(customer_id):

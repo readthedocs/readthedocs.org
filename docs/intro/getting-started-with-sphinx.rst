@@ -1,6 +1,10 @@
 Getting Started with Sphinx
 ===========================
 
+.. meta::
+   :description lang=en: Get started writing technical documentation with Sphinx and publishing to Read the Docs.
+
+
 Sphinx is a powerful documentation generator that
 has many great features for writing technical documentation including:
 
@@ -96,13 +100,7 @@ Then in your ``conf.py``:
 
 .. code-block:: python
 
-    from recommonmark.parser import CommonMarkParser
-
-    source_parsers = {
-        '.md': CommonMarkParser,
-    }
-
-    source_suffix = ['.rst', '.md']
+   extensions = ['recommonmark']
 
 .. warning:: Markdown doesn't support a lot of the features of Sphinx,
           like inline markup and directives. However, it works for

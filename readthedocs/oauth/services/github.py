@@ -10,13 +10,12 @@ from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
-from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
 
 
 log = logging.getLogger(__name__)
@@ -178,6 +177,7 @@ class GitHubService(Service):
                         },
                     ),
                 ),
+                'secret': integration.secret,
                 'content_type': 'json',
             },
             'events': ['push', 'pull_request', 'create', 'delete'],
@@ -262,6 +262,7 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
+        integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         url = integration.provider_data.get('url')
         resp = None
@@ -312,11 +313,11 @@ class GitHubService(Service):
     def get_token_for_project(cls, project, force_local=False):
         """Get access token for project by iterating over project users."""
         # TODO why does this only target GitHub?
-        if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
+        if not settings.ALLOW_PRIVATE_REPOS:
             return None
         token = None
         try:
-            if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
+            if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
                 for user in project.users.all():
