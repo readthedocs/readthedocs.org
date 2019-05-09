@@ -1323,7 +1323,7 @@ def clean_build_task(version_id):
         return
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkout', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda')
     ]
     for del_dir in del_dirs:
         broadcast(type='build', task=remove_dirs, args=[(del_dir,)])

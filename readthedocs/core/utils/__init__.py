@@ -138,7 +138,7 @@ def prepare_build(
             ),
             clean_build_task.signature(
                 args=(version.pk,),
-                inmutable=True,
+                immutable=True,
             )
         ),
         build,
