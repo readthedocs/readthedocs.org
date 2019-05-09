@@ -752,11 +752,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         if settings.RTD_BUILD_MEDIA_STORAGE:
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.version.project.slug,
-                    version=self.version.slug,
-                    msg='Writing build artifacts to media storage',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Writing build artifacts to media storage',
+                },
             )
 
             storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -798,11 +799,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     include_file=False,
                 )
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.version.project.slug,
-                        version=self.version.slug,
-                        msg=f'Writing {media_type} to media storage - {to_path}',
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.version.project.slug,
+                        'version': self.version.slug,
+                        'msg': f'Writing {media_type} to media storage - {to_path}',
+                    },
                 )
                 try:
                     storage.copy_directory(from_path, to_path)
@@ -810,11 +812,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     # Ideally this should just be an IOError
                     # but some storage backends unfortunately throw other errors
                     log.exception(
-                        LOG_TEMPLATE.format(
-                            project=self.version.project.slug,
-                            version=self.version.slug,
-                            msg=f'Error copying {from_path} to storage (not failing build)',
-                        ),
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.version.project.slug,
+                            'version': self.version.slug,
+                            'msg': f'Error copying {from_path} to storage (not failing build)',
+                        },
                     )
 
             for media_type in types_to_delete:
@@ -824,11 +827,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     include_file=False,
                 )
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.version.project.slug,
-                        version=self.version.slug,
-                        msg=f'Deleting {media_type} from media storage - {media_path}',
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.version.project.slug,
+                        'version': self.version.slug,
+                        'msg': f'Deleting {media_type} from media storage - {media_path}',
+                    },
                 )
                 try:
                     storage.delete_directory(media_path)
@@ -836,11 +840,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     # Ideally this should just be an IOError
                     # but some storage backends unfortunately throw other errors
                     log.exception(
-                        LOG_TEMPLATE.format(
-                            project=self.version.project.slug,
-                            version=self.version.slug,
-                            msg=f'Error deleting {media_path} from storage (not failing build)',
-                        ),
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.version.project.slug,
+                            'version': self.version.slug,
+                            'msg': f'Error deleting {media_path} from storage (not failing build)',
+                        },
                     )
 
     def update_app_instances(
