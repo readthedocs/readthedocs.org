@@ -499,6 +499,13 @@ class TestBadges(TestCase):
         # The social badge (but not the other badges) has this element
         self.assertContains(res, 'rlink')
 
+    def test_badge_redirect(self):
+        # Test that a project with an underscore redirects
+        badge_url = reverse('project_badge', args=['project_slug'])
+        resp = self.client.get(badge_url, {'version': 'latest'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue('project-slug' in resp['location'])
+
 
 class TestTags(TestCase):
     def test_project_filtering_work_with_tags_with_space_in_name(self):

@@ -15,7 +15,7 @@ from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
@@ -68,6 +68,16 @@ class ProjectIndex(ListView):
         context['person'] = self.user
         context['tag'] = self.tag
         return context
+
+
+def project_redirect(request, invalid_project_slug):
+    """Redirect old project slugs that had underscores which are no longer allowed"""
+    new_project_slug = invalid_project_slug.replace('_', '-')
+    new_path = request.path.replace(invalid_project_slug, new_project_slug)
+    return redirect('{}?{}'.format(
+        new_path,
+        request.GET.urlencode(),
+    ))
 
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):

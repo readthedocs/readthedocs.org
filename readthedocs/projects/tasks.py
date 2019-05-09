@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
-
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -60,9 +60,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -144,11 +143,12 @@ class SyncRepositoryMixin:
                     identifier=self.version.identifier,
                 )
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
                 )
                 version_repo = self.get_vcs_repo()
                 version_repo.update()
@@ -484,11 +484,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.failure,
             )
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=msg,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
             )
 
             # Send notification to users only if the build didn't fail because
@@ -545,11 +546,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             python_env_cls = Virtualenv
             if self.config.conda is not None:
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg='Using conda',
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': 'Using conda',
+                    }
                 )
                 python_env_cls = Conda
             self.python_env = python_env_cls(
@@ -624,11 +626,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Updating docs from VCS',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Updating docs from VCS',
+            }
         )
         try:
             self.sync_repo()
@@ -929,8 +932,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, doctype, hostname=None, html=False,
-        localmedia=False, search=False, pdf=False, epub=False,
+        project_pk,
+        version_pk,
+        doctype,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1028,11 +1038,12 @@ def move_files(
                     storage.delete(storage_path)
 
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='Moving files',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'Moving files',
+        }
     )
 
     if html:
@@ -1178,24 +1189,26 @@ def fileify(version_pk, commit):
 
     if not commit:
         log.warning(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg=(
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': version.slug,
+                'msg': (
                     'Search index not being built because no commit information'
                 ),
-            ),
+            }
         )
         return
 
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(
-            LOG_TEMPLATE.format(
-                project=version.project.slug,
-                version=version.slug,
-                msg='Creating ImportedFiles',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': version.project.slug,
+                'version': version.slug,
+                'msg': 'Creating ImportedFiles',
+            }
         )
         try:
             _manage_imported_files(version, path, commit)
@@ -1210,7 +1223,7 @@ def fileify(version_pk, commit):
 
 def _update_intersphinx_data(version, path, commit):
     """
-    Update intersphinx data for this version
+    Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
@@ -1414,11 +1427,12 @@ def email_notification(version, build, email):
     :param email: Email recipient address
     """
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='sending email to: %s' % email,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'sending email to: %s' % email,
+        }
     )
 
     # We send only what we need from the Django model objects here to avoid
@@ -1482,11 +1496,12 @@ def webhook_notification(version, build, hook_url):
         },
     })
     log.debug(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='sending notification to: %s' % hook_url,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'sending notification to: %s' % hook_url,
+        }
     )
     try:
         requests.post(hook_url, data=data)
@@ -1515,11 +1530,12 @@ def update_static_metadata(project_pk, path=None):
         path = project.static_metadata_path()
 
     log.info(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Updating static metadata',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'Updating static metadata',
+        }
     )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
@@ -1538,11 +1554,12 @@ def update_static_metadata(project_pk, path=None):
         fh.close()
     except (AttributeError, IOError) as e:
         log.debug(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version='',
-                msg='Cannot write to metadata.json: {}'.format(e),
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': '',
+                'msg': 'Cannot write to metadata.json: {}'.format(e),
+            }
         )
 
 

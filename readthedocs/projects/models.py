@@ -12,13 +12,14 @@ from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
@@ -37,7 +38,6 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.restapi.client import api
 from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -924,18 +924,22 @@ class Project(models.Model):
                 )
                 if identifier_updated and current_stable.machine:
                     log.info(
-                        'Update stable version: {project}:{version}'.format(
-                            project=self.slug,
-                            version=new_stable.identifier,
-                        ),
+                        'Update stable version: %(project)s:%(version)s',
+                        {
+                            'project': self.slug,
+                            'version': new_stable.identifier,
+                        }
                     )
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
                     return new_stable
             else:
                 log.info(
-                    'Creating new stable version: {project}:{version}'
-                    .format(project=self.slug, version=new_stable.identifier),
+                    'Creating new stable version: %(project)s:%(version)s',
+                    {
+                        'project': self.slug,
+                        'version': new_stable.identifier,
+                    }
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -998,7 +1002,7 @@ class Project(models.Model):
         return self.superprojects.select_related('parent').first()
 
     def get_canonical_custom_domain(self):
-        """Get the canonical custom domain or None"""
+        """Get the canonical custom domain or None."""
         if hasattr(self, '_canonical_domains'):
             # Cached custom domains
             if self._canonical_domains:
@@ -1161,7 +1165,7 @@ class HTMLFile(ImportedFile):
     This tracks only the HTML files for indexing to search.
     """
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     objects = HTMLFileManager()
@@ -1328,7 +1332,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-    USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
@@ -1343,7 +1346,6 @@ class Feature(models.Model):
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
         (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),

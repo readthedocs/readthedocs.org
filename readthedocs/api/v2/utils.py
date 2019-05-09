@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions that are used by both views and celery tasks."""
 
 import logging
