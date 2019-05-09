@@ -75,13 +75,13 @@ class ProjectQuerySetBase(models.QuerySet):
 
         return True
 
-    # Aliases
+    def prefetch_latest_build(self):
+        """
+        For a given queryset of projects, prefetch the latest build for each project
 
-    def dashboard(self, user=None):
-        """Get the projects for this user including the latest build"""
+        This should come after any filtering.
+        """
         from readthedocs.builds.models import Build
-
-        projects = self.for_admin_user(user)
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
@@ -92,8 +92,13 @@ class ProjectQuerySetBase(models.QuerySet):
             Build.objects.filter(pk__in=subquery),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
+        return self.prefetch_related(latest_build)
 
-        return projects.prefetch_related(latest_build)
+    # Aliases
+
+    def dashboard(self, user=None):
+        """Get the projects for this user including the latest build"""
+        return self.for_admin_user(user).prefetch_latest_build()
 
     def api(self, user=None, detail=True):
         if detail:
