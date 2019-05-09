@@ -10,7 +10,6 @@ import os
 import shutil
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import get_storage_class
 
 from readthedocs.core.utils import safe_makedirs
@@ -28,6 +27,15 @@ class BaseSyncer:
     @classmethod
     def copy(cls, path, target, is_file=False, **kwargs):
         raise NotImplementedError
+
+
+class NullSyncer:
+
+    """A syncer that doesn't actually do anything"""
+
+    @classmethod
+    def copy(cls, path, target, is_file=False, **kwargs):
+        pass  # noqa
 
 
 class LocalSyncer(BaseSyncer):
@@ -165,62 +173,6 @@ class RemotePuller(BaseSyncer):
                 sync_cmd,
                 ret,
             )
-
-
-class SelectiveStorageRemotePuller(RemotePuller):
-
-    """
-    Like RemotePuller but certain files are copied via Django's storage system.
-
-    If a file with extensions specified by ``extensions`` is copied, it will be copied to storage
-    and the original is removed.
-
-    See: https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-DEFAULT_FILE_STORAGE
-    """
-
-    extensions = ('.pdf', '.epub', '.zip')
-
-    @classmethod
-    def get_storage_path(cls, path):
-        """
-        Gets the path to the file within the storage engine.
-
-        For example, if the path was $MEDIA_ROOT/pdfs/latest.pdf
-         the storage_path is 'pdfs/latest.pdf'
-
-        :raises: SuspiciousFileOperation if the path isn't under settings.MEDIA_ROOT
-        """
-        path = os.path.normpath(path)
-        if not path.startswith(settings.MEDIA_ROOT):
-            raise SuspiciousFileOperation
-
-        path = path.replace(settings.MEDIA_ROOT, '').lstrip('/')
-        return path
-
-    @classmethod
-    def copy(cls, path, target, host, is_file=False, **kwargs):  # pylint: disable=arguments-differ
-        RemotePuller.copy(path, target, host, is_file, **kwargs)
-
-        if getattr(storage, 'write_build_media', False):
-            # This is a sanity check for the case where
-            # storage is backed by the local filesystem
-            # In that case, removing the original target file locally
-            # would remove the file from storage as well
-
-            if is_file and os.path.exists(target) and \
-                    any([target.lower().endswith(ext) for ext in cls.extensions]):
-                log.info('Selective Copy %s to media storage', target)
-
-                try:
-                    storage_path = cls.get_storage_path(target)
-
-                    if storage.exists(storage_path):
-                        storage.delete(storage_path)
-
-                    with open(target, 'rb') as fd:
-                        storage.save(storage_path, fd)
-                except Exception:
-                    log.exception('Storage access failed for file. Not failing build.')
 
 
 class Syncer(SettingsOverrideObject):

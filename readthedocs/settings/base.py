@@ -215,6 +215,10 @@ class CommunityBaseSettings(Settings):
     ]
     PYTHON_MEDIA = False
 
+    # Optional Django Storage subclass used to write build artifacts to cloud or local storage
+    # https://docs.readthedocs.io/en/stable/settings.html#build-media-storage
+    RTD_BUILD_MEDIA_STORAGE = None
+
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
