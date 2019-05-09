@@ -12,13 +12,14 @@ from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
@@ -37,7 +38,6 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.restapi.client import api
 from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -1002,7 +1002,7 @@ class Project(models.Model):
         return self.superprojects.select_related('parent').first()
 
     def get_canonical_custom_domain(self):
-        """Get the canonical custom domain or None"""
+        """Get the canonical custom domain or None."""
         if hasattr(self, '_canonical_domains'):
             # Cached custom domains
             if self._canonical_domains:

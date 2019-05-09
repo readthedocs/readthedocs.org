@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 import mock
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
+from readthedocs.api.v2.views.footer_views import (
+    footer_html,
+    get_version_compare_data,
+)
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
 from readthedocs.projects.models import Project
-from readthedocs.restapi.views.footer_views import (
-    footer_html,
-    get_version_compare_data,
-)
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
@@ -46,7 +45,7 @@ class Testmaker(APITestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_footer_uses_version_compare(self):
-        version_compare = 'readthedocs.restapi.views.footer_views.get_version_compare_data'  # noqa
+        version_compare = 'readthedocs.api.v2.views.footer_views.get_version_compare_data'  # noqa
         with mock.patch(version_compare) as get_version_compare_data:
             get_version_compare_data.return_value = {
                 'MOCKED': True,

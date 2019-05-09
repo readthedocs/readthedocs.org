@@ -17,6 +17,9 @@ Sphinx==1.8.5  # pyup: <2.0.0
 # Filtering for the REST API
 django-filter==2.1.0
 
+drf-flex-fields==0.5.0
+drf-extensions==0.4.0
+
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
@@ -75,7 +78,7 @@ stripe==2.27.0
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
-django-crispy-forms==1.7.2 
+django-crispy-forms==1.7.2
 
 docker==3.7.2
 

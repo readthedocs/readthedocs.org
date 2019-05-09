@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoints relating to task/job status, etc."""
 
 import logging

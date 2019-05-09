@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Simple client to access our API with Slumber credentials."""
 
 import logging
