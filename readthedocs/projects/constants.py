@@ -250,12 +250,12 @@ LANGUAGES = (
     ('zh', 'Chinese'),
     ('zu', 'Zulu'),
     # Try these to test our non-2 letter language support
-    ('nb-NO', 'Norwegian Bokmal'),
-    ('pt-BR', 'Brazilian Portuguese'),
-    ('es-MX', 'Mexican Spanish'),
-    ('uk-UA', 'Ukrainian'),
-    ('zh-CN', 'Simplified Chinese'),
-    ('zh-TW', 'Traditional Chinese'),
+    ('nb_NO', 'Norwegian Bokmal'),
+    ('pt_BR', 'Brazilian Portuguese'),
+    ('es_MX', 'Mexican Spanish'),
+    ('uk_UA', 'Ukrainian'),
+    ('zh_CN', 'Simplified Chinese'),
+    ('zh_TW', 'Traditional Chinese'),
 )
 
 LANGUAGES_REGEX = '|'.join([re.escape(code[0]) for code in LANGUAGES])
