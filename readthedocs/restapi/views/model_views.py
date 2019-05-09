@@ -216,6 +216,9 @@ class ProjectViewSet(UserSelectViewSet):
             )
 
         try:
+            # The order of added_versions isn't deterministic.
+            # We don't track the commit time or any other metadata.
+            # We usually have one version added per webhook.
             api_utils.run_automation_rules(project, added_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong

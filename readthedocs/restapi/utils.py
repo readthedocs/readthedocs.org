@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
@@ -166,6 +164,11 @@ def run_automation_rules(project, versions_slug):
     Runs the automation rules on each version.
 
     The rules are sorted by priority.
+
+    .. note::
+
+       Currently the versions aren't sorted in any way,
+       the same order is keeped.
     """
     versions = project.versions.filter(slug__in=versions_slug)
     rules = project.automation_rules.all()
