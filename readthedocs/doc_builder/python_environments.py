@@ -44,11 +44,12 @@ class PythonEnvironment:
         )
         if os.path.exists(build_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing build directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing build directory',
+                }
             )
             shutil.rmtree(build_dir)
 
@@ -57,11 +58,12 @@ class PythonEnvironment:
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing venv directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing venv directory',
+                }
             )
             shutil.rmtree(venv_dir)
 
@@ -299,13 +301,7 @@ class Virtualenv(PythonEnvironment):
 
         requirements = [
             'Pygments==2.3.1',
-            # Assume semver for setuptools version, support up to next backwards
-            # incompatible release
-            self.project.get_feature_value(
-                Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<41',
-                negative='setuptools<41',
-            ),
+            'setuptools==41.0.1',
             'docutils==0.14',
             'mock==1.0.1',
             'pillow==5.4.1',
@@ -419,11 +415,12 @@ class Conda(PythonEnvironment):
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing conda directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing conda directory',
+                }
             )
             shutil.rmtree(version_path)
         self.build_env.run(

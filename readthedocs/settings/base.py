@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
 import getpass
 import os
 
@@ -70,6 +67,12 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
+    # Security & X-Frame-Options Middleware
+    # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -107,14 +110,15 @@ class CommunityBaseSettings(Settings):
             'guardian',
             'django_gravatar',
             'rest_framework',
+            'rest_framework.authtoken',
             'corsheaders',
             'textclassifier',
             'annoying',
             'django_extensions',
             'crispy_forms',
             'messages_extends',
-            'django_filters',
             'django_elasticsearch_dsl',
+            'django_filters',
 
             # our apps
             'readthedocs.projects',
@@ -124,7 +128,9 @@ class CommunityBaseSettings(Settings):
             'readthedocs.oauth',
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
-            'readthedocs.restapi',
+            'readthedocs.api.v2',
+            'readthedocs.api.v3',
+
             'readthedocs.gold',
             'readthedocs.payments',
             'readthedocs.notifications',
@@ -154,12 +160,12 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
@@ -208,6 +214,10 @@ class CommunityBaseSettings(Settings):
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     ]
     PYTHON_MEDIA = False
+
+    # Optional Django Storage subclass used to write build artifacts to cloud or local storage
+    # https://docs.readthedocs.io/en/stable/settings.html#build-media-storage
+    RTD_BUILD_MEDIA_STORAGE = None
 
     TEMPLATES = [
         {
@@ -475,8 +485,13 @@ class CommunityBaseSettings(Settings):
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '5/minute',
+            'user': '60/minute',
+        },
         'PAGE_SIZE': 10,
     }
+
     SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging

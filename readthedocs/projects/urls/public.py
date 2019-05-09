@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project URLS for public users."""
 
 from django.conf.urls import url
@@ -16,6 +14,11 @@ urlpatterns = [
         r'^$',
         ProjectIndex.as_view(),
         name='projects_list',
+    ),
+    url(
+        r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
+        public.project_redirect,
+        name='project_redirect',
     ),
     url(
         r'^(?P<project_slug>{project_slug})/$'.format(**pattern_opts),

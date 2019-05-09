@@ -43,7 +43,7 @@ class SphinxDomainDocument(DocType):
 
     modified_model_field = 'modified'
 
-    class Meta(object):
+    class Meta:
         model = SphinxDomain
         fields = ('commit',)
         ignore_signals = True
@@ -77,7 +77,7 @@ class ProjectDocument(DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta(object):
+    class Meta:
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
@@ -111,7 +111,7 @@ class PageDocument(DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta(object):
+    class Meta:
         model = HTMLFile
         fields = ('commit',)
         ignore_signals = True
