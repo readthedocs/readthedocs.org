@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 import mock
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
+from readthedocs.api.v2.views.footer_views import (
+    footer_html,
+    get_version_compare_data,
+)
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
 from readthedocs.projects.models import Project
-from readthedocs.restapi.views.footer_views import (
-    footer_html,
-    get_version_compare_data,
-)
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
@@ -46,7 +45,7 @@ class Testmaker(APITestCase):
         self.assertEqual(r.status_code, 200)
 
     def test_footer_uses_version_compare(self):
-        version_compare = 'readthedocs.restapi.views.footer_views.get_version_compare_data'  # noqa
+        version_compare = 'readthedocs.api.v2.views.footer_views.get_version_compare_data'  # noqa
         with mock.patch(version_compare) as get_version_compare_data:
             get_version_compare_data.return_value = {
                 'MOCKED': True,
@@ -225,3 +224,53 @@ class TestVersionCompareFooter(TestCase):
         }
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
+
+
+class TestFooterPerformance(APITestCase):
+    fixtures = ['test_data']
+    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
+    factory = APIRequestFactory()
+
+    # The expected number of queries for generating the footer
+    # This shouldn't increase unless we modify the footer API
+    EXPECTED_QUERIES = 9
+
+    def setUp(self):
+        self.pip = Project.objects.get(slug='pip')
+        self.pip.versions.create_latest()
+
+    def render(self):
+        request = self.factory.get(self.url)
+        response = footer_html(request)
+        response.render()
+        return response
+
+    def test_version_queries(self):
+        # The number of Versions shouldn't impact the number of queries
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            response = self.render()
+            self.assertContains(response, '0.8.1')
+
+        for patch in range(3):
+            identifier = '0.99.{}'.format(patch)
+            self.pip.versions.create(
+                verbose_name=identifier,
+                identifier=identifier,
+                type=TAG,
+                active=True,
+            )
+
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            response = self.render()
+            self.assertContains(response, '0.99.0')
+
+    def test_domain_queries(self):
+        # Setting up a custom domain shouldn't impact the number of queries
+        self.pip.domains.create(
+            domain='http://docs.foobar.com',
+            canonical=True,
+        )
+
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
+            response = self.render()
+            self.assertContains(response, 'docs.foobar.com')

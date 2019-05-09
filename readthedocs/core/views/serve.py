@@ -135,7 +135,7 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.debug('Unauthorized access to {} documentation'.format(project.slug))
+    log.debug('Unauthorized access to %s documentation', project.slug)
     return res
 
 
@@ -158,7 +158,7 @@ def _serve_file(request, filename, basepath):
     :raises: ``Http404`` on ``UnicodeEncodeError``
     """
     # Serve the file from the proper location
-    if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
+    if settings.DEBUG or settings.PYTHON_MEDIA:
         # Serve from Python
         return serve(request, filename, basepath)
 
@@ -242,9 +242,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     files_tried = []
 
-    serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
-
-    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PUBLIC in settings.SERVE_DOCS) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -252,7 +250,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
         files_tried.append(os.path.join(basepath, filename))
 
-    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PRIVATE in settings.SERVE_DOCS) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
@@ -379,7 +377,6 @@ def sitemap_xml(request, project):
             only_active=True,
         ),
     )
-
     versions = []
     for version, priority, changefreq in zip(
             sorted_versions,
@@ -401,15 +398,18 @@ def sitemap_xml(request, project):
 
         if project.translations.exists():
             for translation in project.translations.all():
-                href = project.get_docs_url(
-                    version_slug=version.slug,
-                    lang_slug=translation.language,
-                    private=version.privacy_level == constants.PRIVATE,
-                )
-                element['languages'].append({
-                    'hreflang': translation.language,
-                    'href': href,
-                })
+                translation_versions = translation.versions.public(
+                    ).values_list('slug', flat=True)
+                if version.slug in translation_versions:
+                    href = project.get_docs_url(
+                        version_slug=version.slug,
+                        lang_slug=translation.language,
+                        private=False,
+                    )
+                    element['languages'].append({
+                        'hreflang': translation.language,
+                        'href': href,
+                    })
 
             # Add itself also as protocol requires
             element['languages'].append({

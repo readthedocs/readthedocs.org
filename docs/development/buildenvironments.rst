@@ -20,6 +20,8 @@ Once you have Docker set up, you will need to pull down our build image. These
 images are found on our `Docker Hub repository`_, the source comes from our
 `container image repo`_.
 
+.. note:: The size of the Docker images is around 5 to 9 GB.
+
 To get started using Docker for build environments, you'll need to pull down at
 least one build image. For example, to pull down our latest image::
 

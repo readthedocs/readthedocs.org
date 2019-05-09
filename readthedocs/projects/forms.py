@@ -242,14 +242,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        # commit_name is used as the id because it handles
-        # the special cases of LATEST and STABLE.
-        all_versions_choices = [
-            (v.commit_name, v.verbose_name)
-            for v in self.instance.versions.all()
-        ]
+        versions_choices = self.instance.versions.filter(
+            machine=False).values_list('verbose_name', flat=True)
+
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + all_versions_choices,
+            choices=[default_choice] + list(
+                zip(versions_choices, versions_choices)
+            ),
         )
 
         active_versions = self.get_all_active_versions()
@@ -378,6 +377,17 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
             )
         return child
 
+    def clean_alias(self):
+        alias = self.cleaned_data['alias']
+        subproject = self.project.subprojects.filter(
+            alias=alias).exclude(id=self.instance.pk)
+
+        if subproject.exists():
+            raise forms.ValidationError(
+                _('A subproject with this alias already exists'),
+            )
+        return alias
+
     def get_subproject_queryset(self):
         """
         Return scrubbed subproject choice queryset.
@@ -452,47 +462,6 @@ class BaseVersionsForm(forms.Form):
         version.save()
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
-
-
-def build_versions_form(project):
-    """Versions form with a list of versions and version privacy levels."""
-    attrs = {
-        'project': project,
-    }
-    versions_qs = project.versions.all()  # Admin page, so show all versions
-    active = versions_qs.filter(active=True)
-    if active.exists():
-        active = sort_version_aware(active)
-        choices = [(version.slug, version.verbose_name) for version in active]
-        attrs['default-version'] = forms.ChoiceField(
-            label=_('Default Version'),
-            choices=choices,
-            initial=project.get_default_version(),
-        )
-    versions_qs = sort_version_aware(versions_qs)
-    for version in versions_qs:
-        field_name = 'version-{}'.format(version.slug)
-        privacy_name = 'privacy-{}'.format(version.slug)
-        if version.type == TAG:
-            label = '{} ({})'.format(
-                version.verbose_name,
-                version.identifier[:8],
-            )
-        else:
-            label = version.verbose_name
-        attrs[field_name] = forms.BooleanField(
-            label=label,
-            widget=DualCheckboxWidget(version),
-            initial=version.active,
-            required=False,
-        )
-        attrs[privacy_name] = forms.ChoiceField(
-            # This isn't a real label, but just a slug for the template
-            label='privacy',
-            choices=constants.PRIVACY_CHOICES,
-            initial=version.privacy_level,
-        )
-    return type(str('VersionsForm'), (BaseVersionsForm,), attrs)
 
 
 class BaseUploadHTMLForm(forms.Form):

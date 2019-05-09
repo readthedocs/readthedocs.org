@@ -5,7 +5,6 @@ Classes to copy files between build and web servers.
 local machine.
 """
 
-import getpass
 import logging
 import os
 import shutil
@@ -72,13 +71,15 @@ class RemoteSyncer(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
-        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
-        if app_servers:
-            log.info('Remote Copy %s to %s on %s', path, target, app_servers)
-            for server in app_servers:
+        if settings.MULTIPLE_APP_SERVERS:
+            log.info(
+                'Remote Copy %s to %s on %s',
+                path, target,
+                settings.MULTIPLE_APP_SERVERS
+            )
+            for server in settings.MULTIPLE_APP_SERVERS:
                 mkdir_cmd = (
-                    'ssh {}@{} mkdir -p {}'.format(sync_user, server, target)
+                    'ssh {}@{} mkdir -p {}'.format(settings.SYNC_USER, server, target)
                 )
                 ret = os.system(mkdir_cmd)
                 if ret != 0:
@@ -92,7 +93,7 @@ class RemoteSyncer(BaseSyncer):
                     "rsync -e 'ssh -T' -av --delete {path}{slash} {user}@{server}:{target}".format(
                         path=path,
                         slash=slash,
-                        user=sync_user,
+                        user=settings.SYNC_USER,
                         server=server,
                         target=target,
                     )
@@ -111,15 +112,13 @@ class DoubleRemotePuller(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
-        app_servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [])
         if not is_file:
             path += '/'
         log.info('Remote Copy %s to %s', path, target)
-        for server in app_servers:
+        for server in settings.MULTIPLE_APP_SERVERS:
             if not is_file:
                 mkdir_cmd = 'ssh {user}@{server} mkdir -p {target}'.format(
-                    user=sync_user,
+                    user=settings.SYNC_USER,
                     server=server,
                     target=target,
                 )
@@ -132,7 +131,7 @@ class DoubleRemotePuller(BaseSyncer):
                 "--delete --exclude projects {user}@{host}:{path} {target}'".format(
                     host=host,
                     path=path,
-                    user=sync_user,
+                    user=settings.SYNC_USER,
                     server=server,
                     target=target,
                 )
@@ -151,7 +150,6 @@ class RemotePuller(BaseSyncer):
 
         Respects the ``MULTIPLE_APP_SERVERS`` setting when copying.
         """
-        sync_user = getattr(settings, 'SYNC_USER', getpass.getuser())
         if not is_file:
             path += '/'
         log.info('Remote Pull %s to %s', path, target)
@@ -165,7 +163,7 @@ class RemotePuller(BaseSyncer):
         sync_cmd = "rsync -e 'ssh -T' -av --delete {user}@{host}:{path} {target}".format(
             host=host,
             path=path,
-            user=sync_user,
+            user=settings.SYNC_USER,
             target=target,
         )
         ret = os.system(sync_cmd)

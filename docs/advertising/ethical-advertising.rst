@@ -1,6 +1,10 @@
 Ethical Ads
 ===========
 
+.. meta::
+   :description lang=en: To fund Read the Docs, we built an ad platform that doesn't track users and respects their privacy.
+
+
 Read the Docs is a large, free web service.
 There is one proven business model to support this kind of site: **Advertising**.
 We are building the advertising model we want to exist,

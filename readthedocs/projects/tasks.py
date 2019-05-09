@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
-
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -60,9 +60,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -143,11 +142,12 @@ class SyncRepositoryMixin:
                     identifier=self.version.identifier,
                 )
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
                 )
                 version_repo = self.get_vcs_repo()
                 version_repo.update()
@@ -386,7 +386,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 return False
 
         # Catch unhandled errors in the setup step
-        except Exception as e:  # noqa
+        except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
                 extra={
@@ -410,14 +410,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications()
+            self.send_notifications(version_pk, build_pk)
             return False
         else:
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
                 self.run_build(docker=docker, record=record)
-            except Exception as e:  # noqa
+            except Exception:
                 log.exception(
                     'An unhandled exception was raised during project build',
                     extra={
@@ -438,7 +438,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.build_env.update_build(BUILD_STATE_FINISHED)
 
                 # Send notifications for unhandled errors
-                self.send_notifications()
+                self.send_notifications(version_pk, build_pk)
                 return False
 
         return True
@@ -483,11 +483,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.failure,
             )
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=msg,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
             )
 
             # Send notification to users only if the build didn't fail because
@@ -495,7 +496,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications()
+                self.send_notifications(self.version.pk, self.build['id'])
 
             return False
 
@@ -544,11 +545,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             python_env_cls = Virtualenv
             if self.config.conda is not None:
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg='Using conda',
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': 'Using conda',
+                    }
                 )
                 python_env_cls = Conda
             self.python_env = python_env_cls(
@@ -592,7 +594,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            self.send_notifications()
+            self.send_notifications(self.version.pk, self.build['id'])
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -632,11 +634,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Updating docs from VCS',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Updating docs from VCS',
+            }
         )
         try:
             self.sync_repo()
@@ -1023,9 +1026,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self):
+    def send_notifications(self, version_pk, build_pk):
         """Send notifications on build failure."""
-        send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+        send_notifications.delay(version_pk, build_pk=build_pk)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1035,8 +1038,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, doctype, hostname=None, html=False,
-        localmedia=False, search=False, pdf=False, epub=False,
+        project_pk,
+        version_pk,
+        doctype,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1124,11 +1134,12 @@ def move_files(
             ])
 
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='Moving files',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'Moving files',
+        }
     )
 
     if html:
@@ -1273,42 +1284,42 @@ def fileify(version_pk, commit):
     project = version.project
 
     if not commit:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg=(
-                    'Imported File not being built because no commit '
-                    'information'
+        log.warning(
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': version.slug,
+                'msg': (
+                    'Search index not being built because no commit information'
                 ),
-            ),
+            }
         )
         return
 
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(
-            LOG_TEMPLATE.format(
-                project=version.project.slug,
-                version=version.slug,
-                msg='Creating ImportedFiles',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': version.project.slug,
+                'version': version.slug,
+                'msg': 'Creating ImportedFiles',
+            }
         )
-        _manage_imported_files(version, path, commit)
-        _update_intersphinx_data(version, path, commit)
-    else:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg='No ImportedFile files',
-            ),
-        )
+        try:
+            _manage_imported_files(version, path, commit)
+        except Exception:
+            log.exception('Failed during ImportedFile creation')
+
+        try:
+            _update_intersphinx_data(version, path, commit)
+        except Exception:
+            log.exception('Failed during SphinxDomain creation')
 
 
 def _update_intersphinx_data(version, path, commit):
     """
-    Update intersphinx data for this version
+    Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
@@ -1318,6 +1329,20 @@ def _update_intersphinx_data(version, path, commit):
     if not os.path.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
+
+    full_json_path = version.project.get_production_media_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    types = {}
+    titles = {}
+    if os.path.exists(type_file):
+        try:
+            data = json.load(open(type_file))
+            types = data['types']
+            titles = data['titles']
+        except Exception:
+            log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
 
     # These classes are copied from Sphinx
     # https://git.io/fhFbI
@@ -1331,6 +1356,8 @@ def _update_intersphinx_data(version, path, commit):
 
         def warn(self, msg):
             log.warning('Sphinx MockApp: %s', msg)
+
+    created_sphinx_domains = []
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key, value in sorted(invdata.items() or {}):
@@ -1348,22 +1375,41 @@ def _update_intersphinx_data(version, path, commit):
             else:
                 doc_name, anchor = url, ''
             display_name = einfo[3]
-            obj, _ = SphinxDomain.objects.get_or_create(
+            obj, created = SphinxDomain.objects.get_or_create(
                 project=version.project,
                 version=version,
                 domain=domain,
                 name=name,
                 display_name=display_name,
                 type=_type,
+                type_display=types.get(f'{domain}:{_type}', ''),
                 doc_name=doc_name,
+                doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
             )
             if obj.commit != commit:
                 obj.commit = commit
                 obj.save()
-    SphinxDomain.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
+            if created:
+                created_sphinx_domains.append(obj)
+
+    # Send bulk_post_create signal for bulk indexing to Elasticsearch
+    bulk_post_create.send(sender=SphinxDomain, instance_list=created_sphinx_domains, commit=commit)
+
+    # Delete the SphinxDomain first from previous commit and
+    # send bulk_post_delete signal for bulk removing from Elasticsearch
+    delete_queryset = (
+        SphinxDomain.objects.filter(project=version.project,
+                                    version=version
+                                    ).exclude(commit=commit)
+    )
+    # Keep the objects into memory to send it to signal
+    instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    bulk_post_delete.send(sender=SphinxDomain, instance_list=instance_list, commit=commit)
+
+    # Delete from previous versions
+    delete_queryset.delete()
 
 
 def _manage_imported_files(version, path, commit):
@@ -1390,7 +1436,7 @@ def _manage_imported_files(version, path, commit):
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
                 # pylint: disable=unpacking-non-sequence
-                obj, __ = model_class.objects.get_or_create(
+                obj, created = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
@@ -1406,12 +1452,13 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-            if model_class == HTMLFile:
+            if created and model_class == HTMLFile:
                 # the `obj` is HTMLFile, so add it to the list
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files,
+                          version=version, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1419,21 +1466,24 @@ def _manage_imported_files(version, path, commit):
         HTMLFile.objects.filter(project=version.project,
                                 version=version).exclude(commit=commit)
     )
+
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
+
     # Always pass the list of instance, not queryset.
     # These objects must exist though,
     # because the task will query the DB for the objects before deleting
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
-    # Safely delete from database
-    delete_queryset.delete()
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list,
+                          version=version, commit=commit)
 
     # Delete ImportedFiles from previous versions
-    (
-        ImportedFile.objects.filter(project=version.project,
-                                    version=version).exclude(commit=commit
-                                                             ).delete()
-    )
+    delete_queryset.delete()
+
+    # This is required to delete ImportedFile objects that aren't HTMLFile objects,
+    ImportedFile.objects.filter(
+        project=version.project, version=version
+    ).exclude(commit=commit).delete()
+
     changed_files = [
         resolve_path(
             version.project,
@@ -1473,11 +1523,12 @@ def email_notification(version, build, email):
     :param email: Email recipient address
     """
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='sending email to: %s' % email,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'sending email to: %s' % email,
+        }
     )
 
     # We send only what we need from the Django model objects here to avoid
@@ -1494,11 +1545,11 @@ def email_notification(version, build, email):
             'error': build.error,
         },
         'build_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             build.get_absolute_url(),
         ),
         'unsub_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             reverse('projects_notifications', args=[version.project.slug]),
         ),
     }
@@ -1541,11 +1592,12 @@ def webhook_notification(version, build, hook_url):
         },
     })
     log.debug(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='sending notification to: %s' % hook_url,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'sending notification to: %s' % hook_url,
+        }
     )
     try:
         requests.post(hook_url, data=data)
@@ -1574,11 +1626,12 @@ def update_static_metadata(project_pk, path=None):
         path = project.static_metadata_path()
 
     log.info(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Updating static metadata',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'Updating static metadata',
+        }
     )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
@@ -1597,11 +1650,12 @@ def update_static_metadata(project_pk, path=None):
         fh.close()
     except (AttributeError, IOError) as e:
         log.debug(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version='',
-                msg='Cannot write to metadata.json: {}'.format(e),
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': '',
+                'msg': 'Cannot write to metadata.json: {}'.format(e),
+            }
         )
 
 

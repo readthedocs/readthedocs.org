@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 import os
 from functools import reduce
@@ -59,13 +58,14 @@ project_urls = [
 ]
 
 api_urls = [
-    url(r'^api/v2/', include('readthedocs.restapi.urls')),
+    url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep the `doc_search` at root level, so the test does not fail for other API
     url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
     url(
         r'^api-auth/',
         include('rest_framework.urls', namespace='rest_framework')
     ),
+    url(r'^api/v3/', include('readthedocs.api.v3.urls')),
 ]
 
 i18n_urls = [
@@ -128,11 +128,11 @@ if settings.READ_THE_DOCS_EXTENSIONS:
         url(r'^', include('readthedocsext.urls'))
     ])
 
-if not getattr(settings, 'USE_SUBDOMAIN', False) or settings.DEBUG:
+if not settings.USE_SUBDOMAIN or settings.DEBUG:
     groups.insert(0, docs_urls)
-if getattr(settings, 'ALLOW_ADMIN', True):
+if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
-if getattr(settings, 'DEBUG', False):
+if settings.DEBUG:
     import debug_toolbar
 
     debug_urls += [
