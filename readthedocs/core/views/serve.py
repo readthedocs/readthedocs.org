@@ -356,6 +356,17 @@ def sitemap_xml(request, project):
         priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
         yield from itertools.chain(priorities, itertools.repeat(0.1))
 
+    def hreflang_formatter(lang):
+        """
+        sitemap hreflang should follow correct format.
+
+        Use hyphen instead of underscore in language and country value.
+        ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
+        """
+        if '_' in lang:
+            return lang.replace("_", "-")
+        return lang
+
     def changefreqs_generator():
         """
         Generator returning ``changefreq`` needed by sitemap.xml.
@@ -409,7 +420,7 @@ def sitemap_xml(request, project):
                         private=False,
                     )
                     element['languages'].append({
-                        'hreflang': translation.language,
+                        'hreflang': hreflang_formatter(translation.language),
                         'href': href,
                     })
 

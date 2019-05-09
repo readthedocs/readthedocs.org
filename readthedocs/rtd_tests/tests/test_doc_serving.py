@@ -250,6 +250,13 @@ class TestPublicDocs(BaseDocServing):
             main_language_project=self.public,
             language='translation-es'
         )
+        # sitemap hreflang should follow correct format.
+        # ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
+        hreflang_test_translation_project = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='zh_CN'
+        )
         response = self.client.get(
             reverse('sitemap_xml'),
             HTTP_HOST='public.readthedocs.io',
@@ -287,3 +294,6 @@ class TestPublicDocs(BaseDocServing):
                 private=False,
             ),
         )
+        # hreflang should use hyphen instead of underscore
+        # in language and country value. (zh_CN should be zh-CN)
+        self.assertContains(response, 'zh-CN')
