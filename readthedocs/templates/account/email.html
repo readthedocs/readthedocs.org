@@ -10,7 +10,7 @@
 
 {% block edit_content %}
   {% if user.emailaddress_set.all %}
-    <p>{% trans 'The following email addresses are associated with your account:' %}</p>
+    <p>{% trans "The following email addresses are associated with your account:" %}</p>
 
     <form action="{% url 'account_email' %}" class="email_list" method="post">
       {% csrf_token %}
@@ -18,8 +18,8 @@
 
         {% for emailaddress in user.emailaddress_set.all %}
           <div class="ctrlHolder">
-            <label for="email_radio_{{forloop.counter}}" class="{% if emailaddress.primary %}primary_email{%endif%}">
-              <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
+            <label for="email_radio_{{ forloop.counter }}" class="{% if emailaddress.primary %}primary_email{%endif%}">
+              <input id="email_radio_{{ forloop.counter }}" type="radio" name="email" {% if emailaddress.primary %}checked="checked"{%endif %} value="{{ emailaddress.email }}"/>
 
               {{ emailaddress.email }}
                 {% if emailaddress.verified %}
@@ -33,9 +33,9 @@
         {% endfor %}
 
         <div class="buttonHolder">
-          <button class="secondaryAction" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button>
-          <button class="secondaryAction" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button>
-          <button class="primaryAction" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
+          <button class="secondaryAction" type="submit" name="action_primary" >{% trans "Make Primary" %}</button>
+          <button class="secondaryAction" type="submit" name="action_send" >{% trans "Re-send Verification" %}</button>
+          <button class="primaryAction" type="submit" name="action_remove" >{% trans "Remove" %}</button>
         </div>
 
       </fieldset>
@@ -43,7 +43,7 @@
 
   {% else %}
 
-  <p><strong>{% trans 'Warning:'%}</strong>{% trans "You currently do not have any email address set up. You should really add an email address so you can receive notifications, reset your password, etc." %}</p>
+  <p><strong>{% trans "Warning:" %}</strong>{% trans "You currently do not have any email address set up. You should really add an email address so you can receive notifications, reset your password, etc." %}</p>
 
   {% endif %}
 
@@ -75,7 +75,7 @@
     var primaryButton = document.querySelector("button[name=action_primary]");
     var sendVerificationButton = document.querySelector("button[name=action_send");
 
-    {% if user.emailaddress_set.all %}
+    {% if user.emailaddress_set.exists %}
       {% for emailaddress in user.emailaddress_set.all %}
         var email_{{ forloop.counter }} = document.querySelector("input[value='{{ emailaddress.email }}']")
         if (email_{{ forloop.counter }}.checked == true) {
