@@ -5,7 +5,7 @@
 from readthedocs.config.utils import to_dict
 
 
-class Base(object):
+class Base:
 
     """
     Base class for every configuration.

@@ -1,10 +1,10 @@
 # Base packages
-pip==19.1
+pip==19.1.1
 appdirs==1.4.3
 virtualenv==16.5.0
 
 django==1.11.20  # pyup: <1.12
-django-guardian==1.5.0
+django-guardian==1.5.1
 django-extensions==2.1.6
 django_polymorphic==2.0.3
 
@@ -69,7 +69,7 @@ django-gravatar2==1.4.2
 pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
-mock==2.0.0
+mock==3.0.4
 stripe==2.27.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
@@ -78,11 +78,7 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.1
 django-crispy-forms==1.7.2 
 
-# docker is pinned to 3.1.3 because we found some strange behavior
-# related to timeouts on EXEC with 3.2.1 and 3.3.0 that's not present
-# with 3.1.3
-# https://github.com/rtfd/readthedocs.org/issues/3999
-docker==3.1.3  # pyup: ignore
+docker==3.7.2
 
 django-textclassifier==1.0
 django-annoying==0.10.4
