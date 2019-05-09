@@ -1317,7 +1317,7 @@ def _update_intersphinx_data(version, path, commit):
 
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def clean_build_task(version_id):
-    """Clean the build artifacts of the given version."""
+    """Clean the files used in the build of the given version."""
     version = Version.objects.get_object_or_log(pk=version_id)
     if not version:
         return
