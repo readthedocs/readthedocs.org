@@ -90,7 +90,7 @@ class ProjectQuerySetBase(models.QuerySet):
         latest_build = Prefetch(
             'builds',
             Build.objects.filter(pk__in=subquery),
-            to_attr='_latest_build',
+            to_attr=self.model.LATEST_BUILD_CACHE,
         )
 
         return projects.prefetch_related(latest_build)

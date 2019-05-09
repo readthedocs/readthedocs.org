@@ -28,7 +28,7 @@ def get_public_projects(context, user):
     )
     # Filters the latest builds of projects.
     latest_build = Prefetch('builds', Build.objects.filter(
-        pk__in=subquery), to_attr='_latest_build'
+        pk__in=subquery), to_attr=Project.LATEST_BUILD_CACHE
     )
     # 'Exists()' checks if the project has any good builds.
     projects = Project.objects.for_user_and_viewer(
