@@ -50,8 +50,6 @@ from .utils import (
 from .version_slug import VersionSlugField
 
 
-DEFAULT_VERSION_PRIVACY_LEVEL = settings.DEFAULT_VERSION_PRIVACY_LEVEL
-
 log = logging.getLogger(__name__)
 
 
@@ -102,7 +100,7 @@ class Version(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=PRIVACY_CHOICES,
-        default=DEFAULT_VERSION_PRIVACY_LEVEL,
+        default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
     tags = TaggableManager(blank=True)

@@ -15,8 +15,6 @@ from readthedocs.projects.models import Domain, Project
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
-SUBDOMAIN_URLCONF = settings.SUBDOMAIN_URLCONF
-SINGLE_VERSION_URLCONF = settings.SINGLE_VERSION_URLCONF
 
 
 class SubdomainMiddleware(MiddlewareMixin):
@@ -38,10 +36,9 @@ class SubdomainMiddleware(MiddlewareMixin):
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = settings.PUBLIC_DOMAIN
-        production_domain = settings.PRODUCTION_DOMAIN
 
         if public_domain is None:
-            public_domain = production_domain
+            public_domain = settings.PRODUCTION_DOMAIN
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
@@ -57,13 +54,15 @@ class SubdomainMiddleware(MiddlewareMixin):
                     raise Http404(_('Project not found'))
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = SUBDOMAIN_URLCONF
+                request.urlconf = settings.SUBDOMAIN_URLCONF
                 return None
 
         # Serve CNAMEs
         if (
-            public_domain not in host and production_domain not in host and
-            'localhost' not in host and 'testserver' not in host
+            public_domain not in host and
+            settings.PRODUCTION_DOMAIN not in host and
+            'localhost' not in host and
+            'testserver' not in host
         ):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
@@ -71,7 +70,7 @@ class SubdomainMiddleware(MiddlewareMixin):
                 for domain in domains:
                     if domain.domain == host:
                         request.slug = domain.project.slug
-                        request.urlconf = SUBDOMAIN_URLCONF
+                        request.urlconf = settings.SUBDOMAIN_URLCONF
                         request.domain_object = True
                         log.debug(
                             LOG_TEMPLATE,
@@ -86,7 +85,7 @@ class SubdomainMiddleware(MiddlewareMixin):
                 'HTTP_X_RTD_SLUG' in request.META
             ):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = SUBDOMAIN_URLCONF
+                request.urlconf = settings.SUBDOMAIN_URLCONF
                 request.rtdheader = True
                 log.debug(
                     LOG_TEMPLATE,
@@ -171,7 +170,7 @@ class SingleVersionMiddleware(MiddlewareMixin):
                 return None
 
             if getattr(proj, 'single_version', False):
-                request.urlconf = SINGLE_VERSION_URLCONF
+                request.urlconf = settings.SINGLE_VERSION_URLCONF
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()

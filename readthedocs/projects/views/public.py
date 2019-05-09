@@ -215,8 +215,8 @@ def project_download_media(request, project_slug, type_, version_slug):
         project__slug=project_slug,
         slug=version_slug,
     )
-    privacy_level = settings.DEFAULT_PRIVACY_LEVEL
-    if privacy_level == 'public' or settings.DEBUG:
+
+    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
         storage_path = version.project.get_storage_path(
             type_=type_, version_slug=version_slug
         )
