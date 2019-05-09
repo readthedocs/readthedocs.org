@@ -10,13 +10,16 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
+from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
@@ -35,7 +38,6 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.restapi.client import api
 from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -116,6 +118,7 @@ class Project(models.Model):
         max_length=255,
         validators=[validate_repository_url],
         help_text=_('Hosted documentation repository URL'),
+        db_index=True,
     )
     repo_type = models.CharField(
         _('Repository type'),
@@ -318,11 +321,7 @@ class Project(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Level of privacy that you want on the repository. '
             'Protected means public but not in listings.',
@@ -332,11 +331,7 @@ class Project(models.Model):
         _('Version Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Default level of privacy you want on built '
             'versions of documentation.',
@@ -493,7 +488,7 @@ class Project(models.Model):
         )
 
     def get_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return api.project(self.pk).canonical_url().get()['url']
         return self.get_docs_url()
 
@@ -503,7 +498,7 @@ class Project(models.Model):
 
         This is used in search result linking
         """
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return [(proj['slug'], proj['canonical_url']) for proj in
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
@@ -538,8 +533,7 @@ class Project(models.Model):
 
         :returns: Full path to media file or path
         """
-        if getattr(settings, 'DEFAULT_PRIVACY_LEVEL',
-                   'public') == 'public' or settings.DEBUG:
+        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
             path = os.path.join(
                 settings.MEDIA_ROOT,
                 type_,
@@ -616,7 +610,7 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
@@ -743,8 +737,6 @@ class Project(models.Model):
         return self.aliases.exists()
 
     def has_pdf(self, version_slug=LATEST):
-        if not self.enable_pdf_build:
-            return False
         path = self.get_production_media_path(
             type_='pdf', version_slug=version_slug
         )
@@ -754,8 +746,6 @@ class Project(models.Model):
         return os.path.exists(path) or storage.exists(storage_path)
 
     def has_epub(self, version_slug=LATEST):
-        if not self.enable_epub_build:
-            return False
         path = self.get_production_media_path(
             type_='epub', version_slug=version_slug
         )
@@ -810,8 +800,8 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
-                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+                settings.DOCKER_LIMITS.get('time') or
+                settings.REPO_LOCK_SECONDS
             )
 
         return NonBlockingLock(
@@ -885,7 +875,21 @@ class Project(models.Model):
         }
         if user:
             kwargs['user'] = user
-        versions = Version.objects.public(**kwargs)
+        versions = Version.objects.public(**kwargs).select_related(
+            'project',
+            'project__main_language_project',
+        ).prefetch_related(
+            Prefetch(
+                'project__superprojects',
+                ProjectRelationship.objects.all().select_related('parent'),
+                to_attr='_superprojects',
+            ),
+            Prefetch(
+                'project__domains',
+                Domain.objects.filter(canonical=True),
+                to_attr='_canonical_domains',
+            ),
+        )
         return sort_version_aware(versions)
 
     def all_active_versions(self):
@@ -918,20 +922,24 @@ class Project(models.Model):
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.active and current_stable.machine:
+                if identifier_updated and current_stable.machine:
                     log.info(
-                        'Update stable version: {project}:{version}'.format(
-                            project=self.slug,
-                            version=new_stable.identifier,
-                        ),
+                        'Update stable version: %(project)s:%(version)s',
+                        {
+                            'project': self.slug,
+                            'version': new_stable.identifier,
+                        }
                     )
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
                     return new_stable
             else:
                 log.info(
-                    'Creating new stable version: {project}:{version}'
-                    .format(project=self.slug, version=new_stable.identifier),
+                    'Creating new stable version: %(project)s:%(version)s',
+                    {
+                        'project': self.slug,
+                        'version': new_stable.identifier,
+                    }
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -982,6 +990,26 @@ class Project(models.Model):
 
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
+
+    def get_parent_relationship(self):
+        """Get the parent project relationship or None if this is a top level project"""
+        if hasattr(self, '_superprojects'):
+            # Cached parent project relationship
+            if self._superprojects:
+                return self._superprojects[0]
+            return None
+
+        return self.superprojects.select_related('parent').first()
+
+    def get_canonical_custom_domain(self):
+        """Get the canonical custom domain or None."""
+        if hasattr(self, '_canonical_domains'):
+            # Cached custom domains
+            if self._canonical_domains:
+                return self._canonical_domains[0]
+            return None
+
+        return self.domains.filter(canonical=True).first()
 
     @property
     def features(self):
@@ -1137,7 +1165,7 @@ class HTMLFile(ImportedFile):
     This tracks only the HTML files for indexing to search.
     """
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     objects = HTMLFileManager()
@@ -1183,7 +1211,7 @@ class HTMLFile(ImportedFile):
             'sections': [],
         }
 
-    @property
+    @cached_property
     def processed_json(self):
         return self.get_processed_json()
 
@@ -1304,7 +1332,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-    USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
@@ -1314,10 +1341,12 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
+    USE_PDF_LATEXMK = 'use_pdf_latexmk'
+    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
+        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
@@ -1346,6 +1375,10 @@ class Feature(models.Model):
         (
             SHARE_SPHINX_DOCTREE,
             _('Use shared directory for doctrees'),
+        ),
+        (
+            DEFAULT_TO_MKDOCS_0_17_3,
+            _('Install mkdocs 0.17.3 by default')
         ),
     )
 
@@ -1390,7 +1423,7 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_('Name of the environment variable'),
     )
     value = models.CharField(
-        max_length=256,
+        max_length=2048,
         help_text=_('Value of the environment variable'),
     )
     project = models.ForeignKey(

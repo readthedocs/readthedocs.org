@@ -4,25 +4,40 @@ Configuration File V2
 Read the Docs supports configuring your documentation builds with a YAML file.
 :doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
-Here is an example of how this file looks like:
+Below is an example YAML file which may require some changes for your project's configuration:
 
 .. code:: yaml
 
-   # .readthedocs.yml
+    # .readthedocs.yml
+    # Read the Docs configuration file
+    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-   version: 2
+    # Required
+    version: 2
 
-   python:
-     version: 3.7
-     install:
-        - method: pip
-          path: .
+    # Build documentation in the docs/ directory with Sphinx
+    sphinx:
+      configuration: docs/conf.py
+
+    # Build documentation with MkDocs
+    #mkdocs:
+    #  configuration: mkdocs.yml
+
+    # Optionally build your docs in additional formats such as PDF and ePub
+    formats: all
+
+    # Optionally set the version of Python and requirements required to build your docs
+    python:
+      version: 3.7
+      install:
+        - requirements: docs/requirements.txt
+
 
 Supported settings
 ------------------
 
 .. note::
-   
+
    The presence of any other key that isn't documented here will make the build to fail.
    This is to avoid typos and provide feedback on invalid configurations.
 
@@ -34,11 +49,11 @@ version
 Example:
 
 .. code-block:: yaml
-   
+
    version: 2
 
 .. warning::
-   
+
    If you don't provide the version, :doc:`v1 <v1>` will be used.
 
 formats
@@ -72,6 +87,10 @@ Example:
 
       # Build all formats
       formats: all
+
+.. note::
+
+   PDF/epub/htmlzip output is not supported when using MkDocs  
 
 python
 ~~~~~~
@@ -329,13 +348,13 @@ VCS submodules configuration.
    Only Git is supported at the moment.
 
 .. note::
-   
+
    You can't use ``include`` and ``exclude`` settings for submodules at the same time.
 
 Example:
 
 .. code-block:: yaml
-   
+
    submodules:
      include:
         - one
@@ -351,7 +370,7 @@ List of submodules to be included.
 :Default: ``[]``
 
 .. note::
-   
+
    You can use the ``all`` keyword to include all submodules.
 
    .. code-block:: yaml
@@ -368,7 +387,7 @@ List of submodules to be excluded.
 :Default: ``[]``
 
 .. note::
-   
+
    You can use the ``all`` keyword to exclude all submodules.
    This is the same as ``include: []``.
 

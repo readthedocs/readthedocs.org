@@ -1,6 +1,10 @@
 Installation
 ============
 
+.. meta::
+   :description lang=en: Install a local instance of Read the Docs on your own servers with our step by step guide.
+
+
 Here is a step by step guide on how to install Read the Docs.
 It will get you to a point of having a local running instance.
 
@@ -10,6 +14,12 @@ Requirements
 First, obtain `Python 3.6`_ and virtualenv_ if you do not already have them.
 Using a virtual environment is strongly recommended,
 since it will help you to avoid clutter in your system-wide libraries.
+
+.. warning::
+
+    Currently the recommended version of python is Python 3.6.7. Which uses a 
+    lower version of sqlite3. The next version of Python can be used when the 
+    project starts using the latest Django version.
 
 Additionally Read the Docs depends on:
 
@@ -56,6 +66,8 @@ you need these libraries.
 
    .. tab:: CentOS/RHEL 7
 
+      Install::
+      
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
    .. tab:: Other OS

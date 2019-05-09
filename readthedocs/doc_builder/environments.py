@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Documentation Builder Environments."""
 
 import logging
@@ -20,12 +18,12 @@ from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -35,7 +33,6 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
-    MKDOCS_TEMPLATE_DIR,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -106,7 +103,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd
         self.environment = os.environ.copy()
         if environment is not None:
-            assert 'PATH' not in environment, "PATH can't be set"
+            if 'PATH' in environment:
+                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
             self.environment.update(environment)
 
         self.combine_output = combine_output
@@ -434,7 +432,8 @@ class BaseEnvironment:
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
-        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        if 'environment' in kwargs:
+            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
         kwargs['environment'] = self.environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
@@ -462,11 +461,12 @@ class BaseEnvironment:
 
             if warn_only:
                 log.warning(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version='latest',
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': 'latest',
+                        'msg': msg,
+                    }
                 )
             else:
                 raise BuildEnvironmentWarning(msg)
@@ -550,11 +550,12 @@ class BuildEnvironment(BaseEnvironment):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Build finished',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Build finished',
+            }
         )
         return ret
 
@@ -585,11 +586,12 @@ class BuildEnvironment(BaseEnvironment):
                 self.failure = exc_value
 
             log_level_function(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=exc_value,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': exc_value,
+                },
                 exc_info=True,
                 extra={
                     'stack': True,
@@ -819,15 +821,16 @@ class DockerBuildEnvironment(BuildEnvironment):
                     raise exc
                 else:
                     log.warning(
-                        LOG_TEMPLATE.format(
-                            project=self.project.slug,
-                            version=self.version.slug,
-                            msg=(
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.project.slug,
+                            'version': self.version.slug,
+                            'msg': (
                                 'Removing stale container {}'.format(
                                     self.container_id,
                                 )
                             ),
-                        ),
+                        }
                     )
                     client = self.get_client()
                     client.remove_container(self.container_id)
@@ -873,11 +876,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             # request. These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg="Couldn't remove container",
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': "Couldn't remove container",
+                    }
                 )
             self.container = None
         except BuildEnvironmentError:
@@ -901,11 +905,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Could not connect to Docker API',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': "Could not connect to Docker API",
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -929,17 +934,13 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            MKDOCS_TEMPLATE_DIR: {
-                'bind': MKDOCS_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             self.project.doc_path: {
                 'bind': self.project.doc_path,
                 'mode': 'rw',
             },
         }
 
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             binds.update({
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,
@@ -1027,14 +1028,15 @@ class DockerBuildEnvironment(BuildEnvironment):
             client.start(container=self.container_id)
         except ConnectionError:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
                         'Could not connect to the Docker API, '
                         'make sure Docker is running'
                     ),
-                ),
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1046,10 +1048,11 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         except DockerAPIError as e:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=e.explanation,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': e.explanation,
+                }
             )
             raise BuildEnvironmentCreationFailed

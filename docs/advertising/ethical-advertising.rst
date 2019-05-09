@@ -1,6 +1,10 @@
 Ethical Ads
 ===========
 
+.. meta::
+   :description lang=en: To fund Read the Docs, we built an ad platform that doesn't track users and respects their privacy.
+
+
 Read the Docs is a large, free web service.
 There is one proven business model to support this kind of site: **Advertising**.
 We are building the advertising model we want to exist,
@@ -125,7 +129,7 @@ Community Ads
 There are a large number of projects, conferences, and initiatives
 that we care about in the software and open source ecosystems.
 A large number of them operate like we did in the past, with almost no income.
-Our new Community Ads program will highlight some of these projects each month.
+Our Community Ads program will highlight some of these projects.
 
 There are a few qualifications for our Community Ads program:
 
@@ -138,9 +142,12 @@ There are a few qualifications for our Community Ads program:
   to one of our paid advertisers.
 
 We'll show 10% of our ad inventory each month to support initiatives that we care about.
-`Send us an email <mailto:rev@readthedocs.org>`_ to be considered for our Community Ads program.
+Please `complete an application`_ to be considered for our Community Ads program.
+If you have any questions about our community ads program, feel free to
+`send us an email <mailto:ads@readthedocs.org>`_.
 
 .. _OSI approved license: https://opensource.org/licenses
+.. _complete an application: https://docs.google.com/forms/d/e/1FAIpQLSdd9LDska1eiDHWHs4No-8AlqjDxsUuP_zSBTeYyl5tMcBeFQ/viewform?usp=sf_link
 
 
 Opting Out

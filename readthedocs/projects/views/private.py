@@ -7,6 +7,7 @@ from celery import chain
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count, OuterRef, Subquery
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -23,7 +24,7 @@ from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, prepare_build, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -46,7 +47,6 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     UserForm,
     WebHookForm,
-    build_versions_form,
 )
 from readthedocs.projects.models import (
     Domain,
@@ -92,7 +92,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        # Filters the builds for a perticular project.
+        builds = Build.objects.filter(
+            project=OuterRef('pk'), type='html', state='finished')
+        # Creates a Subquery object which returns
+        # the value of Build.success of the latest build.
+        sub_query = Subquery(builds.values('success')[:1])
+        return Project.objects.dashboard(self.request.user).annotate(
+            build_count=Count('builds'), latest_build_success=sub_query)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
@@ -147,39 +154,6 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
-
-
-@login_required
-def project_versions(request, project_slug):
-    """
-    Project versions view.
-
-    Shows the available versions and lets the user choose which ones he would
-    like to have built.
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-    if not project.is_imported:
-        raise Http404
-
-    form_class = build_versions_form(project)
-
-    form = form_class(data=request.POST or None)
-
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, _('Project versions updated'))
-        project_dashboard = reverse('projects_detail', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
-
-    return render(
-        request,
-        'projects/project_versions.html',
-        {'form': form, 'project': project},
-    )
 
 
 @login_required

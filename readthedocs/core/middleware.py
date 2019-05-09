@@ -15,16 +15,8 @@ from readthedocs.projects.models import Domain, Project
 log = logging.getLogger(__name__)
 
 LOG_TEMPLATE = '(Middleware) {msg} [{host}{path}]'
-SUBDOMAIN_URLCONF = getattr(
-    settings,
-    'SUBDOMAIN_URLCONF',
-    'readthedocs.core.urls.subdomain',
-)
-SINGLE_VERSION_URLCONF = getattr(
-    settings,
-    'SINGLE_VERSION_URLCONF',
-    'readthedocs.core.urls.single_version',
-)
+SUBDOMAIN_URLCONF = settings.SUBDOMAIN_URLCONF
+SINGLE_VERSION_URLCONF = settings.SINGLE_VERSION_URLCONF
 
 
 class SubdomainMiddleware(MiddlewareMixin):
@@ -39,18 +31,14 @@ class SubdomainMiddleware(MiddlewareMixin):
         is not set and the request is for a subdomain on ``PRODUCTION_DOMAIN``,
         process the request as a request a documentation project.
         """
-        if not getattr(settings, 'USE_SUBDOMAIN', False):
+        if not settings.USE_SUBDOMAIN:
             return None
 
         full_host = host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
-        public_domain = getattr(settings, 'PUBLIC_DOMAIN', None)
-        production_domain = getattr(
-            settings,
-            'PRODUCTION_DOMAIN',
-            'readthedocs.org',
-        )
+        public_domain = settings.PUBLIC_DOMAIN
+        production_domain = settings.PRODUCTION_DOMAIN
 
         if public_domain is None:
             public_domain = production_domain
@@ -184,34 +172,6 @@ class SingleVersionMiddleware(MiddlewareMixin):
                 )
 
         return None
-
-
-# Forked from old Django
-class ProxyMiddleware(MiddlewareMixin):
-
-    """
-    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the.
-
-    latter is set. This is useful if you're sitting behind a reverse proxy that
-    causes each request's REMOTE_ADDR to be set to 127.0.0.1. Note that this
-    does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind a reverse proxy
-    that sets HTTP_X_FORWARDED_FOR automatically, do not use this middleware.
-    Anybody can spoof the value of HTTP_X_FORWARDED_FOR, and because this sets
-    REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, that means anybody can "fake"
-    their IP address. Only use this when you can absolutely trust the value of
-    HTTP_X_FORWARDED_FOR.
-    """
-
-    def process_request(self, request):
-        try:
-            real_ip = request.META['HTTP_X_FORWARDED_FOR']
-        except KeyError:
-            return None
-        else:
-            # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
-            # client's IP will be the first one.
-            real_ip = real_ip.split(',')[0].strip()
-            request.META['REMOTE_ADDR'] = real_ip
 
 
 class FooterNoSessionMiddleware(SessionMiddleware):

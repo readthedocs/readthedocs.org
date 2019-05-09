@@ -14,18 +14,19 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
-
+from django.views.static import serve as static_serve
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import broadcast
-from readthedocs.core.views.serve import _serve_file
 from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.models import Project, ImportedFile
-from readthedocs.projects.tasks import remove_dirs
-from readthedocs.redirects.utils import get_redirect_response, project_and_path_from_request, language_and_version_from_path
+from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.redirects.utils import (
+    get_redirect_response,
+    project_and_path_from_request,
+    language_and_version_from_path
+)
 
 log = logging.getLogger(__name__)
 
@@ -51,14 +52,10 @@ class SupportView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+        support_email = settings.SUPPORT_EMAIL
         if not support_email:
             support_email = 'support@{domain}'.format(
-                domain=getattr(
-                    settings,
-                    'PRODUCTION_DOMAIN',
-                    'readthedocs.org',
-                ),
+                domain=settings.PRODUCTION_DOMAIN
             )
 
         context['support_email'] = support_email
@@ -66,13 +63,13 @@ class SupportView(TemplateView):
 
 
 def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    imported_file = ImportedFile.objects.order_by('?')
+    html_file = HTMLFile.objects.order_by('?')
     if project_slug:
-        imported_file = imported_file.filter(project__slug=project_slug)
-    imported_file = imported_file.first()
-    if imported_file is None:
+        html_file = html_file.filter(project__slug=project_slug)
+    html_file = html_file.first()
+    if html_file is None:
         raise Http404
-    url = imported_file.get_absolute_url()
+    url = html_file.get_absolute_url()
     return HttpResponseRedirect(url)
 
 
@@ -207,7 +204,7 @@ def server_error_404_subdomain(request, template_name='404.html'):
                     project.slug,
                     slug,
                 )
-                r = _serve_file(request, filename, basepath)
+                r = static_serve(request, filename, basepath)
                 r.status_code = 404
                 return r
 
