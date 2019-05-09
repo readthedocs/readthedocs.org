@@ -388,7 +388,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 return False
 
         # Catch unhandled errors in the setup step
-        except Exception as e:  # noqa
+        except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
                 extra={
@@ -419,7 +419,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # build steps
             try:
                 self.run_build(docker=docker, record=record)
-            except Exception as e:  # noqa
+            except Exception:
                 log.exception(
                     'An unhandled exception was raised during project build',
                     extra={
@@ -567,7 +567,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 # TODO the build object should have an idea of these states,
                 # extend the model to include an idea of these outcomes
                 outcomes = self.build_docs()
-                build_id = self.build.get('id')
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
@@ -575,7 +574,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise BuildTimeoutError
 
             # Finalize build and update web servers
-            if build_id:
+            if self.build.get('id'):
                 self.update_app_instances(
                     html=bool(outcomes['html']),
                     search=bool(outcomes['search']),
