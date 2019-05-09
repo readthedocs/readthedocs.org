@@ -10,14 +10,12 @@ from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
-from readthedocs.integrations.utils import get_secret
-from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
 
 
 log = logging.getLogger(__name__)

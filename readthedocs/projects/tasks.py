@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
-
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -60,9 +60,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -388,7 +387,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 return False
 
         # Catch unhandled errors in the setup step
-        except Exception as e:  # noqa
+        except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
                 extra={
@@ -412,14 +411,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications()
+            self.send_notifications(version_pk, build_pk)
             return False
         else:
             # No exceptions in the setup step, catch unhandled errors in the
             # build steps
             try:
                 self.run_build(docker=docker, record=record)
-            except Exception as e:  # noqa
+            except Exception:
                 log.exception(
                     'An unhandled exception was raised during project build',
                     extra={
@@ -440,7 +439,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     self.build_env.update_build(BUILD_STATE_FINISHED)
 
                 # Send notifications for unhandled errors
-                self.send_notifications()
+                self.send_notifications(version_pk, build_pk)
                 return False
 
         return True
@@ -498,7 +497,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications()
+                self.send_notifications(self.version.pk, self.build['id'])
 
             return False
 
@@ -567,7 +566,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 # TODO the build object should have an idea of these states,
                 # extend the model to include an idea of these outcomes
                 outcomes = self.build_docs()
-                build_id = self.build.get('id')
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
@@ -575,7 +573,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 raise BuildTimeoutError
 
             # Finalize build and update web servers
-            if build_id:
+            if self.build.get('id'):
                 self.update_app_instances(
                     html=bool(outcomes['html']),
                     search=bool(outcomes['search']),
@@ -587,7 +585,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            self.send_notifications()
+            self.send_notifications(self.version.pk, self.build['id'])
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -921,9 +919,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self):
+    def send_notifications(self, version_pk, build_pk):
         """Send notifications on build failure."""
-        send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+        send_notifications.delay(version_pk, build_pk=build_pk)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -933,8 +931,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, doctype, hostname=None, html=False,
-        localmedia=False, search=False, pdf=False, epub=False,
+        project_pk,
+        version_pk,
+        doctype,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1217,7 +1222,7 @@ def fileify(version_pk, commit):
 
 def _update_intersphinx_data(version, path, commit):
     """
-    Update intersphinx data for this version
+    Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search

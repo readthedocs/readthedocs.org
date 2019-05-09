@@ -19,8 +19,6 @@ from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 log = logging.getLogger(__name__)
 
-SYNC_USER = settings.SYNC_USER
-
 
 def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
     """

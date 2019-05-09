@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Simple client to access our API with Slumber credentials."""
 
 import logging
@@ -13,11 +11,6 @@ from slumber import API, serialize
 
 
 log = logging.getLogger(__name__)
-
-PRODUCTION_DOMAIN = settings.PRODUCTION_DOMAIN
-API_HOST = settings.SLUMBER_API_HOST
-USER = settings.SLUMBER_USERNAME
-PASS = settings.SLUMBER_PASSWORD
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):
@@ -33,7 +26,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 def setup_api():
     session = requests.Session()
-    if API_HOST.startswith('https'):
+    if settings.SLUMBER_API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
         adapter_class = host_header_ssl.HostHeaderSSLAdapter
     else:
@@ -52,12 +45,12 @@ def setup_api():
     )
 
     session.mount(
-        API_HOST,
+        settings.SLUMBER_API_HOST,
         adapter_class(max_retries=retry),
     )
-    session.headers.update({'Host': PRODUCTION_DOMAIN})
+    session.headers.update({'Host': settings.PRODUCTION_DOMAIN})
     api_config = {
-        'base_url': '%s/api/v2/' % API_HOST,
+        'base_url': '%s/api/v2/' % settings.SLUMBER_API_HOST,
         'serializer': serialize.Serializer(
             default='json-drf',
             serializers=[
@@ -67,13 +60,13 @@ def setup_api():
         ),
         'session': session,
     }
-    if USER and PASS:
+    if settings.SLUMBER_USERNAME and settings.SLUMBER_PASSWORD:
         log.debug(
             'Using slumber v2 with user %s, pointed at %s',
-            USER,
-            API_HOST,
+            settings.SLUMBER_USERNAME,
+            settings.SLUMBER_API_HOST,
         )
-        session.auth = (USER, PASS)
+        session.auth = (settings.SLUMBER_USERNAME, settings.SLUMBER_PASSWORD)
     else:
         log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)

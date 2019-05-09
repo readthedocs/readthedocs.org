@@ -14,13 +14,12 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
-
+from django.views.static import serve as static_serve
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.views.serve import _serve_file
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.redirects.utils import (
@@ -205,7 +204,7 @@ def server_error_404_subdomain(request, template_name='404.html'):
                     project.slug,
                     slug,
                 )
-                r = _serve_file(request, filename, basepath)
+                r = static_serve(request, filename, basepath)
                 r.status_code = 404
                 return r
 

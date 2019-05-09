@@ -14,9 +14,7 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = '(Middleware) {msg} [{host}{path}]'
-SUBDOMAIN_URLCONF = settings.SUBDOMAIN_URLCONF
-SINGLE_VERSION_URLCONF = settings.SINGLE_VERSION_URLCONF
+LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
 
 
 class SubdomainMiddleware(MiddlewareMixin):
@@ -38,10 +36,9 @@ class SubdomainMiddleware(MiddlewareMixin):
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = settings.PUBLIC_DOMAIN
-        production_domain = settings.PRODUCTION_DOMAIN
 
         if public_domain is None:
-            public_domain = production_domain
+            public_domain = settings.PRODUCTION_DOMAIN
         if ':' in host:
             host = host.split(':')[0]
         domain_parts = host.split('.')
@@ -57,13 +54,15 @@ class SubdomainMiddleware(MiddlewareMixin):
                     raise Http404(_('Project not found'))
                 request.subdomain = True
                 request.slug = subdomain
-                request.urlconf = SUBDOMAIN_URLCONF
+                request.urlconf = settings.SUBDOMAIN_URLCONF
                 return None
 
         # Serve CNAMEs
         if (
-            public_domain not in host and production_domain not in host and
-            'localhost' not in host and 'testserver' not in host
+            public_domain not in host and
+            settings.PRODUCTION_DOMAIN not in host and
+            'localhost' not in host and
+            'testserver' not in host
         ):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
@@ -71,13 +70,14 @@ class SubdomainMiddleware(MiddlewareMixin):
                 for domain in domains:
                     if domain.domain == host:
                         request.slug = domain.project.slug
-                        request.urlconf = SUBDOMAIN_URLCONF
+                        request.urlconf = settings.SUBDOMAIN_URLCONF
                         request.domain_object = True
                         log.debug(
-                            LOG_TEMPLATE.format(
-                                msg='Domain Object Detected: %s' % domain.domain,
+                            LOG_TEMPLATE,
+                            dict(
+                                {'msg': 'Domain Object Detected: %s' % 'domain'},
                                 **log_kwargs
-                            ),
+                            )
                         )
                         break
             if (
@@ -85,31 +85,40 @@ class SubdomainMiddleware(MiddlewareMixin):
                 'HTTP_X_RTD_SLUG' in request.META
             ):
                 request.slug = request.META['HTTP_X_RTD_SLUG'].lower()
-                request.urlconf = SUBDOMAIN_URLCONF
+                request.urlconf = settings.SUBDOMAIN_URLCONF
                 request.rtdheader = True
                 log.debug(
-                    LOG_TEMPLATE.format(
-                        msg='X-RTD-Slug header detected: %s' % request.slug,
+                    LOG_TEMPLATE,
+                    dict(
+                        {'msg': 'X-RTD-Slug header detected: %s' % request.slug},
                         **log_kwargs
-                    ),
+                    )
                 )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
                 # Some person is CNAMEing to us without configuring a domain - 404.
-                log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                log.warning(
+                    LOG_TEMPLATE,
+                    dict({'msg': 'CNAME 404'}, **log_kwargs)
+                )
                 return render(request, 'core/dns-404.html', context={'host': host}, status=404)
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(LOG_TEMPLATE.format(
-                    msg='404ing long domain', **log_kwargs
-                ))
+                log.debug(
+                    LOG_TEMPLATE,
+                    dict({'msg': '404ing long domain'}, **log_kwargs)
+                )
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(LOG_TEMPLATE.format(
-                msg='Allowing long domain name', **log_kwargs
-            ))
+            log.debug(
+                LOG_TEMPLATE,
+                dict(
+                    {'msg': 'Allowing long domain name'},
+                    **log_kwargs
+                )
+            )
         # Normal request.
         return None
 
@@ -161,45 +170,20 @@ class SingleVersionMiddleware(MiddlewareMixin):
                 return None
 
             if getattr(proj, 'single_version', False):
-                request.urlconf = SINGLE_VERSION_URLCONF
+                request.urlconf = settings.SINGLE_VERSION_URLCONF
                 # Logging
                 host = request.get_host()
                 path = request.get_full_path()
                 log_kwargs = dict(host=host, path=path)
                 log.debug(
-                    LOG_TEMPLATE.
-                    format(msg='Handling single_version request', **log_kwargs),
+                    LOG_TEMPLATE,
+                    dict(
+                        {'msg': 'Handling single_version request'},
+                        **log_kwargs
+                    )
                 )
 
         return None
-
-
-# Forked from old Django
-class ProxyMiddleware(MiddlewareMixin):
-
-    """
-    Middleware that sets REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, if the.
-
-    latter is set. This is useful if you're sitting behind a reverse proxy that
-    causes each request's REMOTE_ADDR to be set to 127.0.0.1. Note that this
-    does NOT validate HTTP_X_FORWARDED_FOR. If you're not behind a reverse proxy
-    that sets HTTP_X_FORWARDED_FOR automatically, do not use this middleware.
-    Anybody can spoof the value of HTTP_X_FORWARDED_FOR, and because this sets
-    REMOTE_ADDR based on HTTP_X_FORWARDED_FOR, that means anybody can "fake"
-    their IP address. Only use this when you can absolutely trust the value of
-    HTTP_X_FORWARDED_FOR.
-    """
-
-    def process_request(self, request):
-        try:
-            real_ip = request.META['HTTP_X_FORWARDED_FOR']
-        except KeyError:
-            return None
-        else:
-            # HTTP_X_FORWARDED_FOR can be a comma-separated list of IPs. The
-            # client's IP will be the first one.
-            real_ip = real_ip.split(',')[0].strip()
-            request.META['REMOTE_ADDR'] = real_ip
 
 
 class FooterNoSessionMiddleware(SessionMiddleware):

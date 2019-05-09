@@ -26,6 +26,7 @@ from readthedocs.projects.constants import (
     PRIVATE,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.version_handling import determine_stable_version
 
 from .constants import (
     BRANCH,
@@ -48,8 +49,6 @@ from .utils import (
 )
 from .version_slug import VersionSlugField
 
-
-DEFAULT_VERSION_PRIVACY_LEVEL = settings.DEFAULT_VERSION_PRIVACY_LEVEL
 
 log = logging.getLogger(__name__)
 
@@ -101,7 +100,7 @@ class Version(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=PRIVACY_CHOICES,
-        default=DEFAULT_VERSION_PRIVACY_LEVEL,
+        default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
     tags = TaggableManager(blank=True)
@@ -126,6 +125,42 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def ref(self):
+        if self.slug == STABLE:
+            stable = determine_stable_version(self.project.versions.all())
+            if stable:
+                return stable.slug
+
+    @property
+    def vcs_url(self):
+        """
+        Generate VCS (github, gitlab, bitbucket) URL for this version.
+
+        Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
+        """
+        url = ''
+        if self.slug == STABLE:
+            slug_url = self.ref
+        elif self.slug == LATEST:
+            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+        else:
+            slug_url = self.slug
+
+        if ('github' in self.project.repo) or ('gitlab' in self.project.repo):
+            url = f'/tree/{slug_url}/'
+
+        if 'bitbucket' in self.project.repo:
+            slug_url = self.identifier
+            url = f'/src/{slug_url}'
+
+        # TODO: improve this replacing
+        return self.project.repo.replace('git://', 'https://').replace('.git', '') + url
+
+    @property
+    def last_build(self):
+        return self.builds.order_by('-date').first()
 
     @property
     def config(self):
