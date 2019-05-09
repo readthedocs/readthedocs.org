@@ -135,7 +135,7 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.debug('Unauthorized access to {} documentation'.format(project.slug))
+    log.debug('Unauthorized access to %s documentation', project.slug)
     return res
 
 

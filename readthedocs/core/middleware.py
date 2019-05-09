@@ -14,7 +14,7 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-LOG_TEMPLATE = '(Middleware) {msg} [{host}{path}]'
+LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
 
 
 class SubdomainMiddleware(MiddlewareMixin):
@@ -73,10 +73,11 @@ class SubdomainMiddleware(MiddlewareMixin):
                         request.urlconf = settings.SUBDOMAIN_URLCONF
                         request.domain_object = True
                         log.debug(
-                            LOG_TEMPLATE.format(
-                                msg='Domain Object Detected: %s' % domain.domain,
+                            LOG_TEMPLATE,
+                            dict(
+                                {'msg': 'Domain Object Detected: %s' % 'domain'},
                                 **log_kwargs
-                            ),
+                            )
                         )
                         break
             if (
@@ -87,28 +88,37 @@ class SubdomainMiddleware(MiddlewareMixin):
                 request.urlconf = settings.SUBDOMAIN_URLCONF
                 request.rtdheader = True
                 log.debug(
-                    LOG_TEMPLATE.format(
-                        msg='X-RTD-Slug header detected: %s' % request.slug,
+                    LOG_TEMPLATE,
+                    dict(
+                        {'msg': 'X-RTD-Slug header detected: %s' % request.slug},
                         **log_kwargs
-                    ),
+                    )
                 )
             # Try header first, then DNS
             elif not hasattr(request, 'domain_object'):
                 # Some person is CNAMEing to us without configuring a domain - 404.
-                log.warning(LOG_TEMPLATE.format(msg='CNAME 404', **log_kwargs))
+                log.warning(
+                    LOG_TEMPLATE,
+                    dict({'msg': 'CNAME 404'}, **log_kwargs)
+                )
                 return render(request, 'core/dns-404.html', context={'host': host}, status=404)
         # Google was finding crazy www.blah.readthedocs.org domains.
         # Block these explicitly after trying CNAME logic.
         if len(domain_parts) > 3 and not settings.DEBUG:
             # Stop www.fooo.readthedocs.org
             if domain_parts[0] == 'www':
-                log.debug(LOG_TEMPLATE.format(
-                    msg='404ing long domain', **log_kwargs
-                ))
+                log.debug(
+                    LOG_TEMPLATE,
+                    dict({'msg': '404ing long domain'}, **log_kwargs)
+                )
                 return HttpResponseBadRequest(_('Invalid hostname'))
-            log.debug(LOG_TEMPLATE.format(
-                msg='Allowing long domain name', **log_kwargs
-            ))
+            log.debug(
+                LOG_TEMPLATE,
+                dict(
+                    {'msg': 'Allowing long domain name'},
+                    **log_kwargs
+                )
+            )
         # Normal request.
         return None
 
@@ -166,8 +176,11 @@ class SingleVersionMiddleware(MiddlewareMixin):
                 path = request.get_full_path()
                 log_kwargs = dict(host=host, path=path)
                 log.debug(
-                    LOG_TEMPLATE.
-                    format(msg='Handling single_version request', **log_kwargs),
+                    LOG_TEMPLATE,
+                    dict(
+                        {'msg': 'Handling single_version request'},
+                        **log_kwargs
+                    )
                 )
 
         return None
