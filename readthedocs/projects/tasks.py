@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
-
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -60,9 +60,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -932,8 +931,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, doctype, hostname=None, html=False,
-        localmedia=False, search=False, pdf=False, epub=False,
+        project_pk,
+        version_pk,
+        doctype,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1216,7 +1222,7 @@ def fileify(version_pk, commit):
 
 def _update_intersphinx_data(version, path, commit):
     """
-    Update intersphinx data for this version
+    Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search

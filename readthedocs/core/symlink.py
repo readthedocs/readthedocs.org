@@ -97,11 +97,12 @@ class Symlink:
         """
         if os.path.islink(self.project_root) and not self.project.single_version:
             log.info(
-                constants.LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version='',
-                    msg='Removing single version symlink',
-                ),
+                constants.LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': '',
+                    'msg': 'Removing single version symlink',
+                }
             )
             safe_unlink(self.project_root)
             safe_makedirs(self.project_root)
@@ -159,13 +160,13 @@ class Symlink:
                 self.project.slug,
             )
             log.debug(
-                constants.LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version='',
-                    msg=log_msg,
-                ),
+                constants.LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': '',
+                    'msg': log_msg,
+                }
             )
-
             # CNAME to doc root
             symlink = os.path.join(self.CNAME_ROOT, dom)
             self.environment.run('ln', '-nsf', self.project_root, symlink)
@@ -191,11 +192,12 @@ class Symlink:
         """
         log_msg = 'Removing symlink for CNAME {}'.format(domain)
         log.debug(
-            constants.LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version='',
-                msg=log_msg
-            ),
+            constants.LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': '',
+                'msg': log_msg,
+            }
         )
         symlink = os.path.join(self.CNAME_ROOT, domain)
         safe_unlink(symlink)
@@ -226,11 +228,12 @@ class Symlink:
                     to_slug,
                 )
                 log.debug(
-                    constants.LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version='',
-                        msg=log_msg,
-                    ),
+                    constants.LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': '',
+                        'msg': log_msg,
+                    }
                 )
                 symlink = os.path.join(self.subproject_root, from_slug)
                 docs_dir = os.path.join(
@@ -280,11 +283,12 @@ class Symlink:
 
             log_msg = 'Symlinking translation: {}->{}'.format(language, slug)
             log.debug(
-                constants.LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version='',
-                    msg=log_msg,
-                ),
+                constants.LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': '',
+                    'msg': log_msg,
+                }
             )
             symlink = os.path.join(self.project_root, language)
             docs_dir = os.path.join(self.WEB_ROOT, slug, language)
@@ -349,11 +353,12 @@ class Symlink:
         for version in version_queryset:
             log_msg = 'Symlinking Version: {}'.format(version)
             log.debug(
-                constants.LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version='',
-                    msg=log_msg,
-                ),
+                constants.LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': '',
+                    'msg': log_msg,
+                }
             )
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(
