@@ -51,7 +51,7 @@ subdomain_urls = [
 groups = [subdomain_urls]
 
 # Needed to serve media locally
-if getattr(settings, 'DEBUG', False):
+if settings.DEBUG:
     groups.insert(
         0,
         static(

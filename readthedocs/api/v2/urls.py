@@ -1,18 +1,17 @@
-# -*- coding: utf-8 -*-
-
 """Define routes between URL paths and views/endpoints."""
 
 from django.conf import settings
 from django.conf.urls import include, url
 from rest_framework import routers
 
-from readthedocs.constants import pattern_opts
-from readthedocs.restapi.views import (
+from readthedocs.api.v2.views import (
     core_views,
     footer_views,
     integrations,
     task_views,
 )
+from readthedocs.constants import pattern_opts
+from readthedocs.sphinx_domains.api import SphinxDomainAPIView
 
 from .views.model_views import (
     BuildCommandViewSet,
@@ -25,7 +24,6 @@ from .views.model_views import (
     SocialAccountViewSet,
     VersionViewSet,
 )
-from readthedocs.sphinx_domains.api import SphinxDomainAPIView
 
 
 router = routers.DefaultRouter()
@@ -35,7 +33,7 @@ router.register(r'version', VersionViewSet, basename='version')
 router.register(r'project', ProjectViewSet, basename='project')
 router.register(r'notification', NotificationViewSet, basename='emailhook')
 router.register(r'domain', DomainViewSet, basename='domain')
-router.register(r'sphinx_domains', SphinxDomainAPIView, basename='sphinxdomain')
+router.register(r'sphinx_domain', SphinxDomainAPIView, basename='sphinxdomain')
 router.register(
     r'remote/org',
     RemoteOrganizationViewSet,
