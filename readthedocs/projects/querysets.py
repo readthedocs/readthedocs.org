@@ -85,7 +85,9 @@ class ProjectQuerySetBase(models.QuerySet):
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
-            Build.objects.filter(project=OuterRef('project_id')).values_list('id', flat=True)[:1]
+            Build.objects.filter(
+                project=OuterRef('project_id')
+            ).order_by('-date').values_list('id', flat=True)[:1]
         )
         latest_build = Prefetch(
             'builds',
