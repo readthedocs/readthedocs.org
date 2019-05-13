@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project model QuerySet classes."""
 
 from django.db import models
@@ -82,8 +80,14 @@ class ProjectQuerySetBase(models.QuerySet):
     def dashboard(self, user=None):
         return self.for_admin_user(user)
 
-    def api(self, user=None):
-        return self.public(user)
+    def api(self, user=None, detail=True):
+        if detail:
+            return self.public(user)
+
+        queryset = self.none()
+        if user:
+            return self._add_user_repos(queryset, user)
+        return queryset
 
 
 class ProjectQuerySet(SettingsOverrideObject):

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Sphinx_ backend for building docs.
 
@@ -10,7 +8,6 @@ import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -19,10 +16,10 @@ from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
-from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
@@ -89,7 +86,7 @@ class BaseSphinx(BaseBuilder):
         display_gitlab = gitlab_user is not None
 
         # Avoid hitting database and API if using Docker build environment
-        if getattr(settings, 'DONT_HIT_API', False):
+        if settings.DONT_HIT_API:
             versions = self.project.active_versions()
             downloads = self.version.get_downloads(pretty=True)
         else:
@@ -104,11 +101,7 @@ class BaseSphinx(BaseBuilder):
             'version': self.version,
             'settings': settings,
             'conf_py_path': conf_py_path,
-            'api_host': getattr(
-                settings,
-                'PUBLIC_API_URL',
-                'https://readthedocs.org',
-            ),
+            'api_host': settings.PUBLIC_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
@@ -168,9 +161,7 @@ class BaseSphinx(BaseBuilder):
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except IOError:
-            raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND
-            )
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         # Create an index file if there is None.
         self.create_index(extension='rst')
