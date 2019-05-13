@@ -71,7 +71,7 @@ django-gravatar2==1.4.2
 pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
-mock==3.0.4
+mock==3.0.5
 stripe==2.27.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
