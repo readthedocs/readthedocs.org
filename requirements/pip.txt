@@ -27,7 +27,7 @@ requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.1
-Pygments==2.3.1
+Pygments==2.4.0
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
