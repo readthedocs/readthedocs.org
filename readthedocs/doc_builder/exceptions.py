@@ -73,5 +73,5 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
     )
     NOT_FOUND = ugettext_noop(
         'A configuration file was not found. '
-        'Make sure you have a `mkdocs.yaml` file in your repository.',
+        'Make sure you have a "mkdocs.yaml" file in your repository.',
     )
