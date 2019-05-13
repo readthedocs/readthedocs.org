@@ -98,7 +98,10 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        with pytest.raises(ProjectConfigurationError):
+        with pytest.raises(
+                ProjectConfigurationError,
+                match=ProjectConfigurationError.NOT_FOUND
+        ):
             base_sphinx.append_conf()
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
@@ -268,8 +271,10 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-
-        with self.assertRaises(MkDocsYAMLParseError):
+        with pytest.raises(
+                MkDocsYAMLParseError,
+                match=MkDocsYAMLParseError.NOT_FOUND
+        ):
             self.searchbuilder.append_conf()
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
