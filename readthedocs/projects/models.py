@@ -504,23 +504,29 @@ class Project(models.Model):
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
 
-    def get_storage_path(self, type_, version_slug=LATEST):
+    def get_storage_path(self, type_, version_slug=LATEST, include_file=True):
         """
         Get a path to a build artifact for use with Django's storage system.
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
+        :param include_file: Include file name in return
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
-        extension = type_.replace('htmlzip', 'zip')
-        return '{}/{}/{}/{}.{}'.format(
+        folder_path = '{}/{}/{}'.format(
             type_,
             self.slug,
             version_slug,
-            self.slug,
-            extension,
         )
+        if include_file:
+            extension = type_.replace('htmlzip', 'zip')
+            return '{}/{}.{}'.format(
+                folder_path,
+                self.slug,
+                extension,
+            )
+        return folder_path
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -726,6 +732,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
+        # Check if there is `_good_build` annotation in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_good_build'):
+            return self._good_build
         return self.builds.filter(success=True).exists()
 
     @property
@@ -845,6 +855,13 @@ class Project(models.Model):
 
         :param finished: Return only builds that are in a finished state
         """
+        # Check if there is `_latest_build` attribute in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_latest_build'):
+            if self._latest_build:
+                return self._latest_build[0]
+            return None
+
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'
