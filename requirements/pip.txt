@@ -7,7 +7,7 @@ django==1.11.20  # pyup: <1.12
 django-guardian==1.5.1
 django-extensions==2.1.6
 
-djangorestframework==3.9.3
+djangorestframework==3.9.4
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
