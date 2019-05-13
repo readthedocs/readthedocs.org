@@ -110,6 +110,14 @@ def map_project_slug(view_func):
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
     urlparse_result = urlparse(request.get_full_path())
+
+    # When accessing docs.customdomain.org/projects/subproject/ and the
+    # ``subproject`` is a single-version, we don't have to redirect but to serve
+    # the index file instead.
+    if subproject and subproject.single_version:
+        # TODO: find a way to import ``serve_docs`` from corporate
+        return serve_docs(request, project, project.slug, subproject, subproject.slug)
+
     return HttpResponseRedirect(
         resolve(
             subproject or project,

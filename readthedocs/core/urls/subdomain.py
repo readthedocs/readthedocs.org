@@ -46,6 +46,18 @@ subdomain_urls = [
         serve_docs,
         name='docs_detail',
     ),
+
+    # Special case for single-version subprojects
+    # docs.customdomain.org/projects/subproject/_static/readthedocs-data.js
+    # docs.customdomain.org/projects/subproject/chapter/section/page.html
+    url(
+        (
+            r'^projects/(?P<subproject_slug>{project_slug})/'
+            r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
+        ),
+        serve_docs,
+        name='docs_detail_singleversion_subproject',
+    ),
 ]
 
 groups = [subdomain_urls]
