@@ -1428,7 +1428,7 @@ def clean_build_task(version_id):
         return
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'artifacts', 'envs', 'conda')
     ]
     try:
         with version.project.repo_nonblockinglock(version):
