@@ -401,7 +401,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-            if self.setup_env is not None:
+            # We should check first for build_env.
+            # If isn't None, it means that something got wrong
+            # in the second step (`self.run_build`)
+            if self.build_env is not None:
+                self.build_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    ),
+                )
+                self.build_env.update_build(BUILD_STATE_FINISHED)
+            elif self.setup_env is not None:
                 self.setup_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
