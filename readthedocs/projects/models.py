@@ -1360,6 +1360,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     USE_PDF_LATEXMK = 'use_pdf_latexmk'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    CLEAN_AFTER_BUILD = 'clean_after_build'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1395,7 +1396,11 @@ class Feature(models.Model):
         ),
         (
             DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default')
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (
+            CLEAN_AFTER_BUILD,
+            _('Clean all files used in the build process'),
         ),
     )
 

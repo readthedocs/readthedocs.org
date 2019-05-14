@@ -60,7 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import APIProject
+from readthedocs.projects.models import APIProject, Feature
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
@@ -1417,17 +1417,26 @@ def _update_intersphinx_data(version, path, commit):
     delete_queryset.delete()
 
 
-@app.task(max_retries=5, default_retry_delay=7 * 60)
+@app.task(max_retries=3, default_retry_delay=7 * 60)
 def clean_build_task(version_id):
     """Clean the files used in the build of the given version."""
     version = Version.objects.get_object_or_log(pk=version_id)
-    if not version:
+    if (
+        not version or
+        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+    ):
         return
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'envs', 'conda')
     ]
-    remove_dirs(del_dirs)
+    # TODO: the max_lock_age can be lower than the default
+    try:
+        with version.project.repo_nonblockinglock(version):
+            log.info('Removing: %s', del_dirs)
+            remove_dirs(del_dirs)
+    except vcs_support_utils.LockTimeout:
+        log.info('Another task is running. Not removing: %s', del_dirs)
 
 
 def _manage_imported_files(version, path, commit):
