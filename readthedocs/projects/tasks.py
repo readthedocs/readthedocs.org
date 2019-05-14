@@ -374,18 +374,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             if docker is None:
                 docker = settings.DOCKER_ENABLE
-
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
             self.build_force = force
             self.config = None
 
+            # Build process starts here
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-
-        # Catch unhandled errors in the setup step
+            self.run_build(docker=docker, record=record)
+            return True
         except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
@@ -412,36 +412,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Send notifications for unhandled errors
             self.send_notifications(version_pk, build_pk)
             return False
-        else:
-            # No exceptions in the setup step, catch unhandled errors in the
-            # build steps
-            try:
-                self.run_build(docker=docker, record=record)
-            except Exception:
-                log.exception(
-                    'An unhandled exception was raised during project build',
-                    extra={
-                        'stack': True,
-                        'tags': {
-                            'build': build_pk,
-                            'project': self.project.slug,
-                            'version': self.version.slug,
-                        },
-                    },
-                )
-                if self.build_env is not None:
-                    self.build_env.failure = BuildEnvironmentError(
-                        BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                            build_id=build_pk,
-                        ),
-                    )
-                    self.build_env.update_build(BUILD_STATE_FINISHED)
-
-                # Send notifications for unhandled errors
-                self.send_notifications(version_pk, build_pk)
-                return False
-
-        return True
 
     def run_setup(self, record=True):
         """
