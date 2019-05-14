@@ -404,7 +404,7 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+        with patch('readthedocs.projects.models.broadcast') as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())

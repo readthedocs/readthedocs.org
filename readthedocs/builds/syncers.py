@@ -10,14 +10,12 @@ import os
 import shutil
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 
 from readthedocs.core.utils import safe_makedirs
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 log = logging.getLogger(__name__)
-storage = get_storage_class()()
 
 
 class BaseSyncer:
