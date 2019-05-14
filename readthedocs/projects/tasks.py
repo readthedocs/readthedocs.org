@@ -1430,7 +1430,6 @@ def clean_build_task(version_id):
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'envs', 'conda')
     ]
-    # TODO: the max_lock_age can be lower than the default
     try:
         with version.project.repo_nonblockinglock(version):
             log.info('Removing: %s', del_dirs)
