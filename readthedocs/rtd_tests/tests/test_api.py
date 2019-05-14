@@ -873,8 +873,12 @@ class IntegrationsTests(TestCase):
             [mock.call(force=True, version=self.version_tag, project=self.project)],
         )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
-    def test_github_create_event(self, sync_repository_task, trigger_build):
+    @mock.patch('readthedocs.core.views.hooks.chain')
+    def test_github_create_event(
+            self, chain, sync_repository_task, clean_build_task, trigger_build
+    ):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
@@ -890,10 +894,23 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
-    def test_github_delete_event(self, sync_repository_task, trigger_build):
+    @mock.patch('readthedocs.core.views.hooks.chain')
+    def test_github_delete_event(
+            self, chain, sync_repository_task, clean_build_task, trigger_build
+    ):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_DELETE}
@@ -909,7 +926,16 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
@@ -1097,9 +1123,11 @@ class IntegrationsTests(TestCase):
         )
         trigger_build.assert_not_called()
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_gitlab_push_hook_creation(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.gitlab_payload.update(
@@ -1117,11 +1145,22 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_gitlab_push_hook_deletion(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.gitlab_payload.update(
@@ -1139,11 +1178,22 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_gitlab_tag_push_hook_creation(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.gitlab_payload.update(
@@ -1162,11 +1212,22 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_gitlab_tag_push_hook_deletion(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.gitlab_payload.update(
@@ -1185,7 +1246,16 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
@@ -1335,9 +1405,11 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(trigger_build_call_count, trigger_build.call_count)
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_bitbucket_push_hook_creation(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.bitbucket_payload['push']['changes'][0]['old'] = None
@@ -1352,11 +1424,22 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
+    @mock.patch('readthedocs.core.views.hooks.clean_build_task')
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    @mock.patch('readthedocs.core.views.hooks.chain')
     def test_bitbucket_push_hook_deletion(
-            self, sync_repository_task, trigger_build,
+            self, chain, sync_repository_task, clean_build_task, trigger_build,
     ):
         client = APIClient()
         self.bitbucket_payload['push']['changes'][0]['new'] = None
@@ -1371,7 +1454,16 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        chain.assert_called_with(
+            sync_repository_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+            clean_build_task.signature(
+                args=(latest_version.pk,),
+                immutable=True,
+            ),
+        )
 
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
