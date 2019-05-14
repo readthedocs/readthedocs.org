@@ -22,3 +22,4 @@ class Command(BaseCommand):
             for slug in args:
                 version = utils.version_from_slug(slug, LATEST)
                 tasks.sync_repository_task(version.pk)
+                tasks.clean_build_task(version.pk)

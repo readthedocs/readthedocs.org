@@ -77,6 +77,7 @@ class Command(BaseCommand):
                             build_pk=build.pk,
                             version_pk=version.pk,
                         )
+                        tasks.clean_build_task(version.pk)
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building %s', p)
@@ -94,6 +95,7 @@ class Command(BaseCommand):
                         force=force,
                         version_pk=version.pk,
                     )
+                    tasks.clean_build_task(version.pk)
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
@@ -102,3 +104,7 @@ class Command(BaseCommand):
                         project.pk,
                         force=force,
                     )
+                    version = project.versions.get(
+                        slug=project.get_default_version()
+                    )
+                    tasks.clean_build_task(version.pk)
