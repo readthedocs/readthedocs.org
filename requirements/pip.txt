@@ -7,7 +7,7 @@ django==1.11.20  # pyup: <1.12
 django-guardian==1.5.1
 django-extensions==2.1.6
 
-djangorestframework==3.9.3
+djangorestframework==3.9.4
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -18,7 +18,7 @@ Sphinx==1.8.5  # pyup: <2.0.0
 django-filter==2.1.0
 
 drf-flex-fields==0.5.0
-drf-extensions==0.4.0
+drf-extensions==0.5.0
 
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
@@ -27,7 +27,7 @@ requests==2.21.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.1
-Pygments==2.3.1
+Pygments==2.4.0
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -71,7 +71,7 @@ django-gravatar2==1.4.2
 pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
-mock==3.0.4
+mock==3.0.5
 stripe==2.27.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
