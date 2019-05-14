@@ -24,7 +24,7 @@ projects = router.register(
 subprojects = projects.register(
     r'subprojects',
     SubprojectRelationshipViewSet,
-    base_name='projects-subprojects',
+    basename='projects-subprojects',
     parents_query_lookups=['superprojects__parent__slug'],
 )
 
@@ -32,7 +32,7 @@ subprojects = projects.register(
 translations = projects.register(
     r'translations',
     TranslationRelationshipViewSet,
-    base_name='projects-translations',
+    basename='projects-translations',
     parents_query_lookups=['main_language_project__slug'],
 )
 
@@ -41,7 +41,7 @@ translations = projects.register(
 versions = projects.register(
     r'versions',
     VersionsViewSet,
-    base_name='projects-versions',
+    basename='projects-versions',
     parents_query_lookups=['project__slug'],
 )
 
@@ -50,7 +50,7 @@ versions = projects.register(
 versions.register(
     r'builds',
     BuildsCreateViewSet,
-    base_name='projects-versions-builds',
+    basename='projects-versions-builds',
     parents_query_lookups=[
         'project__slug',
         'version__slug',
@@ -62,7 +62,7 @@ versions.register(
 projects.register(
     r'builds',
     BuildsViewSet,
-    base_name='projects-builds',
+    basename='projects-builds',
     parents_query_lookups=['project__slug'],
 )
 
