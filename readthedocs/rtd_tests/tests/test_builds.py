@@ -220,7 +220,7 @@ class BuildEnvironmentTests(TestCase):
         returns = [
             ((b'', b''), 0),  # sphinx-build html
             ((b'', b''), 0),  # sphinx-build pdf
-            ((b'1.5', b''), 0),  # sphinx version check
+            ((b'', b''), 1),  # sphinx version check
             ((b'', b''), 1),  # latex
             ((b'', b''), 0),  # makeindex
             ((b'', b''), 0),  # latex
@@ -272,7 +272,7 @@ class BuildEnvironmentTests(TestCase):
         returns = [
             ((b'', b''), 0),  # sphinx-build html
             ((b'', b''), 0),  # sphinx-build pdf
-            ((b'1.6', b''), 0),  # sphinx version check
+            ((b'', b''), 1),  # sphinx version check
             ((b'Output written on foo.pdf', b''), 1),  # latex
             ((b'', b''), 0),  # makeindex
             ((b'', b''), 0),  # latex
