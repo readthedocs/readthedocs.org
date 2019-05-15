@@ -770,9 +770,9 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    def has_pdf(self, version_slug=LATEST):
+    def has_media(self, type_, version_slug=LATEST):
         path = self.get_production_media_path(
-            type_='pdf', version_slug=version_slug
+            type_=type_, version_slug=version_slug
         )
         if os.path.exists(path):
             return True
@@ -780,43 +780,20 @@ class Project(models.Model):
         if settings.RTD_BUILD_MEDIA_STORAGE:
             storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
             storage_path = self.get_storage_path(
-                type_='pdf', version_slug=version_slug
+                type_=type_, version_slug=version_slug
             )
             return storage.exists(storage_path)
 
         return False
+
+    def has_pdf(self, version_slug=LATEST):
+        return self.has_media('pdf', version_slug=version_slug)
 
     def has_epub(self, version_slug=LATEST):
-        path = self.get_production_media_path(
-            type_='epub', version_slug=version_slug
-        )
-        if os.path.exists(path):
-            return True
-
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = self.get_storage_path(
-                type_='epub', version_slug=version_slug
-            )
-            return storage.exists(storage_path)
-
-        return False
+        return self.has_media('epub', version_slug=version_slug)
 
     def has_htmlzip(self, version_slug=LATEST):
-        path = self.get_production_media_path(
-            type_='htmlzip', version_slug=version_slug
-        )
-        if os.path.exists(path):
-            return True
-
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = self.get_storage_path(
-                type_='htmlzip', version_slug=version_slug
-            )
-            return storage.exists(storage_path)
-
-        return False
+        return self.has_media('htmlzip', version_slug=version_slug)
 
     @property
     def sponsored(self):
