@@ -1680,7 +1680,7 @@ def remove_dirs(paths):
         shutil.rmtree(path, ignore_errors=True)
 
 
-@app.task()
+@app.task(queue='web')
 def remove_build_storage_paths(paths):
     """
     Remove artifacts from build media storage (cloud or local storage)
