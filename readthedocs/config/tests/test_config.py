@@ -953,8 +953,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [2, 2.7, 3, 3.6, 3.7, 'pypy3.5']),
-            ('stable', [2, 2.7, 3, 3.6, 3.7]),
+            ('latest', [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']),
+            ('stable', [2, 2.7, 3, 3.5, 3.6, 3.7]),
         ],
     )
     def test_python_version(self, image, versions):
