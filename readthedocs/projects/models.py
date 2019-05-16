@@ -42,7 +42,12 @@ from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-from .constants import MEDIA_TYPES
+from .constants import (
+    MEDIA_TYPES,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+)
 
 
 log = logging.getLogger(__name__)
@@ -787,13 +792,13 @@ class Project(models.Model):
         return False
 
     def has_pdf(self, version_slug=LATEST):
-        return self.has_media('pdf', version_slug=version_slug)
+        return self.has_media(MEDIA_TYPE_PDF, version_slug=version_slug)
 
     def has_epub(self, version_slug=LATEST):
-        return self.has_media('epub', version_slug=version_slug)
+        return self.has_media(MEDIA_TYPE_EPUB, version_slug=version_slug)
 
     def has_htmlzip(self, version_slug=LATEST):
-        return self.has_media('htmlzip', version_slug=version_slug)
+        return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
 
     @property
     def sponsored(self):
