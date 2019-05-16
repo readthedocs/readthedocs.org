@@ -259,7 +259,7 @@ class BaseSphinx(BaseBuilder):
             shell=True,  # used on BuildCommand
             record=False,
         )
-        return True if cmd_ret.exit_code == 0 else False
+        return cmd_ret.exit_code == 0
 
 
 class HtmlBuilder(BaseSphinx):
