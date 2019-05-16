@@ -146,9 +146,6 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
-            'use_pdf_latexmk': self.project.has_feature(
-                Feature.USE_PDF_LATEXMK,
-            ),
         }
 
         finalize_sphinx_context_data.send(
@@ -226,6 +223,38 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
+
+    def venv_sphinx_supports_latexmk(self):
+        """
+        Check if ``sphinx`` from the user's venv supports ``latexmk``.
+
+        If the version of ``sphinx`` is greater or equal to 1.6.1 it returns
+        ``True`` and ``False`` otherwise.
+
+        See: https://www.sphinx-doc.org/en/master/changes.html#release-1-6-1-released-may-16-2017
+        """
+
+        command = [
+            self.python_env.venv_bin(filename='python'),
+            '-c',
+            (
+                '"'
+                'import sys; '
+                'import sphinx; '
+                'sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)'
+                '"'
+            ),
+        ]
+
+        cmd_ret = self.run(
+            *command,
+            bin_path=self.python_env.venv_bin(),
+            cwd=self.project.checkout_path(self.version.slug),
+            escape_command=False,  # used on DockerBuildCommand
+            shell=True,  # used on BuildCommand
+            record=False,
+        )
+        return cmd_ret.exit_code == 0
 
 
 class HtmlBuilder(BaseSphinx):
@@ -390,7 +419,9 @@ class PdfBuilder(BaseSphinx):
             raise BuildEnvironmentError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
-        if self.project.has_feature(Feature.USE_PDF_LATEXMK):
+        # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
+        # to ``pdflatex`` to support old versions
+        if self.venv_sphinx_supports_latexmk():
             return self._build_latexmk(cwd, latex_cwd)
 
         return self._build_pdflatex(tex_files, latex_cwd)

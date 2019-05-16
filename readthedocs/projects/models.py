@@ -1358,12 +1358,10 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    USE_PDF_LATEXMK = 'use_pdf_latexmk'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),
