@@ -83,6 +83,7 @@ DOCKER_VERSION
 
     Default: :djangosetting:`DOCKER_VERSION`
 
+
 Local development
 -----------------
 
@@ -93,12 +94,7 @@ case, it's necessary to make a new image that overrides this user::
     cd contrib/
     ./docker_build.sh
 
-You can also specify a specific image version to use::
+This will create a new image, ``readthedocs/build:latest-dev``,
+which you can re-tag as ``latest`` to make Read the Docs use this image instead::
 
-    cd contrib/
-    ./docker_build.sh 4.0rc1
-
-This will create a new image, ``readthedocs/build:dev``, which you can specify
-as the default image in local settings overrides::
-
-    DOCKER_IMAGE = 'readthedocs/build:dev'
+  docker tag readthedocs/build:latest-dev readthedocs/build:latest
