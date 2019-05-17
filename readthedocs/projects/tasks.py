@@ -133,28 +133,27 @@ class SyncRepositoryMixin:
                 ),
             )
 
-        with self.project.repo_nonblockinglock(version=self.version):
-            # Get the actual code on disk
-            try:
-                before_vcs.send(sender=self.version)
-                msg = 'Checking out version {slug}: {identifier}'.format(
-                    slug=self.version.slug,
-                    identifier=self.version.identifier,
-                )
-                log.info(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': msg,
-                    }
-                )
-                version_repo = self.get_vcs_repo()
-                version_repo.update()
-                self.sync_versions(version_repo)
-                version_repo.checkout(self.version.identifier)
-            finally:
-                after_vcs.send(sender=self.version)
+        # Get the actual code on disk
+        try:
+            before_vcs.send(sender=self.version)
+            msg = 'Checking out version {slug}: {identifier}'.format(
+                slug=self.version.slug,
+                identifier=self.version.identifier,
+            )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            version_repo = self.get_vcs_repo()
+            version_repo.update()
+            self.sync_versions(version_repo)
+            version_repo.checkout(self.version.identifier)
+        finally:
+            after_vcs.send(sender=self.version)
 
     def sync_versions(self, version_repo):
         """
@@ -242,7 +241,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk=version_pk)
             self.project = self.version.project
-            self.sync_repo()
+            with self.project.repo_nonblockinglock(version=self.version):
+                self.sync_repo()
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -462,7 +462,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if self.project.skip:
                 raise ProjectBuildsSkippedError
             try:
-                self.setup_vcs()
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
@@ -648,14 +649,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.warning('There was an error with the repository', exc_info=True)
             # Re raise the exception to stop the build at this point
             raise
-        except vcs_support_utils.LockTimeout:
-            log.info(
-                'Lock still active: project=%s version=%s',
-                self.project.slug,
-                self.version.slug,
-            )
-            # Raise the proper exception (won't be sent to Sentry)
-            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
