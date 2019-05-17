@@ -35,9 +35,17 @@ option.
 After this image is downloaded, you can update your settings to use the new
 image -- see `Configuration`_.
 
+.. warning::
+
+   There is a known bug when using our Docker images on Linux to build project's documentation that uses Conda.
+   In case you need to work locally with projects that need Conda to build,
+   you will need to re-build our Docker image to adjust some filesystem user persmissions.
+   See our `current work in progress guide`_ for more information.
+
 .. _`Docker`: http://docker.com
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
 .. _`container image repo`: https://github.com/rtfd/readthedocs-docker-images
+.. _`current work in progress guide`: https://github.com/rtfd/readthedocs.org/pull/4608
 
 Configuration
 -------------
