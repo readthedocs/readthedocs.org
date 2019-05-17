@@ -152,7 +152,7 @@ Result
 .. code::
 
   {
-    "took" : 131,
+    "took" : 102,
     "timed_out" : false,
     "_shards" : {
       "total" : 5,
@@ -162,19 +162,19 @@ Result
     },
     "hits" : {
       "total" : 29,
-      "max_score" : 9.276031,
+      "max_score" : 9.070337,
       "hits" : [
         {
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "574",
-          "_score" : 9.276031,
+          "_score" : 9.070337,
           "_source" : {
             "title" : "http.cookiejar"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """to a <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> host if its request- host U <em class="hlt1">do</em>es not <em class="hlt1">do</em>main-match the reach R <em class="hlt1">of</em> the request-host O"""
+              """to a <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> host if its request- host U does not domain-match the reach R <em class="hlt1">o</em>f the request-host <em class="hlt1">O</em>"""
             ]
           }
         },
@@ -182,13 +182,13 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "578",
-          "_score" : 7.7096343,
+          "_score" : 7.4713364,
           "_source" : {
             "title" : "requests.utils"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """<em class="hlt1">pat</em>h, no need to <em class="hlt1">do</em> anything further return <em class="hlt1">pat</em>h # find the first valid <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the provided <em class="hlt1">pat</em>h and"""
+              """, <em class="hlt1">o</em>r else just return the provided <em class="hlt1">pat</em>h unchanged. """ if <em class="hlt1">o</em>s.<em class="hlt1">pat</em>h.exists(<em class="hlt1">pat</em>h): # <em class="hlt1">thi</em><em class="hlt1">s</em> is already a valid"""
             ]
           }
         },
@@ -196,13 +196,13 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "548",
-          "_score" : 6.7345414,
+          "_score" : 6.5239396,
           "_source" : {
             "title" : "Advanced Usage"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """<em class="hlt1">Par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the reason <em class="hlt1">thi</em><em class="hlt1">s</em> was <em class="hlt1">do</em>ne was to implement Transport Adapters, originally described here."""
+              """<em class="hlt1">Thi</em><em class="hlt1">s</em> is an <em class="hlt1">o</em>ptional feature that requires that additional <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> libraries be installed before use"""
             ]
           }
         },
@@ -210,31 +210,27 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "509",
-          "_score" : 6.1174235,
+          "_score" : 5.9043593,
           "_source" : {
             "title" : "Requests: HTTP for Humans™"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """
-  Authentication
-  The Community Guide
-  <em class="hlt1">Thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the <em class="hlt1">do</em>cumentation, which is mostly prose, details the
-  """
+              """a specific function, class, <em class="hlt1">o</em>r method, <em class="hlt1">thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">o</em>f the documentation is for you."""
             ]
           }
         },
         {
           "_index" : "test-edge-ngram",
           "_type" : "doc",
-          "_id" : "582",
-          "_score" : 6.084148,
+          "_id" : "583",
+          "_score" : 5.8317156,
           "_source" : {
-            "title" : "requests.models"
+            "title" : "requests.sessions"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """:<em class="hlt1">par</em><em class="hlt1">a</em>m cookies: dictionary or CookieJar <em class="hlt1">of</em> cookies to attach to <em class="hlt1">thi</em><em class="hlt1">s</em> request."""
+              """cookies set <em class="hlt1">o</em>n <em class="hlt1">thi</em><em class="hlt1">s</em> #: session."""
             ]
           }
         }
@@ -247,7 +243,7 @@ Conclusion
 ~~~~~~~~~~
 
 After experimenting with many different sample queries,
-it can be said that edge-ngrams are very effective when it comes to ``search as you type`` feature.
+it can be said that edge-ngrams are effective when it comes to ``search as you type`` feature.
 
 It comes with its own set of pros and cons which are described below:
 
@@ -265,6 +261,7 @@ It comes with its own set of pros and cons which are described below:
     are almost entirely useless.
   * Different tokenizers are to be used when indexing/reindexing and when searching,
     but it can be specified at the indexing time.
+  * Some results are not very good and lead to bad user experience.
 
 
 2. Completion Suggester
