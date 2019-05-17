@@ -36,8 +36,9 @@ and make use of `multi-fields`_ feature of Elasticsearch.
 Sample Mapping
 ~~~~~~~~~~~~~~
 
-.. code:: json
+.. code::
 
+  PUT test-edge-ngram
   {
     "settings": {
       "analysis": {
@@ -55,8 +56,8 @@ Sample Mapping
         "tokenizer": {
           "autocomplete": {
             "type": "edge_ngram",
-            "min_gram": 2,
-            "max_gram": 10,
+            "min_gram": 1,
+            "max_gram": 30,
             "token_chars": [
               "letter"
             ]
@@ -64,61 +65,36 @@ Sample Mapping
         }
       }
     },
-    "map_test" : {
-      "mappings" : {
-        "doc" : {
-          "properties" : {
-            "commit" : {
-              "type" : "text",
-              "fields" : {
-                "keyword" : {
-                  "type" : "keyword",
-                  "ignore_above" : 256
-                }
-              }
-            },
-            "content" : {
-              "type" : "text",
-              "analyzer" : "autocomplete",
-              "search_analyzer" : "autocomplete_search"
-            },
-            "headers" : {
-              "type" : "text",
-              "analyzer" : "autocomplete",
-              "search_analyzer" : "autocomplete_search"
-            },
-            "path" : {
-              "type" : "text",
-              "fields" : {
-                "keyword" : {
-                  "type" : "keyword",
-                  "ignore_above" : 256
-                }
-              }
-            },
-            "project" : {
-              "type" : "text",
-              "fields" : {
-                "keyword" : {
-                  "type" : "keyword",
-                  "ignore_above" : 256
-                }
-              }
-            },
-            "title" : {
-              "type" : "text",
-              "analyzer" : "autocomplete",
-              "search_analyzer" : "autocomplete_search"
-            },
-            "version" : {
-              "type" : "text",
-              "fields" : {
-                "keyword" : {
-                  "type" : "keyword",
-                  "ignore_above" : 256
-                }
+    "mappings": {
+      "doc": {
+        "properties": {
+          "content": {
+            "type": "text",
+            "fields": {
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete",
+                "search_analyzer": "autocomplete_search"
               }
             }
+          },
+          "headers": {
+            "type": "text"
+          },
+          "title": {
+            "type": "text"
+          },
+          "commit": {
+            "type": "text"
+          },
+          "path": {
+            "type": "text"
+          },
+          "project": {
+            "type": "keyword"
+          },
+          "version": {
+            "type": "keyword"
           }
         }
       }
@@ -129,8 +105,9 @@ Sample Mapping
 Sample Query
 ~~~~~~~~~~~~
 
-.. code:: json
+.. code::
 
+  GET test-edge-ngram/_search
   {
     "size": 5,
     "_source": [
@@ -140,9 +117,9 @@ Sample Query
       "bool": {
         "must": {
           "multi_match": {
-            "query": "requests",
+            "query": "this part of docu",
             "fields": [
-              "content"
+              "content.autocomplete"
             ],
             "type": "best_fields"
           }
@@ -150,8 +127,8 @@ Sample Query
         "filter": {
           "bool": {
             "must": [
-              { "term": { "project.keyword": "requests-test" } },
-              { "term": { "version.keyword": "latest" } }
+              { "term": { "project": "requests-test" } },
+              { "term": { "version": "latest" } }
             ]
           }
         }
@@ -162,7 +139,7 @@ Sample Query
       "tags_schema" : "styled",
       "fragment_size": 100,
       "fields": {
-        "content": {}
+        "content.autocomplete": {}
       }
     }
   }
@@ -174,7 +151,7 @@ Result
 .. code::
 
   {
-    "took" : 268,
+    "took" : 28,
     "timed_out" : false,
     "_shards" : {
       "total" : 5,
@@ -184,85 +161,84 @@ Result
     },
     "hits" : {
       "total" : 29,
-      "max_score" : 2.5039907,
+      "max_score" : 2.935819,
       "hits" : [
         {
-          "_index" : "map_test",
-          "_type" : "doc",
-          "_id" : "575",
-          "_score" : 2.5039907,
-          "_source" : {
-            "title" : "requests.api"
-          },
-          "highlight" : {
-            "content" : [
-              """the <em class="hlt1">Requests</em> API."""
-            ]
-          }
-        },
-        {
-          "_index" : "map_test",
+          "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "591",
-          "_score" : 2.5024748,
+          "_score" : 2.935819,
           "_source" : {
             "title" : "Frequently Asked Questions"
           },
           "highlight" : {
-            "content" : [
+            "content.autocomplete" : [
               """
   Frequently Asked Questions
-  This part of the documentation answers common questions about <em class="hlt1">Requests</em>.
+  <em class="hlt1">This</em> <em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation answers common questions about Requests.
   """
             ]
           }
         },
         {
-          "_index" : "map_test",
+          "_index" : "test-edge-ngram",
           "_type" : "doc",
-          "_id" : "590",
-          "_score" : 2.4801605,
+          "_id" : "509",
+          "_score" : 2.7667096,
           "_source" : {
-            "title" : "Support"
+            "title" : "Requests: HTTP for Humans™"
           },
           "highlight" : {
-            "content" : [
+            "content.autocomplete" : [
+              """<em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation is for you."""
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "546",
+          "_score" : 2.4082716,
+          "_source" : {
+            "title" : "Installation of Requests"
+          },
+          "highlight" : {
+            "content.autocomplete" : [
               """
-  IRC
-  The official Freenode channel for <em class="hlt1">Requests</em> is #python-<em class="hlt1">requests</em>
-  The core developers of <em class="hlt1">requests</em> are
+  Installation <em class="hlt1">of</em> Requests
+  <em class="hlt1">This</em> <em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation covers the installation <em class="hlt1">of</em> Requests.
   """
             ]
           }
         },
         {
-          "_index" : "map_test",
+          "_index" : "test-edge-ngram",
           "_type" : "doc",
-          "_id" : "588",
-          "_score" : 2.4246087,
+          "_id" : "548",
+          "_score" : 2.0368419,
           "_source" : {
-            "title" : "Release Process and Rules"
+            "title" : "Advanced Usage"
           },
           "highlight" : {
-            "content" : [
-              """The core developers of <em class="hlt1">Requests</em> are committed to providing a good user experience."""
-            ]
-          }
-        },
-        {
-          "_index" : "map_test",
-          "_type" : "doc",
-          "_id" : "547",
-          "_score" : 2.3895812,
-          "_source" : {
-            "title" : "Authentication"
-          },
-          "highlight" : {
-            "content" : [
+            "content.autocomplete" : [
               """
-  The <em class="hlt1">requests</em>-oauthlib library allows <em class="hlt1">Requests</em> users to easily make OAuth 1 authenticated <em class="hlt1">requests</em>:
-  >>
+  Advanced Usage
+  <em class="hlt1">This</em> <em class="hlt1">docu</em>ment covers some <em class="hlt1">of</em> Requests more advanced features.
   """
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "578",
+          "_score" : 1.9563103,
+          "_source" : {
+            "title" : "requests.utils"
+          },
+          "highlight" : {
+            "content.autocomplete" : [
+              """[i] = c + <em class="hlt1">part</em>s[i][2:] else: <em class="hlt1">part</em>s[i] = '%' + <em class="hlt1">part</em>s[i] else: <em class="hlt1">part</em>s[i] = '%' + <em class="hlt1">part</em>s[i] return ''.join"""
             ]
           }
         }
