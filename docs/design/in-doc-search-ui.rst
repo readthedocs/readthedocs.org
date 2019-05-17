@@ -117,11 +117,12 @@ Sample Query
       "bool": {
         "must": {
           "multi_match": {
-            "query": "this part of docu",
+            "query": "this part of do",
             "fields": [
               "content.autocomplete"
             ],
-            "type": "best_fields"
+            "type": "best_fields",
+            "fuzziness": "AUTO"
           }
         },
         "filter": {
@@ -151,7 +152,7 @@ Result
 .. code::
 
   {
-    "took" : 28,
+    "took" : 131,
     "timed_out" : false,
     "_shards" : {
       "total" : 5,
@@ -161,70 +162,19 @@ Result
     },
     "hits" : {
       "total" : 29,
-      "max_score" : 2.935819,
+      "max_score" : 9.276031,
       "hits" : [
         {
           "_index" : "test-edge-ngram",
           "_type" : "doc",
-          "_id" : "591",
-          "_score" : 2.935819,
+          "_id" : "574",
+          "_score" : 9.276031,
           "_source" : {
-            "title" : "Frequently Asked Questions"
+            "title" : "http.cookiejar"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """
-  Frequently Asked Questions
-  <em class="hlt1">This</em> <em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation answers common questions about Requests.
-  """
-            ]
-          }
-        },
-        {
-          "_index" : "test-edge-ngram",
-          "_type" : "doc",
-          "_id" : "509",
-          "_score" : 2.7667096,
-          "_source" : {
-            "title" : "Requests: HTTP for Humans™"
-          },
-          "highlight" : {
-            "content.autocomplete" : [
-              """<em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation is for you."""
-            ]
-          }
-        },
-        {
-          "_index" : "test-edge-ngram",
-          "_type" : "doc",
-          "_id" : "546",
-          "_score" : 2.4082716,
-          "_source" : {
-            "title" : "Installation of Requests"
-          },
-          "highlight" : {
-            "content.autocomplete" : [
-              """
-  Installation <em class="hlt1">of</em> Requests
-  <em class="hlt1">This</em> <em class="hlt1">part</em> <em class="hlt1">of</em> the <em class="hlt1">docu</em>mentation covers the installation <em class="hlt1">of</em> Requests.
-  """
-            ]
-          }
-        },
-        {
-          "_index" : "test-edge-ngram",
-          "_type" : "doc",
-          "_id" : "548",
-          "_score" : 2.0368419,
-          "_source" : {
-            "title" : "Advanced Usage"
-          },
-          "highlight" : {
-            "content.autocomplete" : [
-              """
-  Advanced Usage
-  <em class="hlt1">This</em> <em class="hlt1">docu</em>ment covers some <em class="hlt1">of</em> Requests more advanced features.
-  """
+              """to a <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> host if its request- host U <em class="hlt1">do</em>es not <em class="hlt1">do</em>main-match the reach R <em class="hlt1">of</em> the request-host O"""
             ]
           }
         },
@@ -232,13 +182,59 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "578",
-          "_score" : 1.9563103,
+          "_score" : 7.7096343,
           "_source" : {
             "title" : "requests.utils"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """[i] = c + <em class="hlt1">part</em>s[i][2:] else: <em class="hlt1">part</em>s[i] = '%' + <em class="hlt1">part</em>s[i] else: <em class="hlt1">part</em>s[i] = '%' + <em class="hlt1">part</em>s[i] return ''.join"""
+              """<em class="hlt1">pat</em>h, no need to <em class="hlt1">do</em> anything further return <em class="hlt1">pat</em>h # find the first valid <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the provided <em class="hlt1">pat</em>h and"""
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "548",
+          "_score" : 6.7345414,
+          "_source" : {
+            "title" : "Advanced Usage"
+          },
+          "highlight" : {
+            "content.autocomplete" : [
+              """<em class="hlt1">Par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the reason <em class="hlt1">thi</em><em class="hlt1">s</em> was <em class="hlt1">do</em>ne was to implement Transport Adapters, originally described here."""
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "509",
+          "_score" : 6.1174235,
+          "_source" : {
+            "title" : "Requests: HTTP for Humans™"
+          },
+          "highlight" : {
+            "content.autocomplete" : [
+              """
+  Authentication
+  The Community Guide
+  <em class="hlt1">Thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the <em class="hlt1">do</em>cumentation, which is mostly prose, details the
+  """
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "582",
+          "_score" : 6.084148,
+          "_source" : {
+            "title" : "requests.models"
+          },
+          "highlight" : {
+            "content.autocomplete" : [
+              """:<em class="hlt1">par</em><em class="hlt1">a</em>m cookies: dictionary or CookieJar <em class="hlt1">of</em> cookies to attach to <em class="hlt1">thi</em><em class="hlt1">s</em> request."""
             ]
           }
         }
