@@ -262,6 +262,9 @@ It comes with its own set of pros and cons which are described below:
   * Different tokenizers are to be used when indexing/reindexing and when searching,
     but it can be specified at the indexing time.
   * Some results are not very good and lead to bad user experience.
+  * Requires greater disk space. In development environment,
+    `page_index` was of size 3.9 MB and `test-edge-ngram` index was of 9.6 MB,
+    both containing the same number of documents.
 
 
 2. Completion Suggester
