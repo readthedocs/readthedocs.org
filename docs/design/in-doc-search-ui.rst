@@ -18,6 +18,7 @@ Implementing The Backend
 We have a few options to support ``search as you type`` feature,
 but we need to decide that which option would be best for our use-case.
 
+
 1. Edge NGram Tokenizer
 +++++++++++++++++++++++
 
@@ -243,6 +244,7 @@ Result
       ]
     }
   }
+
 
 Conclusion
 ~~~~~~~~~~
