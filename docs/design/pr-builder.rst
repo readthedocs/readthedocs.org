@@ -77,14 +77,14 @@ Sending the status report would be something like this:
 
 .. http:post:: /repos/:owner/:repo/statuses/:sha
 
-.. sourcecode:: js
+.. code:: json
 
-    {
-      "state": "success",
-      "target_url": "<pr_build_url>",
-      "description": "The build succeeded!",
-      "context": "continuous-documentation/read-the-docs"
-    }
+   {
+       "state": "success",
+       "target_url": "<pr_build_url>",
+       "description": "The build succeeded!",
+       "context": "continuous-documentation/read-the-docs"
+   }
 
 Storing Pull Request Docs
 -------------------------
