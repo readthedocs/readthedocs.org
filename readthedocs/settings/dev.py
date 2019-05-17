@@ -51,6 +51,9 @@ class CommunityDevSettings(CommunityBaseSettings):
     # Disable auto syncing elasticsearch documents in development
     ELASTICSEARCH_DSL_AUTOSYNC = False
 
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
