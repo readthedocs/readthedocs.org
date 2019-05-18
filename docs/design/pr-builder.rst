@@ -23,6 +23,7 @@ Scope
 - Deleting PR version and the build data
 - Excluding PR Versions from Search Engines
 - Serving PR Docs
+- Update the Footer API
 
 Fetching Data from Pull Requests
 --------------------------------
@@ -125,6 +126,14 @@ We need to think about how we want to serve the PR Docs.
 - We could serve the PR Docs using ``<pr_number>`` namespace on the same Domain.
   ``https://<project_slug>.readthedocs.io/en/pr/<pr_number>/``
 
+Update the Footer API
+---------------------
+
+We need to update the Footer API to reflect the changes.
+We might want to have a way to show that if this is a PR Build on the Footer.
+
+- For PR Builds we might want to show a Visual hint. (The footer color might be Red).
+- For regular project docs we should remove the PR Versions from the version list of the Footer.
 
 Related Issues
 --------------
