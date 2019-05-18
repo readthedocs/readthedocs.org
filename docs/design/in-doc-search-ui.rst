@@ -82,7 +82,14 @@ Sample Mapping
             "type": "text"
           },
           "title": {
-            "type": "text"
+            "type": "text",
+            "fields": {
+              "autocomplete": {
+                "type": "text",
+                "analyzer": "autocomplete",
+                "search_analyzer": "autocomplete_search"
+              }
+            }
           },
           "commit": {
             "type": "text"
@@ -111,14 +118,16 @@ Sample Query
   {
     "size": 5,
     "_source": [
-      "title"
+      "title",
+      "path"
     ],
     "query": {
       "bool": {
         "must": {
           "multi_match": {
-            "query": "this part of do",
+            "query": "this part of",
             "fields": [
+              "title.autocomplete^20",
               "content.autocomplete"
             ],
             "type": "best_fields",
@@ -128,8 +137,16 @@ Sample Query
         "filter": {
           "bool": {
             "must": [
-              { "term": { "project": "requests-test" } },
-              { "term": { "version": "latest" } }
+              {
+                "term": {
+                  "project": "requests-test"
+                }
+              },
+              {
+                "term": {
+                  "version": "latest"
+                }
+              }
             ]
           }
         }
@@ -137,9 +154,10 @@ Sample Query
     },
     "highlight": {
       "number_of_fragments": 1,
-      "tags_schema" : "styled",
-      "fragment_size": 100,
+      "tags_schema": "styled",
+      "fragment_size": 50,
       "fields": {
+        "title.autocomplete": {},
         "content.autocomplete": {}
       }
     }
@@ -152,7 +170,7 @@ Result
 .. code::
 
   {
-    "took" : 102,
+    "took" : 51,
     "timed_out" : false,
     "_shards" : {
       "total" : 5,
@@ -162,19 +180,41 @@ Result
     },
     "hits" : {
       "total" : 29,
-      "max_score" : 9.070337,
+      "max_score" : 44.42056,
       "hits" : [
         {
           "_index" : "test-edge-ngram",
           "_type" : "doc",
-          "_id" : "574",
-          "_score" : 9.070337,
+          "_id" : "546",
+          "_score" : 44.42056,
           "_source" : {
+            "path" : "user/install",
+            "title" : "Installation of Requests"
+          },
+          "highlight" : {
+            "title.autocomplete" : [
+              """Installation <em class="hlt1">of</em> Requests"""
+            ],
+            "content.autocomplete" : [
+              """
+  Installation <em class="hlt1">of</em> Requests
+  <em class="hlt1">Thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the documentation
+  """
+            ]
+          }
+        },
+        {
+          "_index" : "test-edge-ngram",
+          "_type" : "doc",
+          "_id" : "574",
+          "_score" : 9.096828,
+          "_source" : {
+            "path" : "_modules/http/cookiejar",
             "title" : "http.cookiejar"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """to a <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> host if its request- host U does not domain-match the reach R <em class="hlt1">o</em>f the request-host <em class="hlt1">O</em>"""
+              """An example <em class="hlt1">of</em> <em class="hlt1">thi</em><em class="hlt1">s</em> format is: 1994-11-24 08:49:37Z"""
             ]
           }
         },
@@ -182,13 +222,14 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "578",
-          "_score" : 7.4713364,
+          "_score" : 7.5825796,
           "_source" : {
+            "path" : "_modules/requests/utils",
             "title" : "requests.utils"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """, <em class="hlt1">o</em>r else just return the provided <em class="hlt1">pat</em>h unchanged. """ if <em class="hlt1">o</em>s.<em class="hlt1">pat</em>h.exists(<em class="hlt1">pat</em>h): # <em class="hlt1">thi</em><em class="hlt1">s</em> is already a valid"""
+              """(<em class="hlt1">pat</em>h): # <em class="hlt1">thi</em><em class="hlt1">s</em> is already a valid <em class="hlt1">pat</em>h, no need to"""
             ]
           }
         },
@@ -196,13 +237,14 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "548",
-          "_score" : 6.5239396,
+          "_score" : 6.5911536,
           "_source" : {
+            "path" : "user/advanced",
             "title" : "Advanced Usage"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """<em class="hlt1">Thi</em><em class="hlt1">s</em> is an <em class="hlt1">o</em>ptional feature that requires that additional <em class="hlt1">thi</em><em class="hlt1">r</em>d-<em class="hlt1">par</em><em class="hlt1">t</em><em class="hlt1">y</em> libraries be installed before use"""
+              """<em class="hlt1">Par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the reason <em class="hlt1">thi</em><em class="hlt1">s</em> was done was to implement Transport"""
             ]
           }
         },
@@ -210,27 +252,17 @@ Result
           "_index" : "test-edge-ngram",
           "_type" : "doc",
           "_id" : "509",
-          "_score" : 5.9043593,
+          "_score" : 5.9727807,
           "_source" : {
+            "path" : "index",
             "title" : "Requests: HTTP for Humans™"
           },
           "highlight" : {
             "content.autocomplete" : [
-              """a specific function, class, <em class="hlt1">o</em>r method, <em class="hlt1">thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">o</em>f the documentation is for you."""
-            ]
-          }
-        },
-        {
-          "_index" : "test-edge-ngram",
-          "_type" : "doc",
-          "_id" : "583",
-          "_score" : 5.8317156,
-          "_source" : {
-            "title" : "requests.sessions"
-          },
-          "highlight" : {
-            "content.autocomplete" : [
-              """cookies set <em class="hlt1">o</em>n <em class="hlt1">thi</em><em class="hlt1">s</em> #: session."""
+              """
+  The User Guide
+  <em class="hlt1">Thi</em><em class="hlt1">s</em> <em class="hlt1">par</em><em class="hlt1">t</em> <em class="hlt1">of</em> the documentation, which
+  """
             ]
           }
         }
@@ -263,8 +295,11 @@ It comes with its own set of pros and cons which are described below:
     but it can be specified at the indexing time.
   * Some results are not very good and lead to bad user experience.
   * Requires greater disk space. In development environment,
-    `page_index` was of size 3.9 MB and `test-edge-ngram` index was of 9.6 MB,
-    both containing the same number of documents.
+    `page_index` was of size 3.9 MB and `test-edge-ngram` index was of 9.9 MB,
+    both containing the same number of documents. Size of the index depends on the
+    number of fields `edge-ngram`-ed and also on the `min_gram` and `max_gram` parameters.
+    Keeping everything same and setting the `max_gram` to 15 reduces the size of index
+    to 9.6 MB and further reducing the `max_gram` to 5 reduces the size of index to 7.7 MB.
 
 
 2. Completion Suggester
