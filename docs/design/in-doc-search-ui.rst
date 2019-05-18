@@ -293,7 +293,7 @@ It comes with its own set of pros and cons which are described below:
     are almost entirely useless.
   * Different tokenizers are to be used when indexing/reindexing and when searching,
     but it can be specified at the indexing time.
-  * Some results are not very good and lead to bad user experience.
+  * Few results are not very good and lead to bad user experience.
   * Requires greater disk space. In development environment,
     `page_index` was of size 3.9 MB and `test-edge-ngram` index was of 9.9 MB,
     both containing the same number of documents. Size of the index depends on the
@@ -305,6 +305,31 @@ It comes with its own set of pros and cons which are described below:
 2. Completion Suggester
 +++++++++++++++++++++++
 
+The completion suggester considers all documents in the index,
+but we want our search results to be filtered based on the project and version.
+According to the official docs for `Context Suggester`_, to achieve suggestion filtering
+and/or boosting, we can add context mappings while configuring a completion field.
+
+
+Pros and Cons:
+~~~~~~~~~~~~~~
+
+* Pros:
+
+  * Really fast as it is optimized for speed.
+  * Does not require large disk space.
+
+* Cons:
+
+  * Need to modify existing mapping to implement it.
+  * Matching always starts at the beginning of the text. So, for example,
+    "Hel" will match "Hello, World" but not "World Hello".
+  * Highlighting of the matching words is not supported.
+  * According to the official docs for `Completion Suggester`_,
+    fast lookups are costly to build and are stored in-memory.
+
+
 .. _Completion Suggester: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
 .. _official docs: https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html
 .. _multi-fields: https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
+.. _Context Suggester: https://www.elastic.co/guide/en/elasticsearch/reference/current/suggester-context.html
