@@ -813,7 +813,7 @@ class RandomProjectsInputForm(forms.Form):
         )
 
     def get_max_value(self):
-        total_projects = Project.objects.all().count()
+        total_projects = Project.objects.filter(users__profile__banned=False).count()
         return total_projects
 
 

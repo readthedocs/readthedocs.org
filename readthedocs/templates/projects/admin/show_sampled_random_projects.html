@@ -2,8 +2,6 @@
 
 {% load i18n %}
 
-{% load projects_tags %}
-
 {% block title %}
   {% trans "Effected projects" %}
 {% endblock %}
@@ -12,20 +10,22 @@
 
   <h1>Effected Projects:</h1>
   {% for feature, effected_projects in features.items %}
-    <ul>
+    <ol>
       <li>
         <h2>{{ feature }}</h2>
         {% for projects in effected_projects %}
-          <ul>
+          <ol>
             {% for project in projects %}
               <li>
-                <p><a href="{% get_project_admin_url project.pk %}">{{ project }}</a></p>
+                <p><a href="{% url 'admin:projects_project_change' project.pk %}">{{ project }}</a></p>
               </li>
+            {% empty %}
+              <p>No Project Assigned.</p>
             {% endfor %}
-          </ul>
+          </ol>
         {% endfor %}
       </li>
-    </ul>
+    </ol>
   {% endfor %}
     
   <form action="/admin" method="get">

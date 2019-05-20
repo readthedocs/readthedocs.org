@@ -24,8 +24,3 @@ def sort_version_aware(versions):
 def is_project_user(user, project):
     """Return if user is a member of project.users."""
     return user in project.users.all()
-
-@register.assignment_tag
-def get_project_admin_url(project_pk):
-    """Returns the admin url for the given project's pk."""
-    return '/admin/projects/project/{}/'.format(project_pk) 

@@ -338,10 +338,8 @@ class FeatureAdmin(admin.ModelAdmin):
             if form.is_valid():
                 n = form.cleaned_data.get('number')
 
-                # Taking first 'n' random projects.
-                random_projects = Project.objects.order_by('?')[:n]
-                ids_list = random_projects.values_list('pk', flat=True)
-                ids_list = list(ids_list)
+                # Excluding the projects of banned users.
+                random_projects = Project.objects.filter(users__profile__banned=False).order_by('?')
 
                 # This dictionary will contain FEATURE as keys and
                 # the list of projects assigned to that FEATURE as values.
@@ -349,7 +347,15 @@ class FeatureAdmin(admin.ModelAdmin):
 
                 for feature in queryset:
                     list_of_projects = context_dict.setdefault(str(feature), [])
-                    context_dict[str(feature)] = list_of_projects + [random_projects]
+
+                    # Excluding the projects already assigned.
+                    projects_pk = list(feature.projects.values_list('pk', flat=True))
+                    random_projects = random_projects.exclude(pk__in=projects_pk)
+
+                    ids_list = random_projects.values_list('pk', flat=True)
+                    ids_list = list(ids_list)[:n]
+
+                    context_dict[str(feature)] = list_of_projects + [random_projects[:n]]
                     feature.projects.add(*ids_list)
                 return render(
                     request,

@@ -788,10 +788,12 @@ class TestProjectEnvironmentVariablesForm(TestCase):
 class TestRandomProjectsInputForm(TestCase):
 
     def setUp(self):
-        self.project = get(Project)
+        self.user = get(User)
+        self.user.profile.banned = False
+        self.project = get(Project, users=[self.user])
 
     def test_get_max_value(self):
-        self.assertEqual(RandomProjectsInputForm().get_max_value(), 2)
+        self.assertEqual(RandomProjectsInputForm().get_max_value(), 1)
     
     def test_input_less_than_1(self):
         data = {
