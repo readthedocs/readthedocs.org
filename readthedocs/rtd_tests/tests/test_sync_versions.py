@@ -736,7 +736,7 @@ class TestSyncVersions(TestCase):
             1,
         )
 
-    @mock.patch('readthedocs.restapi.utils.run_automation_rules')
+    @mock.patch('readthedocs.api.v2.utils.run_automation_rules')
     def test_automation_rules_are_triggered_for_new_versions(self, run_automation_rules):
         Version.objects.create(
             project=self.pip,
