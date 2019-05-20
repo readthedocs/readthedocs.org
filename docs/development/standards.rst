@@ -53,8 +53,16 @@ may change, so that assets are compiled before deployment, however as our front
 end assets are in a state of flux, it's easier to keep absolute sources checked
 in.
 
+
+Getting Started
+---------------
+
+We describe two different ways of building front end assets: Either in a
+containerized environment (Docker) or step-by-step in your local development
+environment.
+
 Containerized build (Docker)
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Front end assets can be built in a Docker container. This reduces the steps
 required and can be considered more secure, since you won't expose your local
@@ -72,8 +80,8 @@ from the root of your repository:
     docker run -v $PWD/:/repo "rtd-frontend"
 
 
-Local build: Getting Started
-----------------------------
+Local builds
+~~~~~~~~~~~~
 
 You will need a working version of Node and NPM to get started. We won't cover
 that here, as it varies from platform to platform.
