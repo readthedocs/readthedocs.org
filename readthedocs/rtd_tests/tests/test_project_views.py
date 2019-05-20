@@ -426,8 +426,8 @@ class TestPrivateViews(MockBuildTestCase):
         self.assertContains(
             response,
             'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
-            'Deleting this will make them as regular projects. '
-            'This will effect the URLs of the subprojects and they will be served normally as other projects.',
+            'Deleting this project will make them to become regular projects. '
+            'This will break the URLs of all its subprojects and they will be served normally as other projects.',
             count=1,
             html=True,
         )
