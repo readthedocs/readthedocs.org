@@ -329,6 +329,13 @@ Pros and Cons:
     fast lookups are costly to build and are stored in-memory.
 
 
+Frontend
+--------
+
+After finalising the UI/UX which we will be using for our ``search as you type`` feature,
+we have to find a way so that it remains consistent on every theme. 
+
+
 .. _Completion Suggester: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
 .. _official docs: https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html
 .. _multi-fields: https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
