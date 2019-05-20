@@ -1,6 +1,10 @@
 Importing Your Documentation
 ============================
 
+.. meta::
+   :description lang=en: Import your existing technical documentation from version control into Read the Docs.
+
+
 To import a documentation repository, visit your `Read the Docs dashboard`_ and click Import_.
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,

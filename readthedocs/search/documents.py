@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
 import logging
 
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.sphinx_domains.models import SphinxDomain
 
 
 project_conf = settings.ES_INDEXES['project']
@@ -15,7 +15,51 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
+domain_conf = settings.ES_INDEXES['domain']
+domain_index = Index(domain_conf['name'])
+domain_index.settings(**domain_conf['settings'])
+
 log = logging.getLogger(__name__)
+
+
+@domain_index.doc_type
+class SphinxDomainDocument(DocType):
+    project = fields.KeywordField(attr='project.slug')
+    version = fields.KeywordField(attr='version.slug')
+    role_name = fields.KeywordField(attr='role_name')
+
+    # For linking to the URL
+    doc_name = fields.KeywordField(attr='doc_name')
+    anchor = fields.KeywordField(attr='anchor')
+
+    # For showing in the search result
+    type_display = fields.TextField(attr='type_display')
+    doc_display = fields.TextField(attr='doc_display')
+
+    # Simple analyzer breaks on `.`,
+    # otherwise search results are too strict for this use case
+    name = fields.TextField(attr='name', analyzer='simple')
+    display_name = fields.TextField(attr='display_name', analyzer='simple')
+
+    modified_model_field = 'modified'
+
+    class Meta:
+        model = SphinxDomain
+        fields = ('commit',)
+        ignore_signals = True
+
+    def get_queryset(self):
+        """Overwrite default queryset to filter certain files to index."""
+        queryset = super().get_queryset()
+
+        excluded_types = [
+            {'domain': 'std', 'type': 'doc'},
+            {'domain': 'std', 'type': 'label'},
+        ]
+
+        for exclude in excluded_types:
+            queryset = queryset.exclude(**exclude)
+        return queryset
 
 
 @project_index.doc_type
@@ -31,7 +75,9 @@ class ProjectDocument(DocType):
     )
     language = fields.KeywordField()
 
-    class Meta(object):
+    modified_model_field = 'modified_date'
+
+    class Meta:
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
@@ -63,7 +109,9 @@ class PageDocument(DocType):
     headers = fields.TextField(attr='processed_json.headers')
     content = fields.TextField(attr='processed_json.content')
 
-    class Meta(object):
+    modified_model_field = 'modified_date'
+
+    class Meta:
         model = HTMLFile
         fields = ('commit',)
         ignore_signals = True

@@ -347,12 +347,21 @@ class TestValidatePythonVersion:
 
     def test_it_supports_other_versions(self):
         build = get_build_config(
-            {'python': {'version': 3.5}},
+            {'python': {'version': 3.7}},
         )
         build.validate()
-        assert build.python.version == 3.5
-        assert build.python_interpreter == 'python3.5'
-        assert build.python_full_version == 3.5
+        assert build.python.version == 3.7
+        assert build.python_interpreter == 'python3.7'
+        assert build.python_full_version == 3.7
+
+    def test_it_supports_string_versions(self):
+        build = get_build_config(
+            {'python': {'version': 'pypy3.5'}},
+        )
+        build.validate()
+        assert build.python.version == 'pypy3.5'
+        assert build.python_interpreter == 'pypy3.5'
+        assert build.python_full_version == 'pypy3.5'
 
     def test_it_validates_versions_out_of_range(self):
         build = get_build_config(
@@ -374,12 +383,12 @@ class TestValidatePythonVersion:
 
     def test_it_validates_wrong_type_right_value(self):
         build = get_build_config(
-            {'python': {'version': '3.5'}},
+            {'python': {'version': '3.6'}},
         )
         build.validate()
-        assert build.python.version == 3.5
-        assert build.python_interpreter == 'python3.5'
-        assert build.python_full_version == 3.5
+        assert build.python.version == 3.6
+        assert build.python_interpreter == 'python3.6'
+        assert build.python_full_version == 3.6
 
         build = get_build_config(
             {'python': {'version': '3'}},
@@ -715,7 +724,7 @@ def test_as_dict(tmpdir):
             'version': 1,
             'formats': ['pdf'],
             'python': {
-                'version': 3.5,
+                'version': 3.7,
             },
             'requirements_file': 'requirements.txt',
         },
@@ -732,7 +741,7 @@ def test_as_dict(tmpdir):
         'version': '1',
         'formats': ['pdf'],
         'python': {
-            'version': 3.5,
+            'version': 3.7,
             'install': [{
                 'requirements': 'requirements.txt',
             }],
@@ -943,8 +952,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [2, 2.7, 3, 3.5, 3.6]),
-            ('stable', [2, 2.7, 3, 3.5, 3.6]),
+            ('latest', [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']),
+            ('stable', [2, 2.7, 3, 3.5, 3.6, 3.7]),
         ],
     )
     def test_python_version(self, image, versions):
