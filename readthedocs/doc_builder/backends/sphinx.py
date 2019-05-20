@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Sphinx_ backend for building docs.
 
@@ -10,7 +8,6 @@ import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -19,11 +16,11 @@ from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
-from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
@@ -104,7 +101,7 @@ class BaseSphinx(BaseBuilder):
         display_gitlab = gitlab_user is not None
 
         # Avoid hitting database and API if using Docker build environment
-        if getattr(settings, 'DONT_HIT_API', False):
+        if settings.DONT_HIT_API:
             versions = self.project.active_versions()
             downloads = self.version.get_downloads(pretty=True)
         else:
@@ -119,11 +116,7 @@ class BaseSphinx(BaseBuilder):
             'version': self.version,
             'settings': settings,
             'conf_py_path': conf_py_path,
-            'api_host': getattr(
-                settings,
-                'PUBLIC_API_URL',
-                'https://readthedocs.org',
-            ),
+            'api_host': settings.PUBLIC_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
@@ -153,9 +146,6 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
-            'use_pdf_latexmk': self.project.has_feature(
-                Feature.USE_PDF_LATEXMK,
-            ),
         }
 
         finalize_sphinx_context_data.send(
@@ -182,9 +172,7 @@ class BaseSphinx(BaseBuilder):
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except IOError:
-            raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND
-            )
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -235,6 +223,38 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
+
+    def venv_sphinx_supports_latexmk(self):
+        """
+        Check if ``sphinx`` from the user's venv supports ``latexmk``.
+
+        If the version of ``sphinx`` is greater or equal to 1.6.1 it returns
+        ``True`` and ``False`` otherwise.
+
+        See: https://www.sphinx-doc.org/en/master/changes.html#release-1-6-1-released-may-16-2017
+        """
+
+        command = [
+            self.python_env.venv_bin(filename='python'),
+            '-c',
+            (
+                '"'
+                'import sys; '
+                'import sphinx; '
+                'sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)'
+                '"'
+            ),
+        ]
+
+        cmd_ret = self.run(
+            *command,
+            bin_path=self.python_env.venv_bin(),
+            cwd=self.project.checkout_path(self.version.slug),
+            escape_command=False,  # used on DockerBuildCommand
+            shell=True,  # used on BuildCommand
+            record=False,
+        )
+        return cmd_ret.exit_code == 0
 
 
 class HtmlBuilder(BaseSphinx):
@@ -399,7 +419,9 @@ class PdfBuilder(BaseSphinx):
             raise BuildEnvironmentError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
-        if self.project.has_feature(Feature.USE_PDF_LATEXMK):
+        # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
+        # to ``pdflatex`` to support old versions
+        if self.venv_sphinx_supports_latexmk():
             return self._build_latexmk(cwd, latex_cwd)
 
         return self._build_pdflatex(tex_files, latex_cwd)

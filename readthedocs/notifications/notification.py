@@ -168,18 +168,16 @@ class SiteNotification(Notification):
                 else:
                     # log the error but not crash
                     log.error(
-                        "Notification {} has no key '{}' for {} messages".format(
-                            self.__class__.__name__,
-                            self.reason,
-                            'success' if self.success else 'failure',
-                        ),
+                        "Notification %s has no key '%s' for %s messages",
+                        self.__class__.__name__,
+                        self.reason,
+                        'success' if self.success else 'failure',
                     )
             else:
                 log.error(
-                    '{}.{}_message is a dictionary but no reason was provided'.format(
-                        self.__class__.__name__,
-                        'success' if self.success else 'failure',
-                    ),
+                    '%s.%s_message is a dictionary but no reason was provided',
+                    self.__class__.__name__,
+                    'success' if self.success else 'failure',
                 )
         else:
             msg = message

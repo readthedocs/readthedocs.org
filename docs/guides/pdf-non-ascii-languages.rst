@@ -1,13 +1,6 @@
 Build PDF format for non-ASCII languages
 ========================================
 
-
-.. warning::
-
-   To be able to follow this guide and build PDF with this method,
-   you need to ask the Read the Docs core team to enable ``USE_PDF_LATEXMK`` :doc:`feature flag </guides/feature-flags>` in your project.
-   Please, `open an issue`_ in our repository asking for this, and wait for one of the core team to enable it.
-
 .. _open an issue: https://github.com/rtfd/readthedocs.org/issues/new
 
 Sphinx offers different `LaTeX engines`_ that support Unicode characters and non-ASCII languages,

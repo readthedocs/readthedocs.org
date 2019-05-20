@@ -309,6 +309,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('project', 'version')
     list_display = ('path', 'name', 'version')
+    search_fields = ('project', 'path')
 
 
 class DomainAdmin(admin.ModelAdmin):

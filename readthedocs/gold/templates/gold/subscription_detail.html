@@ -54,17 +54,19 @@ $(document).ready(function () {
       <button>{% trans "Cancel Subscription" %}</button>
     </form>
 
-    <h3>{% trans "Projects" %}</h3>
-    <p class="subscription-projects">
-      {% blocktrans trimmed count projects=golduser.num_supported_projects %}
-        You can adopt one project with your subscription.
-      {% plural %}
-        You can adopt {{ projects }} projects with your subscription.
-      {% endblocktrans %}
-    </p>
+    {% if golduser.can_sponsor_projects %}
+      <h3>{% trans "Projects" %}</h3>
+      <p class="subscription-projects">
+        {% blocktrans trimmed count projects=golduser.num_supported_projects %}
+          You can adopt one project with your subscription.
+        {% plural %}
+          You can adopt {{ projects }} projects with your subscription.
+        {% endblocktrans %}
+      </p>
 
-    <form method="get" action="{% url "gold_projects" %}" class="subscription-projects">
-      <button>{% trans "Select Projects" %}</button>
-    </form>
+      <form method="get" action="{% url "gold_projects" %}" class="subscription-projects">
+        <button>{% trans "Select Projects" %}</button>
+      </form>
+    {% endif %}
   </div>
 {% endblock %}

@@ -12,11 +12,7 @@ or disable one or more of these featured flags for a particular project.
 Available Flags
 ---------------
 
-``USE_PDF_LATEXMK``: :featureflags:`USE_PDF_LATEXMK`
-
 ``USE_SPHINX_LATEST``: :featureflags:`USE_SPHINX_LATEST`
-
-``USE_SETUPTOOLS_LATEST``: :featureflags:`USE_SETUPTOOLS_LATEST`
 
 ``ALLOW_DEPRECATED_WEBHOOKS``: :featureflags:`ALLOW_DEPRECATED_WEBHOOKS`
 
