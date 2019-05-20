@@ -17,9 +17,9 @@ since it will help you to avoid clutter in your system-wide libraries.
 
 .. warning::
 
-    Currently the recommended version of python is Python 3.6.7. Which uses a 
-    lower version of sqlite3. The next version of Python can be used when the 
-    project starts using the latest Django version.
+    Currently Read the Docs is using ``Django 1.11.x`` and this version of Django
+    has a `bug`_ which breaks database migrations if you are using ``sqlite 3.26.0 or Newer``.
+    So, we recommend using ``sqlite < 3.26.0`` to run Read the Docs properly on your machine.
 
 Additionally Read the Docs depends on:
 
@@ -67,7 +67,7 @@ you need these libraries.
    .. tab:: CentOS/RHEL 7
 
       Install::
-      
+
          sudo yum install python-devel python-pip libxml2-devel libxslt-devel
 
    .. tab:: Other OS
@@ -84,6 +84,7 @@ you need these libraries.
 .. _Homebrew: http://brew.sh/
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Redis: https://redis.io/
+.. _bug: https://code.djangoproject.com/ticket/29182
 
 
 Get and run Read the Docs
@@ -96,7 +97,7 @@ Clone the repository somewhere on your disk and enter to the repository::
 
 Create a virtual environment and activate it::
 
-    virtualenv venv
+    virtualenv --python=python3 venv
     source venv/bin/activate
 
 Next, install the dependencies using ``pip``

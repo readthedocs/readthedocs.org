@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Documentation Builder Environments."""
 
 import logging
@@ -20,12 +18,12 @@ from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -83,6 +81,7 @@ class BuildCommand(BuildCommandResultMixin):
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
+    :param kwargs: allow to subclass this class and extend it
     """
 
     def __init__(
@@ -97,6 +96,7 @@ class BuildCommand(BuildCommandResultMixin):
             bin_path=None,
             description=None,
             record_as_success=False,
+            **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -166,8 +166,13 @@ class BuildCommand(BuildCommandResultMixin):
             environment['PATH'] = ':'.join(env_paths)
 
         try:
+            # When using ``shell=True`` the command should be flatten
+            command = self.command
+            if self.shell:
+                command = self.get_command()
+
             proc = subprocess.Popen(
-                self.command,
+                command,
                 shell=self.shell,
                 # This is done here for local builds, but not for docker,
                 # as we want docker to expand inside the container
@@ -296,14 +301,20 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     """
 
-    def run(self):
+    def __init__(self, *args, escape_command=True, **kwargs):
         """
-        Execute command in existing Docker container.
+        Override default to extend behavior.
 
-        :param cmd_input: input to pass to command in STDIN
-        :type cmd_input: str
-        :param combine_output: combine STDERR into STDOUT
+        :param escape_command: whether escape special chars the command before
+            executing it in the container. This should only be disabled on
+            trusted or internal commands.
+        :type escape_command: bool
         """
+        self.escape_command = escape_command
+        super(DockerBuildCommand, self).__init__(*args, **kwargs)
+
+    def run(self):
+        """Execute command in existing Docker container."""
         log.info(
             "Running in container %s: '%s' [%s]",
             self.build_env.container_id,
@@ -352,13 +363,15 @@ class DockerBuildCommand(BuildCommand):
 
     def get_wrapped_command(self):
         """
-        Escape special bash characters in command to wrap in shell.
+        Wrap command in a shell and optionally escape special bash characters.
 
         In order to set the current working path inside a docker container, we
-        need to wrap the command in a shell call manually. Some characters will
-        be interpreted as shell characters without escaping, such as: ``pip
-        install requests<0.8``. This escapes a good majority of those
-        characters.
+        need to wrap the command in a shell call manually.
+
+        Some characters will be interpreted as shell characters without
+        escaping, such as: ``pip install requests<0.8``. When passing
+        ``escape_command=True`` in the init method this escapes a good majority
+        of those characters.
         """
         bash_escape_re = re.compile(
             r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
@@ -367,16 +380,18 @@ class DockerBuildCommand(BuildCommand):
         prefix = ''
         if self.bin_path:
             prefix += 'PATH={}:$PATH '.format(self.bin_path)
+
+        command = (
+            ' '.join([
+                bash_escape_re.sub(r'\\\1', part) if self.escape_command else part
+                for part in self.command
+            ])
+        )
         return (
             "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
                 cwd=self.cwd,
                 prefix=prefix,
-                cmd=(
-                    ' '.join([
-                        bash_escape_re.sub(r'\\\1', part)
-                        for part in self.command
-                    ])
-                ),
+                cmd=command,
             )
         )
 

@@ -14,12 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
@@ -462,47 +460,6 @@ class BaseVersionsForm(forms.Form):
         version.save()
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
-
-
-class BaseUploadHTMLForm(forms.Form):
-    content = forms.FileField(label=_('Zip file of HTML'))
-    overwrite = forms.BooleanField(
-        required=False,
-        label=_('Overwrite existing HTML?'),
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        version_slug = self.cleaned_data['version']
-        filename = self.request.FILES['content']
-        version = self.project.versions.get(slug=version_slug)
-
-        # Validation
-        if version.active and not self.cleaned_data.get('overwrite', False):
-            raise forms.ValidationError(_('That version is already active!'))
-        if not filename.name.endswith('zip'):
-            raise forms.ValidationError(_('Must upload a zip file.'))
-
-        return self.cleaned_data
-
-
-def build_upload_html_form(project):
-    """Upload HTML form with list of versions to upload HTML for."""
-    attrs = {
-        'project': project,
-    }
-    active = project.versions.public()
-    if active.exists():
-        choices = []
-        choices += [(version.slug, version.verbose_name) for version in active]
-        attrs['version'] = forms.ChoiceField(
-            label=_('Version of the project you are uploading HTML for'),
-            choices=choices,
-        )
-    return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)
 
 
 class UserForm(forms.Form):

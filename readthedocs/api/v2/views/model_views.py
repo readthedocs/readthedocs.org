@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import logging

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
 import hashlib
@@ -77,7 +75,7 @@ class WebhookMixin:
             )
             return Response(
                 {'detail': self.invalid_payload_msg},
-                status=HTTP_400_BAD_REQUEST
+                status=HTTP_400_BAD_REQUEST,
             )
         resp = self.handle_webhook()
         if resp is None:
@@ -232,7 +230,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if not secret:
             log.info(
                 'Skipping payload validation for project: %s',
-                self.project.slug
+                self.project.slug,
             )
             return True
         if not signature:
@@ -241,7 +239,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         digest = GitHubWebhookView.get_digest(secret, msg)
         result = hmac.compare_digest(
             b'sha1=' + digest.encode(),
-            signature.encode()
+            signature.encode(),
         )
         return result
 
@@ -251,7 +249,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         digest = hmac.new(
             secret.encode(),
             msg=msg.encode(),
-            digestmod=hashlib.sha1
+            digestmod=hashlib.sha1,
         )
         return digest.hexdigest()
 
@@ -318,7 +316,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         if not secret:
             log.info(
                 'Skipping payload validation for project: %s',
-                self.project.slug
+                self.project.slug,
             )
             return True
         if not token:
