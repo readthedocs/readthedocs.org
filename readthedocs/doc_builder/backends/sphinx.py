@@ -42,6 +42,11 @@ class BaseSphinx(BaseBuilder):
         try:
             if not self.config_file:
                 self.config_file = self.project.conf_file(self.version.slug)
+            else:
+                self.config_file = os.path.join(
+                    self.project.checkout_path(self.version.slug),
+                    self.config_file,
+                )
             self.old_artifact_path = os.path.join(
                 os.path.dirname(self.config_file),
                 self.sphinx_build_dir,

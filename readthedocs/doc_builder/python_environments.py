@@ -82,11 +82,10 @@ class PythonEnvironment:
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
         """
-        rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
-                os.path.join('.', rel_path) if rel_path != '.' else rel_path
+                os.path.join('.', install.path) if install.path != '.' else install.path
             )
             extra_req_param = ''
             if install.extra_requirements:
@@ -111,7 +110,7 @@ class PythonEnvironment:
         elif install.method == SETUPTOOLS:
             self.build_env.run(
                 self.venv_bin(filename='python'),
-                os.path.join(rel_path, 'setup.py'),
+                os.path.join(install.path, 'setup.py'),
                 'install',
                 '--force',
                 cwd=self.checkout_path,
@@ -364,7 +363,10 @@ class Virtualenv(PythonEnvironment):
             for path, req_file in itertools.product(paths, req_files):
                 test_path = os.path.join(self.checkout_path, path, req_file)
                 if os.path.exists(test_path):
-                    requirements_file_path = test_path
+                    requirements_file_path = os.path.relpath(
+                        test_path,
+                        self.checkout_path,
+                    )
                     break
 
         if requirements_file_path:
@@ -381,10 +383,7 @@ class Virtualenv(PythonEnvironment):
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r',
-                os.path.relpath(
-                    requirements_file_path,
-                    self.checkout_path
-                ),
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,

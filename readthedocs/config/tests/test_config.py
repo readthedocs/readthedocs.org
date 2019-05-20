@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import re
 import textwrap
@@ -604,7 +603,7 @@ def test_validates_conda_file(tmpdir):
     )
     build.validate()
     assert isinstance(build.conda, Conda)
-    assert build.conda.environment == str(tmpdir.join('environment.yml'))
+    assert build.conda.environment == 'environment.yml'
 
 
 def test_file_is_required_when_using_conda(tmpdir):
@@ -640,7 +639,7 @@ def test_requirements_file_repects_default_value(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == str(tmpdir.join('myrequirements.txt'))
+    assert install[0].requirements == 'myrequirements.txt'
 
 
 def test_requirements_file_respects_configuration(tmpdir):
@@ -652,7 +651,7 @@ def test_requirements_file_respects_configuration(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == str(tmpdir.join('requirements.txt'))
+    assert install[0].requirements == 'requirements.txt'
 
 
 def test_requirements_file_is_null(tmpdir):
@@ -744,7 +743,7 @@ def test_as_dict(tmpdir):
         'python': {
             'version': 3.7,
             'install': [{
-                'requirements': str(tmpdir.join('requirements.txt')),
+                'requirements': 'requirements.txt',
             }],
             'use_system_site_packages': False,
         },
@@ -859,7 +858,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.conda.environment == str(tmpdir.join('environment.yml'))
+        assert build.conda.environment == 'environment.yml'
 
     def test_conda_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'environment.yml': ''})
@@ -1054,7 +1053,7 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstall)
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
@@ -1107,7 +1106,7 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstallRequirements)
-        assert install[0].requirements == str(tmpdir.join('requirements.txt'))
+        assert install[0].requirements == 'requirements.txt'
 
     def test_python_install_requirements_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
@@ -1187,7 +1186,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].requirements == str(tmpdir.join('requirements.txt'))
+        assert install[0].requirements == 'requirements.txt'
 
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_install_requirements_check_invalid_types(self, value, tmpdir):
@@ -1237,7 +1236,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
 
     def test_python_install_pip_have_priority_over_default(self, tmpdir):
@@ -1256,7 +1255,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
 
     def test_python_install_setuptools_check_valid(self, tmpdir):
@@ -1274,7 +1273,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_setuptools_ignores_default(self):
@@ -1301,7 +1300,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_allow_empty_list(self):
@@ -1419,14 +1418,14 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 3
 
-        assert install[0].path == str(tmpdir.join('one'))
+        assert install[0].path == 'one'
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
-        assert install[1].path == str(tmpdir.join('two'))
+        assert install[1].path == 'two'
         assert install[1].method == SETUPTOOLS
 
-        assert install[2].requirements == str(tmpdir.join('three.txt'))
+        assert install[2].requirements == 'three.txt'
 
     def test_python_install_reports_correct_invalid_index(self, tmpdir):
         apply_fs(tmpdir, {
@@ -1564,7 +1563,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+        assert build.sphinx.configuration == 'conf.py'
 
     def test_sphinx_configuration_check_invalid(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
@@ -1607,7 +1606,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+        assert build.sphinx.configuration == 'conf.py'
 
     def test_sphinx_configuration_default_can_be_none(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
@@ -1627,7 +1626,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+        assert build.sphinx.configuration == 'conf.py'
 
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
@@ -1674,7 +1673,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
+        assert build.mkdocs.configuration == 'mkdocs.yml'
         assert build.doctype == 'mkdocs'
         assert build.sphinx is None
 
@@ -2032,7 +2031,7 @@ class TestBuildConfigV2:
             'python': {
                 'version': 3.6,
                 'install': [{
-                    'requirements': str(tmpdir.join('requirements.txt')),
+                    'requirements': 'requirements.txt',
                 }],
                 'use_system_site_packages': False,
             },
