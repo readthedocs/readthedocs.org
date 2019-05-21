@@ -928,7 +928,7 @@ class Project(models.Model):
         """
         Returns the version that was promoted to be the new stable version.
 
-        Return ``None`` if no update was mode or if there is no version on the
+        Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
         versions = self.versions.all()

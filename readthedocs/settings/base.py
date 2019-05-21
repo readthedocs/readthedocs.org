@@ -119,6 +119,7 @@ class CommunityBaseSettings(Settings):
             'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
+            'polymorphic',
 
             # our apps
             'readthedocs.projects',
