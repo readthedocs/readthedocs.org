@@ -43,7 +43,7 @@ class TestValidateChoice:
 
     def test_it_accepts_valid_choice(self):
         result = validate_choice('choice', ('choice', 'another_choice'))
-        assert result is 'choice'
+        assert result == 'choice'
 
         with raises(ValidationError) as excinfo:
             validate_choice('c', 'abc')
