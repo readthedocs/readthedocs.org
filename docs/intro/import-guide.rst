@@ -6,7 +6,7 @@ Importing Your Documentation
 
 
 To import a public documentation repository, visit your `Read the Docs dashboard`_ and click Import_. For private
-repositories, use the Read the Docs  `commercial solution <https://docs.readthedocs.io/page/commercial/>`_.
+repositories, use the Read the Docs  :doc:`commercial solution <../commercial/index>`.
 
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
