@@ -5,6 +5,11 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
+def change_http_status(apps, schema_editor):
+    Redirect = apps.get_model('redirects', 'Redirect')
+    Redirect.objects.update(http_status=302)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,6 +17,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(change_http_status),
         migrations.AlterField(
             model_name='redirect',
             name='http_status',
