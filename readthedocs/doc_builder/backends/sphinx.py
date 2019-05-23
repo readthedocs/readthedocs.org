@@ -478,6 +478,7 @@ class PdfBuilder(BaseSphinx):
             '-dvi-',
             '-ps-',
             f'-jobname={self.project.slug}',
+            '-interaction=nonstopmode',
             warn_only=True,
             cwd=latex_cwd,
         )
