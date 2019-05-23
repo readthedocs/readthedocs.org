@@ -240,6 +240,15 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
+        stable_version = fixture.get(
+            Version,
+            identifier='stable',
+            verbose_name='stable',
+            slug='stable',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
             Project,
@@ -269,7 +278,7 @@ class TestPublicDocs(BaseDocServing):
                 ),
             )
 
-        # stable is marked as PRIVATE and should not appear here
+        # PRIVATE version should not appear here
         self.assertNotContains(
             response,
             self.public.get_docs_url(
@@ -293,3 +302,25 @@ class TestPublicDocs(BaseDocServing):
         # hreflang should use hyphen instead of underscore
         # in language and country value. (zh_CN should be zh-CN)
         self.assertContains(response, 'zh-CN')
+
+        # Check if STABLE version has 'priority of 1 and changefreq of weekly.
+        self.assertEqual(
+            response.context['versions'][0]['loc'],
+            self.public.get_docs_url(
+                version_slug=stable_version.slug,
+                lang_slug=self.public.language,
+                private=False,
+            ),)
+        self.assertEqual(response.context['versions'][0]['priority'], 1)
+        self.assertEqual(response.context['versions'][0]['changefreq'], 'weekly')
+
+        # Check if LATEST version has priority of 0.9 and changefreq of daily.
+        self.assertEqual(
+            response.context['versions'][1]['loc'],
+            self.public.get_docs_url(
+                version_slug='latest',
+                lang_slug=self.public.language,
+                private=False,
+            ),)
+        self.assertEqual(response.context['versions'][1]['priority'], 0.9)
+        self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')

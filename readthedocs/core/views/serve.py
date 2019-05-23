@@ -369,14 +369,14 @@ def sitemap_xml(request, project):
         """
         Generator returning ``changefreq`` needed by sitemap.xml.
 
-        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        It returns ``weekly`` on first iteration, then ``daily`` and then it
         will return always ``monthly``.
 
         We are using ``monthly`` as last value because ``never`` is too
         aggressive. If the tag is removed and a branch is created with the same
         name, we will want bots to revisit this.
         """
-        changefreqs = ['daily', 'weekly']
+        changefreqs = ['weekly', 'daily']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     if project.privacy_level == constants.PRIVATE:
