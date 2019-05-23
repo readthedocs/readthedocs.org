@@ -332,8 +332,25 @@ Pros and Cons:
 Frontend
 --------
 
-After finalising the UI/UX which we will be using for our ``search as you type`` feature,
-we have to find a way so that it remains consistent on every theme. 
+
+Challenges
+++++++++++
+
+* Designing the UI such that it is theme-agnostics.
+* Project maintainers should have atleast following options:
+
+  * They should be able to opt-in/out of our search improvements.
+  * They should have a way to change some styles of the `suggestions list`.
+
+
+Shipping
+--------
+
+
+Shipping this feature to all the users is a challenge for us.
+First, we must test this with our documentation for some time,
+then we can enable this for some more docs. If everything works correctly,
+we will enable this feature for all the docs hosted by us. 
 
 
 .. _Completion Suggester: https://www.elastic.co/guide/en/elasticsearch/reference/current/search-suggesters-completion.html
