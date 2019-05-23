@@ -374,6 +374,18 @@ class RedirectAppTests(TestCase):
             r['Location'], 'http://pip.readthedocs.org/en/latest/faq/',
         )
 
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_root_with_301_status(self):
+        Redirect.objects.create(
+            project=self.pip, redirect_type='prefix',
+            from_url='/woot/', http_status=301,
+        )
+        r = self.client.get('/woot/faq.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/faq.html',
+        )
+
 
 class CustomRedirectTests(TestCase):
 
