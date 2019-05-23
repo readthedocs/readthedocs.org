@@ -209,6 +209,11 @@ def project_delete(request, project_slug):
         slug=project_slug,
     )
 
+    context = {
+        'project': project,
+        'is_superproject': project.subprojects.all().exists()
+    }
+
     if request.method == 'POST':
         broadcast(
             type='app',
@@ -220,7 +225,7 @@ def project_delete(request, project_slug):
         project_dashboard = reverse('projects_dashboard')
         return HttpResponseRedirect(project_dashboard)
 
-    return render(request, 'projects/project_delete.html', {'project': project})
+    return render(request, 'projects/project_delete.html', context)
 
 
 class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
