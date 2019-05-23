@@ -43,23 +43,23 @@ def comparable_version(version_string):
     """
     Can be used as ``key`` argument to ``sorted``.
 
-    The ``LATEST`` version shall always beat other versions in comparison.
-    ``STABLE`` should be listed second. If we cannot figure out the version
+    The ``STABLE`` version shall always beat other versions in comparison.
+    ``LATEST`` should be listed second. If we cannot figure out the version
     number then we sort it to the bottom of the list.
 
     :param version_string: version as string object (e.g. '3.10.1' or 'latest')
     :type version_string: str or unicode
 
-    :returns: a comparable version object (e.g. 'latest' -> Version('99999.0'))
+    :returns: a comparable version object (e.g. 'latest' -> Version('9999.0'))
 
     :rtype: packaging.version.Version
     """
     comparable = parse_version_failsafe(version_string)
     if not comparable:
         if version_string == LATEST_VERBOSE_NAME:
-            comparable = Version('99999.0')
-        elif version_string == STABLE_VERBOSE_NAME:
             comparable = Version('9999.0')
+        elif version_string == STABLE_VERBOSE_NAME:
+            comparable = Version('99999.0')
         else:
             comparable = Version('0.01')
     return comparable
