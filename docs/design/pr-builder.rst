@@ -133,7 +133,7 @@ We need to think about how we want to serve the PR Docs.
 
 
 Updating the Footer API
----------------------
+-----------------------
 
 We need to update the Footer API to reflect the changes.
 We might want to have a way to show that if this is a PR Build on the Footer.
