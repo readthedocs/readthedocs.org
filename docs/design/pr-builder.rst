@@ -23,7 +23,8 @@ Scope
 - Deleting PR version and the build data
 - Excluding PR Versions from Search Engines
 - Serving PR Docs
-- Update the Footer API
+- Updating the Footer API
+- Adding Warning Banner to Docs
 
 Fetching Data from Pull Requests
 --------------------------------
@@ -56,7 +57,7 @@ Creating Versions for Pull Requests
 -----------------------------------
 
 If the Github webhook event is ``pull_request`` and action is ``opened``,
-it means a pull request was opened in the projects repository.
+this means a pull request was opened in the projects repository.
 We can create a ``Version`` from the Payload data and trigger a initial build for the version.
 A version will be created whenever RTD receives an event like this.
 
@@ -64,6 +65,8 @@ Triggering Build for New Commits in a Pull Request
 --------------------------------------------------
 
 We might want to trigger a new build for the PR version if there is a new commit on the PR.
+If the Github webhook event is ``pull_request`` and action is ``synchronize``,
+this means a new commit was added to the pull request.
 
 Status Reporting to Github
 --------------------------
@@ -124,16 +127,24 @@ We need to think about how we want to serve the PR Docs.
 
 - We could serve the PR Docs from another Domain.
 - We could serve the PR Docs using ``<pr_number>`` namespace on the same Domain.
-  ``https://<project_slug>.readthedocs.io/en/pr/<pr_number>/``
 
-Update the Footer API
+  - Using ``pr<pr_number>`` as the version slug ``https://<project_slug>.readthedocs.io/<language_code>/pr<pr_number>/``
+  - Using ``pr`` subdomain ``https://pr.<project_slug>.readthedocs.io/<pr_number>/``
+
+
+Updating the Footer API
 ---------------------
 
 We need to update the Footer API to reflect the changes.
 We might want to have a way to show that if this is a PR Build on the Footer.
 
-- For PR Builds we might want to show a Visual hint. (The footer color might be Red).
 - For regular project docs we should remove the PR Versions from the version list of the Footer.
+
+Adding Warning Banner to Docs
+-----------------------------
+
+We need to add a warning banner to the PR Version Docs to let the users know that this is a Draft/PR version.
+We can use a sphinx extension that we will force to install on the PR Versions to add the warning banner.
 
 Related Issues
 --------------
