@@ -355,7 +355,7 @@ def sitemap_xml(request, project):
         It generates values from 1 to 0.1 by decreasing in 0.1 on each
         iteration. After 0.1 is reached, it will keep returning 0.1.
         """
-        priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+        priorities = [0.9, 1, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
         yield from itertools.chain(priorities, itertools.repeat(0.1))
 
     def hreflang_formatter(lang):
@@ -380,7 +380,7 @@ def sitemap_xml(request, project):
         aggressive. If the tag is removed and a branch is created with the same
         name, we will want bots to revisit this.
         """
-        changefreqs = ['weekly', 'daily']
+        changefreqs = ['daily', 'weekly']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     if project.privacy_level == constants.PRIVATE:
