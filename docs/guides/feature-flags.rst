@@ -12,16 +12,12 @@ or disable one or more of these featured flags for a particular project.
 Available Flags
 ---------------
 
-``USE_SPHINX_LATEST``: :featureflags:`USE_SPHINX_LATEST`
-
-``ALLOW_DEPRECATED_WEBHOOKS``: :featureflags:`ALLOW_DEPRECATED_WEBHOOKS`
-
 ``PIP_ALWAYS_UPGRADE``: :featureflags:`PIP_ALWAYS_UPGRADE`
-
-``SKIP_SUBMODULES``: :featureflags:`SKIP_SUBMODULES`
 
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
-``MKDOCS_THEME_RTD``: :featureflags:`MKDOCS_THEME_RTD`
-
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`
+
+``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
+
+``SHARE_SPHINX_DOCTREE``: :featureflags:`SHARE_SPHINX_DOCTREE`
