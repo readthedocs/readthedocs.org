@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-from __future__ import (
-    absolute_import, division, print_function, unicode_literals)
-
+import getpass
 import os
 
 from celery.schedules import crontab
@@ -29,6 +27,7 @@ class CommunityBaseSettings(Settings):
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
     SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
+    SINGLE_VERSION_URLCONF = 'readthedocs.core.urls.single_version'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -44,9 +43,19 @@ class CommunityBaseSettings(Settings):
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
 
+    # Doc Builder Backends
+    MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
+    SPHINX_BACKEND = 'readthedocs.doc_builder.backends.sphinx'
+
+    # slumber settings
+    SLUMBER_API_HOST = 'https://readthedocs.org'
+    SLUMBER_USERNAME = None
+    SLUMBER_PASSWORD = None
+
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
+    SUPPORT_EMAIL = None
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
@@ -58,8 +67,29 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
 
+    # Security & X-Frame-Options Middleware
+    # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
+    RTD_LATEST = 'latest'
+    RTD_LATEST_VERBOSE_NAME = 'latest'
+    RTD_STABLE = 'stable'
+    RTD_STABLE_VERBOSE_NAME = 'stable'
+
+    # Database and API hitting settings
+    DONT_HIT_API = False
+    DONT_HIT_DB = True
+
+    SYNC_USER = getpass.getuser()
+
+    USER_MATURITY_DAYS = 7
+
+    # override classes
+    CLASS_OVERRIDES = {}
 
     # Application classes
     @property
@@ -80,14 +110,16 @@ class CommunityBaseSettings(Settings):
             'guardian',
             'django_gravatar',
             'rest_framework',
+            'rest_framework.authtoken',
             'corsheaders',
             'textclassifier',
             'annoying',
             'django_extensions',
             'crispy_forms',
             'messages_extends',
-            'django_filters',
             'django_elasticsearch_dsl',
+            'django_filters',
+            'polymorphic',
 
             # our apps
             'readthedocs.projects',
@@ -97,7 +129,9 @@ class CommunityBaseSettings(Settings):
             'readthedocs.oauth',
             'readthedocs.redirects',
             'readthedocs.rtd_tests',
-            'readthedocs.restapi',
+            'readthedocs.api.v2',
+            'readthedocs.api.v3',
+
             'readthedocs.gold',
             'readthedocs.payments',
             'readthedocs.notifications',
@@ -127,12 +161,12 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.ProxyMiddleware',
         'readthedocs.core.middleware.FooterNoSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
         'django.middleware.csrf.CsrfViewMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
@@ -147,6 +181,24 @@ class CommunityBaseSettings(Settings):
         # `allauth` specific authentication methods, such as login by e-mail
         'allauth.account.auth_backends.AuthenticationBackend',
     )
+
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            'OPTIONS': {
+                'min_length': 9,
+            }
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        },
+    ]
 
     MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
@@ -180,6 +232,11 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     ]
+    PYTHON_MEDIA = False
+
+    # Optional Django Storage subclass used to write build artifacts to cloud or local storage
+    # https://docs.readthedocs.io/en/stable/settings.html#build-media-storage
+    RTD_BUILD_MEDIA_STORAGE = None
 
     TEMPLATES = [
         {
@@ -213,6 +270,7 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
+    GLOBAL_PIP_CACHE = False
 
     # I18n
     TIME_ZONE = 'UTC'
@@ -271,13 +329,20 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
         },
     }
+    MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
+    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
     DOCKER_ENABLE = False
+    DOCKER_SOCKET = 'unix:///var/run/docker.sock'
+    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
+    DOCKER_BUILD_IMAGES = None
+    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
@@ -293,12 +358,15 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:4.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
         },
+        'readthedocs/build:5.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+        },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth
@@ -345,8 +413,10 @@ class CommunityBaseSettings(Settings):
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
+    DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
     SERVE_DOCS = ['public']
+    ALLOW_ADMIN = True
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
@@ -437,8 +507,13 @@ class CommunityBaseSettings(Settings):
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
+        'DEFAULT_THROTTLE_RATES': {
+            'anon': '5/minute',
+            'user': '60/minute',
+        },
         'PAGE_SIZE': 10,
     }
+
     SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
 
     # Logging

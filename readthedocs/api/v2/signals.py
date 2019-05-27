@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """We define custom Django signals to trigger when a footer is rendered."""
 
 import django.dispatch

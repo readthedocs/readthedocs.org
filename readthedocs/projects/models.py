@@ -12,13 +12,14 @@ from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import NoReverseMatch, reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from guardian.shortcuts import assign
 from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
@@ -37,7 +38,6 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.restapi.client import api
 from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
@@ -321,11 +321,7 @@ class Project(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Level of privacy that you want on the repository. '
             'Protected means public but not in listings.',
@@ -335,11 +331,7 @@ class Project(models.Model):
         _('Version Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=getattr(
-            settings,
-            'DEFAULT_PRIVACY_LEVEL',
-            'public',
-        ),
+        default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Default level of privacy you want on built '
             'versions of documentation.',
@@ -496,7 +488,7 @@ class Project(models.Model):
         )
 
     def get_canonical_url(self):
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return api.project(self.pk).canonical_url().get()['url']
         return self.get_docs_url()
 
@@ -506,29 +498,35 @@ class Project(models.Model):
 
         This is used in search result linking
         """
-        if getattr(settings, 'DONT_HIT_DB', True):
+        if settings.DONT_HIT_DB:
             return [(proj['slug'], proj['canonical_url']) for proj in
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
 
-    def get_storage_path(self, type_, version_slug=LATEST):
+    def get_storage_path(self, type_, version_slug=LATEST, include_file=True):
         """
         Get a path to a build artifact for use with Django's storage system.
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
+        :param include_file: Include file name in return
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
-        extension = type_.replace('htmlzip', 'zip')
-        return '{}/{}/{}/{}.{}'.format(
+        folder_path = '{}/{}/{}'.format(
             type_,
             self.slug,
             version_slug,
-            self.slug,
-            extension,
         )
+        if include_file:
+            extension = type_.replace('htmlzip', 'zip')
+            return '{}/{}.{}'.format(
+                folder_path,
+                self.slug,
+                extension,
+            )
+        return folder_path
 
     def get_production_media_path(self, type_, version_slug, include_file=True):
         """
@@ -541,8 +539,7 @@ class Project(models.Model):
 
         :returns: Full path to media file or path
         """
-        if getattr(settings, 'DEFAULT_PRIVACY_LEVEL',
-                   'public') == 'public' or settings.DEBUG:
+        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
             path = os.path.join(
                 settings.MEDIA_ROOT,
                 type_,
@@ -619,7 +616,7 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
@@ -735,6 +732,10 @@ class Project(models.Model):
 
     @property
     def has_good_build(self):
+        # Check if there is `_good_build` annotation in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_good_build'):
+            return self._good_build
         return self.builds.filter(success=True).exists()
 
     @property
@@ -809,8 +810,8 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                getattr(settings, 'DOCKER_LIMITS', {}).get('time') or
-                getattr(settings, 'REPO_LOCK_SECONDS', 30)
+                settings.DOCKER_LIMITS.get('time') or
+                settings.REPO_LOCK_SECONDS
             )
 
         return NonBlockingLock(
@@ -854,6 +855,13 @@ class Project(models.Model):
 
         :param finished: Return only builds that are in a finished state
         """
+        # Check if there is `_latest_build` attribute in the Queryset.
+        # Used for Database optimization.
+        if hasattr(self, '_latest_build'):
+            if self._latest_build:
+                return self._latest_build[0]
+            return None
+
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'
@@ -920,7 +928,7 @@ class Project(models.Model):
         """
         Returns the version that was promoted to be the new stable version.
 
-        Return ``None`` if no update was mode or if there is no version on the
+        Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
         versions = self.versions.all()
@@ -933,18 +941,22 @@ class Project(models.Model):
                 )
                 if identifier_updated and current_stable.machine:
                     log.info(
-                        'Update stable version: {project}:{version}'.format(
-                            project=self.slug,
-                            version=new_stable.identifier,
-                        ),
+                        'Update stable version: %(project)s:%(version)s',
+                        {
+                            'project': self.slug,
+                            'version': new_stable.identifier,
+                        }
                     )
                     current_stable.identifier = new_stable.identifier
                     current_stable.save()
                     return new_stable
             else:
                 log.info(
-                    'Creating new stable version: {project}:{version}'
-                    .format(project=self.slug, version=new_stable.identifier),
+                    'Creating new stable version: %(project)s:%(version)s',
+                    {
+                        'project': self.slug,
+                        'version': new_stable.identifier,
+                    }
                 )
                 current_stable = self.versions.create_stable(
                     type=new_stable.type,
@@ -1007,7 +1019,7 @@ class Project(models.Model):
         return self.superprojects.select_related('parent').first()
 
     def get_canonical_custom_domain(self):
-        """Get the canonical custom domain or None"""
+        """Get the canonical custom domain or None."""
         if hasattr(self, '_canonical_domains'):
             # Cached custom domains
             if self._canonical_domains:
@@ -1170,7 +1182,7 @@ class HTMLFile(ImportedFile):
     This tracks only the HTML files for indexing to search.
     """
 
-    class Meta(object):
+    class Meta:
         proxy = True
 
     objects = HTMLFileManager()
@@ -1337,7 +1349,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-    USE_SETUPTOOLS_LATEST = 'use_setuptools_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     SKIP_SUBMODULES = 'skip_submodules'
@@ -1347,13 +1358,10 @@ class Feature(models.Model):
     DONT_SHALLOW_CLONE = 'dont_shallow_clone'
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
-    USE_PDF_LATEXMK = 'use_pdf_latexmk'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (USE_SETUPTOOLS_LATEST, _('Use latest version of setuptools')),
-        (USE_PDF_LATEXMK, _('Use latexmk to build the PDF')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (SKIP_SUBMODULES, _('Skip git submodule checkout')),

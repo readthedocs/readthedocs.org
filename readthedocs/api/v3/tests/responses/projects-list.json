@@ -1,0 +1,58 @@
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "name": "project",
+            "slug": "project",
+            "description": "Project description",
+            "created": "2019-04-29T10:00:00Z",
+            "modified": "2019-04-29T12:00:00Z",
+            "language": {
+                "code": "en",
+                "name": "English"
+            },
+            "programming_language": {
+                "code": "words",
+                "name": "Only Words"
+            },
+            "repository": {
+                "url": "https://github.com/rtfd/project",
+                "type": "git"
+            },
+            "default_version": "latest",
+            "default_branch": "master",
+            "privacy_level": {
+                "code": "public",
+                "name": "Public"
+            },
+            "subproject_of": null,
+            "translation_of": null,
+            "urls": {
+                "documentation": "http://readthedocs.org/docs/project/en/latest/",
+                "project_homepage": "http://project.com"
+            },
+            "tags": [
+                "tag",
+                "project",
+                "test"
+            ],
+            "users": [
+                {
+                    "created": "2019-04-29T10:00:00Z",
+                    "username": "testuser"
+                }
+            ],
+            "_links": {
+                "_self": "https://readthedocs.org/api/v3/projects/project/",
+                "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
+                "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+                "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
+                "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
+                "translations": "https://readthedocs.org/api/v3/projects/project/translations/"
+            }
+        }
+    ]
+}
