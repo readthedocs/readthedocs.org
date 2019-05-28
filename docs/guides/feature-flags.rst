@@ -19,5 +19,3 @@ Available Flags
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`
 
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
-
-``SHARE_SPHINX_DOCTREE``: :featureflags:`SHARE_SPHINX_DOCTREE`
