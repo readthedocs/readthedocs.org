@@ -128,7 +128,7 @@ We need to think about how we want to serve the PR Docs.
 - We could serve the PR Docs from another Domain.
 - We could serve the PR Docs using ``<pr_number>`` namespace on the same Domain.
 
-  - Using ``pr<pr_number>`` as the version slug ``https://<project_slug>.readthedocs.io/<language_code>/pr<pr_number>/``
+  - Using ``pr-<pr_number>`` as the version slug ``https://<project_slug>.readthedocs.io/<language_code>/pr-<pr_number>/``
   - Using ``pr`` subdomain ``https://pr.<project_slug>.readthedocs.io/<pr_number>/``
 
 
