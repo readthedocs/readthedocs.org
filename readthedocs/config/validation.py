@@ -79,9 +79,9 @@ def validate_path(value, base_path):
     string_value = validate_string(value)
     if not string_value:
         raise ValidationError(value, INVALID_PATH)
-    pathed_value = os.path.join(base_path, string_value)
-    final_value = os.path.abspath(pathed_value)
-    return final_value
+    full_path = os.path.join(base_path, string_value)
+    rel_path = os.path.relpath(full_path, base_path)
+    return rel_path
 
 
 def validate_string(value):
