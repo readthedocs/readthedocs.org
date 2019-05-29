@@ -380,7 +380,7 @@ def sitemap_xml(request, project):
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     def sort_by_priority(version_list):
-        """This will sort the versions by priority"""
+        """Sorts the versions by priority. i.e: 1, 0.9, 0.8..."""
         return sorted(
             version_list,
             key=lambda version: version['priority'],
