@@ -379,6 +379,14 @@ def sitemap_xml(request, project):
         changefreqs = ['daily', 'weekly']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
+    def sort_by_priority(version_list):
+        """This will sort the versions by priority"""
+        return sorted(
+            version_list,
+            key=lambda version: version['priority'],
+            reverse=True
+        )
+
     if project.privacy_level == constants.PRIVATE:
         raise Http404
 
@@ -431,7 +439,7 @@ def sitemap_xml(request, project):
         versions.append(element)
 
     context = {
-        'versions': versions,
+        'versions': sort_by_priority(versions),
     }
     return render(
         request,
