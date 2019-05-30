@@ -1397,7 +1397,11 @@ def clean_build_task(version_id):
         not version or
         not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
     ):
-        return
+        log.info(
+            'Skipping build files deletetion for version: %s',
+            version_id,
+        )
+        return False
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'artifacts', 'envs', 'conda')
@@ -1408,6 +1412,8 @@ def clean_build_task(version_id):
             remove_dirs(del_dirs)
     except vcs_support_utils.LockTimeout:
         log.info('Another task is running. Not removing: %s', del_dirs)
+    else:
+        return True
 
 
 def _manage_imported_files(version, path, commit):
