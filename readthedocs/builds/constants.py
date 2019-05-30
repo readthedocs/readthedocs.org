@@ -33,11 +33,13 @@ BUILD_TYPES = (
 
 BRANCH = 'branch'
 TAG = 'tag'
+PULL_REQUEST = 'pull_request'
 UNKNOWN = 'unknown'
 
 VERSION_TYPES = (
     (BRANCH, _('Branch')),
     (TAG, _('Tag')),
+    (PULL_REQUEST, _('Pull Request')),
     (UNKNOWN, _('Unknown')),
 )
 
