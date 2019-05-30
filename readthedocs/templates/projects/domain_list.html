@@ -27,7 +27,7 @@
             <ul>
               {% for domain in object_list %}
                 <li class="module-item">
-                <span class="module-item-title {% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}">
+                <span class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}">
                   {{ domain.domain }}
                 </span>
                 <ul class="module-item-menu">
