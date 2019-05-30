@@ -467,25 +467,35 @@ class PdfBuilder(BaseSphinx):
             cwd=latex_cwd,
         )
 
-        cmd = self.run(
+        if self.build_env.command_class == DockerBuildCommand:
+            latex_class = DockerLatexBuildCommand
+        else:
+            latex_class = LatexBuildCommand
+
+        cmd = [
             'latexmk',
             '-r',
             rcfile,
-
             # FIXME: check for platex here as well
             '-pdfdvi' if self.project.language == 'ja' else '-pdf',
-
+            # Ignore error codes because they often lie
+            '-f',
             '-dvi-',
             '-ps-',
             f'-jobname={self.project.slug}',
             '-interaction=nonstopmode',
+        ]
+
+        cmd_ret = self.build_env.run_command_class(
+            cls=latex_class,
+            cmd=cmd,
             warn_only=True,
             cwd=latex_cwd,
         )
 
         self.pdf_file_name = f'{self.project.slug}.pdf'
 
-        return cmd.successful
+        return cmd_ret.successful
 
     def _build_pdflatex(self, tex_files, latex_cwd):
         pdflatex_cmds = [
