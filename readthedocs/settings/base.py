@@ -119,6 +119,7 @@ class CommunityBaseSettings(Settings):
             'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
+            'polymorphic',
 
             # our apps
             'readthedocs.projects',
@@ -357,12 +358,15 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:4.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
         },
+        'readthedocs/build:5.0': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+        },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:3.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth

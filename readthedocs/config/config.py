@@ -239,7 +239,11 @@ class BuildConfigBase:
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        return 'python{}'.format(ver)
+        if not ver or isinstance(ver, (int, float)):
+            return 'python{}'.format(ver)
+
+        # Allow to specify ``pypy3.5`` as Python interpreter
+        return ver
 
     @property
     def python_full_version(self):
@@ -248,7 +252,8 @@ class BuildConfigBase:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
             ver = max(
-                v for v in self.get_valid_python_versions() if v < ver + 1
+                v for v in self.get_valid_python_versions()
+                if not isinstance(v, str) and v < ver + 1
             )
         return ver
 

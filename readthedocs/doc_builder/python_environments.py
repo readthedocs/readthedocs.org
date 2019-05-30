@@ -82,11 +82,10 @@ class PythonEnvironment:
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
         """
-        rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
-                os.path.join('.', rel_path) if rel_path != '.' else rel_path
+                os.path.join('.', install.path) if install.path != '.' else install.path
             )
             extra_req_param = ''
             if install.extra_requirements:
@@ -111,7 +110,7 @@ class PythonEnvironment:
         elif install.method == SETUPTOOLS:
             self.build_env.run(
                 self.venv_bin(filename='python'),
-                os.path.join(rel_path, 'setup.py'),
+                os.path.join(install.path, 'setup.py'),
                 'install',
                 '--force',
                 cwd=self.checkout_path,
@@ -201,11 +200,6 @@ class PythonEnvironment:
             env_vars_hash != self._get_env_vars_hash(),
         ])
 
-    def _get_env_vars(self):
-        """Return env vars with their values of the project."""
-        env_vars = self.version.project.environmentvariable_set.values_list('name', 'value')
-        return env_vars
-
     def _get_env_vars_hash(self):
         """
         Returns the sha256 hash of all the environment variables and their values.
@@ -214,7 +208,8 @@ class PythonEnvironment:
         it returns sha256 hash of empty string.
         """
         m = hashlib.sha256()
-        for variable, value in self._get_env_vars():
+        env_vars = self.version.project.environment_variables
+        for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
             m.update(hash_str.encode('utf-8'))
         return m.hexdigest()
@@ -368,7 +363,10 @@ class Virtualenv(PythonEnvironment):
             for path, req_file in itertools.product(paths, req_files):
                 test_path = os.path.join(self.checkout_path, path, req_file)
                 if os.path.exists(test_path):
-                    requirements_file_path = test_path
+                    requirements_file_path = os.path.relpath(
+                        test_path,
+                        self.checkout_path,
+                    )
                     break
 
         if requirements_file_path:
@@ -385,10 +383,7 @@ class Virtualenv(PythonEnvironment):
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r',
-                os.path.relpath(
-                    requirements_file_path,
-                    self.checkout_path
-                ),
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,

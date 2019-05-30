@@ -33,7 +33,6 @@ from .base import ProjectOnboardMixin
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
-storage = get_storage_class()()
 
 
 class ProjectIndex(ListView):
@@ -217,11 +216,14 @@ def project_download_media(request, project_slug, type_, version_slug):
     )
 
     if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
-        storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug
-        )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
+
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+            storage_path = version.project.get_storage_path(
+                type_=type_, version_slug=version_slug
+            )
+            if storage.exists(storage_path):
+                return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
             settings.MEDIA_URL,
