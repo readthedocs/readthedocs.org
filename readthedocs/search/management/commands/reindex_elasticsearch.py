@@ -35,7 +35,7 @@ class Command(BaseCommand):
     def _run_reindex_tasks(self, models, queue):
         apply_async_kwargs = {'priority': 0}
         if queue:
-            log.info('Adding indexing tasks to queue {0}'.format(queue))
+            log.info('Adding indexing tasks to queue %s', queue)
             apply_async_kwargs['queue'] = queue
         else:
             log.info('Adding indexing tasks to default queue')

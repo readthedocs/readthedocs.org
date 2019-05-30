@@ -26,7 +26,7 @@
     {% for domain in object_list %}
         <li class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}" >
         {{ domain.domain }}
-        (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Edit" %}</a>)
+        (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Details" %}</a>)
         (<a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a>)
         </li>
     {% endfor %}

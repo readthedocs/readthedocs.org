@@ -17,8 +17,6 @@ from readthedocs.rtd_tests.utils import create_user
 @override_settings(USE_SUBDOMAIN=True)
 class MiddlewareTests(TestCase):
 
-    urlconf_subdomain = settings.SUBDOMAIN_URLCONF
-
     def setUp(self):
         self.factory = RequestFactory()
         self.middleware = SubdomainMiddleware()
@@ -48,7 +46,7 @@ class MiddlewareTests(TestCase):
         request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
         self.middleware.process_request(request)
         self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.slug, 'pip')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -87,7 +85,7 @@ class MiddlewareTests(TestCase):
             self.url, HTTP_HOST='pip.prod.readthedocs.org'
         )
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.subdomain, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -96,7 +94,7 @@ class MiddlewareTests(TestCase):
 
         request = self.factory.get(self.url, HTTP_HOST='docs.foobar.com')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.domain_object, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -112,7 +110,7 @@ class MiddlewareTests(TestCase):
             self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
         )
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')
@@ -122,7 +120,7 @@ class MiddlewareTests(TestCase):
         get(Domain, project=self.pip, domain='pip.random.com')
         request = self.factory.get(self.url, HTTP_HOST='PIP.RANDOM.COM')
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.slug, 'pip')
 
@@ -131,7 +129,7 @@ class MiddlewareTests(TestCase):
             self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
         )
         self.middleware.process_request(request)
-        self.assertEqual(request.urlconf, self.urlconf_subdomain)
+        self.assertEqual(request.urlconf, settings.SUBDOMAIN_URLCONF)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.rtdheader, True)
         self.assertEqual(request.slug, 'pip')

@@ -15,7 +15,7 @@ from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
@@ -33,7 +33,6 @@ from .base import ProjectOnboardMixin
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
-storage = get_storage_class()()
 
 
 class ProjectIndex(ListView):
@@ -68,6 +67,16 @@ class ProjectIndex(ListView):
         context['person'] = self.user
         context['tag'] = self.tag
         return context
+
+
+def project_redirect(request, invalid_project_slug):
+    """Redirect old project slugs that had underscores which are no longer allowed"""
+    new_project_slug = invalid_project_slug.replace('_', '-')
+    new_path = request.path.replace(invalid_project_slug, new_project_slug)
+    return redirect('{}?{}'.format(
+        new_path,
+        request.GET.urlencode(),
+    ))
 
 
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
@@ -205,13 +214,16 @@ def project_download_media(request, project_slug, type_, version_slug):
         project__slug=project_slug,
         slug=version_slug,
     )
-    privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-    if privacy_level == 'public' or settings.DEBUG:
-        storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug
-        )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
+
+    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+            storage_path = version.project.get_storage_path(
+                type_=type_, version_slug=version_slug
+            )
+            if storage.exists(storage_path):
+                return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
             settings.MEDIA_URL,

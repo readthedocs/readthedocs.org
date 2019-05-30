@@ -41,11 +41,11 @@ VERSION_TYPES = (
     (UNKNOWN, _('Unknown')),
 )
 
-LATEST = getattr(settings, 'RTD_LATEST', 'latest')
-LATEST_VERBOSE_NAME = getattr(settings, 'RTD_LATEST_VERBOSE_NAME', 'latest')
+LATEST = settings.RTD_LATEST
+LATEST_VERBOSE_NAME = settings.RTD_LATEST_VERBOSE_NAME
 
-STABLE = getattr(settings, 'RTD_STABLE', 'stable')
-STABLE_VERBOSE_NAME = getattr(settings, 'RTD_STABLE_VERBOSE_NAME', 'stable')
+STABLE = settings.RTD_STABLE
+STABLE_VERBOSE_NAME = settings.RTD_STABLE_VERBOSE_NAME
 
 # Those names are specialcased version names. They do not correspond to
 # branches/tags in a project's repository.

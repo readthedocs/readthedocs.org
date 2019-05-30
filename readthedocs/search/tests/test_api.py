@@ -85,8 +85,8 @@ class TestDocumentSearch(object):
         title = html_file.processed_json['title']
         query = title.split()[0]
 
-        # Create 30 more same html file
-        for _ in range(30):
+        # Create 60 more same html file
+        for _ in range(60):
             # Make primary key to None, so django will create new object
             html_file.pk = None
             html_file.save()
@@ -96,12 +96,12 @@ class TestDocumentSearch(object):
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
-        # Check the count is 31 (1 existing and 30 new created)
-        assert resp.data['count'] == 31
+        # Check the count is 61 (1 existing and 60 new created)
+        assert resp.data['count'] == 61
         # Check there are next url
         assert resp.data['next'] is not None
-        # There should be only 25 data as the pagination is 25 by default
-        assert len(resp.data['results']) == 25
+        # There should be only 50 data as the pagination is 50 by default
+        assert len(resp.data['results']) == 50
 
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5

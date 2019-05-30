@@ -14,7 +14,7 @@ __all__ = (
     'get_public_task_data',
 )
 
-STATUS_UPDATES_ENABLED = not getattr(settings, 'CELERY_ALWAYS_EAGER', False)
+STATUS_UPDATES_ENABLED = not settings.CELERY_ALWAYS_EAGER
 
 
 class PublicTask(Task):
