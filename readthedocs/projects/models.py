@@ -398,6 +398,9 @@ class Project(models.Model):
     objects = ProjectQuerySet.as_manager()
     all_objects = models.Manager()
 
+    # Property used for storing the latest build for a project when prefetching
+    LATEST_BUILD_CACHE = '_latest_build'
+
     class Meta:
         ordering = ('slug',)
         permissions = (
@@ -884,7 +887,7 @@ class Project(models.Model):
         """
         # Check if there is `_latest_build` attribute in the Queryset.
         # Used for Database optimization.
-        if hasattr(self, '_latest_build'):
+        if hasattr(self, self.LATEST_BUILD_CACHE):
             if self._latest_build:
                 return self._latest_build[0]
             return None
