@@ -215,11 +215,7 @@ def project_delete(request, project_slug):
     }
 
     if request.method == 'POST':
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[(project.doc_path,)],
-        )
+        # Delete the project and all related files
         project.delete()
         messages.success(request, _('Project deleted'))
         project_dashboard = reverse('projects_dashboard')

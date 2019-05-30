@@ -42,9 +42,15 @@ from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
+from .constants import (
+    MEDIA_TYPES,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+)
+
 
 log = logging.getLogger(__name__)
-storage = get_storage_class()()
 
 
 class ProjectRelationship(models.Model):
@@ -463,6 +469,29 @@ class Project(models.Model):
         except Exception:
             log.exception('Error creating default branches')
 
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        from readthedocs.projects import tasks
+
+        # Remove local FS build artifacts on the web servers
+        broadcast(
+            type='app',
+            task=tasks.remove_dirs,
+            args=[(self.doc_path,)],
+        )
+
+        # Remove build artifacts from storage
+        storage_paths = []
+        for type_ in MEDIA_TYPES:
+            storage_paths.append(
+                '{}/{}'.format(
+                    type_,
+                    self.slug,
+                )
+            )
+        tasks.remove_build_storage_paths.delay(storage_paths)
+
+        super().delete(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
@@ -746,32 +775,30 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    def has_pdf(self, version_slug=LATEST):
+    def has_media(self, type_, version_slug=LATEST):
         path = self.get_production_media_path(
-            type_='pdf', version_slug=version_slug
+            type_=type_, version_slug=version_slug
         )
-        storage_path = self.get_storage_path(
-            type_='pdf', version_slug=version_slug
-        )
-        return os.path.exists(path) or storage.exists(storage_path)
+        if os.path.exists(path):
+            return True
+
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+            storage_path = self.get_storage_path(
+                type_=type_, version_slug=version_slug
+            )
+            return storage.exists(storage_path)
+
+        return False
+
+    def has_pdf(self, version_slug=LATEST):
+        return self.has_media(MEDIA_TYPE_PDF, version_slug=version_slug)
 
     def has_epub(self, version_slug=LATEST):
-        path = self.get_production_media_path(
-            type_='epub', version_slug=version_slug
-        )
-        storage_path = self.get_storage_path(
-            type_='epub', version_slug=version_slug
-        )
-        return os.path.exists(path) or storage.exists(storage_path)
+        return self.has_media(MEDIA_TYPE_EPUB, version_slug=version_slug)
 
     def has_htmlzip(self, version_slug=LATEST):
-        path = self.get_production_media_path(
-            type_='htmlzip', version_slug=version_slug
-        )
-        storage_path = self.get_storage_path(
-            type_='htmlzip', version_slug=version_slug
-        )
-        return os.path.exists(path) or storage.exists(storage_path)
+        return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
 
     @property
     def sponsored(self):

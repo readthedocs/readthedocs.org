@@ -1660,6 +1660,20 @@ def remove_dirs(paths):
 
 
 @app.task(queue='web')
+def remove_build_storage_paths(paths):
+    """
+    Remove artifacts from build media storage (cloud or local storage)
+
+    :param paths: list of paths in build media storage to delete
+    """
+    if settings.RTD_BUILD_MEDIA_STORAGE:
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        for storage_path in paths:
+            log.info('Removing %s from media storage', storage_path)
+            storage.delete_directory(storage_path)
+
+
+@app.task(queue='web')
 def sync_callback(_, version_pk, commit, *args, **kwargs):
     """
     Called once the sync_files tasks are done.
