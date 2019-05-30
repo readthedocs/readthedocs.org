@@ -1,28 +1,34 @@
 # Base packages
-pip==19.0.3
+pip==19.1.1
 appdirs==1.4.3
-virtualenv==16.4.3
+virtualenv==16.6.0
 
 django==1.11.20  # pyup: <1.12
-django-guardian==1.5.0
-django-extensions==2.1.6
+django-guardian==1.5.1
+django-extensions==2.1.7
+django_polymorphic==2.0.3
 
-djangorestframework==3.9.2
+djangorestframework==3.9.4
 
 # For intersphinx during builds
-Sphinx==1.8.5
+# Use <2.x until we fix some issues in our theme.
+# Some things are not rendering properly and sidebar shows titles in gray.
+Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
 django-filter==2.1.0
 
+drf-flex-fields==0.5.0
+drf-extensions==0.5.0
+
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
-requests==2.21.0
+requests==2.22.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==3.13
-Pygments==2.3.1
+pyyaml==5.1
+Pygments==2.4.1
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -45,7 +51,7 @@ django-allauth==0.39.1
 GitPython==2.1.10  # pyup: ignore
 
 # Search
-elasticsearch==6.3.1
+elasticsearch==6.3.1  # pyup: <7.0.0
 
 
 # elasticsearch-dsl==6.3.1 produces this error
@@ -58,33 +64,30 @@ pyquery==1.4.0
 
 # lxml is used by pyquery
 # defusedxml is recommended when using lxml
-lxml==4.3.2
-defusedxml==0.5.0
+lxml==4.3.3
+defusedxml==0.6.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.9
+pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
-mock==2.0.0
-stripe==2.21.0
+mock==3.0.5
+stripe==2.29.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
+git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
+django-crispy-forms==1.7.2
 
-# docker is pinned to 3.1.3 because we found some strange behavior
-# related to timeouts on EXEC with 3.2.1 and 3.3.0 that's not present
-# with 3.1.3
-# https://github.com/rtfd/readthedocs.org/issues/3999
-docker==3.1.3  # pyup: ignore
+docker==4.0.1
 
 django-textclassifier==1.0
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.24.0
+django-taggit==1.1.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
@@ -94,7 +97,10 @@ packaging==19.0
 django-cors-middleware==1.3.1
 
 # User agent parsing - used for analytics purposes
-user-agents<1.2.0
+user-agents==2.0
+
+# Utilities used to upload build media to cloud storage
+django-storages==1.7.1  # pyup: <1.8
 
 # Required only in development and linting
 django-debug-toolbar==1.11

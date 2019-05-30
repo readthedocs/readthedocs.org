@@ -16,7 +16,6 @@
       <ul>
         <li class="{% block project-edit-active %}{% endblock %}"><a href="{% url "projects_edit" project.slug %}">{% trans "Settings" %} </a></li>
         <li class="{% block project-advanced-active %}{% endblock %}"><a href="{% url "projects_advanced" project.slug %}">{% trans "Advanced Settings" %} </a></li>
-        <li class="{% block project-versions-active %}{% endblock %}"><a href="{% url "projects_versions" project.slug %}" rel="nofollow,noindex">{% trans "Versions" %}</a></li>
         <li class="{% block project-domains-active %}{% endblock %}"><a href="{% url "projects_domains" project.slug %}">{% trans "Domains" %}</a></li>
         <li class="{% block project-users-active %}{% endblock %}"><a href="{% url "projects_users" project.slug %}">{% trans "Maintainers" %}</a></li>
         <li class="{% block project-redirects-active %}{% endblock %}"><a href="{% url "projects_redirects" project.slug %}">{% trans "Redirects" %}</a></li>

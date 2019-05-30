@@ -61,7 +61,7 @@ def restructuredtext(value, short=False):
             'file_insertion_enabled': False,
         }
         docutils_settings.update(
-            getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}),
+            settings.RESTRUCTUREDTEXT_FILTER_SETTINGS,
         )
         try:
             parts = publish_parts(

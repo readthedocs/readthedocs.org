@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
@@ -16,6 +16,7 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
+    EmailHookForm,
     EnvironmentVariableForm,
     ProjectAdvancedForm,
     ProjectBasicsForm,
@@ -23,7 +24,6 @@ from readthedocs.projects.forms import (
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
-    EmailHookForm
 )
 from readthedocs.projects.models import EnvironmentVariable, Project
 
@@ -201,6 +201,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PUBLIC,
             identifier='public-1',
+            verbose_name='public-1',
         )
         get(
             Version,
@@ -209,6 +210,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PUBLIC,
             identifier='public-2',
+            verbose_name='public-2',
         )
         get(
             Version,
@@ -217,6 +219,7 @@ class TestProjectAdvancedForm(TestCase):
             active=False,
             privacy_level=PROTECTED,
             identifier='public-3',
+            verbose_name='public-3',
         )
         get(
             Version,
@@ -225,6 +228,7 @@ class TestProjectAdvancedForm(TestCase):
             active=False,
             privacy_level=PUBLIC,
             identifier='public/4',
+            verbose_name='public/4',
         )
         get(
             Version,
@@ -233,6 +237,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PRIVATE,
             identifier='private',
+            verbose_name='private',
         )
         get(
             Version,
@@ -241,6 +246,7 @@ class TestProjectAdvancedForm(TestCase):
             active=True,
             privacy_level=PROTECTED,
             identifier='protected',
+            verbose_name='protected',
         )
 
     def test_list_only_active_versions_on_default_version(self):
@@ -255,21 +261,6 @@ class TestProjectAdvancedForm(TestCase):
             {'latest', 'public-1', 'public-2', 'private', 'protected'},
         )
 
-    def test_list_all_versions_on_default_branch(self):
-        form = ProjectAdvancedForm(instance=self.project)
-        # This version is created automatically by the project on save
-        self.assertTrue(self.project.versions.filter(slug=LATEST).exists())
-        self.assertEqual(
-            {
-                identifier
-                for identifier, _ in form.fields['default_branch'].widget.choices
-            },
-            {
-                None, 'master', 'public-1', 'public-2',
-                'public-3', 'public/4', 'protected', 'private',
-            },
-        )
-
     def test_default_version_field_if_no_active_version(self):
         project_1 = get(Project)
         project_1.versions.filter(active=True).update(active=False)
@@ -280,6 +271,117 @@ class TestProjectAdvancedForm(TestCase):
         form = ProjectAdvancedForm(instance=project_1)
         self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
         self.assertEqual(form.fields['default_version'].initial, 'latest')
+
+
+class TestProjectAdvancedFormDefaultBranch(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        user_created_stable_version = get(
+            Version,
+            project=self.project,
+            slug='stable',
+            active=True,
+            privacy_level=PUBLIC,
+            identifier='ab96cbff71a8f40a4340aaf9d12e6c10',
+            verbose_name='stable',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='public-1',
+            active=True,
+            privacy_level=PUBLIC,
+            identifier='public-1',
+            verbose_name='public-1',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='private',
+            active=True,
+            privacy_level=PRIVATE,
+            identifier='private',
+            verbose_name='private',
+        )
+        get(
+            Version,
+            project=self.project,
+            slug='protected',
+            active=True,
+            privacy_level=PROTECTED,
+            identifier='protected',
+            verbose_name='protected',
+        )
+
+    def test_list_only_non_auto_generated_versions_on_default_branch(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created automatically by the project on save
+        latest = self.project.versions.filter(slug=LATEST)
+        self.assertTrue(latest.exists())
+        # show only the versions that are not auto generated as choices
+        self.assertEqual(
+            {
+                identifier
+                for identifier, _ in form.fields['default_branch'].widget.choices
+            },
+            {
+                None, 'stable', 'public-1', 'protected', 'private',
+            },
+        )
+        # Auto generated version `latest` should not be among the choices
+        self.assertNotIn(
+            latest.first().verbose_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+
+    def test_list_user_created_latest_and_stable_versions_on_default_branch(self):
+        self.project.versions.filter(slug=LATEST).first().delete()
+        user_created_latest_version = get(
+            Version,
+            project=self.project,
+            slug='latest',
+            active=True,
+            privacy_level=PUBLIC,
+            identifier='ab96cbff71a8f40a4240aaf9d12e6c10',
+            verbose_name='latest',
+        )
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created by the user
+        latest = self.project.versions.filter(slug=LATEST)
+        # This version is created by the user
+        stable = self.project.versions.filter(slug=STABLE)
+
+        self.assertIn(
+            latest.first().verbose_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+        self.assertIn(
+            stable.first().verbose_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+
+    def test_commit_name_not_in_default_branch_choices(self):
+        form = ProjectAdvancedForm(instance=self.project)
+        # This version is created by the user
+        latest = self.project.versions.filter(slug=LATEST)
+        # This version is created by the user
+        stable = self.project.versions.filter(slug=STABLE)
+
+        # `commit_name` can not be used as the value for the choices
+        self.assertNotIn(
+            latest.first().commit_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+        self.assertNotIn(
+            stable.first().commit_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
 
 
 class TestTranslationForms(TestCase):

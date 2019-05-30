@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Endpoint to generate footer HTML."""
 
 from django.conf import settings
@@ -10,6 +8,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -17,7 +16,6 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
-from readthedocs.restapi.signals import footer_response
 
 
 def get_version_compare_data(project, base_version=None):
@@ -71,7 +69,7 @@ def footer_html(request):
     # pylint: disable=too-many-locals
     project_slug = request.GET.get('project', None)
     version_slug = request.GET.get('version', None)
-    page_slug = request.GET.get('page', None)
+    page_slug = request.GET.get('page', '')
     theme = request.GET.get('theme', False)
     docroot = request.GET.get('docroot', '')
     subproject = request.GET.get('subproject', False)

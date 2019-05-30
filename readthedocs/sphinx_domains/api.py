@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from readthedocs.restapi.views.model_views import UserSelectViewSet
+from readthedocs.api.v2.views.model_views import UserSelectViewSet
 
 from .models import SphinxDomain
 

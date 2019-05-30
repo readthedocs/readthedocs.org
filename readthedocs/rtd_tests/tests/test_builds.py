@@ -220,6 +220,7 @@ class BuildEnvironmentTests(TestCase):
         returns = [
             ((b'', b''), 0),  # sphinx-build html
             ((b'', b''), 0),  # sphinx-build pdf
+            ((b'', b''), 1),  # sphinx version check
             ((b'', b''), 1),  # latex
             ((b'', b''), 0),  # makeindex
             ((b'', b''), 0),  # latex
@@ -236,7 +237,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 7)
+        self.assertEqual(self.mocks.popen.call_count, 8)
         self.assertTrue(build_env.failed)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -271,6 +272,7 @@ class BuildEnvironmentTests(TestCase):
         returns = [
             ((b'', b''), 0),  # sphinx-build html
             ((b'', b''), 0),  # sphinx-build pdf
+            ((b'', b''), 1),  # sphinx version check
             ((b'Output written on foo.pdf', b''), 1),  # latex
             ((b'', b''), 0),  # makeindex
             ((b'', b''), 0),  # latex
@@ -287,7 +289,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 7)
+        self.assertEqual(self.mocks.popen.call_count, 8)
         self.assertTrue(build_env.successful)
 
     @mock.patch('readthedocs.projects.tasks.api_v2')
@@ -562,3 +564,21 @@ class BuildModelTests(TestCase):
         self.assertFalse(build_one.is_stale)
         self.assertTrue(build_two.is_stale)
         self.assertFalse(build_three.is_stale)
+
+    def test_using_latest_config(self):
+        now = timezone.now()
+
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            date=now - datetime.timedelta(minutes=8),
+            state='finished',
+        )
+
+        self.assertFalse(build.using_latest_config())
+
+        build.config = {'version': 2}
+        build.save()
+
+        self.assertTrue(build.using_latest_config())

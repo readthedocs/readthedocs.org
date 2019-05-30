@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
+import hashlib
 import itertools
 import json
 import logging
 import os
 import shutil
-
-from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
@@ -47,11 +44,12 @@ class PythonEnvironment:
         )
         if os.path.exists(build_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing build directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing build directory',
+                }
             )
             shutil.rmtree(build_dir)
 
@@ -60,11 +58,12 @@ class PythonEnvironment:
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing venv directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing venv directory',
+                }
             )
             shutil.rmtree(venv_dir)
 
@@ -83,11 +82,10 @@ class PythonEnvironment:
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
         """
-        rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
-                os.path.join('.', rel_path) if rel_path != '.' else rel_path
+                os.path.join('.', install.path) if install.path != '.' else install.path
             )
             extra_req_param = ''
             if install.extra_requirements:
@@ -112,7 +110,7 @@ class PythonEnvironment:
         elif install.method == SETUPTOOLS:
             self.build_env.run(
                 self.venv_bin(filename='python'),
-                os.path.join(rel_path, 'setup.py'),
+                os.path.join(install.path, 'setup.py'),
                 'install',
                 '--force',
                 cwd=self.checkout_path,
@@ -149,6 +147,7 @@ class PythonEnvironment:
         * the Python version (e.g. 2.7, 3, 3.6, etc)
         * the Docker image name
         * the Docker image hash
+        * the environment variables hash
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
@@ -174,6 +173,7 @@ class PythonEnvironment:
 
         env_python = environment_conf.get('python', {})
         env_build = environment_conf.get('build', {})
+        env_vars_hash = environment_conf.get('env_vars_hash', None)
 
         # By defaulting non-existent options to ``None`` we force a wipe since
         # we don't know how the environment was created
@@ -197,7 +197,22 @@ class PythonEnvironment:
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
             env_build_hash != image_hash,
+            env_vars_hash != self._get_env_vars_hash(),
         ])
+
+    def _get_env_vars_hash(self):
+        """
+        Returns the sha256 hash of all the environment variables and their values.
+
+        If there are no environment variables configured for the associated project,
+        it returns sha256 hash of empty string.
+        """
+        m = hashlib.sha256()
+        env_vars = self.version.project.environment_variables
+        for variable, value in env_vars.items():
+            hash_str = f'_{variable}_{value}_'
+            m.update(hash_str.encode('utf-8'))
+        return m.hexdigest()
 
     def save_environment_json(self):
         """
@@ -208,11 +223,13 @@ class PythonEnvironment:
         - python.version
         - build.image
         - build.hash
+        - env_vars_hash
         """
         data = {
             'python': {
                 'version': self.config.python_full_version,
             },
+            'env_vars_hash': self._get_env_vars_hash(),
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
@@ -279,13 +296,7 @@ class Virtualenv(PythonEnvironment):
 
         requirements = [
             'Pygments==2.3.1',
-            # Assume semver for setuptools version, support up to next backwards
-            # incompatible release
-            self.project.get_feature_value(
-                Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<41',
-                negative='setuptools<41',
-            ),
+            'setuptools==41.0.1',
             'docutils==0.14',
             'mock==1.0.1',
             'pillow==5.4.1',
@@ -295,7 +306,13 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.config.doctype == 'mkdocs':
-            requirements.append('mkdocs==0.17.3')
+            requirements.append(
+                self.project.get_feature_value(
+                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
+                    positive='mkdocs==0.17.3',
+                    negative='mkdocs<1.1',
+                ),
+            )
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
@@ -346,7 +363,10 @@ class Virtualenv(PythonEnvironment):
             for path, req_file in itertools.product(paths, req_files):
                 test_path = os.path.join(self.checkout_path, path, req_file)
                 if os.path.exists(test_path):
-                    requirements_file_path = test_path
+                    requirements_file_path = os.path.relpath(
+                        test_path,
+                        self.checkout_path,
+                    )
                     break
 
         if requirements_file_path:
@@ -363,10 +383,7 @@ class Virtualenv(PythonEnvironment):
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r',
-                os.path.relpath(
-                    requirements_file_path,
-                    self.checkout_path
-                ),
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,
@@ -393,11 +410,12 @@ class Conda(PythonEnvironment):
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing conda directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing conda directory',
+                }
             )
             shutil.rmtree(version_path)
         self.build_env.run(

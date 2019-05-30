@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Validations for the RTD configuration file."""
 import os
 
@@ -81,28 +79,33 @@ def validate_bool(value):
 
 def validate_directory(value, base_path):
     """Check that ``value`` is a directory."""
-    path = validate_path(value, base_path)
+    path = os.path.join(
+        base_path,
+        validate_path(value, base_path)
+    )
     if not os.path.isdir(path):
         raise ValidationError(value, INVALID_DIRECTORY)
-    return path
+    return os.path.relpath(path, base_path)
 
 
 def validate_file(value, base_path):
     """Check that ``value`` is a file."""
-    path = validate_path(value, base_path)
+    path = os.path.join(
+        base_path,
+        validate_path(value, base_path)
+    )
     if not os.path.isfile(path):
         raise ValidationError(value, INVALID_FILE)
-    return path
+    return os.path.relpath(path, base_path)
 
 
 def validate_path(value, base_path):
     """Check that ``value`` is an existent file in ``base_path``."""
     string_value = validate_string(value)
     pathed_value = os.path.join(base_path, string_value)
-    final_value = os.path.abspath(pathed_value)
-    if not os.path.exists(final_value):
+    if not os.path.exists(pathed_value):
         raise ValidationError(value, INVALID_PATH)
-    return final_value
+    return os.path.relpath(pathed_value, base_path)
 
 
 def validate_string(value):

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 from unittest import TestCase
 
 from mock import Mock
 
-from readthedocs.restapi.permissions import APIRestrictedPermission
+from readthedocs.api.v2.permissions import APIRestrictedPermission
 
 
 class APIRestrictedPermissionTests(TestCase):

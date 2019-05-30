@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 
 """Build configuration for rtd."""
@@ -37,6 +36,7 @@ from .validation import (
     validate_string,
 )
 
+
 __all__ = (
     'ALL',
     'load',
@@ -44,9 +44,11 @@ __all__ = (
     'BuildConfigV2',
     'ConfigError',
     'ConfigOptionNotSupportedError',
+    'ConfigFileNotFound',
     'InvalidConfig',
     'PIP',
     'SETUPTOOLS',
+    'LATEST_CONFIGURATION_VERSION',
 )
 
 ALL = 'all'
@@ -58,24 +60,13 @@ CONFIG_NOT_SUPPORTED = 'config-not-supported'
 VERSION_INVALID = 'version-invalid'
 CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
 CONFIG_REQUIRED = 'config-required'
-CONF_FILE_REQUIRED = 'conf-file-required'
+CONFIG_FILE_REQUIRED = 'config-file-required'
 PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
 
-DOCKER_DEFAULT_IMAGE = getattr(
-    settings, 'DOCKER_DEFAULT_IMAGE', 'readthedocs/build'
-)
-DOCKER_DEFAULT_VERSION = getattr(settings, 'DOCKER_DEFAULT_VERSION', '2.0')
-# These map to corresponding settings in the .org,
-# so they haven't been renamed.
-DOCKER_IMAGE = getattr(
-    settings,
-    'DOCKER_IMAGE',
-    '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION),
-)
-DOCKER_IMAGE_SETTINGS = getattr(settings, 'DOCKER_IMAGE_SETTINGS', {})
+LATEST_CONFIGURATION_VERSION = 2
 
 
 class ConfigError(Exception):
@@ -85,6 +76,17 @@ class ConfigError(Exception):
     def __init__(self, message, code):
         self.code = code
         super().__init__(message)
+
+
+class ConfigFileNotFound(ConfigError):
+
+    """Error when we can't find a configuration file."""
+
+    def __init__(self, directory):
+        super().__init__(
+            f"Configuration file not found in: {directory}",
+            CONFIG_FILE_REQUIRED,
+        )
 
 
 class ConfigOptionNotSupportedError(ConfigError):
@@ -150,7 +152,8 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    default_build_image = DOCKER_DEFAULT_VERSION
+    default_build_image = settings.DOCKER_DEFAULT_VERSION
+
     version = None
 
     def __init__(self, env_config, raw_config, source_file):
@@ -236,7 +239,11 @@ class BuildConfigBase:
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        return 'python{}'.format(ver)
+        if not ver or isinstance(ver, (int, float)):
+            return 'python{}'.format(ver)
+
+        # Allow to specify ``pypy3.5`` as Python interpreter
+        return ver
 
     @property
     def python_full_version(self):
@@ -245,7 +252,8 @@ class BuildConfigBase:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
             ver = max(
-                v for v in self.get_valid_python_versions() if v < ver + 1
+                v for v in self.get_valid_python_versions()
+                if not isinstance(v, str) and v < ver + 1
             )
         return ver
 
@@ -259,7 +267,7 @@ class BuildConfigBase:
         ``readthedocs/build`` part) plus ``stable`` and ``latest``.
         """
         images = {'stable', 'latest'}
-        for k in DOCKER_IMAGE_SETTINGS:
+        for k in settings.DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
@@ -275,12 +283,12 @@ class BuildConfigBase:
         Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-        if build_image not in DOCKER_IMAGE_SETTINGS:
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
     def as_dict(self):
         config = {}
@@ -298,7 +306,6 @@ class BuildConfigV1(BuildConfigBase):
 
     """Version 1 of the configuration file."""
 
-    CONF_FILE_REQUIRED_MESSAGE = 'Missing key "conf_file"'
     PYTHON_INVALID_MESSAGE = '"python" section must be a mapping.'
     PYTHON_EXTRA_REQUIREMENTS_INVALID_MESSAGE = (
         '"python.extra_requirements" section must be a list.'
@@ -318,7 +325,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for _, options in DOCKER_IMAGE_SETTINGS.items():
+            for _, options in settings.DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(
                     options['python']['supported_versions']
                 )
@@ -373,7 +380,7 @@ class BuildConfigV1(BuildConfigBase):
         if 'build' in self.env_config:
             build = self.env_config['build'].copy()
         else:
-            build = {'image': DOCKER_IMAGE}
+            build = {'image': settings.DOCKER_IMAGE}
 
         # User specified
         if 'build' in self.raw_config:
@@ -387,12 +394,12 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE,
+                    settings.DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
-        if build['image'] in DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(DOCKER_IMAGE_SETTINGS[build['image']])
+        if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
+            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -694,7 +701,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,
@@ -1104,14 +1111,14 @@ def load(path, env_config):
     filename = find_one(path, CONFIG_FILENAME_REGEX)
 
     if not filename:
-        raise ConfigError('No configuration file found', code=CONFIG_REQUIRED)
+        raise ConfigFileNotFound(path)
     with open(filename, 'r') as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
                 'Parse error in {filename}: {message}'.format(
-                    filename=filename,
+                    filename=os.path.relpath(filename, path),
                     message=str(error),
                 ),
                 code=CONFIG_SYNTAX_INVALID,

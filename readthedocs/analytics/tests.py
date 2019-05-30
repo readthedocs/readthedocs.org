@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 
-from .utils import anonymize_ip_address, anonymize_user_agent
+from .utils import (
+    anonymize_ip_address,
+    anonymize_user_agent,
+    get_client_ip,
+)
 
 
 class UtilsTests(TestCase):
@@ -28,3 +32,44 @@ class UtilsTests(TestCase):
             anonymize_user_agent('Some rare user agent'),
             'Rare user agent',
         )
+
+    def test_get_client_ip_with_x_forwarded_for(self):
+        
+        # only client's ip is present
+        request = RequestFactory().get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195'
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, '203.0.113.195')
+
+        # proxy1 and proxy2 are present along with client's ip
+        request = RequestFactory().get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195, 70.41.3.18, 150.172.238.178'
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, '203.0.113.195')
+
+        # client ip with port
+        request = RequestFactory().get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195:8080, 70.41.3.18, 150.172.238.178'
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, '203.0.113.195')
+
+        # client ip with port but not proxy1 and proxy2
+        request = RequestFactory().get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195:8080'
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, '203.0.113.195')
+
+        # no header is present
+        request = RequestFactory().get('/')
+        if request.META['REMOTE_ADDR']:
+            del request.META['REMOTE_ADDR']
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, None)
+
+    def test_get_client_ip_with_remote_addr(self):
+
+        request = RequestFactory().get('/')
+        self.assertIsNone(request.META.get('HTTP_X_FORWARDED_FOR'))
+        request.META['REMOTE_ADDR'] = '203.0.113.195'
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, '203.0.113.195')

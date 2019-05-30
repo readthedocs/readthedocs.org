@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from slumber.exceptions import HttpClientError
 from sphinx.ext import intersphinx
 
-
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -60,9 +60,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.projects.models import APIProject
-from readthedocs.restapi.client import api as api_v2
+from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
@@ -82,7 +81,6 @@ from .signals import (
 
 
 log = logging.getLogger(__name__)
-storage = get_storage_class()()
 
 
 class SyncRepositoryMixin:
@@ -101,7 +99,8 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        assert (project or version_pk), 'project or version_pk is needed'
+        if not (project or version_pk):
+            raise ValueError('project or version_pk is needed')
         if version_pk:
             version_data = api_v2.version(version_pk).get()
         else:
@@ -143,11 +142,12 @@ class SyncRepositoryMixin:
                     identifier=self.version.identifier,
                 )
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
                 )
                 version_repo = self.get_vcs_repo()
                 version_repo.update()
@@ -374,19 +374,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             if docker is None:
                 docker = settings.DOCKER_ENABLE
-
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
             self.build_force = force
             self.config = None
 
+            # Build process starts here
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-
-        # Catch unhandled errors in the setup step
-        except Exception as e:  # noqa
+            self.run_build(docker=docker, record=record)
+            return True
+        except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
                 extra={
@@ -401,7 +401,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-            if self.setup_env is not None:
+            # We should check first for build_env.
+            # If isn't None, it means that something got wrong
+            # in the second step (`self.run_build`)
+            if self.build_env is not None:
+                self.build_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    ),
+                )
+                self.build_env.update_build(BUILD_STATE_FINISHED)
+            elif self.setup_env is not None:
                 self.setup_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
@@ -410,38 +420,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications()
+            self.send_notifications(version_pk, build_pk)
             return False
-        else:
-            # No exceptions in the setup step, catch unhandled errors in the
-            # build steps
-            try:
-                self.run_build(docker=docker, record=record)
-            except Exception as e:  # noqa
-                log.exception(
-                    'An unhandled exception was raised during project build',
-                    extra={
-                        'stack': True,
-                        'tags': {
-                            'build': build_pk,
-                            'project': self.project.slug,
-                            'version': self.version.slug,
-                        },
-                    },
-                )
-                if self.build_env is not None:
-                    self.build_env.failure = BuildEnvironmentError(
-                        BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                            build_id=build_pk,
-                        ),
-                    )
-                    self.build_env.update_build(BUILD_STATE_FINISHED)
-
-                # Send notifications for unhandled errors
-                self.send_notifications()
-                return False
-
-        return True
 
     def run_setup(self, record=True):
         """
@@ -483,11 +463,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.failure,
             )
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=msg,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
             )
 
             # Send notification to users only if the build didn't fail because
@@ -495,7 +476,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications()
+                self.send_notifications(self.version.pk, self.build['id'])
 
             return False
 
@@ -544,11 +525,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             python_env_cls = Virtualenv
             if self.config.conda is not None:
                 log.info(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg='Using conda',
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': 'Using conda',
+                    }
                 )
                 python_env_cls = Conda
             self.python_env = python_env_cls(
@@ -558,32 +540,42 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
 
             try:
-                self.setup_python_environment()
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.setup_python_environment()
 
-                # TODO the build object should have an idea of these states,
-                # extend the model to include an idea of these outcomes
-                outcomes = self.build_docs()
-                build_id = self.build.get('id')
+                    # TODO the build object should have an idea of these states,
+                    # extend the model to include an idea of these outcomes
+                    outcomes = self.build_docs()
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
             except SoftTimeLimitExceeded:
                 raise BuildTimeoutError
-
-            # Finalize build and update web servers
-            if build_id:
-                self.update_app_instances(
-                    html=bool(outcomes['html']),
-                    search=bool(outcomes['search']),
-                    localmedia=bool(outcomes['localmedia']),
-                    pdf=bool(outcomes['pdf']),
-                    epub=bool(outcomes['epub']),
-                )
             else:
-                log.warning('No build ID, not syncing files')
+                build_id = self.build.get('id')
+                if build_id:
+                    # Store build artifacts to storage (local or cloud storage)
+                    self.store_build_artifacts(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
+
+                    # Finalize build and update web servers
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
+                else:
+                    log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            self.send_notifications()
+            self.send_notifications(self.version.pk, self.build['id'])
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -623,11 +615,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.setup_env.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Updating docs from VCS',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Updating docs from VCS',
+            }
         )
         try:
             self.sync_repo()
@@ -699,9 +692,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        project_data = api_v2.project(self.project.pk).get()
-        project_data['has_valid_clone'] = True
-        api_v2.project(self.project.pk).put(project_data)
+        api_v2.project(self.project.pk).patch(
+            {'has_valid_clone': True}
+        )
         self.project.has_valid_clone = True
         self.version.project.has_valid_clone = True
 
@@ -713,6 +706,128 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             'config': config,
         })
         self.build['config'] = config
+
+    def store_build_artifacts(
+            self,
+            html=False,
+            localmedia=False,
+            search=False,
+            pdf=False,
+            epub=False,
+    ):
+        """
+        Save build artifacts to "storage" using Django's storage API
+
+        The storage could be local filesystem storage OR cloud blob storage
+        such as S3, Azure storage or Google Cloud Storage.
+
+        Remove build artifacts of types not included in this build (PDF, ePub, zip only).
+
+        This looks very similar to `move_files` and is intended to replace it!
+
+        :param html: whether to save HTML output
+        :param localmedia: whether to save localmedia (htmlzip) output
+        :param search: whether to save search artifacts
+        :param pdf: whether to save PDF output
+        :param epub: whether to save ePub output
+        """
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Writing build artifacts to media storage',
+                },
+            )
+
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+            types_to_copy = []
+            types_to_delete = []
+
+            # HTML media
+            if html:
+                types_to_copy.append(('html', self.config.doctype))
+
+            # Search media (JSON)
+            if search:
+                types_to_copy.append(('json', 'sphinx_search'))
+
+            if localmedia:
+                types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+            else:
+                types_to_delete.append('htmlzip')
+
+            if pdf:
+                types_to_copy.append(('pdf', 'sphinx_pdf'))
+            else:
+                types_to_delete.append('pdf')
+
+            if epub:
+                types_to_copy.append(('epub', 'sphinx_epub'))
+            else:
+                types_to_delete.append('epub')
+
+            for media_type, build_type in types_to_copy:
+                from_path = self.version.project.artifact_path(
+                    version=self.version.slug,
+                    type_=build_type,
+                )
+                to_path = self.version.project.get_storage_path(
+                    type_=media_type,
+                    version_slug=self.version.slug,
+                    include_file=False,
+                )
+                log.info(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.version.project.slug,
+                        'version': self.version.slug,
+                        'msg': f'Writing {media_type} to media storage - {to_path}',
+                    },
+                )
+                try:
+                    storage.copy_directory(from_path, to_path)
+                except Exception:
+                    # Ideally this should just be an IOError
+                    # but some storage backends unfortunately throw other errors
+                    log.exception(
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.version.project.slug,
+                            'version': self.version.slug,
+                            'msg': f'Error copying {from_path} to storage (not failing build)',
+                        },
+                    )
+
+            for media_type in types_to_delete:
+                media_path = self.version.project.get_storage_path(
+                    type_=media_type,
+                    version_slug=self.version.slug,
+                    include_file=False,
+                )
+                log.info(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.version.project.slug,
+                        'version': self.version.slug,
+                        'msg': f'Deleting {media_type} from media storage - {media_path}',
+                    },
+                )
+                try:
+                    storage.delete_directory(media_path)
+                except Exception:
+                    # Ideally this should just be an IOError
+                    # but some storage backends unfortunately throw other errors
+                    log.exception(
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.version.project.slug,
+                            'version': self.version.slug,
+                            'msg': f'Error deleting {media_path} from storage (not failing build)',
+                        },
+                    )
 
     def update_app_instances(
             self,
@@ -743,25 +858,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         hostname = socket.gethostname()
 
         delete_unsynced_media = True
-
-        if getattr(storage, 'write_build_media', False):
-            # Handle the case where we want to upload some built assets to our storage
-            move_files.delay(
-                self.version.pk,
-                hostname,
-                self.config.doctype,
-                html=False,
-                search=False,
-                localmedia=localmedia,
-                pdf=pdf,
-                epub=epub,
-                delete_unsynced_media=delete_unsynced_media,
-            )
-            # Set variables so they don't get synced in the next broadcast step
-            localmedia = False
-            pdf = False
-            epub = False
-            delete_unsynced_media = False
 
         # Broadcast finalization steps to web application instances
         broadcast(
@@ -797,19 +893,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         self.build_env.update_build(state=BUILD_STATE_INSTALLING)
 
-        with self.project.repo_nonblockinglock(version=self.version):
-            # Check if the python version/build image in the current venv is the
-            # same to be used in this build and if it differs, wipe the venv to
-            # avoid conflicts.
-            if self.python_env.is_obsolete:
-                self.python_env.delete_existing_venv_dir()
-            else:
-                self.python_env.delete_existing_build_dir()
+        # Check if the python version/build image in the current venv is the
+        # same to be used in this build and if it differs, wipe the venv to
+        # avoid conflicts.
+        if self.python_env.is_obsolete:
+            self.python_env.delete_existing_venv_dir()
+        else:
+            self.python_env.delete_existing_build_dir()
 
-            self.python_env.setup_base()
-            self.python_env.save_environment_json()
-            self.python_env.install_core_requirements()
-            self.python_env.install_requirements()
+        self.python_env.setup_base()
+        self.python_env.save_environment_json()
+        self.python_env.install_core_requirements()
+        self.python_env.install_requirements()
 
     def build_docs(self):
         """
@@ -826,12 +921,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
-        with self.project.repo_nonblockinglock(version=self.version):
-            outcomes['html'] = self.build_docs_html()
-            outcomes['search'] = self.build_docs_search()
-            outcomes['localmedia'] = self.build_docs_localmedia()
-            outcomes['pdf'] = self.build_docs_pdf()
-            outcomes['epub'] = self.build_docs_epub()
+        outcomes['html'] = self.build_docs_html()
+        outcomes['search'] = self.build_docs_search()
+        outcomes['localmedia'] = self.build_docs_localmedia()
+        outcomes['pdf'] = self.build_docs_pdf()
+        outcomes['epub'] = self.build_docs_epub()
 
         after_build.send(sender=self.version)
         return outcomes
@@ -916,9 +1010,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self):
+    def send_notifications(self, version_pk, build_pk):
         """Send notifications on build failure."""
-        send_notifications.delay(self.version.pk, build_pk=self.build['id'])
+        send_notifications.delay(version_pk, build_pk=build_pk)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -928,8 +1022,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 # Web tasks
 @app.task(queue='web')
 def sync_files(
-        project_pk, version_pk, doctype, hostname=None, html=False,
-        localmedia=False, search=False, pdf=False, epub=False,
+        project_pk,
+        version_pk,
+        doctype,
+        hostname=None,
+        html=False,
+        localmedia=False,
+        search=False,
+        pdf=False,
+        epub=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1016,22 +1117,13 @@ def move_files(
                 ),
             ])
 
-            if getattr(storage, 'write_build_media', False):
-                # Remove the media from remote storage if it exists
-                storage_path = version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=version.slug,
-                )
-                if storage.exists(storage_path):
-                    log.info('Removing %s from media storage', storage_path)
-                    storage.delete(storage_path)
-
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='Moving files',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'Moving files',
+        }
     )
 
     if html:
@@ -1176,42 +1268,42 @@ def fileify(version_pk, commit):
     project = version.project
 
     if not commit:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg=(
-                    'Imported File not being built because no commit '
-                    'information'
+        log.warning(
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': version.slug,
+                'msg': (
+                    'Search index not being built because no commit information'
                 ),
-            ),
+            }
         )
         return
 
     path = project.rtd_build_path(version.slug)
     if path:
         log.info(
-            LOG_TEMPLATE.format(
-                project=version.project.slug,
-                version=version.slug,
-                msg='Creating ImportedFiles',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': version.project.slug,
+                'version': version.slug,
+                'msg': 'Creating ImportedFiles',
+            }
         )
-        _manage_imported_files(version, path, commit)
-        _update_intersphinx_data(version, path, commit)
-    else:
-        log.info(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version=version.slug,
-                msg='No ImportedFile files',
-            ),
-        )
+        try:
+            _manage_imported_files(version, path, commit)
+        except Exception:
+            log.exception('Failed during ImportedFile creation')
+
+        try:
+            _update_intersphinx_data(version, path, commit)
+        except Exception:
+            log.exception('Failed during SphinxDomain creation')
 
 
 def _update_intersphinx_data(version, path, commit):
     """
-    Update intersphinx data for this version
+    Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
@@ -1221,6 +1313,20 @@ def _update_intersphinx_data(version, path, commit):
     if not os.path.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
+
+    full_json_path = version.project.get_production_media_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    types = {}
+    titles = {}
+    if os.path.exists(type_file):
+        try:
+            data = json.load(open(type_file))
+            types = data['types']
+            titles = data['titles']
+        except Exception:
+            log.exception('Exception parsing readthedocs-sphinx-domain-names.json')
 
     # These classes are copied from Sphinx
     # https://git.io/fhFbI
@@ -1234,6 +1340,8 @@ def _update_intersphinx_data(version, path, commit):
 
         def warn(self, msg):
             log.warning('Sphinx MockApp: %s', msg)
+
+    created_sphinx_domains = []
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key, value in sorted(invdata.items() or {}):
@@ -1251,22 +1359,41 @@ def _update_intersphinx_data(version, path, commit):
             else:
                 doc_name, anchor = url, ''
             display_name = einfo[3]
-            obj, _ = SphinxDomain.objects.get_or_create(
+            obj, created = SphinxDomain.objects.get_or_create(
                 project=version.project,
                 version=version,
                 domain=domain,
                 name=name,
                 display_name=display_name,
                 type=_type,
+                type_display=types.get(f'{domain}:{_type}', ''),
                 doc_name=doc_name,
+                doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
             )
             if obj.commit != commit:
                 obj.commit = commit
                 obj.save()
-    SphinxDomain.objects.filter(project=version.project,
-                                version=version
-                                ).exclude(commit=commit).delete()
+            if created:
+                created_sphinx_domains.append(obj)
+
+    # Send bulk_post_create signal for bulk indexing to Elasticsearch
+    bulk_post_create.send(sender=SphinxDomain, instance_list=created_sphinx_domains, commit=commit)
+
+    # Delete the SphinxDomain first from previous commit and
+    # send bulk_post_delete signal for bulk removing from Elasticsearch
+    delete_queryset = (
+        SphinxDomain.objects.filter(project=version.project,
+                                    version=version
+                                    ).exclude(commit=commit)
+    )
+    # Keep the objects into memory to send it to signal
+    instance_list = list(delete_queryset)
+    # Always pass the list of instance, not queryset.
+    bulk_post_delete.send(sender=SphinxDomain, instance_list=instance_list, commit=commit)
+
+    # Delete from previous versions
+    delete_queryset.delete()
 
 
 def _manage_imported_files(version, path, commit):
@@ -1293,7 +1420,7 @@ def _manage_imported_files(version, path, commit):
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
             try:
                 # pylint: disable=unpacking-non-sequence
-                obj, __ = model_class.objects.get_or_create(
+                obj, created = model_class.objects.get_or_create(
                     project=version.project,
                     version=version,
                     path=dirpath,
@@ -1309,12 +1436,13 @@ def _manage_imported_files(version, path, commit):
                 obj.commit = commit
             obj.save()
 
-            if model_class == HTMLFile:
+            if created and model_class == HTMLFile:
                 # the `obj` is HTMLFile, so add it to the list
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files)
+    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files,
+                          version=version, commit=commit)
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
@@ -1322,19 +1450,24 @@ def _manage_imported_files(version, path, commit):
         HTMLFile.objects.filter(project=version.project,
                                 version=version).exclude(commit=commit)
     )
+
     # Keep the objects into memory to send it to signal
     instance_list = list(delete_queryset)
-    # Safely delete from database
-    delete_queryset.delete()
+
     # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list)
+    # These objects must exist though,
+    # because the task will query the DB for the objects before deleting
+    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list,
+                          version=version, commit=commit)
 
     # Delete ImportedFiles from previous versions
-    (
-        ImportedFile.objects.filter(project=version.project,
-                                    version=version).exclude(commit=commit
-                                                             ).delete()
-    )
+    delete_queryset.delete()
+
+    # This is required to delete ImportedFile objects that aren't HTMLFile objects,
+    ImportedFile.objects.filter(
+        project=version.project, version=version
+    ).exclude(commit=commit).delete()
+
     changed_files = [
         resolve_path(
             version.project,
@@ -1374,11 +1507,12 @@ def email_notification(version, build, email):
     :param email: Email recipient address
     """
     log.debug(
-        LOG_TEMPLATE.format(
-            project=version.project.slug,
-            version=version.slug,
-            msg='sending email to: %s' % email,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'sending email to: %s' % email,
+        }
     )
 
     # We send only what we need from the Django model objects here to avoid
@@ -1395,11 +1529,11 @@ def email_notification(version, build, email):
             'error': build.error,
         },
         'build_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             build.get_absolute_url(),
         ),
         'unsub_url': 'https://{}{}'.format(
-            getattr(settings, 'PRODUCTION_DOMAIN', 'readthedocs.org'),
+            settings.PRODUCTION_DOMAIN,
             reverse('projects_notifications', args=[version.project.slug]),
         ),
     }
@@ -1442,11 +1576,12 @@ def webhook_notification(version, build, hook_url):
         },
     })
     log.debug(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='sending notification to: %s' % hook_url,
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'sending notification to: %s' % hook_url,
+        }
     )
     try:
         requests.post(hook_url, data=data)
@@ -1475,11 +1610,12 @@ def update_static_metadata(project_pk, path=None):
         path = project.static_metadata_path()
 
     log.info(
-        LOG_TEMPLATE.format(
-            project=project.slug,
-            version='',
-            msg='Updating static metadata',
-        ),
+        LOG_TEMPLATE,
+        {
+            'project': project.slug,
+            'version': '',
+            'msg': 'Updating static metadata',
+        }
     )
     translations = [trans.language for trans in project.translations.all()]
     languages = set(translations)
@@ -1498,11 +1634,12 @@ def update_static_metadata(project_pk, path=None):
         fh.close()
     except (AttributeError, IOError) as e:
         log.debug(
-            LOG_TEMPLATE.format(
-                project=project.slug,
-                version='',
-                msg='Cannot write to metadata.json: {}'.format(e),
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': '',
+                'msg': 'Cannot write to metadata.json: {}'.format(e),
+            }
         )
 
 
