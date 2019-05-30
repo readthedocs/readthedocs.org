@@ -11,6 +11,11 @@ This document will serve as a design document for discussing how to implement th
 Scope
 -----
 
+.. contents::
+   :local:
+   :depth: 1
+   :backlinks: none
+   
 - Receiving ``pull_request`` webhook event from Github
 - Fetching data from pull requests.
 - Making Pull Requests work like temporary ``Version``
