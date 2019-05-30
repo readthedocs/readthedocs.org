@@ -177,7 +177,6 @@ def project_version_detail(request, project_slug, version_slug):
                     args=[version.get_artifact_paths()],
                 )
                 version.built = False
-                version.machine = False
                 version.save()
         url = reverse('project_version_list', args=[project.slug])
         return HttpResponseRedirect(url)
