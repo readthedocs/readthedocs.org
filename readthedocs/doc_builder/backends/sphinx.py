@@ -474,7 +474,8 @@ class PdfBuilder(BaseSphinx):
 
             # FIXME: check for platex here as well
             '-pdfdvi' if self.project.language == 'ja' else '-pdf',
-
+            # Ignore error codes because they often lie
+            '-f',
             '-dvi-',
             '-ps-',
             f'-jobname={self.project.slug}',
