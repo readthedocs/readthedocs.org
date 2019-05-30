@@ -25,7 +25,6 @@ Scope
 - Triggering Builds on new PR commits
 - Status reporting to Github
 - Storing PR Version build Data
-- Deleting PR version and the build data
 - Excluding PR Versions from Search Engines
 - Serving PR Docs
 - Updating the Footer API
@@ -100,22 +99,6 @@ Storing Pull Request Docs
 
 We need to think about how and where to store data after a PR Version build is finished.
 We can store the data in a blob storage.
-
-Deleting a PR Version
----------------------
-
-We can delete a PR version when:
-
-- A pull request is ``closed``. Github Webhook event (Action: ``closed``, Merged: ``False``)
-- A pull request is ``merged``. Github Webhook event (Action: ``closed``, Merged: ``True``)
-- A PR Version has reached its life time
-
-We might want to set a life time of a PR version in case:
-
-- We don't receive webhook event for a pull request being closed/merged
-- If a PR is stale (not merged for a long time).
-
-We need to delete the PR Version alongside the Build data from the blob storage.
 
 Excluding PR Versions from Search Engines
 -----------------------------------------
