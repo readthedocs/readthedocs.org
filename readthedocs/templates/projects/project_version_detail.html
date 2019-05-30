@@ -21,7 +21,7 @@
       {% if not version.active and version.built %}
         <p class="empty">
           {% url "project_version_delete_html" project.slug version.slug as version_delete_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             This version is inactive but its documentation is still available online.
             You can <a href="{{ version_delete_url }}">delete this version's documentation</a> if you want to remove it completely.
           {% endblocktrans %}
