@@ -8,14 +8,14 @@ sphinx-tabs==1.1.10
 # https://github.com/sphinx-doc/sphinx-intl/pull/27
 git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
 
-Pygments==2.3.1
+Pygments==2.4.1
 
 mkdocs==1.0.4
-Markdown==3.1
+Markdown==3.1.1
 
 # Docs
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
-sphinx-notfound-page==0.2.1
-commonmark==0.8.1
+sphinx-notfound-page==0.3
+commonmark==0.9.0
 recommonmark==0.5.0

@@ -65,10 +65,6 @@ urlpatterns = [
         private.project_version_detail, name='project_version_detail',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/versions/$', private.project_versions,
-        name='projects_versions',
-    ),
-    url(
         r'^(?P<project_slug>[-\w]+)/delete/$', private.project_delete,
         name='projects_delete',
     ),
