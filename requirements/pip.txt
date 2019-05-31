@@ -36,7 +36,7 @@ Pygments==2.4.1
 # https://github.com/sebleier/django-redis-cache/pull/162
 redis==2.10.6  # pyup: ignore
 # Kombu >4.3 requires redis>=3.2
-kombu==4.3.0
+kombu==4.3.0  # pyup: ignore
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
