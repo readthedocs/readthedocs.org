@@ -478,7 +478,9 @@ class PdfBuilder(BaseSphinx):
             rcfile,
             # FIXME: check for platex here as well
             '-pdfdvi' if self.project.language == 'ja' else '-pdf',
-            # Ignore error codes because they often lie
+            # When ``-f`` is used, latexmk will continue building if it
+            # encounters errors. We still receive a failure exit code in this
+            # case, but the correct steps should run.
             '-f',
             '-dvi-',
             '-ps-',
