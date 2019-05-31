@@ -374,18 +374,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             if docker is None:
                 docker = settings.DOCKER_ENABLE
-
             self.project = self.get_project(pk)
             self.version = self.get_version(self.project, version_pk)
             self.build = self.get_build(build_pk)
             self.build_force = force
             self.config = None
 
+            # Build process starts here
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-
-        # Catch unhandled errors in the setup step
+            self.run_build(docker=docker, record=record)
+            return True
         except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',
@@ -401,7 +401,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
-            if self.setup_env is not None:
+            # We should check first for build_env.
+            # If isn't None, it means that something got wrong
+            # in the second step (`self.run_build`)
+            if self.build_env is not None:
+                self.build_env.failure = BuildEnvironmentError(
+                    BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                        build_id=build_pk,
+                    ),
+                )
+                self.build_env.update_build(BUILD_STATE_FINISHED)
+            elif self.setup_env is not None:
                 self.setup_env.failure = BuildEnvironmentError(
                     BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
                         build_id=build_pk,
@@ -412,36 +422,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Send notifications for unhandled errors
             self.send_notifications(version_pk, build_pk)
             return False
-        else:
-            # No exceptions in the setup step, catch unhandled errors in the
-            # build steps
-            try:
-                self.run_build(docker=docker, record=record)
-            except Exception:
-                log.exception(
-                    'An unhandled exception was raised during project build',
-                    extra={
-                        'stack': True,
-                        'tags': {
-                            'build': build_pk,
-                            'project': self.project.slug,
-                            'version': self.version.slug,
-                        },
-                    },
-                )
-                if self.build_env is not None:
-                    self.build_env.failure = BuildEnvironmentError(
-                        BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                            build_id=build_pk,
-                        ),
-                    )
-                    self.build_env.update_build(BUILD_STATE_FINISHED)
-
-                # Send notifications for unhandled errors
-                self.send_notifications(version_pk, build_pk)
-                return False
-
-        return True
 
     def run_setup(self, record=True):
         """
@@ -1677,6 +1657,20 @@ def remove_dirs(paths):
     for path in paths:
         log.info('Removing %s', path)
         shutil.rmtree(path, ignore_errors=True)
+
+
+@app.task(queue='web')
+def remove_build_storage_paths(paths):
+    """
+    Remove artifacts from build media storage (cloud or local storage)
+
+    :param paths: list of paths in build media storage to delete
+    """
+    if settings.RTD_BUILD_MEDIA_STORAGE:
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        for storage_path in paths:
+            log.info('Removing %s from media storage', storage_path)
+            storage.delete_directory(storage_path)
 
 
 @app.task(queue='web')

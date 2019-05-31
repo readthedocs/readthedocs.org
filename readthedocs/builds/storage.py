@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import safe_join, get_available_overwrite_name
 
@@ -51,6 +52,9 @@ class BuildMediaStorageMixin:
 
         :param path: the path to the directory to remove
         """
+        if path in ('', '/'):
+            raise SuspiciousFileOperation('Deleting all storage cannot be right')
+
         log.debug('Deleting directory %s from media storage', path)
         folders, files = self.listdir(self._dirpath(path))
         for folder_name in folders:

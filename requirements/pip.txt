@@ -28,13 +28,15 @@ requests==2.22.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.1
-Pygments==2.4.0
+Pygments==2.4.1
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
 # https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
 # https://github.com/sebleier/django-redis-cache/pull/162
 redis==2.10.6  # pyup: ignore
+# Kombu >4.3 requires redis>=3.2
+kombu==4.3.0  # pyup: ignore
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
@@ -73,7 +75,7 @@ pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.28.1
+stripe==2.29.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5

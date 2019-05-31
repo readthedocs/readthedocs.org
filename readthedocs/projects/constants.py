@@ -19,6 +19,19 @@ DOCUMENTATION_CHOICES = (
     ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
 )
 
+MEDIA_TYPE_HTML = 'html'
+MEDIA_TYPE_PDF = 'pdf'
+MEDIA_TYPE_EPUB = 'epub'
+MEDIA_TYPE_HTMLZIP = 'htmlzip'
+MEDIA_TYPE_JSON = 'json'
+MEDIA_TYPES = (
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_JSON,
+)
+
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
     ('Getting started', 'projects/samples/getting_started.rst.html'),

@@ -250,7 +250,7 @@ div.ethical-footer {
 
 /* Dark theme */
 .ethical-dark-theme .ethical-sidebar {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #4e4b4b;
     border: 1px solid #a0a0a0;
     color: #c2c2c2 !important;
 }
