@@ -248,7 +248,7 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir',
             self.build_dir,
             '--config-file',
-            self.yaml_file,
+            os.path.relpath(self.yaml_file, self.root_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')
