@@ -69,13 +69,13 @@ class BaseMkdocs(BaseBuilder):
 
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
-        mkdoc_path = self.config.mkdocs.configuration
-        if not mkdoc_path:
-            mkdoc_path = os.path.join(
-                self.project.checkout_path(self.version.slug),
-                'mkdocs.yml',
-            )
-        return mkdoc_path
+        mkdocs_path = self.config.mkdocs.configuration
+        if not mkdocs_path:
+            mkdocs_path = 'mkdocs.yml'
+        return os.path.join(
+            self.project.checkout_path(self.version.slug),
+            mkdocs_path,
+        )
 
     def load_yaml_config(self):
         """
