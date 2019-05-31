@@ -333,6 +333,39 @@ Frontend
 --------
 
 
+Technologies
+++++++++++++
+
+Frontend is to designed in a theme agnostics way. For that,
+we explored various libraries which may be of use but none of them fits our needs.
+So, we will be using vanilla JavaScript for this purpose.
+This will provide us some advantages over using any third party library:
+
+* Better control over the DOM.
+* Performance benefits.
+
+
+Proposed Architecture
++++++++++++++++++++++
+
+We plan to select the search bar, which is present in every documentation,
+using the `querySelector()`_ method of JavaScript.
+Then add an event listener to it, as soon as the page loads,
+to listen for the changes made and fire the search query to our backend
+as soon as there is any change. Our backend will then return the suggestions,
+which will be shown to the user in a clean and minimal UI.
+We will be using `document.createElement()`_ and `node.removeChild()`_ method
+provided by JavaScript as we don't want empty `<div>` s hanging out in the DOM.
+
+UI/UX
++++++
+
+We have two ways which can be used to show suggestions to the user.
+
+* Show suggestions below the search bar.
+* Open a full page search interface when the user click on search field.
+
+
 Challenges
 ++++++++++
 
@@ -357,3 +390,6 @@ we will enable this feature for all the docs hosted by us.
 .. _official docs: https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html
 .. _multi-fields: https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
 .. _Context Suggester: https://www.elastic.co/guide/en/elasticsearch/reference/current/suggester-context.html
+.. _querySelector(): https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
+.. _document.createElement(): https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
+.. _node.removeChild(): https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild
