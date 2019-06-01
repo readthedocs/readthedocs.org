@@ -101,6 +101,7 @@ Then in your ``conf.py``:
 .. code-block:: python
 
    extensions = ['recommonmark']
+   master_doc = 'index'
 
 .. warning:: Markdown doesn't support a lot of the features of Sphinx,
           like inline markup and directives. However, it works for
