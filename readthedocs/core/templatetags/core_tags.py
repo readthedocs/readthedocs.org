@@ -121,6 +121,7 @@ def escapejson(data, indent=None):
 
     This code was mostly taken from Django's implementation
     https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#json-script
+    https://github.com/django/django/blob/2.2.2/django/utils/html.py#L74-L92
 
     After upgrading to Django 2.1+, we could replace this with Django's implementation
     although the inputs and outputs are a bit different.
