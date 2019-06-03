@@ -27,6 +27,9 @@
       <strong>{% trans 'SSL certificate status' %}: </strong>
       <span>{{ domain.domainssl.status }}</span>
     </p>
+    {% if domain.domainssl.status == 'pending_validation' %}
+      <p class="help_text"><small>Did you setup a CNAME record in DNS pointing at "readthedocs.io"?</small></p>
+    {% endif %}
   {% endif %}
 
   {% if domain %}
