@@ -46,7 +46,7 @@ class RTDFacetedSearch(FacetedSearch):
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
-        log.info('Hacking Elastic to test connection pooling')
+        log.info('Hacking Elastic to fix search connection pooling')
         self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
 
         super().__init__(**kwargs)
