@@ -19,10 +19,9 @@ Scope
 - Receiving ``pull_request`` webhook event from Github
 - Fetching data from pull requests.
 - Making Pull Requests work like temporary ``Version``
-- Setting PR version Life time
 - Excluding PR Versions from Elasticsearch Indexing
 - Creating PR Versions when a pull request is opened and Triggering a build
-- Triggering Builds on new PR commits
+- Triggering Builds on new commits on a PR
 - Status reporting to Github
 - Storing PR Version build Data
 - Excluding PR Versions from Search Engines
@@ -43,9 +42,8 @@ Modeling Pull Requests as a Type of Version
 -------------------------------------------
 
 Pull requests can be Treated as a Type of Temporary ``Version``.
-We might consider adding a Boolean Field or ``VERSION_TYPES`` to the ``Version`` model.
+We might consider adding a ``VERSION_TYPES`` to the ``Version`` model.
 
-- If we go with Boolean Field we can add something like ``is_pull_request`` Field.
 - If we go with ``VERSION_TYPES`` we can add something like ``pull_request`` alongside Tag and Branch.
 
 We also have to update the current ``Version`` model ``QuerySet`` to exclude the PR versions.
