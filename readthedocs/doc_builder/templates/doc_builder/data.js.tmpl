@@ -1,10 +1,10 @@
 var READTHEDOCS_DATA = {{ data_json|safe }}
 
 // Old variables
-var doc_version = "{{ current_version }}";
-var doc_slug = "{{ slug }}";
-var page_name = "{{ pagename }}";
-var html_theme = "{{ html_theme }}";
+var doc_version = "{{ current_version|escapejs }}";
+var doc_slug = "{{ slug|escapejs }}";
+var page_name = "{{ pagename|escapejs }}";
+var html_theme = "{{ html_theme|escapejs }}";
 
 // mkdocs_page_input_path is only defined on the RTD mkdocs theme but it isn't
 // available on all pages (e.g. missing in search result)
