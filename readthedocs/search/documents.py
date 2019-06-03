@@ -3,6 +3,8 @@ import logging
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
 
+from elasticsearch import Elasticsearch
+
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.sphinx_domains.models import SphinxDomain
 
@@ -22,8 +24,19 @@ domain_index.settings(**domain_conf['settings'])
 log = logging.getLogger(__name__)
 
 
+class RTDDocTypeMixin(object):
+
+    def update(self, *args, **kwargs):
+        # Hack a fix to our broken connection pooling
+        # This creates a new connection on every request,
+        # but actually works :)
+        log.info('Hacking Elastic indexing to fix connection pooling')
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
+        super().update(*args, **kwargs)
+
+
 @domain_index.doc_type
-class SphinxDomainDocument(DocType):
+class SphinxDomainDocument(RTDDocTypeMixin, DocType):
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
     role_name = fields.KeywordField(attr='role_name')
@@ -63,7 +76,7 @@ class SphinxDomainDocument(DocType):
 
 
 @project_index.doc_type
-class ProjectDocument(DocType):
+class ProjectDocument(RTDDocTypeMixin, DocType):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
@@ -97,7 +110,7 @@ class ProjectDocument(DocType):
 
 
 @page_index.doc_type
-class PageDocument(DocType):
+class PageDocument(RTDDocTypeMixin, DocType):
 
     # Metadata
     project = fields.KeywordField(attr='project.slug')

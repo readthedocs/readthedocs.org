@@ -60,7 +60,11 @@ def delete_objects_in_es(app_label, model_name, document_class, objects_id):
     queryset = doc_obj.get_queryset()
     queryset = queryset.filter(id__in=objects_id)
     log.info("Deleting model: %s, '%s' objects", model.__name__, queryset.count())
-    doc_obj.update(queryset.iterator(), action='delete')
+    try:
+        # This is a common case that we should be handling a better way
+        doc_obj.update(queryset.iterator(), action='delete')
+    except Exception:
+        log.warning('Unable to delete a subset of files. Continuing.')
 
 
 @app.task(queue='web')
