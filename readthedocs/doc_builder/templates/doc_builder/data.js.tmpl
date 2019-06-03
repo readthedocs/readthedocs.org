@@ -1,4 +1,7 @@
-var READTHEDOCS_DATA = {{ data_json|safe }}
+{% load core_tags %}
+
+
+var READTHEDOCS_DATA = {{ readthedocs_data|escapejson:4 }}
 
 // Old variables
 var doc_version = "{{ current_version|escapejs }}";

@@ -226,9 +226,9 @@ class BaseMkdocs(BaseBuilder):
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
         }
-        data_json = json.dumps(readthedocs_data, indent=4)
+
         data_ctx = {
-            'data_json': data_json,
+            'readthedocs_data': readthedocs_data,
             'current_version': readthedocs_data['version'],
             'slug': readthedocs_data['project'],
             'html_theme': readthedocs_data['theme'],
