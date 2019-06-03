@@ -24,7 +24,7 @@ domain_index.settings(**domain_conf['settings'])
 log = logging.getLogger(__name__)
 
 
-class RTDDocTypeMixin(object):
+class RTDDocTypeMixin:
 
     def update(self, *args, **kwargs):
         # Hack a fix to our broken connection pooling
