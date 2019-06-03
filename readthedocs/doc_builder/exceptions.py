@@ -76,3 +76,7 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
         'The "{config}" config from your MkDocs YAML config file has to be a '
         'a list of relative paths.',
     )
+    NOT_FOUND = ugettext_noop(
+        'A configuration file was not found. '
+        'Make sure you have a "mkdocs.yml" file in your repository.',
+    )

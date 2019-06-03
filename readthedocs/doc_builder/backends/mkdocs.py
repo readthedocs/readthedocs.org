@@ -86,9 +86,7 @@ class BaseMkdocs(BaseBuilder):
         try:
             return yaml.safe_load(open(self.yaml_file, 'r'),)
         except IOError:
-            return {
-                'site_name': self.version.project.name,
-            }
+            raise MkDocsYAMLParseError(MkDocsYAMLParseError.NOT_FOUND)
         except yaml.YAMLError as exc:
             note = ''
             if hasattr(exc, 'problem_mark'):

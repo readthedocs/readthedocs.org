@@ -20,7 +20,6 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
-from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
@@ -57,20 +56,6 @@ class BaseSphinx(BaseBuilder):
                 docs_dir,
                 self.sphinx_build_dir,
             )
-
-    def _write_config(self, master_doc='index'):
-        """Create ``conf.py`` if it doesn't exist."""
-        docs_dir = self.docs_dir()
-        conf_template = render_to_string(
-            'sphinx/conf.py.conf',
-            {
-                'project': self.project,
-                'version': self.version,
-                'master_doc': master_doc,
-            },
-        )
-        conf_file = os.path.join(docs_dir, 'conf.py')
-        safe_write(conf_file, conf_template)
 
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
@@ -163,13 +148,14 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self, **__):
         """
-        Find or create a ``conf.py`` and appends default content.
+        Find a ``conf.py`` and appends default content.
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
         if self.config_file is None:
-            master_doc = self.create_index(extension='rst')
-            self._write_config(master_doc=master_doc)
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND
+            )
 
         try:
             self.config_file = (
@@ -178,6 +164,9 @@ class BaseSphinx(BaseBuilder):
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
         except IOError:
             raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+
+        # Create an index file if there is None.
+        self.create_index(extension='rst')
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
