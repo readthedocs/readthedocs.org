@@ -874,9 +874,7 @@ class IntegrationsTests(TestCase):
         )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
-    def test_github_create_event(
-            self, sync_repository_task, trigger_build
-    ):
+    def test_github_create_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
@@ -895,9 +893,7 @@ class IntegrationsTests(TestCase):
         sync_repository_task.delay.assert_called_with(latest_version.pk)
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
-    def test_github_delete_event(
-            self, sync_repository_task, trigger_build
-    ):
+    def test_github_delete_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_DELETE}

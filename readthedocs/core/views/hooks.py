@@ -4,7 +4,6 @@ import json
 import logging
 import re
 
-from celery import chain
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
