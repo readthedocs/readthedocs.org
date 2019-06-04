@@ -35,7 +35,7 @@ Project Goals
 * Support across all (or virtually all) Sphinx themes.
 * Support for the JavaScript user experience down to IE11 or graceful degradation where we can't support it.
 * Project maintainers should have a way to opt-in/opt-out of this feature.
-* (Optional) They should have the flexibility to change some of the styles using custom CSS and JS files.
+* (Optional) Project maintainers should have the flexibility to change some of the styles using custom CSS and JS files.
 
 Non-Goals
 ++++++++++
