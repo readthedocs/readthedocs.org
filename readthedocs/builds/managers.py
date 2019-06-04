@@ -19,6 +19,7 @@ from .constants import (
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
+    PULL_REQUEST,
 )
 from .querysets import VersionQuerySet
 
@@ -85,6 +86,38 @@ class VersionManagerBase(models.Manager):
             log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
+class InternalVersionManagerBase(VersionManagerBase):
+    """
+    Version manager that only includes internal version.
+
+    It will exclude PULL_REQUEST type from the queries
+    and only include BRANCH, TAG, UNKONWN type Versions.
+    """
+    def get_queryset(self):
+        return super().get_queryset().exclude(type=PULL_REQUEST)
+
+
+class ExternalVersionManagerBase(VersionManagerBase):
+    """
+    Version manager that only includes external version.
+
+    It will only include PULL_REQUEST type Versions in the queries.
+    """
+    def get_queryset(self):
+        return super().get_queryset().filter(type=PULL_REQUEST)
+
+
 class VersionManager(SettingsOverrideObject):
     _default_class = VersionManagerBase
     _override_setting = 'VERSION_MANAGER'
+
+
+class InternalVersionManager(SettingsOverrideObject):
+    _default_class = InternalVersionManagerBase
+    _override_setting = 'INTERNAL_VERSION_MANAGER'
+
+
+class ExternalVersionManager(SettingsOverrideObject):
+    _default_class = ExternalVersionManagerBase
+    _override_setting = 'EXTERNAL_VERSION_MANAGER'
+

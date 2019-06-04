@@ -45,7 +45,11 @@ from .constants import (
     TAG,
     VERSION_TYPES,
 )
-from .managers import VersionManager
+from .managers import (
+    VersionManager,
+    InternalVersionManager,
+    ExternalVersionManager
+)
 from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
 from .utils import (
     get_bitbucket_username_repo,
@@ -112,6 +116,10 @@ class Version(models.Model):
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
+    # Only include BRANCH, TAG, UNKONWN type Versions.
+    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    # Only include PULL_REQUEST type Versions.
+    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
 
     class Meta:
         unique_together = [('project', 'slug')]
