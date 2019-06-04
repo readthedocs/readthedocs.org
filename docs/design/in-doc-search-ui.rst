@@ -73,7 +73,7 @@ This will provide us some advantages over using any third party library:
 Proposed Architecture
 ~~~~~~~~~~~~~~~~~~~~~
 
-We plan to select the search bar, which is present in every documentation,
+We plan to select the search bar, which is present in every theme,
 using the `querySelector()`_ method of JavaScript.
 Then add an event listener to it to listen for the changes and
 fire a search query to our backend as soon as there is any change.
