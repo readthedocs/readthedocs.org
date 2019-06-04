@@ -9,6 +9,13 @@ It will be designed to provide instant results as soon as the user starts
 typing in the search bar with a clean and minimal frontend.
 This design document aims to provides the details of it.
 This is a GSoC'19 project.
+
+.. warning::
+
+    This design document details future features that are **not yet implemented**.
+    To discuss this document, please get in touch in the `issue tracker`_.
+
+
 The final result may look something like this:
 
 .. figure:: ../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
@@ -167,6 +174,7 @@ Open Questions
 * Should we go for edge ngrams or completion suggester?
 
 
+.. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _querySelector(): https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
 .. _document.createElement(): https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
