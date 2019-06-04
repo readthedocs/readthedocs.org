@@ -5,7 +5,7 @@
 from django.core.management.base import BaseCommand
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.tasks import clean_build_task, update_docs_task
+from readthedocs.projects.tasks import update_docs_task
 
 
 class Command(BaseCommand):
@@ -20,4 +20,3 @@ class Command(BaseCommand):
                 record=False,
                 version_pk=version.pk,
             )
-            clean_build_task(version.pk)

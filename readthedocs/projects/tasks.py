@@ -212,8 +212,11 @@ class SyncRepositoryMixin:
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
-    step = SyncRepositoryTaskStep()
-    return step.run(version_pk)
+    try:
+        step = SyncRepositoryTaskStep()
+        return step.run(version_pk)
+    finally:
+        clean_build_task(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
@@ -289,8 +292,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
     ),
 )
 def update_docs_task(self, project_id, *args, **kwargs):
-    step = UpdateDocsTaskStep(task=self)
-    return step.run(project_id, *args, **kwargs)
+    try:
+        step = UpdateDocsTaskStep(task=self)
+        return step.run(project_id, *args, **kwargs)
+    finally:
+        clean_build_task(kwargs.get('version_pk'))
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):
