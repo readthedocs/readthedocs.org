@@ -383,7 +383,7 @@ def sitemap_xml(request, project):
         raise Http404
 
     sorted_versions = sort_version_aware(
-        Version.objects.public(
+        Version.internal.public(
             project=project,
             only_active=True,
         ),
@@ -409,8 +409,9 @@ def sitemap_xml(request, project):
 
         if project.translations.exists():
             for translation in project.translations.all():
-                translation_versions = translation.versions.public(
-                    ).values_list('slug', flat=True)
+                translation_versions = translation.versions(
+                    manager='internal'
+                ).public().values_list('slug', flat=True)
                 if version.slug in translation_versions:
                     href = project.get_docs_url(
                         version_slug=version.slug,

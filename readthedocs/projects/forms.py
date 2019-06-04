@@ -240,7 +240,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        versions_choices = self.instance.versions.filter(
+        versions_choices = self.instance.versions(manager='internal').filter(
             machine=False).values_list('verbose_name', flat=True)
 
         self.fields['default_branch'].widget = forms.Select(

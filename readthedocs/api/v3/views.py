@@ -230,7 +230,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     lookup_value_regex = r'[^/]+'
 
     filterset_class = VersionFilter
-    queryset = Version.objects.all()
+    queryset = Version.internal.all()
     permit_list_expands = [
         'last_build',
         'last_build.config',
