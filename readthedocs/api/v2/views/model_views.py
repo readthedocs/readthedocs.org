@@ -130,7 +130,7 @@ class ProjectViewSet(UserSelectViewSet):
             Project.objects.api(request.user),
             pk=kwargs['pk'],
         )
-        versions = project.versions.filter(active=True)
+        versions = project.versions(manager='internal').filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
         })

@@ -76,6 +76,48 @@ class Command(BaseCommand):
                             version.pk,
                             build_pk=build.pk,
                         )
+                elif version == 'internal':
+                    log.info('Updating all internal versions for %s', slug)
+                    for version in Version.internal.filter(
+                            project__slug=slug,
+                            active=True,
+                            uploaded=False,
+                    ):
+
+                        build = Build.objects.create(
+                            project=version.project,
+                            version=version,
+                            type='html',
+                            state='triggered',
+                        )
+
+                        # pylint: disable=no-value-for-parameter
+                        tasks.update_docs_task(
+                            version.project_id,
+                            build_pk=build.pk,
+                            version_pk=version.pk,
+                        )
+                elif version == 'external':
+                    log.info('Updating all external versions for %s', slug)
+                    for version in Version.external.filter(
+                            project__slug=slug,
+                            active=True,
+                            uploaded=False,
+                    ):
+
+                        build = Build.objects.create(
+                            project=version.project,
+                            version=version,
+                            type='html',
+                            state='triggered',
+                        )
+
+                        # pylint: disable=no-value-for-parameter
+                        tasks.update_docs_task(
+                            version.project_id,
+                            build_pk=build.pk,
+                            version_pk=version.pk,
+                        )
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building %s', p)

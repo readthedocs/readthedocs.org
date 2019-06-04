@@ -908,7 +908,7 @@ class Project(models.Model):
 
     def active_versions(self):
         from readthedocs.builds.models import Version
-        versions = Version.objects.public(project=self, only_active=True)
+        versions = Version.internal.public(project=self, only_active=True)
         return (
             versions.filter(built=True, active=True) |
             versions.filter(active=True, uploaded=True)
@@ -922,7 +922,7 @@ class Project(models.Model):
         }
         if user:
             kwargs['user'] = user
-        versions = Version.objects.public(**kwargs).select_related(
+        versions = Version.internal.public(**kwargs).select_related(
             'project',
             'project__main_language_project',
         ).prefetch_related(
@@ -949,7 +949,7 @@ class Project(models.Model):
 
         :returns: :py:class:`Version` queryset
         """
-        return self.versions.filter(active=True)
+        return self.versions(manager='internal').filter(active=True)
 
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
@@ -961,7 +961,7 @@ class Project(models.Model):
         Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
-        versions = self.versions.all()
+        versions = self.versions(manager='internal').all()
         new_stable = determine_stable_version(versions)
         if new_stable:
             current_stable = self.get_stable_version()
