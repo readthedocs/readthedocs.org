@@ -1,7 +1,7 @@
 In Doc Search UI
 ================
 
-Giving the user the ability to easily search the information
+Giving readers the ability to easily search the information
 that they are looking for is important for us.
 We have already upgraded to the latest version of `Elasticsearch`_ and
 we plan to implement `search as you type` feature for all the documentations hosted by us.
