@@ -46,8 +46,12 @@ We might consider adding a ``VERSION_TYPES`` to the ``Version`` model.
 
 - If we go with ``VERSION_TYPES`` we can add something like ``pull_request`` alongside Tag and Branch.
 
-We also have to update the current ``Version`` model ``QuerySet`` to exclude the PR versions.
-We have to add ``QuerySet`` for PR versions also.
+We should add ``Version`` Model Managers for PR Versions and Regular Versions.
+The proposed names for PR Version Manager and Regular Version Manger are ``external`` and ``internal``.
+
+We can then have ``Version.internal.all()`` to get all regular versions,
+``Version.external.all()`` to get all PR versions.
+
 
 Excluding PR Versions from Elasticsearch Indexing
 -------------------------------------------------
