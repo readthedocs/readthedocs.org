@@ -142,7 +142,9 @@ class Version(models.Model):
     @property
     def ref(self):
         if self.slug == STABLE:
-            stable = determine_stable_version(self.project.versions.all())
+            stable = determine_stable_version(
+                self.project.versions(manager='internal').all()
+            )
             if stable:
                 return stable.slug
 

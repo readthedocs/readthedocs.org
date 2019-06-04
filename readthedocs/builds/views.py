@@ -93,7 +93,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.objects.public(
+        context['versions'] = Version.internal.public(
             user=self.request.user,
             project=self.project,
         )
