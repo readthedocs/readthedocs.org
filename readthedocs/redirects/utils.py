@@ -73,7 +73,8 @@ def get_redirect_response(request, full_path):
     if not project:
         return None
 
-    # Handle the special case of a path that looks like a fully qualified or scheme-relative URL
+    # The full path should always be an absolute path starting with /
+    # It is important it doesn't get misinterpreted as a scheme-relative URL (//host/path)
     full_path = '/' + full_path.lstrip('/')
 
     language = None
