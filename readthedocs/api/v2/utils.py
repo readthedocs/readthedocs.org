@@ -1,5 +1,6 @@
 """Utility functions that are used by both views and celery tasks."""
 
+import itertools
 import logging
 
 from rest_framework.pagination import PageNumberPagination
@@ -156,6 +157,23 @@ def delete_versions(project, version_data):
         to_delete_qs.delete()
         return ret_val
     return set()
+
+
+def run_automation_rules(project, versions_slug):
+    """
+    Runs the automation rules on each version.
+
+    The rules are sorted by priority.
+
+    .. note::
+
+       Currently the versions aren't sorted in any way,
+       the same order is keeped.
+    """
+    versions = project.versions.filter(slug__in=versions_slug)
+    rules = project.automation_rules.all()
+    for version, rule in itertools.product(versions, rules):
+        rule.run(version)
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

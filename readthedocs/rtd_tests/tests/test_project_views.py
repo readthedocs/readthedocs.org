@@ -404,7 +404,7 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+        with patch('readthedocs.projects.models.broadcast') as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
@@ -413,6 +413,24 @@ class TestPrivateViews(MockBuildTestCase):
                 task=tasks.remove_dirs,
                 args=[(project.doc_path,)],
             )
+
+    def test_delete_superproject(self):
+        super_proj = get(Project, slug='pip', users=[self.user])
+        sub_proj = get(Project, slug='test-sub-project', users=[self.user])
+
+        self.assertFalse(super_proj.subprojects.all().exists())
+        super_proj.add_subproject(sub_proj)
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
+            'Deleting this project will make them to become regular projects. '
+            'This will break the URLs of all its subprojects and they will be served normally as other projects.',
+            count=1,
+            html=True,
+        )
 
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import re
 import textwrap
@@ -348,12 +347,21 @@ class TestValidatePythonVersion:
 
     def test_it_supports_other_versions(self):
         build = get_build_config(
-            {'python': {'version': 3.5}},
+            {'python': {'version': 3.7}},
         )
         build.validate()
-        assert build.python.version == 3.5
-        assert build.python_interpreter == 'python3.5'
-        assert build.python_full_version == 3.5
+        assert build.python.version == 3.7
+        assert build.python_interpreter == 'python3.7'
+        assert build.python_full_version == 3.7
+
+    def test_it_supports_string_versions(self):
+        build = get_build_config(
+            {'python': {'version': 'pypy3.5'}},
+        )
+        build.validate()
+        assert build.python.version == 'pypy3.5'
+        assert build.python_interpreter == 'pypy3.5'
+        assert build.python_full_version == 'pypy3.5'
 
     def test_it_validates_versions_out_of_range(self):
         build = get_build_config(
@@ -375,12 +383,12 @@ class TestValidatePythonVersion:
 
     def test_it_validates_wrong_type_right_value(self):
         build = get_build_config(
-            {'python': {'version': '3.5'}},
+            {'python': {'version': '3.6'}},
         )
         build.validate()
-        assert build.python.version == 3.5
-        assert build.python_interpreter == 'python3.5'
-        assert build.python_full_version == 3.5
+        assert build.python.version == 3.6
+        assert build.python_interpreter == 'python3.6'
+        assert build.python_full_version == 3.6
 
         build = get_build_config(
             {'python': {'version': '3'}},
@@ -595,7 +603,7 @@ def test_validates_conda_file(tmpdir):
     )
     build.validate()
     assert isinstance(build.conda, Conda)
-    assert build.conda.environment == str(tmpdir.join('environment.yml'))
+    assert build.conda.environment == 'environment.yml'
 
 
 def test_file_is_required_when_using_conda(tmpdir):
@@ -631,7 +639,7 @@ def test_requirements_file_repects_default_value(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == str(tmpdir.join('myrequirements.txt'))
+    assert install[0].requirements == 'myrequirements.txt'
 
 
 def test_requirements_file_respects_configuration(tmpdir):
@@ -643,7 +651,7 @@ def test_requirements_file_respects_configuration(tmpdir):
     build.validate()
     install = build.python.install
     assert len(install) == 1
-    assert install[0].requirements == str(tmpdir.join('requirements.txt'))
+    assert install[0].requirements == 'requirements.txt'
 
 
 def test_requirements_file_is_null(tmpdir):
@@ -716,7 +724,7 @@ def test_as_dict(tmpdir):
             'version': 1,
             'formats': ['pdf'],
             'python': {
-                'version': 3.5,
+                'version': 3.7,
             },
             'requirements_file': 'requirements.txt',
         },
@@ -733,9 +741,9 @@ def test_as_dict(tmpdir):
         'version': '1',
         'formats': ['pdf'],
         'python': {
-            'version': 3.5,
+            'version': 3.7,
             'install': [{
-                'requirements': str(tmpdir.join('requirements.txt')),
+                'requirements': 'requirements.txt',
             }],
             'use_system_site_packages': False,
         },
@@ -850,17 +858,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.conda.environment == str(tmpdir.join('environment.yml'))
-
-    def test_conda_check_invalid(self, tmpdir):
-        apply_fs(tmpdir, {'environment.yml': ''})
-        build = self.get_build_config(
-            {'conda': {'environment': 'no_existing_environment.yml'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'conda.environment'
+        assert build.conda.environment == 'environment.yml'
 
     @pytest.mark.parametrize('value', [3, [], 'invalid'])
     def test_conda_check_invalid_value(self, value):
@@ -944,8 +942,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [2, 2.7, 3, 3.5, 3.6]),
-            ('stable', [2, 2.7, 3, 3.5, 3.6]),
+            ('latest', [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']),
+            ('stable', [2, 2.7, 3, 3.5, 3.6, 3.7]),
         ],
     )
     def test_python_version(self, image, versions):
@@ -1045,25 +1043,9 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstall)
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
-
-    def test_python_install_path_check_invalid(self, tmpdir):
-        build = self.get_build_config(
-            {
-                'python': {
-                    'install': [{
-                        'path': 'noexists',
-                        'method': 'pip',
-                    }],
-                },
-            },
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.install.0.path'
 
     @pytest.mark.parametrize('value', ['invalid', 'apt'])
     def test_python_install_method_check_invalid(self, value, tmpdir):
@@ -1098,27 +1080,7 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstallRequirements)
-        assert install[0].requirements == str(tmpdir.join('requirements.txt'))
-
-    def test_python_install_requirements_check_invalid(self, tmpdir):
-        apply_fs(tmpdir, {'requirements.txt': ''})
-        requirements_file = 'invalid'
-        build = self.get_build_config(
-            {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'requirements': requirements_file,
-                    }],
-                },
-            },
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.install.0.requirements'
-        error_msg = 'path {} does not exist'.format(requirements_file)
-        assert error_msg in str(excinfo.value)
+        assert install[0].requirements == 'requirements.txt'
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
         build = self.get_build_config(
@@ -1178,7 +1140,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].requirements == str(tmpdir.join('requirements.txt'))
+        assert install[0].requirements == 'requirements.txt'
 
     @pytest.mark.parametrize('value', [3, [], {}])
     def test_python_install_requirements_check_invalid_types(self, value, tmpdir):
@@ -1228,7 +1190,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
 
     def test_python_install_pip_have_priority_over_default(self, tmpdir):
@@ -1247,7 +1209,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == PIP
 
     def test_python_install_setuptools_check_valid(self, tmpdir):
@@ -1265,7 +1227,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_setuptools_ignores_default(self):
@@ -1292,7 +1254,7 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == str(tmpdir)
+        assert install[0].path == '.'
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_allow_empty_list(self):
@@ -1370,7 +1332,7 @@ class TestBuildConfigV2:
             {
                 'python': {
                     'install': [{
-                        'path': '',
+                        'path': '.',
                         'method': 'pip',
                         'extra_requirements': [],
                     }],
@@ -1410,40 +1372,14 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 3
 
-        assert install[0].path == str(tmpdir.join('one'))
+        assert install[0].path == 'one'
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
-        assert install[1].path == str(tmpdir.join('two'))
+        assert install[1].path == 'two'
         assert install[1].method == SETUPTOOLS
 
-        assert install[2].requirements == str(tmpdir.join('three.txt'))
-
-    def test_python_install_reports_correct_invalid_index(self, tmpdir):
-        apply_fs(tmpdir, {
-            'one': {},
-            'two': {},
-        })
-        build = self.get_build_config(
-            {
-                'python': {
-                    'install': [{
-                        'path': 'one',
-                        'method': 'pip',
-                        'extra_requirements': [],
-                    }, {
-                        'path': 'two',
-                        'method': 'setuptools',
-                    }, {
-                        'requirements': 'three.txt',
-                    }],
-                },
-            },
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.install.2.requirements'
+        assert install[2].requirements == 'three.txt'
 
     @pytest.mark.parametrize('value', [True, False])
     def test_python_system_packages_check_valid(self, value):
@@ -1555,17 +1491,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
-
-    def test_sphinx_configuration_check_invalid(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': ''})
-        build = self.get_build_config(
-            {'sphinx': {'configuration': 'invalid.py'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'sphinx.configuration'
+        assert build.sphinx.configuration == 'conf.py'
 
     def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
@@ -1598,7 +1524,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+        assert build.sphinx.configuration == 'conf.py'
 
     def test_sphinx_configuration_default_can_be_none(self, tmpdir):
         apply_fs(tmpdir, {'conf.py': ''})
@@ -1618,7 +1544,7 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.sphinx.configuration == str(tmpdir.join('conf.py'))
+        assert build.sphinx.configuration == 'conf.py'
 
     @pytest.mark.parametrize('value', [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
@@ -1665,19 +1591,9 @@ class TestBuildConfigV2:
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         build.validate()
-        assert build.mkdocs.configuration == str(tmpdir.join('mkdocs.yml'))
+        assert build.mkdocs.configuration == 'mkdocs.yml'
         assert build.doctype == 'mkdocs'
         assert build.sphinx is None
-
-    def test_mkdocs_configuration_check_invalid(self, tmpdir):
-        apply_fs(tmpdir, {'mkdocs.yml': ''})
-        build = self.get_build_config(
-            {'mkdocs': {'configuration': 'invalid.yml'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'mkdocs.configuration'
 
     def test_mkdocs_configuration_allow_null(self):
         build = self.get_build_config(
@@ -2023,7 +1939,7 @@ class TestBuildConfigV2:
             'python': {
                 'version': 3.6,
                 'install': [{
-                    'requirements': str(tmpdir.join('requirements.txt')),
+                    'requirements': 'requirements.txt',
                 }],
                 'use_system_site_packages': False,
             },

@@ -37,7 +37,7 @@ Members
 * `Manuel Kaufmann <https://github.com/humitos>`__ (Central Time)
 * Your Name Here
 
-Feel free to ask any of us if you have questions or want to join!
+**Please don't email us personally for support on Read the Docs.** You can email support@readthedocs.org for any issues you may have. 
 
 Joining
 ~~~~~~~

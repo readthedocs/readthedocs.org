@@ -30,8 +30,7 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_directory,
-    validate_file,
+    validate_path,
     validate_list,
     validate_string,
 )
@@ -239,7 +238,11 @@ class BuildConfigBase:
     @property
     def python_interpreter(self):
         ver = self.python_full_version
-        return 'python{}'.format(ver)
+        if not ver or isinstance(ver, (int, float)):
+            return 'python{}'.format(ver)
+
+        # Allow to specify ``pypy3.5`` as Python interpreter
+        return ver
 
     @property
     def python_full_version(self):
@@ -248,7 +251,8 @@ class BuildConfigBase:
             # Get the highest version of the major series version if user only
             # gave us a version of '2', or '3'
             ver = max(
-                v for v in self.get_valid_python_versions() if v < ver + 1
+                v for v in self.get_valid_python_versions()
+                if not isinstance(v, str) and v < ver + 1
             )
         return ver
 
@@ -494,7 +498,7 @@ class BuildConfigV1(BuildConfigBase):
             with self.catch_validation_error('conda.file'):
                 if 'file' not in raw_conda:
                     raise ValidationError('file', VALUE_NOT_FOUND)
-                conda_environment = validate_file(
+                conda_environment = validate_path(
                     raw_conda['file'],
                     self.base_path,
                 )
@@ -511,7 +515,7 @@ class BuildConfigV1(BuildConfigBase):
         if not requirements_file:
             return None
         with self.catch_validation_error('requirements_file'):
-            requirements_file = validate_file(
+            requirements_file = validate_path(
                 requirements_file,
                 self.base_path,
             )
@@ -680,7 +684,7 @@ class BuildConfigV2(BuildConfigBase):
         conda = {}
         with self.catch_validation_error('conda.environment'):
             environment = self.pop_config('conda.environment', raise_ex=True)
-            conda['environment'] = validate_file(environment, self.base_path)
+            conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
     def validate_build(self):
@@ -786,7 +790,7 @@ class BuildConfigV2(BuildConfigBase):
         if 'requirements' in raw_install:
             requirements_key = key + '.requirements'
             with self.catch_validation_error(requirements_key):
-                requirements = validate_file(
+                requirements = validate_path(
                     self.pop_config(requirements_key),
                     self.base_path,
                 )
@@ -794,7 +798,7 @@ class BuildConfigV2(BuildConfigBase):
         elif 'path' in raw_install:
             path_key = key + '.path'
             with self.catch_validation_error(path_key):
-                path = validate_directory(
+                path = validate_path(
                     self.pop_config(path_key),
                     self.base_path,
                 )
@@ -871,7 +875,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('mkdocs.configuration'):
             configuration = self.pop_config('mkdocs.configuration', None)
             if configuration is not None:
-                configuration = validate_file(configuration, self.base_path)
+                configuration = validate_path(configuration, self.base_path)
             mkdocs['configuration'] = configuration
 
         with self.catch_validation_error('mkdocs.fail_on_warning'):
@@ -918,7 +922,7 @@ class BuildConfigV2(BuildConfigBase):
                 configuration,
             )
             if configuration is not None:
-                configuration = validate_file(configuration, self.base_path)
+                configuration = validate_path(configuration, self.base_path)
             sphinx['configuration'] = configuration
 
         with self.catch_validation_error('sphinx.fail_on_warning'):

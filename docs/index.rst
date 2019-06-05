@@ -122,6 +122,7 @@ to help you create fantastic documentation for your project.
    architecture
    tests
    docs
+   design/index
    development/standards
    development/buildenvironments
    symlinks

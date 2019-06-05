@@ -69,13 +69,13 @@ class BaseMkdocs(BaseBuilder):
 
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
-        mkdoc_path = self.config.mkdocs.configuration
-        if not mkdoc_path:
-            mkdoc_path = os.path.join(
-                self.project.checkout_path(self.version.slug),
-                'mkdocs.yml',
-            )
-        return mkdoc_path
+        mkdocs_path = self.config.mkdocs.configuration
+        if not mkdocs_path:
+            mkdocs_path = 'mkdocs.yml'
+        return os.path.join(
+            self.project.checkout_path(self.version.slug),
+            mkdocs_path,
+        )
 
     def load_yaml_config(self):
         """
@@ -226,9 +226,9 @@ class BaseMkdocs(BaseBuilder):
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
         }
-        data_json = json.dumps(readthedocs_data, indent=4)
+
         data_ctx = {
-            'data_json': data_json,
+            'readthedocs_data': readthedocs_data,
             'current_version': readthedocs_data['version'],
             'slug': readthedocs_data['project'],
             'html_theme': readthedocs_data['theme'],
@@ -248,7 +248,7 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir',
             self.build_dir,
             '--config-file',
-            self.yaml_file,
+            os.path.relpath(self.yaml_file, self.root_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')

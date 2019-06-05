@@ -213,6 +213,20 @@ class ProjectViewSet(UserSelectViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        try:
+            # The order of added_versions isn't deterministic.
+            # We don't track the commit time or any other metadata.
+            # We usually have one version added per webhook.
+            api_utils.run_automation_rules(project, added_versions)
+        except Exception:
+            # Don't interrupt the request if something goes wrong
+            # in the automation rules.
+            log.exception(
+                'Failed to execute automation rules for [%s]: %s',
+                project.slug, added_versions
+            )
+
+        # TODO: move this to an automation rule
         promoted_version = project.update_stable_version()
         new_stable = project.get_stable_version()
         if promoted_version and new_stable and new_stable.active:
