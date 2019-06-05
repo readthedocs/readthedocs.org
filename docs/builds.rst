@@ -13,7 +13,7 @@ Our current build limits are:
 * 1GB of RAM memory
 
 We can increase build limits on a per-project basis,
-if you provide a good reason your documentation needs more resources.
+sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
 
 You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
