@@ -92,7 +92,7 @@ The issue allowed the creation of hyperlinks that looked like they would go to a
 on Read the Docs (either ``*.readthedocs.io`` or a custom docs domain) but instead went to a different domain.
 
 This issue was reported by Peter Thomassen and the desec.io DNS security project
-and was funded by `SSE <https://github.com/rtfd/readthedocs.org/security/advisories/www.securesystems.de>`_.
+and was funded by `SSE <https://www.securesystems.de>`_.
 
 
 Version 3.2.0
