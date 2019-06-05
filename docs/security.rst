@@ -84,6 +84,17 @@ __ https://pgp.mit.edu/pks/lookup?op=vindex&search=0xFEEF9FC2DD21D271
 Security issue archive
 ----------------------
 
+Version 3.5.1
+~~~~~~~~~~~~~
+
+Version 3.5.1 fixed an issue where that affected projects with "prefix" or "sphinx" user-defined redirects.
+The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain
+on Read the Docs (either ``*.readthedocs.io`` or a custom docs domain) but instead went to a different domain.
+
+This issue was reported by Peter Thomassen and the desec.io DNS security project
+and was funded by `SSE <https://github.com/rtfd/readthedocs.org/security/advisories/www.securesystems.de>`_.
+
+
 Version 3.2.0
 ~~~~~~~~~~~~~
 
