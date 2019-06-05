@@ -73,9 +73,8 @@ class Command(BaseCommand):
 
                         # pylint: disable=no-value-for-parameter
                         tasks.update_docs_task(
-                            version.project_id,
+                            version.pk,
                             build_pk=build.pk,
-                            version_pk=version.pk,
                         )
                 else:
                     p = Project.all_objects.get(slug=slug)
@@ -90,15 +89,16 @@ class Command(BaseCommand):
                 ):
                     # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
-                        version.project_id,
+                        version.pk,
                         force=force,
-                        version_pk=version.pk,
                     )
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
                     # pylint: disable=no-value-for-parameter
+                    default_version = project.get_default_version()
+                    version = project.versions.get(slug=default_version)
                     tasks.update_docs_task(
-                        project.pk,
+                        version.pk,
                         force=force,
                     )

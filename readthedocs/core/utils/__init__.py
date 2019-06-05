@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Common utilty functions."""
 
 import errno
@@ -96,7 +94,6 @@ def prepare_build(
         version = project.versions.get(slug=default_version)
 
     kwargs = {
-        'version_pk': version.pk,
         'record': record,
         'force': force,
     }
@@ -130,7 +127,7 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(project.pk,),
+            args=(version.pk,),
             kwargs=kwargs,
             options=options,
             immutable=True,

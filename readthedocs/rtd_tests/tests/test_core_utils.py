@@ -49,7 +49,6 @@ class CoreUtilTests(TestCase):
 
         trigger_build(project=project_1)
         kwargs = {
-            'version_pk': version_1.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -57,7 +56,7 @@ class CoreUtilTests(TestCase):
 
         update_docs_task.signature.assert_has_calls([
             mock.call(
-                args=(project_1.pk,),
+                args=(version_1.pk,),
                 kwargs=kwargs,
                 options=mock.ANY,
                 immutable=True,
@@ -69,12 +68,11 @@ class CoreUtilTests(TestCase):
 
         trigger_build(project=self.project)
         default_version = self.project.get_default_version()
-        version_ = self.project.versions.get(slug=default_version)
+        version = self.project.versions.get(slug=default_version)
 
-        self.assertEqual(version_.slug, LATEST)
+        self.assertEqual(version.slug, LATEST)
 
         kwargs = {
-            'version_pk': version_.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -82,7 +80,7 @@ class CoreUtilTests(TestCase):
 
         update_docs_task.signature.assert_has_calls([
             mock.call(
-                args=(self.project.pk,),
+                args=(version.pk,),
                 kwargs=kwargs,
                 options=mock.ANY,
                 immutable=True,
@@ -95,7 +93,6 @@ class CoreUtilTests(TestCase):
         self.project.build_queue = 'build03'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'version_pk': self.version.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -106,7 +103,7 @@ class CoreUtilTests(TestCase):
             'soft_time_limit': 600,
         }
         update_docs.signature.assert_called_with(
-            args=(self.project.pk,),
+            args=(self.version.pk,),
             kwargs=kwargs,
             options=options,
             immutable=True,
@@ -117,7 +114,6 @@ class CoreUtilTests(TestCase):
         """Pass of time limit."""
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'version_pk': self.version.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -129,7 +125,7 @@ class CoreUtilTests(TestCase):
         }
         update_docs.signature.assert_has_calls([
             mock.call(
-                args=(self.project.pk,),
+                args=(self.version.pk,),
                 kwargs=kwargs,
                 options=options,
                 immutable=True,
@@ -148,7 +144,6 @@ class CoreUtilTests(TestCase):
         self.project.container_time_limit = '200s'
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'version_pk': self.version.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -160,7 +155,7 @@ class CoreUtilTests(TestCase):
         }
         update_docs.signature.assert_has_calls([
             mock.call(
-                args=(self.project.pk,),
+                args=(self.version.pk,),
                 kwargs=kwargs,
                 options=options,
                 immutable=True,
@@ -179,7 +174,6 @@ class CoreUtilTests(TestCase):
         self.project.container_time_limit = 3
         trigger_build(project=self.project, version=self.version)
         kwargs = {
-            'version_pk': self.version.pk,
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
@@ -191,7 +185,7 @@ class CoreUtilTests(TestCase):
         }
         update_docs.signature.assert_has_calls([
             mock.call(
-                args=(self.project.pk,),
+                args=(self.version.pk,),
                 kwargs=kwargs,
                 options=options,
                 immutable=True,
