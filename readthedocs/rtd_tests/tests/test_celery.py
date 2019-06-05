@@ -79,13 +79,14 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
     def test_update_docs(self):
+        version = self.project.versions.first()
         build = get(
             Build, project=self.project,
-            version=self.project.versions.first(),
+            version=version,
         )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
-                self.project.pk,
+                version.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False,
@@ -99,13 +100,14 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_setup_exception(self, mock_setup_vcs):
         exc = Exception()
         mock_setup_vcs.side_effect = exc
+        version = self.project.versions.first()
         build = get(
             Build, project=self.project,
-            version=self.project.versions.first(),
+            version=version,
         )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
-                self.project.pk,
+                version.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False,
@@ -119,13 +121,14 @@ class TestCeleryBuilding(RTDTestCase):
     def test_update_docs_unexpected_build_exception(self, mock_build_docs):
         exc = Exception()
         mock_build_docs.side_effect = exc
+        version = self.project.versions.first()
         build = get(
             Build, project=self.project,
-            version=self.project.versions.first(),
+            version=version,
         )
         with mock_api(self.repo) as mapi:
             result = tasks.update_docs_task.delay(
-                self.project.pk,
+                version.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False,
@@ -138,14 +141,16 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
+        
+        version = self.project.versions.first()
 
         build = get(
             Build, project=self.project,
-            version=self.project.versions.first(),
+            version=version,
         )
-        with mock_api(self.repo) as mapi:
+        with mock_api(self.repo):
             result = tasks.update_docs_task.delay(
-                self.project.pk,
+                version.pk,
                 build_pk=build.pk,
                 record=False,
                 intersphinx=False,

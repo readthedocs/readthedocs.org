@@ -95,9 +95,10 @@ class NonBlockingLock:
     """
 
     def __init__(self, project, version, max_lock_age=None):
+        self.base_path = project.doc_path
         self.fpath = os.path.join(
-            project.doc_path,
-            '%s__rtdlock' % version.slug,
+            self.base_path,
+            f'{version.slug}__rtdlock',
         )
         self.max_lock_age = max_lock_age
         self.name = project.slug
@@ -118,6 +119,8 @@ class NonBlockingLock:
                 )
         elif path_exists:
             raise LockTimeout('Lock ({}): Lock still active'.format(self.name),)
+        # Create dirs if they don't exists
+        os.makedirs(self.base_path, exist_ok=True)
         open(self.fpath, 'w').close()
         return self
 
