@@ -10,7 +10,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BRANCH, TAG
+from readthedocs.builds.constants import BRANCH, TAG, INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -130,7 +130,7 @@ class ProjectViewSet(UserSelectViewSet):
             Project.objects.api(request.user),
             pk=kwargs['pk'],
         )
-        versions = project.versions(manager='internal').filter(active=True)
+        versions = project.versions(manager=INTERNAL).filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
         })

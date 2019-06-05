@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -240,7 +241,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        versions_choices = self.instance.versions(manager='internal').filter(
+        versions_choices = self.instance.versions(manager=INTERNAL).filter(
             machine=False).values_list('verbose_name', flat=True)
 
         self.fields['default_branch'].widget = forms.Select(

@@ -38,6 +38,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
@@ -410,7 +411,7 @@ def sitemap_xml(request, project):
         if project.translations.exists():
             for translation in project.translations.all():
                 translation_versions = translation.versions(
-                    manager='internal'
+                    manager=INTERNAL
                 ).public().values_list('slug', flat=True)
                 if version.slug in translation_versions:
                     href = project.get_docs_url(
