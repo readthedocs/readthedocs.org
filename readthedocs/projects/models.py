@@ -20,7 +20,7 @@ from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, INTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
@@ -949,7 +949,7 @@ class Project(models.Model):
 
         :returns: :py:class:`Version` queryset
         """
-        return self.versions(manager='internal').filter(active=True)
+        return self.versions(manager=INTERNAL).filter(active=True)
 
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
@@ -961,7 +961,7 @@ class Project(models.Model):
         Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
-        versions = self.versions(manager='internal').all()
+        versions = self.versions(manager=INTERNAL).all()
         new_stable = determine_stable_version(versions)
         if new_stable:
             current_stable = self.get_stable_version()

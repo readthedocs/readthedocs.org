@@ -10,6 +10,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
+from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects import tasks
@@ -76,7 +77,7 @@ class Command(BaseCommand):
                             version.pk,
                             build_pk=build.pk,
                         )
-                elif version == 'internal':
+                elif version == INTERNAL:
                     log.info('Updating all internal versions for %s', slug)
                     for version in Version.internal.filter(
                             project__slug=slug,
@@ -97,7 +98,7 @@ class Command(BaseCommand):
                             build_pk=build.pk,
                             version_pk=version.pk,
                         )
-                elif version == 'external':
+                elif version == EXTERNAL:
                     log.info('Updating all external versions for %s', slug)
                     for version in Version.external.filter(
                             project__slug=slug,

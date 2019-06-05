@@ -55,3 +55,10 @@ NON_REPOSITORY_VERSIONS = (
     LATEST,
     STABLE,
 )
+
+# Manager name for Internal Versions or Builds.
+# ie: Versions and Builds Excluding PULL_REQUEST Type.
+INTERNAL =  'internal'
+# Manager name for External Versions or Builds.
+# ie: Only PULL_REQUEST Type Versions and Builds.
+EXTERNAL = 'external'
