@@ -32,12 +32,13 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from .constants import (
+from readthedocs.builds.constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
     PULL_REQUEST,
@@ -143,7 +144,7 @@ class Version(models.Model):
     def ref(self):
         if self.slug == STABLE:
             stable = determine_stable_version(
-                self.project.versions(manager='internal').all()
+                self.project.versions(manager=INTERNAL).all()
             )
             if stable:
                 return stable.slug
