@@ -118,12 +118,13 @@ to help you create fantastic documentation for your project.
 
    changelog
    install
+   development/standards
    development/search
    architecture
    tests
    docs
-   development/standards
    development/buildenvironments
+   development/front-end
    symlinks
    settings
    i18n
