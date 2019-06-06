@@ -14,7 +14,7 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
-@mock.patch('readthedocs.projects.tasks.clean_build_task.signature', new=mock.MagicMock)
+@mock.patch('readthedocs.projects.tasks.clean_build', new=mock.MagicMock)
 @mock.patch('readthedocs.projects.tasks.update_docs_task.signature', new=mock.MagicMock)
 class PrivacyTests(TestCase):
 
