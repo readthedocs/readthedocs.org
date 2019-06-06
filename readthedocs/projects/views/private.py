@@ -157,7 +157,7 @@ def project_version_detail(request, project_slug, version_slug):
         slug=project_slug,
     )
     version = get_object_or_404(
-        Version.objects.public(
+        Version.internal.public(
             user=request.user,
             project=project,
             only_active=False,
@@ -682,7 +682,7 @@ def project_version_delete_html(request, project_slug, version_slug):
         slug=project_slug,
     )
     version = get_object_or_404(
-        Version.objects.public(
+        Version.internal.public(
             user=request.user,
             project=project,
             only_active=False,
