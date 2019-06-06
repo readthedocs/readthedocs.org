@@ -75,7 +75,7 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
 
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
-        Version,
+        Version.internal.all(),
         project__slug=project_slug,
         slug=version_slug,
     )
