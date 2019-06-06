@@ -11,7 +11,7 @@ import logging
 import re
 from urllib.parse import urlparse, urlunparse
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 
 from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project
@@ -79,7 +79,7 @@ def get_redirect_response(request, full_path):
     if not project.single_version:
         language, version_slug, path = language_and_version_from_path(path)
 
-    path = project.redirects.get_redirect_path(
+    path, http_status = project.redirects.get_redirect_path_with_status(
         path=path, language=language, version_slug=version_slug
     )
 
@@ -91,4 +91,8 @@ def get_redirect_response(request, full_path):
     # Re-use the domain and protocol used in the current request.
     # Redirects shouldn't change the domain, version or language.
     new_path = request.build_absolute_uri(new_path)
+
+    if http_status and http_status == 301:
+        return HttpResponsePermanentRedirect(new_path)
+
     return HttpResponseRedirect(new_path)
