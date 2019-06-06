@@ -10,7 +10,11 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
+<<<<<<< HEAD
 from readthedocs.builds.constants import LATEST
+=======
+from readthedocs.builds.constants import PULL_REQUEST, INTERNAL
+>>>>>>> Tests added
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -249,6 +253,16 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
+        # This is a Pull Request Version
+        pr_version = fixture.get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.public,
+            active=True,
+            type=PULL_REQUEST
+        )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
             Project,
@@ -268,7 +282,7 @@ class TestPublicDocs(BaseDocServing):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
-        for version in self.public.versions.filter(privacy_level=constants.PUBLIC):
+        for version in self.public.versions(manager=INTERNAL).filter(privacy_level=constants.PUBLIC):
             self.assertContains(
                 response,
                 self.public.get_docs_url(
@@ -302,6 +316,16 @@ class TestPublicDocs(BaseDocServing):
         # hreflang should use hyphen instead of underscore
         # in language and country value. (zh_CN should be zh-CN)
         self.assertContains(response, 'zh-CN')
+
+        # External Versions should not be in the sitemap_xml.
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=pr_version.slug,
+                lang_slug=self.public.language,
+                private=True,
+            ),
+        )
 
         # Check if STABLE version has 'priority of 1 and changefreq of weekly.
         self.assertEqual(

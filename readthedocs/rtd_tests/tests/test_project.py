@@ -14,8 +14,9 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     LATEST,
+    PULL_REQUEST,
 )
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
@@ -29,6 +30,16 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+        # Create a External Version. ie: PULL_REQUEST type Version.
+        self.pr_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=PULL_REQUEST
+        )
 
 
 class TestProject(ProjectMixin, TestCase):
@@ -133,6 +144,21 @@ class TestProject(ProjectMixin, TestCase):
             self.pip.get_storage_path('htmlzip', LATEST),
             'htmlzip/pip/latest/pip.zip',
         )
+
+    def test_ordered_active_versions_excludes_pr_versions(self):
+        self.assertNotIn(self.pr_version, self.pip.ordered_active_versions())
+
+    def test_active_versions_excludes_pr_versions(self):
+        self.assertNotIn(self.pr_version, self.pip.active_versions())
+
+    def test_all_active_versions_excludes_pr_versions(self):
+        self.assertNotIn(self.pr_version, self.pip.all_active_versions())
+
+    def test_update_stable_version_excludes_pr_versions(self):
+        # Delete all versions excluding PR Versions.
+        self.pip.versions.exclude(type=PULL_REQUEST).delete()
+        # Test that PR Version is not considered for stable.
+        self.assertEqual(self.pip.update_stable_version(), None)
 
 
 class TestProjectTranslations(ProjectMixin, TestCase):
