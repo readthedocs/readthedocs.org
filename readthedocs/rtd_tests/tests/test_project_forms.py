@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, PULL_REQUEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
@@ -314,7 +314,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             verbose_name='protected',
         )
 
-    def test_list_only_non_auto_generated_versions_on_default_branch(self):
+    def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
         form = ProjectAdvancedForm(instance=self.project)
         # This version is created automatically by the project on save
         latest = self.project.versions.filter(slug=LATEST)
@@ -336,7 +336,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 'default_branch'].widget.choices],
         )
 
-    def test_list_user_created_latest_and_stable_versions_on_default_branch(self):
+    def test_list_user_created_latest_and_stable_versions_in_default_branch_choices(self):
         self.project.versions.filter(slug=LATEST).first().delete()
         user_created_latest_version = get(
             Version,
@@ -379,6 +379,25 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
         self.assertNotIn(
             stable.first().commit_name,
+            [identifier for identifier, _ in form.fields[
+                'default_branch'].widget.choices],
+        )
+
+    def test_pr_version_not_in_default_branch_choices(self):
+        pr_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.project,
+            active=True,
+            type=PULL_REQUEST,
+            privacy_level=PUBLIC,
+        )
+        form = ProjectAdvancedForm(instance=self.project)
+
+        self.assertNotIn(
+            pr_version.verbose_name,
             [identifier for identifier, _ in form.fields[
                 'default_branch'].widget.choices],
         )
