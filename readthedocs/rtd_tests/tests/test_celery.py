@@ -159,11 +159,67 @@ class TestCeleryBuilding(RTDTestCase):
         mock_send_notifications.assert_not_called()
         self.assertTrue(result.successful())
 
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
+    @patch('readthedocs.doc_builder.environments.BuildEnvironment.update_build', new=MagicMock)
+    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs')
+    def test_clean_build_after_update_docs(self, build_docs, clean_build):
+        version = self.project.versions.first()
+        build = get(
+            Build, project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo) as mapi:
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        self.assertTrue(result.successful())
+        clean_build.assert_called_with(version.pk)
+
+    @patch('readthedocs.projects.tasks.clean_build')
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.run_setup')
+    def test_clean_build_after_failure_in_update_docs(self, run_setup, clean_build):
+        run_setup.side_effect = Exception()
+        version = self.project.versions.first()
+        build = get(
+            Build, project=self.project,
+            version=version,
+        )
+        with mock_api(self.repo):
+            result = tasks.update_docs_task.delay(
+                version.pk,
+                build_pk=build.pk,
+                record=False,
+                intersphinx=False,
+            )
+        clean_build.assert_called_with(version.pk)
+
     def test_sync_repository(self):
         version = self.project.versions.get(slug=LATEST)
         with mock_api(self.repo):
             result = tasks.sync_repository_task.delay(version.pk)
         self.assertTrue(result.successful())
+
+    @patch('readthedocs.projects.tasks.clean_build')
+    def test_clean_build_after_sync_repository(self, clean_build):
+        version = self.project.versions.get(slug=LATEST)
+        with mock_api(self.repo):
+            result = tasks.sync_repository_task.delay(version.pk)
+        self.assertTrue(result.successful())
+        clean_build.assert_called_with(version.pk)
+
+    @patch('readthedocs.projects.tasks.SyncRepositoryTaskStep.run')
+    @patch('readthedocs.projects.tasks.clean_build')
+    def test_clean_build_after_failure_in_sync_repository(self, clean_build, run_syn_repository):
+        run_syn_repository.side_effect = Exception()
+        version = self.project.versions.get(slug=LATEST)
+        with mock_api(self.repo):
+            result = tasks.sync_repository_task.delay(version.pk)
+        clean_build.assert_called_with(version.pk)
 
     @patch('readthedocs.projects.tasks.api_v2')
     @patch('readthedocs.projects.models.Project.checkout_path')
