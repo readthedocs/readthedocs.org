@@ -168,30 +168,46 @@ div.ethical-footer {
     background-color: #eee;
     border-top: 1px solid #bfbfbf;
     font-size: 12px;
-    line-height: 16px;
-    padding: 0.5em 2.5em;
+    line-height: 1.5;
+    padding: 0.5em 1.5em;
     text-align: center;
     color: #404040;
     width: 100%;    /* Fallback for Opera Mini */
     width: 100vw;
 }
+@media (min-width: 769px) {
+    /* Improve viewing on non-mobile */
+    .ethical-fixedfooter {
+        font-size: 13px;
+        padding: 1em 1.5em;
+    }
+}
+.ethical-fixedfooter .ethical-text:before {
+    margin-right: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background-color: #4caf50;
+    color: #fff;
+    content: "Sponsored";
+}
+.ethical-fixedfooter .ethical-callout {
+    color: #999;
+    padding-left: 6px;
+    white-space: nowrap;
+}
 .ethical-fixedfooter a,
 .ethical-fixedfooter a:hover,
 .ethical-fixedfooter a:active,
 .ethical-fixedfooter a:visited {
-    color: #004B6B;
-    text-decoration: underline;
+    color: #404040;
+    text-decoration: none;
 }
 .ethical-fixedfooter .ethical-close {
     position: absolute;
     top: 0;
     right: 5px;
-    font-size: 15px;
-    line-height: 15px;
-}
-.ethical-fixedfooter .ethical-close a {
-    color: black;
-    text-decoration: none;
+    font-size: 20px;
+    line-height: 20px;
 }
 
 /* RTD Theme specific customizations */
@@ -206,6 +222,13 @@ div.ethical-footer {
 
     font-size: 14px;
     line-height: 20px;
+}
+
+@media (min-width: 769px) {
+    /* Make sure the fixed footer ad is under the RTD theme version selector */
+    .wy-body-for-nav .ethical-fixedfooter {
+        padding-left: 300px;
+    }
 }
 
 /* Alabaster specific customizations */
@@ -227,7 +250,7 @@ div.ethical-footer {
 
 /* Dark theme */
 .ethical-dark-theme .ethical-sidebar {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #4e4b4b;
     border: 1px solid #a0a0a0;
     color: #c2c2c2 !important;
 }

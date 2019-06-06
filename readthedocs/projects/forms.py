@@ -14,12 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import TAG
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
@@ -242,14 +240,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        # commit_name is used as the id because it handles
-        # the special cases of LATEST and STABLE.
-        all_versions_choices = [
-            (v.commit_name, v.verbose_name)
-            for v in self.instance.versions.all()
-        ]
+        versions_choices = self.instance.versions.filter(
+            machine=False).values_list('verbose_name', flat=True)
+
         self.fields['default_branch'].widget = forms.Select(
-            choices=[default_choice] + all_versions_choices,
+            choices=[default_choice] + list(
+                zip(versions_choices, versions_choices)
+            ),
         )
 
         active_versions = self.get_all_active_versions()
@@ -378,6 +375,17 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
             )
         return child
 
+    def clean_alias(self):
+        alias = self.cleaned_data['alias']
+        subproject = self.project.subprojects.filter(
+            alias=alias).exclude(id=self.instance.pk)
+
+        if subproject.exists():
+            raise forms.ValidationError(
+                _('A subproject with this alias already exists'),
+            )
+        return alias
+
     def get_subproject_queryset(self):
         """
         Return scrubbed subproject choice queryset.
@@ -452,88 +460,6 @@ class BaseVersionsForm(forms.Form):
         version.save()
         if version.active and not version.built and not version.uploaded:
             trigger_build(project=self.project, version=version)
-
-
-def build_versions_form(project):
-    """Versions form with a list of versions and version privacy levels."""
-    attrs = {
-        'project': project,
-    }
-    versions_qs = project.versions.all()  # Admin page, so show all versions
-    active = versions_qs.filter(active=True)
-    if active.exists():
-        active = sort_version_aware(active)
-        choices = [(version.slug, version.verbose_name) for version in active if version.built]
-        attrs['default-version'] = forms.ChoiceField(
-            label=_('Default Version'),
-            choices=choices,
-            initial=project.get_default_version(),
-        )
-    versions_qs = sort_version_aware(versions_qs)
-    for version in versions_qs:
-        field_name = 'version-{}'.format(version.slug)
-        privacy_name = 'privacy-{}'.format(version.slug)
-        if version.type == TAG:
-            label = '{} ({})'.format(
-                version.verbose_name,
-                version.identifier[:8],
-            )
-        else:
-            label = version.verbose_name
-        attrs[field_name] = forms.BooleanField(
-            label=label,
-            widget=DualCheckboxWidget(version),
-            initial=version.active,
-            required=False,
-        )
-        attrs[privacy_name] = forms.ChoiceField(
-            # This isn't a real label, but just a slug for the template
-            label='privacy',
-            choices=constants.PRIVACY_CHOICES,
-            initial=version.privacy_level,
-        )
-    return type(str('VersionsForm'), (BaseVersionsForm,), attrs)
-
-
-class BaseUploadHTMLForm(forms.Form):
-    content = forms.FileField(label=_('Zip file of HTML'))
-    overwrite = forms.BooleanField(
-        required=False,
-        label=_('Overwrite existing HTML?'),
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        version_slug = self.cleaned_data['version']
-        filename = self.request.FILES['content']
-        version = self.project.versions.get(slug=version_slug)
-
-        # Validation
-        if version.active and not self.cleaned_data.get('overwrite', False):
-            raise forms.ValidationError(_('That version is already active!'))
-        if not filename.name.endswith('zip'):
-            raise forms.ValidationError(_('Must upload a zip file.'))
-
-        return self.cleaned_data
-
-
-def build_upload_html_form(project):
-    """Upload HTML form with list of versions to upload HTML for."""
-    attrs = {
-        'project': project,
-    }
-    active = project.versions.public()
-    if active.exists():
-        choices = []
-        choices += [(version.slug, version.verbose_name) for version in active]
-        attrs['version'] = forms.ChoiceField(
-            label=_('Version of the project you are uploading HTML for'),
-            choices=choices,
-        )
-    return type('UploadHTMLForm', (BaseUploadHTMLForm,), attrs)
 
 
 class UserForm(forms.Form):

@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 
-from readthedocs.restapi.client import DrfJsonSerializer
+from readthedocs.api.v2.client import DrfJsonSerializer
 
 
 class TestDrfJsonSerializer(TestCase):

@@ -47,10 +47,17 @@ This includes:
 * Expected result
 * Actual result
 
+Specific Requests
+~~~~~~~~~~~~~~~~~
+
+If you need a specific request for your project or account,
+like more resources, change of the project's slug or username.
+Send an email to support@readthedocs.org.
+
 Commercial Support
 ------------------
 
-We offer commercial support for Read the Docs, commercial hosting,
+We offer commercial support for Read the Docs, :doc:`commercial hosting </commercial/index>`,
 as well as consulting around all documentation systems.
 You can contact us at hello@readthedocs.com to learn more,
 or read more at https://readthedocs.com/services/#open-source-support.

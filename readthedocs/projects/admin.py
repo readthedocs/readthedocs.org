@@ -111,13 +111,19 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
     parameter_name = 'project_owner_banned'
 
     OWNER_BANNED = 'true'
+    NOT_OWNER_BANNED = 'false'
 
     def lookups(self, request, model_admin):
-        return ((self.OWNER_BANNED, _('Yes')),)
+        return (
+            (self.OWNER_BANNED, _('Yes')),
+            (self.NOT_OWNER_BANNED, _('No')),
+        )
 
     def queryset(self, request, queryset):
         if self.value() == self.OWNER_BANNED:
             return queryset.filter(users__profile__banned=True)
+        if self.value() == self.NOT_OWNER_BANNED:
+            return queryset.filter(users__profile__banned=False)
         return queryset
 
 
@@ -307,6 +313,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('project', 'version')
     list_display = ('path', 'name', 'version')
+    search_fields = ('project', 'path')
 
 
 class DomainAdmin(admin.ModelAdmin):

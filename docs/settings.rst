@@ -94,6 +94,16 @@ Default: :djangosetting:`ALLOW_ADMIN`
 Whether to include `django.contrib.admin` in the URL's.
 
 
+RTD_BUILD_MEDIA_STORAGE
+-----------------------
+
+Default: ``None``
+
+Use this storage class to upload build artifacts to cloud storage (S3, Azure storage).
+This should be a dotted path to the relevant class (eg. ``'path.to.MyBuildMediaStorage'``).
+This class should mixin :class:`readthedocs.builds.storage.BuildMediaStorageMixin`.
+
+
 ELASTICSEARCH_DSL
 -----------------
 

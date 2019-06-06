@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Validations for the RTD configuration file."""
+
 import os
 
 
@@ -8,8 +7,6 @@ INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'
 INVALID_LIST = 'invalid-list'
 INVALID_DICT = 'invalid-dictionary'
-INVALID_DIRECTORY = 'invalid-directory'
-INVALID_FILE = 'invalid-file'
 INVALID_PATH = 'invalid-path'
 INVALID_STRING = 'invalid-string'
 VALUE_NOT_FOUND = 'value-not-found'
@@ -22,8 +19,6 @@ class ValidationError(Exception):
     messages = {
         INVALID_BOOL: 'expected one of (0, 1, true, false), got {value}',
         INVALID_CHOICE: 'expected one of ({choices}), got {value}',
-        INVALID_DIRECTORY: '{value} is not a directory',
-        INVALID_FILE: '{value} is not a file',
         INVALID_DICT: '{value} is not a dictionary',
         INVALID_PATH: 'path {value} does not exist',
         INVALID_STRING: 'expected string',
@@ -79,30 +74,14 @@ def validate_bool(value):
     return bool(value)
 
 
-def validate_directory(value, base_path):
-    """Check that ``value`` is a directory."""
-    path = validate_path(value, base_path)
-    if not os.path.isdir(path):
-        raise ValidationError(value, INVALID_DIRECTORY)
-    return path
-
-
-def validate_file(value, base_path):
-    """Check that ``value`` is a file."""
-    path = validate_path(value, base_path)
-    if not os.path.isfile(path):
-        raise ValidationError(value, INVALID_FILE)
-    return path
-
-
 def validate_path(value, base_path):
-    """Check that ``value`` is an existent file in ``base_path``."""
+    """Check that ``value`` is a valid path name and normamlize it."""
     string_value = validate_string(value)
-    pathed_value = os.path.join(base_path, string_value)
-    final_value = os.path.abspath(pathed_value)
-    if not os.path.exists(final_value):
+    if not string_value:
         raise ValidationError(value, INVALID_PATH)
-    return final_value
+    full_path = os.path.join(base_path, string_value)
+    rel_path = os.path.relpath(full_path, base_path)
+    return rel_path
 
 
 def validate_string(value):

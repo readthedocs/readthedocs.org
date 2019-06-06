@@ -36,7 +36,7 @@ you should see a bit of HTML like this:
 
 .. code-block:: html
 
-    <link rel="canonical" href="http://pip.readthedocs.io/en/latest/installing.html">
+    <link rel="canonical" href="http://docs.fabfile.org/en/2.4/" />
 
 Links
 -----

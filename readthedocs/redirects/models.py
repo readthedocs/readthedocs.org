@@ -87,7 +87,7 @@ class Redirect(models.Model):
     http_status = models.SmallIntegerField(
         _('HTTP Status'),
         choices=HTTP_STATUS_CHOICES,
-        default=301,
+        default=302,
     )
     status = models.BooleanField(choices=STATUS_CHOICES, default=True)
 

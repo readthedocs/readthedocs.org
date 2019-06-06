@@ -201,13 +201,10 @@ class TestPublicDocs(BaseDocServing):
         ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
     )
 
-    @patch('readthedocs.core.views.serve.os')
+    @patch('readthedocs.core.views.static_serve')
     @patch('readthedocs.core.views.os')
-    def test_custom_404_page(self, os_view_mock, os_serve_mock):
+    def test_custom_404_page(self, os_view_mock, static_serve_mock):
         os_view_mock.path.exists.return_value = True
-
-        os_serve_mock.path.join.side_effect = os.path.join
-        os_serve_mock.path.exists.return_value = True
 
         self.public.versions.update(active=True, built=True)
 
@@ -221,7 +218,6 @@ class TestPublicDocs(BaseDocServing):
         middleware.process_request(request)
         response = server_error_404_subdomain(request)
         self.assertEqual(response.status_code, 404)
-        self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))
 
     @override_settings(
         USE_SUBDOMAIN=True,
@@ -234,6 +230,28 @@ class TestPublicDocs(BaseDocServing):
             Version,
             privacy_level=constants.PRIVATE,
             project=self.public,
+        )
+        not_translated_public_version = fixture.get(
+            Version,
+            identifier='not-translated-version',
+            verbose_name='not-translated-version',
+            slug='not-translated-version',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
+        # This also creates a Version `latest` Automatically for this project
+        translation = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='translation-es'
+        )
+        # sitemap hreflang should follow correct format.
+        # ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
+        hreflang_test_translation_project = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='zh_CN'
         )
         response = self.client.get(
             reverse('sitemap_xml'),
@@ -260,3 +278,18 @@ class TestPublicDocs(BaseDocServing):
                 private=True,
             ),
         )
+        # The `translation` project doesn't have a version named `not-translated-version`
+        # so, the sitemap should not have a doc url for
+        # `not-translated-version` with `translation-es` language.
+        # ie: http://public.readthedocs.io/translation-es/not-translated-version/
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=not_translated_public_version.slug,
+                lang_slug=translation.language,
+                private=False,
+            ),
+        )
+        # hreflang should use hyphen instead of underscore
+        # in language and country value. (zh_CN should be zh-CN)
+        self.assertContains(response, 'zh-CN')

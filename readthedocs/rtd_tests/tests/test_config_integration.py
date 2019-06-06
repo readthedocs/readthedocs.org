@@ -24,7 +24,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-from doc_builder.constants import DOCKER_IMAGE_SETTINGS
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -144,7 +144,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5, 3.6, 3.7],
+            [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -277,7 +277,7 @@ class LoadConfigTests(TestCase):
         )
         config = load_yaml_config(self.version)
         self.assertTrue(config.conda is not None)
-        self.assertEqual(config.conda.environment, full_conda_file)
+        self.assertEqual(config.conda.environment, conda_file)
 
     @mock.patch('readthedocs.projects.models.Project.checkout_path')
     def test_conda_without_cofig(self, checkout_path):
@@ -303,7 +303,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(len(config.python.install), 1)
         self.assertEqual(
             config.python.install[0].requirements,
-            full_requirements_file
+            requirements_file
         )
 
     @mock.patch('readthedocs.projects.models.Project.checkout_path')
@@ -328,7 +328,7 @@ class LoadConfigTests(TestCase):
         self.assertEqual(len(config.python.install), 1)
         self.assertEqual(
             config.python.install[0].requirements,
-            full_requirements_file
+            requirements_file
         )
 
 
@@ -459,7 +459,6 @@ class TestLoadConfigV2:
         update_docs = self.get_update_docs_task()
         update_docs.run_build(docker=False, record=False)
 
-        conda_file = path.join(str(base_path), conda_file)
         assert update_docs.config.conda.environment == conda_file
         assert isinstance(update_docs.python_env, Conda)
 
@@ -530,11 +529,10 @@ class TestLoadConfigV2:
         update_docs.python_env.install_requirements()
 
         args, kwargs = run.call_args
-        full_requirements_file = str(base_path.join(requirements_file))
         install = config.python.install
 
         assert len(install) == 1
-        assert install[0].requirements == full_requirements_file
+        assert install[0].requirements == requirements_file
         assert requirements_file in args
 
     @patch('readthedocs.doc_builder.environments.BuildEnvironment.run')
@@ -954,7 +952,7 @@ class TestLoadConfigV2:
 
         args, kwargs = run.call_args
         assert '--config-file' in args
-        assert path.join(str(tmpdir), 'docx/mkdocs.yml') in args
+        assert 'docx/mkdocs.yml' in args
         append_conf.assert_called_once()
         move.assert_called_once()
 

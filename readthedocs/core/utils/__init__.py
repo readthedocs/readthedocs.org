@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Common utilty functions."""
 
 from __future__ import absolute_import
 
 import errno
-import getpass
 import logging
 import os
 import re
@@ -21,8 +18,6 @@ from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 log = logging.getLogger(__name__)
 
-SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
-
 
 def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
     """
@@ -37,11 +32,11 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         raise ValueError('allowed value of `type` are web, app and build.')
     if kwargs is None:
         kwargs = {}
-    default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
+
     if type in ['web', 'app']:
-        servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [default_queue])
+        servers = settings.MULTIPLE_APP_SERVERS
     elif type in ['build']:
-        servers = getattr(settings, 'MULTIPLE_BUILD_SERVERS', [default_queue])
+        servers = settings.MULTIPLE_BUILD_SERVERS
 
     tasks = []
     for server in servers:
@@ -100,7 +95,6 @@ def prepare_build(
         version = project.versions.get(slug=default_version)
 
     kwargs = {
-        'version_pk': version.pk,
         'record': record,
         'force': force,
     }
@@ -134,7 +128,7 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(project.pk,),
+            args=(version.pk,),
             kwargs=kwargs,
             options=options,
             immutable=True,

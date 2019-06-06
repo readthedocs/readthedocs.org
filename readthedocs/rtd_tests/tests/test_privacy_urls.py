@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 import mock
@@ -171,6 +170,7 @@ class ProjectMixin(URLAccessMixin):
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
+            'invalid_project_slug': 'invalid_slug',
         }
 
 
@@ -185,6 +185,7 @@ class PublicProjectMixin(ProjectMixin):
         # Public
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
         '/projects/pip/badge/': {'status_code': 200},
+        '/projects/invalid_slug/': {'status_code': 302},
     }
 
     def test_public_urls(self):
@@ -373,9 +374,9 @@ class APIMixin(URLAccessMixin):
 
 class APIUnauthAccessTest(APIMixin, TestCase):
 
-    @mock.patch('readthedocs.restapi.views.task_views.get_public_task_data')
+    @mock.patch('readthedocs.api.v2.views.task_views.get_public_task_data')
     def test_api_urls(self, get_public_task_data):
-        from readthedocs.restapi.urls import urlpatterns
+        from readthedocs.api.v2.urls import urlpatterns
         get_public_task_data.side_effect = TaskNoPermission('Nope')
         self._test_url(urlpatterns)
 
