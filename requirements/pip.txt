@@ -3,7 +3,7 @@ pip==19.1.1
 appdirs==1.4.3
 virtualenv==16.6.0
 
-django==1.11.20  # pyup: <1.12
+django==1.11.21  # pyup: <1.12
 django-guardian==1.5.1
 django-extensions==2.1.7
 django_polymorphic==2.0.3
@@ -28,7 +28,7 @@ requests==2.22.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.1
-Pygments==2.4.1
+Pygments==2.4.2
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -53,7 +53,7 @@ django-allauth==0.39.1
 GitPython==2.1.10  # pyup: ignore
 
 # Search
-elasticsearch==6.3.1  # pyup: <7.0.0
+elasticsearch==6.4.0  # pyup: <7.0.0
 
 
 # elasticsearch-dsl==6.3.1 produces this error
@@ -75,7 +75,7 @@ pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.29.0
+stripe==2.29.3
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
