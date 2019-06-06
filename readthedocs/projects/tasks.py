@@ -207,7 +207,7 @@ def sync_repository_task(version_pk):
         step = SyncRepositoryTaskStep()
         return step.run(version_pk)
     finally:
-        clean_build_task(version_pk)
+        clean_build(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
@@ -282,12 +282,12 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         MkDocsYAMLParseError,
     ),
 )
-def update_docs_task(self, project_id, *args, **kwargs):
+def update_docs_task(self, version_pk, *args, **kwargs):
     try:
         step = UpdateDocsTaskStep(task=self)
         return step.run(version_pk, *args, **kwargs)
     finally:
-        clean_build_task(kwargs.get('version_pk'))
+        clean_build(version_pk)
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):
@@ -1385,17 +1385,16 @@ def _update_intersphinx_data(version, path, commit):
     delete_queryset.delete()
 
 
-@app.task(max_retries=3, default_retry_delay=7 * 60)
-def clean_build_task(version_id):
+def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
-    version = Version.objects.get_object_or_log(pk=version_id)
+    version = Version.objects.get_object_or_log(pk=version_pk)
     if (
         not version or
         not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
     ):
         log.info(
             'Skipping build files deletetion for version: %s',
-            version_id,
+            version_pk,
         )
         return False
     del_dirs = [
