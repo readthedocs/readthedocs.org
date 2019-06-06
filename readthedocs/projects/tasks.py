@@ -1397,9 +1397,11 @@ def clean_build(version_pk):
             version_pk,
         )
         return False
+    # NOTE: we are skipping the deltetion of the `artifacts` dir
+    # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'artifacts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda')
     ]
     try:
         with version.project.repo_nonblockinglock(version):
