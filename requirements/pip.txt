@@ -86,6 +86,11 @@ django-crispy-forms==1.7.2
 docker==4.0.1
 
 django-textclassifier==1.0
+# django-textclassifier doesn't have pinned versions
+# if there is an update they could break our code
+nltk==3.4.1
+textblob==0.15.3
+
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
