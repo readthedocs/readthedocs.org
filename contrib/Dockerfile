@@ -1,14 +1,15 @@
-FROM readthedocs/build:latest
+ARG label
 
-ARG username
-ARG uid=$uid
-ARG gid=$uid
+FROM readthedocs/build:${label}
+
+ARG uid
+ARG gid
 
 ENV UID ${uid}
 ENV GID ${gid}
 
 USER root
-RUN groupadd --gid ${GID} docscustom
+RUN groupmod --gid ${GID} docs
 RUN usermod --uid ${UID} --gid ${GID} docs
 USER docs
 
