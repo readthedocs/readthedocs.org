@@ -570,3 +570,55 @@ class MkdocsBuilderTest(TestCase):
                 'http://readthedocs.org/static/javascript/readthedocs-analytics.js',
             ],
         )
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_empty_yaml_config(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            '',
+            open(yaml_file, 'w'),
+        )
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        with self.assertRaisesMessage(
+                MkDocsYAMLParseError, MkDocsYAMLParseError.EMPTY_CONFIG
+        ):
+            self.searchbuilder.append_conf()
+
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_yaml_config_not_returns_dict(self, checkout_path):
+        tmpdir = tempfile.mkdtemp()
+        os.mkdir(os.path.join(tmpdir, 'docs'))
+        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        yaml.safe_dump(
+            'test_string',
+            open(yaml_file, 'w'),
+        )
+        checkout_path.return_value = tmpdir
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        self.searchbuilder = MkdocsHTML(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+
+        with self.assertRaisesMessage(
+                MkDocsYAMLParseError, MkDocsYAMLParseError.CONFIG_NOT_DICT
+        ):
+            self.searchbuilder.append_conf()
