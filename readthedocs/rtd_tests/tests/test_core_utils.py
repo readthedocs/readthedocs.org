@@ -1,19 +1,19 @@
 """Test core util functions."""
 
 import os
-import mock
 
-from mock import call
+import mock
 from django.http import Http404
 from django.test import TestCase
 from django_dynamic_fixture import get
+from mock import call
 
-from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
-from readthedocs.projects.tasks import remove_dirs
-from readthedocs.core.utils import slugify, trigger_build
-from readthedocs.projects.models import Project
 from readthedocs.builds.constants import LATEST
+from readthedocs.builds.models import Version
+from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.projects.models import Project
+from readthedocs.projects.tasks import remove_dirs
 
 
 class CoreUtilTests(TestCase):
@@ -54,15 +54,13 @@ class CoreUtilTests(TestCase):
             'build_pk': mock.ANY,
         }
 
-        update_docs_task.signature.assert_has_calls([
-            mock.call(
-                args=(version_1.pk,),
-                kwargs=kwargs,
-                options=mock.ANY,
-                immutable=True,
-            ),
-        ])
-    
+        update_docs_task.signature.assert_called_with(
+            args=(version_1.pk,),
+            kwargs=kwargs,
+            options=mock.ANY,
+            immutable=True,
+        )
+
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_when_version_not_provided_default_version_doesnt_exist(self, update_docs_task):
 
@@ -78,14 +76,12 @@ class CoreUtilTests(TestCase):
             'build_pk': mock.ANY,
         }
 
-        update_docs_task.signature.assert_has_calls([
-            mock.call(
-                args=(version.pk,),
-                kwargs=kwargs,
-                options=mock.ANY,
-                immutable=True,
-            ),
-        ])
+        update_docs_task.signature.assert_called_with(
+            args=(version.pk,),
+            kwargs=kwargs,
+            options=mock.ANY,
+            immutable=True,
+        )
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_custom_queue(self, update_docs):
@@ -102,15 +98,12 @@ class CoreUtilTests(TestCase):
             'time_limit': 720,
             'soft_time_limit': 600,
         }
-        update_docs.signature.assert_has_calls([
-            mock.call(
-                args=(self.version.pk,),
-                kwargs=kwargs,
-                options=options,
-                immutable=True,
-            ),
-        ])
-        update_docs.signature().apply_async.assert_called()
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_time_limit(self, update_docs):
@@ -126,15 +119,12 @@ class CoreUtilTests(TestCase):
             'time_limit': 720,
             'soft_time_limit': 600,
         }
-        update_docs.signature.assert_has_calls([
-            mock.call(
-                args=(self.version.pk,),
-                kwargs=kwargs,
-                options=options,
-                immutable=True,
-            ),
-        ])
-        update_docs.signature().apply_async.assert_called()
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_invalid_time_limit(self, update_docs):
@@ -151,15 +141,12 @@ class CoreUtilTests(TestCase):
             'time_limit': 720,
             'soft_time_limit': 600,
         }
-        update_docs.signature.assert_has_calls([
-            mock.call(
-                args=(self.version.pk,),
-                kwargs=kwargs,
-                options=options,
-                immutable=True,
-            ),
-        ])
-        update_docs.signature().apply_async.assert_called()
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_trigger_build_rounded_time_limit(self, update_docs):
@@ -176,15 +163,12 @@ class CoreUtilTests(TestCase):
             'time_limit': 3,
             'soft_time_limit': 3,
         }
-        update_docs.signature.assert_has_calls([
-            mock.call(
-                args=(self.version.pk,),
-                kwargs=kwargs,
-                options=options,
-                immutable=True,
-            ),
-        ])
-        update_docs.signature().apply_async.assert_called()
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
 
     def test_slugify(self):
         """Test additional slugify."""

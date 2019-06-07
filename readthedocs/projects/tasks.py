@@ -60,7 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import APIProject
+from readthedocs.projects.models import APIProject, Feature
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
@@ -203,8 +203,11 @@ class SyncRepositoryMixin:
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
-    step = SyncRepositoryTaskStep()
-    return step.run(version_pk)
+    try:
+        step = SyncRepositoryTaskStep()
+        return step.run(version_pk)
+    finally:
+        clean_build(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
@@ -280,8 +283,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
     ),
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
-    step = UpdateDocsTaskStep(task=self)
-    return step.run(version_pk, *args, **kwargs)
+    try:
+        step = UpdateDocsTaskStep(task=self)
+        return step.run(version_pk, *args, **kwargs)
+    finally:
+        clean_build(version_pk)
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):
@@ -1377,6 +1383,34 @@ def _update_intersphinx_data(version, path, commit):
 
     # Delete from previous versions
     delete_queryset.delete()
+
+
+def clean_build(version_pk):
+    """Clean the files used in the build of the given version."""
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    if (
+        not version or
+        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+    ):
+        log.info(
+            'Skipping build files deletetion for version: %s',
+            version_pk,
+        )
+        return False
+    # NOTE: we are skipping the deletion of the `artifacts` dir
+    # because we are syncing the servers with an async task.
+    del_dirs = [
+        os.path.join(version.project.doc_path, dir_, version.slug)
+        for dir_ in ('checkouts', 'envs', 'conda')
+    ]
+    try:
+        with version.project.repo_nonblockinglock(version):
+            log.info('Removing: %s', del_dirs)
+            remove_dirs(del_dirs)
+    except vcs_support_utils.LockTimeout:
+        log.info('Another task is running. Not removing: %s', del_dirs)
+    else:
+        return True
 
 
 def _manage_imported_files(version, path, commit):
