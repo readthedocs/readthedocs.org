@@ -21,7 +21,7 @@ from .constants import (
     TAG,
     PULL_REQUEST,
 )
-from .querysets import VersionQuerySet
+from .querysets import VersionQuerySet, BuildQuerySet
 
 log = logging.getLogger(__name__)
 
@@ -124,3 +124,63 @@ class InternalVersionManager(SettingsOverrideObject):
 class ExternalVersionManager(SettingsOverrideObject):
     _default_class = ExternalVersionManagerBase
     _override_setting = 'EXTERNAL_VERSION_MANAGER'
+
+
+class BuildManagerBase(models.Manager):
+
+    """
+    Build manager for manager only queries.
+
+    For creating different Managers.
+    """
+
+    @classmethod
+    def from_queryset(cls, queryset_class, class_name=None):
+        # This is overridden because :py:meth:`models.Manager.from_queryset`
+        # uses `inspect` to retrieve the class methods, and the proxy class has
+        # no direct members.
+        queryset_class = get_override_class(
+            BuildQuerySet,
+            BuildQuerySet._default_class,  # pylint: disable=protected-access
+        )
+        return super().from_queryset(queryset_class, class_name)
+
+
+class InternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes internal version builds.
+
+    It will exclude PULL_REQUEST type Version builds from the queries
+    and only include BRANCH, TAG, UNKONWN type Version builds.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(version__type=PULL_REQUEST)
+
+
+class ExternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes external version builds.
+
+    It will only include PULL_REQUEST type Versions builds in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(version__type=PULL_REQUEST)
+
+
+class BuildManager(SettingsOverrideObject):
+    _default_class = BuildManagerBase
+    _override_setting = 'BUILD_MANAGER'
+
+
+class InternalBuildManager(SettingsOverrideObject):
+    _default_class = InternalBuildManagerBase
+    _override_setting = 'INTERNAL_BUILD_MANAGER'
+
+
+class ExternalBuildManager(SettingsOverrideObject):
+    _default_class = ExternalBuildManagerBase
+    _override_setting = 'EXTERNAL_BUILD_MANAGER'
