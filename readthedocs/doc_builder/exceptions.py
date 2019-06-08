@@ -80,7 +80,7 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
     EMPTY_CONFIG = 'Please make sure the MkDocs YAML configuration file is not empty.'
 
     CONFIG_NOT_DICT = ugettext_noop(
-        'Your MkDocs YAML configuration was incorrect. '
+        'Your MkDocs YAML config file is incorrect. '
         'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
         'to configure the file properly.',
     )
