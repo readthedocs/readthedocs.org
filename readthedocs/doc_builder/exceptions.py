@@ -77,7 +77,9 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
         'a list of relative paths.',
     )
 
-    EMPTY_CONFIG = 'Please make sure the MkDocs YAML configuration file is not empty.'
+    EMPTY_CONFIG = ugettext_noop(
+        'Please make sure the MkDocs YAML configuration file is not empty.',
+    )
 
     CONFIG_NOT_DICT = ugettext_noop(
         'Your MkDocs YAML config file is incorrect. '
