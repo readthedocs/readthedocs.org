@@ -15,19 +15,20 @@ Scope
    :local:
    :depth: 1
    :backlinks: none
-   
-- Receiving ``pull_request`` webhook event from Github
-- Fetching data from pull requests.
+
 - Making Pull Requests work like temporary ``Version``
 - Excluding PR Versions from Elasticsearch Indexing
+- Updating the Footer API
+- Adding a ``PR Builds`` Tab in the Project Dashboard
+- Adding Warning Banner to Docs
+- Serving PR Docs
+- Excluding PR Versions from Search Engines
+- Receiving ``pull_request`` webhook event from Github
+- Fetching data from pull requests
+- Storing PR Version build Data
 - Creating PR Versions when a pull request is opened and Triggering a build
 - Triggering Builds on new commits on a PR
 - Status reporting to Github
-- Storing PR Version build Data
-- Excluding PR Versions from Search Engines
-- Serving PR Docs
-- Updating the Footer API
-- Adding Warning Banner to Docs
 
 Fetching Data from Pull Requests
 --------------------------------
@@ -58,6 +59,12 @@ Excluding PR Versions from Elasticsearch Indexing
 
 We should exclude to PR Versions from being Indexed to Elasticsearch.
 We need to update the queryset to exclude PR Versions.
+
+Adding a PR Builds Tab in the Project Dashboard
+-----------------------------------------------
+
+We can add a Tab in the project dashboard that will listout the PR Builds of that project.
+We can name it ``PR Builds``.
 
 Creating Versions for Pull Requests
 -----------------------------------
