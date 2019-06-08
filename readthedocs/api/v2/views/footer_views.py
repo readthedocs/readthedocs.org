@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.api.v2.signals import footer_response
-from readthedocs.builds.constants import LATEST, TAG
+from readthedocs.builds.constants import LATEST, TAG, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
@@ -25,7 +25,7 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    versions_qs = project.versions.public().filter(active=True)
+    versions_qs = project.versions(manager=INTERNAL).public().filter(active=True)
 
     # Take preferences over tags only if the project has at least one tag
     if versions_qs.filter(type=TAG).exists():
