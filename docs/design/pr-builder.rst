@@ -18,8 +18,8 @@ Scope
 
 - Making Pull Requests work like temporary ``Version``
 - Excluding PR Versions from Elasticsearch Indexing
-- Updating the Footer API
 - Adding a ``PR Builds`` Tab in the Project Dashboard
+- Updating the Footer API
 - Adding Warning Banner to Docs
 - Serving PR Docs
 - Excluding PR Versions from Search Engines
@@ -47,11 +47,14 @@ We might consider adding a ``VERSION_TYPES`` to the ``Version`` model.
 
 - If we go with ``VERSION_TYPES`` we can add something like ``pull_request`` alongside Tag and Branch.
 
-We should add ``Version`` Model Managers for PR Versions and Regular Versions.
-The proposed names for PR Version Manager and Regular Version Manger are ``external`` and ``internal``.
+We should add ``Version`` and ``Build`` Model Managers for PR and Regular Versions and Builds.
+The proposed names for PR and Regular Version and Build Mangers are ``external`` and ``internal``.
 
-We can then have ``Version.internal.all()`` to get all regular versions,
+We can then use ``Version.internal.all()`` to get all regular versions,
 ``Version.external.all()`` to get all PR versions.
+
+We can then use ``Build.internal.all()`` to get all regular version builds,
+``Build.external.all()`` to get all PR version builds.
 
 
 Excluding PR Versions from Elasticsearch Indexing
@@ -136,6 +139,7 @@ We need to update the Footer API to reflect the changes.
 We might want to have a way to show that if this is a PR Build on the Footer.
 
 - For regular project docs we should remove the PR Versions from the version list of the Footer.
+- We might want to send ``is_pr`` data with the Footer API response.
 
 Adding Warning Banner to Docs
 -----------------------------
