@@ -1430,25 +1430,35 @@ def _manage_imported_files(version, path, commit):
             else:
                 model_class = ImportedFile
 
-            dirpath = os.path.join(
-                root.replace(path, '').lstrip('/'), filename.lstrip('/')
-            )
             full_path = os.path.join(root, filename)
+            relpath = os.path.relpath(full_path, path)
             md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            obj_attributes = dict(
+                project=version.project,
+                version=version,
+                path=relpath,
+                name=filename,
+            )
             try:
-                # pylint: disable=unpacking-non-sequence
                 obj, created = model_class.objects.get_or_create(
-                    project=version.project,
-                    version=version,
-                    path=dirpath,
-                    name=filename,
+                    **obj_attributes,
                 )
             except model_class.MultipleObjectsReturned:
-                log.warning('Error creating ImportedFile')
-                continue
+                log.warning('Fixing duplicated objects')
+                duplicateds = (
+                    model_class.objects
+                    .filter(**obj_attributes)
+                    .order_by('-modified_date')[1:]
+                    .values_list('pk', flat=True)
+                )
+                model_class.objects.filter(pk__in=duplicateds).delete()
+                created = False
+                obj = model_class.objects.get(
+                    **obj_attributes,
+                )
             if obj.md5 != md5:
                 obj.md5 = md5
-                changed_files.add(dirpath)
+                changed_files.add(relpath)
             if obj.commit != commit:
                 obj.commit = commit
             obj.save()
@@ -1458,14 +1468,19 @@ def _manage_imported_files(version, path, commit):
                 created_html_files.append(obj)
 
     # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files,
-                          version=version, commit=commit)
+    bulk_post_create.send(
+        sender=HTMLFile,
+        instance_list=created_html_files,
+        version=version,
+        commit=commit,
+    )
 
     # Delete the HTMLFile first from previous commit and
     # send bulk_post_delete signal for bulk removing from Elasticsearch
     delete_queryset = (
-        HTMLFile.objects.filter(project=version.project,
-                                version=version).exclude(commit=commit)
+        HTMLFile.objects
+        .filter(project=version.project, version=version)
+        .exclude(commit=commit)
     )
 
     # Keep the objects into memory to send it to signal
@@ -1474,13 +1489,17 @@ def _manage_imported_files(version, path, commit):
     # Always pass the list of instance, not queryset.
     # These objects must exist though,
     # because the task will query the DB for the objects before deleting
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list,
-                          version=version, commit=commit)
+    bulk_post_delete.send(
+        sender=HTMLFile,
+        instance_list=instance_list,
+        version=version,
+        commit=commit,
+    )
 
-    # Delete ImportedFiles from previous versions
+    # Delete HTMLFile objects from previous versions
     delete_queryset.delete()
 
-    # This is required to delete ImportedFile objects that aren't HTMLFile objects,
+    # Delete ImportedFile objects from previous versions
     ImportedFile.objects.filter(
         project=version.project, version=version
     ).exclude(commit=commit).delete()
