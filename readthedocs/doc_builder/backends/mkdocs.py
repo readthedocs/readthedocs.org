@@ -84,7 +84,18 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            return yaml.safe_load(open(self.yaml_file, 'r'),)
+            config = yaml.safe_load(open(self.yaml_file, 'r'))
+
+            if not config:
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.EMPTY_CONFIG
+                )
+            if not isinstance(config, dict):
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.CONFIG_NOT_DICT
+                )
+            return config
+
         except IOError:
             return {
                 'site_name': self.version.project.name,
