@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """URL configuration for core app."""
 
 from __future__ import absolute_import
@@ -7,7 +5,7 @@ from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
 from readthedocs.core import views
-from readthedocs.core.views import hooks, serve
+from readthedocs.core.views import serve
 from readthedocs.projects.feeds import LatestProjectsFeed, NewProjectsFeed
 
 docs_urls = [
@@ -43,18 +41,6 @@ docs_urls = [
 ]
 
 core_urls = [
-    # Hooks
-    url(r'^github', hooks.github_build, name='github_build'),
-    url(r'^gitlab', hooks.gitlab_build, name='gitlab_build'),
-    url(r'^bitbucket', hooks.bitbucket_build, name='bitbucket_build'),
-    url(
-        (
-            r'^build/'
-            r'(?P<project_id_or_slug>{project_slug})'.format(**pattern_opts)
-        ),
-        hooks.generic_build,
-        name='generic_build',
-    ),
     # Random other stuff
     url(
         r'^random/(?P<project_slug>{project_slug})'.format(**pattern_opts),
