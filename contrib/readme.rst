@@ -7,8 +7,7 @@ Building development Docker image
 If you run Linux, you likely need to build a local Docker image that extends our
 default image::
 
-    cd contrib/
-    ./docker_build.sh
+    contrib/docker_build.sh latest
 
 Running Read the Docs via Supervisord
 -------------------------------------

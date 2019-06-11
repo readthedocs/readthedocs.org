@@ -91,13 +91,11 @@ On Linux development environments, it's likely that your UID and GID do not
 match the ``docs`` user that is set up as the default user for builds. In this
 case, it's necessary to make a new image that overrides this user::
 
-    cd contrib/
-    ./docker_build.sh latest
+    contrib/docker_build.sh latest
 
 This will create a new image, ``readthedocs/build-dev:latest``. To build a
 different image, you can instead specify a version to build::
 
-    cd contrib/
-    ./docker_build.sh 5.0
+    contrib/docker_build.sh 5.0
 
 This will create a new image, ``readthedocs/build-dev:5.0``.
