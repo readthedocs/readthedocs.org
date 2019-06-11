@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -7,12 +8,16 @@ from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
 from readthedocs.projects.models import Project
 
 
+User = get_user_model()
+
+
 class TestVersionManagerBase(TestCase):
 
-    fixtures = ['eric', 'test_data']
+    fixtures = ['test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.create(username='test_user', password='test')
+        self.client.login(username='test_user', password='test')
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: PULL_REQUEST type Version.
         self.public_pr_version = get(
@@ -54,6 +59,12 @@ class TestInternalVersionManager(TestVersionManagerBase):
     def test_internal_version_manager_with_public(self):
         self.assertNotIn(self.public_pr_version, Version.internal.public())
 
+    def test_internal_version_manager_with_public_with_user_and_project(self):
+        self.assertNotIn(
+            self.public_pr_version,
+            Version.internal.public(self.user, self.pip)
+        )
+
     def test_internal_version_manager_with_protected(self):
         self.assertNotIn(self.protected_pr_version, Version.internal.protected())
 
@@ -83,6 +94,17 @@ class TestExternalVersionManager(TestVersionManagerBase):
         self.assertNotIn(self.internal_versions, Version.external.public())
         self.assertIn(self.public_pr_version, Version.external.public())
 
+    def test_external_version_manager_with_public_with_user_and_project(self):
+        self.assertNotIn(
+            self.internal_versions,
+            Version.external.public(self.user, self.pip)
+        )
+        self.assertIn(
+            self.public_pr_version,
+            Version.external.public(self.user, self.pip)
+        )
+
+
     def test_external_version_manager_with_protected(self):
         self.assertNotIn(self.internal_versions, Version.external.protected())
         self.assertIn(self.protected_pr_version, Version.external.protected())
@@ -96,5 +118,9 @@ class TestExternalVersionManager(TestVersionManagerBase):
         self.assertIn(self.public_pr_version, Version.external.api())
 
     def test_external_version_manager_with_for_project(self):
-        self.assertNotIn(self.internal_versions, Version.external.for_project(self.pip))
-        self.assertIn(self.public_pr_version, Version.external.for_project(self.pip))
+        self.assertNotIn(
+            self.internal_versions, Version.external.for_project(self.pip)
+        )
+        self.assertIn(
+            self.public_pr_version, Version.external.for_project(self.pip)
+        )
