@@ -1387,6 +1387,9 @@ def _update_intersphinx_data(version, path, commit):
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
+    # HACK / Hotfix -- this accesses the DB, and we can't do that
+    # on the builders
+    return False
     version = Version.objects.get_object_or_log(pk=version_pk)
     if (
         not version or
