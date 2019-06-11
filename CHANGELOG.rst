@@ -1,3 +1,13 @@
+Version 3.5.2
+-------------
+
+This is a quick hotfix to the previous version.
+
+:Date: June 11, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix version of our sphinx-ext we're installing (`#5789 <https://github.com/rtfd/readthedocs.org/pull/5789>`__)
+* `@stsewd <http://github.com/stsewd>`__: Get version from the api (`#5788 <https://github.com/rtfd/readthedocs.org/pull/5788>`__)
+
 Version 3.5.1
 -------------
 
