@@ -73,6 +73,10 @@ def get_redirect_response(request, full_path):
     if not project:
         return None
 
+    # The full path should always be an absolute path starting with /
+    # It is important it doesn't get misinterpreted as a scheme-relative URL (//host/path)
+    full_path = '/' + full_path.lstrip('/')
+
     language = None
     version_slug = None
     schema, netloc, path, params, query, fragments = urlparse(full_path)
@@ -90,6 +94,7 @@ def get_redirect_response(request, full_path):
 
     # Re-use the domain and protocol used in the current request.
     # Redirects shouldn't change the domain, version or language.
+    # However, if the new_path is already an absolute URI, just use it
     new_path = request.build_absolute_uri(new_path)
 
     if http_status and http_status == 301:
