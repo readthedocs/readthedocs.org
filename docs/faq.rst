@@ -21,7 +21,8 @@ You can delete and re-create the project with the proper name to get a new slug,
 but you really shouldn't do this if you have existing inbound links,
 as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
-If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
 
 
 How do I change the version slug of my project?
@@ -29,7 +30,8 @@ How do I change the version slug of my project?
 
 We don't support allowing folks to change the slug for their versions.
 But you can rename the branch/tag to achieve this.
-If that isn't enough, you can ask to team to do this by `creating an issue <https://github.com/rtfd/readthedocs.org/issues/new>`__.
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
@@ -72,10 +74,8 @@ My project requires different settings than those available under Admin
 
 Read the Docs offers some settings which can be used for a variety of purposes,
 such as to use the latest version of sphinx or pip. To enable these settings,
-please open a request issue on our `github`_ and we will change the settings for the project.
+please send an email to support@readthedocs.org and we will change the settings for the project.
 Read more about these settings :doc:`here <guides/feature-flags>`.
-
-.. _github: https://github.com/rtfd/readthedocs.org
 
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------

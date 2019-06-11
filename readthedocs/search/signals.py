@@ -61,14 +61,17 @@ def remove_indexed_file(sender, instance_list, **kwargs):
 
         if version and commit:
             # Sanity check by deleting all old files not in this commit
-            log.info('Deleting old commits from search index')
-            document().search().filter(
-                'term', version=version.slug,
-            ).filter(
-                'term', project=version.project.slug,
-            ).exclude(
-                'term', commit=commit,
-            ).delete()
+            try:
+                log.info('Deleting old commits from search index')
+                document().search().filter(
+                    'term', version=version.slug,
+                ).filter(
+                    'term', project=version.project.slug,
+                ).exclude(
+                    'term', commit=commit,
+                ).delete()
+            except Exception:
+                log.warning('Unable to delete a subset of files. Continuing.', exc_info=True)
 
 
 @receiver(post_save, sender=Project)

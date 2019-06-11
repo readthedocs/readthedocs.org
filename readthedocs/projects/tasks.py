@@ -60,7 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.models import APIProject
+from readthedocs.projects.models import APIProject, Feature
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
@@ -88,25 +88,16 @@ class SyncRepositoryMixin:
     """Mixin that handles the VCS sync/update."""
 
     @staticmethod
-    def get_version(project=None, version_pk=None):
+    def get_version(version_pk):
         """
         Retrieve version data from the API.
 
-        :param project: project object to sync
-        :type project: projects.models.Project
         :param version_pk: version pk to sync
         :type version_pk: int
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        if not (project or version_pk):
-            raise ValueError('project or version_pk is needed')
-        if version_pk:
-            version_data = api_v2.version(version_pk).get()
-        else:
-            version_data = (
-                api_v2.version(project.slug).get(slug=LATEST)['objects'][0]
-            )
+        version_data = api_v2.version(version_pk).get()
         return APIVersion(**version_data)
 
     def get_vcs_repo(self):
@@ -133,28 +124,27 @@ class SyncRepositoryMixin:
                 ),
             )
 
-        with self.project.repo_nonblockinglock(version=self.version):
-            # Get the actual code on disk
-            try:
-                before_vcs.send(sender=self.version)
-                msg = 'Checking out version {slug}: {identifier}'.format(
-                    slug=self.version.slug,
-                    identifier=self.version.identifier,
-                )
-                log.info(
-                    LOG_TEMPLATE,
-                    {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
-                        'msg': msg,
-                    }
-                )
-                version_repo = self.get_vcs_repo()
-                version_repo.update()
-                self.sync_versions(version_repo)
-                version_repo.checkout(self.version.identifier)
-            finally:
-                after_vcs.send(sender=self.version)
+        # Get the actual code on disk
+        try:
+            before_vcs.send(sender=self.version)
+            msg = 'Checking out version {slug}: {identifier}'.format(
+                slug=self.version.slug,
+                identifier=self.version.identifier,
+            )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            version_repo = self.get_vcs_repo()
+            version_repo.update()
+            self.sync_versions(version_repo)
+            version_repo.checkout(self.version.identifier)
+        finally:
+            after_vcs.send(sender=self.version)
 
     def sync_versions(self, version_repo):
         """
@@ -213,8 +203,11 @@ class SyncRepositoryMixin:
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
-    step = SyncRepositoryTaskStep()
-    return step.run(version_pk)
+    try:
+        step = SyncRepositoryTaskStep()
+        return step.run(version_pk)
+    finally:
+        clean_build(version_pk)
 
 
 class SyncRepositoryTaskStep(SyncRepositoryMixin):
@@ -240,9 +233,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         :rtype: bool
         """
         try:
-            self.version = self.get_version(version_pk=version_pk)
+            self.version = self.get_version(version_pk)
             self.project = self.version.project
-            self.sync_repo()
+            with self.project.repo_nonblockinglock(version=self.version):
+                self.sync_repo()
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -288,9 +282,12 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         MkDocsYAMLParseError,
     ),
 )
-def update_docs_task(self, project_id, *args, **kwargs):
-    step = UpdateDocsTaskStep(task=self)
-    return step.run(project_id, *args, **kwargs)
+def update_docs_task(self, version_pk, *args, **kwargs):
+    try:
+        step = UpdateDocsTaskStep(task=self)
+        return step.run(version_pk, *args, **kwargs)
+    finally:
+        clean_build(version_pk)
 
 
 class UpdateDocsTaskStep(SyncRepositoryMixin):
@@ -340,7 +337,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, pk, version_pk=None, build_pk=None, record=True, docker=None,
+            self, version_pk, build_pk=None, record=True, docker=None,
             force=False, **__
     ):
         """
@@ -359,8 +356,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         the user to bug us. It is therefore a benefit to have as few unhandled
         errors as possible.
 
-        :param pk int: Project id
-        :param version_pk int: Project Version id (latest if None)
+        :param version_pk int: Project Version id
         :param build_pk int: Build id (if None, commands are not recorded)
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
@@ -374,8 +370,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         try:
             if docker is None:
                 docker = settings.DOCKER_ENABLE
-            self.project = self.get_project(pk)
-            self.version = self.get_version(self.project, version_pk)
+            self.version = self.get_version(version_pk)
+            self.project = self.version.project
             self.build = self.get_build(build_pk)
             self.build_force = force
             self.config = None
@@ -442,7 +438,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             if self.project.skip:
                 raise ProjectBuildsSkippedError
             try:
-                self.setup_vcs()
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.setup_vcs()
             except vcs_support_utils.LockTimeout as e:
                 self.task.retry(exc=e, throw=False)
                 raise VersionLockedError
@@ -628,14 +625,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             log.warning('There was an error with the repository', exc_info=True)
             # Re raise the exception to stop the build at this point
             raise
-        except vcs_support_utils.LockTimeout:
-            log.info(
-                'Lock still active: project=%s version=%s',
-                self.project.slug,
-                self.version.slug,
-            )
-            # Raise the proper exception (won't be sent to Sentry)
-            raise VersionLockedError
         except Exception:
             # Catch unhandled errors when syncing
             log.exception(
@@ -1394,6 +1383,35 @@ def _update_intersphinx_data(version, path, commit):
 
     # Delete from previous versions
     delete_queryset.delete()
+
+
+def clean_build(version_pk):
+    """Clean the files used in the build of the given version."""
+    try:
+        version = SyncRepositoryMixin.get_version(version_pk)
+    except Exception:
+        log.exception('Error while fetching the version from the api')
+        return False
+    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
+        log.info(
+            'Skipping build files deletetion for version: %s',
+            version_pk,
+        )
+        return False
+    # NOTE: we are skipping the deletion of the `artifacts` dir
+    # because we are syncing the servers with an async task.
+    del_dirs = [
+        os.path.join(version.project.doc_path, dir_, version.slug)
+        for dir_ in ('checkouts', 'envs', 'conda')
+    ]
+    try:
+        with version.project.repo_nonblockinglock(version):
+            log.info('Removing: %s', del_dirs)
+            remove_dirs(del_dirs)
+    except vcs_support_utils.LockTimeout:
+        log.info('Another task is running. Not removing: %s', del_dirs)
+    else:
+        return True
 
 
 def _manage_imported_files(version, path, commit):

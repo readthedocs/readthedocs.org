@@ -1,7 +1,10 @@
 import logging
 
+from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString
+
+from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import (
@@ -39,6 +42,12 @@ class RTDFacetedSearch(FacetedSearch):
         for f in ALL_FACETS:
             if f in kwargs:
                 del kwargs[f]
+
+        # Hack a fix to our broken connection pooling
+        # This creates a new connection on every request,
+        # but actually works :)
+        log.info('Hacking Elastic to fix search connection pooling')
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
 
         super().__init__(**kwargs)
 

@@ -110,3 +110,14 @@ class CoreTagsTests(TestCase):
         )
         result = core_tags.restructuredtext(value)
         self.assertEqual(result, value)
+
+    def test_escapejson(self):
+        tests = (
+            ({}, '{}'),
+            ({'a': 'b'}, '{"a": "b"}'),
+            ({"'; //": '""'}, '{"\'; //": "\\"\\""}'),
+            ({"<script>alert('hi')</script>": ''}, '{"\\u003Cscript\\u003Ealert(\'hi\')\\u003C/script\\u003E": ""}'),
+        )
+
+        for in_value, out_value in tests:
+            self.assertEqual(core_tags.escapejson(in_value), out_value)
