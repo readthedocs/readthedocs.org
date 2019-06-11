@@ -1387,11 +1387,12 @@ def _update_intersphinx_data(version, path, commit):
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if (
-        not version or
-        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
-    ):
+    try:
+        version = SyncRepositoryMixin.get_version(version_pk)
+    except Exception:
+        log.exception('Error while fetching the version from the api')
+        return False
+    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
