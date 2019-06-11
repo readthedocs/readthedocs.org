@@ -38,6 +38,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
@@ -351,7 +352,7 @@ def sitemap_xml(request, project):
         It generates values from 1 to 0.1 by decreasing in 0.1 on each
         iteration. After 0.1 is reached, it will keep returning 0.1.
         """
-        priorities = [0.9, 1, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
+        priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
         yield from itertools.chain(priorities, itertools.repeat(0.1))
 
     def hreflang_formatter(lang):
@@ -369,23 +370,15 @@ def sitemap_xml(request, project):
         """
         Generator returning ``changefreq`` needed by sitemap.xml.
 
-        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        It returns ``weekly`` on first iteration, then ``daily`` and then it
         will return always ``monthly``.
 
         We are using ``monthly`` as last value because ``never`` is too
         aggressive. If the tag is removed and a branch is created with the same
         name, we will want bots to revisit this.
         """
-        changefreqs = ['daily', 'weekly']
+        changefreqs = ['weekly', 'daily']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
-
-    def sort_by_priority(version_list):
-        """Sorts the versions by priority. i.e: 1, 0.9, 0.8..."""
-        return sorted(
-            version_list,
-            key=lambda version: version['priority'],
-            reverse=True
-        )
 
     if project.privacy_level == constants.PRIVATE:
         raise Http404
@@ -396,6 +389,18 @@ def sitemap_xml(request, project):
             only_active=True,
         ),
     )
+
+    # This is a hack to swap the latest version with
+    # stable version to get the stable version first in the sitemap.
+    # We want stable with priority=1 and changefreq='weekly' and
+    # latest with priority=0.9 and changefreq='daily'
+    # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
+    if (
+        sorted_versions[0].slug == LATEST and
+        sorted_versions[1].slug == STABLE
+    ):
+        sorted_versions[0], sorted_versions[1] = sorted_versions[1], sorted_versions[0]
+
     versions = []
     for version, priority, changefreq in zip(
             sorted_versions,
@@ -439,7 +444,7 @@ def sitemap_xml(request, project):
         versions.append(element)
 
     context = {
-        'versions': sort_by_priority(versions),
+        'versions': versions,
     }
     return render(
         request,
