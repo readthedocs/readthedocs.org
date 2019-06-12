@@ -60,7 +60,7 @@ def elastic_search(request, project_slug=None):
         index=request.GET.get('index'),
     )
     search_facets = collections.defaultdict(
-        ProjectSearch,
+        lambda: ProjectSearch,
         {
             'project': ProjectSearch,
             'domain': DomainSearch,
