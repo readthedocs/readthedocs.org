@@ -1,8 +1,8 @@
-Use custom 404 page on my project
-=================================
+Use custom ``404 Not Found`` page on my project
+===============================================
 
 If you want your project to use a custom page for not found pages instead of the "Maze Found" default one,
-you can put a ``404.html`` on the root of your project's output.
+you can put a ``404.html`` at the top level of your project's HTML output.
 
 When a 404 is returned, Read the Docs checks if there is a ``404.html`` in the root of your project's output and uses it if it exists.
 
@@ -11,16 +11,16 @@ all its resources URLs and links must be absolute (starting with a ``/``),
 otherwise they will not work when a user clicks on them.
 
 In case you don't want to deal with these links manually,
-or you want to use the same style for the 404 page than your theme in an easy way,
+or you want to use the same style as your theme,
 you can use the `sphinx-notfound-page`_ extension.
 
 
 Using ``sphinx-notfound-page`` extension
 ----------------------------------------
 
-The ``sphinx-notfound-page`` extension helps you to create and automatically arrange all the URLs and file location without worry about them.
-Once the extension is installed into Sphinx, it will generate the default 404 page for your.
-See its documentation_ for better customization.
+The ``sphinx-notfound-page`` extension automatically creates the proper URLs for your 404 page.
+Once the extension is installed, it will generate the default 404 page for your project.
+See its documentation_ for how to install and custom it.
 
 
 .. _sphinx-notfound-page: https://pypi.org/project/sphinx-notfound-page
