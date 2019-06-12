@@ -60,13 +60,13 @@ def generate_sections_from_pyquery(body):
 
 
 def process_file(fjson_filename, filename):
-    """Read a file from disk and parse it into a structured dict."""
+    """Read the fjson file from disk and parse it into a structured dict."""
     try:
         with codecs.open(fjson_filename, encoding='utf-8', mode='r') as f:
             file_contents = f.read()
     except IOError:
         log.info('Unable to read file: %s', fjson_filename)
-        return None
+        raise
     data = json.loads(file_contents)
     sections = []
     title = ''
