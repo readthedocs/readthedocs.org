@@ -98,8 +98,9 @@ class BaseMkdocs(BaseBuilder):
 
         except IOError:
             log.info(
-                'Creating default MkDocs config file for project: %s',
+                'Creating default MkDocs config file for project: %s:%s',
                 self.project.slug,
+                self.version.slug,
             )
             return {
                 'site_name': self.version.project.name,
