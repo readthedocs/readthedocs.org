@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Search views."""
 import collections
 import logging
@@ -10,8 +8,13 @@ from django.shortcuts import get_object_or_404, render
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.search.faceted_search import (
-    AllSearch, ProjectSearch, PageSearch, DomainSearch, ALL_FACETS
+    ALL_FACETS,
+    AllSearch,
+    DomainSearch,
+    PageSearch,
+    ProjectSearch,
 )
+
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
@@ -56,8 +59,17 @@ def elastic_search(request, project_slug=None):
         role_name=request.GET.get('role_name'),
         index=request.GET.get('index'),
     )
+    search_facets = collections.defaultdict(
+        ProjectSearch,
+        {
+            'project': ProjectSearch,
+            'domain': DomainSearch,
+            'file': PageSearch,
+            'all': AllSearch,
+        }
+    )
 
-    results = ''
+    results = None
     facets = {}
 
     if user_input.query:
@@ -68,26 +80,9 @@ def elastic_search(request, project_slug=None):
             if value:
                 kwargs[avail_facet] = value
 
-        if user_input.type == 'project':
-            search = ProjectSearch(
-                query=user_input.query, user=request.user, **kwargs
-            )
-
-        elif user_input.type == 'domain':
-            search = DomainSearch(
-                query=user_input.query, user=request.user, **kwargs
-            )
-
-        elif user_input.type == 'file':
-            search = PageSearch(
-                query=user_input.query, user=request.user, **kwargs
-            )
-
-        elif user_input.type == 'all':
-            search = AllSearch(
-                query=user_input.query, user=request.user, **kwargs
-            )
-
+        search = search_facets[user_input.type](
+            query=user_input.query, user=request.user, **kwargs
+        )
         results = search[:50].execute()
         facets = results.facets
 
@@ -105,7 +100,7 @@ def elastic_search(request, project_slug=None):
 
     # Make sure our selected facets are displayed even when they return 0 results
     for avail_facet in ALL_FACETS:
-        value = getattr(user_input, avail_facet)
+        value = getattr(user_input, avail_facet, None)
         if not value or avail_facet not in facets:
             continue
         if value not in [val[0] for val in facets[avail_facet]]:
