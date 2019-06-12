@@ -11,6 +11,12 @@ This is a quick hotfix to the previous version.
 Version 3.5.1
 -------------
 
+This version contained a `security fix <https://github.com/rtfd/readthedocs.org/security/advisories/GHSA-2mw9-4c46-qrcv>`_
+for an open redirect issue.
+The problem has been fixed and deployed on readthedocs.org.
+For users who depend on the Read the Docs code line for a private instance of Read the Docs,
+you are encouraged to update to 3.5.1 as soon as possible.
+
 :Date: June 11, 2019
 
 * `@stsewd <http://github.com/stsewd>`__: Update build images in docs (`#5782 <https://github.com/rtfd/readthedocs.org/pull/5782>`__)
