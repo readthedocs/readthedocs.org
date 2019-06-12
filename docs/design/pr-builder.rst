@@ -11,11 +11,6 @@ This document will serve as a design document for discussing how to implement th
 Scope
 -----
 
-.. contents::
-   :local:
-   :depth: 1
-   :backlinks: none
-
 - Making Pull Requests work like temporary ``Version``
 - Excluding PR Versions from Elasticsearch Indexing
 - Adding a ``PR Builds`` Tab in the Project Dashboard
