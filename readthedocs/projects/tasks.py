@@ -1352,7 +1352,7 @@ def _update_intersphinx_data(version, path, commit):
                 else:
                     doc_name, anchor = url, ''
                 display_name = einfo[3]
-            except:
+            except Exception:
                 log.exception(
                     'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
                     version.project.slug,
@@ -1425,7 +1425,7 @@ def _manage_imported_files(version, path, commit):
     ImportedFile.objects.filter(project=version.project, version=version).delete()
 
     # Re-create all objects from the new build of the version
-    for root, _, filenames in os.walk(path):
+    for root, __, filenames in os.walk(path):
         for filename in filenames:
             if filename.endswith('.html'):
                 model_class = HTMLFile
@@ -1436,7 +1436,7 @@ def _manage_imported_files(version, path, commit):
             relpath = os.path.relpath(full_path, path)
             try:
                 md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
-            except:
+            except Exception:
                 log.exception(
                     'Error while generating md5 for %s:%s:%s. Don\'t stop.',
                     version.project.slug,
