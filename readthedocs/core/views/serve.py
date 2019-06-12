@@ -396,6 +396,7 @@ def sitemap_xml(request, project):
     # latest with priority=0.9 and changefreq='daily'
     # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
     if (
+        len(sorted_versions) >= 2 and
         sorted_versions[0].slug == LATEST and
         sorted_versions[1].slug == STABLE
     ):
