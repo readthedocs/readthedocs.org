@@ -104,7 +104,6 @@ class TestExternalVersionManager(TestVersionManagerBase):
             Version.external.public(self.user, self.pip)
         )
 
-
     def test_external_version_manager_with_protected(self):
         self.assertNotIn(self.internal_versions, Version.external.protected())
         self.assertIn(self.protected_pr_version, Version.external.protected())
