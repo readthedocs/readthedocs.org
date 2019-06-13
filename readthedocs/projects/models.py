@@ -768,7 +768,7 @@ class Project(models.Model):
         # Used for Database optimization.
         if hasattr(self, '_good_build'):
             return self._good_build
-        return self.builds.filter(success=True).exists()
+        return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     @property
     def has_versions(self):

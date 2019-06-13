@@ -207,7 +207,7 @@ class Version(models.Model):
         :rtype: dict
         """
         last_build = (
-            self.builds.filter(
+            self.builds(manager=INTERNAL).filter(
                 state='finished',
                 success=True,
             ).order_by('-date').first()
@@ -662,7 +662,7 @@ class Build(models.Model):
         date = self.date or timezone.now()
         if self.project is not None and self.version is not None:
             return (
-                Build.objects.filter(
+                Build.internal.filter(
                     project=self.project,
                     version=self.version,
                     date__lt=date,
