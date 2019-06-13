@@ -87,7 +87,7 @@ Security issue archive
 Version 3.5.1
 ~~~~~~~~~~~~~
 
-Version 3.5.1 fixed an issue where that affected projects with "prefix" or "sphinx" user-defined redirects.
+:ref:`changelog:Version 3.5.1` fixed an issue that affected projects with "prefix" or "sphinx" user-defined redirects.
 The issue allowed the creation of hyperlinks that looked like they would go to a documentation domain
 on Read the Docs (either ``*.readthedocs.io`` or a custom docs domain) but instead went to a different domain.
 
