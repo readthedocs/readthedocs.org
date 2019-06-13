@@ -662,7 +662,7 @@ class Build(models.Model):
         date = self.date or timezone.now()
         if self.project is not None and self.version is not None:
             return (
-                Build.internal.filter(
+                Build.objects.filter(
                     project=self.project,
                     version=self.version,
                     date__lt=date,
