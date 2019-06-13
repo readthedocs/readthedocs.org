@@ -31,6 +31,9 @@ def get_version_compare_data(project, base_version=None):
     if versions_qs.filter(type=TAG).exists():
         versions_qs = versions_qs.filter(type=TAG)
 
+    # Optimization
+    versions_qs = versions_qs.select_related('project')
+
     highest_version_obj, highest_version_comparable = highest_version(
         versions_qs,
     )
