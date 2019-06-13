@@ -118,9 +118,7 @@ class VersionManager(SettingsOverrideObject):
 
 class InternalVersionManager(SettingsOverrideObject):
     _default_class = InternalVersionManagerBase
-    _override_setting = 'INTERNAL_VERSION_MANAGER'
 
 
 class ExternalVersionManager(SettingsOverrideObject):
     _default_class = ExternalVersionManagerBase
-    _override_setting = 'EXTERNAL_VERSION_MANAGER'
