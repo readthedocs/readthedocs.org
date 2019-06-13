@@ -57,7 +57,7 @@ class BuildTriggerMixin:
 
         version_slug = request.POST.get('version_slug')
         version = get_object_or_404(
-            Version,
+            Version.internal.all(),
             project=project,
             slug=version_slug,
         )
