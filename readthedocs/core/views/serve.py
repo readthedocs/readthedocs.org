@@ -203,7 +203,11 @@ def serve_docs(
     if not version_slug:
         version_slug = project.get_default_version()
     try:
-        version = project.versions.public(request.user).get(slug=version_slug)
+        version = (
+            Version.objects
+            .public(user=request.user, project=project)
+            .get(slug=version_slug)
+        )
     except Version.DoesNotExist:
         # Properly raise a 404 if the version doesn't exist (or is inactive) and
         # a 401 if it does
@@ -410,9 +414,10 @@ def sitemap_xml(request, project):
 
         if project.translations.exists():
             for translation in project.translations.all():
-                translation_versions = translation.versions(
-                    manager=INTERNAL
-                ).public().values_list('slug', flat=True)
+                translation_versions = (
+                    Version.internal.public(project=translation)
+                    .values_list('slug', flat=True)
+                )
                 if version.slug in translation_versions:
                     href = project.get_docs_url(
                         version_slug=version.slug,
