@@ -3,7 +3,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Version, Build
 from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
 from readthedocs.projects.models import Project
 
@@ -123,3 +123,91 @@ class TestExternalVersionManager(TestVersionManagerBase):
         self.assertIn(
             self.public_pr_version, Version.external.for_project(self.pip)
         )
+
+
+class TestBuildManagerBase(TestCase):
+
+    fixtures = ['test_data']
+
+    def setUp(self):
+        self.user = User.objects.create(username='test_user', password='test')
+        self.client.login(username='test_user', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        print(self.pip.versions.all())
+        # Create a External Version and build. ie: PULL_REQUEST type Version.
+        self.pr_version = get(
+            Version,
+            project=self.pip,
+            active=True,
+            type=PULL_REQUEST,
+            privacy_level=PUBLIC
+        )
+        self.pr_version_build = get(
+            Build,
+            project=self.pip,
+            version=self.pr_version
+        )
+        # Create a Internal Version build.
+        self.internal_version_build = get(
+            Build,
+            project=self.pip,
+            version=self.pip.versions.get(slug='0.8')
+        )
+
+        self.internal_builds = Build.objects.exclude(version__type=PULL_REQUEST)
+
+
+class TestInternalBuildManager(TestBuildManagerBase):
+
+    """
+    Queries using Internal Manager should only include Internal Version builds.
+
+    It will exclude PULL_REQUEST type Version builds from the queries
+    and only include BRANCH, TAG, UNKONWN type Versions.
+    """
+
+    def test_internal_build_manager_with_all(self):
+        self.assertNotIn(self.pr_version_build, Build.internal.all())
+
+    def test_internal_build_manager_with_public(self):
+        self.assertNotIn(self.pr_version_build, Build.internal.public())
+
+    def test_internal_build_manager_with_public_with_user_and_project(self):
+        self.assertNotIn(
+            self.pr_version_build,
+            Build.internal.public(self.user, self.pip)
+        )
+
+    def test_internal_build_manager_with_api(self):
+        self.assertNotIn(self.pr_version_build, Build.internal.api())
+
+
+class TestExternalBuildManager(TestBuildManagerBase):
+
+    """
+    Queries using External Manager should only include External Version builds.
+
+    It will only include PULL_REQUEST type Version builds in the queries.
+    """
+
+    def test_external_build_manager_with_all(self):
+        self.assertNotIn(self.internal_builds, Build.external.all())
+        self.assertIn(self.pr_version_build, Build.external.all())
+
+    def test_external_build_manager_with_public(self):
+        self.assertNotIn(self.internal_builds, Build.external.public())
+        self.assertIn(self.pr_version_build, Build.external.public())
+
+    def test_external_build_manager_with_public_with_user_and_project(self):
+        self.assertNotIn(
+            self.internal_builds,
+            Build.external.public(self.user, self.pip)
+        )
+        self.assertIn(
+            self.pr_version_build,
+            Build.external.public(self.user, self.pip)
+        )
+
+    def test_external_build_manager_with_api(self):
+        self.assertNotIn(self.internal_builds, Build.external.api())
+        self.assertIn(self.pr_version_build, Build.external.api())
