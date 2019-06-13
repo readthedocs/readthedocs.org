@@ -58,7 +58,7 @@ class SphinxDomainDocument(RTDDocTypeMixin, DocType):
 
     class Meta:
         model = SphinxDomain
-        fields = ('commit',)
+        fields = ('commit', 'build')
         ignore_signals = True
 
     def get_queryset(self):
@@ -126,7 +126,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     class Meta:
         model = HTMLFile
-        fields = ('commit',)
+        fields = ('commit', 'build')
         ignore_signals = True
 
     @classmethod

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import shutil
 from os.path import exists
@@ -328,5 +327,5 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None)
+        tasks.fileify(version_pk=345343, commit=None, build=1)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
