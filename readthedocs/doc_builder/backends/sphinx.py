@@ -60,6 +60,11 @@ class BaseSphinx(BaseBuilder):
 
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
+        log.info(
+            'Creating default Sphinx config file for project: %s:%s',
+            self.project.slug,
+            self.version.slug,
+        )
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
             'sphinx/conf.py.conf',
