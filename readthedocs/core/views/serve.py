@@ -120,7 +120,7 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
             # community. This can be removed once the middleware incorporates
             # more data or redirects happen outside this application
             # See: https://github.com/rtfd/readthedocs.org/pull/5690
-            from readthedocsinc.core.views import serve_docs as corporate_serve_docs
+            from readthedocsinc.core.views import serve_docs as corporate_serve_docs  # noqa
             return corporate_serve_docs(request, project, project.slug, subproject, subproject.slug)
         except Exception:
             pass
