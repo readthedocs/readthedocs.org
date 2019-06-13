@@ -115,14 +115,21 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
     # ``subproject`` is a single-version, we don't have to redirect but to serve
     # the index file instead.
     if subproject and subproject.single_version:
-        # TODO: find a way to import ``serve_docs`` from corporate
-        return serve_docs(request, project, project.slug, subproject, subproject.slug)
+        try:
+            # HACK: this only affects corporate site and won't be hit on the
+            # community. This can be removed once the middleware incorporates
+            # more data or redirects happen outside this application
+            # See: https://github.com/rtfd/readthedocs.org/pull/5690
+            from readthedocsinc.core.views import serve_docs as corporate_serve_docs
+            return corporate_serve_docs(request, project, project.slug, subproject, subproject.slug)
+        except Exception:
+            pass
 
     return HttpResponseRedirect(
         resolve(
             subproject or project,
             query_params=urlparse_result.query,
-        )
+        ),
     )
 
 
