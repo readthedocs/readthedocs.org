@@ -74,6 +74,7 @@ from .signals import (
     before_build,
     before_vcs,
     domain_verify,
+    files_changed,
 )
 
 
@@ -866,6 +867,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
+                build=self.build['id'],
             ),
         )
 
@@ -1242,7 +1244,7 @@ def symlink_subproject(project_pk):
 
 
 @app.task(queue='web')
-def fileify(version_pk, commit):
+def fileify(version_pk, commit, build):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1276,17 +1278,17 @@ def fileify(version_pk, commit):
         }
     )
     try:
-        _manage_imported_files(version, path, commit)
+        _manage_imported_files(version, path, commit, build)
     except Exception:
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _update_intersphinx_data(version, path, commit)
+        _update_intersphinx_data(version, path, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
 
-def _update_intersphinx_data(version, path, commit):
+def _update_intersphinx_data(version, path, commit, build):
     """
     Update intersphinx data for this version.
 
@@ -1294,13 +1296,6 @@ def _update_intersphinx_data(version, path, commit):
     :param path: Path to search
     :param commit: Commit that updated path
     """
-
-    # Objects from the db must exists before calling this function,
-    # because the task will query the DB for the objects before deleting
-    remove_indexed_files(model=SphinxDomain, version=version)
-
-    # Delete SphinxDomain objects from the previous build of the version.
-    SphinxDomain.objects.filter(project=version.project, version=version).delete()
 
     object_file = os.path.join(path, 'objects.inv')
     if not os.path.exists(object_file):
@@ -1372,10 +1367,27 @@ def _update_intersphinx_data(version, path, commit):
                 doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
                 commit=commit,
+                build=build,
             )
 
     # Index new SphinxDomain objects to elasticsearch
-    index_new_files(model=SphinxDomain, version=version)
+    index_new_files(model=SphinxDomain, version=version, build=build)
+
+    # Objects from the db must exists before calling this function,
+    # because the task will query the DB for the objects before deleting
+    remove_indexed_files(
+        model=SphinxDomain,
+        version=version,
+        build=build,
+    )
+
+    # Delete SphinxDomain objects from the previous build of the version.
+    (
+        SphinxDomain.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
+    )
 
 
 def clean_build(version_pk):
@@ -1407,23 +1419,17 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, path, commit):
+def _manage_imported_files(version, path, commit, build):
     """
     Update imported files for version.
 
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
+    :param build: Build id
     """
 
-    # Objects from the db must exists before calling this function,
-    # because the task will query the DB for the objects before deleting
-    remove_indexed_files(model=HTMLFile, version=version)
-
-    # Delete ImportedFiles objects (including HTMLFiles)
-    # from the previous build of the version.
-    ImportedFile.objects.filter(project=version.project, version=version).delete()
-
+    changed_files = set()
     # Re-create all objects from the new build of the version
     for root, __, filenames in os.walk(path):
         for filename in filenames:
@@ -1444,6 +1450,22 @@ def _manage_imported_files(version, path, commit):
                     relpath,
                 )
                 md5 = ''
+            # Keep track of changed files to be purged in the CDN
+            obj = (
+                model_class.objects
+                .filter(project=version.project, version=version, path=relpath)
+                .order_by('-modified_date')
+                .first()
+            )
+            if obj and md5 and obj.md5 != md5:
+                changed_files.add(
+                    resolve_path(
+                        version.project,
+                        filename=relpath,
+                        version_slug=version.slug,
+                    ),
+                )
+            # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
                 version=version,
@@ -1451,10 +1473,36 @@ def _manage_imported_files(version, path, commit):
                 name=filename,
                 md5=md5,
                 commit=commit,
+                build=build,
             )
 
     # Index new HTMLFiles to elasticsearch
-    index_new_files(model=HTMLFile, version=version)
+    index_new_files(model=HTMLFile, version=version, build=build)
+
+    # Objects from the db must exists before calling this function,
+    # because the task will query the DB for the objects before deleting
+    remove_indexed_files(
+        model=HTMLFile,
+        version=version,
+        build=build,
+    )
+
+    # Delete ImportedFiles objects (including HTMLFiles)
+    # from the previous build of the version.
+    (
+        ImportedFile.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
+    )
+
+    # Send signal with changed files
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        files=changed_files,
+    )
+
 
 
 @app.task(queue='web')
@@ -1649,14 +1697,14 @@ def remove_build_storage_paths(paths):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, *args, **kwargs):
+def sync_callback(_, version_pk, commit, build, *args, **kwargs):
     """
     Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """
     try:
-        fileify(version_pk, commit=commit)
+        fileify(version_pk, commit=commit, build=build)
     except Exception:
         log.exception('Post sync tasks failed, not stopping build')
 

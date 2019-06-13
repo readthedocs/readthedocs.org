@@ -13,7 +13,7 @@ from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 log = logging.getLogger(__name__)
 
 
-def index_new_files(model, version):
+def index_new_files(model, version, build):
     """Index new files from the version into the search index."""
 
     if not DEDConfig.autosync_enabled():
@@ -29,7 +29,7 @@ def index_new_files(model, version):
         doc_obj = document()
         queryset = (
             doc_obj.get_queryset()
-            .filter(project=version.project, version=version)
+            .filter(project=version.project, version=version, build=build)
         )
         log.info(
             'Indexing new objecst into search index for: %s:%s',
@@ -41,8 +41,12 @@ def index_new_files(model, version):
         log.exception('Unable to index a subset of files. Continuing.')
 
 
-def remove_indexed_files(model, version):
-    """Remove files from the version from the search index."""
+def remove_indexed_files(model, version, build):
+    """
+    Remove files from the version from the search index.
+
+    This excludes files from the current build.
+    """
 
     if not DEDConfig.autosync_enabled():
         log.info(
@@ -63,6 +67,7 @@ def remove_indexed_files(model, version):
             document().search()
             .filter('term', project=version.project.slug)
             .filter('term', version=version.slug)
+            .exclude('term', build=build)
             .delete()
         )
     except Exception:
