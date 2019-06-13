@@ -1374,8 +1374,7 @@ def _update_intersphinx_data(version, path, commit, build):
     # Index new SphinxDomain objects to elasticsearch
     index_new_files(model=SphinxDomain, version=version, build=build)
 
-    # Objects from the db must exists before calling this function,
-    # because the task will query the DB for the objects before deleting
+    # Remove old SphinxDomain from elasticsearch
     remove_indexed_files(
         model=SphinxDomain,
         version=version,
@@ -1480,8 +1479,7 @@ def _manage_imported_files(version, path, commit, build):
     # Index new HTMLFiles to elasticsearch
     index_new_files(model=HTMLFile, version=version, build=build)
 
-    # Objects from the db must exists before calling this function,
-    # because the task will query the DB for the objects before deleting
+    # Remove old HTMLFiles from elasticsearch
     remove_indexed_files(
         model=HTMLFile,
         version=version,
