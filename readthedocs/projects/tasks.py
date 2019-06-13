@@ -1295,6 +1295,7 @@ def _update_intersphinx_data(version, path, commit, build):
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
+    :param build: Build id
     """
 
     object_file = os.path.join(path, 'objects.inv')
