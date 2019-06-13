@@ -1505,7 +1505,6 @@ def _manage_imported_files(version, path, commit, build):
     )
 
 
-
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
