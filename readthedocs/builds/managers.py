@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 __all__ = ['VersionManager']
 
 
-class VersionManagerBase(models.Manager):
+class VersionManagerBaseClass(models.Manager):
 
     """
     Version manager for manager only queries.
@@ -86,7 +86,28 @@ class VersionManagerBase(models.Manager):
             log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
-class InternalVersionManagerBase(VersionManagerBase):
+class VersionManagerBase(VersionManagerBaseClass):
+
+    """
+    Only used for showing warning messages in test suite.
+
+    this will override the 'get_queryset' method and add a warning message
+    ehen ever 'Version.objects.*' is called in the test suite.
+    """
+
+    def get_queryset(self):
+        try:
+            import warnings
+            warnings.warn(
+                "Version.objects manager is being used"
+            )
+        except ImportError:
+            pass
+
+        return super().get_queryset()
+
+
+class InternalVersionManagerBase(VersionManagerBaseClass):
 
     """
     Version manager that only includes internal version.
@@ -99,7 +120,7 @@ class InternalVersionManagerBase(VersionManagerBase):
         return super().get_queryset().exclude(type=EXTERNAL)
 
 
-class ExternalVersionManagerBase(VersionManagerBase):
+class ExternalVersionManagerBase(VersionManagerBaseClass):
 
     """
     Version manager that only includes external version.
