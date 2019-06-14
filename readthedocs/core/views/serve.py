@@ -38,7 +38,6 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
-from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
