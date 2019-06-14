@@ -1,16 +1,16 @@
-
 import os
 
 import django_dynamic_fixture as fixture
 import mock
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -324,3 +324,39 @@ class TestPublicDocs(BaseDocServing):
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
+
+    @override_settings(
+        PYTHON_MEDIA=True,
+        USE_SUBDOMAIN=False,
+    )
+    @patch(
+        'readthedocs.core.views.serve._serve_symlink_docs',
+        new=mock.MagicMock(return_value=HttpResponse(content_type='text/html')),
+    )
+    def test_user_with_multiple_projects_serve_from_same_domain(self):
+        project = fixture.get(
+            Project,
+            main_language_project=None,
+            users=[self.eric],
+        )
+        other_project = fixture.get(
+            Project,
+            main_language_project=None,
+            users=[self.eric],
+        )
+
+        # Trigger the save method of the versions
+        project.versions.get(slug=LATEST).save()
+        other_project.versions.get(slug=LATEST).save()
+
+        # Two projects of one owner with versions with the same slug
+        self.assertIn(self.eric, project.users.all())
+        self.assertIn(self.eric, other_project.users.all())
+        self.assertTrue(project.versions.filter(slug=LATEST).exists())
+        self.assertTrue(other_project.versions.filter(slug=LATEST).exists())
+
+        self.client.force_login(self.eric)
+        request = self.client.get(
+            f'/docs/{project.slug}/en/latest/'
+        )
+        self.assertEqual(request.status_code, 200)

@@ -1,3 +1,136 @@
+Version 3.5.2
+-------------
+
+This is a quick hotfix to the previous version.
+
+:Date: June 11, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix version of our sphinx-ext we're installing (`#5789 <https://github.com/rtfd/readthedocs.org/pull/5789>`__)
+* `@stsewd <http://github.com/stsewd>`__: Get version from the api (`#5788 <https://github.com/rtfd/readthedocs.org/pull/5788>`__)
+
+Version 3.5.1
+-------------
+
+This version contained a `security fix <https://github.com/rtfd/readthedocs.org/security/advisories/GHSA-2mw9-4c46-qrcv>`_
+for an open redirect issue.
+The problem has been fixed and deployed on readthedocs.org.
+For users who depend on the Read the Docs code line for a private instance of Read the Docs,
+you are encouraged to update to 3.5.1 as soon as possible.
+
+:Date: June 11, 2019
+
+* `@stsewd <http://github.com/stsewd>`__: Update build images in docs (`#5782 <https://github.com/rtfd/readthedocs.org/pull/5782>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Validate dict when parsing the mkdocs.yml file (`#5775 <https://github.com/rtfd/readthedocs.org/pull/5775>`__)
+* `@stsewd <http://github.com/stsewd>`__: Pin textclassifier dependencies (`#5773 <https://github.com/rtfd/readthedocs.org/pull/5773>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix tests on master (`#5769 <https://github.com/rtfd/readthedocs.org/pull/5769>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't use implicit relative import (`#5767 <https://github.com/rtfd/readthedocs.org/pull/5767>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use version_pk to trigger builds (`#5765 <https://github.com/rtfd/readthedocs.org/pull/5765>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Domain UI improvements (`#5764 <https://github.com/rtfd/readthedocs.org/pull/5764>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Try to fix Elastic connection pooling issues (`#5763 <https://github.com/rtfd/readthedocs.org/pull/5763>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 22 (`#5762 <https://github.com/rtfd/readthedocs.org/pull/5762>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Try to fix Elastic connection pooling issues (`#5760 <https://github.com/rtfd/readthedocs.org/pull/5760>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Escape variables in mkdocs data (`#5759 <https://github.com/rtfd/readthedocs.org/pull/5759>`__)
+* `@humitos <http://github.com/humitos>`__: Serve 404/index.html file for htmldir Sphinx builder (`#5754 <https://github.com/rtfd/readthedocs.org/pull/5754>`__)
+* `@wilvk <http://github.com/wilvk>`__: fix sphinx startup guide to not to fail on rtd build as per #2569 (`#5753 <https://github.com/rtfd/readthedocs.org/pull/5753>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix mkdocs relpath (`#5749 <https://github.com/rtfd/readthedocs.org/pull/5749>`__)
+* `@stsewd <http://github.com/stsewd>`__: Call lock per task (`#5748 <https://github.com/rtfd/readthedocs.org/pull/5748>`__)
+* `@stsewd <http://github.com/stsewd>`__: Pin kombu to 4.3.0 (`#5747 <https://github.com/rtfd/readthedocs.org/pull/5747>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Clarify latexmk option usage (`#5745 <https://github.com/rtfd/readthedocs.org/pull/5745>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Hotfix latexmx builder to ignore error codes (`#5744 <https://github.com/rtfd/readthedocs.org/pull/5744>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Hide the Code API search in the UX for now. (`#5743 <https://github.com/rtfd/readthedocs.org/pull/5743>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add init.py under readthedocs/api (`#5742 <https://github.com/rtfd/readthedocs.org/pull/5742>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix design docs missing from toctree (`#5741 <https://github.com/rtfd/readthedocs.org/pull/5741>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.5.0 (`#5740 <https://github.com/rtfd/readthedocs.org/pull/5740>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Pytest Timezone Warning Fixed (`#5739 <https://github.com/rtfd/readthedocs.org/pull/5739>`__)
+* `@humitos <http://github.com/humitos>`__: Filter by projects with no banned users (`#5733 <https://github.com/rtfd/readthedocs.org/pull/5733>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix the sidebar ad color (`#5731 <https://github.com/rtfd/readthedocs.org/pull/5731>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Permanent redirect feature added (`#5727 <https://github.com/rtfd/readthedocs.org/pull/5727>`__)
+* `@humitos <http://github.com/humitos>`__: Move version "Clean" button to details page (`#5706 <https://github.com/rtfd/readthedocs.org/pull/5706>`__)
+* `@gorshunovr <http://github.com/gorshunovr>`__: Update flags documentation (`#5701 <https://github.com/rtfd/readthedocs.org/pull/5701>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Storage updates (`#5698 <https://github.com/rtfd/readthedocs.org/pull/5698>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove files after build (`#5680 <https://github.com/rtfd/readthedocs.org/pull/5680>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move community support to email (`#5651 <https://github.com/rtfd/readthedocs.org/pull/5651>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Optimizations and UX improvements to the dashboard screen (`#5637 <https://github.com/rtfd/readthedocs.org/pull/5637>`__)
+* `@chrisjsewell <http://github.com/chrisjsewell>`__: Use `--upgrade` instead of `--force-reinstall` for pip installs (`#5635 <https://github.com/rtfd/readthedocs.org/pull/5635>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move file validations out of the config module (`#5627 <https://github.com/rtfd/readthedocs.org/pull/5627>`__)
+* `@humitos <http://github.com/humitos>`__: Remove old/deprecated build endpoints (`#5479 <https://github.com/rtfd/readthedocs.org/pull/5479>`__)
+* `@shivanshu1234 <http://github.com/shivanshu1234>`__: Add link to in-progress build from dashboard. (`#5431 <https://github.com/rtfd/readthedocs.org/pull/5431>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade pytest-django (`#5294 <https://github.com/rtfd/readthedocs.org/pull/5294>`__)
+
+Version 3.5.0
+-------------
+
+:Date: May 30, 2019
+
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 21 (`#5737 <https://github.com/rtfd/readthedocs.org/pull/5737>`__)
+* `@humitos <http://github.com/humitos>`__: Update feature flags exposed to user in docs (`#5734 <https://github.com/rtfd/readthedocs.org/pull/5734>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix the sidebar ad color (`#5731 <https://github.com/rtfd/readthedocs.org/pull/5731>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Create a funding file (`#5729 <https://github.com/rtfd/readthedocs.org/pull/5729>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Small commercial hosting page rework (`#5728 <https://github.com/rtfd/readthedocs.org/pull/5728>`__)
+* `@mattparrilla <http://github.com/mattparrilla>`__: Add note about lack of support for private repos (`#5726 <https://github.com/rtfd/readthedocs.org/pull/5726>`__)
+* `@humitos <http://github.com/humitos>`__: Canonical consistency example (`#5722 <https://github.com/rtfd/readthedocs.org/pull/5722>`__)
+* `@humitos <http://github.com/humitos>`__: Use nonstopmode for latexmk (`#5714 <https://github.com/rtfd/readthedocs.org/pull/5714>`__)
+* `@cclauss <http://github.com/cclauss>`__: Identity is not the same thing as equality in Python (`#5713 <https://github.com/rtfd/readthedocs.org/pull/5713>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 20 (`#5712 <https://github.com/rtfd/readthedocs.org/pull/5712>`__)
+* `@humitos <http://github.com/humitos>`__: Move version "Clean" button to details page (`#5706 <https://github.com/rtfd/readthedocs.org/pull/5706>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Explicitly mention a support email (`#5703 <https://github.com/rtfd/readthedocs.org/pull/5703>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Storage updates (`#5698 <https://github.com/rtfd/readthedocs.org/pull/5698>`__)
+* `@humitos <http://github.com/humitos>`__: Enable auth validate passwords (`#5696 <https://github.com/rtfd/readthedocs.org/pull/5696>`__)
+* `@stsewd <http://github.com/stsewd>`__: Simplify lock acquire (`#5695 <https://github.com/rtfd/readthedocs.org/pull/5695>`__)
+* `@stsewd <http://github.com/stsewd>`__: Simplify update docs task (`#5694 <https://github.com/rtfd/readthedocs.org/pull/5694>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 19 (`#5692 <https://github.com/rtfd/readthedocs.org/pull/5692>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Warning about using sqlite 3.26.0 for development (`#5681 <https://github.com/rtfd/readthedocs.org/pull/5681>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Configure the security middleware (`#5679 <https://github.com/rtfd/readthedocs.org/pull/5679>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix bug in notifications (`#5678 <https://github.com/rtfd/readthedocs.org/pull/5678>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#5667 <https://github.com/rtfd/readthedocs.org/pull/5667>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: pylint fix for notifications, restapi and config (`#5664 <https://github.com/rtfd/readthedocs.org/pull/5664>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: pylint fix for readthedocs.search (`#5663 <https://github.com/rtfd/readthedocs.org/pull/5663>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: pylint fix for readthedocs.projects (`#5662 <https://github.com/rtfd/readthedocs.org/pull/5662>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: pylint fix for readthedocs.doc_builder (`#5660 <https://github.com/rtfd/readthedocs.org/pull/5660>`__)
+* `@humitos <http://github.com/humitos>`__: Support Docker 5.0 image (`#5657 <https://github.com/rtfd/readthedocs.org/pull/5657>`__)
+* `@humitos <http://github.com/humitos>`__: Use latexmk if Sphinx > 1.6 (`#5656 <https://github.com/rtfd/readthedocs.org/pull/5656>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade docker python package to latest release (`#5654 <https://github.com/rtfd/readthedocs.org/pull/5654>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: pylint fix for readthedocs.core (`#5650 <https://github.com/rtfd/readthedocs.org/pull/5650>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 17 (`#5645 <https://github.com/rtfd/readthedocs.org/pull/5645>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Serve custom 404 pages from Django (`#5644 <https://github.com/rtfd/readthedocs.org/pull/5644>`__)
+* `@yarons <http://github.com/yarons>`__: Typo fix (`#5642 <https://github.com/rtfd/readthedocs.org/pull/5642>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Sitemap hreflang syntax invalid for regional language variants fix (`#5638 <https://github.com/rtfd/readthedocs.org/pull/5638>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Optimizations and UX improvements to the dashboard screen (`#5637 <https://github.com/rtfd/readthedocs.org/pull/5637>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Redirect project slugs with underscores (`#5634 <https://github.com/rtfd/readthedocs.org/pull/5634>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Standardizing the use of settings directly (`#5632 <https://github.com/rtfd/readthedocs.org/pull/5632>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Note for Docker image size in Docker instructions (`#5630 <https://github.com/rtfd/readthedocs.org/pull/5630>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: UX improvements around SSL certificates (`#5629 <https://github.com/rtfd/readthedocs.org/pull/5629>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Gold project sponsorship changes (`#5628 <https://github.com/rtfd/readthedocs.org/pull/5628>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Make sure there's a contact when opting out of advertising (`#5626 <https://github.com/rtfd/readthedocs.org/pull/5626>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove unused volume from docker (`#5625 <https://github.com/rtfd/readthedocs.org/pull/5625>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: hotfix: correct way of getting environment variables (`#5622 <https://github.com/rtfd/readthedocs.org/pull/5622>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#5619 <https://github.com/rtfd/readthedocs.org/pull/5619>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.4.2 (`#5613 <https://github.com/rtfd/readthedocs.org/pull/5613>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add explicit egg versoin to unicode-slugify (`#5612 <https://github.com/rtfd/readthedocs.org/pull/5612>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove ProxyMiddleware (`#5607 <https://github.com/rtfd/readthedocs.org/pull/5607>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'Versions' tab from Admin Dashboard. (`#5600 <https://github.com/rtfd/readthedocs.org/pull/5600>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Notify the user when deleting a superproject (`#5596 <https://github.com/rtfd/readthedocs.org/pull/5596>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Handle 401, 403 and 404  when setting up webhooks (`#5589 <https://github.com/rtfd/readthedocs.org/pull/5589>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Unify usage of settings and remove the usage of getattr for settings (`#5588 <https://github.com/rtfd/readthedocs.org/pull/5588>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Note about admin page in the docs (`#5585 <https://github.com/rtfd/readthedocs.org/pull/5585>`__)
+* `@humitos <http://github.com/humitos>`__: Remove USE_SETUPTOOLS_LATEST feature flag (`#5578 <https://github.com/rtfd/readthedocs.org/pull/5578>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Validate docs dir before writing custom js (`#5569 <https://github.com/rtfd/readthedocs.org/pull/5569>`__)
+* `@rshrc <http://github.com/rshrc>`__: Added note in YAML docs (`#5565 <https://github.com/rtfd/readthedocs.org/pull/5565>`__)
+* `@shivanshu1234 <http://github.com/shivanshu1234>`__: Specify python3 in installation instructions. (`#5552 <https://github.com/rtfd/readthedocs.org/pull/5552>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Write build artifacts to (cloud) storage from build servers (`#5549 <https://github.com/rtfd/readthedocs.org/pull/5549>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: "Default branch: latest" does not exist Fix. (`#5547 <https://github.com/rtfd/readthedocs.org/pull/5547>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update ``readthedocs-environment.json`` file when env vars are added/deleted (`#5540 <https://github.com/rtfd/readthedocs.org/pull/5540>`__)
+* `@humitos <http://github.com/humitos>`__: Update common to its latest version (`#5517 <https://github.com/rtfd/readthedocs.org/pull/5517>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Profile page performance issue Fix (`#5472 <https://github.com/rtfd/readthedocs.org/pull/5472>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove unused form (`#5443 <https://github.com/rtfd/readthedocs.org/pull/5443>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use relative paths in config module (`#5377 <https://github.com/rtfd/readthedocs.org/pull/5377>`__)
+* `@humitos <http://github.com/humitos>`__: Initial structure for APIv3 (`#5356 <https://github.com/rtfd/readthedocs.org/pull/5356>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add models for automation rules (`#5323 <https://github.com/rtfd/readthedocs.org/pull/5323>`__)
+* `@stsewd <http://github.com/stsewd>`__: Downgrade pytest-django (`#5294 <https://github.com/rtfd/readthedocs.org/pull/5294>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add search for DomainData objects (`#5290 <https://github.com/rtfd/readthedocs.org/pull/5290>`__)
+* `@gorshunovr <http://github.com/gorshunovr>`__: Change version references to :latest tag (`#5245 <https://github.com/rtfd/readthedocs.org/pull/5245>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix buttons problems in 'Change Email' section. (`#5219 <https://github.com/rtfd/readthedocs.org/pull/5219>`__)
+
 Version 3.4.2
 -------------
 

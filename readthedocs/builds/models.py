@@ -27,6 +27,7 @@ from readthedocs.projects.constants import (
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
+    MEDIA_TYPES,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -262,6 +263,11 @@ class Version(models.Model):
             task=tasks.remove_dirs,
             args=[self.get_artifact_paths()],
         )
+
+        # Remove build artifacts from storage
+        storage_paths = self.get_storage_paths()
+        tasks.remove_build_storage_paths.delay(storage_paths)
+
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
         broadcast(
@@ -340,6 +346,25 @@ class Version(models.Model):
                 .get_production_media_path(type_=type_, version_slug=self.slug),
             )
         paths.append(self.project.rtd_build_path(version=self.slug))
+
+        return paths
+
+    def get_storage_paths(self):
+        """
+        Return a list of all build artifact storage paths for this version.
+
+        :rtype: list
+        """
+        paths = []
+
+        for type_ in MEDIA_TYPES:
+            paths.append(
+                self.project.get_storage_path(
+                    type_=type_,
+                    version_slug=self.slug,
+                    include_file=False,
+                )
+            )
 
         return paths
 

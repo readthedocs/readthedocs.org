@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-import json
 import logging
 
 import mock
@@ -9,7 +7,6 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects import tasks
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
 
@@ -17,6 +14,8 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
+@mock.patch('readthedocs.projects.tasks.clean_build', new=mock.MagicMock)
+@mock.patch('readthedocs.projects.tasks.update_docs_task.signature', new=mock.MagicMock)
 class PrivacyTests(TestCase):
 
     def setUp(self):
@@ -27,8 +26,6 @@ class PrivacyTests(TestCase):
         self.tester = User(username='tester')
         self.tester.set_password('test')
         self.tester.save()
-
-        tasks.update_docs_task.delay = mock.Mock()
 
     def _create_kong(
         self, privacy_level='private',

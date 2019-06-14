@@ -66,27 +66,22 @@
                       {% block project-name %}
                         {{ project.name }}
                       {% endblock %}
-                      {% with builds=project.build_count %}
-                        {% if builds == 0 %}
-                          <span class="right quiet">
-                            {% trans "No builds yet" %}
-                          </span>
-                        {% else %}
-                          <span class="right quiet">
-                            <span class="build-count">
-                              {% blocktrans trimmed count counter=builds %}
-                                1 build
-                              {% plural %}
-                                {{ builds }} builds
-                              {% endblocktrans %}
-                            </span>
-                            {% if project.latest_build_success %}
+                      {% with build=project.get_latest_build %}
+                        <span class="right quiet">
+
+                          {% if build %}
+                            <time class="build-count" datetime="{{ build.date|date:"c" }}" title="{{ build.date|date:"DATETIME_FORMAT" }}">
+                              <small>{% blocktrans with date=build.date|timesince %}{{ date }} ago{% endblocktrans %}</small>
+                            </time>
+                            {% if build.success %}
                               <span class="build-state build-state-passing">{% trans "passing" %}</span>
                             {% else %}
                               <span class="build-state build-state-failing">{% trans "failing" %}</span>
                             {% endif %}
-                          </span>
-                        {% endif %}
+                          {% else %}
+                            <span>{% trans "No builds yet" %}</span>
+                          {% endif %}
+                        </span>
                       {% endwith %}
                     </a>
                   </li>

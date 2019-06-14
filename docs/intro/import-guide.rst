@@ -5,7 +5,9 @@ Importing Your Documentation
    :description lang=en: Import your existing technical documentation from version control into Read the Docs.
 
 
-To import a documentation repository, visit your `Read the Docs dashboard`_ and click Import_.
+To import a public documentation repository, visit your `Read the Docs dashboard`_ and click Import_. For private
+repositories, use the Read the Docs  :doc:`commercial solution <../commercial/index>`.
+
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
@@ -72,6 +74,10 @@ Some documentation projects require additional configuration to build
 such as specifying a certain version of Python or installing additional dependencies.
 You can configure these settings in a ``readthedocs.yml`` file.
 See our :doc:`/config-file/index` docs for more details.
+
+It is also important to note that the default version of Sphinx is ``v1.8.5``. If
+chosing to build your documentation other than this, it must be specified in a
+``requirements.txt``` file.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.

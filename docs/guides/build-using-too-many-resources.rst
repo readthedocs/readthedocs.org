@@ -52,3 +52,10 @@ To use these pre-installed libraries and avoid consuming time re-downloading/com
 you can use the :ref:`config-file/v2:python.system_packages` option to have access to them.
 
 .. _Docker image repository: https://github.com/rtfd/readthedocs-docker-images
+
+Requests more resources
+-----------------------
+
+If you still have problems building your documentation,
+we can increase build limits on a per-project basis,
+sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.

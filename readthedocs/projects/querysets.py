@@ -1,7 +1,7 @@
 """Project model QuerySet classes."""
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery, Prefetch
 from guardian.shortcuts import get_objects_for_user
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -75,10 +75,32 @@ class ProjectQuerySetBase(models.QuerySet):
 
         return True
 
+    def prefetch_latest_build(self):
+        """
+        For a given queryset of projects, prefetch the latest build for each project
+
+        This should come after any filtering.
+        """
+        from readthedocs.builds.models import Build
+
+        # Prefetch the latest build for each project.
+        subquery = Subquery(
+            Build.objects.filter(
+                project=OuterRef('project_id')
+            ).order_by('-date').values_list('id', flat=True)[:1]
+        )
+        latest_build = Prefetch(
+            'builds',
+            Build.objects.filter(pk__in=subquery),
+            to_attr=self.model.LATEST_BUILD_CACHE,
+        )
+        return self.prefetch_related(latest_build)
+
     # Aliases
 
     def dashboard(self, user=None):
-        return self.for_admin_user(user)
+        """Get the projects for this user including the latest build"""
+        return self.for_admin_user(user).prefetch_latest_build()
 
     def api(self, user=None, detail=True):
         if detail:
