@@ -117,7 +117,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
         return context
 
 
-class PRBuildList(BuildBase, BuildTriggerMixin, ListView):
+class PRBuildList(BuildBase, ListView):
     template_name = 'builds/pr_build_list.html'
 
     def get_queryset(self):
