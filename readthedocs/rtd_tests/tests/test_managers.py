@@ -5,7 +5,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
 
 
 User = get_user_model()
@@ -123,3 +123,45 @@ class TestExternalVersionManager(TestVersionManagerBase):
         self.assertIn(
             self.public_pr_version, Version.external.for_project(self.pip)
         )
+
+
+class TestHTMLFileManager(TestCase):
+
+    fixtures = ['test_data']
+
+    def setUp(self):
+        self.user = User.objects.create(username='test_user', password='test')
+        self.client.login(username='test_user', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        # Create a External Version. ie: PULL_REQUEST type Version.
+        self.pr_version = get(
+            Version,
+            project=self.pip,
+            active=True,
+            type=PULL_REQUEST,
+            privacy_level=PUBLIC
+        )
+        self.html_file = HTMLFile.objects.create(
+            project=self.pip,
+            version=self.pr_version,
+            name='file.html',
+            slug='file',
+            path='file.html',
+            md5='abcdef',
+            commit='1234567890abcdef',
+        )
+        self.internal_html_files = HTMLFile.objects.exclude(version__type=PULL_REQUEST)
+
+    def test_internal_html_file_manager(self):
+        """
+        It will exclude PULL_REQUEST type Version html files from the queries
+        and only include BRANCH, TAG, UNKONWN type Version files.
+        """
+        self.assertNotIn(self.html_file, HTMLFile.objects.internal())
+
+    def test_external_html_file_manager(self):
+        """
+        It will only include PULL_REQUEST type Version html files in the queries.
+        """
+        self.assertNotIn(self.internal_html_files, HTMLFile.objects.external())
+        self.assertIn(self.html_file, HTMLFile.objects.external())

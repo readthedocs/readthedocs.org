@@ -61,7 +61,7 @@ class SupportView(TemplateView):
 
 
 def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    html_file = HTMLFile.objects.order_by('?')
+    html_file = HTMLFile.objects.internal().order_by('?')
     if project_slug:
         html_file = html_file.filter(project__slug=project_slug)
     html_file = html_file.first()

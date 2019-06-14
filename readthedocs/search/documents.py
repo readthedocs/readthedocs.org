@@ -158,9 +158,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
-        queryset = queryset.filter(
+        queryset = queryset.internal().filter(
             project__documentation_type__contains='sphinx'
-        ).exclude(version__type=PULL_REQUEST)
+        )
 
         # TODO: Make this smarter
         # This was causing issues excluding some valid user documentation pages

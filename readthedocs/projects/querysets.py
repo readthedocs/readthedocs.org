@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import Q, OuterRef, Subquery, Prefetch
 from guardian.shortcuts import get_objects_for_user
 
+from readthedocs.builds.constants import PULL_REQUEST
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 from . import constants
@@ -213,3 +214,27 @@ class FeatureQuerySet(models.QuerySet):
             Q(projects=project) |
             Q(default_true=True, add_date__gt=project.pub_date),
         ).distinct()
+
+
+class HTMLFileQuerySetBase(models.QuerySet):
+
+    def internal(self):
+        """
+        HTMLFileQuerySet method that only includes internal version html files.
+
+        It will exclude PULL_REQUEST type from the queries
+        and only include BRANCH, TAG, UNKONWN type Version html files.
+        """
+        return self.exclude(version__type=PULL_REQUEST)
+
+    def external(self):
+        """
+        HTMLFileQuerySet method that only includes external version html files.
+
+        It will only include PULL_REQUEST type Version html files in the queries.
+        """
+        return self.filter(version__type=PULL_REQUEST)
+
+
+class HTMLFileQuerySet(SettingsOverrideObject):
+    _default_class = HTMLFileQuerySetBase
