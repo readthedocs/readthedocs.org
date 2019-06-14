@@ -152,14 +152,14 @@ class TestHTMLFileManager(TestCase):
         )
         self.internal_html_files = HTMLFile.objects.exclude(version__type=PULL_REQUEST)
 
-    def test_internal_html_file_manager(self):
+    def test_internal_html_file_queryset(self):
         """
         It will exclude PULL_REQUEST type Version html files from the queries
         and only include BRANCH, TAG, UNKONWN type Version files.
         """
         self.assertNotIn(self.html_file, HTMLFile.objects.internal())
 
-    def test_external_html_file_manager(self):
+    def test_external_html_file_queryset(self):
         """
         It will only include PULL_REQUEST type Version html files in the queries.
         """
