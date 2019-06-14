@@ -5,6 +5,7 @@ from django_elasticsearch_dsl import DocType, Index, fields
 
 from elasticsearch import Elasticsearch
 
+from readthedocs.builds.constants import PULL_REQUEST
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.sphinx_domains.models import SphinxDomain
 
@@ -159,7 +160,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
         # Also do not index certain files
         queryset = queryset.filter(
             project__documentation_type__contains='sphinx'
-        )
+        ).exclude(version__type=PULL_REQUEST)
 
         # TODO: Make this smarter
         # This was causing issues excluding some valid user documentation pages
