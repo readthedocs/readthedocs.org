@@ -22,9 +22,19 @@ $(document).ready(function () {
 {% endblock %}
 
 {% block project_editing %}
-  {% with builds_active="active" %}
-    {% include "core/project_bar.html" %}
-  {% endwith %}
+
+  {% if build.is_pr %}
+
+    {% with pr_builds_active="active" %}
+      {% include "core/project_bar.html" %}
+    {% endwith %}
+  {% else %}
+    {% with builds_active="active" %}
+      {% include "core/project_bar.html" %}
+    {% endwith %}
+
+  {% endif %}
+
 {% endblock %}
 
 {% block content %}

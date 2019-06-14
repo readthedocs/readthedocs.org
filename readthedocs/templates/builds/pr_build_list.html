@@ -1,0 +1,46 @@
+{% extends "projects/base_project.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% load pagination_tags %}
+{% load privacy_tags %}
+{% load projects_tags %}
+
+{% block title %}Builds{% endblock %}
+
+{% block project_editing %}
+    {% with pr_builds_active="active" %}
+        {% include "core/project_bar.html" %}
+    {% endwith %}
+{% endblock %}
+
+{% block content %}
+
+
+<div id="build_list">
+
+        {% autopaginate build_qs 15 %}
+
+        <!-- BEGIN builds list -->
+        <div class="module">
+          <div class="module-wrapper">
+            <h1>{% trans "Recent Pull Request Builds" %}</h1>
+
+            <div class="module-list">
+              <div class="module-list-wrapper">
+                <ul>
+                  {% include "core/build_list_detailed.html" %}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- END builds list -->
+
+        {% paginate %}
+
+</div>
+
+{% endblock %}

@@ -117,6 +117,42 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
         return context
 
 
+class PRBuildList(BuildBase, BuildTriggerMixin, ListView):
+    template_name = 'builds/pr_build_list.html'
+
+    def get_queryset(self):
+        # this is used to include only internal version
+        # builds in the build list page
+        self.project_slug = self.kwargs.get('project_slug', None)
+        self.project = get_object_or_404(
+            Project.objects.protected(self.request.user),
+            slug=self.project_slug,
+        )
+        queryset = Build.external.public(
+            user=self.request.user,
+            project=self.project,
+        ).select_related('project', 'version')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        active_builds = self.get_queryset().exclude(
+            state='finished',
+        ).values('id')
+
+        context['project'] = self.project
+        context['active_builds'] = active_builds
+        context['versions'] = Version.external.public(
+            user=self.request.user,
+            project=self.project,
+        )
+        context['build_qs'] = self.get_queryset()
+
+        return context
+
+
 class BuildDetail(BuildBase, DetailView):
     pk_url_kwarg = 'build_pk'
 

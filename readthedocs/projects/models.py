@@ -519,6 +519,14 @@ class Project(models.Model):
             },
         )
 
+    def get_pr_builds_url(self):
+        return reverse(
+            'pr_builds_project_list',
+            kwargs={
+                'project_slug': self.slug,
+            },
+        )
+
     def get_canonical_url(self):
         if settings.DONT_HIT_DB:
             return api.project(self.pk).canonical_url().get()['url']

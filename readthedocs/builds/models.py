@@ -746,6 +746,11 @@ class Build(models.Model):
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
 
+    @property
+    def is_pr(self):
+        """Return if build is a Pull Request Build."""
+        return self.version.type == PULL_REQUEST
+
 
 class BuildCommandResultMixin:
 
