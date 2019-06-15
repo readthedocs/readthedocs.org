@@ -13,7 +13,7 @@ Core team standards
 
 Core team members expect to have a development environment that closely
 approximates our production environment, in order to spot bugs and logical
-inconsisencies before they make their way to production.
+inconsistencies before they make their way to production.
 
 Celery runs as a separate process
     Celery needs to be run as a separate process, and core team will not use
@@ -29,7 +29,7 @@ Docker for builds
     Docker is used for a build backend instead of the local host build backend.
     There are a number of differences between the two execution methods in how
     processes are executed, what is installed, and what can potentially leak
-    thorugh and mask bugs -- for example, local SSH agent allowing code check
+    through and mask bugs -- for example, local SSH agent allowing code check
     not normally possible.
 
 Setting ``USE_SUBDOMAIN = True``
@@ -43,11 +43,18 @@ Setting ``USE_SUBDOMAIN = True``
         USE_SUBDOMAIN = True
 
 Postgres as a database
-    Postgres sould be used as the default database whenever possible, as SQLite
+    Postgres should be used as the default database whenever possible, as SQLite
     has issues with our Django version and we use Postgres in production.
     Differences between Postgres and SQLite should be masked for the most part,
     as Django does abstract database procedures, and we don't do any
     Postgres-specific operations yet.
+
+Celery is isolated from database
+    Currently, it's really easy to forget that the Celery workers on our build
+    servers do not have database access and need to be written to use API access
+    instead. We don't yet have a pattern for this, but we should find a way to
+    put up a similar barrier in development, so that logic errors aren't
+    uncovered after we release.
 
 Using Supervisord
 ~~~~~~~~~~~~~~~~~
