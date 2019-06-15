@@ -2,11 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-<<<<<<< HEAD
 from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
-=======
-from readthedocs.builds.constants import PULL_REQUEST, BRANCH, TAG
->>>>>>> build manager tests added
 from readthedocs.builds.models import Version, Build
 from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
 from readthedocs.projects.models import Project

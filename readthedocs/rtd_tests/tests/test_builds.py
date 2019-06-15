@@ -7,6 +7,7 @@ from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 from django.utils import timezone
 
+from readthedocs.builds.constants import PULL_REQUEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
@@ -582,3 +583,27 @@ class BuildModelTests(TestCase):
         build.save()
 
         self.assertTrue(build.using_latest_config())
+
+    def test_build_is_pr(self):
+        # Turn the build version to pull request type.
+        self.version.type = PULL_REQUEST
+        self.version.save()
+
+        pr_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertTrue(pr_build.is_pr)
+
+    def test_build_is_not_pr(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertFalse(build.is_pr)

@@ -166,6 +166,12 @@ class TestProject(ProjectMixin, TestCase):
         # Test that PR Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
 
+    def test_get_pr_builds_url(self):
+        self.assertEqual(
+            self.pip.get_pr_builds_url(),
+            f'/projects/{self.pip.slug}/builds/pr/'
+        )
+
 
 class TestProjectTranslations(ProjectMixin, TestCase):
 

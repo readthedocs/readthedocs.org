@@ -137,13 +137,7 @@ class PRBuildList(BuildBase, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        active_builds = self.get_queryset().exclude(
-            state='finished',
-        ).values('id')
-
         context['project'] = self.project
-        context['active_builds'] = active_builds
         context['versions'] = Version.external.public(
             user=self.request.user,
             project=self.project,
