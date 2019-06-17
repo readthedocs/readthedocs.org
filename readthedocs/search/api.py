@@ -1,13 +1,14 @@
 import logging
+import os
 from pprint import pformat
 
-from rest_framework import generics
-from rest_framework import serializers
+from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
 from readthedocs.search.utils import get_project_list_or_404
+
 
 log = logging.getLogger(__name__)
 
@@ -23,10 +24,29 @@ class PageSearchSerializer(serializers.Serializer):
     version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.CharField()
+    # Doc url without extension
     link = serializers.SerializerMethodField()
+    # Doc url with extension
+    url = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
 
     def get_link(self, obj):
+        """
+        Gets the url without extension.
+
+        .. warning::
+           This is only used to keep compatibility with
+           the previous search implementation.
+           Use `url` instead.
+        """
+        projects_url = self.context.get('projects_url')
+        if projects_url:
+            docs_url = projects_url[obj.project]
+            path = os.path.splitext(obj.path)[0]
+            return docs_url + path
+
+    def get_url(self, obj):
+        """Gets the full url."""
         projects_url = self.context.get('projects_url')
         if projects_url:
             docs_url = projects_url[obj.project]

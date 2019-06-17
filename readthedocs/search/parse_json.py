@@ -71,12 +71,14 @@ def process_file(fjson_filename, filename):
     sections = []
     title = ''
     body_content = ''
-    if 'body' in data and data['body']:
+
+    if data.get('body'):
         body = PyQuery(data['body'])
         body_content = body.text().replace('¶', '')
         sections.extend(generate_sections_from_pyquery(body))
     else:
         log.info('Unable to index content for: %s', fjson_filename)
+
     if 'title' in data:
         title = data['title']
         if title.startswith('<'):
