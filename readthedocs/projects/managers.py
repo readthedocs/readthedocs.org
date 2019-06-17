@@ -24,4 +24,3 @@ class HTMLFileManagerBase(models.Manager):
 
 class HTMLFileManager(SettingsOverrideObject):
     _default_class = HTMLFileManagerBase
-
