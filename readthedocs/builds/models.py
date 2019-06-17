@@ -41,7 +41,7 @@ from readthedocs.builds.constants import (
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
-    PULL_REQUEST,
+    EXTERNAL,
     STABLE,
     TAG,
     VERSION_TYPES,
@@ -119,7 +119,7 @@ class Version(models.Model):
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKONWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
-    # Only include PULL_REQUEST type Versions.
+    # Only include EXTERNAL type Versions.
     external = ExternalVersionManager.from_queryset(VersionQuerySet)()
 
     class Meta:
@@ -155,7 +155,7 @@ class Version(models.Model):
         Generate VCS (github, gitlab, bitbucket) URL for this version.
 
         Branch/Tag Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
-        Pull Request Example: https://github.com/rtfd/readthedocs.org/pull/9999/.
+        Pull/merge Request Example: https://github.com/rtfd/readthedocs.org/pull/9999/.
         """
         url = ''
         if self.slug == STABLE:
@@ -165,7 +165,7 @@ class Version(models.Model):
         else:
             slug_url = self.slug
 
-        if self.type == PULL_REQUEST:
+        if self.type == EXTERNAL:
             if 'github' in self.project.repo:
                 url = f'/pull/{slug_url}/'
 
@@ -245,14 +245,14 @@ class Version(models.Model):
             # the actual tag name.
             return self.verbose_name
 
-        if self.type == PULL_REQUEST:
-            # If this version is a Pull Request, the identifier will
+        if self.type == EXTERNAL:
+            # If this version is a EXTERNAL version, the identifier will
             # contain the actual commit hash. which we can use to
             # generate url for a given file name
             return self.identifier
 
         # If we came that far it's not a special version
-        # nor a branch, tag or Pull Request.
+        # nor a branch, tag or EXTERNAL version.
         # Therefore just return the identifier to make a safe guess.
         log.debug(
             'TODO: Raise an exception here. Testing what cases it happens',

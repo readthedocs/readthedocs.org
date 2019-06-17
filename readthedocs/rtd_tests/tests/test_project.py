@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     LATEST,
-    PULL_REQUEST,
+    EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -30,7 +30,7 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: PULL_REQUEST type Version.
+        # Create a External Version. ie: pull/merge request Version.
         self.pr_version = get(
             Version,
             identifier='pr-version',
@@ -38,7 +38,7 @@ class ProjectMixin:
             slug='pr-9999',
             project=self.pip,
             active=True,
-            type=PULL_REQUEST
+            type=EXTERNAL
         )
 
 
@@ -156,7 +156,7 @@ class TestProject(ProjectMixin, TestCase):
 
     def test_update_stable_version_excludes_pr_versions(self):
         # Delete all versions excluding PR Versions.
-        self.pip.versions.exclude(type=PULL_REQUEST).delete()
+        self.pip.versions.exclude(type=EXTERNAL).delete()
         # Test that PR Version is not considered for stable.
         self.assertEqual(self.pip.update_stable_version(), None)
 

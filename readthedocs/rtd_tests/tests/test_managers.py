@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import PULL_REQUEST, BRANCH, TAG
+from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
 from readthedocs.projects.models import Project
@@ -19,29 +19,29 @@ class TestVersionManagerBase(TestCase):
         self.user = User.objects.create(username='test_user', password='test')
         self.client.login(username='test_user', password='test')
         self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: PULL_REQUEST type Version.
+        # Create a External Version. ie: pull/merge request Version.
         self.public_pr_version = get(
             Version,
             project=self.pip,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PUBLIC
         )
         self.private_pr_version = get(
             Version,
             project=self.pip,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PRIVATE
         )
         self.protected_pr_version = get(
             Version,
             project=self.pip,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PROTECTED
         )
-        self.internal_versions = Version.objects.exclude(type=PULL_REQUEST)
+        self.internal_versions = Version.objects.exclude(type=EXTERNAL)
 
 
 class TestInternalVersionManager(TestVersionManagerBase):
@@ -49,7 +49,7 @@ class TestInternalVersionManager(TestVersionManagerBase):
     """
     Queries using Internal Manager should only include Internal Versions.
 
-    It will exclude PULL_REQUEST type Versions from the queries
+    It will exclude EXTERNAL type Versions from the queries
     and only include BRANCH, TAG, UNKONWN type Versions.
     """
 
@@ -83,7 +83,7 @@ class TestExternalVersionManager(TestVersionManagerBase):
     """
     Queries using External Manager should only include External Versions.
 
-    It will only include PULL_REQUEST type Versions in the queries.
+    It will only include pull/merge request Version in the queries.
     """
 
     def test_external_version_manager_with_all(self):

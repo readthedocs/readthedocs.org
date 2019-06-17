@@ -12,7 +12,7 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 from mock import patch
 
-from readthedocs.builds.constants import LATEST, PULL_REQUEST
+from readthedocs.builds.constants import LATEST, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
@@ -377,7 +377,7 @@ class TestPublicViews(MockBuildTestCase):
             slug='pr-9999',
             project=self.pip,
             active=True,
-            type=PULL_REQUEST
+            type=EXTERNAL
         )
 
     def test_project_download_media(self):

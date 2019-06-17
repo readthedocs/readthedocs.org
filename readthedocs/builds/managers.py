@@ -19,7 +19,7 @@ from .constants import (
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
-    PULL_REQUEST,
+    EXTERNAL,
 )
 from .querysets import VersionQuerySet
 
@@ -91,12 +91,12 @@ class InternalVersionManagerBase(VersionManagerBase):
     """
     Version manager that only includes internal version.
 
-    It will exclude PULL_REQUEST type from the queries
+    It will exclude pull request/merge request versions from the queries
     and only include BRANCH, TAG, UNKONWN type Versions.
     """
 
     def get_queryset(self):
-        return super().get_queryset().exclude(type=PULL_REQUEST)
+        return super().get_queryset().exclude(type=EXTERNAL)
 
 
 class ExternalVersionManagerBase(VersionManagerBase):
@@ -104,11 +104,11 @@ class ExternalVersionManagerBase(VersionManagerBase):
     """
     Version manager that only includes external version.
 
-    It will only include PULL_REQUEST type Versions in the queries.
+    It will only include pull request/merge request Versions in the queries.
     """
 
     def get_queryset(self):
-        return super().get_queryset().filter(type=PULL_REQUEST)
+        return super().get_queryset().filter(type=EXTERNAL)
 
 
 class VersionManager(SettingsOverrideObject):
