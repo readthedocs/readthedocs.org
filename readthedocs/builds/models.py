@@ -638,7 +638,7 @@ class Build(models.Model):
     objects = BuildManager.from_queryset(BuildQuerySet)()
     # Only include BRANCH, TAG, UNKONWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
-    # Only include PULL_REQUEST type Version builds.
+    # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
     CONFIG_KEY = '__config'

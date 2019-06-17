@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST, PULL_REQUEST
+from readthedocs.builds.constants import LATEST, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.forms import UpdateProjectForm
@@ -283,7 +283,7 @@ class BuildViewTests(TestCase):
             Version,
             project = self.pip,
             active = True,
-            type = PULL_REQUEST,
+            type = EXTERNAL,
         )
         pr_version_build = get(
             Build,

@@ -162,7 +162,7 @@ class TestProject(ProjectMixin, TestCase):
 
     def test_has_good_build_excludes_pr_versions(self):
         # Delete all versions excluding PR Versions.
-        self.pip.versions.exclude(type=PULL_REQUEST).delete()
+        self.pip.versions.exclude(type=EXTERNAL).delete()
         # Test that PR Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
 

@@ -149,12 +149,12 @@ class InternalBuildManagerBase(BuildManagerBase):
     """
     Build manager that only includes internal version builds.
 
-    It will exclude PULL_REQUEST type Version builds from the queries
+    It will exclude pull request/merge request version builds from the queries
     and only include BRANCH, TAG, UNKONWN type Version builds.
     """
 
     def get_queryset(self):
-        return super().get_queryset().exclude(version__type=PULL_REQUEST)
+        return super().get_queryset().exclude(version__type=EXTERNAL)
 
 
 class ExternalBuildManagerBase(BuildManagerBase):
@@ -162,11 +162,11 @@ class ExternalBuildManagerBase(BuildManagerBase):
     """
     Build manager that only includes external version builds.
 
-    It will only include PULL_REQUEST type Versions builds in the queries.
+    It will only include pull request/merge request version builds in the queries.
     """
 
     def get_queryset(self):
-        return super().get_queryset().filter(version__type=PULL_REQUEST)
+        return super().get_queryset().filter(version__type=EXTERNAL)
 
 
 class BuildManager(SettingsOverrideObject):

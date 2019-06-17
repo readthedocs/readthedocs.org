@@ -134,12 +134,12 @@ class TestBuildManagerBase(TestCase):
         self.client.login(username='test_user', password='test')
         self.pip = Project.objects.get(slug='pip')
         print(self.pip.versions.all())
-        # Create a External Version and build. ie: PULL_REQUEST type Version.
+        # Create a External Version and build. ie: pull/merge request Version.
         self.pr_version = get(
             Version,
             project=self.pip,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PUBLIC
         )
         self.pr_version_build = get(
@@ -154,7 +154,7 @@ class TestBuildManagerBase(TestCase):
             version=self.pip.versions.get(slug='0.8')
         )
 
-        self.internal_builds = Build.objects.exclude(version__type=PULL_REQUEST)
+        self.internal_builds = Build.objects.exclude(version__type=EXTERNAL)
 
 
 class TestInternalBuildManager(TestBuildManagerBase):
@@ -162,7 +162,7 @@ class TestInternalBuildManager(TestBuildManagerBase):
     """
     Queries using Internal Manager should only include Internal Version builds.
 
-    It will exclude PULL_REQUEST type Version builds from the queries
+    It will exclude pull/merge request Version builds from the queries
     and only include BRANCH, TAG, UNKONWN type Versions.
     """
 
@@ -187,7 +187,7 @@ class TestExternalBuildManager(TestBuildManagerBase):
     """
     Queries using External Manager should only include External Version builds.
 
-    It will only include PULL_REQUEST type Version builds in the queries.
+    It will only include pull/merge request Version builds in the queries.
     """
 
     def test_external_build_manager_with_all(self):
