@@ -46,3 +46,4 @@ branches:
   - master
   - rel # Community release branch
   - relcorp # Corporate release branch
+  - gsoc-19-pr-builder # GSoC PR Builder feature branch
