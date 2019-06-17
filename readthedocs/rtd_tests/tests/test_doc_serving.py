@@ -10,7 +10,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
-from readthedocs.builds.constants import PULL_REQUEST, INTERNAL
+from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -249,7 +249,7 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
-        # This is a Pull Request Version
+        # This is a EXTERNAL Version
         pr_version = fixture.get(
             Version,
             identifier='pr-version',
@@ -257,7 +257,7 @@ class TestPublicDocs(BaseDocServing):
             slug='pr-9999',
             project=self.public,
             active=True,
-            type=PULL_REQUEST
+            type=EXTERNAL
         )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(

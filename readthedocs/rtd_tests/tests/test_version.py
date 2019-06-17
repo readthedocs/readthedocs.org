@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import PULL_REQUEST, BRANCH, TAG
+from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -13,7 +13,7 @@ class VersionMixin:
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: PULL_REQUEST type Version.
+        # Create a External Version. ie: pull/merge request Version.
         self.pr_version = get(
             Version,
             identifier='9F86D081884C7D659A2FEAA0C55AD015A',
@@ -21,7 +21,7 @@ class VersionMixin:
             slug='9999',
             project=self.pip,
             active=True,
-            type=PULL_REQUEST
+            type=EXTERNAL
         )
         self.branch_version = get(
             Version,
