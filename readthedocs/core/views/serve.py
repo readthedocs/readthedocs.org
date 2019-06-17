@@ -38,6 +38,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
@@ -373,14 +374,14 @@ def sitemap_xml(request, project):
         """
         Generator returning ``changefreq`` needed by sitemap.xml.
 
-        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        It returns ``weekly`` on first iteration, then ``daily`` and then it
         will return always ``monthly``.
 
         We are using ``monthly`` as last value because ``never`` is too
         aggressive. If the tag is removed and a branch is created with the same
         name, we will want bots to revisit this.
         """
-        changefreqs = ['daily', 'weekly']
+        changefreqs = ['weekly', 'daily']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     if project.privacy_level == constants.PRIVATE:
@@ -392,6 +393,19 @@ def sitemap_xml(request, project):
             only_active=True,
         ),
     )
+
+    # This is a hack to swap the latest version with
+    # stable version to get the stable version first in the sitemap.
+    # We want stable with priority=1 and changefreq='weekly' and
+    # latest with priority=0.9 and changefreq='daily'
+    # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
+    if (
+        len(sorted_versions) >= 2 and
+        sorted_versions[0].slug == LATEST and
+        sorted_versions[1].slug == STABLE
+    ):
+        sorted_versions[0], sorted_versions[1] = sorted_versions[1], sorted_versions[0]
+
     versions = []
     for version, priority, changefreq in zip(
             sorted_versions,
