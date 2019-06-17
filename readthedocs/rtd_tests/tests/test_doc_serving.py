@@ -10,15 +10,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-from readthedocs.builds.constants import LATEST
-=======
-from readthedocs.builds.constants import PULL_REQUEST, INTERNAL
->>>>>>> Tests added
-=======
 from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
->>>>>>> External version name added everywhere
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -248,15 +240,6 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
-        stable_version = fixture.get(
-            Version,
-            identifier='stable',
-            verbose_name='stable',
-            slug='stable',
-            privacy_level=constants.PUBLIC,
-            project=self.public,
-            active=True
-        )
         # This is a EXTERNAL Version
         pr_version = fixture.get(
             Version,
@@ -266,6 +249,15 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True,
             type=EXTERNAL
+        )
+        stable_version = fixture.get(
+            Version,
+            identifier='stable',
+            verbose_name='stable',
+            slug='stable',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
         )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
