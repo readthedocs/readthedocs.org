@@ -5,7 +5,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST, STABLE, PULL_REQUEST
+from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
@@ -391,7 +391,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             slug='pr-9999',
             project=self.project,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PUBLIC,
         )
         form = ProjectAdvancedForm(instance=self.project)

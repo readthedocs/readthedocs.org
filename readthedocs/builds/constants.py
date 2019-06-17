@@ -31,15 +31,21 @@ BUILD_TYPES = (
     ('dash', _('Dash')),
 )
 
+# Manager name for Internal Versions or Builds.
+# ie: Versions and Builds Excluding pull request/merge request Versions and Builds.
+INTERNAL = 'internal'
+# Manager name for External Versions or Builds.
+# ie: Only pull request/merge request Versions and Builds.
+EXTERNAL = 'external'
+
 BRANCH = 'branch'
 TAG = 'tag'
-PULL_REQUEST = 'pull_request'
 UNKNOWN = 'unknown'
 
 VERSION_TYPES = (
     (BRANCH, _('Branch')),
     (TAG, _('Tag')),
-    (PULL_REQUEST, _('Pull Request')),
+    (EXTERNAL, _('External')),
     (UNKNOWN, _('Unknown')),
 )
 
@@ -55,10 +61,3 @@ NON_REPOSITORY_VERSIONS = (
     LATEST,
     STABLE,
 )
-
-# Manager name for Internal Versions or Builds.
-# ie: Versions and Builds Excluding PULL_REQUEST Type.
-INTERNAL = 'internal'
-# Manager name for External Versions or Builds.
-# ie: Only PULL_REQUEST Type Versions and Builds.
-EXTERNAL = 'external'
