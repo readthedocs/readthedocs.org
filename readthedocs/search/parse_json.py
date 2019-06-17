@@ -69,8 +69,14 @@ def process_file(fjson_filename, filename):
         raise
     data = json.loads(file_contents)
     sections = []
+    path = ''
     title = ''
     body_content = ''
+
+    if 'current_page_name' in data:
+        path = data['current_page_name']
+    else:
+        log.info('Unable to index file due to no name %s', filename)
 
     if data.get('body'):
         body = PyQuery(data['body'])
@@ -89,7 +95,8 @@ def process_file(fjson_filename, filename):
     return {
         'headers': process_headers(data, fjson_filename),
         'content': body_content,
-        'path': filename,
+        'path': path,
+        'full_path': filename,
         'title': title,
         'sections': sections,
     }

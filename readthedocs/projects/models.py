@@ -1254,7 +1254,8 @@ class HTMLFile(ImportedFile):
         return {
             'headers': [],
             'content': '',
-            'path': self.path,
+            'path': file_path,
+            'full_path': self.path,
             'title': '',
             'sections': [],
         }

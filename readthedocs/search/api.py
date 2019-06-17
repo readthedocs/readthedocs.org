@@ -42,15 +42,14 @@ class PageSearchSerializer(serializers.Serializer):
         projects_url = self.context.get('projects_url')
         if projects_url:
             docs_url = projects_url[obj.project]
-            path = os.path.splitext(obj.path)[0]
-            return docs_url + path
+            return docs_url + obj.path
 
     def get_url(self, obj):
         """Gets the full url."""
         projects_url = self.context.get('projects_url')
         if projects_url:
             docs_url = projects_url[obj.project]
-            return docs_url + obj.path
+            return docs_url + obj.full_path
 
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
