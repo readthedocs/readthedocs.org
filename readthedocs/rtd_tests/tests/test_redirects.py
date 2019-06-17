@@ -184,6 +184,110 @@ class RedirectAppTests(TestCase):
         self.assertEqual(r.status_code, 404)
 
     @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_prefix_crossdomain(self):
+        """
+        Avoid redirecting to an external site unless the external site is in to_url
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='prefix',
+            from_url='/',
+        )
+
+        r = self.client.get('http://testserver/http://my.host/path.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/http://my.host/path.html',
+        )
+
+        r = self.client.get('http://testserver//my.host/path.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/my.host/path.html',
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_sphinx_htmldir_crossdomain(self):
+        """
+        Avoid redirecting to an external site unless the external site is in to_url
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_htmldir',
+        )
+
+        r = self.client.get('http://testserver/http://my.host/path.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/http://my.host/path/',
+        )
+
+        r = self.client.get('http://testserver//my.host/path.html', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/my.host/path/',
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
+    def test_redirect_sphinx_html_crossdomain(self):
+        """
+        Avoid redirecting to an external site unless the external site is in to_url
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_html',
+        )
+
+        r = self.client.get('http://testserver/http://my.host/path/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/http://my.host/path.html',
+        )
+
+        r = self.client.get('http://testserver//my.host/path/', HTTP_HOST='pip.readthedocs.org')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://pip.readthedocs.org/en/latest/my.host/path.html',
+        )
+
+    def test_redirect_sphinx_htmldir_crossdomain_nosubdomain(self):
+        """
+        Avoid redirecting to an external site unless the external site is in to_url
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_htmldir',
+        )
+
+        r = self.client.get('/docs/pip/http://my.host/path.html')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://testserver/docs/pip/en/latest/http://my.host/path/',
+        )
+
+        r = self.client.get('/docs/pip//my.host/path.html')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://testserver/docs/pip/en/latest/my.host/path/',
+        )
+
+    def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
+        """
+        Avoid redirecting to an external site unless the external site is in to_url
+        """
+        Redirect.objects.create(
+            project=self.pip, redirect_type='sphinx_html',
+        )
+
+        r = self.client.get('/docs/pip//http://my.host/path/')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://testserver/docs/pip/en/latest/http://my.host/path.html',
+        )
+
+        r = self.client.get('/docs/pip//my.host/path/')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://testserver/docs/pip/en/latest/my.host/path.html',
+        )
+
+    @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_root(self):
         Redirect.objects.create(
             project=self.pip, redirect_type='prefix', from_url='/woot/',
@@ -451,8 +555,14 @@ class GetFullPathTests(TestCase):
         self.redirect = get(Redirect, project=self.proj)
 
     def test_http_filenames_return_themselves(self):
+        # If the crossdomain flag is False (default), then we don't redirect to a different host
         self.assertEqual(
             self.redirect.get_full_path('http://rtfd.org'),
+            '/docs/read-the-docs/en/latest/http://rtfd.org',
+        )
+
+        self.assertEqual(
+            self.redirect.get_full_path('http://rtfd.org', allow_crossdomain=True),
             'http://rtfd.org',
         )
 

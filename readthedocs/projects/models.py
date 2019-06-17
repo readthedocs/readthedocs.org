@@ -1191,6 +1191,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=4096)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):

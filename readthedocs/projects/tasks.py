@@ -6,7 +6,6 @@ rebuilding documentation.
 """
 
 import datetime
-import fnmatch
 import hashlib
 import json
 import logging
@@ -61,6 +60,7 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import APIProject, Feature
+from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
 from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
@@ -73,8 +73,6 @@ from .signals import (
     after_vcs,
     before_build,
     before_vcs,
-    bulk_post_create,
-    bulk_post_delete,
     domain_verify,
     files_changed,
 )
@@ -869,6 +867,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             callback=sync_callback.s(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
+                build=self.build['id'],
             ),
         )
 
@@ -1245,7 +1244,7 @@ def symlink_subproject(project_pk):
 
 
 @app.task(queue='web')
-def fileify(version_pk, commit):
+def fileify(version_pk, commit, build):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1265,39 +1264,40 @@ def fileify(version_pk, commit):
                 'msg': (
                     'Search index not being built because no commit information'
                 ),
-            }
+            },
         )
         return
 
     path = project.rtd_build_path(version.slug)
-    if path:
-        log.info(
-            LOG_TEMPLATE,
-            {
-                'project': version.project.slug,
-                'version': version.slug,
-                'msg': 'Creating ImportedFiles',
-            }
-        )
-        try:
-            _manage_imported_files(version, path, commit)
-        except Exception:
-            log.exception('Failed during ImportedFile creation')
+    log.info(
+        LOG_TEMPLATE,
+        {
+            'project': version.project.slug,
+            'version': version.slug,
+            'msg': 'Creating ImportedFiles',
+        }
+    )
+    try:
+        _manage_imported_files(version, path, commit, build)
+    except Exception:
+        log.exception('Failed during ImportedFile creation')
 
-        try:
-            _update_intersphinx_data(version, path, commit)
-        except Exception:
-            log.exception('Failed during SphinxDomain creation')
+    try:
+        _update_intersphinx_data(version, path, commit, build)
+    except Exception:
+        log.exception('Failed during SphinxDomain creation')
 
 
-def _update_intersphinx_data(version, path, commit):
+def _update_intersphinx_data(version, path, commit, build):
     """
     Update intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
+    :param build: Build id
     """
+
     object_file = os.path.join(path, 'objects.inv')
     if not os.path.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
@@ -1330,25 +1330,33 @@ def _update_intersphinx_data(version, path, commit):
         def warn(self, msg):
             log.warning('Sphinx MockApp: %s', msg)
 
-    created_sphinx_domains = []
-
+    # Re-create all objects from the new build of the version
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
     for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
         for name, einfo in sorted(value.items()):
             # project, version, url, display_name
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
-            url = einfo[2]
-            if '#' in url:
-                doc_name, anchor = url.split(
-                    '#',
-                    # The anchor can contain ``#`` characters
-                    maxsplit=1
+            try:
+                url = einfo[2]
+                if '#' in url:
+                    doc_name, anchor = url.split(
+                        '#',
+                        # The anchor can contain ``#`` characters
+                        maxsplit=1
+                    )
+                else:
+                    doc_name, anchor = url, ''
+                display_name = einfo[3]
+            except Exception:
+                log.exception(
+                    'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
+                    version.project.slug,
+                    version.slug,
+                    f'domain->name',
                 )
-            else:
-                doc_name, anchor = url, ''
-            display_name = einfo[3]
-            obj, created = SphinxDomain.objects.get_or_create(
+                continue
+            SphinxDomain.objects.create(
                 project=version.project,
                 version=version,
                 domain=domain,
@@ -1359,39 +1367,37 @@ def _update_intersphinx_data(version, path, commit):
                 doc_name=doc_name,
                 doc_display=titles.get(doc_name, ''),
                 anchor=anchor,
+                commit=commit,
+                build=build,
             )
-            if obj.commit != commit:
-                obj.commit = commit
-                obj.save()
-            if created:
-                created_sphinx_domains.append(obj)
 
-    # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=SphinxDomain, instance_list=created_sphinx_domains, commit=commit)
+    # Index new SphinxDomain objects to elasticsearch
+    index_new_files(model=SphinxDomain, version=version, build=build)
 
-    # Delete the SphinxDomain first from previous commit and
-    # send bulk_post_delete signal for bulk removing from Elasticsearch
-    delete_queryset = (
-        SphinxDomain.objects.filter(project=version.project,
-                                    version=version
-                                    ).exclude(commit=commit)
+    # Remove old SphinxDomain from elasticsearch
+    remove_indexed_files(
+        model=SphinxDomain,
+        version=version,
+        build=build,
     )
-    # Keep the objects into memory to send it to signal
-    instance_list = list(delete_queryset)
-    # Always pass the list of instance, not queryset.
-    bulk_post_delete.send(sender=SphinxDomain, instance_list=instance_list, commit=commit)
 
-    # Delete from previous versions
-    delete_queryset.delete()
+    # Delete SphinxDomain objects from the previous build of the version.
+    (
+        SphinxDomain.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
+    )
 
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if (
-        not version or
-        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
-    ):
+    try:
+        version = SyncRepositoryMixin.get_version(version_pk)
+    except Exception:
+        log.exception('Error while fetching the version from the api')
+        return False
+    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
@@ -1413,85 +1419,83 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, path, commit):
+def _manage_imported_files(version, path, commit, build):
     """
     Update imported files for version.
 
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
+    :param build: Build id
     """
+
     changed_files = set()
-    created_html_files = []
+    # Re-create all objects from the new build of the version
     for root, __, filenames in os.walk(path):
         for filename in filenames:
-            if fnmatch.fnmatch(filename, '*.html'):
+            if filename.endswith('.html'):
                 model_class = HTMLFile
             else:
                 model_class = ImportedFile
 
-            dirpath = os.path.join(
-                root.replace(path, '').lstrip('/'), filename.lstrip('/')
-            )
             full_path = os.path.join(root, filename)
-            md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            relpath = os.path.relpath(full_path, path)
             try:
-                # pylint: disable=unpacking-non-sequence
-                obj, created = model_class.objects.get_or_create(
-                    project=version.project,
-                    version=version,
-                    path=dirpath,
-                    name=filename,
+                md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+            except Exception:
+                log.exception(
+                    'Error while generating md5 for %s:%s:%s. Don\'t stop.',
+                    version.project.slug,
+                    version.slug,
+                    relpath,
                 )
-            except model_class.MultipleObjectsReturned:
-                log.warning('Error creating ImportedFile')
-                continue
-            if obj.md5 != md5:
-                obj.md5 = md5
-                changed_files.add(dirpath)
-            if obj.commit != commit:
-                obj.commit = commit
-            obj.save()
+                md5 = ''
+            # Keep track of changed files to be purged in the CDN
+            obj = (
+                model_class.objects
+                .filter(project=version.project, version=version, path=relpath)
+                .order_by('-modified_date')
+                .first()
+            )
+            if obj and md5 and obj.md5 != md5:
+                changed_files.add(
+                    resolve_path(
+                        version.project,
+                        filename=relpath,
+                        version_slug=version.slug,
+                    ),
+                )
+            # Create imported files from new build
+            model_class.objects.create(
+                project=version.project,
+                version=version,
+                path=relpath,
+                name=filename,
+                md5=md5,
+                commit=commit,
+                build=build,
+            )
 
-            if created and model_class == HTMLFile:
-                # the `obj` is HTMLFile, so add it to the list
-                created_html_files.append(obj)
+    # Index new HTMLFiles to elasticsearch
+    index_new_files(model=HTMLFile, version=version, build=build)
 
-    # Send bulk_post_create signal for bulk indexing to Elasticsearch
-    bulk_post_create.send(sender=HTMLFile, instance_list=created_html_files,
-                          version=version, commit=commit)
-
-    # Delete the HTMLFile first from previous commit and
-    # send bulk_post_delete signal for bulk removing from Elasticsearch
-    delete_queryset = (
-        HTMLFile.objects.filter(project=version.project,
-                                version=version).exclude(commit=commit)
+    # Remove old HTMLFiles from elasticsearch
+    remove_indexed_files(
+        model=HTMLFile,
+        version=version,
+        build=build,
     )
 
-    # Keep the objects into memory to send it to signal
-    instance_list = list(delete_queryset)
+    # Delete ImportedFiles objects (including HTMLFiles)
+    # from the previous build of the version.
+    (
+        ImportedFile.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
+    )
 
-    # Always pass the list of instance, not queryset.
-    # These objects must exist though,
-    # because the task will query the DB for the objects before deleting
-    bulk_post_delete.send(sender=HTMLFile, instance_list=instance_list,
-                          version=version, commit=commit)
-
-    # Delete ImportedFiles from previous versions
-    delete_queryset.delete()
-
-    # This is required to delete ImportedFile objects that aren't HTMLFile objects,
-    ImportedFile.objects.filter(
-        project=version.project, version=version
-    ).exclude(commit=commit).delete()
-
-    changed_files = [
-        resolve_path(
-            version.project,
-            filename=file,
-            version_slug=version.slug,
-        ) for file in changed_files
-    ]
+    # Send signal with changed files
     files_changed.send(
         sender=Project,
         project=version.project,
@@ -1691,14 +1695,14 @@ def remove_build_storage_paths(paths):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, *args, **kwargs):
+def sync_callback(_, version_pk, commit, build, *args, **kwargs):
     """
     Called once the sync_files tasks are done.
 
     The first argument is the result from previous tasks, which we discard.
     """
     try:
-        fileify(version_pk, commit=commit)
+        fileify(version_pk, commit=commit, build=build)
     except Exception:
         log.exception('Post sync tasks failed, not stopping build')
 

@@ -1,4 +1,5 @@
 import mock
+from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
@@ -80,7 +81,8 @@ class Testmaker(APITestCase):
         # Null session here
         request = self.factory.get('/api/v2/footer_html/')
         mid.process_request(request)
-        self.assertEqual(request.session, {})
+        self.assertIsInstance(request.session, SessionBase)
+        self.assertEqual(list(request.session.keys()), [])
 
         # Proper session here
         home_request = self.factory.get('/')
