@@ -46,6 +46,7 @@ subdomain_urls = [
         serve_docs,
         name='docs_detail',
     ),
+
 ]
 
 groups = [subdomain_urls]

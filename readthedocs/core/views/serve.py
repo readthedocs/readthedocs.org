@@ -111,11 +111,27 @@ def map_project_slug(view_func):
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
     urlparse_result = urlparse(request.get_full_path())
+
+    # When accessing docs.customdomain.org/projects/subproject/ and the
+    # ``subproject`` is a single-version, we don't have to redirect but to serve
+    # the index file instead.
+    if subproject and subproject.single_version:
+        try:
+            # HACK: this only affects corporate site and won't be hit on the
+            # community. This can be removed once the middleware incorporates
+            # more data or redirects happen outside this application
+            # See: https://github.com/rtfd/readthedocs.org/pull/5690
+            log.warning('Serving docs for a single-version subproject instead redirecting')
+            from readthedocsinc.core.views import serve_docs as corporate_serve_docs  # noqa
+            return corporate_serve_docs(request, project, project.slug, subproject, subproject.slug)
+        except Exception:
+            log.exception('Error trying to redirect a single-version subproject')
+
     return HttpResponseRedirect(
         resolve(
             subproject or project,
             query_params=urlparse_result.query,
-        )
+        ),
     )
 
 
