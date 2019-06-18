@@ -148,7 +148,8 @@ class Backend(BaseVCS):
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def fetch(self):
-        cmd = ['git', 'fetch', 'origin', DEFAULT_GIT_PATTERN, GITHUB_GIT_PATTERN,
+        cmd = ['git', 'fetch', 'origin',
+               DEFAULT_GIT_PATTERN, GITHUB_GIT_PATTERN,
                '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
