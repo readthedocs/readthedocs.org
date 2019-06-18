@@ -38,9 +38,10 @@ function attach_elastic_search_query(data) {
                         var list_item = $('<li style="display: none;"></li>');
 
                         // Creating the result from elements
-                        var url = doc.url + '?highlight=' + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
+                                   '?highlight=' + $.urlencode(query);
 
-                        var item = $('<a>', {'href': url});
+                        var item = $('<a>', {'href': link});
                         item.html(doc.title);
                         list_item.append(item);
 

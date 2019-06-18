@@ -1,5 +1,4 @@
 import logging
-import os
 from pprint import pformat
 
 from rest_framework import generics, serializers
@@ -24,32 +23,14 @@ class PageSearchSerializer(serializers.Serializer):
     version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.CharField()
-    # Doc url without extension
     link = serializers.SerializerMethodField()
-    # Doc url with extension
-    url = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
 
     def get_link(self, obj):
-        """
-        Gets the url without extension.
-
-        .. warning::
-           This is only used to keep compatibility with
-           the previous search implementation.
-           Use `url` instead.
-        """
         projects_url = self.context.get('projects_url')
         if projects_url:
             docs_url = projects_url[obj.project]
             return docs_url + obj.path
-
-    def get_url(self, obj):
-        """Gets the full url."""
-        projects_url = self.context.get('projects_url')
-        if projects_url:
-            docs_url = projects_url[obj.project]
-            return docs_url + obj.full_path
 
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
