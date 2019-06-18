@@ -45,7 +45,9 @@
 
         <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
 
-        <li class="{{ external_builds_active }}"><a href="{{ project.get_external_builds_url }}">{% trans "External Builds" %}</a></li>
+        {% if project.has_external_builds %}
+            <li class="{{ external_builds_active }}"><a href="{{ project.get_external_builds_url }}">{% trans "External Builds" %}</a></li>
+        {% endif %}
 
         <li class="{{ versions_active }}"><a href="{% url "project_version_list" project.slug %}">{% trans "Versions" %}</a></li>
 

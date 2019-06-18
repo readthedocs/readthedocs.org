@@ -20,7 +20,7 @@ from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE, INTERNAL
+from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
@@ -1114,6 +1114,10 @@ class Project(models.Model):
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
         }
+
+    @property
+    def has_external_builds(self):
+        return self.builds(manager=EXTERNAL).exists()
 
 
 class APIProject(Project):

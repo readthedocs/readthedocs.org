@@ -172,6 +172,13 @@ class TestProject(ProjectMixin, TestCase):
             f'/projects/{self.pip.slug}/builds/pr/'
         )
 
+    def test_project_has_external_builds(self):
+        external_build = Build.objects.create(
+            project=self.pip,
+            version=self.external_version,
+        )
+        self.assertTrue(self.pip.has_external_builds)
+
 
 class TestProjectTranslations(ProjectMixin, TestCase):
 

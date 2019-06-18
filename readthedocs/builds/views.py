@@ -119,9 +119,10 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
 class ExternalBuildList(BuildBase, ListView):
     template_name = 'builds/external_build_list.html'
+    allow_empty = False
 
     def get_queryset(self):
-        # this is used to include only internal version
+        # this is used to include only external version
         # builds in the build list page
         self.project_slug = self.kwargs.get('project_slug', None)
         self.project = get_object_or_404(
