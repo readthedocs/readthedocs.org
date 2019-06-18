@@ -4,7 +4,7 @@ appdirs==1.4.3
 virtualenv==16.6.1
 
 django==1.11.21  # pyup: <1.12
-django-guardian==2.0.0
+django-guardian==1.5.1  # pyup: <2.0.0
 django-extensions==2.1.9
 django_polymorphic==2.0.3
 
