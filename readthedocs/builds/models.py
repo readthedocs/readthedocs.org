@@ -167,6 +167,7 @@ class Version(models.Model):
 
         if self.type == EXTERNAL:
             if 'github' in self.project.repo:
+                slug_url = self.verbose_name
                 url = f'/pull/{slug_url}/'
 
             if 'gitlab' in self.project.repo:
