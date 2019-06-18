@@ -134,7 +134,7 @@ class TestHTMLFileManager(TestCase):
         self.client.login(username='test_user', password='test')
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: pull/merge request Version.
-        self.pr_version = get(
+        self.external_version = get(
             Version,
             project=self.pip,
             active=True,
@@ -143,7 +143,7 @@ class TestHTMLFileManager(TestCase):
         )
         self.html_file = HTMLFile.objects.create(
             project=self.pip,
-            version=self.pr_version,
+            version=self.external_version,
             name='file.html',
             slug='file',
             path='file.html',

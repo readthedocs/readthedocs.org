@@ -241,7 +241,7 @@ class TestPublicDocs(BaseDocServing):
             active=True
         )
         # This is a EXTERNAL Version
-        pr_version = fixture.get(
+        external_version = fixture.get(
             Version,
             identifier='pr-version',
             verbose_name='pr-version',
