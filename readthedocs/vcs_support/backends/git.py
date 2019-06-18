@@ -56,11 +56,9 @@ class Backend(BaseVCS):
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
-            self.fetch()
-            return
-        self.make_clean_working_dir()
-        self.clone()
-        # Do a fetch to make sure we get all external versions
+        else:
+            self.make_clean_working_dir()
+            self.clone()
         self.fetch()
 
     def repo_exists(self):
