@@ -29,8 +29,8 @@ This might include tasks like:
 * Asking for a project name to be released
 * Troubleshooting build errors
 
-Members
-~~~~~~~
+Support team members
+~~~~~~~~~~~~~~~~~~~~
 
 * `Eric Holscher <https://github.com/ericholscher>`__ (Pacific Time)
 * `Anthony Johnson <https://github.com/agjohnson>`__ (Mountain Time)
@@ -39,8 +39,8 @@ Members
 
 **Please don't email us personally for support on Read the Docs.** You can email support@readthedocs.org for any issues you may have. 
 
-Joining
-~~~~~~~
+Joining the support team
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The best place to start would be to start addressing some of the issues in our issue tracker.
 We have our support policies quite well documented in our :doc:`/contribute`.
@@ -59,8 +59,8 @@ As part of operating the site,
 we maintain a 24/7 on-call rotation.
 This means that folks have to be available and have their phone in service.
 
-Members
-~~~~~~~
+Ops team members
+~~~~~~~~~~~~~~~~
 
 * `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
 * `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
@@ -69,8 +69,8 @@ Members
 
 Feel free to ask any of us if you have questions or want to join!
 
-Joining
-~~~~~~~
+Joining the ops team
+~~~~~~~~~~~~~~~~~~~~
 
 We are always looking for more people to share the on-call responsibility.
 If you are on-call for your job already,
@@ -103,8 +103,8 @@ Development Team
 Also known as the "Core Team" in other projects.
 These folks have the ability to commit code to the project.
 
-Members
-~~~~~~~
+Dev team members
+~~~~~~~~~~~~~~~~
 
 * `Eric Holscher <https://github.com/ericholscher>`_
 * `Anthony Johnson <https://github.com/agjohnson>`_
@@ -115,8 +115,8 @@ Members
 
 Feel free to ask any of us if you have questions or want to join!
 
-Joining
-~~~~~~~
+Joining the dev team
+~~~~~~~~~~~~~~~~~~~~
 
 We try to be pretty flexible with who we allow on the development team.
 The best path is to send a few pull requests,
