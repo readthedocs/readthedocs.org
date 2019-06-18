@@ -137,4 +137,9 @@ def escapejson(data, indent=None):
         ord('<'): '\\u003C',
         ord('&'): '\\u0026',
     }
-    return mark_safe(json.dumps(data, cls=DjangoJSONEncoder, indent=indent).translate(_json_script_escapes))
+    return mark_safe(
+        json.dumps(
+            data,
+            cls=DjangoJSONEncoder,
+            indent=indent,
+        ).translate(_json_script_escapes))
