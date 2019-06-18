@@ -1,6 +1,6 @@
 import pytest
 
-from readthedocs.builds.constants import PULL_REQUEST
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.documents import PageDocument
 
@@ -9,10 +9,10 @@ from readthedocs.search.documents import PageDocument
 @pytest.mark.search
 class TestPageDocument:
 
-    def test_get_queryset_does_not_include_pr_versions(self, project):
+    def test_get_queryset_does_not_include_external_versions(self, project):
         # turn version into PR Version
         version = project.versions.all()[0]
-        version.type = PULL_REQUEST
+        version.type = EXTERNAL
         version.save()
 
         html_file = HTMLFile.objects.filter(

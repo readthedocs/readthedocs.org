@@ -1,6 +1,5 @@
 from django.db import models
 
-from readthedocs.builds.constants import PULL_REQUEST
 from readthedocs.core.utils.extend import (
     get_override_class,
     SettingsOverrideObject

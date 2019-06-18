@@ -133,12 +133,12 @@ class TestHTMLFileManager(TestCase):
         self.user = User.objects.create(username='test_user', password='test')
         self.client.login(username='test_user', password='test')
         self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: PULL_REQUEST type Version.
+        # Create a External Version. ie: pull/merge request Version.
         self.pr_version = get(
             Version,
             project=self.pip,
             active=True,
-            type=PULL_REQUEST,
+            type=EXTERNAL,
             privacy_level=PUBLIC
         )
         self.html_file = HTMLFile.objects.create(
@@ -150,18 +150,18 @@ class TestHTMLFileManager(TestCase):
             md5='abcdef',
             commit='1234567890abcdef',
         )
-        self.internal_html_files = HTMLFile.objects.exclude(version__type=PULL_REQUEST)
+        self.internal_html_files = HTMLFile.objects.exclude(version__type=EXTERNAL)
 
     def test_internal_html_file_queryset(self):
         """
-        It will exclude PULL_REQUEST type Version html files from the queries
+        It will exclude pull/merge request Version html files from the queries
         and only include BRANCH, TAG, UNKONWN type Version files.
         """
         self.assertNotIn(self.html_file, HTMLFile.objects.internal())
 
     def test_external_html_file_queryset(self):
         """
-        It will only include PULL_REQUEST type Version html files in the queries.
+        It will only include pull/merge request Version html files in the queries.
         """
         self.assertNotIn(self.internal_html_files, HTMLFile.objects.external())
         self.assertIn(self.html_file, HTMLFile.objects.external())

@@ -5,7 +5,6 @@ from django_elasticsearch_dsl import DocType, Index, fields
 
 from elasticsearch import Elasticsearch
 
-from readthedocs.builds.constants import PULL_REQUEST
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.sphinx_domains.models import SphinxDomain
 
