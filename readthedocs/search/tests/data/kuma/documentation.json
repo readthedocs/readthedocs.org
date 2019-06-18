@@ -17,5 +17,6 @@
       "title": "Generating documentation"
     }
   ],
-  "path": "documentation"
+  "path": "documentation",
+  "full_path": "documentation.html"
 }
