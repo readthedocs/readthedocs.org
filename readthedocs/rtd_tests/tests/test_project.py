@@ -169,7 +169,7 @@ class TestProject(ProjectMixin, TestCase):
     def test_get_external_builds_url(self):
         self.assertEqual(
             self.pip.get_external_builds_url(),
-            f'/projects/{self.pip.slug}/builds/pr/'
+            f'/projects/{self.pip.slug}/builds/external/'
         )
 
     def test_project_has_external_builds(self):
