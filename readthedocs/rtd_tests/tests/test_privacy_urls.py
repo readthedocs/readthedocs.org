@@ -8,7 +8,8 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
-from readthedocs.builds.models import Build, BuildCommandResult
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -139,7 +140,11 @@ class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
+        self.external_version = get(Version, project=self.pip, type=EXTERNAL)
         self.build = get(Build, project=self.pip)
+        self.external_build = get(
+            Build, project=self.pip, version=self.external_version
+        )
         self.tag = get(Tag, slug='coolness')
         self.subproject = get(
             Project, slug='sub', language='ja',

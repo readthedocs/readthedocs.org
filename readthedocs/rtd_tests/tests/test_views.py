@@ -316,24 +316,9 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
-    def test_external_build_list_does_not_include_internal_version_builds(self):
-        internal_version = get(
-            Version,
-            project = self.pip,
-            active = True,
-            type = BRANCH,
-        )
-        internal_version_build = get(
-            Build,
-            project = self.pip,
-            version = internal_version
-        )
+    def test_external_build_list_returns_404_if_no_external_build_available(self):
         response = self.client.get(
             reverse('external_builds_project_list', args=[self.pip.slug]),
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(
-            internal_version_build,
-            response.context['build_qs']
-        )
+        self.assertEqual(response.status_code, 404)
