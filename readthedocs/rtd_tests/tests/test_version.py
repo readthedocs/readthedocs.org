@@ -14,7 +14,7 @@ class VersionMixin:
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: pull/merge request Version.
-        self.pr_version = get(
+        self.external_version = get(
             Version,
             identifier='9F86D081884C7D659A2FEAA0C55AD015A',
             verbose_name='pr-version',
@@ -45,9 +45,9 @@ class VersionMixin:
 
 class TestVersionModel(VersionMixin, TestCase):
 
-    def test_vcs_url_for_pr_version(self):
-        expected_url = f'https://github.com/pypa/pip/pull/{self.pr_version.slug}/'
-        self.assertEqual(self.pr_version.vcs_url, expected_url)
+    def test_vcs_url_for_external_version(self):
+        expected_url = f'https://github.com/pypa/pip/pull/{self.external_version.slug}/'
+        self.assertEqual(self.external_version.vcs_url, expected_url)
 
     def test_vcs_url_for_latest_version(self):
         slug = self.pip.default_branch or self.pip.vcs_repo().fallback_branch
@@ -64,5 +64,5 @@ class TestVersionModel(VersionMixin, TestCase):
     def test_commit_name_for_latest_version(self):
         self.assertEqual(self.tag_version.commit_name, 'master')
 
-    def test_commit_name_for_pr_version(self):
-        self.assertEqual(self.pr_version.commit_name, self.pr_version.identifier)
+    def test_commit_name_for_external_version(self):
+        self.assertEqual(self.external_version.commit_name, self.external_version.identifier)

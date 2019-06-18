@@ -383,8 +383,8 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 'default_branch'].widget.choices],
         )
 
-    def test_pr_version_not_in_default_branch_choices(self):
-        pr_version = get(
+    def test_external_version_not_in_default_branch_choices(self):
+        external_version = get(
             Version,
             identifier='pr-version',
             verbose_name='pr-version',
@@ -397,7 +397,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         form = ProjectAdvancedForm(instance=self.project)
 
         self.assertNotIn(
-            pr_version.verbose_name,
+            external_version.verbose_name,
             [identifier for identifier, _ in form.fields[
                 'default_branch'].widget.choices],
         )
