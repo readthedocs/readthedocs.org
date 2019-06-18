@@ -31,7 +31,7 @@ class ProjectMixin:
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
         # Create a External Version. ie: pull/merge request Version.
-        self.pr_version = get(
+        self.external_version = get(
             Version,
             identifier='pr-version',
             verbose_name='pr-version',
@@ -145,16 +145,16 @@ class TestProject(ProjectMixin, TestCase):
             'htmlzip/pip/latest/pip.zip',
         )
 
-    def test_ordered_active_versions_excludes_pr_versions(self):
-        self.assertNotIn(self.pr_version, self.pip.ordered_active_versions())
+    def test_ordered_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.ordered_active_versions())
 
-    def test_active_versions_excludes_pr_versions(self):
-        self.assertNotIn(self.pr_version, self.pip.active_versions())
+    def test_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.active_versions())
 
-    def test_all_active_versions_excludes_pr_versions(self):
-        self.assertNotIn(self.pr_version, self.pip.all_active_versions())
+    def test_all_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.all_active_versions())
 
-    def test_update_stable_version_excludes_pr_versions(self):
+    def test_update_stable_version_excludes_external_versions(self):
         # Delete all versions excluding PR Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
         # Test that PR Version is not considered for stable.

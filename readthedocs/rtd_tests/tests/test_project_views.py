@@ -370,7 +370,7 @@ class TestImportDemoView(MockBuildTestCase):
 class TestPublicViews(MockBuildTestCase):
     def setUp(self):
         self.pip = get(Project, slug='pip')
-        self.pr_version = get(
+        self.external_version = get(
             Version,
             identifier='pr-version',
             verbose_name='pr-version',
@@ -389,20 +389,20 @@ class TestPublicViews(MockBuildTestCase):
         url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.pr_version, response.context['versions'])
+        self.assertNotIn(self.external_version, response.context['versions'])
 
     def test_project_downloads_only_shows_internal_versons(self):
         url = reverse('project_downloads', args=[self.pip.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.pr_version, response.context['versions'])
+        self.assertNotIn(self.external_version, response.context['versions'])
 
     def test_project_versions_only_shows_internal_versons(self):
         url = reverse('project_version_list', args=[self.pip.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.pr_version, response.context['active_versions'])
-        self.assertNotIn(self.pr_version, response.context['inactive_versions'])
+        self.assertNotIn(self.external_version, response.context['active_versions'])
+        self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
 class TestPrivateViews(MockBuildTestCase):

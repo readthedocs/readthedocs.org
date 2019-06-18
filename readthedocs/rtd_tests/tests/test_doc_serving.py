@@ -259,6 +259,16 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
+        # This is a EXTERNAL Version
+        external_version = fixture.get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.public,
+            active=True,
+            type=EXTERNAL
+        )
         # This also creates a Version `latest` Automatically for this project
         translation = fixture.get(
             Project,
@@ -317,7 +327,7 @@ class TestPublicDocs(BaseDocServing):
         self.assertNotContains(
             response,
             self.public.get_docs_url(
-                version_slug=pr_version.slug,
+                version_slug=external_version.slug,
                 lang_slug=self.public.language,
                 private=True,
             ),

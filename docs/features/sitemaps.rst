@@ -12,7 +12,7 @@ and communicate them additional information about each URL of the project:
 Read the Docs automatically generates a sitemap for each project that hosts
 to improve results when performing a search on these search engines.
 This allow us to prioritize results based on the version number, for example
-to show ``latest`` as the top result followed by ``stable`` and then all the project's
+to show ``stable`` as the top result followed by ``latest`` and then all the project's
 versions sorted following semver_.
 
 .. _semver: https://semver.org/
