@@ -210,7 +210,7 @@
 
                       {% elif 'page' in result.meta.index %}
 
-                        <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">
+                        <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
                           {{ result.project }} - {{ result.title }}
                         </a>
                         {% for fragment in result.meta.highlight.content %}

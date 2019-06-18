@@ -59,38 +59,41 @@ def generate_sections_from_pyquery(body):
         }
 
 
-def process_file(filename):
-    """Read a file from disk and parse it into a structured dict."""
+def process_file(fjson_filename):
+    """Read the fjson file from disk and parse it into a structured dict."""
     try:
-        with codecs.open(filename, encoding='utf-8', mode='r') as f:
+        with codecs.open(fjson_filename, encoding='utf-8', mode='r') as f:
             file_contents = f.read()
     except IOError:
-        log.info('Unable to read file: %s', filename)
-        return None
+        log.info('Unable to read file: %s', fjson_filename)
+        raise
     data = json.loads(file_contents)
     sections = []
+    path = ''
     title = ''
     body_content = ''
+
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:
-        log.info('Unable to index file due to no name %s', filename)
-        return None
-    if 'body' in data and data['body']:
+        log.info('Unable to index file due to no name %s', fjson_filename)
+
+    if data.get('body'):
         body = PyQuery(data['body'])
         body_content = body.text().replace('¶', '')
         sections.extend(generate_sections_from_pyquery(body))
     else:
-        log.info('Unable to index content for: %s', filename)
+        log.info('Unable to index content for: %s', fjson_filename)
+
     if 'title' in data:
         title = data['title']
         if title.startswith('<'):
             title = PyQuery(data['title']).text()
     else:
-        log.info('Unable to index title for: %s', filename)
+        log.info('Unable to index title for: %s', fjson_filename)
 
     return {
-        'headers': process_headers(data, filename),
+        'headers': process_headers(data, fjson_filename),
         'content': body_content,
         'path': path,
         'title': title,

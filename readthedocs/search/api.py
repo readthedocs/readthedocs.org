@@ -1,13 +1,13 @@
 import logging
 from pprint import pformat
 
-from rest_framework import generics
-from rest_framework import serializers
+from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
 from readthedocs.search.utils import get_project_list_or_404
+
 
 log = logging.getLogger(__name__)
 
