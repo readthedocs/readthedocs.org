@@ -125,8 +125,7 @@ out of your documentation and Read the Docs.
   :doc:`How-to guides <guides/index>`
 
 * **Extending Read the Docs**:
-  :doc:`REST API <api/index>` |
-  :doc:`embed`
+  :doc:`REST API <api/index>`
 
 .. toctree::
    :maxdepth: 2
@@ -146,12 +145,6 @@ out of your documentation and Read the Docs.
    guides/index
 
    api/index
-   embed
-
-   vcs
-   conda
-   canonical
-   features/*
 
 
 The Read the Docs project and organization
