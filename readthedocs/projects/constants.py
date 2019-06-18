@@ -333,3 +333,8 @@ GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+
+DEFAULT_GIT_PATTERN = 'refs/heads/*:refs/remotes/origin/*'
+GITHUB_GIT_PATTERN = 'refs/pull/*/head:refs/remotes/origin/external/*'
+GITLAB_GIT_PATTERN = 'refs/merge-requests/*/head:refs/remotes/origin/external/*'
+BITBUCKET_GIT_PATTERN = 'refs/pull/*/head:refs/remotes/origin/external/*'

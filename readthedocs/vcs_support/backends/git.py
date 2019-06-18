@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
 from readthedocs.config import ALL
+from readthedocs.projects.constants import GITHUB_GIT_PATTERN, DEFAULT_GIT_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -55,9 +56,12 @@ class Backend(BaseVCS):
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
-            return self.fetch()
+            self.fetch()
+            return
         self.make_clean_working_dir()
-        return self.clone()
+        self.clone()
+        # Do a fetch to make sure we get all external versions
+        self.fetch()
 
     def repo_exists(self):
         try:
@@ -144,7 +148,8 @@ class Backend(BaseVCS):
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def fetch(self):
-        cmd = ['git', 'fetch', '--tags', '--prune', '--prune-tags']
+        cmd = ['git', 'fetch', 'origin', DEFAULT_GIT_PATTERN, GITHUB_GIT_PATTERN,
+               '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
