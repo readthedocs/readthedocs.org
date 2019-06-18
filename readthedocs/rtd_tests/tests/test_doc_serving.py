@@ -241,7 +241,7 @@ class TestPublicDocs(BaseDocServing):
             active=True
         )
         # This is a EXTERNAL Version
-        pr_version = fixture.get(
+        external_version = fixture.get(
             Version,
             identifier='pr-version',
             verbose_name='pr-version',
@@ -327,7 +327,7 @@ class TestPublicDocs(BaseDocServing):
         self.assertNotContains(
             response,
             self.public.get_docs_url(
-                version_slug=pr_version.slug,
+                version_slug=external_version.slug,
                 lang_slug=self.public.language,
                 private=True,
             ),

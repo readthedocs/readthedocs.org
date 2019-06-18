@@ -160,7 +160,7 @@ class TestProject(ProjectMixin, TestCase):
         # Test that PR Version is not considered for stable.
         self.assertEqual(self.pip.update_stable_version(), None)
 
-    def test_has_good_build_excludes_pr_versions(self):
+    def test_has_good_build_excludes_external_versions(self):
         # Delete all versions excluding PR Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
         # Test that PR Version is not considered for has_good_build.

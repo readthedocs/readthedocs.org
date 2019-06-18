@@ -135,17 +135,17 @@ class TestBuildManagerBase(TestCase):
         self.pip = Project.objects.get(slug='pip')
         print(self.pip.versions.all())
         # Create a External Version and build. ie: pull/merge request Version.
-        self.pr_version = get(
+        self.external_version = get(
             Version,
             project=self.pip,
             active=True,
             type=EXTERNAL,
             privacy_level=PUBLIC
         )
-        self.pr_version_build = get(
+        self.external_version_build = get(
             Build,
             project=self.pip,
-            version=self.pr_version
+            version=self.external_version
         )
         # Create a Internal Version build.
         self.internal_version_build = get(
@@ -167,19 +167,19 @@ class TestInternalBuildManager(TestBuildManagerBase):
     """
 
     def test_internal_build_manager_with_all(self):
-        self.assertNotIn(self.pr_version_build, Build.internal.all())
+        self.assertNotIn(self.external_version_build, Build.internal.all())
 
     def test_internal_build_manager_with_public(self):
-        self.assertNotIn(self.pr_version_build, Build.internal.public())
+        self.assertNotIn(self.external_version_build, Build.internal.public())
 
     def test_internal_build_manager_with_public_with_user_and_project(self):
         self.assertNotIn(
-            self.pr_version_build,
+            self.external_version_build,
             Build.internal.public(self.user, self.pip)
         )
 
     def test_internal_build_manager_with_api(self):
-        self.assertNotIn(self.pr_version_build, Build.internal.api())
+        self.assertNotIn(self.external_version_build, Build.internal.api())
 
 
 class TestExternalBuildManager(TestBuildManagerBase):
@@ -192,11 +192,11 @@ class TestExternalBuildManager(TestBuildManagerBase):
 
     def test_external_build_manager_with_all(self):
         self.assertNotIn(self.internal_builds, Build.external.all())
-        self.assertIn(self.pr_version_build, Build.external.all())
+        self.assertIn(self.external_version_build, Build.external.all())
 
     def test_external_build_manager_with_public(self):
         self.assertNotIn(self.internal_builds, Build.external.public())
-        self.assertIn(self.pr_version_build, Build.external.public())
+        self.assertIn(self.external_version_build, Build.external.public())
 
     def test_external_build_manager_with_public_with_user_and_project(self):
         self.assertNotIn(
@@ -204,10 +204,10 @@ class TestExternalBuildManager(TestBuildManagerBase):
             Build.external.public(self.user, self.pip)
         )
         self.assertIn(
-            self.pr_version_build,
+            self.external_version_build,
             Build.external.public(self.user, self.pip)
         )
 
     def test_external_build_manager_with_api(self):
         self.assertNotIn(self.internal_builds, Build.external.api())
-        self.assertIn(self.pr_version_build, Build.external.api())
+        self.assertIn(self.external_version_build, Build.external.api())

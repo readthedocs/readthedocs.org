@@ -278,22 +278,22 @@ class BuildViewTests(TestCase):
             '/projects/pip/builds/%s/' % build.pk,
         )
 
-    def test_build_list_does_not_include_pr_versions(self):
-        pr_version = get(
+    def test_build_list_does_not_include_external_versions(self):
+        external_version = get(
             Version,
             project = self.pip,
             active = True,
             type = EXTERNAL,
         )
-        pr_version_build = get(
+        external_version_build = get(
             Build,
             project = self.pip,
-            version = pr_version
+            version = external_version
         )
         response = self.client.get(
             reverse('builds_project_list', args=[self.pip.slug]),
         )
         self.assertEqual(response.status_code, 200)
 
-        self.assertNotIn(pr_version_build, response.context['build_qs'])
-        self.assertNotIn(pr_version_build, response.context['active_builds'])
+        self.assertNotIn(external_version_build, response.context['build_qs'])
+        self.assertNotIn(external_version_build, response.context['active_builds'])
