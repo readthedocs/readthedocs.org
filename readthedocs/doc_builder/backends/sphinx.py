@@ -512,7 +512,7 @@ class PdfBuilder(BaseSphinx):
         makeindex_cmds = [
             [
                 'makeindex', '-s', 'python.ist', '{}.idx'.format(
-                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
+                    os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
                 ),
             ]
             for tex_file in tex_files
