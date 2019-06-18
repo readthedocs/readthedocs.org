@@ -312,8 +312,8 @@ class ImportedFileAdmin(admin.ModelAdmin):
     """Admin view for :py:class:`ImportedFile`."""
 
     raw_id_fields = ('project', 'version')
-    list_display = ('path', 'name', 'version')
-    search_fields = ('project', 'path')
+    list_display = ('path', 'version', 'build')
+    search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
 
 class DomainAdmin(admin.ModelAdmin):

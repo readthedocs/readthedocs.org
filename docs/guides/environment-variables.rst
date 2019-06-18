@@ -17,7 +17,7 @@ To define an environment variable, you need to
 .. note::
 
    Values will never be exposed to users, even to owners of the project.
-   Once you create an environment variable you won't be able to see its value anymore because of security purposes.
+   Once you create an environment variable, you won't be able to see its value anymore for security purposes.
 
 After adding an environment variable from your project's admin, you can access it from your build process using Python,
 for example:
