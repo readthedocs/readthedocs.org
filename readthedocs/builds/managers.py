@@ -21,7 +21,7 @@ from .constants import (
     TAG,
     EXTERNAL,
 )
-from .querysets import VersionQuerySet
+from .querysets import VersionQuerySet, BuildQuerySet
 
 log = logging.getLogger(__name__)
 
@@ -122,3 +122,61 @@ class InternalVersionManager(SettingsOverrideObject):
 
 class ExternalVersionManager(SettingsOverrideObject):
     _default_class = ExternalVersionManagerBase
+
+
+class BuildManagerBase(models.Manager):
+
+    """
+    Build manager for manager only queries.
+
+    For creating different Managers.
+    """
+
+    @classmethod
+    def from_queryset(cls, queryset_class, class_name=None):
+        # This is overridden because :py:meth:`models.Manager.from_queryset`
+        # uses `inspect` to retrieve the class methods, and the proxy class has
+        # no direct members.
+        queryset_class = get_override_class(
+            BuildQuerySet,
+            BuildQuerySet._default_class,  # pylint: disable=protected-access
+        )
+        return super().from_queryset(queryset_class, class_name)
+
+
+class InternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes internal version builds.
+
+    It will exclude pull request/merge request version builds from the queries
+    and only include BRANCH, TAG, UNKONWN type Version builds.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(version__type=EXTERNAL)
+
+
+class ExternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes external version builds.
+
+    It will only include pull request/merge request version builds in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(version__type=EXTERNAL)
+
+
+class BuildManager(SettingsOverrideObject):
+    _default_class = BuildManagerBase
+    _override_setting = 'BUILD_MANAGER'
+
+
+class InternalBuildManager(SettingsOverrideObject):
+    _default_class = InternalBuildManagerBase
+
+
+class ExternalBuildManager(SettingsOverrideObject):
+    _default_class = ExternalBuildManagerBase

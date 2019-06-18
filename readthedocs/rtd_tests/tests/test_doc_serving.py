@@ -313,7 +313,7 @@ class TestPublicDocs(BaseDocServing):
         # in language and country value. (zh_CN should be zh-CN)
         self.assertContains(response, 'zh-CN')
 
-        # PR Versions should not be in the sitemap_xml.
+        # External Versions should not be in the sitemap_xml.
         self.assertNotContains(
             response,
             self.public.get_docs_url(
@@ -322,6 +322,7 @@ class TestPublicDocs(BaseDocServing):
                 private=True,
             ),
         )
+
         # Check if STABLE version has 'priority of 1 and changefreq of weekly.
         self.assertEqual(
             response.context['versions'][0]['loc'],

@@ -46,18 +46,25 @@ from readthedocs.builds.constants import (
     TAG,
     VERSION_TYPES,
 )
-from .managers import (
+from readthedocs.builds.managers import (
     VersionManager,
     InternalVersionManager,
-    ExternalVersionManager
+    ExternalVersionManager,
+    BuildManager,
+    InternalBuildManager,
+    ExternalBuildManager,
 )
-from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
-from .utils import (
+from readthedocs.builds.querysets import (
+    BuildQuerySet,
+    RelatedBuildQuerySet,
+    VersionQuerySet,
+)
+from readthedocs.builds.utils import (
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
 )
-from .version_slug import VersionSlugField
+from readthedocs.builds.version_slug import VersionSlugField
 
 
 log = logging.getLogger(__name__)
@@ -201,7 +208,7 @@ class Version(models.Model):
         :rtype: dict
         """
         last_build = (
-            self.builds.filter(
+            self.builds(manager=INTERNAL).filter(
                 state='finished',
                 success=True,
             ).order_by('-date').first()
@@ -628,9 +635,12 @@ class Build(models.Model):
         help_text='Build steps stored outside the database.',
     )
 
-    # Manager
-
-    objects = BuildQuerySet.as_manager()
+    # Managers
+    objects = BuildManager.from_queryset(BuildQuerySet)()
+    # Only include BRANCH, TAG, UNKONWN type Version builds.
+    internal = InternalBuildManager.from_queryset(BuildQuerySet)()
+    # Only include EXTERNAL type Version builds.
+    external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
     CONFIG_KEY = '__config'
 
