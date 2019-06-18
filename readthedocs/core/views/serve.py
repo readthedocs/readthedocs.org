@@ -120,10 +120,11 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
             # community. This can be removed once the middleware incorporates
             # more data or redirects happen outside this application
             # See: https://github.com/rtfd/readthedocs.org/pull/5690
+            log.warning('Serving docs for a single-version subproject instead redirecting')
             from readthedocsinc.core.views import serve_docs as corporate_serve_docs  # noqa
             return corporate_serve_docs(request, project, project.slug, subproject, subproject.slug)
         except Exception:
-            pass
+            log.exception('Error trying to redirect a single-version subproject')
 
     return HttpResponseRedirect(
         resolve(
