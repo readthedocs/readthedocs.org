@@ -59,6 +59,7 @@ class Backend(BaseVCS):
         else:
             self.make_clean_working_dir()
             self.clone()
+        # A fetch is always required to get external versions properly
         self.fetch()
 
     def repo_exists(self):
