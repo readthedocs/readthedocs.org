@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.constants import LATEST, EXTERNAL, BRANCH
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.forms import UpdateProjectForm
@@ -297,26 +297,26 @@ class BuildViewTests(TestCase):
         self.assertNotIn(external_version_build, response.context['build_qs'])
         self.assertNotIn(external_version_build, response.context['active_builds'])
 
-    def test_pr_build_list_includes_pr_version_builds(self):
-        pr_version = get(
+    def test_external_build_list_includes_external_version_builds(self):
+        external_version = get(
             Version,
             project = self.pip,
             active = True,
-            type = PULL_REQUEST,
+            type = EXTERNAL,
         )
-        pr_version_build = get(
+        external_version_build = get(
             Build,
             project = self.pip,
-            version = pr_version
+            version = external_version
         )
         response = self.client.get(
-            reverse('pr_builds_project_list', args=[self.pip.slug]),
+            reverse('external_builds_project_list', args=[self.pip.slug]),
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(pr_version_build, response.context['build_qs'])
+        self.assertIn(external_version_build, response.context['build_qs'])
 
-    def test_pr_build_list_does_not_include_internal_version_builds(self):
+    def test_external_build_list_does_not_include_internal_version_builds(self):
         internal_version = get(
             Version,
             project = self.pip,
@@ -329,7 +329,7 @@ class BuildViewTests(TestCase):
             version = internal_version
         )
         response = self.client.get(
-            reverse('pr_builds_project_list', args=[self.pip.slug]),
+            reverse('external_builds_project_list', args=[self.pip.slug]),
         )
 
         self.assertEqual(response.status_code, 200)

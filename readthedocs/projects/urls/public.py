@@ -73,8 +73,8 @@ urlpatterns = [
     ),
     url(
         (r'^(?P<project_slug>{project_slug})/builds/pr/$'.format(**pattern_opts)),
-        build_views.PRBuildList.as_view(),
-        name='pr_builds_project_list',
+        build_views.ExternalBuildList.as_view(),
+        name='external_builds_project_list',
     ),
     url(
         r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),

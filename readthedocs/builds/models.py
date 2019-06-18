@@ -747,9 +747,9 @@ class Build(models.Model):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
 
     @property
-    def is_pr(self):
-        """Return if build is a Pull Request Build."""
-        return self.version.type == PULL_REQUEST
+    def is_external(self):
+        """Return if build is a External ie: Pull/Merge Request Build."""
+        return self.version.type == EXTERNAL
 
 
 class BuildCommandResultMixin:

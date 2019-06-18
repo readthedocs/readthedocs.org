@@ -10,7 +10,7 @@
 {% block title %}Builds{% endblock %}
 
 {% block project_editing %}
-    {% with pr_builds_active="active" %}
+    {% with external_builds_active="active" %}
         {% include "core/project_bar.html" %}
     {% endwith %}
 {% endblock %}
@@ -25,7 +25,7 @@
         <!-- BEGIN builds list -->
         <div class="module">
           <div class="module-wrapper">
-            <h1>{% trans "Recent Pull Request Builds" %}</h1>
+            <h1>{% trans "Recent External Builds" %}</h1>
 
             <div class="module-list">
               <div class="module-list-wrapper">

@@ -23,9 +23,9 @@ $(document).ready(function () {
 
 {% block project_editing %}
 
-  {% if build.is_pr %}
+  {% if build.is_external %}
 
-    {% with pr_builds_active="active" %}
+    {% with external_builds_active="active" %}
       {% include "core/project_bar.html" %}
     {% endwith %}
   {% else %}

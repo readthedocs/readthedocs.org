@@ -519,9 +519,9 @@ class Project(models.Model):
             },
         )
 
-    def get_pr_builds_url(self):
+    def get_external_builds_url(self):
         return reverse(
-            'pr_builds_project_list',
+            'external_builds_project_list',
             kwargs={
                 'project_slug': self.slug,
             },

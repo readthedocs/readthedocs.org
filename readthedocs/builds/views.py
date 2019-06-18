@@ -117,8 +117,8 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
         return context
 
 
-class PRBuildList(BuildBase, ListView):
-    template_name = 'builds/pr_build_list.html'
+class ExternalBuildList(BuildBase, ListView):
+    template_name = 'builds/external_build_list.html'
 
     def get_queryset(self):
         # this is used to include only internal version
