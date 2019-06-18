@@ -240,16 +240,6 @@ class TestPublicDocs(BaseDocServing):
             project=self.public,
             active=True
         )
-        # This is a EXTERNAL Version
-        external_version = fixture.get(
-            Version,
-            identifier='pr-version',
-            verbose_name='pr-version',
-            slug='pr-9999',
-            project=self.public,
-            active=True,
-            type=EXTERNAL
-        )
         stable_version = fixture.get(
             Version,
             identifier='stable',
