@@ -1245,7 +1245,7 @@ class HTMLFile(ImportedFile):
             for fjson_path in fjson_paths:
                 file_path = os.path.join(full_json_path, fjson_path)
                 if os.path.exists(file_path):
-                    return process_file(file_path, self.path)
+                    return process_file(file_path)
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',
@@ -1255,7 +1255,6 @@ class HTMLFile(ImportedFile):
             'headers': [],
             'content': '',
             'path': file_path,
-            'full_path': self.path,
             'title': '',
             'sections': [],
         }
