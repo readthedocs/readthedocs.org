@@ -18,9 +18,9 @@ This is a GSoC'19 project.
 
 The final result may look something like this:
 
-.. figure:: ../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
+.. figure:: ../../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
     :align: center
-    :target: ../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
+    :target: ../../_static/images/design-docs/in-doc-search-ui/in-doc-search-ui-demo.gif
 
     Short demo
 
@@ -49,7 +49,7 @@ Existing Search Implementation
 
 We have a detailed documentation explaing the underlying architecture of our search backend
 and how we index documents to our Elasticsearch index.
-You can read about it :doc:`here <../development/search>`.
+You can read about it :doc:`here <../search>`.
 
 
 Proposed Architecture for In-Doc Search UI

@@ -1,7 +1,7 @@
 Customizing your install
 ========================
 
-Read the Docs has a lot of :doc:`/settings` that help customize your install.
+Read the Docs has a lot of :doc:`/development/settings` that help customize your install.
 This document will outline some of the more useful ways that these can be combined.
 
 Have a local settings file

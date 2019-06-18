@@ -210,22 +210,3 @@ of Read the Docs and the larger software documentation ecosystem.
 
    custom_installs/index
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer documentation
-
-   install
-   development/search
-   architecture
-   tests
-   docs
-   design/index
-   development/standards
-   development/buildenvironments
-   symlinks
-   settings
-   i18n
-   issue-labels
-   design
-   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
