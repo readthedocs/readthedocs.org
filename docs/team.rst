@@ -32,9 +32,9 @@ This might include tasks like:
 Support team members
 ~~~~~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`__ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`__ (Mountain Time)
-* `Manuel Kaufmann <https://github.com/humitos>`__ (Central Time)
+* `Eric Holscher`_ (Pacific Time)
+* `Anthony Johnson`_ (Mountain Time)
+* `Manuel Kaufmann`_ (Central Time)
 * Your Name Here
 
 **Please don't email us personally for support on Read the Docs.** You can email support@readthedocs.org for any issues you may have. 
@@ -62,9 +62,9 @@ This means that folks have to be available and have their phone in service.
 Ops team members
 ~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
-* `Matt Robenolt <https://github.com/mattrobenolt>`_ (Pacific Time)
+* `Eric Holscher`_ (Pacific Time)
+* `Anthony Johnson`_ (Mountain Time)
+* `Matt Robenolt`_ (Pacific Time)
 * Your Name Here
 
 Feel free to ask any of us if you have questions or want to join!
@@ -106,11 +106,11 @@ These folks have the ability to commit code to the project.
 Dev team members
 ~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`_
-* `Anthony Johnson <https://github.com/agjohnson>`_
-* `Manuel Kaufmann <https://github.com/humitos>`_
-* `David Fischer <https://github.com/davidfischer>`_
-* `Santos Gallegos <https://github.com/stsewd>`_
+* `Eric Holscher`_
+* `Anthony Johnson`_
+* `Manuel Kaufmann`_
+* `David Fischer`_
+* `Santos Gallegos`_
 * Your name here
 
 Feel free to ask any of us if you have questions or want to join!
@@ -125,3 +125,11 @@ You can check out our :doc:`contribute` to get more information,
 and find issues that need to be addressed.
 After that,
 feel free to ask for a commit bit.
+
+
+.. _Eric Holscher: https://github.com/ericholscher
+.. _Anthony Johnson: https://github.com/agjohnson
+.. _Manuel Kaufmann: https://github.com/humitos
+.. _David Fischer: https://github.com/davidfischer
+.. _Santos Gallegos: https://github.com/stsewd
+.. _Matt Robenolt: https://github.com/mattrobenolt

@@ -136,9 +136,9 @@ Possible errors administering a RTD server
 3. Now, SSH to the VM.
 4. Open the ``id_rsa`` file in the VM:
 
-.. prompt:: bash $
+    .. prompt:: bash $
 
-    vim /home/<username>/.ssh/id_rsa
+        vim /home/<username>/.ssh/id_rsa
 
 5. Paste the RSA key copied from your machine and save file (``Esc``. ``:wq!``).
 
