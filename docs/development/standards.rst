@@ -17,7 +17,7 @@ inconsistencies before they make their way to production.
 
 Celery runs as a separate process
     Celery needs to be run as a separate process, and core team will not use
-    in-process task execution via Celery's ``ALWAYS_EAGER`` setting. The
+    in-process task execution via Celery's ``CELERY_ALWAYS_EAGER`` setting. The
     ``ALWAYS_EAGER`` setting doesn't work correctly, and masks bugs that
     introduce task execution race conditions.
 
