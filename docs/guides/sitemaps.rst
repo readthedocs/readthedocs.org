@@ -1,5 +1,5 @@
-Sitemaps
-========
+Sitemaps: An SEO tool for documentation
+=======================================
 
 Sitemaps_ allows us to inform search engines about URLs that are available for crawling
 and communicate them additional information about each URL of the project:
