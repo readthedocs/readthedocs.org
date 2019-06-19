@@ -105,8 +105,10 @@ class BitbucketService(Service):
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
-        if ((privacy == 'private') or
-            (fields['is_private'] is False and privacy == 'public')):
+        if any([
+                (privacy == 'private'),
+                (fields['is_private'] is False and privacy == 'public'),
+        ]):
             repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name'],
                 account=self.account,

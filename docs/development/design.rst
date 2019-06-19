@@ -33,7 +33,7 @@ documentation using the default RTD style.
 Contributing
 ------------
 
-Contributions should follow the :doc:`contribute` guidelines where applicable -- ideally you'll
+Contributions should follow the :doc:`../contribute` guidelines where applicable -- ideally you'll
 create a pull request against the `Read the Docs GitHub project`_ from your forked repo and include
 a brief description of what you added / removed / changed, as well as an attached image (you can just
 take a screenshot and drop it into the PR creation form) of the effects of your changes.

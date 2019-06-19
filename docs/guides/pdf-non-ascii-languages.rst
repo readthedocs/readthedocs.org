@@ -1,8 +1,6 @@
 Build PDF format for non-ASCII languages
 ========================================
 
-.. _open an issue: https://github.com/rtfd/readthedocs.org/issues/new
-
 Sphinx offers different `LaTeX engines`_ that support Unicode characters and non-ASCII languages,
 like Japanese or Chinese.
 By default Sphinx uses ``pdflatex``,

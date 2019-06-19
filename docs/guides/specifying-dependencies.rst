@@ -36,7 +36,7 @@ Using a conda environment file
 
 If using conda, the dependencies can be specified in the `conda environment file`_: ``environment.yml`` .
 
-More on Read the Doc's conda support: :doc:`/conda`.
+More on Read the Doc's conda support: :doc:`conda`.
 
 .. _`pip user guide`: https://pip.pypa.io/en/stable/user_guide/#requirements-files
 .. _`conda environment file`: https://conda.io/docs/user-guide/tasks/manage-environments.html

@@ -51,7 +51,7 @@ It also gets included in the Read the Docs flyout:
 .. note::
     The default language of a custom domain is determined by the language of the
     parent project that the domain was configured on. See
-    :doc:`alternate_domains` for more information.
+    :doc:`custom_domains` for more information.
 
 .. note:: You can include multiple translations in the same repository,
           with same ``conf.py`` and ``.rst`` files,

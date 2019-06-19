@@ -1,6 +1,7 @@
 import logging
 
 from django.conf import settings
+from django.contrib.sessions.backends.base import SessionBase
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import Http404, HttpResponseBadRequest
@@ -205,7 +206,7 @@ class FooterNoSessionMiddleware(SessionMiddleware):
                 settings.SESSION_COOKIE_NAME not in request.COOKIES
             ):
                 # Hack request.session otherwise the Authentication middleware complains.
-                request.session = {}
+                request.session = SessionBase()  # create an empty session
                 return
         super().process_request(request)
 
