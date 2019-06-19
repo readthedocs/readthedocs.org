@@ -29,6 +29,9 @@ log = logging.getLogger(__name__)
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
+GITHUB_PULL_REQUEST = 'pull_request'
+GITHUB_PULL_REQUEST_OPEN = 'open'
+GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
 GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
@@ -271,6 +274,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
+
+        if event == GITHUB_PULL_REQUEST:
+            return self.sync_versions(self.project)
+
         return None
 
     def _normalize_ref(self, ref):

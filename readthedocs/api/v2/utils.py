@@ -13,7 +13,9 @@ from readthedocs.builds.constants import (
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
+    EXTERNAL,
 )
+from readthedocs.core.utils import trigger_build
 from readthedocs.builds.models import Version
 
 
@@ -77,6 +79,15 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                     version_name,
                     version_id,
                 )
+        elif type == EXTERNAL:
+            created_version = Version.objects.create(
+                project=project,
+                type=type,
+                identifier=version_id,
+                verbose_name=version_name,
+            )
+            added.add(created_version.slug)
+
         else:
             # New Version
             created_version = Version.objects.create(
@@ -135,6 +146,9 @@ def delete_versions(project, version_data):
     versions_tags = [
         version['verbose_name'] for version in version_data.get('tags', [])
     ]
+    external_versions = [
+        version['verbose_name'] for version in version_data.get('external_branches', [])
+    ]
     versions_branches = [
         version['identifier'] for version in version_data.get('branches', [])
     ]
@@ -146,6 +160,10 @@ def delete_versions(project, version_data):
     to_delete_qs = to_delete_qs.exclude(
         type=BRANCH,
         identifier__in=versions_branches,
+    )
+    to_delete_qs = to_delete_qs.exclude(
+        type=EXTERNAL,
+        verbose_name__in=external_versions,
     )
     to_delete_qs = to_delete_qs.exclude(uploaded=True)
     to_delete_qs = to_delete_qs.exclude(active=True)
@@ -174,6 +192,21 @@ def run_automation_rules(project, versions_slug):
     rules = project.automation_rules.all()
     for version, rule in itertools.product(versions, rules):
         rule.run(version)
+
+
+def trigger_external_build(project, version_list):
+    """
+    Trigger Builds for all external versions provided.
+
+    The rules are sorted by priority.
+
+    """
+    for version_slug in version_list:
+        version = project.versions(manager=EXTERNAL).get(slug=version_slug)
+        version.active = True
+        version.save()
+
+        trigger_build(project=project, version=version)
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

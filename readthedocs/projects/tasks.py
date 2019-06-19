@@ -165,6 +165,12 @@ class SyncRepositoryMixin:
                 'verbose_name': v.verbose_name,
             } for v in version_repo.branches]
 
+        if version_repo.supports_external_branches:
+            version_post_data['external_branches'] = [{
+                'identifier': v.identifier,
+                'verbose_name': v.verbose_name,
+            } for v in version_repo.external_branches]
+
         self.validate_duplicate_reserved_versions(version_post_data)
 
         try:

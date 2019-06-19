@@ -26,6 +26,7 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
+    supports_external_branches = True
     supports_submodules = True
     fallback_branch = 'master'  # default branch
     repo_depth = 50
@@ -213,11 +214,30 @@ class Backend(BaseVCS):
 
         for branch in branches:
             verbose_name = branch.name
-            if verbose_name.startswith('origin/'):
+            if not verbose_name.startswith('origin/external/'):
+                if verbose_name.startswith('origin/'):
+                    verbose_name = verbose_name.replace('origin/', '')
+                if verbose_name == 'HEAD':
+                    continue
+                versions.append(VCSVersion(self, str(branch), verbose_name))
+        return versions
+
+    @property
+    def external_branches(self):
+        repo = git.Repo(self.working_dir)
+        versions = []
+        branches = []
+
+        # ``repo.remotes.origin.refs`` returns remote branches
+        if repo.remotes:
+            branches += repo.remotes.origin.refs
+
+        for branch in branches:
+            verbose_name = branch.name
+            if verbose_name.startswith('origin/external/'):
                 verbose_name = verbose_name.replace('origin/', '')
-            if verbose_name == 'HEAD':
+                versions.append(VCSVersion(self, str(branch.commit), verbose_name))
                 continue
-            versions.append(VCSVersion(self, str(branch), verbose_name))
         return versions
 
     @property

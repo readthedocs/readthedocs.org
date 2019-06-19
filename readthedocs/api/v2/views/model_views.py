@@ -10,7 +10,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BRANCH, TAG, INTERNAL
+from readthedocs.builds.constants import BRANCH, TAG, INTERNAL, EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -189,6 +189,7 @@ class ProjectViewSet(UserSelectViewSet):
             # Update All Versions
             data = request.data
             added_versions = set()
+            added_external_versions = set()
             if 'tags' in data:
                 ret_set = api_utils.sync_versions(
                     project=project,
@@ -203,6 +204,15 @@ class ProjectViewSet(UserSelectViewSet):
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
+
+            if 'external_branches' in data:
+                ret_set = api_utils.sync_versions(
+                    project=project,
+                    versions=data['external_branches'],
+                    type=EXTERNAL,
+                )
+                added_external_versions.update(ret_set)
+
             deleted_versions = api_utils.delete_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
@@ -213,17 +223,25 @@ class ProjectViewSet(UserSelectViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        all_added_versions = added_versions | added_external_versions
+
         try:
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            api_utils.run_automation_rules(project, added_versions)
+            api_utils.run_automation_rules(project, all_added_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
             log.exception(
                 'Failed to execute automation rules for [%s]: %s',
                 project.slug, added_versions
+            )
+
+        if added_external_versions:
+            api_utils.trigger_external_build(
+                project=project,
+                version_list=added_external_versions
             )
 
         # TODO: move this to an automation rule
@@ -250,7 +268,7 @@ class ProjectViewSet(UserSelectViewSet):
                 trigger_build(project=project, version=promoted_version)
 
         return Response({
-            'added_versions': added_versions,
+            'added_versions': all_added_versions,
             'deleted_versions': deleted_versions,
         })
 
