@@ -92,8 +92,8 @@ User Personal Information does not include aggregated, non-personally identifyin
 We may use aggregated, non-personally identifying information to operate, improve,
 and optimize our website and service.
 
-Why do we collect this?
-+++++++++++++++++++++++
+Why do we collect this information?
++++++++++++++++++++++++++++++++++++
 
 - We need your User Personal Information to create your account, and to provide the services you request.
 - We use your User Personal Information, specifically your user name, to identify you on Read the Docs.
