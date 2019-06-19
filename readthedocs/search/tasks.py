@@ -34,8 +34,12 @@ def index_objects_to_es(
         start = chunk[0]
         end = chunk[1]
         queryset = queryset[start:end]
+        log.info("Indexing model: %s, Range [%s:%s]", model.__name__, start, end)
     elif objects_id:
         queryset = queryset.filter(id__in=objects_id)
+        log.info("Indexing model: %s, ids %s", model.__name__, objects_id)
+
+    queryset = queryset.select_related('project', 'version')
 
     if index_name:
         # Hack the index name temporarily for reindexing tasks
@@ -43,7 +47,6 @@ def index_objects_to_es(
         document._doc_type.index = index_name
         log.info('Replacing index name %s with %s', old_index_name, index_name)
 
-    log.info("Indexing model: %s, '%s' objects", model.__name__, queryset.count())
     doc_obj.update(queryset.iterator())
 
     if index_name:
