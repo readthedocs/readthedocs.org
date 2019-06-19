@@ -72,6 +72,7 @@ class SphinxDomainDocument(RTDDocTypeMixin, DocType):
 
         for exclude in excluded_types:
             queryset = queryset.exclude(**exclude)
+        queryset = queryset.select_related('project', 'version')
         return queryset
 
 
@@ -161,6 +162,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
         queryset = queryset.filter(
             project__documentation_type__contains='sphinx'
         )
+        queryset = queryset.select_related('project', 'version')
 
         # TODO: Make this smarter
         # This was causing issues excluding some valid user documentation pages

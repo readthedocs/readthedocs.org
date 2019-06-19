@@ -39,8 +39,6 @@ def index_objects_to_es(
         queryset = queryset.filter(id__in=objects_id)
         log.info("Indexing model: %s, ids %s", model.__name__, objects_id)
 
-    queryset = queryset.select_related('project', 'version')
-
     if index_name:
         # Hack the index name temporarily for reindexing tasks
         old_index_name = document._doc_type.index
