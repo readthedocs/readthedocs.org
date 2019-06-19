@@ -122,6 +122,11 @@ class PageDocument(RTDDocTypeMixin, DocType):
     title = fields.TextField(attr='processed_json.title')
     headers = fields.TextField(attr='processed_json.headers')
     content = fields.TextField(attr='processed_json.content')
+    sections = fields.ObjectField(attr='processed_json.sections', properties={
+        'id': fields.KeywordField(),
+        'title': fields.TextField(),
+        'content': fields.TextField()
+    })
 
     modified_model_field = 'modified_date'
 
