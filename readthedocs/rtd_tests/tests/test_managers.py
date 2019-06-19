@@ -161,6 +161,7 @@ class TestInternalBuildManager(TestBuildManagerBase):
 
     """
     Queries using Internal Manager should only include Internal Version builds.
+
     It will exclude pull/merge request Version builds from the queries
     and only include BRANCH, TAG, UNKONWN type Versions.
     """
@@ -185,6 +186,7 @@ class TestExternalBuildManager(TestBuildManagerBase):
 
     """
     Queries using External Manager should only include External Version builds.
+
     It will only include pull/merge request Version builds in the queries.
     """
 
