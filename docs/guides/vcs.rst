@@ -3,7 +3,7 @@ Version Control System Integration
 
 .. note::
 
-   We :doc:`plan to implement a new approach <design/theme-context>` regarding the Theme Context as a whole,
+   We :doc:`plan to implement a new approach </development/design/theme-context>` regarding the Theme Context as a whole,
    although the VCS documentation page will still be valid, we prefer the users to move in that direction.
 
 
