@@ -23,6 +23,6 @@ if pip was set as a "Single Version" project, then links to its documentation wo
 ``http://pip.readthedocs.io/`` rather than the default ``http://pip.readthedocs.io/en/latest/``.
 
 Documentation at ``/<language>/<default_version>/`` will still be served for backwards compatibility reasons.
-However, our usage of :doc:`canonical` should stop these from being indexed by Google.
+However, our usage of :doc:`guides/canonical` should stop these from being indexed by Google.
 
 .. _dashboard: https://readthedocs.org/dashboard/

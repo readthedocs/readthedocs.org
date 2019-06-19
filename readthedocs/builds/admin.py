@@ -44,6 +44,7 @@ class BuildAdmin(admin.ModelAdmin):
         'type',
         'state',
         'date',
+        'length'
     )
     list_filter = ('type', 'state', 'success')
     list_select_related = ('project', 'version')

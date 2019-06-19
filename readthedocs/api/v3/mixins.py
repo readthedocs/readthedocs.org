@@ -81,8 +81,7 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         4. raise a ``NotFound`` exception otherwise
         """
 
-        # NOTE: ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
-        # we need to have defined the class attribute as ``queryset = Model.objects.all()``
+        # We need to have defined the class attribute as ``queryset = Model.objects.all()``
         queryset = super().get_queryset()
 
         # Detail requests are public
@@ -90,8 +89,4 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
             return self.detail_objects(queryset, self.request.user)
 
         # List view are only allowed if user is owner of parent project
-        listing_objects = self.listing_objects(queryset, self.request.user)
-        if listing_objects:
-            return listing_objects
-
-        raise NotFound
+        return self.listing_objects(queryset, self.request.user)

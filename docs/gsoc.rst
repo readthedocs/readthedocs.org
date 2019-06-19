@@ -29,7 +29,7 @@ the more likely we are to choose your application!
 Getting Started
 ---------------
 
-The :doc:`/install` doc is probably the best place to get going.
+The :doc:`/development/install` doc is probably the best place to get going.
 It will walk you through getting a basic environment for Read the Docs setup. 
 
 Then you can look through our :doc:`/contribute` doc for information on how to get started contributing to RTD.
