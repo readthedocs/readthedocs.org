@@ -18,4 +18,8 @@ Available Flags
 
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`
 
+The ``DONT_SHALLOW_CLONE`` flag is useful if your code accesses old commits during docs build,
+e.g. python-reno release notes manager is known to do that
+(error message line would probably include one of old Git commit id's).
+
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`

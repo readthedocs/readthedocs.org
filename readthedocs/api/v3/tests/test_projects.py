@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -19,8 +20,8 @@ class APIEndpointTests(TestCase):
     fixtures = []
 
     def setUp(self):
-        created = datetime.datetime(2019, 4, 29, 10, 0, 0)
-        modified = datetime.datetime(2019, 4, 29, 12, 0, 0)
+        created = make_aware(datetime.datetime(2019, 4, 29, 10, 0, 0))
+        modified = make_aware(datetime.datetime(2019, 4, 29, 12, 0, 0))
 
         self.me = fixture.get(
             User,

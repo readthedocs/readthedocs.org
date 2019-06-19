@@ -11,7 +11,7 @@ import logging
 import re
 from urllib.parse import urlparse, urlunparse
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 
 from readthedocs.constants import LANGUAGES_REGEX
 from readthedocs.projects.models import Project
@@ -73,13 +73,17 @@ def get_redirect_response(request, full_path):
     if not project:
         return None
 
+    # The full path should always be an absolute path starting with /
+    # It is important it doesn't get misinterpreted as a scheme-relative URL (//host/path)
+    full_path = '/' + full_path.lstrip('/')
+
     language = None
     version_slug = None
     schema, netloc, path, params, query, fragments = urlparse(full_path)
     if not project.single_version:
         language, version_slug, path = language_and_version_from_path(path)
 
-    path = project.redirects.get_redirect_path(
+    path, http_status = project.redirects.get_redirect_path_with_status(
         path=path, language=language, version_slug=version_slug
     )
 
@@ -90,5 +94,10 @@ def get_redirect_response(request, full_path):
 
     # Re-use the domain and protocol used in the current request.
     # Redirects shouldn't change the domain, version or language.
+    # However, if the new_path is already an absolute URI, just use it
     new_path = request.build_absolute_uri(new_path)
+
+    if http_status and http_status == 301:
+        return HttpResponsePermanentRedirect(new_path)
+
     return HttpResponseRedirect(new_path)

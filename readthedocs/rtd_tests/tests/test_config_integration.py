@@ -24,7 +24,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-from doc_builder.constants import DOCKER_IMAGE_SETTINGS
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):

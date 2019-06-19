@@ -1,22 +1,19 @@
-# -*- coding: utf-8 -*-
-
 """Common utilty functions."""
-
-from __future__ import absolute_import
 
 import errno
 import logging
 import os
 import re
 
+from celery import chord, group
 from django.conf import settings
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
-from celery import group, chord
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +94,6 @@ def prepare_build(
         version = project.versions.get(slug=default_version)
 
     kwargs = {
-        'version_pk': version.pk,
         'record': record,
         'force': force,
     }
@@ -131,7 +127,7 @@ def prepare_build(
 
     return (
         update_docs_task.signature(
-            args=(project.pk,),
+            args=(version.pk,),
             kwargs=kwargs,
             options=options,
             immutable=True,

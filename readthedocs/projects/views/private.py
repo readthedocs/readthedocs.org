@@ -4,6 +4,7 @@ import logging
 
 from allauth.socialaccount.models import SocialAccount
 from celery import chain
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -719,6 +720,9 @@ class DomainList(DomainMixin, ListViewWithForm):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+
+        # Get the default docs domain
+        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN  # noqa
 
         # Retry validation on all domains if applicable
         for domain in ctx['domain_list']:

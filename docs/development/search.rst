@@ -78,10 +78,11 @@ We also index project information in our search index so that the user can searc
 from the main site. We listen to the `post_create` and `post_delete` signals of
 `Project` model and index/delete into Elasticsearch accordingly.
 
+
 Elasticsearch Document
 ~~~~~~~~~~~~~~~~~~~~~~
 
-`elasticsearch-dsl`_ provides model-like wrapper for the `Elasticsearch document`_.
+`elasticsearch-dsl`_ provides a model-like wrapper for `the Elasticsearch document`_.
 As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 `readthedocs/search/documents.py` file.
 
@@ -103,7 +104,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
 .. _GitHub Repository: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/search
-.. _Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
+.. _the Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
 .. _signals: https://docs.djangoproject.com/en/2.1/topics/signals/

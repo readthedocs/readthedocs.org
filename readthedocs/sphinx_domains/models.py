@@ -33,6 +33,7 @@ class SphinxDomain(TimeStampedModel):
         related_name='sphinx_domains',
     )
     commit = models.CharField(_('Commit'), max_length=255, null=True)
+    build = models.IntegerField(_('Build id'), null=True)
 
     domain = models.CharField(
         _('Domain'),

@@ -1191,6 +1191,7 @@ class ImportedFile(models.Model):
     path = models.CharField(_('Path'), max_length=4096)
     md5 = models.CharField(_('MD5 checksum'), max_length=255)
     commit = models.CharField(_('Commit'), max_length=255)
+    build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
 
     def get_absolute_url(self):
@@ -1230,19 +1231,19 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        paths = []
+        fjson_paths = []
         basename = os.path.splitext(self.path)[0]
-        paths.append(basename + '.fjson')
+        fjson_paths.append(basename + '.fjson')
         if basename.endswith('/index'):
             new_basename = re.sub(r'\/index$', '', basename)
-            paths.append(new_basename + '.fjson')
+            fjson_paths.append(new_basename + '.fjson')
 
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
         try:
-            for path in paths:
-                file_path = os.path.join(full_json_path, path)
+            for fjson_path in fjson_paths:
+                file_path = os.path.join(full_json_path, fjson_path)
                 if os.path.exists(file_path):
                     return process_file(file_path)
         except Exception:
@@ -1389,6 +1390,7 @@ class Feature(models.Model):
     USE_TESTING_BUILD_IMAGE = 'use_testing_build_image'
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
+    CLEAN_AFTER_BUILD = 'clean_after_build'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1423,7 +1425,11 @@ class Feature(models.Model):
         ),
         (
             DEFAULT_TO_MKDOCS_0_17_3,
-            _('Install mkdocs 0.17.3 by default')
+            _('Install mkdocs 0.17.3 by default'),
+        ),
+        (
+            CLEAN_AFTER_BUILD,
+            _('Clean all files used in the build process'),
         ),
     )
 

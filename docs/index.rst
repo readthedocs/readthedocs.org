@@ -43,108 +43,170 @@ to help you create fantastic documentation for your project.
 * **Importing your existing documentation**:
   :doc:`Import guide <intro/import-guide>`
 
+
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: First Steps
+   :caption: First steps
 
    intro/getting-started-with-sphinx
    intro/getting-started-with-mkdocs
+
    intro/import-guide
 
 
-.. _user-docs:
+Getting started with Read the Docs
+-----------------------------------
 
-.. toctree::
-   :maxdepth: 2
-   :caption: User Documentation
+Learn more about configuring your automated documentation builds
+and some of the core features of Read the Docs.
 
-   versions
-   builds
-   features
-   connected-accounts
-   support
-   faq
-   config-file/index
-   guides/index
-   api/index
-   embed
+* **Overview of core features**:
+  :doc:`features`
 
-.. _feature-docs:
+* **Configure your documentation**:
+  :doc:`Configuration reference <config-file/index>` |
+  :doc:`webhooks` |
+  :doc:`badges` |
+  :doc:`Custom domains <custom_domains>`
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :caption: Feature Documentation
+* **Connecting with GitHub, BitBucket, or GitLab**:
+  :doc:`Connecting your account <connected-accounts>`
 
-   webhooks
-   badges
-   custom_domains
-   localization
-   vcs
-   subprojects
-   conda
-   canonical
-   single_version
-   privacy
-   user-defined-redirects
-   automatic-redirects
-   features/*
+* **Read the Docs build and versioning process**:
+  :doc:`Build process <builds>` |
+  :doc:`Handling multiple docs versions <versions>`
 
-.. _about-docs:
+* **Troubleshooting**:
+  :doc:`support` |
+  :doc:`Frequently asked questions <faq>`
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
+   :caption: Getting started
+
+   features
+
+   config-file/index
+   webhooks
+   badges
+   custom_domains
+
+   connected-accounts
+
+   builds
+   versions
+
+   support
+   faq
+
+
+Advanced features of Read the Docs
+----------------------------------
+
+Read the Docs offers many advanced features and options.
+Learn more about these integrations and how you can get the most
+out of your documentation and Read the Docs.
+
+* **Advanced project configuration**:
+  :doc:`subprojects` |
+  :doc:`Single version docs <single_version>` |
+  :doc:`Privacy levels <privacy>`
+
+* **Multi-language documentation**:
+  :doc:`Translations and localization <localization>`
+
+* **Redirects**:
+  :doc:`User defined redirects <user-defined-redirects>` |
+  :doc:`Automatic redirects <automatic-redirects>`
+
+* **Topic specific guides**:
+  :doc:`How-to guides <guides/index>`
+
+* **Extending Read the Docs**:
+  :doc:`REST API <api/index>`
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Advanced features
+
+   subprojects
+   single_version
+   privacy
+
+   localization
+
+   user-defined-redirects
+   automatic-redirects
+
+   guides/index
+
+   api/index
+
+
+The Read the Docs project and organization
+------------------------------------------
+
+Learn about Read the Docs, the project and the company,
+and find out how you can get involved and contribute to the development and success
+of Read the Docs and the larger software documentation ecosystem.
+
+* **Getting involved with Read the Docs**:
+  :doc:`Contributing <contribute>` |
+  :doc:`roadmap` |
+  :doc:`gsoc` |
+  :doc:`Code of conduct <code-of-conduct>`
+
+* **Policies & Process**:
+  :doc:`security` |
+  :doc:`Privacy policy <privacy-policy>` |
+  :doc:`DMCA takedown policy <dmca/index>` |
+  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`Release notes & changelog <changelog>`
+
+* **The people and philosophy behind Read the Docs**:
+  :doc:`Team <team>` |
+  :doc:`Open source philosophy <open-source-philosophy>` |
+  :doc:`Our story <story>`
+
+* **Financial and material support**:
+  :doc:`advertising/index` |
+  :doc:`Sponsors <sponsors>`
+
+* **Read the Docs for business**:
+  :doc:`Support and additional features <commercial/index>`
+
+* **Running your own version of Read the Docs**:
+  :doc:`Private installations <custom_installs/index>`
+
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
    :caption: About Read the Docs
 
    contribute
    roadmap
-   team
    gsoc
    code-of-conduct
+
+   security
    privacy-policy
-   advertising/index
-   sponsors
+   dmca/index
+   abandoned-projects
+   changelog
+
+   team
    open-source-philosophy
    story
-   abandoned-projects
-   dmca/index
 
-.. _dev-docs:
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Developer Documentation
-
-   changelog
-   install
-   development/standards
-   development/search
-   architecture
-   tests
-   docs
-   development/buildenvironments
-   development/front-end
-   symlinks
-   settings
-   i18n
-   issue-labels
-   security
-   design
-   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
-
-.. _commercial-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Commercial Documentation
+   advertising/index
+   sponsors
 
    commercial/index
 
-.. _custom-docs:
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Custom Install Documentation
-
    custom_installs/index
+

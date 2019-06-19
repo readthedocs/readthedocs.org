@@ -84,8 +84,24 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            return yaml.safe_load(open(self.yaml_file, 'r'),)
+            config = yaml.safe_load(open(self.yaml_file, 'r'))
+
+            if not config:
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.EMPTY_CONFIG
+                )
+            if not isinstance(config, dict):
+                raise MkDocsYAMLParseError(
+                    MkDocsYAMLParseError.CONFIG_NOT_DICT
+                )
+            return config
+
         except IOError:
+            log.info(
+                'Creating default MkDocs config file for project: %s:%s',
+                self.project.slug,
+                self.version.slug,
+            )
             return {
                 'site_name': self.version.project.name,
             }
@@ -226,9 +242,9 @@ class BaseMkdocs(BaseBuilder):
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
         }
-        data_json = json.dumps(readthedocs_data, indent=4)
+
         data_ctx = {
-            'data_json': data_json,
+            'readthedocs_data': readthedocs_data,
             'current_version': readthedocs_data['version'],
             'slug': readthedocs_data['project'],
             'html_theme': readthedocs_data['theme'],

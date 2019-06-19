@@ -97,7 +97,9 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--force-reinstall',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
@@ -323,7 +325,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.6',
+                'readthedocs-sphinx-ext<0.7',
             ])
 
         cmd = copy.copy(pip_install_cmd)
