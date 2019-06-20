@@ -21,6 +21,9 @@ Celery runs as a separate process
     ``CELERY_ALWAYS_EAGER`` setting doesn't work correctly, and masks bugs that
     introduce task execution race conditions.
 
+    Debugging is different when running as a separate process, see `Debugging
+    Celery`_ for more information.
+
 Celery runs multiple processes
     We run celery with multiple worker processes to discover race conditions
     between tasks.
@@ -42,12 +45,17 @@ Setting ``USE_SUBDOMAIN = True``
         PUBLIC_DOMAIN = 'dev.readthedocs.io:8001'
         USE_SUBDOMAIN = True
 
-Postgres as a database
-    Postgres should be used as the default database whenever possible, as SQLite
-    has issues with our Django version and we use Postgres in production.
-    Differences between Postgres and SQLite should be masked for the most part,
-    as Django does abstract database procedures, and we don't do any
-    Postgres-specific operations yet.
+Postgres as a database (optional for now)
+    It is recommended that Postgres be used as the default database whenever
+    possible, as SQLite has issues with our Django version and we use Postgres
+    in production.  Differences between Postgres and SQLite should be masked for
+    the most part however, as Django does abstract database procedures, and we
+    don't do any Postgres-specific operations yet.
+
+    Because we run Postgres as our production database, you should be familiar
+    with maintenance of a Postgres instance however. You can run Postgres in a
+    Docker container on Linux or use the Postgres application on MacOS, both are
+    easy to get started with.
 
 Celery is isolated from database
     Currently, it's really easy to forget that the Celery workers on our build
@@ -55,6 +63,27 @@ Celery is isolated from database
     instead. We don't yet have a pattern for this, but we should find a way to
     put up a similar barrier in development, so that logic errors aren't
     uncovered after we release.
+
+Debugging Celery
+~~~~~~~~~~~~~~~~
+
+If you have been executing Celery tasks using ``CELERY_ALWAYS_EAGER``, you will
+have to alter how your are debugging your task processes when switching to
+running multiple workers on a dedicated Celery process.
+
+In order to step into the worker process, you can't use ``pdb`` or ``ipdb``, but
+you can use ``celery.contrib.rdb``::
+
+    from celery.contrib import rdb; rdb.set_trace()
+
+When the breakpoint is hit, the Celery worker will pause on the breakpoint and
+will alert you on STDOUT of a port to connect to. You can then use ``telnet`` or
+``netcat`` to connect to the debug process port::
+
+    nc 127.0.0.1 6900
+
+The ``rdb`` debugger is similar to ``pdb``, there is no ``ipdb`` for remote
+debugging currently.
 
 Using Supervisord
 ~~~~~~~~~~~~~~~~~
