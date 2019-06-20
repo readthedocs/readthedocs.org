@@ -171,7 +171,6 @@ class ExternalBuildManagerBase(BuildManagerBase):
 
 class BuildManager(SettingsOverrideObject):
     _default_class = BuildManagerBase
-    _override_setting = 'BUILD_MANAGER'
 
 
 class InternalBuildManager(SettingsOverrideObject):
