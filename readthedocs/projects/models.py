@@ -329,8 +329,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository. '
-            'Protected means public but not in listings.',
+            'Level of privacy that you want on the repository.',
         ),
     )
     version_privacy_level = models.CharField(

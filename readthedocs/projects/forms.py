@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -189,7 +190,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
