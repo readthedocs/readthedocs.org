@@ -299,7 +299,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 external_version = get_or_create_external_version(
                     self.project, identifier, verbose_name
                 )
-                return self.get_response_push(self.project, external_version.verbose_name)
+                return self.get_response_push(self.project, [external_version.verbose_name])
 
             except KeyError:
                 raise ParseError('Parameters "sha" and "number" are required')
