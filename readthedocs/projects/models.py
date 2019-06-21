@@ -31,6 +31,7 @@ from readthedocs.projects.querysets import (
     FeatureQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
+    HTMLFileQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
@@ -1216,7 +1217,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager()
+    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
     def get_processed_json(self):
         """
