@@ -138,7 +138,7 @@ class SyncRepositoryMixin:
                 }
             )
             version_repo = self.get_vcs_repo()
-            version_repo.update()
+            version_repo.update(version=self.version)
             self.sync_versions(version_repo)
             version_repo.checkout(self.version.identifier)
         finally:
@@ -164,12 +164,6 @@ class SyncRepositoryMixin:
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
             } for v in version_repo.branches]
-
-        if version_repo.supports_external_branches:
-            version_post_data['external_branches'] = [{
-                'identifier': v.identifier,
-                'verbose_name': v.verbose_name,
-            } for v in version_repo.external_branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 

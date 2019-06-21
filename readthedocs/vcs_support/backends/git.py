@@ -10,8 +10,9 @@ import git
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
-from readthedocs.projects.constants import GITHUB_GIT_PATTERN, DEFAULT_GIT_PATTERN
+from readthedocs.projects.constants import GITHUB_GIT_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -52,16 +53,21 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self):
+    def update(self, version=None):  # pylint: disable=arguments-differ
         """Clone or update the repository."""
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
-        else:
-            self.make_clean_working_dir()
-            self.clone()
+            # A fetch is always required to get external versions properly
+            if version and version.type == EXTERNAL:
+                return self.fetch(version.verbose_name)
+            return self.fetch()
+        self.make_clean_working_dir()
         # A fetch is always required to get external versions properly
-        self.fetch()
+        if version and version.type == EXTERNAL:
+            self.clone()
+            return self.fetch(version.verbose_name)
+        return self.clone()
 
     def repo_exists(self):
         try:
@@ -147,10 +153,14 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
-    def fetch(self):
+    def fetch(self, verbose_name=None):
         cmd = ['git', 'fetch', 'origin',
-               DEFAULT_GIT_PATTERN, GITHUB_GIT_PATTERN,
                '--tags', '--prune', '--prune-tags']
+
+        if verbose_name and 'github.com' in self.repo_url:
+            cmd.append(
+                GITHUB_GIT_PATTERN.format(id=verbose_name)
+            )
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
@@ -220,24 +230,6 @@ class Backend(BaseVCS):
                 if verbose_name == 'HEAD':
                     continue
                 versions.append(VCSVersion(self, str(branch), verbose_name))
-        return versions
-
-    @property
-    def external_branches(self):
-        repo = git.Repo(self.working_dir)
-        versions = []
-        branches = []
-
-        # ``repo.remotes.origin.refs`` returns remote branches
-        if repo.remotes:
-            branches += repo.remotes.origin.refs
-
-        for branch in branches:
-            verbose_name = branch.name
-            if verbose_name.startswith('origin/external/'):
-                verbose_name = verbose_name.replace('origin/', '')
-                versions.append(VCSVersion(self, str(branch.commit), verbose_name))
-                continue
         return versions
 
     @property

@@ -2,6 +2,8 @@
 
 import logging
 
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.tasks import sync_repository_task
 
@@ -88,3 +90,21 @@ def sync_versions(project):
     except Exception:
         log.exception('Unknown sync versions exception')
     return None
+
+
+def get_or_create_external_version(project, identifier, verbose_name):
+    external_version = project.versions(manager=EXTERNAL).filter(verbose_name=verbose_name).first()
+    if external_version:
+        if external_version.identifier != identifier:
+            external_version.identifier = identifier
+            external_version.save()
+    else:
+        created_external_version = Version.objects.create(
+            project=project,
+            type=EXTERNAL,
+            identifier=identifier,
+            verbose_name=verbose_name,
+            active=True
+        )
+        return created_external_version
+    return external_version

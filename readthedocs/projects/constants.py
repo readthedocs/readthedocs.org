@@ -334,6 +334,4 @@ GITLAB_URL = (
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
 
-DEFAULT_GIT_PATTERN = 'refs/heads/*:refs/remotes/origin/*'
-# https://help.github.com/en/articles/checking-out-pull-requests-locally#modifying-an-inactive-pull-request-locally
-GITHUB_GIT_PATTERN = 'refs/pull/*/head:refs/remotes/origin/external/*'
+GITHUB_GIT_PATTERN = 'pull/{id}/head:external-{id}'
