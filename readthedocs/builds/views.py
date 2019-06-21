@@ -92,7 +92,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
             Project.objects.protected(self.request.user),
             slug=self.project_slug,
         )
-        queryset = Build.internal.public(
+        queryset = Build.objects.public(
             user=self.request.user,
             project=self.project,
         ).select_related('project', 'version')

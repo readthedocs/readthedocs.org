@@ -385,24 +385,17 @@ class TestPublicViews(MockBuildTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
 
-    def test_project_detail_view_only_shows_internal_versons(self):
+    def test_project_detail_view_shows_external_versons(self):
         url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context['versions'])
+        self.assertIn(self.external_version, response.context['versions'])
 
     def test_project_downloads_only_shows_internal_versons(self):
         url = reverse('project_downloads', args=[self.pip.slug])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.external_version, response.context['versions'])
-
-    def test_project_versions_only_shows_internal_versons(self):
-        url = reverse('project_version_list', args=[self.pip.slug])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotIn(self.external_version, response.context['active_versions'])
-        self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
 class TestPrivateViews(MockBuildTestCase):
