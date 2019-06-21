@@ -224,12 +224,11 @@ class Backend(BaseVCS):
 
         for branch in branches:
             verbose_name = branch.name
-            if not verbose_name.startswith('origin/external/'):
-                if verbose_name.startswith('origin/'):
-                    verbose_name = verbose_name.replace('origin/', '')
-                if verbose_name == 'HEAD':
-                    continue
-                versions.append(VCSVersion(self, str(branch), verbose_name))
+            if verbose_name.startswith('origin/'):
+                verbose_name = verbose_name.replace('origin/', '')
+            if verbose_name == 'HEAD':
+                continue
+            versions.append(VCSVersion(self, str(branch), verbose_name))
         return versions
 
     @property
