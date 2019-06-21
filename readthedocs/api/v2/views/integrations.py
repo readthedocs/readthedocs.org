@@ -19,7 +19,11 @@ from readthedocs.core.signals import (
     webhook_github,
     webhook_gitlab,
 )
-from readthedocs.core.views.hooks import build_branches, sync_versions
+from readthedocs.core.views.hooks import (
+    build_branches,
+    sync_versions,
+    get_or_create_external_version,
+)
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project
 
@@ -29,6 +33,9 @@ log = logging.getLogger(__name__)
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
+GITHUB_PULL_REQUEST = 'pull_request'
+GITHUB_PULL_REQUEST_OPEN = 'opened'
+GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
 GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
@@ -108,6 +115,10 @@ class WebhookMixin:
 
     def handle_webhook(self):
         """Handle webhook payload."""
+        raise NotImplementedError
+
+    def get_external_version_data(self):
+        """Get External Version data from payload."""
         raise NotImplementedError
 
     def is_payload_valid(self):
@@ -218,6 +229,13 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 pass
         return super().get_data()
 
+    def get_external_version_data(self):
+        """Get Commit Sha and pull request number from payload"""
+        identifier = self.data['pull_request']['head']['sha']
+        verbose_name = str(self.data['number'])
+
+        return identifier, verbose_name
+
     def is_payload_valid(self):
         """
         GitHub use a HMAC hexdigest hash to sign the payload.
@@ -271,6 +289,21 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
+
+        if (
+            event == GITHUB_PULL_REQUEST and
+            self.data['action'] in [GITHUB_PULL_REQUEST_OPEN, GITHUB_PULL_REQUEST_SYNC]
+        ):
+            try:
+                identifier, verbose_name = self.get_external_version_data()
+                external_version = get_or_create_external_version(
+                    self.project, identifier, verbose_name
+                )
+                return self.get_response_push(self.project, [external_version.verbose_name])
+
+            except KeyError:
+                raise ParseError('Parameters "sha" and "number" are required')
+
         return None
 
     def _normalize_ref(self, ref):

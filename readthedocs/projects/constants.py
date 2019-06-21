@@ -333,3 +333,5 @@ GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+
+GITHUB_GIT_PATTERN = 'pull/{id}/head:external-{id}'

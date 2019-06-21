@@ -10,7 +10,9 @@ import git
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
+from readthedocs.projects.constants import GITHUB_GIT_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -25,6 +27,7 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
+    supports_external_branches = True
     supports_submodules = True
     fallback_branch = 'master'  # default branch
     repo_depth = 50
@@ -50,13 +53,20 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self):
+    def update(self, version=None):  # pylint: disable=arguments-differ
         """Clone or update the repository."""
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
+            # A fetch is always required to get external versions properly
+            if version and version.type == EXTERNAL:
+                return self.fetch(version.verbose_name)
             return self.fetch()
         self.make_clean_working_dir()
+        # A fetch is always required to get external versions properly
+        if version and version.type == EXTERNAL:
+            self.clone()
+            return self.fetch(version.verbose_name)
         return self.clone()
 
     def repo_exists(self):
@@ -143,8 +153,14 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
-    def fetch(self):
-        cmd = ['git', 'fetch', '--tags', '--prune', '--prune-tags']
+    def fetch(self, verbose_name=None):
+        cmd = ['git', 'fetch', 'origin',
+               '--tags', '--prune', '--prune-tags']
+
+        if verbose_name and 'github.com' in self.repo_url:
+            cmd.append(
+                GITHUB_GIT_PATTERN.format(id=verbose_name)
+            )
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
