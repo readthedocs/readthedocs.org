@@ -539,6 +539,12 @@ class CommunityBaseSettings(Settings):
                 'filename': os.path.join(LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
+            'db': {
+                'level': 'DEBUG',
+                'class': 'logging.handlers.RotatingFileHandler',
+                'filename': os.path.join(LOGS_ROOT, 'db.log'),
+                'formatter': 'default',
+            },
             'null': {
                 'class': 'logging.NullHandler',
             },
@@ -548,6 +554,11 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
                 'level': 'DEBUG',
+            },
+            'django.db.backends': {
+                'level': 'DEBUG',
+                'handlers': ['db'],
+                'propagate': False,
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
