@@ -1,3 +1,35 @@
+Version 3.5.3
+-------------
+
+:Date: June 19, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Treat docs warnings as errors (`#5825 <https://github.com/rtfd/readthedocs.org/pull/5825>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix some unclear verbiage (`#5820 <https://github.com/rtfd/readthedocs.org/pull/5820>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Rework documentation index page (`#5819 <https://github.com/rtfd/readthedocs.org/pull/5819>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Upgrade intersphinx to Django 1.11 (`#5818 <https://github.com/rtfd/readthedocs.org/pull/5818>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 24 (`#5817 <https://github.com/rtfd/readthedocs.org/pull/5817>`__)
+* `@humitos <http://github.com/humitos>`__: Disable changing domain when editing the object (`#5816 <https://github.com/rtfd/readthedocs.org/pull/5816>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update docs with sitemap sort order change (`#5815 <https://github.com/rtfd/readthedocs.org/pull/5815>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Optimize requests to APIv3 (`#5803 <https://github.com/rtfd/readthedocs.org/pull/5803>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Show build length in the admin (`#5802 <https://github.com/rtfd/readthedocs.org/pull/5802>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move search functions (`#5801 <https://github.com/rtfd/readthedocs.org/pull/5801>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: A few small improvements to help with search admin stuff (`#5800 <https://github.com/rtfd/readthedocs.org/pull/5800>`__)
+* `@stsewd <http://github.com/stsewd>`__: Simplify es indexing (`#5798 <https://github.com/rtfd/readthedocs.org/pull/5798>`__)
+* `@humitos <http://github.com/humitos>`__: Use a real SessionBase object on FooterNoSessionMiddleware (`#5797 <https://github.com/rtfd/readthedocs.org/pull/5797>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add logging in magic methods (`#5795 <https://github.com/rtfd/readthedocs.org/pull/5795>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix unbound var in search view (`#5794 <https://github.com/rtfd/readthedocs.org/pull/5794>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Mention security issue in the changelog (`#5790 <https://github.com/rtfd/readthedocs.org/pull/5790>`__)
+* `@stsewd <http://github.com/stsewd>`__: Index path with original path name (`#5785 <https://github.com/rtfd/readthedocs.org/pull/5785>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use querysets from the class not from an instance (`#5783 <https://github.com/rtfd/readthedocs.org/pull/5783>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add Build managers and Update Build Querysets. (`#5779 <https://github.com/rtfd/readthedocs.org/pull/5779>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Project advertising page/form update (`#5777 <https://github.com/rtfd/readthedocs.org/pull/5777>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update docs around opt-out of ads (`#5776 <https://github.com/rtfd/readthedocs.org/pull/5776>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Sitemap sort order priorities updated (`#5724 <https://github.com/rtfd/readthedocs.org/pull/5724>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: [Design Doc] In Doc Search UI (`#5707 <https://github.com/rtfd/readthedocs.org/pull/5707>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Pull Request Builder Design Doc (`#5705 <https://github.com/rtfd/readthedocs.org/pull/5705>`__)
+* `@humitos <http://github.com/humitos>`__: Support single version subprojects URLs to serve from Django (`#5690 <https://github.com/rtfd/readthedocs.org/pull/5690>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add a contrib Dockerfile for local build image on Linux (`#4608 <https://github.com/rtfd/readthedocs.org/pull/4608>`__)
+
 Version 3.5.2
 -------------
 

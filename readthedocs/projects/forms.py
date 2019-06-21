@@ -666,6 +666,11 @@ class DomainBaseForm(forms.ModelForm):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
+        # Disable domain manipulation on Update, but allow on Create
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['domain'].disabled = True
+
     def clean_project(self):
         return self.project
 
