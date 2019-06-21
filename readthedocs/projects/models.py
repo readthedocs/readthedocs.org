@@ -1252,10 +1252,10 @@ class HTMLFile(ImportedFile):
                 file_path,
             )
         return {
-            'path': file_path,
             'title': '',
-            'section_title': '',
+            'path': file_path,
             'section_id': '',
+            'section_title': '',
             'section_content': '',
         }
 

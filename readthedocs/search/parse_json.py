@@ -10,17 +10,6 @@ from pyquery import PyQuery
 log = logging.getLogger(__name__)
 
 
-def process_headers(data, filename):
-    """Read headers from toc data."""
-    headers = []
-    if data.get('toc', False):
-        for element in PyQuery(data['toc'])('a'):
-            headers.append(recurse_while_none(element))
-        if None in headers:
-            log.info('Unable to index file headers for: %s', filename)
-    return headers
-
-
 def generate_sections_from_pyquery(body):
     """Given a pyquery object, generate section dicts for each section."""
     # Capture text inside h1 before the first h2
@@ -78,7 +67,6 @@ def process_file(fjson_filename):
     sections = []
     path = ''
     title = ''
-    body_content = ''
 
     if 'current_page_name' in data:
         path = data['current_page_name']
@@ -87,8 +75,7 @@ def process_file(fjson_filename):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        body_content = body.text().replace('¶', '')
-        sections.extend(generate_sections_from_pyquery(body))
+        sections = generate_sections_from_pyquery(body)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
 
@@ -107,18 +94,3 @@ def process_file(fjson_filename):
             'section_title': section['title'],
             'section_content': section['content'],
         }
-
-
-def recurse_while_none(element):
-    """
-    Traverse the ``element`` until a non-None text is found.
-
-    :param element: element to traverse until get a non-None text.
-    :type element: pyquery.PyQuery
-
-    :returns: the first non-None value found
-    :rtype: str
-    """
-    if element.text is None:
-        return recurse_while_none(element.getchildren()[0])
-    return element.text
