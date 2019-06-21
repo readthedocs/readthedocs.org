@@ -116,6 +116,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
     path = fields.KeywordField(attr='processed_json.path')
+    full_path = fields.KeywordField(attr='path')
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
@@ -153,7 +154,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def get_queryset(self):
         """Overwrite default queryset to filter certain files to index."""
-        queryset = super(PageDocument, self).get_queryset()
+        queryset = super().get_queryset()
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files

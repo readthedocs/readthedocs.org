@@ -722,7 +722,7 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN
+        ctx['default_domain'] = settings.PUBLIC_DOMAIN if settings.USE_SUBDOMAIN else settings.PRODUCTION_DOMAIN  # noqa
 
         # Retry validation on all domains if applicable
         for domain in ctx['domain_list']:

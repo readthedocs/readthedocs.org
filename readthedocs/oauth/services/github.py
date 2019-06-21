@@ -79,8 +79,10 @@ class GitHubService(Service):
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
-        if ((privacy == 'private') or
-            (fields['private'] is False and privacy == 'public')):
+        if any([
+                (privacy == 'private'),
+                (fields['private'] is False and privacy == 'public'),
+        ]):
             try:
                 repo = RemoteRepository.objects.get(
                     full_name=fields['full_name'],

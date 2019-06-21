@@ -8,8 +8,9 @@ Once a project is imported under Read the Docs,
 by default it's hosted under a subdomain on one of our domains.
 If you need a custom domain, continue on custom domain setup.
 
-Custom domains
---------------
+
+Serving documentation with a custom domain
+------------------------------------------
 
 Projects can also be hosted under a custom domain.
 If you'd prefer to use your own domain name instead of our default hosting domain,

@@ -1232,19 +1232,19 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        paths = []
+        fjson_paths = []
         basename = os.path.splitext(self.path)[0]
-        paths.append(basename + '.fjson')
+        fjson_paths.append(basename + '.fjson')
         if basename.endswith('/index'):
             new_basename = re.sub(r'\/index$', '', basename)
-            paths.append(new_basename + '.fjson')
+            fjson_paths.append(new_basename + '.fjson')
 
         full_json_path = self.project.get_production_media_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
         try:
-            for path in paths:
-                file_path = os.path.join(full_json_path, path)
+            for fjson_path in fjson_paths:
+                file_path = os.path.join(full_json_path, fjson_path)
                 if os.path.exists(file_path):
                     return process_file(file_path)
         except Exception:

@@ -257,7 +257,7 @@ environmentvariable_urls = [
         name='projects_environmentvariables_detail',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',
+        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',  # noqa
         EnvironmentVariableDelete.as_view(),
         name='projects_environmentvariables_delete',
     ),

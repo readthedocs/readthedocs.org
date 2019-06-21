@@ -178,9 +178,9 @@ Further steps
 
 By now you can trigger builds on your local environment,
 to encapsulate the build process inside a Docker container,
-see :doc:`development/buildenvironments`.
+see :doc:`buildenvironments`.
 
 For building this documentation,
 see :doc:`docs`.
 
-And for setting up for the front end development, see :doc:`development/standards`.
+And for setting up for the front end development, see :doc:`standards`.

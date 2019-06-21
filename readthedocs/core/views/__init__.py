@@ -193,7 +193,8 @@ def server_error_404_subdomain(request, template_name='404.html'):
             language, version_slug, path = language_and_version_from_path(path)
 
         # Firstly, attempt to serve the 404 of the current version (version_slug)
-        # Secondly, try to serve the 404 page for the default version (project.get_default_version())
+        # Secondly, try to serve the 404 page for the default version
+        # (project.get_default_version())
         for slug in (version_slug, project.get_default_version()):
             for tryfile in ('404.html', '404/index.html'):
                 basepath, filename, fullpath = resolve_404_path(project, slug, language, tryfile)
