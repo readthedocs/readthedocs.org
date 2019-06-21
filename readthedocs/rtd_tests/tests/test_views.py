@@ -296,4 +296,3 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertIn(external_version_build, response.context['build_qs'])
-        self.assertIn(external_version_build, response.context['active_builds'])
