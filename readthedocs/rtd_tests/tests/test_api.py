@@ -928,7 +928,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'foo': 'bar'},
             format='json',
-            HTTP_X_GITHUB_EVENT='pull_request',
+            HTTP_X_GITHUB_EVENT='issues',
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
