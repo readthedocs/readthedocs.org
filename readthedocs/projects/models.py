@@ -1252,11 +1252,11 @@ class HTMLFile(ImportedFile):
                 file_path,
             )
         return {
-            'headers': [],
-            'content': '',
             'path': file_path,
             'title': '',
-            'sections': [],
+            'section_title': '',
+            'section_id': '',
+            'section_content': '',
         }
 
     @cached_property

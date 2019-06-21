@@ -99,13 +99,14 @@ def process_file(fjson_filename):
     else:
         log.info('Unable to index title for: %s', fjson_filename)
 
-    return {
-        'headers': process_headers(data, fjson_filename),
-        'content': body_content,
-        'path': path,
-        'title': title,
-        'sections': sections,
-    }
+    for section in sections:
+        return {
+            'path': path,
+            'title': title,
+            'section_id': section['id'],
+            'section_title': section['title'],
+            'section_content': section['content'],
+        }
 
 
 def recurse_while_none(element):

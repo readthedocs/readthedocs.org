@@ -61,7 +61,6 @@ class RTDFacetedSearch(FacetedSearch):
         * Adds HTML encoding of results to avoid XSS issues.
         """
         search = search.highlight_options(encoder='html', number_of_fragments=3)
-        search = search.source(exclude=['content', 'headers'])
 
         all_queries = []
 
@@ -96,7 +95,11 @@ class PageSearchBase(RTDFacetedSearch):
     }
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
-    fields = ['title^10', 'headers^5', 'content']
+    fields = [
+        'title^10',
+        'section_title^5',
+        'section_content',
+    ]
     operators = ['and', 'or']
 
 

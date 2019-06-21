@@ -120,13 +120,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
-    headers = fields.TextField(attr='processed_json.headers')
-    content = fields.TextField(attr='processed_json.content')
-    sections = fields.ObjectField(attr='processed_json.sections', properties={
-        'id': fields.KeywordField(),
-        'title': fields.TextField(),
-        'content': fields.TextField()
-    })
+    section_id = fields.KeywordField(attr='processed_json.section_id')
+    section_title = fields.TextField(attr='processed_json.section_title')
+    section_content = fields.TextField(attr='processed_json.section_content')
 
     modified_model_field = 'modified_date'
 
