@@ -117,12 +117,13 @@ for your own :doc:`custom installation <custom_installs/index>`.
    :maxdepth: 1
 
    development/install
+   development/standards
    development/search
    development/architecture
    development/tests
    development/docs
+   development/front-end
    development/design/index
-   development/standards
    development/buildenvironments
    development/symlinks
    development/settings

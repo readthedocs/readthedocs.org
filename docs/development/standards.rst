@@ -4,7 +4,7 @@ Development Standards
 These are build standards that are adhered to by the core development team while
 developing Read the Docs and related services. If you are a new contributor to
 Read the Docs, it might a be a good idea to follow these guidelines as well. The
-:doc:`standard installation instructions <../install>` do cover what it takes to
+:doc:`standard installation instructions <install>` do cover what it takes to
 get started with a local installation of Read the Docs and can be used for local
 development by non-core team.
 
