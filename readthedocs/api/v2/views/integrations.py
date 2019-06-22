@@ -208,16 +208,29 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     Expects the following JSON::
 
-        {
-            "ref": "branch-name",
-            ...
-        }
+        For push, create, delete Events:
+            {
+                "ref": "branch-name",
+                ...
+            }
+
+        For pull_request Events:
+            {
+                "action": "opened",
+                "number": 2,
+                "pull_request": {
+                    "head": {
+                        "sha": "ec26de721c3235aad62de7213c562f8c821"
+                    }
+                }
+            }
 
     See full payload here:
 
     - https://developer.github.com/v3/activity/events/types/#pushevent
     - https://developer.github.com/v3/activity/events/types/#createevent
     - https://developer.github.com/v3/activity/events/types/#deleteevent
+    - https://developer.github.com/v3/activity/events/types/#pullrequestevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
