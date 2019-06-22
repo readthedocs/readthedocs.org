@@ -238,7 +238,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
         except KeyError:
             return None
 
-
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload"""
         identifier = self.data['pull_request']['head']['sha']
