@@ -202,9 +202,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
     """
     Webhook consumer for GitHub.
 
-    Accepts webhook events from GitHub, 'push' events trigger builds. Expects the
-    webhook event type will be included in HTTP header ``X-GitHub-Event``, and
-    we will have a JSON payload.
+    Accepts webhook events from GitHub, 'push' and 'pull_request' events trigger builds.
+    Expects the webhook event type will be included in HTTP header ``X-GitHub-Event``,
+    and we will have a JSON payload.
 
     Expects the following JSON::
 
