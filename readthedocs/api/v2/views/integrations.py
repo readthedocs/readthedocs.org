@@ -34,7 +34,9 @@ GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
 GITHUB_PULL_REQUEST = 'pull_request'
-GITHUB_PULL_REQUEST_OPEN = 'opened'
+GITHUB_PULL_REQUEST_OPENED = 'opened'
+GITHUB_PULL_REQUEST_CLOSED = 'closed'
+GITHUB_PULL_REQUEST_REOPENED = 'reopened'
 GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
@@ -229,6 +231,14 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 pass
         return super().get_data()
 
+    def get_action(self):
+        """Get Pull Request Action Data. ie: opened, closed, synchronize, reopened"""
+        try:
+            return self.data['action']
+        except KeyError:
+            return None
+
+
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload"""
         identifier = self.data['pull_request']['head']['sha']
@@ -290,19 +300,31 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
 
-        if (
-            event == GITHUB_PULL_REQUEST and
-            self.data['action'] in [GITHUB_PULL_REQUEST_OPEN, GITHUB_PULL_REQUEST_SYNC]
-        ):
-            try:
-                identifier, verbose_name = self.get_external_version_data()
-                external_version = get_or_create_external_version(
-                    self.project, identifier, verbose_name
-                )
-                return self.get_response_push(self.project, [external_version.verbose_name])
+        if event == GITHUB_PULL_REQUEST and self.get_action():
+            if (
+                self.get_action() in
+                [
+                    GITHUB_PULL_REQUEST_OPENED,
+                    GITHUB_PULL_REQUEST_REOPENED,
+                    GITHUB_PULL_REQUEST_SYNC
+                ]
+            ):
+                # Handle opened, synchronize, reopened pull_request event.
+                try:
+                    identifier, verbose_name = self.get_external_version_data()
+                    # create or get external version object using `verbose_name`.
+                    external_version = get_or_create_external_version(
+                        self.project, identifier, verbose_name
+                    )
+                    # send the external version instance to `self.get_response_push()`.
+                    return self.get_response_push(self.project, [external_version])
 
-            except KeyError:
-                raise ParseError('Parameters "sha" and "number" are required')
+                except KeyError:
+                    raise ParseError('Parameters "sha" and "number" are required')
+
+            if self.get_action() == GITHUB_PULL_REQUEST_CLOSED:
+                # Handle closed pull_request event.
+                pass
 
         return None
 

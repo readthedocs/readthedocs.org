@@ -48,7 +48,13 @@ def build_branches(project, branch_list):
     to_build = set()
     not_building = set()
     for branch in branch_list:
-        versions = project.versions_from_branch_name(branch)
+        # Used for External Versions
+        # pull/merge request `handle_webhook()` sends version instance for Building.
+        if isinstance(branch, Version):
+            versions = [branch]
+        else:
+            versions = project.versions_from_branch_name(branch)
+
         for version in versions:
             log.info(
                 '(Branch Build) Processing %s:%s',
@@ -93,12 +99,17 @@ def sync_versions(project):
 
 
 def get_or_create_external_version(project, identifier, verbose_name):
-    external_version = project.versions(manager=EXTERNAL).filter(verbose_name=verbose_name).first()
+    external_version = project.versions(
+        manager=EXTERNAL
+    ).filter(verbose_name=verbose_name).first()
+
     if external_version:
+        # identifier will change if there is a new commit to the Pull/Merge Request
         if external_version.identifier != identifier:
             external_version.identifier = identifier
             external_version.save()
     else:
+        # create an external version if the version does not exist.
         created_external_version = Version.objects.create(
             project=project,
             type=EXTERNAL,
