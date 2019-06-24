@@ -278,7 +278,7 @@ class BuildViewTests(TestCase):
             '/projects/pip/builds/%s/' % build.pk,
         )
 
-    def test_build_list_does_not_include_external_versions(self):
+    def test_build_list_includes_external_versions(self):
         external_version = get(
             Version,
             project = self.pip,
@@ -295,5 +295,4 @@ class BuildViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
-        self.assertNotIn(external_version_build, response.context['build_qs'])
-        self.assertNotIn(external_version_build, response.context['active_builds'])
+        self.assertIn(external_version_build, response.context['build_qs'])

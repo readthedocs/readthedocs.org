@@ -93,7 +93,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = self.get_object()
-        context['versions'] = Version.internal.public(
+        context['versions'] = Version.objects.public(
             user=self.request.user,
             project=project,
         )
@@ -268,7 +268,7 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.internal.public(
+    versions = Version.objects.public(
         user=request.user,
         project=project,
         only_active=False,
