@@ -295,6 +295,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
+        action = self.get_action()
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -312,9 +313,9 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
 
-        if event == GITHUB_PULL_REQUEST and self.get_action():
+        if event == GITHUB_PULL_REQUEST and action:
             if (
-                self.get_action() in
+                action in
                 [
                     GITHUB_PULL_REQUEST_OPENED,
                     GITHUB_PULL_REQUEST_REOPENED,
@@ -334,7 +335,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 except KeyError:
                     raise ParseError('Parameters "sha" and "number" are required')
 
-            if self.get_action() == GITHUB_PULL_REQUEST_CLOSED:
+            if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Handle closed pull_request event.
                 pass
 
