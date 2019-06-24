@@ -110,4 +110,4 @@ user-agents==2.0
 django-storages==1.7.1  # pyup: <1.8
 
 # Required only in development and linting
-django-debug-toolbar==1.11
+django-debug-toolbar==2.0
