@@ -446,9 +446,6 @@ class CommunityBaseSettings(Settings):
             'settings': {
                 'number_of_shards': 2,
                 'number_of_replicas': 0,
-                "index": {
-                    "sort.field": ["project", "version"]
-                }
             }
         },
     }
