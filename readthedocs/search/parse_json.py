@@ -10,6 +10,17 @@ from pyquery import PyQuery
 log = logging.getLogger(__name__)
 
 
+def process_headers(data, filename):
+    """Read headers from toc data."""
+    headers = []
+    if data.get('toc', False):
+        for element in PyQuery(data['toc'])('a'):
+            headers.append(recurse_while_none(element))
+        if None in headers:
+            log.info('Unable to index file headers for: %s', filename)
+    return headers
+
+
 def generate_sections_from_pyquery(body):
     """Given a pyquery object, generate section dicts for each section."""
     # Capture text inside h1 before the first h2
@@ -24,10 +35,7 @@ def generate_sections_from_pyquery(body):
             if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                 if 'section' in next_p[0].attrib['class']:
                     break
-            h1_content += '\n%s\n' % next_p.text().replace('¶', '').strip()
-            h1_content = h1_content.split('\n')[1:]  # to remove the redundant text
-            h1_content = '\n'.join(h1_content)
-
+            h1_content += '\n%s\n' % next_p.html()
             next_p = next_p.next()
         if h1_content:
             yield {
@@ -43,11 +51,7 @@ def generate_sections_from_pyquery(body):
         header = section_list.eq(num)
         title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
-
-        content = div.text().replace('¶', '').strip()
-        content = content.split('\n')[1:]  # to remove the redundant text
-        content = '\n'.join(content)
-
+        content = div.html()
         yield {
             'id': section_id,
             'title': title,
@@ -67,6 +71,7 @@ def process_file(fjson_filename):
     sections = []
     path = ''
     title = ''
+    body_content = ''
 
     if 'current_page_name' in data:
         path = data['current_page_name']
@@ -75,7 +80,8 @@ def process_file(fjson_filename):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections = generate_sections_from_pyquery(body)
+        body_content = body.text().replace('¶', '')
+        sections.extend(generate_sections_from_pyquery(body))
     else:
         log.info('Unable to index content for: %s', fjson_filename)
 
@@ -86,11 +92,25 @@ def process_file(fjson_filename):
     else:
         log.info('Unable to index title for: %s', fjson_filename)
 
-    for section in sections:
-        return {
-            'path': path,
-            'title': title,
-            'section_id': section['id'],
-            'section_title': section['title'],
-            'section_content': section['content'],
-        }
+    return {
+        'headers': process_headers(data, fjson_filename),
+        'content': body_content,
+        'path': path,
+        'title': title,
+        'sections': sections,
+    }
+
+
+def recurse_while_none(element):
+    """
+    Traverse the ``element`` until a non-None text is found.
+
+    :param element: element to traverse until get a non-None text.
+    :type element: pyquery.PyQuery
+
+    :returns: the first non-None value found
+    :rtype: str
+    """
+    if element.text is None:
+        return recurse_while_none(element.getchildren()[0])
+    return element.text

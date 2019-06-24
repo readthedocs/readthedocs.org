@@ -23,9 +23,6 @@ class PageSearchSerializer(serializers.Serializer):
     version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.CharField()
-    section_id = serializers.CharField()
-    section_title = serializers.CharField()
-    section_content = serializers.CharField()
     link = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
 
