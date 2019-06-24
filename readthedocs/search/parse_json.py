@@ -24,7 +24,11 @@ def generate_sections_from_pyquery(body):
             if next_p[0].tag == 'div' and 'class' in next_p[0].attrib:
                 if 'section' in next_p[0].attrib['class']:
                     break
-            h1_content += '\n%s\n' % next_p.text()
+
+            h1_content += '\n%s\n' % next_p.text().replace('¶', '').strip()
+            h1_content = h1_content.split('\n')[1:]  # to remove the redundant text
+            h1_content = '\n'.join(h1_content)
+
             next_p = next_p.next()
         if h1_content:
             yield {
@@ -40,7 +44,11 @@ def generate_sections_from_pyquery(body):
         header = section_list.eq(num)
         title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
-        content = div.text()
+
+        content = div.text().replace('¶', '').strip()
+        content = content.split('\n')[1:]  # to remove the redundant text
+        content = '\n'.join(content)
+
         yield {
             'id': section_id,
             'title': title,
