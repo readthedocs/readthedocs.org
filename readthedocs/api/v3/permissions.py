@@ -16,6 +16,7 @@ class PublicDetailPrivateListing(IsAuthenticated):
         if is_authenticated:
             if view.basename == 'projects' and any([
                     view.action == 'list',
+                    view.action == 'create',  # used to create Form in BrowsableAPIRenderer
                     view.action is None,  # needed for BrowsableAPIRenderer
             ]):
                 # hitting ``/projects/``, allowing
