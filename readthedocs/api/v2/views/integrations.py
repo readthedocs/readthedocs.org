@@ -23,6 +23,7 @@ from readthedocs.core.views.hooks import (
     build_branches,
     sync_versions,
     get_or_create_external_version,
+    delete_external_version,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project
@@ -196,6 +197,19 @@ class WebhookMixin:
             'versions': [version],
         }
 
+    def delete_external_version(self, project, identifier, verbose_name):
+        # if external version exists returns
+        # verbose name (Pull/Merge Request Number)
+        # else returns None
+        deleted_version = delete_external_version(
+            project, identifier, verbose_name
+        )
+        return {
+            'version_deleted': deleted_version is not None,
+            'project': project.slug,
+            'versions': [deleted_version],
+        }
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
@@ -337,7 +351,15 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Handle closed pull_request event.
-                pass
+                try:
+                    identifier, verbose_name = self.get_external_version_data()
+                    # Delete external version object if exists using `verbose_name`.
+                    return self.delete_external_version(
+                        self.project, identifier, verbose_name
+                    )
+
+                except KeyError:
+                    raise ParseError('Parameters "sha" and "number" are required')
 
         return None
 

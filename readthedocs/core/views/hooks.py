@@ -117,5 +117,29 @@ def get_or_create_external_version(project, identifier, verbose_name):
             verbose_name=verbose_name,
             active=True
         )
+        log.info(
+            '(Create External Version) Added Version: [%s] ', ' '.join(
+                created_external_version.slug
+            )
+        )
         return created_external_version
     return external_version
+
+
+def delete_external_version(project, identifier, verbose_name):
+    external_version = project.versions(manager=EXTERNAL).filter(
+        verbose_name=verbose_name, identifier=identifier
+    ).first()
+
+    if external_version:
+        verbose_name = external_version.verbose_name
+        # Delete External Version
+        external_version.delete()
+        log.info(
+            '(Delete External Version) Deleted Version: [%s]', ' '.join(
+                external_version.slug
+            )
+        )
+
+        return verbose_name
+    return None
