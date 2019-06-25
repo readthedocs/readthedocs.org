@@ -96,8 +96,45 @@ class PageSearchBase(RTDFacetedSearch):
     }
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
-    fields = ['title^10', 'headers^5', 'content']
+    outer_fields = ['title^10']
+    nested_fields = ['sections.title^5', 'sections.content']
+    fields = outer_fields
     operators = ['and', 'or']
+
+    def query(self, search, query):
+        """Manipulates query to support nested query."""
+        search = search.highlight_options(encoder='html', number_of_fragments=3)
+
+        all_queries = []
+
+        # need to search for both 'and' and 'or' operations
+        # the score of and should be higher as it satisfies both or and and
+
+        for operator in self.operators:
+            query_string = SimpleQueryString(
+                query=query,
+                fields=self.outer_fields + self.nested_fields,
+                default_operator=operator
+            )
+            all_queries.append(query_string)
+
+        # run bool query with should, so it returns result where either of the query matches
+        bool_query = Bool(should=all_queries)
+
+        search = search.query(
+            'nested',
+            path='sections',
+            inner_hits={
+                'highlight': {
+                    'fields': {
+                        'sections.title': {},
+                        'sections.content': {},
+                    }
+                }
+            },
+            query=bool_query
+        )
+        return search
 
 
 class DomainSearchBase(RTDFacetedSearch):

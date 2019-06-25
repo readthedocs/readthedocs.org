@@ -25,6 +25,7 @@ class PageSearchSerializer(serializers.Serializer):
     path = serializers.CharField()
     link = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
+    inner_hits = serializers.SerializerMethodField()
 
     def get_link(self, obj):
         projects_url = self.context.get('projects_url')
@@ -42,6 +43,19 @@ class PageSearchSerializer(serializers.Serializer):
             ret = highlight.to_dict()
             log.debug('API Search highlight: %s', pformat(ret))
             return ret
+
+    def get_inner_hits(self, obj):
+        inner_hits = getattr(obj.meta, 'inner_hits', None)
+        if inner_hits:
+            sections = getattr(inner_hits, 'sections', 'None')
+            res = []
+            for hit in sections.hits:
+                info = {
+                    '_source': hit._source.to_dict(),
+                    'highlight': hit.highlight.to_dict(),
+                }
+                res.append(info)
+            return res
 
 
 class PageSearchAPIView(generics.ListAPIView):
