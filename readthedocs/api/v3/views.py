@@ -1,6 +1,7 @@
 import django_filters.rest_framework as filters
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
+from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
@@ -174,7 +175,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             data = self.get_serializer(superproject).data
             return Response(data)
         except Exception:
-            return Response(status=404)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
@@ -263,7 +264,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
         # via Javascript
         super().update(request, *args, **kwargs)
-        return Response(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
@@ -303,11 +304,11 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
 
         if build:
             data.update({'triggered': True})
-            status = 202
+            code = status.HTTP_202_ACCEPTED
         else:
             data.update({'triggered': False})
-            status = 400
-        return Response(data=data, status=status)
+            code = status.HTTP_400_BAD_REQUEST
+        return Response(data=data, status=code)
 
 
 class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
