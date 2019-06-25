@@ -31,6 +31,7 @@ from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     ProjectSerializer,
+    ProjectCreateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
     VersionSerializer,
@@ -67,7 +68,7 @@ class APIv3Settings:
 
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, ReadOnlyModelViewSet):
+                      FlexFieldsMixin, CreateModelMixin, ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
@@ -115,14 +116,13 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
     * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
 
-    Go to [https://docs.readthedocs.io/en/stable/api/v3.html](https://docs.readthedocs.io/en/stable/api/v3.html)
+    Go to [https://docs.readthedocs.io/page/api/v3.html](https://docs.readthedocs.io/page/api/v3.html)
     for a complete documentation of the APIv3.
     """  # noqa
 
     model = Project
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
-    serializer_class = ProjectSerializer
     filterset_class = ProjectFilter
     queryset = Project.objects.all()
     permit_list_expands = [
@@ -130,6 +130,20 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         'active_versions.last_build',
         'active_versions.last_build.config',
     ]
+
+    def get_serializer_class(self):
+        """
+        Return correct serializer depending on the action.
+
+        For GET it returns a serializer with many fields and on PUT/PATCH/POST,
+        it return a serializer to validate just a few fields.
+        """
+        if self.action in ('list', 'retrieve'):
+            return ProjectSerializer
+        elif self.action in ('create',):
+            return ProjectCreateSerializer
+        # elif self.action in ('update', 'partial_update'):
+        #     return ProjectUpdateSerializer
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
@@ -165,6 +179,33 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                 # TODO: make the links clickable when ``kwargs.html=True``
                 return mark_safe(description.format(project_slug=project.slug))
         return description
+
+    def create(self, request, *args, **kwargs):
+        """
+        Override method to importing a Project.
+
+        * Save the Project object
+        * Assign the user from the request as owner
+        * Sent project_import signal
+        * Trigger an initial Build
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = serializer.save()
+        headers = self.get_success_headers(serializer.data)
+
+        # TODO: these lines need to be adapted for Corporate
+        project.users.add(request.user)
+        project_import.send(sender=project, request=request)
+        trigger_initial_build(project, request.user)
+
+        # Full render Project
+        serializer = ProjectSerializer(instance=project)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
