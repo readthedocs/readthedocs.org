@@ -3,7 +3,6 @@
 import logging
 
 from allauth.socialaccount.models import SocialAccount
-from celery import chain
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -24,9 +23,9 @@ from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
 from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, prepare_build, trigger_build
+from readthedocs.core.utils import broadcast, trigger_build, trigger_initial_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -272,17 +271,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         )
 
     def trigger_initial_build(self, project):
-        """Trigger initial build."""
-        update_docs, build = prepare_build(project)
-        if (update_docs, build) == (None, None):
-            return None
-
-        task_promise = chain(
-            attach_webhook.si(project.pk, self.request.user.pk),
-            update_docs,
-        )
-        async_result = task_promise.apply_async()
-        return async_result
+        return trigger_initial_build(project, self.request.user)
 
     def is_advanced(self):
         """Determine if the user selected the `show advanced` field."""
