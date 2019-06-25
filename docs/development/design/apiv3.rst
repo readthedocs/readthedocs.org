@@ -1,5 +1,8 @@
-Design of APIv3
-===============
+APIv3
+=====
+
+This document describes the design,
+some decisions already made and an implementation plan for APIv3 in stages.
 
 APIv3 will be designed to be easy to use and useful to perform read and write operations as the main two goals.
 
@@ -7,9 +10,25 @@ It will be based on Resources as APIv2 but considering the ``Project`` resource 
 from where most of the endpoint will be based on it.
 
 
+Goals
+-----
+
+* Easy to use for our users
+* Useful to perform read and write operations
+* Cover most useful cases
+
+
+Non-Goals
+---------
+
+* Filter by arbitrary and non-useful fields
+* Cover *all the actions* available from the WebUI
+
+
 Problems with APIv2
 -------------------
 
+There are several problem with our current APIv2 that we can list:
 
 * No authentication
 * It's read-only
@@ -20,185 +39,117 @@ Problems with APIv2
 * Footer API endpoint returns HTML
 
 
-Proposed improves
-+++++++++++++++++
+Implementation stages
+---------------------
 
+Version 1
++++++++++
 
-Use authentication
-~~~~~~~~~~~~~~~~~~
+The first implementation of APIv3 will cover the following aspects:
 
-* Pros:
+.. note::
 
-  * queries can be personalized depending on the user
-  * allows us to perform write actions
+   This is currently implemented and live. Although, it's only for internal testing.
 
-* Cons:
+* Authentication
 
-  * harder to implement
-  * requires a lot of time for good testing and QA
+  * all endpoints require authentication via ``Authorization:`` request header
+  * detail endpoints are available for all authenticated users
+  * only Project's maintainers can access listing endpoints
+  * personalized listing
 
+* Read and Write
 
-Questions:
+  * edit attributes from Version (only ``active`` and ``privacy_level``)
+  * trigger Build for a specific Version
 
-#. Do we want make auth a requirement?
-#. Should we expose some endpoints as Read Only if not authenticated?
-#. How we do communicate users about deprecation if they are Anonymous? Is it enough to add a note in the docs saying that "Auth is preferred for communication"?
-#. How are we going to expose the ``Token`` required for Auth when building if auth is mandatory?
+* Accessible by slug
 
+  * Projects are accessed by ``slug``
+  * Versions are accessed by ``slug``
+  * ``/projects/`` endpoint is the main one and all of the other are nested under it
+  * Builds are accessed by  ``id``, as exception to this rule
+  * access all (active/non-active) Versions of a Project by ``slug``
+  * get latest Build for a Project (and Version) by ``slug``
+  * filter by relevant fields
 
-Read and Write
-~~~~~~~~~~~~~~
+* Proper status codes to report errors
 
-* Pros:
+* Browse-able endpoints
 
-  * most of the actions can be performed by a script instead of by
-    accessing readthedocs.org with a browser
+  * browse is allowed hitting ``/api/v3/projects/`` as starting point
+  * ability to navigate clicking on other resources under ``_links`` attribute
 
-* Cons:
+* Rate limited
 
-  * we have to deal with authorization
-  * open the door to possibilities of security holes
 
+Version 2
++++++++++
 
-Questions:
+Second iteration will polish issues found from the first step,
+and add new endpoints to allow *import a project and configure it*
+without the needed of using the WebUI as a main goal.
 
-#. Do we want to allow the user to perform **all the write actions**
-   that are possible to do from the dashboard via the API?
+After Version 2 is deployed,
+we will invite users that reach us as beta testers to receive more feedback
+and continue improving it by supporting more use cases.
 
+This iteration will include:
 
-Design it for slugs
-~~~~~~~~~~~~~~~~~~~
+* Minor changes to fields returned in the objects
+* Import Project endpoint
+* Edit Project attributes ("Settings" and "Advanced settings-Global settings" in the WebUI)
+* Trigger Build for default version
+* Allow CRUD for Redirect, Environment Variables and Notifications (``WebHook`` and ``EmailHook``)
+* Documentation
 
-* Pros:
 
-  * knowing the slug of your project (which is presented to the user)
-    you can perform all the actions or retrieve all the data
+Version 3
++++++++++
 
-* Cons:
+Third iteration will implement granular permissions.
+Keeping in mind how Sphinx extension will use it:
 
-  * it will be a mixture between most of the endpoint using ``slug``
-    and to retrieve details of a Build it will be an ``id``
+* ``sphinx-version-warning`` needs to get *all active Versions of a Project*
+* An extension that creates a landing page, will need *all the subprojects of a Project*
 
+To fulfill these requirements, this iteration will include:
 
-Expose internal endpoints
-~~~~~~~~~~~~~~~~~~~~~~~~~
+* Scope-based authorization token
 
-There are some endpoints that we are using internally like
-``/api/v2/search/``, ``/api/v2/footer/`` and
-``/api/v2/sustainability/``.
 
+Version 4
++++++++++
 
-* Pros:
+* Specific endpoint for our flyout menu (returning JSON instead of HTML)
 
-  * allow to build custom footer
-  * allow to build custom search autocomplete widget
 
-* Cons:
+Out of roadmap
+--------------
 
-  * n/a
+These are some features that we may want to build but they are not in the roadmap at this moment:
 
-Questions:
+* CRUD for Domain
+* Add User as maintainer
+* Give access to a documentation page (``objects.inv``, ``/design/core.html``)
+* Internal Build process
 
-#. Do we want to add ``/api/v2/sustainability/`` to APIv3 or that
-   should be part of the new Ad Server that we are building?
 
+Open questions
+--------------
 
-Proper status codes for error reporting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+There are some questions that we still have.
+These will need more discussion before making a decision on where,
+when and how to implement them.
 
-* Pros:
+* Do we want to add ``/api/v2/sustainability/`` to APIv3?
+  Should be part of the new "Ad Server" that we are building?
+* Should we make our search endpoint at ``/api/v2/search`` publicly on APIv3?
 
-  * user knows what it's happening and can take decisions about it
 
-* Cons:
+Nice to have
+------------
 
-  * n/a
-
-
-Relationship between API resources
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* Pros:
-
-  * browse-able API by accessing to the default resource (Project)
-  * knowing the project's slug you can perform all the actions related to it
-
-* Cons:
-
-  * more data is returned with all the links to the endpoints
-
-
-Make footer API returns JSON
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* Pros:
-
-  * users can build their own version menu flyout
-  * cleaner than returning a HTML and injecting it
-
-* Cons:
-
-  * we need to adapt our theme for this
-
-
-Questions:
-
-#. Do we want an specific endpoint for the footer?
-#. The flyout could be built by querying 2 or 3 of the regular
-   endpoint. Would this add too much overhead to the page loading
-   time?
-
-
-Use cases
----------
-
-We want to cover
-++++++++++++++++
-
-
-* Return all **my** projects
-* Access all the resources by knowing the project's slug
-* Ability to filter by fields
-
-  * all the active versions of specific project
-
-* Data about builds
-
-  * latest build for project
-  * latest build for a particular version of a project
-  * status of a particular build
-
-* Perform write actions like
-
-  * add a Domain,
-  * add User as mantainer,
-  * import a new Project under my username,
-  * set the language of the Project,
-  * trigger a Build,
-  * activate/deactivate a Version to be built,
-  * and all the actions you can perform from the Admin tab.
-
-* Retrieve all the information needed to create a custom version menu flyout
-
-
-Considering some useful cases for the corporate site:
-
-* Give access to a doc page (``objects.inv``, ``/design/core.html``)
-
-
-We do NOT want to cover
-+++++++++++++++++++++++
-
-* Random filtering over a whole and not useful Resource
-
-  * "All the ``stable`` versions"
-  * "Builds with ``exit_code`` equal to 257"
-
-
-Technical aspects that would be good to have
---------------------------------------------
-
-* Rate limit
 * ``Request-ID`` header
 * `JSON minified by default`_ (maybe with ``?pretty=true``)
 * `JSON schema and validation`_ with docs_
