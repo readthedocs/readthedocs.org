@@ -378,6 +378,22 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
+class ProjectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to Import a Project."""
+
+    repository = RepositorySerializer(source='*')
+
+    class Meta:
+        model = Project
+        fields = (
+            'name',
+            'language',
+            'repository',
+            'project_url',  # project_homepage
+        )
+
+
 class ProjectSerializer(FlexFieldsModelSerializer):
 
     language = LanguageSerializer()
