@@ -47,7 +47,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_inner_hits(self, obj):
         inner_hits = getattr(obj.meta, 'inner_hits', None)
         if inner_hits:
-            sections = getattr(inner_hits, 'sections', 'None')
+            sections = getattr(inner_hits, 'sections', None)
             res = []
             for hit in sections.hits:
                 info = {
