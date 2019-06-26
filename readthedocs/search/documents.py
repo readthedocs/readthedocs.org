@@ -16,10 +16,6 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-domain_conf = settings.ES_INDEXES['domain']
-domain_index = Index(domain_conf['name'])
-domain_index.settings(**domain_conf['settings'])
-
 log = logging.getLogger(__name__)
 
 
