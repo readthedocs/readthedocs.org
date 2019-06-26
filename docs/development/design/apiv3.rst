@@ -133,7 +133,9 @@ Version 4
 Out of roadmap
 --------------
 
-These are some features that we may want to build but they are not in the roadmap at this moment:
+These are some features that we may want to build at some point.
+Although, they are currently out of our near roadmap because they don't affect too many users,
+or are for internal usage only.
 
 * CRUD for Domain
 * Add User as maintainer
