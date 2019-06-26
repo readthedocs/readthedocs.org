@@ -10,7 +10,6 @@ from readthedocs.projects.models import Project
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
     AllSearch,
-    DomainSearch,
     PageSearch,
     ProjectSearch,
 )
@@ -63,7 +62,6 @@ def elastic_search(request, project_slug=None):
         lambda: ProjectSearch,
         {
             'project': ProjectSearch,
-            'domain': DomainSearch,
             'file': PageSearch,
             'all': AllSearch,
         }

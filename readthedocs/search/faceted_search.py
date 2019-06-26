@@ -10,7 +10,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import (
     PageDocument,
     ProjectDocument,
-    SphinxDomainDocument,
 )
 
 
@@ -137,18 +136,6 @@ class PageSearchBase(RTDFacetedSearch):
         return search
 
 
-class DomainSearchBase(RTDFacetedSearch):
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'role_name': TermsFacet(field='role_name'),
-    }
-    doc_types = [SphinxDomainDocument]
-    index = SphinxDomainDocument._doc_type.index
-    fields = ('display_name^5', 'name^3', 'project^3', 'type_display')
-    operators = ['and']
-
-
 class PageSearch(SettingsOverrideObject):
 
     """
@@ -171,17 +158,6 @@ class ProjectSearch(SettingsOverrideObject):
     _default_class = ProjectSearchBase
 
 
-class DomainSearch(SettingsOverrideObject):
-
-    """
-    Allow this class to be overridden based on CLASS_OVERRIDES setting.
-
-    This is primary used on the .com to adjust how we filter our search queries
-    """
-
-    _default_class = DomainSearchBase
-
-
 class AllSearch(RTDFacetedSearch):
 
     """
@@ -189,7 +165,9 @@ class AllSearch(RTDFacetedSearch):
 
     It has some UI/UX problems that need to be addressed.
     """
-
+    # TODO: This will not work currently and will break
+    # wherever this is used.
+    # Fix This.
     facets = {
         'project': TermsFacet(field='project'),
         'version': TermsFacet(field='version'),
@@ -198,10 +176,14 @@ class AllSearch(RTDFacetedSearch):
         # Need to improve UX here for exposing to users
         # 'index': TermsFacet(field='_index'),
     }
-    doc_types = [SphinxDomainDocument, PageDocument, ProjectDocument]
-    index = [SphinxDomainDocument._doc_type.index,
-             PageDocument._doc_type.index,
-             ProjectDocument._doc_type.index]
+    doc_types = [
+        PageDocument,
+        ProjectDocument
+    ]
+    index = [
+        PageDocument._doc_type.index,
+        ProjectDocument._doc_type.index
+    ]
     fields = ('title^10', 'headers^5', 'content', 'name^20',
               'slug^5', 'description', 'display_name^5')
     operators = ['and']
