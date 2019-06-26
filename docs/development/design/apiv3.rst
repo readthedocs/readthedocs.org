@@ -10,6 +10,11 @@ APIv3 will be designed to be easy to use and useful to perform read and write op
 It will be based on Resources as APIv2 but considering the ``Project`` resource as the main one,
 from where most of the endpoint will be based on it.
 
+.. contents::
+   :local:
+   :backlinks: none
+   :depth: 1
+
 
 Goals
 -----
