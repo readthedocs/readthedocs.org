@@ -197,10 +197,31 @@ class WebhookMixin:
             'versions': [version],
         }
 
-    def delete_external_version(self, project, identifier, verbose_name):
-        # if external version exists returns
-        # verbose name (Pull/Merge Request Number)
-        # else returns None
+    def get_external_version_response(self, project):
+        try:
+            # get identifier (commit hash) and verbose name (pull/merge request number)
+            # from webhook payload
+            identifier, verbose_name = self.get_external_version_data()
+        except KeyError:
+            raise ParseError('Parameters "sha" and "number" are required')
+        # create or get external version object using `verbose_name`.
+        external_version = get_or_create_external_version(
+            project, identifier, verbose_name
+        )
+        # send the external version instance to `self.get_response_push()`.
+        return self.get_response_push(project, [external_version])
+
+    def delete_external_version(self, project):
+        try:
+            # get identifier (commit hash) and verbose name (pull/merge request number)
+            # from webhook payload
+            identifier, verbose_name = self.get_external_version_data()
+        except KeyError:
+            raise ParseError('Parameters "sha" and "number" are required')
+        # if external version exists
+        # Delete external version and return
+        # verbose name (Pull/Merge Request Number) of the deleted version
+        # else return None
         deleted_version = delete_external_version(
             project, identifier, verbose_name
         )
@@ -337,29 +358,11 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 ]
             ):
                 # Handle opened, synchronize, reopened pull_request event.
-                try:
-                    identifier, verbose_name = self.get_external_version_data()
-                    # create or get external version object using `verbose_name`.
-                    external_version = get_or_create_external_version(
-                        self.project, identifier, verbose_name
-                    )
-                    # send the external version instance to `self.get_response_push()`.
-                    return self.get_response_push(self.project, [external_version])
-
-                except KeyError:
-                    raise ParseError('Parameters "sha" and "number" are required')
+                return self.get_external_version_response(self.project)
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Handle closed pull_request event.
-                try:
-                    identifier, verbose_name = self.get_external_version_data()
-                    # Delete external version object if exists using `verbose_name`.
-                    return self.delete_external_version(
-                        self.project, identifier, verbose_name
-                    )
-
-                except KeyError:
-                    raise ParseError('Parameters "sha" and "number" are required')
+                return self.delete_external_version(self.project)
 
         return None
 
