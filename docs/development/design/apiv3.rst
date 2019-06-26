@@ -141,18 +141,6 @@ These are some features that we may want to build but they are not in the roadma
 * Internal Build process
 
 
-Open questions
---------------
-
-There are some questions that we still have.
-These will need more discussion before making a decision on where,
-when and how to implement them.
-
-* Do we want to add ``/api/v2/sustainability/`` to APIv3?
-  Should be part of the new "Ad Server" that we are building?
-* Should we make our search endpoint at ``/api/v2/search`` publicly on APIv3?
-
-
 Nice to have
 ------------
 
