@@ -20,15 +20,31 @@ from where most of the endpoint will be based on it.
 Goals
 -----
 
-* Easy to use for our users
+* Easy to use for our users (access most of resources by ``slug``)
 * Useful to perform read and write operations
-* Cover most useful cases
+* Authentication/Authorization
+
+  * Authentication based on scoped-tokens
+  * Handle Authorization nicely using an abstraction layer
+
+* Cover most useful cases:
+
+  * Integration on CI (check build status, trigger new build, etc)
+  * Usage from public Sphinx/MkDocs extensions
+  * Allow creation of flyout menu client-side
+  * Simplify migration from other services (import projects, create multiple redirects, etc)
 
 
 Non-Goals
 ---------
 
 * Filter by arbitrary and non-useful fields
+
+  * "Builds with ``exit_code=1``"
+  * "Builds containing ``ERROR`` on their output"
+  * "Projects created after X datetime"
+  * "Versions with tag ``python``"
+
 * Cover *all the actions* available from the WebUI
 
 
