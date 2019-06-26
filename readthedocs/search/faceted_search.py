@@ -96,8 +96,8 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
 
-    outer_fields = ['title^10']
-    section_fields = ['sections.title^5', 'sections.content']
+    outer_fields = ['title']
+    section_fields = ['sections.title', 'sections.content']
     domain_fields = [
         'domains.type_display',
         'domains.doc_display',
@@ -201,34 +201,3 @@ class ProjectSearch(SettingsOverrideObject):
     """
 
     _default_class = ProjectSearchBase
-
-
-class AllSearch(RTDFacetedSearch):
-
-    """
-    Simplfy for testing.
-
-    It has some UI/UX problems that need to be addressed.
-    """
-    # TODO: This will not work currently and will break
-    # wherever this is used.
-    # Fix This.
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'language': TermsFacet(field='language'),
-        'role_name': TermsFacet(field='role_name'),
-        # Need to improve UX here for exposing to users
-        # 'index': TermsFacet(field='_index'),
-    }
-    doc_types = [
-        PageDocument,
-        ProjectDocument
-    ]
-    index = [
-        PageDocument._doc_type.index,
-        ProjectDocument._doc_type.index
-    ]
-    fields = ('title^10', 'headers^5', 'content', 'name^20',
-              'slug^5', 'description', 'display_name^5')
-    operators = ['and']
