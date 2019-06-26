@@ -1,7 +1,6 @@
 """Build and Version QuerySet classes."""
 
 from django.db import models
-from guardian.shortcuts import get_objects_for_user
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -18,11 +17,12 @@ class VersionQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
-            user_queryset = get_objects_for_user(user, 'builds.view_version')
+            projects_pk = user.projects.all().values_list('pk', flat=True)
+            user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def public(self, user=None, project=None, only_active=True):
         queryset = self.filter(privacy_level=constants.PUBLIC)
@@ -89,12 +89,12 @@ class BuildQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
-            user_queryset = get_objects_for_user(user, 'builds.view_version')
-            pks = user_queryset.values_list('pk', flat=True)
-            queryset = self.filter(version__pk__in=pks) | queryset
-        return queryset.distinct()
+            projects_pk = user.projects.all().values_list('pk', flat=True)
+            user_queryset = self.filter(project__in=projects_pk)
+            queryset = user_queryset | queryset
+        return queryset
 
     def public(self, user=None, project=None):
         queryset = self.filter(version__privacy_level=constants.PUBLIC)
@@ -127,11 +127,11 @@ class RelatedBuildQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
-            user_queryset = get_objects_for_user(user, 'builds.view_version')
-            pks = user_queryset.values_list('pk', flat=True)
-            queryset = self.filter(build__version__pk__in=pks,) | queryset
+            projects_pk = user.projects.all().values_list('pk', flat=True)
+            user_queryset = self.filter(build__project__in=projects_pk)
+            queryset = user_queryset | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):
