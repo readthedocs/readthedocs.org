@@ -3,7 +3,8 @@
 =======================
 
 This document describes the design,
-some decisions already made and an implementation plan for APIv3 in stages.
+some decisions already made and built (current Version 1 of APIv3)
+and an implementation plan for next Versions of APIv3.
 
 APIv3 will be designed to be easy to use and useful to perform read and write operations as the main two goals.
 
