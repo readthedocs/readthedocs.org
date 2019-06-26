@@ -313,6 +313,7 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('project', 'version')
     list_display = ('path', 'version', 'build')
+    list_select_related = ('project', 'version', 'version__project')
     search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
 
