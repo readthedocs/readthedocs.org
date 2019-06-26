@@ -35,15 +35,10 @@ class PageSearchSerializer(serializers.Serializer):
             return docs_url + obj.path
 
     def get_highlight(self, obj):
-        # TODO: make this work for inner_hits.sections and inner_hits.domains also.
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            if hasattr(highlight, 'content'):
-                # Change results to turn newlines in highlight into periods
-                # https://github.com/rtfd/readthedocs.org/issues/5168
-                highlight.content = [result.replace('\n', '. ') for result in highlight.content]
-            ret = highlight.to_dict()
-            log.debug('API Search highlight: %s', pformat(ret))
+            ret = self._get_clean_highlight_dict(highlight.to_dict())
+            log.debug('API Search highlight [Page title]: %s', pformat(ret))
             return ret
 
     def get_inner_hits(self, obj):
@@ -54,22 +49,58 @@ class PageSearchSerializer(serializers.Serializer):
             # add sections data to the search results
             sections = getattr(inner_hits, 'sections', None)
             for hit in sections.hits:
+                section_highlight = self._get_clean_highlight_dict(
+                    hit.highlight.to_dict()
+                )
+
+                log.debug('API Search highlight [Page sections]: %s', pformat(section_highlight))
+
                 section_info = {
                     '_source': hit._source.to_dict(),
-                    'highlight': hit.highlight.to_dict(),
+                    'highlight': section_highlight,
                 }
+
                 res['sections'].append(section_info)
 
             # add sphinx domain data to the search results
             domains = getattr(inner_hits, 'domains', None)
             for hit in domains:
+                domain_highlight = self._get_clean_highlight_dict(
+                    hit.highlight.to_dict()
+                )
+
+                log.debug('API Search highlight [Page domains]: %s', pformat(domain_highlight))
+
                 domain_info = {
                     '_source': hit._source.to_dict(),
-                    'highlight': hit.highlight.to_dict(),
+                    'highlight': domain_highlight,
                 }
+
                 res['domains'].append(domain_info)
 
             return res
+
+    def _get_clean_highlight_dict(self, highlight):
+        """
+        Recursively change results to turn newlines in highlight into periods
+        See: https://github.com/rtfd/readthedocs.org/issues/5168
+
+        :param highlight: highlight dict whose contents are to be edited.
+        :type highlight: dict
+        :returns: dict with all the newlines changed to periods.
+        :rtype: dict
+        """
+        for k, v in highlight.items():
+            if isinstance(v, dict):
+                highlight[k] = self.get_clean_highlight_dict(v)
+            else:
+                # elastic returns the contents of the
+                # highlighted field in a list.
+                if isinstance(v, list):
+                    v_new_list = [res.replace('\n', '. ') for res in v]
+                    highlight[k] = v_new_list
+
+        return highlight
 
 
 class PageSearchAPIView(generics.ListAPIView):
