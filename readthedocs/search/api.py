@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from pprint import pformat
 
 from rest_framework import generics, serializers
@@ -34,6 +35,7 @@ class PageSearchSerializer(serializers.Serializer):
             return docs_url + obj.path
 
     def get_highlight(self, obj):
+        # TODO: make this work for inner_hits.sections and inner_hits.domains also.
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
             if hasattr(highlight, 'content'):
@@ -47,14 +49,26 @@ class PageSearchSerializer(serializers.Serializer):
     def get_inner_hits(self, obj):
         inner_hits = getattr(obj.meta, 'inner_hits', None)
         if inner_hits:
+            res = defaultdict(list)
+
+            # add sections data to the search results
             sections = getattr(inner_hits, 'sections', None)
-            res = []
             for hit in sections.hits:
-                info = {
+                section_info = {
                     '_source': hit._source.to_dict(),
                     'highlight': hit.highlight.to_dict(),
                 }
-                res.append(info)
+                res['sections'].append(section_info)
+
+            # add sphinx domain data to the search results
+            domains = getattr(inner_hits, 'domains', None)
+            for hit in domains:
+                domain_info = {
+                    '_source': hit._source.to_dict(),
+                    'highlight': hit.highlight.to_dict(),
+                }
+                res['domains'].append(domain_info)
+
             return res
 
 

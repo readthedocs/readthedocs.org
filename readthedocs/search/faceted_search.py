@@ -2,7 +2,7 @@ import logging
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import Bool, SimpleQueryString
+from elasticsearch_dsl.query import Bool, SimpleQueryString, Nested, Match
 
 from django.conf import settings
 
@@ -95,34 +95,33 @@ class PageSearchBase(RTDFacetedSearch):
     }
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
+
     outer_fields = ['title^10']
-    nested_fields = ['sections.title^5', 'sections.content']
+    section_fields = ['sections.title^5', 'sections.content']
+    domain_fields = [
+        'domains.type_display',
+        'domains.doc_display',
+        'domains.name',
+        'domains.display_name',
+    ]
     fields = outer_fields
+
+    # need to search for both 'and' and 'or' operations
+    # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
     def query(self, search, query):
         """Manipulates query to support nested query."""
         search = search.highlight_options(encoder='html', number_of_fragments=3)
 
-        all_queries = []
+        # match query for the title (of the page) field.
+        match_title_query = Match(title=query)
 
-        # need to search for both 'and' and 'or' operations
-        # the score of and should be higher as it satisfies both or and and
-
-        for operator in self.operators:
-            query_string = SimpleQueryString(
-                query=query,
-                fields=self.outer_fields + self.nested_fields,
-                default_operator=operator
-            )
-            all_queries.append(query_string)
-
-        # run bool query with should, so it returns result where either of the query matches
-        bool_query = Bool(should=all_queries)
-
-        search = search.query(
-            'nested',
+        # nested query for search in sections
+        sections_nested_query = self.generate_nested_query(
+            query=query,
             path='sections',
+            fields=self.section_fields,
             inner_hits={
                 'highlight': {
                     'fields': {
@@ -130,10 +129,56 @@ class PageSearchBase(RTDFacetedSearch):
                         'sections.content': {},
                     }
                 }
-            },
+            }
+        )
+
+        # nested query for search in domains
+        domains_nested_query = self.generate_nested_query(
+            query=query,
+            path='domains',
+            fields=self.domain_fields,
+            inner_hits={
+                'highlight': {
+                    'fields': {
+                        'domains.type_display': {},
+                        'domains.doc_display': {},
+                        'domains.name': {},
+                        'domains.display_name': {},
+                    }
+                }
+            }
+        )
+
+        final_query = Bool(should=[
+            match_title_query,
+            sections_nested_query,
+            domains_nested_query,
+        ])
+
+        search = search.query(final_query)
+        return search
+
+
+    def generate_nested_query(self, query, path, fields, inner_hits):
+        """Generate a nested query with passed parameters."""
+        queries = []
+
+        for operator in self.operators:
+            query_string = SimpleQueryString(
+                query=query,
+                fields=fields,
+                default_operator=operator
+            )
+            queries.append(query_string)
+
+        bool_query = Bool(should=queries)
+
+        nested_query = Nested(
+            path=path,
+            inner_hits=inner_hits,
             query=bool_query
         )
-        return search
+        return nested_query
 
 
 class PageSearch(SettingsOverrideObject):
