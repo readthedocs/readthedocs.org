@@ -1,5 +1,6 @@
-APIv3
-=====
+=======================
+ APIv3 Design Document
+=======================
 
 This document describes the design,
 some decisions already made and an implementation plan for APIv3 in stages.
