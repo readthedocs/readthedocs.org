@@ -9,7 +9,6 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
-    AllSearch,
     PageSearch,
     ProjectSearch,
 )
@@ -63,7 +62,6 @@ def elastic_search(request, project_slug=None):
         {
             'project': ProjectSearch,
             'file': PageSearch,
-            'all': AllSearch,
         }
     )
 
