@@ -37,7 +37,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            ret = self._get_clean_highlight_dict(highlight.to_dict())
+            ret = self._remove_newlines_from_dict(highlight.to_dict())
             log.debug('API Search highlight [Page title]: %s', pformat(ret))
             return ret
 
@@ -49,7 +49,7 @@ class PageSearchSerializer(serializers.Serializer):
             # add sections data to the search results
             sections = getattr(inner_hits, 'sections', None)
             for hit in sections.hits:
-                section_highlight = self._get_clean_highlight_dict(
+                section_highlight = self._remove_newlines_from_dict(
                     hit.highlight.to_dict()
                 )
 
@@ -65,7 +65,7 @@ class PageSearchSerializer(serializers.Serializer):
             # add sphinx domain data to the search results
             domains = getattr(inner_hits, 'domains', None)
             for hit in domains:
-                domain_highlight = self._get_clean_highlight_dict(
+                domain_highlight = self._remove_newlines_from_dict(
                     hit.highlight.to_dict()
                 )
 
@@ -80,11 +80,11 @@ class PageSearchSerializer(serializers.Serializer):
 
             return res
 
-    def _get_clean_highlight_dict(self, highlight):
+    def _remove_newlines_from_dict(self, highlight):
         """
-        Recursively change results to turn newlines in highlight into periods
+        Recursively change results to turn newlines in highlight into periods.
+        
         See: https://github.com/rtfd/readthedocs.org/issues/5168
-
         :param highlight: highlight dict whose contents are to be edited.
         :type highlight: dict
         :returns: dict with all the newlines changed to periods.
@@ -92,7 +92,7 @@ class PageSearchSerializer(serializers.Serializer):
         """
         for k, v in highlight.items():
             if isinstance(v, dict):
-                highlight[k] = self.get_clean_highlight_dict(v)
+                highlight[k] = self._remove_newlines_from_dict(v)
             else:
                 # elastic returns the contents of the
                 # highlighted field in a list.

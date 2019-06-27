@@ -158,7 +158,6 @@ class PageSearchBase(RTDFacetedSearch):
         search = search.query(final_query)
         return search
 
-
     def generate_nested_query(self, query, path, fields, inner_hits):
         """Generate a nested query with passed parameters."""
         queries = []

@@ -126,7 +126,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         return all_domains
 
-
     @classmethod
     def faceted_search(
             cls, query, user, projects_list=None, versions_list=None,
