@@ -17,7 +17,7 @@ class Backend(BaseVCS):
     supports_tags = True
     fallback_branch = ''
 
-    def update(self, version=None):
+    def update(self):
         super().update()
         retcode = self.run('bzr', 'status', record=False)[0]
         if retcode == 0:

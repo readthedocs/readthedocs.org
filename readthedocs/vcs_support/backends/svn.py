@@ -27,7 +27,7 @@ class Backend(BaseVCS):
         else:
             self.base_url = self.repo_url
 
-    def update(self, version=None):
+    def update(self):
         super().update()
         # For some reason `svn status` gives me retcode 0 in non-svn
         # directories that's why I use `svn info` here.

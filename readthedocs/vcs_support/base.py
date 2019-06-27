@@ -56,6 +56,7 @@ class BaseVCS:
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
+        self.version = project.versions.filter(slug=version_slug).first()
 
         from readthedocs.doc_builder.environments import LocalEnvironment
         self.environment = environment or LocalEnvironment(project)
@@ -81,7 +82,7 @@ class BaseVCS:
 
         return environment
 
-    def update(self, version=None):
+    def update(self):
         """
         Update a local copy of the repository in self.working_dir.
 

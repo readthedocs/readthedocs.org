@@ -138,7 +138,7 @@ class SyncRepositoryMixin:
                 }
             )
             version_repo = self.get_vcs_repo()
-            version_repo.update(version=self.version)
+            version_repo.update()
             self.sync_versions(version_repo)
             version_repo.checkout(self.version.identifier)
         finally:

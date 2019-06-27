@@ -118,9 +118,9 @@ class TestGitBackend(RTDTestCase):
             type=EXTERNAL,
             active=True
         )
-        repo = self.project.vcs_repo()
-        repo.update(version)
-        fetch.assert_called_with(version.verbose_name)
+        repo = self.project.vcs_repo(version=version.slug)
+        repo.update()
+        fetch.assert_called_once()
 
     def test_git_fetch_with_external_version(self):
         version = fixture.get(
@@ -129,9 +129,9 @@ class TestGitBackend(RTDTestCase):
             type=EXTERNAL,
             active=True
         )
-        repo = self.project.vcs_repo()
+        repo = self.project.vcs_repo(version=version.slug)
         repo.update()
-        code, _, _ = repo.fetch(version.verbose_name)
+        code, _, _ = repo.fetch()
         self.assertEqual(code, 0)
 
     def test_git_checkout_invalid_revision(self):
