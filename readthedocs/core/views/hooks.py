@@ -141,5 +141,5 @@ def delete_external_version(project, identifier, verbose_name):
             )
         )
 
-        return verbose_name
+        return external_version.verbose_name
     return None

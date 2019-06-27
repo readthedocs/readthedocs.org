@@ -81,7 +81,7 @@ class BaseVCS:
 
         return environment
 
-    def update(self):
+    def update(self, version=None):
         """
         Update a local copy of the repository in self.working_dir.
 

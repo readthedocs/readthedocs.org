@@ -2,7 +2,13 @@
 from django.test import TestCase
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    LATEST,
+    STABLE,
+    TAG,
+    EXTERNAL,
+)
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import REPO_TYPE_GIT, REPO_TYPE_HG
 from readthedocs.projects.models import Project
@@ -72,3 +78,12 @@ class VersionCommitNameTests(TestCase):
             verbose_name=LATEST, type=BRANCH,
         )
         self.assertEqual(version.commit_name, 'master')
+
+    def test_external_version(self):
+        identifier = 'ec26de721c3235aad62de7213c562f8c821'
+        version = new(
+            Version, identifier=identifier,
+            slug='11', verbose_name='11',
+            type=EXTERNAL,
+        )
+        self.assertEqual(version.commit_name, identifier)

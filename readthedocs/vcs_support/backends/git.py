@@ -27,7 +27,6 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
-    supports_external_branches = True
     supports_submodules = True
     fallback_branch = 'master'  # default branch
     repo_depth = 50
@@ -53,7 +52,7 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self, version=None):  # pylint: disable=arguments-differ
+    def update(self, version=None):
         """Clone or update the repository."""
         super().update()
         if self.repo_exists():
