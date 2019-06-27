@@ -303,11 +303,6 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
 
 class ProjectURLsSerializer(serializers.Serializer):
     documentation = serializers.CharField(source='get_docs_url')
-    project_homepage = serializers.SerializerMethodField()
-
-    def get_project_homepage(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.project_url or None
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -388,6 +383,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
 class ProjectSerializer(FlexFieldsModelSerializer):
 
+    project_homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
@@ -428,6 +424,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'modified',
             'language',
             'programming_language',
+            'project_homepage',
             'repository',
             'default_version',
             'default_branch',
@@ -445,6 +442,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
             '_links',
         ]
+
+    def get_project_homepage(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.project_url or None
 
     def get_description(self, obj):
         # Overridden only to return ``None`` when the description is ``''``

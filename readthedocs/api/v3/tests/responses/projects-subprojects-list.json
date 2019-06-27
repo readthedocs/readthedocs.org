@@ -17,6 +17,7 @@
                 "code": "words",
                 "name": "Only Words"
             },
+            "project_homepage": "http://subproject.com",
             "repository": {
                 "url": "https://github.com/rtfd/subproject",
                 "type": "git"
@@ -41,6 +42,7 @@
                     "code": "words",
                     "name": "Only Words"
                 },
+                "project_homepage": "http://project.com",
                 "repository": {
                     "url": "https://github.com/rtfd/project",
                     "type": "git"
@@ -54,8 +56,7 @@
                 "subproject_of": null,
                 "translation_of": null,
                 "urls": {
-                    "documentation": "http://readthedocs.org/docs/project/en/latest/",
-                    "project_homepage": "http://project.com"
+                    "documentation": "http://readthedocs.org/docs/project/en/latest/"
                 },
                 "tags": [
                     "tag",
@@ -80,8 +81,7 @@
             },
             "translation_of": null,
             "urls": {
-                "documentation": "http://readthedocs.org/docs/project/projects/subproject/en/latest/",
-                "project_homepage": "http://subproject.com"
+                "documentation": "http://readthedocs.org/docs/project/projects/subproject/en/latest/"
             },
             "tags": [],
             "users": [],
