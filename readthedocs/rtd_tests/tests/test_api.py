@@ -924,7 +924,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [external_version.slug])
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )
@@ -954,7 +954,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [external_version.slug])
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )
@@ -997,7 +997,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [external_version.slug])
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )

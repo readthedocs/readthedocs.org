@@ -24,6 +24,7 @@ from readthedocs.core.views.hooks import (
     sync_versions,
     get_or_create_external_version,
     delete_external_version,
+    build_external_version,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.projects.models import Project
@@ -208,8 +209,15 @@ class WebhookMixin:
         external_version = get_or_create_external_version(
             project, identifier, verbose_name
         )
-        # send the external version instance to `self.get_response_push()`.
-        return self.get_response_push(project, [external_version])
+        # Build External Version
+        # returns external version verbose_name (pull/merge request number)
+        to_build = build_external_version(project, external_version)
+
+        return {
+            'build_triggered': True,
+            'project': project.slug,
+            'versions': [to_build],
+        }
 
     def delete_external_version(self, project):
         try:

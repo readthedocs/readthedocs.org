@@ -48,12 +48,7 @@ def build_branches(project, branch_list):
     to_build = set()
     not_building = set()
     for branch in branch_list:
-        # Used for External Versions
-        # pull/merge request `handle_webhook()` sends version instance for Building.
-        if isinstance(branch, Version):
-            versions = [branch]
-        else:
-            versions = project.versions_from_branch_name(branch)
+        versions = project.versions_from_branch_name(branch)
 
         for version in versions:
             log.info(
@@ -143,3 +138,24 @@ def delete_external_version(project, identifier, verbose_name):
 
         return external_version.verbose_name
     return None
+
+
+def build_external_version(project, version):
+    """
+    Where we actually trigger builds for external versions.
+
+    All pull/merge request webhook logic should route here to call ``trigger_build``.
+    """
+    if not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
+
+    # Build External version
+    log.info(
+        '(External Version build) Building %s:%s',
+        project.slug,
+        version.slug,
+    )
+    trigger_build(project=project, version=version, force=True)
+
+    return version.verbose_name
