@@ -16,11 +16,11 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
-            return self.all()
+            return self.all().distinct()
         if user.is_authenticated:
             user_queryset = user.projects.all()
             queryset = user_queryset | queryset
-        return queryset
+        return queryset.distinct()
 
     def for_user_and_viewer(self, user, viewer):
         """Show projects that a user owns, that another user can see."""
@@ -131,12 +131,12 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('projects.view_project'):
-            return self.all()
+            return self.all().distinct()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset
+        return queryset.distinct()
 
     def public(self, user=None, project=None):
         kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
