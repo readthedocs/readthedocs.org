@@ -138,7 +138,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         For GET it returns a serializer with many fields and on PUT/PATCH/POST,
         it return a serializer to validate just a few fields.
         """
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'superproject'):
             return ProjectSerializer
         elif self.action in ('create',):
             return ProjectCreateSerializer

@@ -1,0 +1,47 @@
+{
+    "_links": {
+        "_self": "https://readthedocs.org/api/v3/projects/test-project/",
+        "builds": "https://readthedocs.org/api/v3/projects/test-project/builds/",
+        "subprojects": "https://readthedocs.org/api/v3/projects/test-project/subprojects/",
+        "superproject": "https://readthedocs.org/api/v3/projects/test-project/superproject/",
+        "translations": "https://readthedocs.org/api/v3/projects/test-project/translations/",
+        "versions": "https://readthedocs.org/api/v3/projects/test-project/versions/"
+    },
+    "created": "2019-04-29T14:00:00Z",
+    "default_branch": "master",
+    "default_version": "latest",
+    "description": null,
+    "id": 4,
+    "language": {
+        "code": "en",
+        "name": "English"
+    },
+    "modified": "2019-04-29T14:00:00Z",
+    "name": "Test Project",
+    "privacy_level": {
+        "code": "public",
+        "name": "Public"
+    },
+    "programming_language": {
+        "code": "words",
+        "name": "Only Words"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/rtfd/template"
+    },
+    "slug": "test-project",
+    "subproject_of": null,
+    "tags": [],
+    "translation_of": null,
+    "urls": {
+        "documentation": "http://readthedocs.org/docs/test-project/en/latest/",
+        "project_homepage": null
+    },
+    "users": [
+        {
+            "created": "2019-04-29T10:00:00Z",
+            "username": "testuser"
+        }
+    ]
+}
