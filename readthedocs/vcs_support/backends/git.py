@@ -154,7 +154,11 @@ class Backend(BaseVCS):
         cmd = ['git', 'fetch', 'origin',
                '--tags', '--prune', '--prune-tags']
 
-        if self.version.type == EXTERNAL and 'github.com' in self.repo_url:
+        if (
+            self.version and
+            self.version.type == EXTERNAL and
+            'github.com' in self.repo_url
+        ):
             cmd.append(
                 GITHUB_GIT_PATTERN.format(id=self.version.verbose_name)
             )
