@@ -1268,7 +1268,6 @@ def fileify(version_pk, commit, build):
         )
         return
 
-    path = project.rtd_build_path(version.slug)
     log.info(
         LOG_TEMPLATE,
         {
@@ -1278,40 +1277,47 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        _manage_imported_files(version, path, commit, build)
+        _manage_imported_files(version, commit, build)
     except Exception:
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _update_intersphinx_data(version, path, commit, build)
+        _update_intersphinx_data(version, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
 
-def _update_intersphinx_data(version, path, commit, build):
+def _update_intersphinx_data(version, commit, build):
     """
     Update intersphinx data for this version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        return
 
-    object_file = os.path.join(path, 'objects.inv')
-    if not os.path.exists(object_file):
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+    html_storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    json_storage_path = version.project.get_storage_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+
+    object_file = storage.join(html_storage_path, 'objects.inv')
+    if not storage.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
-    full_json_path = version.project.get_production_media_path(
-        type_='json', version_slug=version.slug, include_file=False
-    )
-    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    type_file = storage.join(json_storage_path, 'readthedocs-sphinx-domain-names.json')
     types = {}
     titles = {}
-    if os.path.exists(type_file):
+    if storage.exists(type_file):
         try:
-            data = json.load(open(type_file))
+            data = json.load(storage.open(type_file))
             types = data['types']
             titles = data['titles']
         except Exception:
@@ -1331,7 +1337,13 @@ def _update_intersphinx_data(version, path, commit, build):
             log.warning('Sphinx MockApp: %s', msg)
 
     # Re-create all objects from the new build of the version
-    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
+    object_file_url = storage.url(object_file)
+    if object_file_url.startswith('/'):
+        # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
+        # This can cause an issue if MEDIA_URL is not fully qualified
+        object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
+
+    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
         for name, einfo in sorted(value.items()):
@@ -1419,29 +1431,36 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, path, commit, build):
+def _manage_imported_files(version, commit, build):
     """
     Update imported files for version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     """
 
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
     changed_files = set()
+
     # Re-create all objects from the new build of the version
-    for root, __, filenames in os.walk(path):
+    storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    for root, __, filenames in storage.walk(storage_path):
         for filename in filenames:
             if filename.endswith('.html'):
                 model_class = HTMLFile
             else:
                 model_class = ImportedFile
 
-            full_path = os.path.join(root, filename)
-            relpath = os.path.relpath(full_path, path)
+            relpath = storage.join(root, filename)
             try:
-                md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                md5 = hashlib.md5(storage.open(relpath, 'rb').read()).hexdigest()
             except Exception:
                 log.exception(
                     'Error while generating md5 for %s:%s:%s. Don\'t stop.',
