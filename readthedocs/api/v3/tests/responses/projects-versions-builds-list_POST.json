@@ -23,7 +23,6 @@
         "created": "2019-04-29T10:00:00Z",
         "default_branch": "master",
         "default_version": "latest",
-        "description": "Project description",
         "id": 1,
         "language": {
             "code": "en",

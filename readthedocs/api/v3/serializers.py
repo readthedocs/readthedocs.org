@@ -399,8 +399,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
 
-    description = serializers.SerializerMethodField()
-
     _links = ProjectLinksSerializer(source='*')
 
     # TODO: adapt these fields with the proper names in the db and then remove
@@ -426,7 +424,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'slug',
-            'description',
             'created',
             'modified',
             'language',

@@ -7,7 +7,6 @@
             "id": 2,
             "name": "subproject",
             "slug": "subproject",
-            "description": "SubProject description",
             "created": "2019-04-29T10:00:00Z",
             "modified": "2019-04-29T12:00:00Z",
             "language": {
@@ -32,7 +31,6 @@
                 "id": 1,
                 "name": "project",
                 "slug": "project",
-                "description": "Project description",
                 "created": "2019-04-29T10:00:00Z",
                 "modified": "2019-04-29T12:00:00Z",
                 "language": {
