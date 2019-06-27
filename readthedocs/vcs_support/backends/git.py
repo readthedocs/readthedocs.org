@@ -61,7 +61,7 @@ class Backend(BaseVCS):
             return self.fetch()
         self.make_clean_working_dir()
         # A fetch is always required to get external versions properly
-        if self.version_type and self.version_type == EXTERNAL:
+        if self.version_type == EXTERNAL:
             self.clone()
             return self.fetch()
         return self.clone()
@@ -155,8 +155,9 @@ class Backend(BaseVCS):
                '--tags', '--prune', '--prune-tags']
 
         if (
-            self.version_type and self.verbose_name and
-            self.version_type == EXTERNAL and 'github.com' in self.repo_url
+            self.verbose_name and
+            self.version_type == EXTERNAL and
+            'github.com' in self.repo_url
         ):
             cmd.append(
                 GITHUB_GIT_PATTERN.format(id=self.verbose_name)
