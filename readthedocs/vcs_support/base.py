@@ -50,13 +50,18 @@ class BaseVCS:
 
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
-    def __init__(self, project, version_slug, environment=None, **kwargs):
+    def __init__(
+            self, project, version_slug, environment=None,
+            verbose_name=None, version_type=None, **kwargs
+    ):
         self.default_branch = project.default_branch
         self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
-        self.version = project.versions.filter(slug=version_slug).first()
+        # required for External versions
+        self.verbose_name = verbose_name
+        self.version_type = version_type
 
         from readthedocs.doc_builder.environments import LocalEnvironment
         self.environment = environment or LocalEnvironment(project)

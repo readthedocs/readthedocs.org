@@ -106,6 +106,8 @@ class SyncRepositoryMixin:
             # a ``setup_env`` so we use just ``None`` and commands won't
             # be recorded
             getattr(self, 'setup_env', None),
+            verbose_name=self.version.verbose_name,
+            version_type=self.version.type
         )
         return version_repo
 

@@ -118,7 +118,10 @@ class TestGitBackend(RTDTestCase):
             type=EXTERNAL,
             active=True
         )
-        repo = self.project.vcs_repo(version=version.slug)
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type
+        )
         repo.update()
         fetch.assert_called_once()
 
@@ -129,7 +132,10 @@ class TestGitBackend(RTDTestCase):
             type=EXTERNAL,
             active=True
         )
-        repo = self.project.vcs_repo(version=version.slug)
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type
+        )
         repo.update()
         code, _, _ = repo.fetch()
         self.assertEqual(code, 0)
