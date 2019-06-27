@@ -96,14 +96,11 @@ class VersionManagerBase(VersionManagerBaseClass):
     """
 
     def get_queryset(self):
-        try:
-            import warnings
-            warnings.warn(
-                "Version.objects manager is being used"
-            )
-        except ImportError:
-            pass
+        import warnings
 
+        warnings.warn(
+            "Version.objects manager is being used"
+        )
         return super().get_queryset()
 
 
