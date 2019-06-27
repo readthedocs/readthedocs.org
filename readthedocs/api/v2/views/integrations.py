@@ -199,17 +199,25 @@ class WebhookMixin:
         }
 
     def get_external_version_response(self, project):
-        try:
-            # get identifier (commit hash) and verbose name (pull/merge request number)
-            # from webhook payload
-            identifier, verbose_name = self.get_external_version_data()
-        except KeyError:
-            raise ParseError('Parameters "sha" and "number" are required')
+        """
+        Build External version on pull/merge request events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "build_triggered": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(
             project, identifier, verbose_name
         )
-        # Build External Version
         # returns external version verbose_name (pull/merge request number)
         to_build = build_external_version(project, external_version)
 
@@ -219,17 +227,23 @@ class WebhookMixin:
             'versions': [to_build],
         }
 
-    def delete_external_version(self, project):
-        try:
-            # get identifier (commit hash) and verbose name (pull/merge request number)
-            # from webhook payload
-            identifier, verbose_name = self.get_external_version_data()
-        except KeyError:
-            raise ParseError('Parameters "sha" and "number" are required')
-        # if external version exists
-        # Delete external version and return
-        # verbose name (Pull/Merge Request Number) of the deleted version
-        # else return None
+    def get_delete_external_version_response(self, project):
+        """
+        Delete External version on pull/merge request `closed` events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "version_deleted": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
+        # Delete external version
         deleted_version = delete_external_version(
             project, identifier, verbose_name
         )
@@ -287,19 +301,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 pass
         return super().get_data()
 
-    def get_action(self):
-        """Get Pull Request Action Data. ie: opened, closed, synchronize, reopened"""
-        try:
-            return self.data['action']
-        except KeyError:
-            return None
-
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload"""
-        identifier = self.data['pull_request']['head']['sha']
-        verbose_name = str(self.data['number'])
+        try:
+            identifier = self.data['pull_request']['head']['sha']
+            verbose_name = str(self.data['number'])
 
-        return identifier, verbose_name
+            return identifier, verbose_name
+
+        except KeyError:
+            raise ParseError('Parameters "sha" and "number" are required')
 
     def is_payload_valid(self):
         """
@@ -338,7 +349,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
-        action = self.get_action()
+        action = self.data.get('action', None)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -370,7 +381,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Handle closed pull_request event.
-                return self.delete_external_version(self.project)
+                return self.get_delete_external_version_response(self.project)
 
         return None
 

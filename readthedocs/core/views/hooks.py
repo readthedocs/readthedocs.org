@@ -94,6 +94,17 @@ def sync_versions(project):
 
 
 def get_or_create_external_version(project, identifier, verbose_name):
+    """
+    Get or create external versions using `identifier` and `verbose_name`.
+
+    if external version does not exist create an external version
+
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  External version.
+    :rtype: Version
+    """
     external_version = project.versions(
         manager=EXTERNAL
     ).filter(verbose_name=verbose_name).first()
@@ -122,12 +133,22 @@ def get_or_create_external_version(project, identifier, verbose_name):
 
 
 def delete_external_version(project, identifier, verbose_name):
+    """
+    Delete external versions using `identifier` and `verbose_name`.
+
+    if external version does not exist then returns `None`.
+
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  verbose_name (pull/merge request number).
+    :rtype: str
+    """
     external_version = project.versions(manager=EXTERNAL).filter(
         verbose_name=verbose_name, identifier=identifier
     ).first()
 
     if external_version:
-        verbose_name = external_version.verbose_name
         # Delete External Version
         external_version.delete()
         log.info(
