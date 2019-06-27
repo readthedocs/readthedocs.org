@@ -11,6 +11,7 @@ from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 
@@ -319,6 +320,39 @@ class APIEndpointTests(TestCase):
             response.json(),
             self._get_response_dict('projects-builds-detail'),
         )
+
+    def test_projects_builds_list_post(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.assertEqual(self.project.builds.count(), 1)
+        response = self.client.post(
+            reverse(
+                'projects-builds-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+        )
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(self.project.builds.count(), 2)
+
+        response_json = response.json()
+        response_json['build']['created'] = '2019-04-29T14:00:00Z'
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict('projects-builds-list_POST'),
+        )
+
+    def test_others_projects_builds_list_post(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.assertEqual(self.project.builds.count(), 1)
+        response = self.client.post(
+            reverse(
+                'projects-builds-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.others_project.slug,
+                }),
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.project.builds.count(), 1)
 
     def test_projects_versions_builds_list_post(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

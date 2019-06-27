@@ -263,7 +263,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                    FlexFieldsMixin, ReadOnlyModelViewSet):
+                    FlexFieldsMixin, CreateModelMixin, ReadOnlyModelViewSet):
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
@@ -274,19 +274,34 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         'config',
     ]
 
-
-class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
-
     def get_serializer_class(self):
         if self.action == 'create':
             return BuildCreateSerializer
 
         return super().get_serializer_class()
 
-    def create(self, request, **kwargs):  # pylint: disable=arguments-differ
-        project = self._get_parent_project()
-        version = self._get_parent_version()
+    def _get_project_to_build(self):
+        """
+        Return Project to build when a build is triggered.
 
+        :rtype: readthedocs.projects.models.Project
+        """
+        return self._get_parent_project()
+
+    def _get_version_to_build(self):
+        """
+        Return Version to build (project's default) when a build is triggered.
+
+        :rtype: readthedocs.builds.models.Version
+        """
+        project = self._get_parent_project()
+        version_slug = project.get_default_version()
+        version = project.versions.get(slug=version_slug)
+        return version
+
+    def create(self, request, **kwargs):
+        project = self._get_project_to_build()
+        version = self._get_version_to_build()
         _, build = trigger_build(project, version=version)
 
         # TODO: refactor this to be a serializer
@@ -304,3 +319,14 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
             data.update({'triggered': False})
             status = 400
         return Response(data=data, status=status)
+
+
+class BuildsCreateViewSet(BuildsViewSet):
+
+    def _get_version_to_build(self):
+        """
+        Return Version to build (from URL endpoint) when a build is triggered.
+
+        :rtype: readthedocs.builds.models.Version
+        """
+        return self._get_parent_version()
