@@ -11,6 +11,7 @@ from rest_framework.mixins import (
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
@@ -25,7 +26,7 @@ from readthedocs.projects.signals import project_import
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import ProjectQuerySetMixin
-from .permissions import PublicDetailPrivateListing
+from .permissions import PublicDetailPrivateListing, ListCreateProject
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -54,7 +55,7 @@ class APIv3Settings:
     # Using only ``TokenAuthentication`` for now, so we can give access to
     # specific carefully selected users only
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (PublicDetailPrivateListing,)
+    permission_classes = (IsAuthenticated & (ListCreateProject | PublicDetailPrivateListing),)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10
