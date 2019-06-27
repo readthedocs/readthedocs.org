@@ -829,8 +829,8 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment,
-                verbose_name, version_type
+                self, version, environment=environment,
+                verbose_name=verbose_name, version_type=version_type
             )
         return repo
 
