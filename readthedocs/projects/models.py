@@ -808,7 +808,10 @@ class Project(models.Model):
     def sponsored(self):
         return False
 
-    def vcs_repo(self, version=LATEST, environment=None):
+    def vcs_repo(
+            self, version=LATEST, environment=None,
+            verbose_name=None, version_type=None
+    ):
         """
         Return a Backend object for this project able to handle VCS commands.
 
@@ -825,7 +828,10 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            repo = backend(self, version, environment)
+            repo = backend(
+                self, version, environment=environment,
+                verbose_name=verbose_name, version_type=version_type
+            )
         return repo
 
     def repo_nonblockinglock(self, version, max_lock_age=None):

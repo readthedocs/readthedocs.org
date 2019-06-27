@@ -13,7 +13,7 @@ class Backend(BaseVCS):
     supports_branches = True
     fallback_branch = 'default'
 
-    def update(self, version=None):  # pylint: disable=arguments-differ
+    def update(self):
         super().update()
         retcode = self.run('hg', 'status', record=False)[0]
         if retcode == 0:

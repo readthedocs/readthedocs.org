@@ -27,7 +27,6 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
-    supports_external_branches = True
     supports_submodules = True
     fallback_branch = 'master'  # default branch
     repo_depth = 50
@@ -53,20 +52,18 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self, version=None):  # pylint: disable=arguments-differ
+    def update(self):
         """Clone or update the repository."""
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
             # A fetch is always required to get external versions properly
-            if version and version.type == EXTERNAL:
-                return self.fetch(version.verbose_name)
             return self.fetch()
         self.make_clean_working_dir()
         # A fetch is always required to get external versions properly
-        if version and version.type == EXTERNAL:
+        if self.version_type == EXTERNAL:
             self.clone()
-            return self.fetch(version.verbose_name)
+            return self.fetch()
         return self.clone()
 
     def repo_exists(self):
@@ -153,13 +150,17 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
-    def fetch(self, verbose_name=None):
+    def fetch(self):
         cmd = ['git', 'fetch', 'origin',
                '--tags', '--prune', '--prune-tags']
 
-        if verbose_name and 'github.com' in self.repo_url:
+        if (
+            self.verbose_name and
+            self.version_type == EXTERNAL and
+            'github.com' in self.repo_url
+        ):
             cmd.append(
-                GITHUB_GIT_PATTERN.format(id=verbose_name)
+                GITHUB_GIT_PATTERN.format(id=self.verbose_name)
             )
 
         if self.use_shallow_clone():

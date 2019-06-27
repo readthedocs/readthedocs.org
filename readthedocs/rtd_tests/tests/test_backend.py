@@ -8,6 +8,8 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from mock import Mock, patch
 
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature, Project
@@ -107,6 +109,36 @@ class TestGitBackend(RTDTestCase):
         code, _, _ = repo.checkout()
         self.assertEqual(code, 0)
         self.assertTrue(exists(repo.working_dir))
+
+    @patch('readthedocs.vcs_support.backends.git.Backend.fetch')
+    def test_git_update_with_external_version(self, fetch):
+        version = fixture.get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            active=True
+        )
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type
+        )
+        repo.update()
+        fetch.assert_called_once()
+
+    def test_git_fetch_with_external_version(self):
+        version = fixture.get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            active=True
+        )
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type
+        )
+        repo.update()
+        code, _, _ = repo.fetch()
+        self.assertEqual(code, 0)
 
     def test_git_checkout_invalid_revision(self):
         repo = self.project.vcs_repo()

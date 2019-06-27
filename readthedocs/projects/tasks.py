@@ -106,6 +106,8 @@ class SyncRepositoryMixin:
             # a ``setup_env`` so we use just ``None`` and commands won't
             # be recorded
             getattr(self, 'setup_env', None),
+            verbose_name=self.version.verbose_name,
+            version_type=self.version.type
         )
         return version_repo
 
@@ -138,7 +140,7 @@ class SyncRepositoryMixin:
                 }
             )
             version_repo = self.get_vcs_repo()
-            version_repo.update(version=self.version)
+            version_repo.update()
             self.sync_versions(version_repo)
             version_repo.checkout(self.version.identifier)
         finally:

@@ -49,6 +49,7 @@ def build_branches(project, branch_list):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
+
         for version in versions:
             log.info(
                 '(Branch Build) Processing %s:%s',
@@ -93,12 +94,28 @@ def sync_versions(project):
 
 
 def get_or_create_external_version(project, identifier, verbose_name):
-    external_version = project.versions(manager=EXTERNAL).filter(verbose_name=verbose_name).first()
+    """
+    Get or create external versions using `identifier` and `verbose_name`.
+
+    if external version does not exist create an external version
+
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  External version.
+    :rtype: Version
+    """
+    external_version = project.versions(
+        manager=EXTERNAL
+    ).filter(verbose_name=verbose_name).first()
+
     if external_version:
+        # identifier will change if there is a new commit to the Pull/Merge Request
         if external_version.identifier != identifier:
             external_version.identifier = identifier
             external_version.save()
     else:
+        # create an external version if the version does not exist.
         created_external_version = Version.objects.create(
             project=project,
             type=EXTERNAL,
@@ -106,5 +123,60 @@ def get_or_create_external_version(project, identifier, verbose_name):
             verbose_name=verbose_name,
             active=True
         )
+        log.info(
+            '(Create External Version) Added Version: [%s] ', ' '.join(
+                created_external_version.slug
+            )
+        )
         return created_external_version
     return external_version
+
+
+def delete_external_version(project, identifier, verbose_name):
+    """
+    Delete external versions using `identifier` and `verbose_name`.
+
+    if external version does not exist then returns `None`.
+
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  verbose_name (pull/merge request number).
+    :rtype: str
+    """
+    external_version = project.versions(manager=EXTERNAL).filter(
+        verbose_name=verbose_name, identifier=identifier
+    ).first()
+
+    if external_version:
+        # Delete External Version
+        external_version.delete()
+        log.info(
+            '(Delete External Version) Deleted Version: [%s]', ' '.join(
+                external_version.slug
+            )
+        )
+
+        return external_version.verbose_name
+    return None
+
+
+def build_external_version(project, version):
+    """
+    Where we actually trigger builds for external versions.
+
+    All pull/merge request webhook logic should route here to call ``trigger_build``.
+    """
+    if not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
+
+    # Build External version
+    log.info(
+        '(External Version build) Building %s:%s',
+        project.slug,
+        version.slug,
+    )
+    trigger_build(project=project, version=version, force=True)
+
+    return version.verbose_name
