@@ -17,8 +17,6 @@ class VersionQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
-        if user.has_perm('builds.view_version'):
-            return self.all().distinct()
         if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             queryset = user_queryset | queryset
@@ -88,8 +86,6 @@ class BuildQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('builds.view_version'):
-            return self.all().distinct()
         if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = user_queryset.values_list('pk', flat=True)
@@ -126,8 +122,6 @@ class RelatedBuildQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
-        if user.has_perm('builds.view_version'):
-            return self.all().distinct()
         if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'builds.view_version')
             pks = user_queryset.values_list('pk', flat=True)

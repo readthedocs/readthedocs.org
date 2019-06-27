@@ -16,8 +16,6 @@ class ProjectQuerySetBase(models.QuerySet):
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user):
-        if user.has_perm('projects.view_project'):
-            return self.all().distinct()
         if user.is_authenticated:
             user_queryset = get_objects_for_user(user, 'projects.view_project')
             queryset = user_queryset | queryset
@@ -132,8 +130,6 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         # Hack around get_objects_for_user not supporting global perms
-        if user.has_perm('projects.view_project'):
-            return self.all().distinct()
         if user.is_authenticated:
             # Add in possible user-specific views
             project_qs = get_objects_for_user(user, 'projects.view_project')
