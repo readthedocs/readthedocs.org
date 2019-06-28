@@ -34,6 +34,10 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
+    EXTERNAL,
+    BUILD_STATUS_SUCCESS,
+    BUILD_STATUS_FAILURE,
+    SELECT_BUILD_STATUS,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -59,6 +63,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -573,6 +578,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
+            # send build failure status to git Status API
+            self.send_build_status(
+                self.build['id'], BUILD_STATUS_FAILURE
+            )
+
+        if self.build_env.successful:
+            # send build successful status to git Status API
+            self.send_build_status(
+                self.build['id'], BUILD_STATUS_SUCCESS
+            )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -1007,6 +1022,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
         return 'sphinx' in self.config.doctype
+
+    def send_build_status(self, build_pk, state):
+        """Send github build status for pull/merge requests."""
+        send_build_status.delay(build_pk, state)
 
 
 # Web tasks
@@ -1773,3 +1792,33 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
+
+
+@app.task(queue='web')
+def send_build_status(build_pk, state):
+    """
+    Send Build Status to Git Status API for project.
+
+    :param build_pk: Build pk
+    :param state: build state failed, pending, or success to be sent.
+    """
+    build = Build.objects.get(pk=build_pk)
+    version = build.version
+    project = build.project
+
+    # Send status reports for only External (pull/merge request) Versions.
+    if version.type != EXTERNAL:
+        return
+
+    if 'github.com' in project.repo:
+        account = project.remote_repository.account
+        service = GitHubService(project.users.first(), account)
+        # select the correct state.
+        state = SELECT_BUILD_STATUS[state]['github']
+
+        # send Status report using the API.
+        service.send_status(
+            project, version.identifier, state, build.get_full_url()
+        )
+
+    # TODO: Send build status for other providers.
