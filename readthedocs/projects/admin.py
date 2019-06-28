@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Django administration interface for `projects.models`."""
 
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
-from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
@@ -127,7 +124,7 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
         return queryset
 
 
-class ProjectAdmin(GuardedModelAdmin):
+class ProjectAdmin(admin.ModelAdmin):
 
     """Project model admin view."""
 
