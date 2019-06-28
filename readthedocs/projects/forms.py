@@ -11,7 +11,6 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.core.utils import slugify, trigger_build
@@ -484,8 +483,6 @@ class UserForm(forms.Form):
 
     def save(self):
         self.project.users.add(self.user)
-        # Force update of permissions
-        assign('view_project', self.user, self.project)
         return self.user
 
 

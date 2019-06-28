@@ -13,7 +13,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from guardian.shortcuts import assign
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 from taggit.managers import TaggableManager
@@ -246,8 +245,6 @@ class Version(models.Model):
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super().save(*args, **kwargs)
-        for owner in self.project.users.all():
-            assign('view_version', owner, self)
         broadcast(
             type='app',
             task=tasks.symlink_project,

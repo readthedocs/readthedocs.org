@@ -15,7 +15,6 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from guardian.shortcuts import assign
 from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
@@ -421,8 +420,6 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        for owner in self.users.all():
-            assign('view_project', owner, self)
         try:
             latest = self.versions.filter(slug=LATEST).first()
             default_branch = self.get_default_branch()
