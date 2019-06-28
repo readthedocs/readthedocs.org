@@ -112,7 +112,7 @@ class PageSearchBase(RTDFacetedSearch):
 
     def query(self, search, query):
         """Manipulates query to support nested query."""
-        search = search.highlight_options(encoder='html', number_of_fragments=3)
+        search = search.highlight_options(encoder='html', number_of_fragments=1)
 
         # match query for the title (of the page) field.
         match_title_query = Match(title=query)
@@ -124,6 +124,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self.section_fields,
             inner_hits={
                 'highlight': {
+                    'number_of_fragments': 1,
                     'fields': {
                         'sections.title': {},
                         'sections.content': {},
@@ -139,6 +140,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self.domain_fields,
             inner_hits={
                 'highlight': {
+                    'number_of_fragments': 1,
                     'fields': {
                         'domains.type_display': {},
                         'domains.doc_display': {},
