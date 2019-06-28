@@ -2,6 +2,7 @@ import logging
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
+from elasticsearch_dsl.faceted_search import NestedFacet
 from elasticsearch_dsl.query import Bool, SimpleQueryString, Nested, Match
 
 from django.conf import settings
@@ -91,7 +92,11 @@ class ProjectSearchBase(RTDFacetedSearch):
 class PageSearchBase(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version')
+        'version': TermsFacet(field='version'),
+        'role_name': NestedFacet(
+            'domains',
+            TermsFacet(field='domains.role_name')
+        ),
     }
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index

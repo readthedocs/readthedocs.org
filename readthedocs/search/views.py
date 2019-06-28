@@ -103,14 +103,6 @@ def elastic_search(request, project_slug=None):
             facets[avail_facet].insert(0, (value, 0, True))
 
     if results:
-        if user_input.type == 'file':
-            # Change results to turn newlines in highlight into periods
-            # https://github.com/rtfd/readthedocs.org/issues/5168
-            for result in results:
-                if hasattr(result.meta.highlight, 'content'):
-                    result.meta.highlight.content = [result.replace(
-                        '\n', '. ') for result in result.meta.highlight.content]
-
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
