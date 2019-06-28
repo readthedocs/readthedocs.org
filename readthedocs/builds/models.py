@@ -735,7 +735,7 @@ class Build(models.Model):
         return reverse('builds_detail', args=[self.project.slug, self.pk])
 
     def get_full_url(self):
-        """Get url including domain and scheme"""
+        """Get full url including domain"""
         full_url = '{domain}{absolute_url}'.format(
             domain=settings.PUBLIC_API_URL,
             absolute_url=self.get_absolute_url()
