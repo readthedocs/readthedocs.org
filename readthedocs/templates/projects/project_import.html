@@ -70,16 +70,18 @@
       </span>
 
       <h1>{% trans "Import a Repository" %}</h1>
-      {% block import-repo %}
-        <div class="import-repo">
-          <p>
-          {% blocktrans trimmed %}
-              Here only public repositories are listed, If you want to find your private
-              repositories, you can find on <a href="https://readthedocs.com/">readthedocs.com</a>.
-          {% endblocktrans %}
-          </p>
-        </div>
-      {% endblock %}
+      {% if has_connected_accounts %}
+        {% block import-repo %}
+          <div class="import-repo">
+            <p>
+            {% blocktrans trimmed %}
+                Here only public repositories are listed, If you want to find your private
+                repositories, you can find them on <a href="https://readthedocs.com/">readthedocs.com</a>.
+            {% endblocktrans %}
+            </p>
+          </div>
+        {% endblock %}
+      {% endif %}
       <div class="module repository-list">
         <div class="module-wrapper">
           <div class="module-list">
