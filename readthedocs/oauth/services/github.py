@@ -12,11 +12,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import (
-    GITHUB_BUILD_STATE_FAILURE,
-    GITHUB_BUILD_STATE_PENDING,
-    GITHUB_BUILD_STATE_SUCCESS,
-)
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -316,7 +312,7 @@ class GitHubService(Service):
             )
             return (False, resp)
 
-    def send_status(self, project, identifier, state, build_url):
+    def send_build_status(self, project, identifier, state, build_url):
         """
         Create GitHub commit status for project.
 
@@ -334,16 +330,12 @@ class GitHubService(Service):
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
-        description = ''
-        if state == GITHUB_BUILD_STATE_SUCCESS:
-            description = 'The build succeeded!'
-        elif state == GITHUB_BUILD_STATE_FAILURE:
-            description = 'The build failed!'
-        elif state == GITHUB_BUILD_STATE_PENDING:
-            description = 'The build is pending!'
+        # select the correct state and description.
+        github_build_state = SELECT_BUILD_STATUS[state]['github']
+        description = SELECT_BUILD_STATUS[state]['description']
 
         data = {
-            "state": state,
+            "state": github_build_state,
             "target_url": build_url,
             "description": description,
             "context": "continuous-documentation/read-the-docs"

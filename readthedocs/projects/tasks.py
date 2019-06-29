@@ -37,7 +37,6 @@ from readthedocs.builds.constants import (
     EXTERNAL,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
-    SELECT_BUILD_STATUS,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -1532,7 +1531,8 @@ def _manage_imported_files(version, path, commit, build):
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+    # only send notification for Internal versions
+    if not version or version.type != EXTERNAL:
         return
     build = Build.objects.get(pk=build_pk)
 
@@ -1797,7 +1797,7 @@ def retry_domain_verification(domain_pk):
 @app.task(queue='web')
 def send_build_status(build_pk, state):
     """
-    Send Build Status to Git Status API for project.
+    Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build pk
     :param state: build state failed, pending, or success to be sent.
@@ -1813,12 +1813,11 @@ def send_build_status(build_pk, state):
     if 'github.com' in project.repo:
         account = project.remote_repository.account
         service = GitHubService(project.users.first(), account)
-        # select the correct state.
-        state = SELECT_BUILD_STATUS[state]['github']
 
         # send Status report using the API.
-        service.send_status(
-            project, version.identifier, state, build.get_full_url()
+        service.send_build_status(
+            project, version.identifier, state,
+            build.get_full_url()
         )
 
     # TODO: Send build status for other providers.
