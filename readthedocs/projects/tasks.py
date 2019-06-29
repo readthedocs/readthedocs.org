@@ -1531,9 +1531,11 @@ def _manage_imported_files(version, path, commit, build):
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
+
     # only send notification for Internal versions
-    if not version or version.type != EXTERNAL:
+    if not version or version.type == EXTERNAL:
         return
+
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
