@@ -31,7 +31,10 @@
             "subproject_of": null,
             "translation_of": null,
             "urls": {
-                "documentation": "http://readthedocs.org/docs/project/en/latest/"
+                "builds": "https://readthedocs.org/projects/project/builds/",
+                "documentation": "http://readthedocs.org/docs/project/en/latest/",
+                "homepage": "https://readthedocs.org/projects/project/",
+                "versions": "https://readthedocs.org/projects/project/versions/"
             },
             "tags": [
                 "tag",

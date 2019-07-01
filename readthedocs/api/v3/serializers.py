@@ -301,8 +301,25 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
         return 'Unknown'
 
 
-class ProjectURLsSerializer(serializers.Serializer):
+class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+    """Serializer with all the user-facing URLs under Read the Docs."""
+
     documentation = serializers.CharField(source='get_docs_url')
+    homepage = serializers.SerializerMethodField()
+    builds = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+
+    def get_homepage(self, obj):
+        path = reverse('projects_detail', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_builds(self, obj):
+        path = reverse('builds_project_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_versions(self, obj):
+        path = reverse('project_version_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
 
 
 class RepositorySerializer(serializers.Serializer):
