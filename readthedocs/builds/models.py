@@ -15,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
-from taggit.managers import TaggableManager
 
 import readthedocs.builds.automation_actions as actions
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
@@ -106,7 +105,6 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
-    tags = TaggableManager(blank=True)
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
