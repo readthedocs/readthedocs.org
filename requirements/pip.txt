@@ -3,7 +3,7 @@ pip==19.1.1
 appdirs==1.4.3
 virtualenv==16.6.1
 
-django==1.11.21  # pyup: <1.12
+django==1.11.22  # pyup: <1.12
 django-extensions==2.1.9
 django_polymorphic==2.0.3
 
