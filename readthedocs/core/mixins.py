@@ -44,10 +44,7 @@ class HideProtectedLevelMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if any([
-            not self.instance,
-            self.instance and self.instance.privacy_level != PROTECTED,
-        ]):
+        if self.instance is None or self.instance.privacy_level != PROTECTED:
             privacy_level = list(PRIVACY_CHOICES)
             privacy_level.remove((PROTECTED, _('Protected')))
             self.fields['privacy_level'].choices = privacy_level
