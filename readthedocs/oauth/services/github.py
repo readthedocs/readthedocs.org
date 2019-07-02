@@ -312,42 +312,38 @@ class GitHubService(Service):
             )
             return (False, resp)
 
-    def send_build_status(self, project, identifier, state, build_url):
+    def send_build_status(self, build, state):
         """
         Create GitHub commit status for project.
 
-        :param project: project to set up commit status for
-        :type project: Project
-        :param identifier: commit sha of the version
-        :type identifier: str
+        :param build: Build to set up commit status for
+        :type build: Build
         :param state: build state failure, pending, or success.
         :type state: str
-        :param build_url: build url
-        :type build_url: str
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
         session = self.get_session()
+        project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
+        build_sha = build.version.identifier
 
         # select the correct state and description.
         github_build_state = SELECT_BUILD_STATUS[state]['github']
         description = SELECT_BUILD_STATUS[state]['description']
 
         data = {
-            "state": github_build_state,
-            "target_url": build_url,
-            "description": description,
-            "context": "continuous-documentation/read-the-docs"
+            'state': github_build_state,
+            'target_url': build.get_full_url(),
+            'description': description,
+            'context': 'continuous-documentation/read-the-docs'
         }
 
         resp = None
         try:
+
             resp = session.post(
-                (
-                    'https://api.github.com/repos/{owner}/{repo}/statuses/{sha}'
-                    .format(owner=owner, repo=repo, sha=identifier)
-                ),
+                f'https://api.github.com/repos/{owner}/{repo}/statuses/{build_sha}',
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -369,11 +365,6 @@ class GitHubService(Service):
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
-                'GitHub commit status creation failed for project: %s',
-                project,
-            )
-        else:
-            log.error(
                 'GitHub commit status creation failed for project: %s',
                 project,
             )

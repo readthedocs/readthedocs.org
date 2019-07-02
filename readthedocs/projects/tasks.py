@@ -581,8 +581,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.send_build_status(
                 self.build['id'], BUILD_STATUS_FAILURE
             )
-
-        if self.build_env.successful:
+        elif self.build_env.successful:
             # send build successful status to git Status API
             self.send_build_status(
                 self.build['id'], BUILD_STATUS_SUCCESS
@@ -1805,21 +1804,19 @@ def send_build_status(build_pk, state):
     :param state: build state failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
-    version = build.version
-    project = build.project
 
     # Send status reports for only External (pull/merge request) Versions.
-    if version.type != EXTERNAL:
+    if build.version.type != EXTERNAL:
         return
 
-    if 'github.com' in project.repo:
-        account = project.remote_repository.account
-        service = GitHubService(project.users.first(), account)
+    if build.project.remote_repository.account.provider == 'github':
+        account = build.project.remote_repository.account
+        service = GitHubService(
+            build.project.remote_repository.users.first(),
+            account
+        )
 
         # send Status report using the API.
-        service.send_build_status(
-            project, version.identifier, state,
-            build.get_full_url()
-        )
+        service.send_build_status(build, state)
 
     # TODO: Send build status for other providers.

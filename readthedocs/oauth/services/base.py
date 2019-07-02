@@ -216,7 +216,7 @@ class Service:
     def update_webhook(self, project, integration):
         raise NotImplementedError
 
-    def send_status(self, project, identifier, state, build_url):
+    def send_build_status(self, build, state):
         raise NotImplementedError
 
     @classmethod

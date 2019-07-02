@@ -67,7 +67,7 @@ GITHUB_BUILD_STATE_FAILURE = 'failure'
 GITHUB_BUILD_STATE_PENDING = 'pending'
 GITHUB_BUILD_STATE_SUCCESS = 'success'
 
-# GitHub Build Statuses
+# GitLab Build Statuses
 GITLAB_BUILD_STATE_FAILURE = 'failed'
 GITLAB_BUILD_STATE_PENDING = 'pending'
 GITLAB_BUILD_STATE_SUCCESS = 'success'
