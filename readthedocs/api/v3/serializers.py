@@ -488,7 +488,7 @@ class RedirectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class RedirectSerializer(serializers.ModelSerializer):
+class RedirectSerializerBase(serializers.ModelSerializer):
 
     project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
     _links = RedirectLinksSerializer(source='*', read_only=True)
@@ -503,3 +503,22 @@ class RedirectSerializer(serializers.ModelSerializer):
             'to_url',
             '_links',
         ]
+
+
+class RedirectCreateSerializer(RedirectSerializerBase):
+    pass
+
+
+class RedirectDetailSerializer(RedirectSerializerBase):
+    """Override RedirectSerializerBase to sanitize the empty fields."""
+
+    from_url = serializers.SerializerMethodField()
+    to_url = serializers.SerializerMethodField()
+
+    def get_from_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.from_url or None
+
+    def get_to_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.to_url or None

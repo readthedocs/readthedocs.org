@@ -30,7 +30,8 @@ from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     ProjectSerializer,
-    RedirectSerializer,
+    RedirectCreateSerializer,
+    RedirectDetailSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -314,9 +315,13 @@ class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     model = Redirect
     lookup_field = 'pk'
     lookup_url_kwarg = 'redirect_pk'
-    serializer_class = RedirectSerializer
     queryset = Redirect.objects.all()
     permission_classes = (IsAuthenticated & IsProjectAdmin,)
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return RedirectCreateSerializer
+        return RedirectDetailSerializer
 
     def perform_create(self, serializer):
         # Inject the project from the URL into the serializer
