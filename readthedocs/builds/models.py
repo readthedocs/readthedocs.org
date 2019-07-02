@@ -736,7 +736,7 @@ class Build(models.Model):
 
     def get_full_url(self):
         """Get full url including domain"""
-        full_url = '{domain}{absolute_url}'.format(
+        full_url = 'https://{domain}{absolute_url}'.format(
             domain=settings.PUBLIC_API_URL,
             absolute_url=self.get_absolute_url()
         )
