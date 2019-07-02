@@ -5,7 +5,7 @@ import logging
 import os
 import re
 
-from celery import chord, group, chain
+from celery import chord, group
 from django.conf import settings
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
@@ -163,27 +163,6 @@ def trigger_build(project, version=None, record=True, force=False):
         return (None, None)
 
     return (update_docs_task.apply_async(), build)
-
-
-def trigger_initial_build(project, user):
-    """
-    Trigger initial build after project is imported.
-
-    :param project: project's documentation to be built
-    :returns: Celery AsyncResult promise
-    """
-
-    update_docs, build = prepare_build(project)
-    if (update_docs, build) == (None, None):
-        return None
-
-    from readthedocs.oauth.tasks import attach_webhook
-    task_promise = chain(
-        attach_webhook.si(project.pk, user.pk),
-        update_docs,
-    )
-    async_result = task_promise.apply_async()
-    return async_result
 
 
 def send_email(

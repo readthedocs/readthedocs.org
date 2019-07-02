@@ -25,7 +25,7 @@ from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
-from readthedocs.core.utils import broadcast, trigger_build, trigger_initial_build
+from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -56,8 +56,8 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
-from readthedocs.projects.signals import project_import
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.views.mixins import ProjectImportMixin
 
 from ..tasks import retry_domain_verification
 
@@ -216,7 +216,10 @@ def project_delete(request, project_slug):
     return render(request, 'projects/project_delete.html', context)
 
 
-class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
+class ImportWizardView(
+        ProjectImportMixin, ProjectSpamMixin, PrivateViewMixin,
+        SessionWizardView,
+):
 
     """Project import wizard."""
 
@@ -254,24 +257,17 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
-        tags = form_data.pop('tags', [])
-        for tag in tags:
-            project.tags.add(tag)
         for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
         project.save()
 
-        # TODO: this signal could be removed, or used for sync task
-        project_import.send(sender=project, request=self.request)
+        tags = form_data.pop('tags', [])
+        self.import_project(project, tags, self.request)
 
-        self.trigger_initial_build(project)
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]),
         )
-
-    def trigger_initial_build(self, project):
-        return trigger_initial_build(project, self.request.user)
 
     def is_advanced(self):
         """Determine if the user selected the `show advanced` field."""
@@ -279,7 +275,7 @@ class ImportWizardView(ProjectSpamMixin, PrivateViewMixin, SessionWizardView):
         return data.get('advanced', True)
 
 
-class ImportDemoView(PrivateViewMixin, View):
+class ImportDemoView(PrivateViewMixin, ProjectImportMixin, View):
 
     """View to pass request on to import form to import demo project."""
 
