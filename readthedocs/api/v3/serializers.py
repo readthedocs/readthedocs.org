@@ -11,6 +11,7 @@ from rest_framework import serializers
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import Project
+from readthedocs.redirects.models import Redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -321,6 +322,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
+    redirects = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
@@ -332,6 +334,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_versions(self, obj):
         path = reverse(
             'projects-versions-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_redirects(self, obj):
+        path = reverse(
+            'projects-redirects-list',
             kwargs={
                 'parent_lookup_project__slug': obj.slug,
             },
@@ -451,3 +462,44 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class RedirectLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-redirects-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'redirect_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class RedirectSerializer(serializers.ModelSerializer):
+
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    _links = RedirectLinksSerializer(source='*', read_only=True)
+
+    class Meta:
+        model = Redirect
+        fields = [
+            'pk',
+            'project',
+            'redirect_type',
+            'from_url',
+            'to_url',
+            '_links',
+        ]
