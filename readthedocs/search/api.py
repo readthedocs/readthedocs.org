@@ -1,6 +1,4 @@
-import itertools
 import logging
-from collections import defaultdict
 from pprint import pformat
 
 from rest_framework import generics, serializers
@@ -83,6 +81,8 @@ class PageSearchSerializer(serializers.Serializer):
                 if isinstance(v, list):
                     v_new_list = [res.replace('\n', '. ') for res in v]
                     highlight[k] = v_new_list
+
+        log.debug('API Search highlight: %s', pformat(highlight))
 
         return highlight
 
