@@ -35,14 +35,25 @@ function attach_elastic_search_query(data) {
                     for (var i = 0; i < hit_list.length; i += 1) {
                         var doc = hit_list[i];
                         var highlight = doc.highlight;
+                        var inner_hits = doc.inner_hits || [];
                         var list_item = $('<li style="display: none;"></li>');
+
+                        var title = doc.title;
+                        // if highlighted title is present,
+                        // use that.
+                        if (highlight) {
+                            if (highlight.title) {
+                                title = highlight.title[0];
+                            }
+                        }
 
                         // Creating the result from elements
                         var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
                                    '?highlight=' + $.urlencode(query);
 
                         var item = $('<a>', {'href': link});
-                        item.html(doc.title);
+                        item.html(title);
+                        item.find('em').addClass('highlighted')
                         list_item.append(item);
 
                         // If the document is from subproject, add extra information
@@ -53,20 +64,81 @@ function attach_elastic_search_query(data) {
                             list_item.append(extra);
                         }
 
-                        // Show highlighted texts
-                        if (highlight.content) {
-                            for (var index = 0; index < highlight.content.length; index += 1) {
-                                if (index < 3) {
-                                    // Show up to 3 results for search
-                                    var content = highlight.content[index];
-                                    var content_text = xss(content);
-                                    var contents = $('<div class="context">');
+                        for (var j = 0; j < inner_hits.length; j += 1) {
 
-                                    contents.html("..." + content_text + "...");
-                                    contents.find('em').addClass('highlighted');
-                                    list_item.append(contents);
+                            var contents = $('<div class="context">');
+
+                            // if the result is page section
+                            if(inner_hits[j].type === "sections") {
+                                
+                                var section = inner_hits[j];
+                                var subtitle = $('<div class="rtd_search_subtitle">');
+                                var subtitle_link = $('<a href="' + link + "#" + section._source.id + '">');
+                                var section_content = $('<span>')
+                                
+                                if (section.highlight) {
+                                    if (section.highlight["sections.title"]) {
+                                        subtitle_link.html(
+                                            section.highlight["sections.title"]
+                                        );
+                                    } else {
+                                        subtitle_link.html(
+                                            section._source.title
+                                        )
+                                    }
+                                
+                                    if (section.highlight["sections.content"]) {
+                                        section_content.html(
+                                            "... " +
+                                            section.highlight["sections.content"]) +
+                                            " ..."
+                                    } else {
+                                        section_content.html(
+                                            section._source.content.substring(0, 80) +
+                                            " ..."
+                                        )
+                                    }
                                 }
+                                
+                                subtitle.html(subtitle_link);
+                                contents.append(subtitle);
+                                contents.append(section_content)
+                                contents.find('em').addClass('highlighted')
                             }
+
+                            // if the result is a sphinx domain object
+                            if (inner_hits[j].type === "domains") {
+                                
+                                var domain = inner_hits[j];
+                                var subtitle = $('<div class="rtd_search_subtitle">');
+                                var subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
+                                var domain_content = $('<span>')
+                                
+                                subtitle_link.html(domain._source.role_name);
+                                
+                                if (domain.highlight) {
+                                    if (domain.highlight["domains.name"]) {
+                                        domain_content.html(
+                                            "... " +
+                                            domain.highlight["domains.name"] +
+                                            " ..."
+                                        )
+                                    } else {
+                                        domain_content.html(
+                                            domain._source.name +
+                                            " ..."
+                                        )
+                                    }
+                                }
+                                
+                                subtitle.append(subtitle_link);
+                                contents.append(subtitle);
+                                contents.append(domain_content);
+                                contents.find('em').addClass('highlighted')
+                            }
+
+                            list_item.append(contents);
+                            list_item.append($("<br>"));
                         }
 
                         Search.output.append(list_item);
