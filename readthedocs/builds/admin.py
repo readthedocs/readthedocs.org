@@ -34,6 +34,7 @@ class BuildAdmin(admin.ModelAdmin):
         'success',
         'length',
         'cold_storage',
+        'config',
     )
     list_display = (
         'id',
@@ -64,6 +65,7 @@ class VersionAdmin(admin.ModelAdmin):
         'privacy_level',
         'active',
         'built',
+        'config',
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
