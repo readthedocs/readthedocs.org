@@ -1,10 +1,16 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
+import json
 from django.contrib import admin, messages
+from django.utils.safestring import mark_safe
 from polymorphic.admin import (
     PolymorphicChildModelAdmin,
     PolymorphicParentModelAdmin,
 )
+
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
 
 from readthedocs.builds.models import (
     Build,
@@ -17,6 +23,28 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
+
+
+def _pretty_config(instance):
+    """Function to display pretty version of our data"""
+
+    # Convert the data to sorted, indented JSON
+    response = json.dumps(instance.config, sort_keys=True, indent=2)
+
+    # Truncate the data. Alter as needed
+    response = response[:5000]
+
+    # Get the Pygments formatter
+    formatter = HtmlFormatter()
+
+    # Highlight the data
+    response = highlight(response, JsonLexer(), formatter)
+
+    # Get the stylesheet
+    style = "<style>" + formatter.get_style_defs() + "</style><br>"
+
+    # Safe the output
+    return mark_safe(style + response)
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -34,7 +62,10 @@ class BuildAdmin(admin.ModelAdmin):
         'success',
         'length',
         'cold_storage',
-        'config',
+        'pretty_config',
+    )
+    readonly_fields = (
+        'pretty_config',  # required to be read-only becuase it's a @property
     )
     list_display = (
         'id',
@@ -55,6 +86,11 @@ class BuildAdmin(admin.ModelAdmin):
     def version_name(self, obj):
         return obj.version.verbose_name
 
+    def pretty_config(self, instance):
+        return _pretty_config(instance)
+
+    pretty_config.short_description = 'Config File'
+
 
 class VersionAdmin(admin.ModelAdmin):
 
@@ -65,7 +101,9 @@ class VersionAdmin(admin.ModelAdmin):
         'privacy_level',
         'active',
         'built',
-        'config',
+    )
+    readonly_fields = (
+        'pretty_config',  # required to be read-only becuase it's a @property
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
@@ -85,6 +123,10 @@ class VersionAdmin(admin.ModelAdmin):
                 level=messages.SUCCESS
             )
 
+    def pretty_config(self, instance):
+        return _pretty_config(instance)
+
+    pretty_config.short_description = 'Config File'
     wipe_selected_versions.short_description = 'Wipe selected versions'
 
     def build_version(self, request, queryset):
