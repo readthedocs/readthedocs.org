@@ -340,8 +340,8 @@ class GitHubService(Service):
         }
 
         resp = None
-        try:
 
+        try:
             resp = session.post(
                 f'https://api.github.com/repos/{owner}/{repo}/statuses/{build_sha}',
                 data=json.dumps(data),
@@ -362,6 +362,8 @@ class GitHubService(Service):
                 )
                 return False
 
+            return False
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
@@ -373,7 +375,10 @@ class GitHubService(Service):
             try:
                 debug_data = resp.json()
             except ValueError:
-                debug_data = resp.content
+                if resp is not None:
+                    debug_data = resp.content
+                else:
+                    debug_data = resp
             log.debug(
                 'GitHub commit status creation failure response: %s',
                 debug_data,
