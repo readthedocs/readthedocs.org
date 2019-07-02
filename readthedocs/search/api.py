@@ -1,3 +1,4 @@
+import itertools
 import logging
 from collections import defaultdict
 from pprint import pformat
@@ -44,41 +45,24 @@ class PageSearchSerializer(serializers.Serializer):
     def get_inner_hits(self, obj):
         inner_hits = getattr(obj.meta, 'inner_hits', None)
         if inner_hits:
-            res = defaultdict(list)
-
-            # add sections data to the search results
-            sections = getattr(inner_hits, 'sections', None)
-            for hit in sections.hits:
-                section_highlight = self._remove_newlines_from_dict(
-                    hit.highlight.to_dict()
-                )
-
-                log.debug('API Search highlight [Page sections]: %s', pformat(section_highlight))
-
-                section_info = {
+            sections = inner_hits.sections
+            domains = inner_hits.domains
+            all_results = list(sections) + list(domains)
+            sorted_results = [
+                {
+                    'type': hit._nested.field,
                     '_source': hit._source.to_dict(),
-                    'highlight': section_highlight,
+                    'highlight': self._remove_newlines_from_dict(
+                        hit.highlight.to_dict()
+                    ),
                 }
+                for hit in sorted(all_results, key=self._get_score, reverse=True)
+            ]
 
-                res['sections'].append(section_info)
+            return sorted_results
 
-            # add sphinx domain data to the search results
-            domains = getattr(inner_hits, 'domains', None)
-            for hit in domains:
-                domain_highlight = self._remove_newlines_from_dict(
-                    hit.highlight.to_dict()
-                )
-
-                log.debug('API Search highlight [Page domains]: %s', pformat(domain_highlight))
-
-                domain_info = {
-                    '_source': hit._source.to_dict(),
-                    'highlight': domain_highlight,
-                }
-
-                res['domains'].append(domain_info)
-
-            return res
+    def _get_score(self, res):
+        return res._score
 
     def _remove_newlines_from_dict(self, highlight):
         """
