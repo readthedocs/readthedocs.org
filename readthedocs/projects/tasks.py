@@ -1023,7 +1023,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def send_build_status(self, build_pk, state):
         """Send github build status for pull/merge requests."""
-        send_build_status.delay(build_pk, state)
+        send_external_build_status(build_pk, state)
 
 
 # Web tasks
@@ -1796,9 +1796,28 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, state):
+def send_build_status(build, state):
     """
     Send Build Status to Git Status API for project external versions.
+
+    :param build: Build
+    :param state: build state failed, pending, or success to be sent.
+    """
+    if build.project.remote_repository.account.provider == 'github':
+        service = GitHubService(
+            build.project.remote_repository.users.first(),
+            build.project.remote_repository.account
+        )
+
+        # send Status report using the API.
+        service.send_build_status(build, state)
+
+    # TODO: Send build status for other providers.
+
+
+def send_external_build_status(build_pk, state):
+    """
+    Check if build is external and Send Build Status for project external versions.
 
     :param build_pk: Build pk
     :param state: build state failed, pending, or success to be sent.
@@ -1806,17 +1825,6 @@ def send_build_status(build_pk, state):
     build = Build.objects.get(pk=build_pk)
 
     # Send status reports for only External (pull/merge request) Versions.
-    if build.version.type != EXTERNAL:
-        return
-
-    if build.project.remote_repository.account.provider == 'github':
-        account = build.project.remote_repository.account
-        service = GitHubService(
-            build.project.remote_repository.users.first(),
-            account
-        )
-
-        # send Status report using the API.
-        service.send_build_status(build, state)
-
-    # TODO: Send build status for other providers.
+    if build.version.type == EXTERNAL:
+        # call the task that actually send the build status.
+        send_build_status.delay(build, state)

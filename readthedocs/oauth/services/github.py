@@ -372,13 +372,14 @@ class GitHubService(Service):
             )
             # Response data should always be JSON, still try to log if not
             # though
-            try:
-                debug_data = resp.json()
-            except ValueError:
-                if resp is not None:
+            if resp is not None:
+                try:
+                    debug_data = resp.json()
+                except ValueError:
                     debug_data = resp.content
-                else:
-                    debug_data = resp
+            else:
+                debug_data = resp
+
             log.debug(
                 'GitHub commit status creation failure response: %s',
                 debug_data,
