@@ -1,7 +1,6 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
 from django.contrib import admin, messages
-from guardian.admin import GuardedModelAdmin
 from polymorphic.admin import (
     PolymorphicChildModelAdmin,
     PolymorphicParentModelAdmin,
@@ -56,7 +55,8 @@ class BuildAdmin(admin.ModelAdmin):
         return obj.version.verbose_name
 
 
-class VersionAdmin(GuardedModelAdmin):
+class VersionAdmin(admin.ModelAdmin):
+
     list_display = (
         'slug',
         'type',
