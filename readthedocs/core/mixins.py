@@ -32,13 +32,13 @@ class HideProtectedLevelMixin:
     """
     Hide ``protected`` privacy level from Form.
 
-    Remove Protected for now since it cause confusions to users.
+    Remove Protected for now since it causes confusions to users.
 
     If the current ``privacy_level`` is ``protected`` we show it (so users keep
     seeing consistency values), and hide it otherwise (so it can't be selected).
 
-    There is a better way to manage this by using Version states See:
-    https://github.com/rtfd/readthedocs.org/issues/5321
+    There is a better way to manage this by using Version states.
+    See: https://github.com/rtfd/readthedocs.org/issues/5321
     """
 
     def __init__(self, *args, **kwargs):
