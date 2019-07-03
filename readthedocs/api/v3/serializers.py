@@ -516,6 +516,7 @@ class RedirectCreateSerializer(RedirectSerializerBase):
 
 
 class RedirectDetailSerializer(RedirectSerializerBase):
+
     """Override RedirectSerializerBase to sanitize the empty fields."""
 
     from_url = serializers.SerializerMethodField()
