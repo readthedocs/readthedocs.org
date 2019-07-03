@@ -132,8 +132,10 @@ def elastic_search(request, project_slug=None):
                 hit['inner_hits'].pop('domains', None)
                 hit['inner_hits'] = sorted_results
 
-        except Exception as e:
-            log.debug('Error occurred while sorting inner_hits', e)
+        except:
+            # if the control comes in this block,
+            # that implies that there was PageSearch
+            pass
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
