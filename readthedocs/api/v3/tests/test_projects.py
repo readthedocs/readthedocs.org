@@ -533,9 +533,7 @@ class APIEndpointTests(TestCase):
         self.assertEqual(self.project.redirects.count(), 0)
 
 
-    @mock.patch('readthedocs.api.v3.views.trigger_initial_build')
-    @mock.patch('readthedocs.api.v3.views.project_import')
-    def test_import_project(self, project_import, trigger_initial_build):
+    def test_import_project(self):
         data = {
             'name': 'Test Project',
             'repository': {
@@ -557,30 +555,12 @@ class APIEndpointTests(TestCase):
         self.assertEqual(project.repo, 'https://github.com/rtfd/template')
         self.assertEqual(project.language, 'en')
         self.assertIn(self.me, project.users.all())
-
-        # Signal sent
-        project_import.send.assert_has_calls(
-            [
-                mock.call(
-                    sender=project,
-                    request=mock.ANY,
-                ),
-            ],
-        )
-
-        # Build triggered
-        trigger_initial_build.assert_has_calls(
-            [
-                mock.call(
-                    project,
-                    self.me,
-                ),
-            ],
-        )
+        self.assertEqual(project.builds.count(), 1)
 
         response_json = response.json()
-        response_json['created'] = '2019-04-29T14:00:00Z'
-        response_json['modified'] = '2019-04-29T14:00:00Z'
+        response_json['created'] = '2019-04-29T10:00:00Z'
+        response_json['modified'] = '2019-04-29T12:00:00Z'
+
         self.assertDictEqual(
             response_json,
             self._get_response_dict('projects-list_POST'),

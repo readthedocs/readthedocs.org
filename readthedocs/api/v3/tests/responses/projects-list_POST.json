@@ -7,7 +7,7 @@
         "translations": "https://readthedocs.org/api/v3/projects/test-project/translations/",
         "versions": "https://readthedocs.org/api/v3/projects/test-project/versions/"
     },
-    "created": "2019-04-29T14:00:00Z",
+    "created": "2019-04-29T10:00:00Z",
     "default_branch": "master",
     "default_version": "latest",
     "description": null,
@@ -16,7 +16,7 @@
         "code": "en",
         "name": "English"
     },
-    "modified": "2019-04-29T14:00:00Z",
+    "modified": "2019-04-29T12:00:00Z",
     "name": "Test Project",
     "privacy_level": {
         "code": "public",
