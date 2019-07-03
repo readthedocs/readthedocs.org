@@ -182,6 +182,22 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                 return mark_safe(description.format(project_slug=project.slug))
         return description
 
+    def create(self, request, *args, **kwargs):
+        """
+        Import Project.
+
+        Override to use a different serializer in the response.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        # Use serializer that fully render a Project
+        serializer = ProjectSerializer(instance=serializer.instance)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def perform_create(self, serializer):
         """
         Import Project.
