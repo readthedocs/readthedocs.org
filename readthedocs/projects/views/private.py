@@ -257,12 +257,15 @@ class ImportWizardView(
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
+
+        # Remove tags to avoid setting them in raw instead of using ``.add``
+        tags = form_data.pop('tags', [])
+
         for field, value in list(form_data.items()):
             if field in extra_fields:
                 setattr(project, field, value)
         project.save()
 
-        tags = form_data.pop('tags', [])
         self.import_project(project, tags, self.request)
 
         return HttpResponseRedirect(
