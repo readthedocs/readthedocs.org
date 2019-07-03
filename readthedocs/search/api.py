@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search.utils import get_project_list_or_404
+from readthedocs.search import utils
 
 
 log = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            ret = self._remove_newlines_from_dict(highlight.to_dict())
+            ret = utils._remove_newlines_from_dict(highlight.to_dict())
             log.debug('API Search highlight [Page title]: %s', pformat(ret))
             return ret
 
@@ -46,45 +46,26 @@ class PageSearchSerializer(serializers.Serializer):
             sections = inner_hits.sections
             domains = inner_hits.domains
             all_results = list(sections) + list(domains)
+
             sorted_results = [
                 {
                     'type': hit._nested.field,
                     '_source': hit._source.to_dict(),
-                    'highlight': self._remove_newlines_from_dict(
-                        hit.highlight.to_dict()
-                    ),
+                    'highlight': self._get_inner_hits_highlights(hit),
                 }
-                for hit in sorted(all_results, key=self._get_score, reverse=True)
+                for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
             ]
 
             return sorted_results
 
-    def _get_score(self, res):
-        return res._score
+    def _get_inner_hits_highlights(self, hit):
+        """Removes new lines from highlight and log it."""
+        highlight_dict = utils._remove_newlines_from_dict(
+            hit.highlight.to_dict()
+        )
 
-    def _remove_newlines_from_dict(self, highlight):
-        """
-        Recursively change results to turn newlines in highlight into periods.
-        
-        See: https://github.com/rtfd/readthedocs.org/issues/5168
-        :param highlight: highlight dict whose contents are to be edited.
-        :type highlight: dict
-        :returns: dict with all the newlines changed to periods.
-        :rtype: dict
-        """
-        for k, v in highlight.items():
-            if isinstance(v, dict):
-                highlight[k] = self._remove_newlines_from_dict(v)
-            else:
-                # elastic returns the contents of the
-                # highlighted field in a list.
-                if isinstance(v, list):
-                    v_new_list = [res.replace('\n', '. ') for res in v]
-                    highlight[k] = v_new_list
-
-        log.debug('API Search highlight: %s', pformat(highlight))
-
-        return highlight
+        log.debug('API Search highlight: %s', pformat(highlight_dict))
+        return highlight_dict
 
 
 class PageSearchAPIView(generics.ListAPIView):
@@ -155,7 +136,7 @@ class PageSearchAPIView(generics.ListAPIView):
         """
         project_slug = self.request.query_params.get('project')
         version_slug = self.request.query_params.get('version')
-        all_projects = get_project_list_or_404(
+        all_projects = utils.get_project_list_or_404(
             project_slug=project_slug, user=self.request.user, version_slug=version_slug,
         )
         return all_projects

@@ -159,3 +159,31 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 index_objects_to_es.delay(**kwargs)
             else:
                 delete_objects_in_es.delay(**kwargs)
+
+
+def _get_hit_score(res):
+    """Returns the _score of a single ES search result hits."""
+    return res._score
+
+
+def _remove_newlines_from_dict(highlight):
+    """
+    Recursively change results to turn newlines into periods.
+
+    See: https://github.com/rtfd/readthedocs.org/issues/5168
+    :param highlight: highlight dict whose contents are to be edited.
+    :type highlight: dict
+    :returns: dict with all the newlines changed to periods.
+    :rtype: dict
+    """
+    for k, v in highlight.items():
+        if isinstance(v, dict):
+            highlight[k] = self._remove_newlines_from_dict(v)
+        else:
+            # elastic returns the contents of the
+            # highlighted field in a list.
+            if isinstance(v, list):
+                v_new_list = [res.replace('\n', '. ') for res in v]
+                highlight[k] = v_new_list
+
+    return highlight

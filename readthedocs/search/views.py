@@ -12,6 +12,7 @@ from readthedocs.search.faceted_search import (
     PageSearch,
     ProjectSearch,
 )
+from readthedocs.search import utils
 
 
 log = logging.getLogger(__name__)
@@ -103,6 +104,37 @@ def elastic_search(request, project_slug=None):
             facets[avail_facet].insert(0, (value, 0, True))
 
     if results:
+
+        # sorting inner_hits (if present)
+        try:
+            for hit in results.hits.hits:
+                sections = hit['inner_hits'].get('sections', [])
+                domains = hit['inner_hits'].get('domains', [])
+                all_results = list(sections) + list(domains)
+
+                sorted_results = [
+                    {
+                        'type': hit._nested.field,
+
+                        # here _source term is not used because
+                        # django gives error if the names of the
+                        # variables start with underscore
+                        'source': hit._source.to_dict(),
+
+                        'highlight': utils._remove_newlines_from_dict(
+                            hit.highlight.to_dict()
+                        ),
+                    }
+                    for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+                ]
+
+                hit['inner_hits'].pop('sections', None)
+                hit['inner_hits'].pop('domains', None)
+                hit['inner_hits'] = sorted_results
+
+        except Exception as e:
+            log.error('Error occurred while sorting inner_hits', e)
+
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
 
