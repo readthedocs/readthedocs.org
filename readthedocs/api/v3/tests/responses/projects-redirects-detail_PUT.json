@@ -8,6 +8,6 @@
     "from_url": "/changed/",
     "pk": 1,
     "project": "project",
-    "redirect_type": "page",
+    "type": "page",
     "to_url": "/toanother/"
 }

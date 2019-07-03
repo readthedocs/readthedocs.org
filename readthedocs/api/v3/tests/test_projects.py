@@ -468,7 +468,7 @@ class APIEndpointTests(TestCase):
         data = {
             'from_url': '/page/',
             'to_url': '/another/',
-            'redirect_type': 'page',
+            'type': 'page',
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -494,7 +494,7 @@ class APIEndpointTests(TestCase):
         data = {
             'from_url': '/changed/',
             'to_url': '/toanother/',
-            'redirect_type': 'page',
+            'type': 'page',
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

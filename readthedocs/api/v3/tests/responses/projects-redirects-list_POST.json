@@ -8,6 +8,6 @@
     "from_url": "/page/",
     "pk": 2,
     "project": "project",
-    "redirect_type": "page",
+    "type": "page",
     "to_url": "/another/"
 }

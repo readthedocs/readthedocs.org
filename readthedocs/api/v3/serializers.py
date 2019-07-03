@@ -11,7 +11,7 @@ from rest_framework import serializers
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
 from readthedocs.projects.models import Project
-from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -495,6 +495,8 @@ class RedirectSerializerBase(serializers.ModelSerializer):
     modified = serializers.DateTimeField(source='update_dt', read_only=True)
     _links = RedirectLinksSerializer(source='*', read_only=True)
 
+    type = serializers.ChoiceField(source='redirect_type', choices=REDIRECT_TYPE_CHOICES)
+
     class Meta:
         model = Redirect
         fields = [
@@ -502,7 +504,7 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             'created',
             'modified',
             'project',
-            'redirect_type',
+            'type',
             'from_url',
             'to_url',
             '_links',
