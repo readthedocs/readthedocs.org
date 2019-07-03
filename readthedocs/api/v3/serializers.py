@@ -302,6 +302,7 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
 
 
 class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+
     """Serializer with all the user-facing URLs under Read the Docs."""
 
     documentation = serializers.CharField(source='get_docs_url')
