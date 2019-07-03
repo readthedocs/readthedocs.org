@@ -1,0 +1,13 @@
+{
+    "_links": {
+        "_self": "https://readthedocs.org/api/v3/projects/project/redirects/2/",
+        "project": "https://readthedocs.org/api/v3/projects/project/"
+    },
+    "created": "2019-04-29T10:00:00Z",
+    "modified": "2019-04-29T12:00:00Z",
+    "from_url": "/page/",
+    "pk": 2,
+    "project": "project",
+    "redirect_type": "page",
+    "to_url": "/another/"
+}

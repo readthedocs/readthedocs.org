@@ -491,12 +491,16 @@ class RedirectLinksSerializer(BaseLinksSerializer):
 class RedirectSerializerBase(serializers.ModelSerializer):
 
     project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    created = serializers.DateTimeField(source='create_dt', read_only=True)
+    modified = serializers.DateTimeField(source='update_dt', read_only=True)
     _links = RedirectLinksSerializer(source='*', read_only=True)
 
     class Meta:
         model = Redirect
         fields = [
             'pk',
+            'created',
+            'modified',
             'project',
             'redirect_type',
             'from_url',

@@ -13,6 +13,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
+from readthedocs.redirects.models import Redirect
 
 
 class APIEndpointTests(TestCase):
@@ -48,6 +49,16 @@ class APIEndpointTests(TestCase):
         )
         for tag in ('tag', 'project', 'test'):
             self.project.tags.add(tag)
+
+        self.redirect = fixture.get(
+            Redirect,
+            create_dt=created,
+            update_dt=modified,
+            from_url='/docs/',
+            to_url='/documentation/',
+            redirect_type='page',
+            project=self.project,
+        )
 
         self.subproject = fixture.get(
             Project,
@@ -372,3 +383,109 @@ class APIEndpointTests(TestCase):
 
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_unauthed_projects_redirects_list(self):
+        response = self.client.get(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_projects_redirects_list(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict('projects-redirects-list'),
+        )
+
+    def test_unauthed_projects_redirects_detail(self):
+        response = self.client.get(
+            reverse(
+                'projects-redirects-detail',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                    'redirect_pk': self.redirect.pk,
+                }),
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_projects_redirects_detail(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-redirects-detail',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                    'redirect_pk': self.redirect.pk,
+                }),
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_json = response.json()
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict('projects-redirects-detail'),
+        )
+
+    def test_unauthed_projects_redirects_list_post(self):
+        data = {}
+
+        response = self.client.post(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.others_project.slug,
+                }),
+            data,
+        )
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.others_project.slug,
+                }),
+            data,
+        )
+        self.assertEqual(response.status_code, 403)
+
+    def test_projects_redirects_list_post(self):
+        data = {
+            'from_url': '/page/',
+            'to_url': '/another/',
+            'redirect_type': 'page',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                }),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+
+        response_json = response.json()
+        response_json['created'] = '2019-04-29T10:00:00Z'
+        response_json['modified'] = '2019-04-29T12:00:00Z'
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict('projects-redirects-list_POST'),
+        )
