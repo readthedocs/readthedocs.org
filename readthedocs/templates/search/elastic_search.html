@@ -190,7 +190,7 @@
               {% if 'page' in hit|key:"_index" %}
                 <li class="module-item search-result-item">
                   <p class="module-item-title">
-                    <a href="{% doc_url hit|key:'_source'|key:'project'|get_project hit|key:'_source'|key:'version' %}">
+                    <a href="{% doc_url hit|key:'_source'|key:'project'|get_project hit|key:'_source'|key:'version' hit|key:'_source'|key:'full_path' %}?highlight={{ query }}">
                       {{ hit|key:'_source'|key:'project' }} - {{ hit|key:'_source'|key:'title' }}
                     </a>
 
@@ -208,7 +208,7 @@
                         <p class="fragment">
                           {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
                             {% with l=inner_hit.highlight|get_key_or_none:"domains.name" %}
-                              {{ inner_hit.source.type_display }} -- {{ l.0|safe }} -- {{ inner_hit.source.doc_display }}
+                              {{ inner_hit.source.type_display }} -- {{ l.0|safe }} -- in {{ inner_hit.source.doc_display }}
                             {% endwith %}
                           {% else %}
                             {{ inner_hit.source.type_display }} -- {{ inner_hit.source.name }} -- {{ inner_hit.source.doc_display }}
