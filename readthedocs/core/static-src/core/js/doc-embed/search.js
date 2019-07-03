@@ -53,7 +53,7 @@ function attach_elastic_search_query(data) {
 
                         var item = $('<a>', {'href': link});
                         item.html(title);
-                        item.find('em').addClass('highlighted')
+                        item.find('em').addClass('highlighted');
                         list_item.append(item);
 
                         // If the document is from subproject, add extra information
@@ -70,63 +70,63 @@ function attach_elastic_search_query(data) {
 
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
-                                
+
                                 var section = inner_hits[j];
-                                var subtitle = $('<div class="rtd_search_subtitle">');
-                                var subtitle_link = $('<a href="' + link + "#" + section._source.id + '">');
-                                var section_content = $('<span>')
-                                
+                                var section_subtitle = $('<div class="rtd_search_subtitle">');
+                                var section_subtitle_link = $('<a href="' + link + "#" + section._source.id + '">');
+                                var section_content = $('<span>');
+
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
-                                        subtitle_link.html(
+                                        section_subtitle_link.html(
                                             xss(section.highlight["sections.title"][0])
                                         );
                                     } else {
-                                        subtitle_link.html(
+                                        section_subtitle_link.html(
                                             section._source.title
-                                        )
+                                        );
                                     }
-                                
+
                                     if (section.highlight["sections.content"]) {
                                         section_content.html(
                                             "... " +
                                             xss(section.highlight["sections.content"][0]) +
                                             " ..."
-                                        )
+                                        );
                                     } else {
                                         section_content.html(
                                             section._source.content.substring(0, 100) +
                                             " ..."
-                                        )
+                                        );
                                     }
                                 }
-                                
-                                subtitle.html(subtitle_link);
-                                contents.append(subtitle);
-                                contents.append(section_content)
-                                contents.find('em').addClass('highlighted')
+
+                                section_subtitle.html(section_subtitle_link);
+                                contents.append(section_subtitle);
+                                contents.append(section_content);
+                                contents.find('em').addClass('highlighted');
                             }
 
                             // if the result is a sphinx domain object
                             if (inner_hits[j].type === "domains") {
 
                                 var domain = inner_hits[j];
-                                var subtitle = $('<div class="rtd_search_subtitle">');
-                                var subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
-                                var domain_content = $('<span>')
+                                var domain_subtitle = $('<div class="rtd_search_subtitle">');
+                                var domain_subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
+                                var domain_content = $('<span>');
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
                                     domain._source.display_name.length >= 2
                                 ) {
-                                    subtitle_link.html(
+                                    domain_subtitle_link.html(
                                         "(" +
                                         domain._source.role_name +
                                         ")" +
                                         domain._source.display_name
-                                    )
+                                    );
                                 } else {
-                                    subtitle_link.html(domain._source.role_name)
+                                    domain_subtitle_link.html(domain._source.role_name);
                                 }
 
                                 // preparing domain_content
@@ -141,11 +141,11 @@ function attach_elastic_search_query(data) {
                                     }
                                 }
                                 domain_content.append(" -- in " + domain._source.doc_display);
-                                
-                                subtitle.append(subtitle_link);
-                                contents.append(subtitle);
+
+                                domain_subtitle.append(domain_subtitle_link);
+                                contents.append(domain_subtitle);
                                 contents.append(domain_content);
-                                contents.find('em').addClass('highlighted')
+                                contents.find('em').addClass('highlighted');
                             }
 
                             list_item.append(contents);
