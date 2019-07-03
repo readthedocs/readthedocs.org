@@ -299,7 +299,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         version = project.versions.get(slug=version_slug)
         return version
 
-    def create(self, request, **kwargs):
+    def create(self, request, *args, **kwargs):
         project = self._get_project_to_build()
         version = self._get_version_to_build()
         _, build = trigger_build(project, version=version)
