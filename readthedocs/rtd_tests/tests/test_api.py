@@ -906,7 +906,8 @@ class IntegrationsTests(TestCase):
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.delay.assert_called_with(latest_version.pk)
 
-    def test_github_pull_request_opened_event(self, trigger_build):
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
@@ -925,12 +926,13 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
-        trigger_build.assert_called_once_with(
+        core_trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )
         self.assertTrue(external_version)
 
-    def test_github_pull_request_reopened_event(self, trigger_build):
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         # Update the payload for `reopened` webhook event
@@ -955,12 +957,13 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
-        trigger_build.assert_called_once_with(
+        core_trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )
         self.assertTrue(external_version)
 
-    def test_github_pull_request_synchronize_event(self, trigger_build):
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_synchronize_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         pull_request_number = '6'
@@ -998,13 +1001,14 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
-        trigger_build.assert_called_once_with(
+        core_trigger_build.assert_called_once_with(
             force=True, project=self.project, version=external_version
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
 
-    def test_github_pull_request_closed_event(self, trigger_build):
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
         pull_request_number = '7'
@@ -1044,7 +1048,7 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['version_deleted'])
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
-        trigger_build.assert_not_called()
+        core_trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
         client = APIClient()
