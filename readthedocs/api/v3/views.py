@@ -318,6 +318,10 @@ class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     queryset = Redirect.objects.all()
     permission_classes = (IsAuthenticated & IsProjectAdmin,)
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.select_related('project')
+
     def get_serializer_class(self):
         if self.action in ('create', 'update', 'partial_update'):
             return RedirectCreateSerializer
