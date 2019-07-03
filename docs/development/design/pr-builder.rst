@@ -149,5 +149,5 @@ Related Issues
 - `Add travis-ci style pull request builder`_
 
 
-.. _Autobuild Docs for Pull Requests: https://github.com/rtfd/readthedocs.org/issues/5684
-.. _Add travis-ci style pull request builder: https://github.com/rtfd/readthedocs.org/issues/1340
+.. _Autobuild Docs for Pull Requests: https://github.com/readthedocs/readthedocs.org/issues/5684
+.. _Add travis-ci style pull request builder: https://github.com/readthedocs/readthedocs.org/issues/1340
