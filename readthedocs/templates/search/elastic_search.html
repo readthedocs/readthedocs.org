@@ -208,7 +208,7 @@
                         <p class="fragment">
                           {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
                             {% with l=inner_hit.highlight|get_key_or_none:"domains.name" %}
-                              {{ inner_hit.source.type_display }} -- {{ l.0 }} -- {{ inner_hit.source.doc_display }}
+                              {{ inner_hit.source.type_display }} -- {{ l.0|safe }} -- {{ inner_hit.source.doc_display }}
                             {% endwith %}
                           {% else %}
                             {{ inner_hit.source.type_display }} -- {{ inner_hit.source.name }} -- {{ inner_hit.source.doc_display }}

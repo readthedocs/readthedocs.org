@@ -133,7 +133,7 @@ def elastic_search(request, project_slug=None):
                 hit['inner_hits'] = sorted_results
 
         except Exception as e:
-            log.error('Error occurred while sorting inner_hits', e)
+            log.debug('Error occurred while sorting inner_hits', e)
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
