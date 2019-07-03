@@ -123,26 +123,13 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
     filterset_class = ProjectFilter
+    serializer_class = ProjectSerializer
     queryset = Project.objects.all()
     permit_list_expands = [
         'active_versions',
         'active_versions.last_build',
         'active_versions.last_build.config',
     ]
-
-    def get_serializer_class(self):
-        """
-        Return correct serializer depending on the action.
-
-        For GET it returns a serializer with many fields and on PUT/PATCH/POST,
-        it return a serializer to validate just a few fields.
-        """
-        if self.action in ('list', 'retrieve', 'superproject'):
-            return ProjectSerializer
-        elif self.action in ('create',):
-            return ProjectCreateSerializer
-        # elif self.action in ('update', 'partial_update'):
-        #     return ProjectUpdateSerializer
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
@@ -188,7 +175,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         * Sent project_import signal
         * Trigger an initial Build
         """
-        serializer = self.get_serializer(data=request.data)
+        serializer = ProjectCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
         headers = self.get_success_headers(serializer.data)
