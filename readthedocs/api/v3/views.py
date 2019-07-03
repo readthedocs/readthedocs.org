@@ -142,10 +142,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         """
         if self.action in ('list', 'retrieve', 'superproject'):
             return ProjectSerializer
-        elif self.action in ('create',):
+
+        if self.action in ('create',):
             return ProjectCreateSerializer
-        # elif self.action in ('update', 'partial_update'):
-        #     return ProjectUpdateSerializer
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
