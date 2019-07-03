@@ -43,7 +43,7 @@ function attach_elastic_search_query(data) {
                         // use that.
                         if (highlight) {
                             if (highlight.title) {
-                                title = highlight.title[0];
+                                title = xss(highlight.title[0]);
                             }
                         }
 
@@ -79,7 +79,7 @@ function attach_elastic_search_query(data) {
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
                                         subtitle_link.html(
-                                            section.highlight["sections.title"]
+                                            xss(section.highlight["sections.title"][0])
                                         );
                                     } else {
                                         subtitle_link.html(
@@ -90,11 +90,12 @@ function attach_elastic_search_query(data) {
                                     if (section.highlight["sections.content"]) {
                                         section_content.html(
                                             "... " +
-                                            section.highlight["sections.content"]) +
+                                            xss(section.highlight["sections.content"][0]) +
                                             " ..."
+                                        )
                                     } else {
                                         section_content.html(
-                                            section._source.content.substring(0, 80) +
+                                            section._source.content.substring(0, 100) +
                                             " ..."
                                         )
                                     }
@@ -108,28 +109,38 @@ function attach_elastic_search_query(data) {
 
                             // if the result is a sphinx domain object
                             if (inner_hits[j].type === "domains") {
-                                
+
                                 var domain = inner_hits[j];
                                 var subtitle = $('<div class="rtd_search_subtitle">');
                                 var subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
                                 var domain_content = $('<span>')
-                                
-                                subtitle_link.html(domain._source.role_name);
-                                
+
+                                if (
+                                    typeof domain._source.display_name === "string" &&
+                                    domain._source.display_name.length >= 2
+                                ) {
+                                    subtitle_link.html(
+                                        "(" +
+                                        domain._source.role_name +
+                                        ")" +
+                                        domain._source.display_name
+                                    )
+                                } else {
+                                    subtitle_link.html(domain._source.role_name)
+                                }
+
+                                // preparing domain_content
+                                domain_content.append(domain._source.type_display + " -- ");
                                 if (domain.highlight) {
                                     if (domain.highlight["domains.name"]) {
-                                        domain_content.html(
-                                            "... " +
-                                            domain.highlight["domains.name"] +
-                                            " ..."
-                                        )
+                                        domain_content.append(
+                                            xss(domain.highlight["domains.name"][0])
+                                        );
                                     } else {
-                                        domain_content.html(
-                                            domain._source.name +
-                                            " ..."
-                                        )
+                                        domain_content.append(domain._source.name);
                                     }
                                 }
+                                domain_content.append(" -- in " + domain._source.doc_display);
                                 
                                 subtitle.append(subtitle_link);
                                 contents.append(subtitle);

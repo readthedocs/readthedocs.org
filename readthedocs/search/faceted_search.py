@@ -105,7 +105,6 @@ class PageSearchBase(RTDFacetedSearch):
     section_fields = ['sections.title', 'sections.content']
     domain_fields = [
         'domains.type_display',
-        'domains.doc_display',
         'domains.name',
         'domains.display_name',
     ]
@@ -148,7 +147,6 @@ class PageSearchBase(RTDFacetedSearch):
                     'number_of_fragments': 1,
                     'fields': {
                         'domains.type_display': {},
-                        'domains.doc_display': {},
                         'domains.name': {},
                         'domains.display_name': {},
                     }
