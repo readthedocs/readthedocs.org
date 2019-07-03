@@ -55,12 +55,12 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
     def listing_objects(self, queryset, user):
         project = self._get_parent_project()
-        if self.has_admin_permission(user, project):
+        if self.is_project_maintainer(user, project):
             return queryset
 
         return queryset.none()
 
-    def has_admin_permission(self, user, project):
+    def is_project_maintainer(self, user, project):
         if project in self.admin_projects(user):
             return True
 

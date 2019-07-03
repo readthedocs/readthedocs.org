@@ -15,7 +15,7 @@ class PublicDetailPrivateListing(BasePermission):
             return True
 
         project = view._get_parent_project()
-        if view.has_admin_permission(request.user, project):
+        if view.is_project_maintainer(request.user, project):
             return True
 
 
