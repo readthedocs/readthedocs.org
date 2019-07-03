@@ -166,7 +166,7 @@ We think that our theme is badass, and better than the default for many reasons.
 I want to use the Read the Docs theme locally
 ---------------------------------------------
 
-There is a repository for that: https://github.com/rtfd/sphinx_rtd_theme.
+There is a repository for that: https://github.com/readthedocs/sphinx_rtd_theme.
 Simply follow the instructions in the README.
 
 Image scaling doesn't work in my documentation
@@ -242,7 +242,7 @@ file* field.
 What commit of Read the Docs is in production?
 ----------------------------------------------
 
-We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/rtfd/readthedocs.org/commits/rel
+We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 
 How can I avoid search results having a deprecated version of my docs?

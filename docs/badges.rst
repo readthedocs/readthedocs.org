@@ -69,7 +69,7 @@ since it will stay up to date with your Read the Docs project::
     https://readthedocs.org/projects/pip/badge/
 
 
-.. _Read the Docs README: https://github.com/rtfd/readthedocs.org/blob/master/README.rst
+.. _Read the Docs README: https://github.com/readthedocs/readthedocs.org/blob/master/README.rst
 .. _project page: https://readthedocs.org/projects/pip/
 .. |green| image:: https://assets.readthedocs.org/static/projects/badges/passing-flat.svg
 .. |red| image:: https://assets.readthedocs.org/static/projects/badges/failing-flat.svg
