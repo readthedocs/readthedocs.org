@@ -107,9 +107,11 @@ def elastic_search(request, project_slug=None):
 
         # sorting inner_hits (if present)
         try:
-            for hit in results.hits.hits:
-                sections = hit['inner_hits'].get('sections', [])
-                domains = hit['inner_hits'].get('domains', [])
+            for result in results:
+
+                inner_hits = result.meta.inner_hits
+                sections = inner_hits.sections or []
+                domains = inner_hits.domains or []
                 all_results = list(sections) + list(domains)
 
                 sorted_results = [
@@ -128,13 +130,11 @@ def elastic_search(request, project_slug=None):
                     for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
                 ]
 
-                hit['inner_hits'].pop('sections', None)
-                hit['inner_hits'].pop('domains', None)
-                hit['inner_hits'] = sorted_results
+                result.meta.inner_hits = sorted_results
 
         except:
             # if the control comes in this block,
-            # that implies that there was PageSearch
+            # that implies that there was a PageSearch
             pass
 
         log.debug('Search results: %s', pformat(results.to_dict()))

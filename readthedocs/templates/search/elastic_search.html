@@ -164,9 +164,9 @@
 
             {% for result in results %}
 
-              {% if 'project' in result.meta.index %}
-                <li class="module-item search-result-item">
-                  <p class="module-item-title">
+              <li class="module-item search-result-item">
+                <p class="module-item-title">
+                  {% if 'project' in result.meta.index %}
                     <a href="{{ result.url }}">
                       {{ result.name }} (<em>{{ result.slug }}</em>)
                     </a>
@@ -177,27 +177,16 @@
                     {% empty %}
                       <p><em>No description for project.</em></p>
                     {% endfor %}
-                  </p>
-                </li>
-              {% elif 'page' in result.meta.index %}
 
-              {% endif %}
-            {% empty %}
-              <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
-            {% endfor %}
-
-            {% for hit in results.hits.hits %}
-              {% if 'page' in hit|key:"_index" %}
-                <li class="module-item search-result-item">
-                  <p class="module-item-title">
-                    <a href="{% doc_url hit|key:'_source'|key:'project'|get_project hit|key:'_source'|key:'version' hit|key:'_source'|key:'full_path' %}?highlight={{ query }}">
-                      {{ hit|key:'_source'|key:'project' }} - {{ hit|key:'_source'|key:'title' }}
+                  {% elif 'page' in result.meta.index %}
+                    <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
+                      {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                     </a>
 
-                    {% for inner_hit in hit.inner_hits %}
+                    {% for inner_hit in result.meta.inner_hits %}
                       {% if inner_hit.type == 'domains' %}
                         <p>
-                          <a href="{% doc_url hit|key:'_source'|key:'project'|get_project hit|key:'_source'|key:'version' inner_hit.source.doc_name %}?highlight={{ query }}#{{ inner_hit.source.anchor }}">
+                          <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}?highlight={{ query }}#{{ inner_hit.source.anchor }}">
                             {% if inner_hit.source.display_name|length >= 2 %}
                               ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
                             {% else %}
@@ -217,7 +206,7 @@
 
                       {% elif inner_hit.type == 'sections' %}
                         <p>
-                          <a href="{% doc_url hit|key:'_source'|key:'project'|get_project hit|key:'_source'|key:'version' hit|key:'_source'|key:'full_path' %}?highlight={{ query }}#{{ inner_hit.source.id }}">
+                          <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.id }}">
                             {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
                               {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
                                 {{ section_title.0|safe }}
@@ -238,9 +227,11 @@
                         </p>
                       {% endif %}
                     {% endfor %}
-                  </p>
-                </li>
-              {% endif %}
+                  {% endif %}
+                </p>
+              </li>
+            {% empty %}
+              <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
             {% endfor %}
           </ul>
         </div>
