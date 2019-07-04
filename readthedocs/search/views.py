@@ -1,5 +1,6 @@
 """Search views."""
 import collections
+import itertools
 import logging
 from pprint import pformat
 
@@ -112,9 +113,9 @@ def elastic_search(request, project_slug=None):
                 inner_hits = result.meta.inner_hits
                 sections = inner_hits.sections or []
                 domains = inner_hits.domains or []
-                all_results = list(sections) + list(domains)
+                all_results = itertools.chain(sections, domains)
 
-                sorted_results = [
+                sorted_results = (
                     {
                         'type': hit._nested.field,
 
@@ -128,7 +129,7 @@ def elastic_search(request, project_slug=None):
                         ),
                     }
                     for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
-                ]
+                )
 
                 result.meta.inner_hits = sorted_results
 

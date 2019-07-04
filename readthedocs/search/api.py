@@ -1,3 +1,4 @@
+import itertools
 import logging
 from pprint import pformat
 
@@ -43,18 +44,18 @@ class PageSearchSerializer(serializers.Serializer):
     def get_inner_hits(self, obj):
         inner_hits = getattr(obj.meta, 'inner_hits', None)
         if inner_hits:
-            sections = inner_hits.sections
-            domains = inner_hits.domains
-            all_results = list(sections) + list(domains)
+            sections = inner_hits.sections or []
+            domains = inner_hits.domains or []
+            all_results = itertools.chain(sections, domains)
 
-            sorted_results = [
+            sorted_results = (
                 {
                     'type': hit._nested.field,
                     '_source': hit._source.to_dict(),
                     'highlight': self._get_inner_hits_highlights(hit),
                 }
                 for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
-            ]
+            )
 
             return sorted_results
 
