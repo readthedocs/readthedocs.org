@@ -8,7 +8,7 @@ Customizing Advertising
     This document details features that are a **work in progress**.
     To discuss this document, please get in touch in the `issue tracker`_.
 
-    .. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
+    .. _issue tracker: https://github.com/readthedocs/readthedocs.org/issues
 
 In addition to allowing users and documentation authors to
 :ref:`opt out <advertising/ethical-advertising:Opting out>` of advertising,

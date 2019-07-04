@@ -1,8 +1,7 @@
 """Project model QuerySet classes."""
 
 from django.db import models
-from django.db.models import Q, OuterRef, Subquery, Prefetch
-from guardian.shortcuts import get_objects_for_user
+from django.db.models import OuterRef, Prefetch, Q, Subquery
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -20,7 +19,7 @@ class ProjectQuerySetBase(models.QuerySet):
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
         if user.is_authenticated:
-            user_queryset = get_objects_for_user(user, 'projects.view_project')
+            user_queryset = user.projects.all()
             queryset = user_queryset | queryset
         return queryset.distinct()
 
@@ -132,15 +131,12 @@ class RelatedProjectQuerySetBase(models.QuerySet):
     project_field = 'project'
 
     def _add_user_repos(self, queryset, user=None):
-        # Hack around get_objects_for_user not supporting global perms
         if user.has_perm('projects.view_project'):
             return self.all().distinct()
         if user.is_authenticated:
-            # Add in possible user-specific views
-            project_qs = get_objects_for_user(user, 'projects.view_project')
-            pks = project_qs.values_list('pk', flat=True)
-            kwargs = {'%s__pk__in' % self.project_field: pks}
-            queryset = self.filter(**kwargs) | queryset
+            projects_pk = user.projects.all().values_list('pk', flat=True)
+            user_queryset = self.filter(project__in=projects_pk)
+            queryset = user_queryset | queryset
         return queryset.distinct()
 
     def public(self, user=None, project=None):

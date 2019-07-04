@@ -105,6 +105,27 @@ class TestBasicsForm(WizardTestCase):
         kwargs['user'] = self.user
         return super().request(*args, **kwargs)
 
+    def test_form_import_from_remote_repo(self):
+        self.client.force_login(self.user)
+
+        data = {
+            'name': 'pipdocs',
+            'repo': 'https://github.com/fail/sauce',
+            'repo_type': 'git',
+            'remote_repository': '1234',
+        }
+        resp = self.client.post(
+            '/dashboard/import/',
+            data,
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The form is filled with the previous information
+        self.assertEqual(
+            resp.context['form'].initial,
+            data,
+        )
+
     def test_form_pass(self):
         """Only submit the basics."""
         resp = self.post_step('basics')

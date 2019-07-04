@@ -47,5 +47,5 @@ Brand Guidelines
 
 Find our branding guidelines in our guidelines documentation: https://read-the-docs-guidelines.readthedocs-hosted.com.
 
-.. _Read the Docs GitHub project: https://github.com/rtfd/readthedocs.org/pulls
+.. _Read the Docs GitHub project: https://github.com/readthedocs/readthedocs.org/pulls
 

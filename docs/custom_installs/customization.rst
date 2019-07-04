@@ -38,4 +38,4 @@ Example ``base.html`` in your template overrides::
 You can of course override any block in the template. If there is something that you would like to be able to customize, but isn't currently in a block, please `submit an issue`_.
 
 
-.. _submit an issue: https://github.com/rtfd/readthedocs.org/issues?sort=created&state=open
+.. _submit an issue: https://github.com/readthedocs/readthedocs.org/issues?sort=created&state=open

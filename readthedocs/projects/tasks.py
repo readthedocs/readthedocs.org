@@ -1358,9 +1358,14 @@ def _update_intersphinx_data(version, path, commit, build):
                     f'domain->name',
                 )
                 continue
+            html_file = HTMLFile.objects.filter(
+                project=version.project, version=version,
+                path=doc_name, build=build,
+            ).first()
             SphinxDomain.objects.create(
                 project=version.project,
                 version=version,
+                html_file=html_file,
                 domain=domain,
                 name=name,
                 display_name=display_name,

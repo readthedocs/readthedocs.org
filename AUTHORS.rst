@@ -115,4 +115,4 @@ Awesome Contributors
 * Brandon Stafford
 * Michael R. Bernstein
 
-For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
+For a list of all the contributions: https://github.com/readthedocs/readthedocs.org/contributors
