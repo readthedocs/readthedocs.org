@@ -48,10 +48,10 @@ function attach_elastic_search_query(data) {
                         }
 
                         // Creating the result from elements
-                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
-                                   '?highlight=' + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
+                        var highlight_link = link + "?highlight=" + $.urlencode(query)
 
-                        var item = $('<a>', {'href': link});
+                        var item = $('<a>', {'href': highlight_link});
                         item.html(title);
                         item.find('em').addClass('highlighted');
                         list_item.append(item);
@@ -72,7 +72,7 @@ function attach_elastic_search_query(data) {
                             if(inner_hits[j].type === "sections") {
 
                                 var section = inner_hits[j];
-                                var section_subtitle = $('<div class="rtd_search_subtitle">');
+                                var section_subtitle = $('<div>');
                                 var section_subtitle_link = $('<a href="' + link + "#" + section._source.id + '">');
                                 var section_content = $('<span>');
 
@@ -111,7 +111,7 @@ function attach_elastic_search_query(data) {
                             if (inner_hits[j].type === "domains") {
 
                                 var domain = inner_hits[j];
-                                var domain_subtitle = $('<div class="rtd_search_subtitle">');
+                                var domain_subtitle = $('<div>');
                                 var domain_subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
                                 var domain_content = $('<span>');
 
