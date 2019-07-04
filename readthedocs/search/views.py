@@ -132,7 +132,7 @@ def elastic_search(request, project_slug=None):
 
                 result.meta.inner_hits = sorted_results
 
-        except:
+        except Exception as e:
             # if the control comes in this block,
             # that implies that there was a PageSearch
             pass

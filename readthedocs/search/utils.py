@@ -178,7 +178,7 @@ def _remove_newlines_from_dict(highlight):
     """
     for k, v in highlight.items():
         if isinstance(v, dict):
-            highlight[k] = self._remove_newlines_from_dict(v)
+            highlight[k] = _remove_newlines_from_dict(v)
         else:
             # elastic returns the contents of the
             # highlighted field in a list.
