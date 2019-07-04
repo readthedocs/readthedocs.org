@@ -186,7 +186,7 @@
                     {% for inner_hit in result.meta.inner_hits %}
                       {% if inner_hit.type == 'domains' %}
                         <p>
-                          <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}?highlight={{ query }}#{{ inner_hit.source.anchor }}">
+                          <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}#{{ inner_hit.source.anchor }}">
                             {% if inner_hit.source.display_name|length >= 2 %}
                               ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
                             {% else %}
@@ -206,7 +206,7 @@
 
                       {% elif inner_hit.type == 'sections' %}
                         <p>
-                          <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.id }}">
+                          <a href="{% doc_url result.project|get_project result.version result.full_path %}#{{ inner_hit.source.id }}">
                             {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
                               {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
                                 {{ section_title.0|safe }}
