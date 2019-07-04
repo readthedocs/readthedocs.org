@@ -1818,7 +1818,7 @@ def send_build_status(build, state):
         log.info('Remote repository does not exist for %s', build.project)
 
     except Exception:
-        log.exception('Send build status task failed.')
+        log.exception('Send build status task failed for %s', build.project)
 
     # TODO: Send build status for other providers.
 
