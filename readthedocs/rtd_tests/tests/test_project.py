@@ -34,8 +34,8 @@ class ProjectMixin:
         self.external_version = get(
             Version,
             identifier='pr-version',
-            verbose_name='pr-version',
-            slug='pr-9999',
+            verbose_name='99',
+            slug='99',
             project=self.pip,
             active=True,
             type=EXTERNAL
@@ -143,6 +143,20 @@ class TestProject(ProjectMixin, TestCase):
         self.assertEqual(
             self.pip.get_storage_path('htmlzip', LATEST),
             'htmlzip/pip/latest/pip.zip',
+        )
+
+    def test_get_storage_path_for_external_versions(self):
+        self.assertEqual(
+            self.pip.get_storage_path('pdf', self.external_version.slug),
+            'external/pdf/pip/99/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', self.external_version.slug),
+            'external/epub/pip/99/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', self.external_version.slug),
+            'external/htmlzip/pip/99/pip.zip',
         )
 
     def test_ordered_active_versions_excludes_external_versions(self):

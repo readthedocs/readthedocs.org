@@ -19,7 +19,7 @@ from six.moves import shlex_quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE, INTERNAL
+from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
@@ -543,8 +543,13 @@ class Project(models.Model):
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
+        type_dir = type_
+        # Add `external/` prefix for external versions
+        if self.versions(manager=EXTERNAL).filter(slug=version_slug).exists():
+            type_dir = f'{EXTERNAL}/{type_}'
+
         folder_path = '{}/{}/{}'.format(
-            type_,
+            type_dir,
             self.slug,
             version_slug,
         )
