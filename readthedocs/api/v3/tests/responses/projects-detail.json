@@ -75,7 +75,7 @@
         "code": "words",
         "name": "Only Words"
     },
-    "project_homepage": "http://project.com",
+    "homepage": "http://project.com",
     "repository": {
         "type": "git",
         "url": "https://github.com/rtfd/project"
@@ -91,7 +91,7 @@
     "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
         "documentation": "http://readthedocs.org/docs/project/en/latest/",
-        "homepage": "https://readthedocs.org/projects/project/",
+        "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/"
     },
     "users": [

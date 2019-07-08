@@ -306,11 +306,11 @@ class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     """Serializer with all the user-facing URLs under Read the Docs."""
 
     documentation = serializers.CharField(source='get_docs_url')
-    homepage = serializers.SerializerMethodField()
+    home = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
     versions = serializers.SerializerMethodField()
 
-    def get_homepage(self, obj):
+    def get_home(self, obj):
         path = reverse('projects_detail', kwargs={'project_slug': obj.slug})
         return self._absolute_url(path)
 
@@ -401,7 +401,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
 class ProjectSerializer(FlexFieldsModelSerializer):
 
-    project_homepage = serializers.SerializerMethodField()
+    homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
@@ -442,7 +442,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'modified',
             'language',
             'programming_language',
-            'project_homepage',
+            'homepage',
             'repository',
             'default_version',
             'default_branch',
@@ -461,7 +461,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             '_links',
         ]
 
-    def get_project_homepage(self, obj):
+    def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``
         return obj.project_url or None
 
