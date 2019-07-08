@@ -101,14 +101,14 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
 
-    outer_fields = ['title']
-    section_fields = ['sections.title', 'sections.content']
-    domain_fields = [
+    _outer_fields = ['title']
+    _section_fields = ['sections.title', 'sections.content']
+    _domain_fields = [
         'domains.type_display',
         'domains.name',
         'domains.display_name',
     ]
-    fields = outer_fields
+    fields = _outer_fields
 
     # need to search for both 'and' and 'or' operations
     # the score of and should be higher as it satisfies both or and and
@@ -125,7 +125,7 @@ class PageSearchBase(RTDFacetedSearch):
         sections_nested_query = self.generate_nested_query(
             query=query,
             path='sections',
-            fields=self.section_fields,
+            fields=self._section_fields,
             inner_hits={
                 'highlight': {
                     'number_of_fragments': 1,
@@ -141,7 +141,7 @@ class PageSearchBase(RTDFacetedSearch):
         domains_nested_query = self.generate_nested_query(
             query=query,
             path='domains',
-            fields=self.domain_fields,
+            fields=self._domain_fields,
             inner_hits={
                 'highlight': {
                     'number_of_fragments': 1,
