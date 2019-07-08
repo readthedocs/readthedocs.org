@@ -121,7 +121,7 @@ class BuildQuerySet(SettingsOverrideObject):
 
 class RelatedBuildQuerySetBase(models.QuerySet):
 
-    """For models with association to a project through :py:class:`Build`"""
+    """For models with association to a project through :py:class:`Build`."""
 
     use_for_related_fields = True
 
