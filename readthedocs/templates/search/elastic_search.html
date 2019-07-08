@@ -187,6 +187,8 @@
                       {% if inner_hit.type == 'domains' %}
                         <p>
                           <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}#{{ inner_hit.source.anchor }}">
+
+                            {% comment %} ">= 2" because some display_name are just "-" {% endcomment %}
                             {% if inner_hit.source.display_name|length >= 2 %}
                               ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
                             {% else %}
