@@ -462,7 +462,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         ]
 
     def get_project_homepage(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
+        # Overridden only to return ``None`` when the project_url is ``''``
         return obj.project_url or None
 
     def get_translation_of(self, obj):
