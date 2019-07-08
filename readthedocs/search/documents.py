@@ -111,7 +111,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
-        domains_qs = html_file.sphinx_domains.all()
+        domains_qs = html_file.sphinx_domains.all().iterator()
         domains_qs = domains_qs.exclude(domain='std', type__in=['doc', 'label'])
 
         all_domains = [{
