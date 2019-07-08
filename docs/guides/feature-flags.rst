@@ -7,7 +7,7 @@ By default, these flags are disabled for every project.
 A separate request can be made by opening an issue on our `github`_ to enable
 or disable one or more of these featured flags for a particular project.
 
-.. _github: https://github.com/rtfd/readthedocs.org
+.. _github: https://github.com/readthedocs/readthedocs.org
 
 Available Flags
 ---------------

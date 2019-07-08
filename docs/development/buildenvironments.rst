@@ -37,7 +37,7 @@ image -- see `Configuration`_.
 
 .. _`Docker`: http://docker.com
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
-.. _`container image repo`: https://github.com/rtfd/readthedocs-docker-images
+.. _`container image repo`: https://github.com/readthedocs/readthedocs-docker-images
 
 Configuration
 -------------
