@@ -394,14 +394,16 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url', required=False)
 
     class Meta:
         model = Project
         fields = (
             'name',
             'language',
+            'programming_language',
             'repository',
-            'project_url',  # project_homepage
+            'homepage',
         )
 
 

@@ -23,8 +23,8 @@
         "name": "Public"
     },
     "programming_language": {
-        "code": "words",
-        "name": "Only Words"
+        "code": "py",
+        "name": "Python"
     },
     "repository": {
         "type": "git",
@@ -36,7 +36,7 @@
     "translation_of": null,
     "urls": {
         "documentation": "http://readthedocs.org/docs/test-project/en/latest/",
-        "project_homepage": null
+        "project_homepage": "http://template.readthedocs.io/"
     },
     "users": [
         {
