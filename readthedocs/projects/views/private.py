@@ -341,7 +341,7 @@ class ImportDemoView(PrivateViewMixin, ProjectImportMixin, View):
 
         Allow to override the behavior from outside.
         """
-        return trigger_build(project, user)
+        return trigger_build(project)
 
 
 class ImportView(PrivateViewMixin, TemplateView):
