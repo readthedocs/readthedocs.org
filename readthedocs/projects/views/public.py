@@ -70,7 +70,12 @@ class ProjectIndex(ListView):
 
 
 def project_redirect(request, invalid_project_slug):
-    """Redirect old project slugs that had underscores which are no longer allowed"""
+    """
+    Redirect project slugs that have underscores (``_``).
+
+    Slugs with underscores are no longer allowed.
+    Underscores are replaced by ``-`` and then redirected to that URL.
+    """
     new_project_slug = invalid_project_slug.replace('_', '-')
     new_path = request.path.replace(invalid_project_slug, new_project_slug)
     return redirect('{}?{}'.format(
