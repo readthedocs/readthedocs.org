@@ -465,10 +465,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         # Overridden only to return ``None`` when the description is ``''``
         return obj.project_url or None
 
-    def get_description(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.description or None
-
     def get_translation_of(self, obj):
         if obj.main_language_project:
             return self.__class__(obj.main_language_project).data
