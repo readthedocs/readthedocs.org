@@ -68,86 +68,102 @@ function attach_elastic_search_query(data) {
 
                             var contents = $('<div class="context">');
 
+                            var section_template =
+                                '<div> \
+                                    <a href="<%= section_subtitle_link %>"> \
+                                        <%= section_subtitle %> \
+                                    </a> \
+                                </div> \
+                                <span> \
+                                    <%= section_content %> \
+                                </span>';
+
+                            var domain_template =
+                                '<div> \
+                                    <a href="<%= domain_subtitle_link %>"> \
+                                        <%= domain_subtitle %> \
+                                    </a> \
+                                </div> \
+                                <span> \
+                                    <%= domain_content %> \
+                                </span>';
+
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
 
                                 var section = inner_hits[j];
-                                var section_subtitle = $('<div>');
-                                var section_subtitle_link = $('<a href="' + link + "#" + section._source.id + '">');
-                                var section_content = $('<span>');
+                                var section_subtitle = section._source.title;
+                                var section_subtitle_link = link + "#" + section._source.id;
+                                var section_content = section._source.content.substring(0, 100) + " ...";
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
-                                        section_subtitle_link.html(
-                                            xss(section.highlight["sections.title"][0])
-                                        );
-                                    } else {
-                                        section_subtitle_link.html(
-                                            section._source.title
-                                        );
+                                        section_subtitle = xss(section.highlight["sections.title"][0]);
                                     }
 
                                     if (section.highlight["sections.content"]) {
-                                        section_content.html(
-                                            "... " +
-                                            xss(section.highlight["sections.content"][0]) +
-                                            " ..."
-                                        );
-                                    } else {
-                                        section_content.html(
-                                            section._source.content.substring(0, 100) +
-                                            " ..."
-                                        );
+                                        section_content = "... " + xss(section.highlight["sections.content"][0]) +" ...";
                                     }
                                 }
 
-                                section_subtitle.html(section_subtitle_link);
-                                contents.append(section_subtitle);
-                                contents.append(section_content);
-                                contents.find('em').addClass('highlighted');
+                                contents.append(
+                                    $u.template(
+                                        section_template,
+                                        {
+                                            section_subtitle_link: section_subtitle_link,
+                                            section_subtitle: section_subtitle,
+                                            section_content: section_content
+                                        }
+                                    )
+                                );
                             }
 
                             // if the result is a sphinx domain object
                             if (inner_hits[j].type === "domains") {
 
                                 var domain = inner_hits[j];
-                                var domain_subtitle = $('<div>');
-                                var domain_subtitle_link = $('<a href="' + link + "#" + domain._source.anchor + '">');
-                                var domain_content = $('<span>');
+                                var domain_subtitle = domain._source.role_name;
+                                var domain_subtitle_link = link + "#" + domain._source.anchor;
+                                var domain_content = "";
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
-                                    domain._source.display_name.length >= 2
+                                    domain._source.display_name.length >= 2  // "2" because some domain display_name are "-"
                                 ) {
-                                    domain_subtitle_link.html(
-                                        "(" +
-                                        domain._source.role_name +
-                                        ")" +
-                                        domain._source.display_name
-                                    );
-                                } else {
-                                    domain_subtitle_link.html(domain._source.role_name);
+                                    domain_subtitle = "(" + domain._source.role_name + ")" + domain._source.display_name;
                                 }
 
                                 // preparing domain_content
-                                domain_content.append(domain._source.type_display + " -- ");
+                                // domain_content = type_display --
+                                domain_content = domain._source.type_display + " -- ";
                                 if (domain.highlight) {
                                     if (domain.highlight["domains.name"]) {
-                                        domain_content.append(
-                                            xss(domain.highlight["domains.name"][0])
-                                        );
+                                        // domain_content = type_display -- name
+                                        domain_content += xss(domain.highlight["domains.name"][0]);
                                     } else {
-                                        domain_content.append(domain._source.name);
+                                        // domain_content = type_display -- name
+                                        domain_content += domain._source.name;
                                     }
+                                } else {
+                                    // domain_content = type_display -- name
+                                    domain_content += domain._source.name;
                                 }
-                                domain_content.append(" -- in " + domain._source.doc_display);
+                                // domain_content = type_display -- name -- in doc_display
+                                domain_content += " -- in " + domain._source.doc_display;
 
-                                domain_subtitle.append(domain_subtitle_link);
-                                contents.append(domain_subtitle);
-                                contents.append(domain_content);
-                                contents.find('em').addClass('highlighted');
+                                contents.append(
+                                    $u.template(
+                                        domain_template,
+                                        {
+                                            domain_subtitle_link: domain_subtitle_link,
+                                            domain_subtitle: domain_subtitle,
+                                            domain_content: domain_content
+                                        }
+                                    )
+                                );
                             }
-
+                            
+                            contents.find('em').addClass('highlighted');
                             list_item.append(contents);
                             list_item.append($("<br>"));
                         }
