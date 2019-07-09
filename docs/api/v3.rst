@@ -337,8 +337,8 @@ Version detail
     :statuscode 404: There is no ``Version`` with this slug for this project
 
 
-Version edit
-++++++++++++
+Version update
+++++++++++++++
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
@@ -633,8 +633,8 @@ Redirect details
            }
        }
 
-Redirect listing
-++++++++++++++++
+Redirects listing
++++++++++++++++++
 
 .. http:get:: /api/v3/projects/(str:project_slug)/redirects/
 
