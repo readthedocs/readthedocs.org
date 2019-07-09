@@ -36,7 +36,7 @@ UserInput = collections.namedtuple(
 
 def elastic_search(request, project_slug=None):
     """
-    Global user search on the dashboard
+    Global user search on the dashboard.
 
     This is for both the main search and project search.
 

@@ -125,7 +125,7 @@ def readthedocs_version():
 @register.filter
 def escapejson(data, indent=None):
     """
-    Escape JSON correctly for inclusion in Django templates
+    Escape JSON correctly for inclusion in Django templates.
 
     This code was mostly taken from Django's implementation
     https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#json-script

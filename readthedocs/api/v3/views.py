@@ -10,24 +10,28 @@ from rest_framework.mixins import (
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
+from readthedocs.redirects.models import Redirect
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import ProjectQuerySetMixin
-from .permissions import PublicDetailPrivateListing
+from .permissions import PublicDetailPrivateListing, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     ProjectSerializer,
+    RedirectCreateSerializer,
+    RedirectDetailSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -304,3 +308,28 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
             data.update({'triggered': False})
             status = 400
         return Response(data=data, status=status)
+
+
+class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
+                       FlexFieldsMixin, ModelViewSet):
+    model = Redirect
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'redirect_pk'
+    queryset = Redirect.objects.all()
+    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.select_related('project')
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return RedirectCreateSerializer
+        return RedirectDetailSerializer
+
+    def perform_create(self, serializer):
+        # Inject the project from the URL into the serializer
+        serializer.validated_data.update({
+            'project': self._get_parent_project(),
+        })
+        serializer.save()
