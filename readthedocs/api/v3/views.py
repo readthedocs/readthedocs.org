@@ -145,7 +145,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             # ProjectViewSet that returns the superproject of a project.
             return ProjectSerializer
 
-        if self.action in ('create',):
+        if self.action == 'create':
             return ProjectCreateSerializer
 
     def get_queryset(self):
