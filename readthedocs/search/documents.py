@@ -116,15 +116,18 @@ class PageDocument(RTDDocTypeMixin, DocType):
             type__in=['doc', 'label']
         ).iterator()
 
-        all_domains = [{
-            'role_name': domain.role_name,
-            'doc_name': domain.doc_name,
-            'anchor': domain.anchor,
-            'type_display': domain.type_display,
-            'doc_display': domain.doc_display,
-            'name': domain.name,
-            'display_name': domain.display_name,
-        } for domain in domains_qs]
+        all_domains = [
+            {
+                'role_name': domain.role_name,
+                'doc_name': domain.doc_name,
+                'anchor': domain.anchor,
+                'type_display': domain.type_display,
+                'doc_display': domain.doc_display,
+                'name': domain.name,
+                'display_name': domain.display_name if domain.display_name != '-' else '',
+            }
+            for domain in domains_qs
+        ]
 
         return all_domains
 
