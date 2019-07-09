@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import django_dynamic_fixture as fixture
 from django_dynamic_fixture import get
 from django.contrib.auth.models import User
