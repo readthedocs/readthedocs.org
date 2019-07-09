@@ -9,7 +9,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
+from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
@@ -313,7 +313,10 @@ class ProjectURLsSerializer(serializers.Serializer):
 class RepositorySerializer(serializers.Serializer):
 
     url = serializers.CharField(source='repo')
-    type = serializers.CharField(source='repo_type')
+    type = serializers.ChoiceField(
+        source='repo_type',
+        choices=REPO_CHOICES,
+    )
 
 
 class ProjectLinksSerializer(BaseLinksSerializer):
@@ -384,6 +387,24 @@ class ProjectLinksSerializer(BaseLinksSerializer):
             },
         )
         return self._absolute_url(path)
+
+
+class ProjectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to Import a Project."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url', required=False)
+
+    class Meta:
+        model = Project
+        fields = (
+            'name',
+            'language',
+            'programming_language',
+            'repository',
+            'homepage',
+        )
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
