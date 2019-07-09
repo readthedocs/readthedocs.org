@@ -34,6 +34,7 @@ from readthedocs.builds.constants import (
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
+    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -955,13 +956,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """Build search data."""
         # Search is always run in sphinx using the rtd-sphinx-extension.
         # Mkdocs has no search currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.version.type != EXTERNAL:
             return True
         return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
-        if 'htmlzip' not in self.config.formats:
+        if (
+            'htmlzip' not in self.config.formats or
+            self.version.type == EXTERNAL
+        ):
             return False
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
@@ -970,7 +974,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if 'pdf' not in self.config.formats:
+        if 'pdf' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -979,7 +983,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if 'epub' not in self.config.formats:
+        if 'epub' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
