@@ -55,12 +55,18 @@ class ProjectImportMixin:
 
     def finish_import_project(self, request, project, tags=None):
         """
-        Import a Project into Read the Docs.
+        Perform last steps to import a project into Read the Docs.
 
         - Add the user from request as maintainer
         - Set all the tags to the project
         - Send Django Signal
         - Trigger initial build
+
+        It requires the Project was already saved into the DB.
+
+        :param request: Django Request object
+        :param project: Project instance just imported (already saved)
+        :param tags: tags to add to the project
         """
         if not tags:
             tags = []

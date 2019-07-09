@@ -22,6 +22,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
@@ -206,8 +207,6 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         Trigger our internal mechanism to import a project after it's saved in
         the database.
         """
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
         project = serializer.save()
         self.finish_import_project(self.request, project)
 

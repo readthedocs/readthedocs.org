@@ -1,5 +1,4 @@
 import datetime
-import mock
 import json
 from pathlib import Path
 
