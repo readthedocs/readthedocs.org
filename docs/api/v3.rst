@@ -12,6 +12,13 @@ and HTTP response status codes are to designate success and failure.
    APIv3 is currently under development and it's not ready to use yet.
 
 
+.. note::
+
+   If you want to beta test it, please `get in touch`_ with us so we can give you early access.
+
+.. _get in touch: mailto:support@readthedocs.org?subject=APIv3%20beta%20test
+
+
 Authentication and authorization
 --------------------------------
 
@@ -22,8 +29,8 @@ All endpoints require authentication.
 Token
 ~~~~~
 
-The ``Authorization`` HTTP header can be specified with a ``Token`` to authenticate as a user
-and have the same permissions that the user itself.
+The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
+to authenticate as a user and have the same permissions that the user itself.
 
 
 Session
@@ -108,7 +115,6 @@ Project details
             "id": 12345,
             "name": "Pip",
             "slug": "pip",
-            "description": "Pip Installs Packages.",
             "created": "2010-10-23T18:12:31+00:00",
             "modified": "2018-12-11T07:21:11+00:00",
             "language": {
@@ -133,7 +139,7 @@ Project details
             "translation_of": null,
             "urls": {
                 "documentation": "http://pip.pypa.io/en/stable/",
-                "project": "https://pip.pypa.io/"
+                "home": "https://pip.pypa.io/"
             },
             "tags": [
                 "disutils",
@@ -143,29 +149,29 @@ Project details
                 "virtualenv"
             ],
             "users": [
-                "dstufft",
-                "pmoore",
-                "xafer",
-                "pradyunsg"
+                {
+                    "created": "2010-10-23T18:12:31+00:00",
+                    "username": "dstufft"
+                }
             ],
             "active_versions": {
                 "stable": "{VERSION}",
                 "latest": "{VERSION}",
                 "19.0.2": "{VERSION}"
             },
-            "links": {
-                "self": "/api/v3/projects/pip/",
-                "users": "/api/v3/projects/pip/users/",
+            "_links": {
+                "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
                 "builds": "/api/v3/projects/pip/builds/",
                 "subprojects": "/api/v3/projects/pip/subprojects/",
+                "superproject": "/api/v3/projects/pip/superproject/",
+                "redirects": "/api/v3/projects/pip/redirects/",
                 "translations": "/api/v3/projects/pip/translations/"
             }
         }
 
     :>json string name: The name of the project.
     :>json string slug: The project slug (used in the URL).
-    :>json string description: An RST description of the project
 
     .. TODO: complete the returned data docs once agreed on this.
 
@@ -174,6 +180,47 @@ Project details
     :statuscode 200: Success
     :statuscode 404: There is no ``Project`` with this slug
 
+
+Project create
+++++++++++++++
+
+.. http:post:: /api/v3/projects/
+
+    Import a project into Read the Docs.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/readthedocs/template",
+                "type": "git"
+            },
+            "homepage": "http://template.readthedocs.io/",
+            "programming_language": "py",
+            "language": "es"
+        }
+
+    **Example response**:
+
+    `See Project details <#project-details>`_
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 201: Created
+    :statuscode 400: Some field is invalid
 
 
 Versions
@@ -216,9 +263,6 @@ Versions listing
     :>json string previous: URI for previous set of Projects.
     :>json array results: Array of ``Version`` objects.
 
-    .. TODO: instead of an array, this could potentially be a
-       dictionary with the slug as the key and a VERSION as value.
-
     :query integer limit: limit number of object returned
     :query integer offset: offset from the whole list returned
     :query boolean active: whether return active versions only
@@ -253,10 +297,6 @@ Version detail
             "built": true,
             "active": true,
             "uploaded": true,
-            "privacy_level": {
-                "code": "public",
-                "name": "Public",
-            },
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -268,8 +308,8 @@ Version detail
                 "documentation": "https://pip.pypa.io/en/stable/",
                 "vcs": "https://github.com/pypa/pip/tree/19.0.2"
             },
-            "links": {
-                "self": "/api/v3/projects/pip/versions/stable/",
+            "_links": {
+                "_self": "/api/v3/projects/pip/versions/stable/",
                 "builds": "/api/v3/projects/pip/versions/stable/builds/",
                 "project": "/api/v3/projects/pip/"
             }
@@ -359,8 +399,6 @@ Build details
             "success": true,
             "error": null,
             "commit": "6f808d743fd6f6907ad3e2e969c88a549e76db30",
-            "builder": "build03",
-            "cold_storage": false,
             "config": {
                 "version": "1",
                 "formats": [
@@ -397,11 +435,10 @@ Build details
                     "recursive": true
                 }
             },
-            "links": {
-                "self": "/api/v3/projects/pip/builds/8592686/",
+            "_links": {
+                "_self": "/api/v3/projects/pip/builds/8592686/",
                 "project": "/api/v3/projects/pip/",
-                "version": "/api/v3/projects/pip/versions/latest/",
-                "commands": "/api/v3/projects/pip/builds/8592686/commands/"
+                "version": "/api/v3/projects/pip/versions/latest/"
             }
         }
 
@@ -434,7 +471,7 @@ Builds listing
 
     .. sourcecode:: bash
 
-        $ curl https://readthedocs.org/api/v3/projects/pip/builds/
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/
 
     **Example response**:
 
@@ -461,6 +498,14 @@ Build triggering
 
     Trigger a new build for the ``version_slug`` version of this project.
 
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/
+
     **Example response**:
 
     `See Build details <#build-details>`_
@@ -470,73 +515,6 @@ Build triggering
     :statuscode 202: Accepted
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
-
-
-Users
-~~~~~
-
-User detail
-+++++++++++
-
-
-.. http:get:: /api/v3/users/(str:username)
-
-    Retrieve details of a single user.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/users/
-
-    **Example response**:
-
-    .. sourcecode:: json
-
-        {
-            "username": "humitos",
-            "created": "2008-10-23T18:12:31+00:00",
-            "last_login": "2010-10-23T18:12:31+00:00"
-        }
-
-    :>json string username: username for the user.
-    :>json string created: date and time when the user was created.
-    :>json string last_login: date and time for last time this user was logged in.
-
-    :requestheader Authorization: token to authenticate.
-
-
-User listing
-++++++++++++
-
-
-.. http:get:: /api/v3/projects/(str:project_slug)/users/
-
-    Retrieve list of users for a project.
-
-    **Example request**:
-
-    .. sourcecode:: bash
-
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/users/
-
-    **Example response**:
-
-    .. sourcecode:: json
-
-        {
-            "count": 25,
-            "next": "/api/v3/projects/pip/users/limit=10&offset=10",
-            "previous": null,
-            "results": ["USER"]
-        }
-
-    :>json integer count: total number of users.
-    :>json string next: URI for next set of users.
-    :>json string previous: URI for previous set of users.
-    :>json array results: array of ``user`` objects.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Subprojects
@@ -609,3 +587,160 @@ Translations listing
     :>json array results: array of ``project`` objects.
 
     :requestheader Authorization: token to authenticate.
+
+
+Redirects
+~~~~~~~~~
+
+Redirects allow the author to redirect an old URL of the documentation to a new one.
+This is useful when pages are moved around in the structure of the documentation set.
+See :doc:`user-defined-redirects` for more information.
+
+
+Redirect details
+++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
+
+    Retrieve details of a single redirect for a project.
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+
+    **Example response**
+
+    .. sourcecode:: json
+
+       {
+           "pk": 1,
+           "created": "2019-04-29T10:00:00Z",
+           "modified": "2019-04-29T12:00:00Z",
+           "project": "pip",
+           "from_url": "/docs/",
+           "to_url": "/documentation/",
+           "type": "page",
+           "_links": {
+               "_self": "/api/v3/projects/pip/redirects/1/",
+               "project": "/api/v3/projects/pip/"
+           }
+       }
+
+Redirect listing
+++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/redirects/
+
+    Retrieve list of all the redirects for this project.
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/
+
+    **Example response**
+
+    .. sourcecode:: json
+
+        {
+            "count": 25,
+            "next": "/api/v3/projects/pip/redirects/?limit=10&offset=10",
+            "previous": null,
+            "results": ["REDIRECT"]
+        }
+
+Redirect create
++++++++++++++++
+
+.. http:post:: /api/v3/projects/pip/redirects/
+
+    Create a redirect for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "from_url": "/docs/",
+            "to_url": "/documentation/",
+            "type": "page"
+        }
+
+    **Example response**:
+
+    `See Redirect details <#redirect-details>`_
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 201: Created
+    :statuscode 400: Some field is invalid
+
+
+Redirect update
++++++++++++++++
+
+.. http:put:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
+
+    Update a redirect for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X PUT \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "from_url": "/docs/",
+            "to_url": "/documentation.html",
+            "type": "page"
+        }
+
+    **Example response**:
+
+    `See Redirect details <#redirect-details>`_
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 200: Success
+    :statuscode 400: Some field is invalid
+
+
+Redirect destroy
+++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
+
+    Delete a redirect for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X DELETE \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 204: Deleted successfully
