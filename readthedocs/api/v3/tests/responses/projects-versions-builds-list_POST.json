@@ -32,6 +32,7 @@
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/",
             "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+            "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",

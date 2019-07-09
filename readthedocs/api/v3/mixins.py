@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import NotFound
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -62,7 +61,10 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         return queryset.none()
 
     def has_admin_permission(self, user, project):
-        if project in self.admin_projects(user):
+        # Use .only for small optimization
+        admin_projects = self.admin_projects(user).only('id')
+
+        if project in admin_projects:
             return True
 
         return False

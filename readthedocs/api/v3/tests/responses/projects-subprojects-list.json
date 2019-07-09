@@ -68,6 +68,7 @@
                     "_self": "https://readthedocs.org/api/v3/projects/project/",
                     "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
                     "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+                    "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
                     "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
                     "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
                     "translations": "https://readthedocs.org/api/v3/projects/project/translations/"
@@ -90,6 +91,7 @@
                 "_self": "https://readthedocs.org/api/v3/projects/subproject/",
                 "versions": "https://readthedocs.org/api/v3/projects/subproject/versions/",
                 "builds": "https://readthedocs.org/api/v3/projects/subproject/builds/",
+                "redirects": "https://readthedocs.org/api/v3/projects/subproject/redirects/",
                 "subprojects": "https://readthedocs.org/api/v3/projects/subproject/subprojects/",
                 "superproject": "https://readthedocs.org/api/v3/projects/subproject/superproject/",
                 "translations": "https://readthedocs.org/api/v3/projects/subproject/translations/"
