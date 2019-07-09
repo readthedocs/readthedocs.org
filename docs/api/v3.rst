@@ -599,7 +599,7 @@ Redirects
 
 Redirects allow the author to redirect an old URL of the documentation to a new one.
 This is useful when pages are moved around in the structure of the documentation set.
-See :doc:`user-defined-redirects` for more information.
+See :doc:`/user-defined-redirects` for more information.
 
 
 Redirect details
