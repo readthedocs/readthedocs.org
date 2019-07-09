@@ -141,6 +141,8 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         it return a serializer to validate just a few fields.
         """
         if self.action in ('list', 'retrieve', 'superproject'):
+            # NOTE: ``superproject`` is the @action defined in the
+            # ProjectViewSet that returns the superproject of a project.
             return ProjectSerializer
 
         if self.action in ('create',):
