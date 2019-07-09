@@ -1282,13 +1282,8 @@ def fileify(version_pk, commit, build):
     except Exception:
         log.exception('Failed during ImportedFile creation')
 
-    try:
-        _update_intersphinx_data(version, path, commit, build)
-    except Exception:
-        log.exception('Failed during SphinxDomain creation')
 
-
-def _update_intersphinx_data(version, path, commit, build):
+def _create_intersphinx_data(version, path, commit, build):
     """
     Update intersphinx data for this version.
 
@@ -1376,24 +1371,6 @@ def _update_intersphinx_data(version, path, commit, build):
                 build=build,
             )
 
-    # Index new SphinxDomain objects to elasticsearch
-    index_new_files(model=SphinxDomain, version=version, build=build)
-
-    # Remove old SphinxDomain from elasticsearch
-    remove_indexed_files(
-        model=SphinxDomain,
-        version=version,
-        build=build,
-    )
-
-    # Delete SphinxDomain objects from the previous build of the version.
-    (
-        SphinxDomain.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
-    )
-
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
@@ -1480,6 +1457,12 @@ def _manage_imported_files(version, path, commit, build):
                 commit=commit,
                 build=build,
             )
+
+    # create SphinxDomain objects
+    try:
+        _create_intersphinx_data(version, path, commit, build)
+    except Exception:
+        log.exception('Failed during SphinxDomain objects creation')
 
     # Index new HTMLFiles to elasticsearch
     index_new_files(model=HTMLFile, version=version, build=build)
