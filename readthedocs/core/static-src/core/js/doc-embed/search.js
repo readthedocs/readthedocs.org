@@ -50,7 +50,7 @@ function attach_elastic_search_query(data) {
 
                         // Creating the result from elements
                         var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        var highlight_link = link + "?highlight=" + $.urlencode(query)
+                        var highlight_link = link + "?highlight=" + $.urlencode(query);
 
                         var item = $('<a>', {'href': highlight_link});
                         item.html(title);
@@ -69,27 +69,27 @@ function attach_elastic_search_query(data) {
 
                             var contents = $('<div class="context">');
 
-                            var section_template =
-                                '<div> \
-                                    <a href="<%= section_subtitle_link %>"> \
-                                        <%= section_subtitle %> \
-                                    </a> \
-                                </div> \
-                                <% for (var i = 0; i < section_content.length; ++i) { %> \
-                                    <div> \
-                                        <%= section_content[i] %> \
-                                    </div> \
-                                <% } %>';
+                            var section_template = '' +
+                                '<div>' +
+                                    '<a href="<%= section_subtitle_link %>">' +
+                                        '<%= section_subtitle %>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<% for (var i = 0; i < section_content.length; ++i) { %>' +
+                                    '<div>' +
+                                        '<%= section_content[i] %>' +
+                                    '</div>' +
+                                '<% } %>';
 
-                            var domain_template =
-                                '<div> \
-                                    <a href="<%= domain_subtitle_link %>"> \
-                                        <%= domain_subtitle %> \
-                                    </a> \
-                                </div> \
-                                <span> \
-                                    <%= domain_content %> \
-                                </span>';
+                            var domain_template = '' +
+                                '<div>' +
+                                    '<a href="<%= domain_subtitle_link %>">' +
+                                        '<%= domain_subtitle %>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<span>' +
+                                    '<%= domain_content %>' +
+                                '</span>';
 
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
@@ -97,7 +97,7 @@ function attach_elastic_search_query(data) {
                                 var section = inner_hits[j];
                                 var section_subtitle = section._source.title;
                                 var section_subtitle_link = link + "#" + section._source.id;
-                                var section_content = [ section._source.content.substring(0, 100) + " ..." ];
+                                var section_content = [section._source.content.substring(0, 100) + " ..."];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
@@ -107,7 +107,11 @@ function attach_elastic_search_query(data) {
                                     if (section.highlight["sections.content"]) {
                                         var content = section.highlight["sections.content"];
                                         section_content = [];
-                                        for (var k = 0; k < content.length && k < MAX_RESULT_PER_SECTION; ++k) {
+                                        for (
+                                            var k = 0;
+                                            k < content.length && k < MAX_RESULT_PER_SECTION;
+                                             k += 1
+                                        ) {
                                             section_content.push("... " + xss(content[k]) + " ...");
                                         }
                                     }
@@ -169,7 +173,7 @@ function attach_elastic_search_query(data) {
                                     )
                                 );
                             }
-                            
+
                             contents.find('em').addClass('highlighted');
                             list_item.append(contents);
                             list_item.append($("<br>"));
