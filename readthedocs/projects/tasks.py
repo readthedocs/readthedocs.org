@@ -588,9 +588,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.build['id'], BUILD_STATUS_SUCCESS
             )
         else:
-            msg = 'Unhandled Build State: Build ID:'.format(
-                self.build['id'],
-            )
+            msg = 'Unhandled Build State'
             log.warning(
                 LOG_TEMPLATE,
                 {
