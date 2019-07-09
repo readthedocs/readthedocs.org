@@ -13,42 +13,39 @@ or add additional functionality.
 For example, with a small snippet of CSS,
 your documentation could use a custom font or have a different background color.
 
-If a custom stylesheet exists at ``_static/css/custom.css``,
+If your custom stylesheet is ``_static/css/custom.css``,
 you can add that CSS file to the documentation using the
-:meth:`~sphinx:sphinx.application.Sphinx.add_css_file` method::
+Sphinx option `html_css_files`_::
 
     ## conf.py
-
-    ...
 
     # These folders are copied to the documentation's HTML output
     html_static_path = ['_static']
 
-    ...
-
-    def setup(app):
-        # This path must exist relative to html_static_path
-        app.add_css_file('css/custom.css')
+    # These paths are either relative to html_static_path
+    # or fully qualified paths (eg. https://...)
+    html_css_files = [
+        'css/custom.css',
+    ]
 
 
 A similar approach can be used to add JavaScript files::
 
-    def setup(app):
-        app.add_js_file('js/custom.js')
+    html_js_files = [
+        'js/custom.js',
+    ]
 
 
-Unless you are already overriding some Sphinx functionality,
-the ``setup()`` method may not exist in your ``conf.py`` file.
-If it doesn't exist, add it to the end of your ``conf.py``
-and Sphinx will call this method during the build process.
-Congratulations, you've technically created
-your first :ref:`Sphinx Extension <sphinx:dev-extensions>`!
+
+.. _html_css_files: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_css_files
 
 .. note::
 
-    The Sphinx APIs :meth:`~sphinx:sphinx.application.Sphinx.add_css_file`
-    and :meth:`~sphinx:sphinx.application.Sphinx.add_js_file`
-    where renamed in Sphinx 1.8 from ``add_stylesheet()`` and ``add_javascript()``.
+    The Sphinx HTML options ``html_css_files`` and ``html_js_files``
+    where added in Sphinx 1.8.
+    Unless you have a good reason to use an older version,
+    you are strongly encouraged to upgrade.
+    Sphinx is almost entirely backwards compatible.
 
 
 Overriding or replacing a theme's stylesheet
