@@ -18,6 +18,11 @@ and HTTP response status codes are to designate success and failure.
 
 .. _get in touch: mailto:support@readthedocs.org?subject=APIv3%20beta%20test
 
+.. contents:: Table of contents
+   :local:
+   :backlinks: none
+   :depth: 3
+
 
 Authentication and authorization
 --------------------------------
