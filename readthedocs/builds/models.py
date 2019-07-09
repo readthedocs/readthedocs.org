@@ -736,7 +736,9 @@ class Build(models.Model):
 
     def get_full_url(self):
         """Get full url including domain"""
-        full_url = 'https://{domain}{absolute_url}'.format(
+        scheme = 'http' if settings.DEBUG else 'https'
+        full_url = '{scheme}://{domain}{absolute_url}'.format(
+            scheme=scheme,
             domain=settings.PRODUCTION_DOMAIN,
             absolute_url=self.get_absolute_url()
         )

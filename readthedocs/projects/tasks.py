@@ -579,13 +579,25 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
             # send build failure status to git Status API
-            self.send_build_status(
+            send_external_build_status(
                 self.build['id'], BUILD_STATUS_FAILURE
             )
         elif self.build_env.successful:
             # send build successful status to git Status API
-            self.send_build_status(
+            send_external_build_status(
                 self.build['id'], BUILD_STATUS_SUCCESS
+            )
+        else:
+            msg = 'Unhandled Build State: Build ID:'.format(
+                self.build['id'],
+            )
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
             )
 
         build_complete.send(sender=Build, build=self.build_env.build)
@@ -1021,10 +1033,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
         return 'sphinx' in self.config.doctype
-
-    def send_build_status(self, build_pk, state):
-        """Send github build status for pull/merge requests."""
-        send_external_build_status(build_pk, state)
 
 
 # Web tasks
