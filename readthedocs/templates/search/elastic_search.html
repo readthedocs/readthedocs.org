@@ -188,8 +188,7 @@
                         <p>
                           <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}#{{ inner_hit.source.anchor }}">
 
-                            {% comment %} ">= 2" because some display_name are just "-" {% endcomment %}
-                            {% if inner_hit.source.display_name|length >= 2 %}
+                            {% if inner_hit.source.display_name|length >= 1 %}
                               ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
                             {% else %}
                               {{ inner_hit.source.role_name }}
@@ -218,15 +217,17 @@
                             {% endif %}
                           </a>
                         </p>
-                        <p class="fragment">
-                          {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
-                            {% with l=inner_hit.highlight|get_key_or_none:"sections.content" %}
-                              ... {{ l.0|safe }} ...
-                            {% endwith %}
-                          {% else %}
-                            {{ inner_hit.source.content|slice:"100" }} ...
-                          {% endif %}
-                        </p>
+                        {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
+                          {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
+                            {% for content in section_content %}
+                              <p class="fragment">
+                                ... {{ content|safe }} ...
+                              </p>
+                            {% endfor %}
+                          {% endwith %}
+                        {% else %}
+                          {{ inner_hit.source.content|slice:"100" }} ...
+                        {% endif %}
                       {% endif %}
                     {% endfor %}
                   {% endif %}

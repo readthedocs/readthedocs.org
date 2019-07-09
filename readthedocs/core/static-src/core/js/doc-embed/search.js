@@ -4,6 +4,7 @@
 
 var rtddata = require('./rtd-data');
 var xss = require('xss/lib/index');
+var MAX_RESULT_PER_SECTION = 3;
 
 
 /*
@@ -74,9 +75,11 @@ function attach_elastic_search_query(data) {
                                         <%= section_subtitle %> \
                                     </a> \
                                 </div> \
-                                <span> \
-                                    <%= section_content %> \
-                                </span>';
+                                <% for (var i = 0; i < section_content.length; ++i) { %> \
+                                    <div> \
+                                        <%= section_content[i] %> \
+                                    </div> \
+                                <% } %>';
 
                             var domain_template =
                                 '<div> \
@@ -94,7 +97,7 @@ function attach_elastic_search_query(data) {
                                 var section = inner_hits[j];
                                 var section_subtitle = section._source.title;
                                 var section_subtitle_link = link + "#" + section._source.id;
-                                var section_content = section._source.content.substring(0, 100) + " ...";
+                                var section_content = [ section._source.content.substring(0, 100) + " ..." ];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
@@ -102,7 +105,11 @@ function attach_elastic_search_query(data) {
                                     }
 
                                     if (section.highlight["sections.content"]) {
-                                        section_content = "... " + xss(section.highlight["sections.content"][0]) +" ...";
+                                        var content = section.highlight["sections.content"];
+                                        section_content = [];
+                                        for (var k = 0; k < content.length && k < MAX_RESULT_PER_SECTION; ++k) {
+                                            section_content.push("... " + xss(content[k]) + " ...");
+                                        }
                                     }
                                 }
 
@@ -128,9 +135,9 @@ function attach_elastic_search_query(data) {
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
-                                    domain._source.display_name.length >= 2  // "2" because some domain display_name are "-"
+                                    domain._source.display_name.length >= 1
                                 ) {
-                                    domain_subtitle = "(" + domain._source.role_name + ")" + domain._source.display_name;
+                                    domain_subtitle = "(" + domain._source.role_name + ") " + domain._source.display_name;
                                 }
 
                                 // preparing domain_content
