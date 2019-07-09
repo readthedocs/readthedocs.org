@@ -209,7 +209,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
-        self.import_project(project, [], self.request)
+        self.finish_import_project(self.request, project)
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):

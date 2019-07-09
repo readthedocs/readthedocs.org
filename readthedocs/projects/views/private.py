@@ -266,7 +266,7 @@ class ImportWizardView(
                 setattr(project, field, value)
         project.save()
 
-        self.import_project(project, tags, self.request)
+        self.finish_import_project(self.request, project, tags)
 
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]),

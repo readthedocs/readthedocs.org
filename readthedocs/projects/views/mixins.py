@@ -53,7 +53,7 @@ class ProjectImportMixin:
 
     """Helpers to import a Project."""
 
-    def import_project(self, project, tags, request):
+    def finish_import_project(self, request, project, tags=None):
         """
         Import a Project into Read the Docs.
 
@@ -62,6 +62,9 @@ class ProjectImportMixin:
         - Send Django Signal
         - Trigger initial build
         """
+        if not tags:
+            tags = []
+
         project.users.add(request.user)
         for tag in tags:
             project.tags.add(tag)
