@@ -533,19 +533,26 @@ class Project(models.Model):
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
 
-    def get_storage_path(self, type_, version_slug=LATEST, include_file=True):
+    def get_storage_path(
+            self,
+            type_,
+            version_slug=LATEST,
+            include_file=True,
+            version_type=None
+    ):
         """
         Get a path to a build artifact for use with Django's storage system.
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
+        :param version_type: Project version type
         :param include_file: Include file name in return
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
         type_dir = type_
         # Add `external/` prefix for external versions
-        if self.versions(manager=EXTERNAL).filter(slug=version_slug).exists():
+        if version_type == EXTERNAL:
             type_dir = f'{EXTERNAL}/{type_}'
 
         folder_path = '{}/{}/{}'.format(
@@ -780,7 +787,7 @@ class Project(models.Model):
     def has_aliases(self):
         return self.aliases.exists()
 
-    def has_media(self, type_, version_slug=LATEST):
+    def has_media(self, type_, version_slug=LATEST, version_type=None):
         path = self.get_production_media_path(
             type_=type_, version_slug=version_slug
         )
@@ -790,20 +797,33 @@ class Project(models.Model):
         if settings.RTD_BUILD_MEDIA_STORAGE:
             storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
             storage_path = self.get_storage_path(
-                type_=type_, version_slug=version_slug
+                type_=type_, version_slug=version_slug,
+                version_type=version_type
             )
             return storage.exists(storage_path)
 
         return False
 
-    def has_pdf(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_PDF, version_slug=version_slug)
+    def has_pdf(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_PDF,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
-    def has_epub(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_EPUB, version_slug=version_slug)
+    def has_epub(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_EPUB,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
-    def has_htmlzip(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
+    def has_htmlzip(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_HTMLZIP,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
     @property
     def sponsored(self):

@@ -767,6 +767,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,
@@ -795,6 +796,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,

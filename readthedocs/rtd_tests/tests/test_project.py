@@ -147,15 +147,22 @@ class TestProject(ProjectMixin, TestCase):
 
     def test_get_storage_path_for_external_versions(self):
         self.assertEqual(
-            self.pip.get_storage_path('pdf', self.external_version.slug),
+            self.pip.get_storage_path(
+                'pdf', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
             'external/pdf/pip/99/pip.pdf',
         )
         self.assertEqual(
-            self.pip.get_storage_path('epub', self.external_version.slug),
+            self.pip.get_storage_path('epub', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
             'external/epub/pip/99/pip.epub',
         )
         self.assertEqual(
-            self.pip.get_storage_path('htmlzip', self.external_version.slug),
+            self.pip.get_storage_path('htmlzip', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
             'external/htmlzip/pip/99/pip.zip',
         )
 
