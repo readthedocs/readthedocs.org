@@ -12,6 +12,7 @@ from requests.exceptions import RequestException
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
+from readthedocs.builds.constants import SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -310,6 +311,80 @@ class GitHubService(Service):
                 debug_data,
             )
             return (False, resp)
+
+    def send_build_status(self, build, state):
+        """
+        Create GitHub commit status for project.
+
+        :param build: Build to set up commit status for
+        :type build: Build
+        :param state: build state failure, pending, or success.
+        :type state: str
+        :returns: boolean based on commit status creation was successful or not.
+        :rtype: Bool
+        """
+        session = self.get_session()
+        project = build.project
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+        build_sha = build.version.identifier
+
+        # select the correct state and description.
+        github_build_state = SELECT_BUILD_STATUS[state]['github']
+        description = SELECT_BUILD_STATUS[state]['description']
+
+        data = {
+            'state': github_build_state,
+            'target_url': build.get_full_url(),
+            'description': description,
+            'context': 'continuous-documentation/read-the-docs'
+        }
+
+        resp = None
+
+        try:
+            resp = session.post(
+                f'https://api.github.com/repos/{owner}/{repo}/statuses/{build_sha}',
+                data=json.dumps(data),
+                headers={'content-type': 'application/json'},
+            )
+            if resp.status_code == 201:
+                log.info(
+                    'GitHub commit status for project: %s',
+                    project,
+                )
+                return True
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return False
+
+            return False
+
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.exception(
+                'GitHub commit status creation failed for project: %s',
+                project,
+            )
+            # Response data should always be JSON, still try to log if not
+            # though
+            if resp is not None:
+                try:
+                    debug_data = resp.json()
+                except ValueError:
+                    debug_data = resp.content
+            else:
+                debug_data = resp
+
+            log.debug(
+                'GitHub commit status creation failure response: %s',
+                debug_data,
+            )
+            return False
 
     @classmethod
     def get_token_for_project(cls, project, force_local=False):

@@ -31,6 +31,8 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATUS_SUCCESS,
+    BUILD_STATUS_FAILURE,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
@@ -60,6 +62,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -574,6 +578,25 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
+            # send build failure status to git Status API
+            send_external_build_status(
+                self.build['id'], BUILD_STATUS_FAILURE
+            )
+        elif self.build_env.successful:
+            # send build successful status to git Status API
+            send_external_build_status(
+                self.build['id'], BUILD_STATUS_SUCCESS
+            )
+        else:
+            msg = 'Unhandled Build State'
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -1519,8 +1542,11 @@ def _manage_imported_files(version, path, commit, build):
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+
+    # only send notification for Internal versions
+    if not version or version.type == EXTERNAL:
         return
+
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
@@ -1779,3 +1805,45 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
+
+
+@app.task(queue='web')
+def send_build_status(build, state):
+    """
+    Send Build Status to Git Status API for project external versions.
+
+    :param build: Build
+    :param state: build state failed, pending, or success to be sent.
+    """
+    try:
+        if build.project.remote_repository.account.provider == 'github':
+            service = GitHubService(
+                build.project.remote_repository.users.first(),
+                build.project.remote_repository.account
+            )
+
+            # send Status report using the API.
+            service.send_build_status(build, state)
+
+    except RemoteRepository.DoesNotExist:
+        log.info('Remote repository does not exist for %s', build.project)
+
+    except Exception:
+        log.exception('Send build status task failed for %s', build.project)
+
+    # TODO: Send build status for other providers.
+
+
+def send_external_build_status(build_pk, state):
+    """
+    Check if build is external and Send Build Status for project external versions.
+
+    :param build_pk: Build pk
+    :param state: build state failed, pending, or success to be sent.
+    """
+    build = Build.objects.get(pk=build_pk)
+
+    # Send status reports for only External (pull/merge request) Versions.
+    if build.version.type == EXTERNAL:
+        # call the task that actually send the build status.
+        send_build_status.delay(build, state)
