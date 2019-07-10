@@ -5,6 +5,7 @@
 var rtddata = require('./rtd-data');
 var xss = require('xss/lib/index');
 var MAX_RESULT_PER_SECTION = 3;
+var MAX_SUBSTRING_LIMIT = 100;
 
 
 /*
@@ -97,7 +98,7 @@ function attach_elastic_search_query(data) {
                                 var section = inner_hits[j];
                                 var section_subtitle = section._source.title;
                                 var section_subtitle_link = link + "#" + section._source.id;
-                                var section_content = [section._source.content.substring(0, 100) + " ..."];
+                                var section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
