@@ -18,6 +18,5 @@ class TestHacks(TestCase):
             ),
         )
         self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
-        # Only capture h2's after the first section
-        for obj in data['sections'][1:]:
-            self.assertEqual(obj['content'][:5], '\n<h2>')
+        self.assertEqual(data['path'], 'api')
+        self.assertEqual(data['title'], 'Read the Docs Public API')
