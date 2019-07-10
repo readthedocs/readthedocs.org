@@ -90,7 +90,6 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs = {'filter_by_user': False, 'filters': {}}
         kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
         kwargs['filters']['version'] = self.request.query_params.get('version')
-        kwargs['page_filter'] = self.request.query_params.get('current_page', None)
         if not kwargs['filters']['project']:
             raise ValidationError("Unable to find a project to search")
         if not kwargs['filters']['version']:
