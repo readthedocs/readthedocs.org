@@ -545,8 +545,8 @@ class Project(models.Model):
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
-        :param version_type: Project version type
         :param include_file: Include file name in return
+        :param version_type: Project version type
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
