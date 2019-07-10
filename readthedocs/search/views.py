@@ -107,36 +107,34 @@ def elastic_search(request, project_slug=None):
     if results:
 
         # sorting inner_hits (if present)
-        try:
-            for result in results:
+        if user_input.type == 'file':
 
-                inner_hits = result.meta.inner_hits
-                sections = inner_hits.sections or []
-                domains = inner_hits.domains or []
-                all_results = itertools.chain(sections, domains)
+            try:
+                for result in results:
+                    inner_hits = result.meta.inner_hits
+                    sections = inner_hits.sections or []
+                    domains = inner_hits.domains or []
+                    all_results = itertools.chain(sections, domains)
 
-                sorted_results = (
-                    {
-                        'type': hit._nested.field,
+                    sorted_results = (
+                        {
+                            'type': hit._nested.field,
 
-                        # here _source term is not used because
-                        # django gives error if the names of the
-                        # variables start with underscore
-                        'source': hit._source.to_dict(),
+                            # here _source term is not used because
+                            # django gives error if the names of the
+                            # variables start with underscore
+                            'source': hit._source.to_dict(),
 
-                        'highlight': utils._remove_newlines_from_dict(
-                            hit.highlight.to_dict()
-                        ),
-                    }
-                    for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
-                )
+                            'highlight': utils._remove_newlines_from_dict(
+                                hit.highlight.to_dict()
+                            ),
+                        }
+                        for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+                    )
 
-                result.meta.inner_hits = sorted_results
-
-        except Exception as e:
-            # if the control comes in this block,
-            # that implies that there was a PageSearch
-            pass
+                    result.meta.inner_hits = sorted_results
+            except Exception:
+                log.exception('Error while sorting the results (inner_hits).')
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))
