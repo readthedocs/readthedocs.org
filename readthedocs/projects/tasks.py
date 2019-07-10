@@ -1278,14 +1278,25 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        _manage_imported_files(version, path, commit, build)
+        changed_files = _create_imported_files(version, path, commit, build)
     except Exception:
+        changed_files = set()
         log.exception('Failed during ImportedFile creation')
+
+    try:
+        _create_intersphinx_data(version, path, commit, build)
+    except Exception:
+        log.exception('Failed during SphinxDomain creation')
+
+    try:
+        _sync_imported_files(version, build, changed_files)
+    except Exception:
+        log.exception('Failed during ImportedFile syncing')
 
 
 def _create_intersphinx_data(version, path, commit, build):
     """
-    Update intersphinx data for this version.
+    Create intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
@@ -1401,14 +1412,16 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, path, commit, build):
+def _create_imported_files(version, path, commit, build):
     """
-    Update imported files for version.
+    Create imported files for version.
 
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
+    :returns: paths of changed files
+    :rtype: set
     """
 
     changed_files = set()
@@ -1458,16 +1471,22 @@ def _manage_imported_files(version, path, commit, build):
                 build=build,
             )
 
-    # create SphinxDomain objects
-    try:
-        _create_intersphinx_data(version, path, commit, build)
-    except Exception:
-        log.exception('Failed during SphinxDomain objects creation')
+    return changed_files
 
-    # Index new HTMLFiles to elasticsearch
+
+def _sync_imported_files(version, build, changed_files):
+    """
+    Sync/Update/Delete ImportedFiles objects of this version.
+
+    :param version: Version instance
+    :param build: Build id
+    :param changed_files: path of changed files
+    """
+
+    # Index new HTMLFiles to ElasticSearch
     index_new_files(model=HTMLFile, version=version, build=build)
 
-    # Remove old HTMLFiles from elasticsearch
+    # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
         model=HTMLFile,
         version=version,
