@@ -19,4 +19,7 @@ class TestHacks(TestCase):
         )
         self.assertEqual(data['path'], 'api')
         self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
+        self.assertTrue(data['sections'][1]['content'].startswith(
+            'You can use Slumber'
+        ))
         self.assertEqual(data['title'], 'Read the Docs Public API')
