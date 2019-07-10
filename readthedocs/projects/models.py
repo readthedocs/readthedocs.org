@@ -898,7 +898,7 @@ class Project(models.Model):
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'
-        return self.builds.filter(**kwargs).first()
+        return self.builds(manager=INTERNAL).filter(**kwargs).first()
 
     def api_versions(self):
         from readthedocs.builds.models import APIVersion

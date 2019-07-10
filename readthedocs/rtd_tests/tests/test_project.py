@@ -155,16 +155,22 @@ class TestProject(ProjectMixin, TestCase):
         self.assertNotIn(self.external_version, self.pip.all_active_versions())
 
     def test_update_stable_version_excludes_external_versions(self):
-        # Delete all versions excluding PR Versions.
+        # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
-        # Test that PR Version is not considered for stable.
+        # Test that External Version is not considered for stable.
         self.assertEqual(self.pip.update_stable_version(), None)
 
     def test_has_good_build_excludes_external_versions(self):
-        # Delete all versions excluding PR Versions.
+        # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
-        # Test that PR Version is not considered for has_good_build.
+        # Test that External Version is not considered for has_good_build.
         self.assertFalse(self.pip.has_good_build)
+
+    def test_get_latest_build_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for get_latest_build.
+        self.assertEqual(self.pip.get_latest_build(), None)
 
 
 class TestProjectTranslations(ProjectMixin, TestCase):
