@@ -9,8 +9,9 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
+from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
 from readthedocs.projects.models import Project
+from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -312,7 +313,10 @@ class ProjectURLsSerializer(serializers.Serializer):
 class RepositorySerializer(serializers.Serializer):
 
     url = serializers.CharField(source='repo')
-    type = serializers.CharField(source='repo_type')
+    type = serializers.ChoiceField(
+        source='repo_type',
+        choices=REPO_CHOICES,
+    )
 
 
 class ProjectLinksSerializer(BaseLinksSerializer):
@@ -321,6 +325,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
+    redirects = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
@@ -332,6 +337,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_versions(self, obj):
         path = reverse(
             'projects-versions-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_redirects(self, obj):
+        path = reverse(
+            'projects-redirects-list',
             kwargs={
                 'parent_lookup_project__slug': obj.slug,
             },
@@ -373,6 +387,24 @@ class ProjectLinksSerializer(BaseLinksSerializer):
             },
         )
         return self._absolute_url(path)
+
+
+class ProjectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to Import a Project."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url', required=False)
+
+    class Meta:
+        model = Project
+        fields = (
+            'name',
+            'language',
+            'programming_language',
+            'repository',
+            'homepage',
+        )
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
@@ -451,3 +483,70 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class RedirectLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-redirects-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'redirect_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class RedirectSerializerBase(serializers.ModelSerializer):
+
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    created = serializers.DateTimeField(source='create_dt', read_only=True)
+    modified = serializers.DateTimeField(source='update_dt', read_only=True)
+    _links = RedirectLinksSerializer(source='*', read_only=True)
+
+    type = serializers.ChoiceField(source='redirect_type', choices=REDIRECT_TYPE_CHOICES)
+
+    class Meta:
+        model = Redirect
+        fields = [
+            'pk',
+            'created',
+            'modified',
+            'project',
+            'type',
+            'from_url',
+            'to_url',
+            '_links',
+        ]
+
+
+class RedirectCreateSerializer(RedirectSerializerBase):
+    pass
+
+
+class RedirectDetailSerializer(RedirectSerializerBase):
+
+    """Override RedirectSerializerBase to sanitize the empty fields."""
+
+    from_url = serializers.SerializerMethodField()
+    to_url = serializers.SerializerMethodField()
+
+    def get_from_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.from_url or None
+
+    def get_to_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.to_url or None

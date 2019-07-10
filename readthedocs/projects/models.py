@@ -328,8 +328,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository. '
-            'Protected means public but not in listings.',
+            'Level of privacy that you want on the repository.',
         ),
     )
     version_privacy_level = models.CharField(
@@ -1036,7 +1035,11 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
     def get_parent_relationship(self):
-        """Get the parent project relationship or None if this is a top level project"""
+        """
+        Get parent project relationship.
+
+        It returns ``None`` if this is a top level project.
+        """
         if hasattr(self, '_superprojects'):
             # Cached parent project relationship
             if self._superprojects:
@@ -1151,7 +1154,7 @@ class APIProject(Project):
 
     @property
     def show_advertising(self):
-        """Whether this project is ad-free (don't access the database)"""
+        """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
     @property

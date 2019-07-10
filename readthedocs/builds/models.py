@@ -15,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
-from taggit.managers import TaggableManager
 
 import readthedocs.builds.automation_actions as actions
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
@@ -106,7 +105,6 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
-    tags = TaggableManager(blank=True)
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
@@ -174,10 +172,13 @@ class Version(models.Model):
         :rtype: dict
         """
         last_build = (
-            self.builds.filter(
+            self.builds
+            .filter(
                 state='finished',
                 success=True,
-            ).order_by('-date').first()
+            ).order_by('-date')
+            .only('_config')
+            .first()
         )
         return last_build.config
 
@@ -636,7 +637,12 @@ class Build(models.Model):
         ones).
         """
         if self.CONFIG_KEY in self._config:
-            return Build.objects.get(pk=self._config[self.CONFIG_KEY])._config
+            return (
+                Build.objects
+                .only('_config')
+                .get(pk=self._config[self.CONFIG_KEY])
+                ._config
+            )
         return self._config
 
     @config.setter

@@ -1,5 +1,5 @@
-Use custom ``404 Not Found`` page on my project
-===============================================
+Use a Custom ``404 Not Found`` Page on my Project
+=================================================
 
 If you want your project to use a custom page for not found pages instead of the "Maze Found" default one,
 you can put a ``404.html`` at the top level of your project's HTML output.

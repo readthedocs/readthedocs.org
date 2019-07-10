@@ -92,7 +92,7 @@ Get and run Read the Docs
 
 Clone the repository somewhere on your disk and enter to the repository::
 
-    git clone --recurse-submodules https://github.com/rtfd/readthedocs.org.git
+    git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org.git
     cd readthedocs.org
 
 Create a virtual environment and activate it::
