@@ -384,6 +384,7 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+
     def test_unauthed_projects_redirects_list(self):
         response = self.client.get(
             reverse(
@@ -529,3 +530,66 @@ class APIEndpointTests(TestCase):
         )
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.redirects.count(), 0)
+
+
+    def test_import_project(self):
+        data = {
+            'name': 'Test Project',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'homepage': 'http://template.readthedocs.io/',
+            'programming_language': 'py',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug='test-project')
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertEqual(project.name, 'Test Project')
+        self.assertEqual(project.slug, 'test-project')
+        self.assertEqual(project.repo, 'https://github.com/rtfd/template')
+        self.assertEqual(project.language, 'en')
+        self.assertEqual(project.programming_language, 'py')
+        self.assertEqual(project.privacy_level, 'public')
+        self.assertEqual(project.project_url, 'http://template.readthedocs.io/')
+        self.assertIn(self.me, project.users.all())
+        self.assertEqual(project.builds.count(), 1)
+
+        response_json = response.json()
+        response_json['created'] = '2019-04-29T10:00:00Z'
+        response_json['modified'] = '2019-04-29T12:00:00Z'
+
+        self.assertDictEqual(
+            response_json,
+            self._get_response_dict('projects-list_POST'),
+        )
+
+    def test_import_project_with_extra_fields(self):
+        data = {
+            'name': 'Test Project',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'default_version': 'v1.0',  # ignored: field not allowed
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertEqual(response.status_code, 201)
+
+        query = Project.objects.filter(slug='test-project')
+        self.assertTrue(query.exists())
+
+        project = query.first()
+        self.assertEqual(project.name, 'Test Project')
+        self.assertEqual(project.slug, 'test-project')
+        self.assertEqual(project.repo, 'https://github.com/rtfd/template')
+        self.assertNotEqual(project.default_version, 'v1.0')
+        self.assertIn(self.me, project.users.all())

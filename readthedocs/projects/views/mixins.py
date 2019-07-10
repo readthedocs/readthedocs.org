@@ -2,9 +2,12 @@
 
 """Mixin classes for project views."""
 
+from celery import chain
 from django.shortcuts import get_object_or_404
 
+from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
+from readthedocs.projects.signals import project_import
 
 
 class ProjectRelationMixin:
@@ -44,3 +47,55 @@ class ProjectRelationMixin:
         context = super().get_context_data(**kwargs)
         context[self.project_context_object_name] = self.get_project()
         return context
+
+
+class ProjectImportMixin:
+
+    """Helpers to import a Project."""
+
+    def finish_import_project(self, request, project, tags=None):
+        """
+        Perform last steps to import a project into Read the Docs.
+
+        - Add the user from request as maintainer
+        - Set all the tags to the project
+        - Send Django Signal
+        - Trigger initial build
+
+        It requires the Project was already saved into the DB.
+
+        :param request: Django Request object
+        :param project: Project instance just imported (already saved)
+        :param tags: tags to add to the project
+        """
+        if not tags:
+            tags = []
+
+        project.users.add(request.user)
+        for tag in tags:
+            project.tags.add(tag)
+
+        # TODO: this signal could be removed, or used for sync task
+        project_import.send(sender=project, request=request)
+
+        self.trigger_initial_build(project, request.user)
+
+    def trigger_initial_build(self, project, user):
+        """
+        Trigger initial build after project is imported.
+
+        :param project: project's documentation to be built
+        :returns: Celery AsyncResult promise
+        """
+
+        update_docs, build = prepare_build(project)
+        if (update_docs, build) == (None, None):
+            return None
+
+        from readthedocs.oauth.tasks import attach_webhook
+        task_promise = chain(
+            attach_webhook.si(project.pk, user.pk),
+            update_docs,
+        )
+        async_result = task_promise.apply_async()
+        return async_result

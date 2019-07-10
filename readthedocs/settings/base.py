@@ -498,6 +498,7 @@ class CommunityBaseSettings(Settings):
             'user': '60/minute',
         },
         'PAGE_SIZE': 10,
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     }
 
     SILENCED_SYSTEM_CHECKS = ['fields.W342']
