@@ -114,6 +114,21 @@ class PageSearchBase(RTDFacetedSearch):
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
+    def __init__(self, user, **kwargs):
+
+        self._page_filter = kwargs.pop('page_filter', None)
+        if self._page_filter:
+            self._page_filter = self._page_filter.split('/')[0]
+
+        super().__init__(user, **kwargs)
+    
+    def search(self):
+        """Overriding search method to add custom filter."""
+        s = super().search()
+        if self._page_filter:
+            s = s.filter('regexp', path=f'{self._page_filter}.*')
+        return s
+
     def query(self, search, query):
         """Manipulates query to support nested query."""
         search = search.highlight_options(encoder='html', number_of_fragments=1)
