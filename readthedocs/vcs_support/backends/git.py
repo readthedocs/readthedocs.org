@@ -105,7 +105,12 @@ class Backend(BaseVCS):
         Returns the list of invalid submodules.
         """
         repo = git.Repo(self.working_dir)
-        submodules = {sub.path: sub for sub in repo.submodules}
+        try:
+            submodules = {sub.path: sub for sub in repo.submodules}
+        except InvalidGitRepositoryError:
+            raise RepositoryError(
+                RepositoryError.INVALID_SUBMODULES_PATH,
+            )
 
         for sub_path in config.submodules.exclude:
             path = sub_path.rstrip('/')

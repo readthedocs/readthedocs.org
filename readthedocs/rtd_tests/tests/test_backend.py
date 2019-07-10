@@ -189,6 +189,21 @@ class TestGitBackend(RTDTestCase):
             RepositoryError.INVALID_SUBMODULES.format(['invalid']),
         )
 
+    def test_invalid_submodule_path(self):
+        repo_path = self.project.repo
+        gitmodules_path = os.path.join(repo_path, '.gitmodules')
+
+        with open(gitmodules_path, 'w+') as f:
+            content = textwrap.dedent("""
+                [submodule "not-valid-path"]
+                    path = not-valid-path
+                    url = https://github.com/readthedocs/readthedocs.org
+            """)
+            f.write(content)
+
+        with self.assertRaises(RepositoryError, msg=RepositoryError.INVALID_SUBMODULES_PATH):
+            repo.update_submodules(self.dummy_conf)
+
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_fetch_clean_tags_and_branches(self, checkout_path):
         upstream_repo = self.project.repo
