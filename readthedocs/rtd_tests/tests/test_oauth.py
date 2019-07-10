@@ -191,8 +191,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
-                'GitHub commit status creation failed for project: %s',
-                self.project,
+            'GitHub commit status creation failed for project: %s',
+            self.project,
         )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')

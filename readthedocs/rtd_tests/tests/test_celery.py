@@ -347,9 +347,8 @@ class TestCeleryBuilding(RTDTestCase):
 
         send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
 
-    @patch('readthedocs.projects.tasks.log')
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task_without_remote_repo(self, send_build_status, mock_logger):
+    def test_send_build_status_task_without_remote_repo(self, send_build_status):
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
@@ -357,7 +356,3 @@ class TestCeleryBuilding(RTDTestCase):
         tasks.send_build_status(external_build, BUILD_STATUS_SUCCESS)
 
         send_build_status.assert_not_called()
-        mock_logger.info.assert_called_with(
-            'Remote repository does not exist for %s',
-            self.project,
-        )
