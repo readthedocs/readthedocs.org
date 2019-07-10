@@ -17,6 +17,6 @@ class TestHacks(TestCase):
                 'files/api.fjson',
             ),
         )
-        self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
         self.assertEqual(data['path'], 'api')
+        self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
         self.assertEqual(data['title'], 'Read the Docs Public API')
