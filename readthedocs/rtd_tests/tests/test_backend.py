@@ -202,6 +202,8 @@ class TestGitBackend(RTDTestCase):
             """)
             f.write(content)
 
+        repo = self.project.vcs_repo()
+        repo.working_dir = repo_path
         with self.assertRaises(RepositoryError, msg=RepositoryError.INVALID_SUBMODULES_PATH):
             repo.update_submodules(self.dummy_conf)
 
