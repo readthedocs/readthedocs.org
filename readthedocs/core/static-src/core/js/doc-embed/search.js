@@ -136,6 +136,7 @@ function attach_elastic_search_query(data) {
                                 var domain_subtitle = domain._source.role_name;
                                 var domain_subtitle_link = link + "#" + domain._source.anchor;
                                 var domain_content = "";
+                                var domain_name = domain._source.name;
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
@@ -144,23 +145,15 @@ function attach_elastic_search_query(data) {
                                     domain_subtitle = "(" + domain._source.role_name + ") " + domain._source.display_name;
                                 }
 
-                                // preparing domain_content
-                                // domain_content = type_display --
-                                domain_content = domain._source.type_display + " -- ";
                                 if (domain.highlight) {
                                     if (domain.highlight["domains.name"]) {
                                         // domain_content = type_display -- name
-                                        domain_content += xss(domain.highlight["domains.name"][0]);
-                                    } else {
-                                        // domain_content = type_display -- name
-                                        domain_content += domain._source.name;
+                                        domain_name = xss(domain.highlight["domains.name"][0]);
                                     }
-                                } else {
-                                    // domain_content = type_display -- name
-                                    domain_content += domain._source.name;
                                 }
+
                                 // domain_content = type_display -- name -- in doc_display
-                                domain_content += " -- in " + domain._source.doc_display;
+                                domain_content = domain._source.type_display + " -- " + domain_name + " -- in " + domain._source.doc_display;
 
                                 contents.append(
                                     $u.template(
