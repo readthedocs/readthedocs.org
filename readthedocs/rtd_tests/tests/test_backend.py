@@ -3,6 +3,7 @@
 import os
 from os.path import exists
 from tempfile import mkdtemp
+import textwrap
 
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
