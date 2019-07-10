@@ -230,7 +230,6 @@ class Backend(BaseVCS):
                 RepositoryError.INVALID_SUBMODULES_PATH,
             )
 
-
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
