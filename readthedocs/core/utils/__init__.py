@@ -133,7 +133,7 @@ def prepare_build(
 
     if build:
         # Send pending Build Status using Git Status API for External Builds.
-        send_external_build_status(build.id, BUILD_STATUS_PENDING)
+        send_external_build_status(version=version, build_pk=build.id, status=BUILD_STATUS_PENDING)
 
     return (
         update_docs_task.signature(
