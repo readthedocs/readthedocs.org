@@ -658,7 +658,7 @@ class BuildEnvironment(BaseEnvironment):
     def done(self):
         """Is build in finished state."""
         return (
-            self.build is not None and
+            self.build and
             self.build['state'] == BUILD_STATE_FINISHED
         )
 

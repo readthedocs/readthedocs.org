@@ -61,3 +61,29 @@ NON_REPOSITORY_VERSIONS = (
     LATEST,
     STABLE,
 )
+
+# GitHub Build Statuses
+GITHUB_BUILD_STATE_FAILURE = 'failure'
+GITHUB_BUILD_STATE_PENDING = 'pending'
+GITHUB_BUILD_STATE_SUCCESS = 'success'
+
+# General Build Statuses
+BUILD_STATUS_FAILURE = 'failed'
+BUILD_STATUS_PENDING = 'pending'
+BUILD_STATUS_SUCCESS = 'success'
+
+# Used to select correct Build status and description to be sent to each service API
+SELECT_BUILD_STATUS = {
+    BUILD_STATUS_FAILURE: {
+        'github': GITHUB_BUILD_STATE_FAILURE,
+        'description': 'The build failed!',
+    },
+    BUILD_STATUS_PENDING: {
+        'github': GITHUB_BUILD_STATE_PENDING,
+        'description': 'The build is pending!',
+    },
+    BUILD_STATUS_SUCCESS: {
+        'github': GITHUB_BUILD_STATE_SUCCESS,
+        'description': 'The build succeeded!',
+    },
+}
