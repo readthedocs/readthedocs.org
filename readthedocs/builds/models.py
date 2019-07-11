@@ -736,7 +736,7 @@ class Build(models.Model):
         return reverse('builds_detail', args=[self.project.slug, self.pk])
 
     def get_full_url(self):
-        """Get full url including domain"""
+        """Get full url including domain."""
         scheme = 'http' if settings.DEBUG else 'https'
         full_url = '{scheme}://{domain}{absolute_url}'.format(
             scheme=scheme,

@@ -302,7 +302,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return super().get_data()
 
     def get_external_version_data(self):
-        """Get Commit Sha and pull request number from payload"""
+        """Get Commit Sha and pull request number from payload."""
         try:
             identifier = self.data['pull_request']['head']['sha']
             verbose_name = str(self.data['number'])
