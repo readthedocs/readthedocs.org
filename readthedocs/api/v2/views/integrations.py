@@ -27,7 +27,7 @@ from readthedocs.core.views.hooks import (
     build_external_version,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 
 log = logging.getLogger(__name__)
@@ -367,7 +367,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
 
-        if event == GITHUB_PULL_REQUEST and action:
+        if (
+            self.project.has_feature(Feature.ENABLE_EXTERNAL_VERSION_BUILD) and
+            event == GITHUB_PULL_REQUEST and action
+        ):
             if (
                 action in
                 [
