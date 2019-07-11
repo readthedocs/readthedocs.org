@@ -101,8 +101,8 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
 
-    _outer_fields = ['title']
-    _section_fields = ['sections.title', 'sections.content']
+    _outer_fields = ['title^4']
+    _section_fields = ['sections.title^3', 'sections.content']
     _domain_fields = [
         'domains.type_display',
         'domains.name',

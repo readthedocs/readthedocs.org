@@ -48,14 +48,14 @@ class PageSearchSerializer(serializers.Serializer):
             domains = inner_hits.domains or []
             all_results = itertools.chain(sections, domains)
 
-            sorted_results = (
+            sorted_results = [
                 {
                     'type': hit._nested.field,
                     '_source': hit._source.to_dict(),
                     'highlight': self._get_inner_hits_highlights(hit),
                 }
                 for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
-            )
+            ]
 
             return sorted_results
 

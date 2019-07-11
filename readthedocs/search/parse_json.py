@@ -25,14 +25,13 @@ def generate_sections_from_pyquery(body):
                 if 'section' in next_p[0].attrib['class']:
                     break
 
-            h1_content += '\n%s\n' % next_p.text()
-            h1_content = parse_content(h1_content)
+            h1_content += parse_content(next_p.text())
             next_p = next_p.next()
         if h1_content:
             yield {
                 'id': h1_id,
                 'title': h1_title,
-                'content': h1_content,
+                'content': h1_content.replace('\n', '. '),
             }
 
     # Capture text inside h2's
@@ -93,7 +92,7 @@ def process_file(fjson_filename):
 
 def parse_content(content):
     """
-    Removes the starting text, ¶ and replaces all new lines to ". "
+    Removes the starting text and ¶
 
     It removes the starting text from the content
     because it contains the the title of that content,
@@ -106,6 +105,6 @@ def parse_content(content):
     if len(content) > 1:  # there were \n
         content = content[1:]
 
-    # converting all newlines to ". "
+    # converting newlines to ". "
     content = '. '.join([text.strip() for text in content])
     return content
