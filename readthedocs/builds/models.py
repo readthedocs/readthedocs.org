@@ -23,6 +23,7 @@ from readthedocs.projects.constants import (
     BITBUCKET_URL,
     GITHUB_URL,
     GITHUB_PULL_REQEST_URL,
+    GITHUB_PULL_REQEST_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -37,6 +38,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
@@ -161,7 +163,7 @@ class Version(models.Model):
         Generate VCS (github, gitlab, bitbucket) URL for this version.
 
         Branch/Tag Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
-        Pull/merge Request Example: https://github.com/rtfd/readthedocs.org/pull/9999/.
+        Pull/merge Request Example: https://github.com/rtfd/readthedocs.org/pull/99/commits/b630b630
         """
         url = ''
         if self.slug == STABLE:
@@ -173,9 +175,14 @@ class Version(models.Model):
 
         if self.type == EXTERNAL:
             if 'github' in self.project.repo:
-                slug_url = self.verbose_name
-                url = f'/pull/{slug_url}/'
+                user, repo = get_github_username_repo(self.project.repo)
+                return GITHUB_PULL_REQEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.verbose_name,
+                    commit= self.commit_name
 
+                )
             if 'gitlab' in self.project.repo:
                 slug_url = self.identifier
                 url = f'/merge_requests/{slug_url}/'
@@ -544,12 +551,12 @@ class Version(models.Model):
     def get_external_version_url(self):
         """Return a Pull/Merge Request URL."""
         repo_url = self.project.repo
-        user, repo = get_github_username_repo(repo_url)
-
-        if not user and not repo:
-            return ''
 
         if 'github' in repo_url:
+            user, repo = get_github_username_repo(repo_url)
+            if not user and not repo:
+                return ''
+
             repo = repo.rstrip('/')
             return GITHUB_PULL_REQEST_URL.format(
                 user=user,
@@ -786,7 +793,7 @@ class Build(models.Model):
                 if self.project.remote_repository.account.provider == 'github':
                     return GITHUB_EXTERNAL_VERSION_NAME
             except Exception:
-                return None
+                return GENERIC_EXTERNAL_VERSION_NAME
         return None
 
     def using_latest_config(self):

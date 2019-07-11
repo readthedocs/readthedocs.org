@@ -81,20 +81,17 @@ $(document).ready(function () {
       <span class="build-version-slug">
         {% if request.user|is_admin:project and not build.is_external %}
           <a href="{% url "project_version_detail" build.version.project.slug build.version.slug %}">{{ build.version.slug }}</a>
-        {% else  %}
-          {% if build.is_external %}
-              {% blocktrans with build.external_version_name as external_version_name %}
-                  <b>{{ external_version_name }}</b> #
-              {% endblocktrans %}
-              <a href="{{ build.version.get_external_version_url }}">{{ build.version.verbose_name }}</a>
-          {% else %}
-             {{ build.version.slug }}
-          {% endif %}
+        {% elif build.is_external %}
+          {% blocktrans with build.external_version_name as external_version_name %}
+            <b>{{ external_version_name }}</b>
+          {% endblocktrans %}
+            #<a href="{{ build.version.get_external_version_url }}">{{ build.version.verbose_name }}</a>
+        {% else %}
+          {{ build.version.slug }}
         {% endif %}
       </span>
-      <span class="build-commit"
-            data-bind="visible: commit">
-        (<span data-bind="text: commit">{{ build.commit }}</span>)
+      <span class="build-commit" data-bind="visible: commit">
+          (<a data-bind="attr: {href: vcs_url}"><span data-bind="text: commit">{{ build.commit }}</span></a>)
       </span>
     </div>
 
