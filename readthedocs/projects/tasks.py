@@ -588,7 +588,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
             )
         else:
-            msg = 'Unhandled Build State'
+             msg = 'Unhandled Build Status'
             log.warning(
                 LOG_TEMPLATE,
                 {
@@ -1808,12 +1808,12 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, state):
+def send_build_status(build_pk, status):
     """
     Send Build Status to Git Status API for project external versions.
 
-    :param build_pk: Buil primary key
-    :param state: build state failed, pending, or success to be sent.
+    :param build_pk: Build primary key
+     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
     try:
@@ -1839,8 +1839,9 @@ def send_external_build_status(version, build_pk, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-    :param build_pk: Build pk
-    :param state: build state failed, pending, or success to be sent.
+     :param version: Version instance
+     :param build_pk: Build pk
+     :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
