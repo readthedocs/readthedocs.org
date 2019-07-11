@@ -141,7 +141,7 @@ class SendBuildStatusTests(TestCase):
         send_external_build_status(self.external_version,
                                    self.external_build.id, BUILD_STATUS_SUCCESS)
 
-        send_build_status.delay.assert_called_once_with(self.external_build, BUILD_STATUS_SUCCESS)
+        send_build_status.delay.assert_called_once_with(self.external_build.id, BUILD_STATUS_SUCCESS)
 
     @patch('readthedocs.projects.tasks.send_build_status')
     def test_send_external_build_status_with_internal_version(self, send_build_status):

@@ -343,7 +343,7 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(external_build, BUILD_STATUS_SUCCESS)
+        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
 
         send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
 
@@ -353,6 +353,6 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(external_build, BUILD_STATUS_SUCCESS)
+        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
 
         send_build_status.assert_not_called()
