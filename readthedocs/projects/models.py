@@ -1391,6 +1391,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
+    UPDATE_CONDA_STARTUP = 'update_conda_startup'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1430,6 +1431,10 @@ class Feature(models.Model):
         (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
+        ),
+        (
+            UPDATE_CONDA_STARTUP,
+            _('Upgrade conda before creating the environment'),
         ),
     )
 
