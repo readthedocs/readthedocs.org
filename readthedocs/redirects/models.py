@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
-from .managers import RedirectManager
+from .querysets import RedirectQuerySet
 
 
 log = logging.getLogger(__name__)
@@ -94,7 +94,7 @@ class Redirect(models.Model):
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
 
-    objects = RedirectManager()
+    objects = RedirectQuerySet.as_manager()
 
     class Meta:
         verbose_name = _('redirect')

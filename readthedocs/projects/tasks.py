@@ -729,7 +729,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             epub=False,
     ):
         """
-        Save build artifacts to "storage" using Django's storage API
+        Save build artifacts to "storage" using Django's storage API.
 
         The storage could be local filesystem storage OR cloud blob storage
         such as S3, Azure storage or Google Cloud Storage.
@@ -1722,7 +1722,7 @@ def remove_dirs(paths):
 @app.task(queue='web')
 def remove_build_storage_paths(paths):
     """
-    Remove artifacts from build media storage (cloud or local storage)
+    Remove artifacts from build media storage (cloud or local storage).
 
     :param paths: list of paths in build media storage to delete
     """

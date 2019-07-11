@@ -1,7 +1,8 @@
 """
-Core views, including the main homepage,
+Core views.
 
-documentation and header rendering, and server errors.
+Including the main homepage, documentation and header rendering,
+and server errors.
 """
 
 import os

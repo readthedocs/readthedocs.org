@@ -9,7 +9,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 class RelatedUserQuerySetBase(models.QuerySet):
 
-    """For models with relations through :py:class:`User`"""
+    """For models with relations through :py:class:`User`."""
 
     def api(self, user=None):
         """Return objects for user."""

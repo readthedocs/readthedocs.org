@@ -17,12 +17,12 @@ class VersionQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def public(self, user=None, project=None, only_active=True):
         queryset = self.filter(privacy_level=constants.PUBLIC)
@@ -32,7 +32,7 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
-        return queryset
+        return queryset.distinct()
 
     def protected(self, user=None, project=None, only_active=True):
         queryset = self.filter(
@@ -44,7 +44,7 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
-        return queryset
+        return queryset.distinct()
 
     def private(self, user=None, project=None, only_active=True):
         queryset = self.filter(privacy_level__in=[constants.PRIVATE])
@@ -54,7 +54,7 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
-        return queryset
+        return queryset.distinct()
 
     def api(self, user=None, detail=True):
         if detail:
@@ -63,7 +63,7 @@ class VersionQuerySetBase(models.QuerySet):
         queryset = self.none()
         if user:
             queryset = self._add_user_repos(queryset, user)
-        return queryset
+        return queryset.distinct()
 
     def for_project(self, project):
         """Return all versions for a project, including translations."""
@@ -89,12 +89,12 @@ class BuildQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def public(self, user=None, project=None):
         queryset = self.filter(version__privacy_level=constants.PUBLIC)
@@ -102,7 +102,7 @@ class BuildQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
-        return queryset
+        return queryset.distinct()
 
     def api(self, user=None, detail=True):
         if detail:
@@ -111,7 +111,7 @@ class BuildQuerySetBase(models.QuerySet):
         queryset = self.none()
         if user:
             queryset = self._add_user_repos(queryset, user)
-        return queryset
+        return queryset.distinct()
 
 
 class BuildQuerySet(SettingsOverrideObject):
@@ -120,18 +120,18 @@ class BuildQuerySet(SettingsOverrideObject):
 
 class RelatedBuildQuerySetBase(models.QuerySet):
 
-    """For models with association to a project through :py:class:`Build`"""
+    """For models with association to a project through :py:class:`Build`."""
 
     use_for_related_fields = True
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('builds.view_version'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def public(self, user=None, project=None):
         queryset = self.filter(build__version__privacy_level=constants.PUBLIC)
@@ -139,7 +139,7 @@ class RelatedBuildQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(build__project=project)
-        return queryset
+        return queryset.distinct()
 
     def api(self, user=None):
         return self.public(user)

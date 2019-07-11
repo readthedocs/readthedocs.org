@@ -1067,7 +1067,11 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
     def get_parent_relationship(self):
-        """Get the parent project relationship or None if this is a top level project"""
+        """
+        Get parent project relationship.
+
+        It returns ``None`` if this is a top level project.
+        """
         if hasattr(self, '_superprojects'):
             # Cached parent project relationship
             if self._superprojects:
@@ -1182,7 +1186,7 @@ class APIProject(Project):
 
     @property
     def show_advertising(self):
-        """Whether this project is ad-free (don't access the database)"""
+        """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
     @property
@@ -1420,6 +1424,7 @@ class Feature(models.Model):
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
     ENABLE_EXTERNAL_VERSION_BUILD = 'enable_external_version_build'
+    UPDATE_CONDA_STARTUP = 'update_conda_startup'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1463,6 +1468,10 @@ class Feature(models.Model):
         (
             ENABLE_EXTERNAL_VERSION_BUILD,
             _('Enable project to build on pull/merge requests'),
+        ),
+        (
+            UPDATE_CONDA_STARTUP,
+            _('Upgrade conda before creating the environment'),
         ),
     )
 
