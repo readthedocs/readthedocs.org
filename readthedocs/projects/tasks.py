@@ -588,7 +588,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
             )
         else:
-             msg = 'Unhandled Build Status'
+            msg = 'Unhandled Build Status'
             log.warning(
                 LOG_TEMPLATE,
                 {
@@ -1813,7 +1813,7 @@ def send_build_status(build_pk, status):
     Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build primary key
-     :param status: build status failed, pending, or success to be sent.
+    :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
     try:
@@ -1824,7 +1824,7 @@ def send_build_status(build_pk, status):
             )
 
             # send Status report using the API.
-            service.send_build_status(build, state)
+            service.send_build_status(build, status)
 
     except RemoteRepository.DoesNotExist:
         log.info('Remote repository does not exist for %s', build.project)
