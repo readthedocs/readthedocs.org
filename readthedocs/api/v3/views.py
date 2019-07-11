@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
     CreateModelMixin,
+    DestroyModelMixin,
     ListModelMixin,
     UpdateModelMixin,
 )
@@ -20,7 +21,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
@@ -32,6 +33,7 @@ from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
+    EnvironmentVariableSerializer,
     ProjectSerializer,
     ProjectCreateSerializer,
     RedirectCreateSerializer,
@@ -371,6 +373,29 @@ class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action in ('create', 'update', 'partial_update'):
             return RedirectCreateSerializer
         return RedirectDetailSerializer
+
+    def perform_create(self, serializer):
+        # Inject the project from the URL into the serializer
+        serializer.validated_data.update({
+            'project': self._get_parent_project(),
+        })
+        serializer.save()
+
+
+class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
+                                  ProjectQuerySetMixin, FlexFieldsMixin,
+                                  CreateModelMixin, DestroyModelMixin,
+                                  ReadOnlyModelViewSet):
+    model = EnvironmentVariable
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'environmentvariable_pk'
+    queryset = EnvironmentVariable.objects.all()
+    serializer_class = EnvironmentVariableSerializer
+    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.select_related('project')
 
     def perform_create(self, serializer):
         # Inject the project from the URL into the serializer

@@ -10,7 +10,7 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
@@ -325,6 +325,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
+    environmentvariables = serializers.SerializerMethodField()
     redirects = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
@@ -337,6 +338,15 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_versions(self, obj):
         path = reverse(
             'projects-versions-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_environmentvariables(self, obj):
+        path = reverse(
+            'projects-environmentvariables-list',
             kwargs={
                 'parent_lookup_project__slug': obj.slug,
             },
@@ -550,3 +560,46 @@ class RedirectDetailSerializer(RedirectSerializerBase):
     def get_to_url(self, obj):
         # Overridden only to return ``None`` when the description is ``''``
         return obj.to_url or None
+
+
+class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-environmentvariables-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'environmentvariable_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class EnvironmentVariableSerializer(serializers.ModelSerializer):
+
+    value = serializers.CharField(write_only=True)
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    _links = EnvironmentVariableLinksSerializer(source='*', read_only=True)
+
+    class Meta:
+        model = EnvironmentVariable
+        fields = [
+            'pk',
+            'created',
+            'modified',
+            'name',
+            'value',
+            'project',
+            '_links',
+        ]

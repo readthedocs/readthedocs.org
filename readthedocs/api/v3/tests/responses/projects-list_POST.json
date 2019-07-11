@@ -2,6 +2,7 @@
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/test-project/",
         "builds": "https://readthedocs.org/api/v3/projects/test-project/builds/",
+        "environmentvariables": "https://readthedocs.org/api/v3/projects/test-project/environmentvariables/",
         "redirects": "https://readthedocs.org/api/v3/projects/test-project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/test-project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/test-project/superproject/",
