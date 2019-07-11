@@ -99,7 +99,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     # Aliases
 
-    def dashboard(self, user=None):
+    def dashboard(self, user):
         """Get the projects for this user including the latest build."""
         return self.for_admin_user(user).prefetch_latest_build()
 

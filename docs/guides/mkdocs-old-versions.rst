@@ -1,7 +1,8 @@
-Keep Building Docs With Old Version Of MkDocs
-=============================================
+Building With Pre-1.0 Versions Of MkDocs
+========================================
 
-Recent changes to ``mkdocs`` forced us to `upgrade the default version installed`_ by Read the Docs and this may be a breaking change for your documentation.
+Recent changes to ``mkdocs`` forced us to `upgrade the default version installed`_ by Read the Docs
+and this may be a breaking change for your documentation.
 
 .. _upgrade the default version installed: https://github.com/readthedocs/readthedocs.org/pull/4041
 
@@ -15,8 +16,8 @@ In case your builds are failing because of a ``mkdocs`` issue,
 you may want to follow one of the following solutions depending on the case.
 
 
-Pin mkdocs to the previous version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pin MkDocs to an older version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before Read the Docs upgraded its default version installed, ``mkdocs==0.15.0`` was used.
 To make your project continue using this version you will need to create a ``requirements.txt`` file with this content::
@@ -27,21 +28,15 @@ To make your project continue using this version you will need to create a ``req
      mkdocs-bootswatch==0.1.0
      markdown>=2.3.1,<2.5
 
-.. note::
-
-   Most of the breaking changes where introduced in ``mkdocs==0.17``,
-   so you may want to test only pinning ``mkdocs`` to ``mkdocs<0.17``
-   and check if your docs keep building successfully.
-
 
 More detailed information about how to specify dependencies can be found :ref:`here <guides/specifying-dependencies:Specifying Dependencies>`.
 
 
-Upgrade your custom theme to be compatible with newer mkdocs versions
+Upgrade your custom theme to be compatible with later MkDocs versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible that event your build passes your documentation doesn't look correct.
-This may be because the new ``mkdocs==0.17.3`` version installed by Read the Docs introduced some breaking changes on the structure of the theme.
+It is possible that your build passes but your documentation doesn't look correct.
+This may be because newer MkDocs versions installed by Read the Docs introduced some breaking changes on the structure of the theme.
 
 You should check the `mkdocs' Custom Theme documentation`_ to upgrade your custom theme and make it compatible with the new version.
 
@@ -51,7 +46,7 @@ You should check the `mkdocs' Custom Theme documentation`_ to upgrade your custo
 Upgrade how extension arguments are defined
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``mkdocs`` has changed the way that ``markdown_extensions`` are defined and you may need to upgrade it.
+MkDocs has changed the way that ``markdown_extensions`` are defined and you may need to upgrade it.
 If you where passing arguments to the extension by defining them between brackets (``toc(permalink=true)``) in your ``mkdocs.yaml`` you may need to upgrade it to the new way.
 
 For example, this definition:
