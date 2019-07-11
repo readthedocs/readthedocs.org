@@ -755,24 +755,12 @@ class Project(models.Model):
             return os.path.dirname(conf_file)
 
     @property
-    def is_imported(self):
-        return bool(self.repo)
-
-    @property
     def has_good_build(self):
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, '_good_build'):
             return self._good_build
         return self.builds.filter(success=True).exists()
-
-    @property
-    def has_versions(self):
-        return self.versions.exists()
-
-    @property
-    def has_aliases(self):
-        return self.aliases.exists()
 
     def has_media(self, type_, version_slug=LATEST):
         path = self.get_production_media_path(
@@ -798,10 +786,6 @@ class Project(models.Model):
 
     def has_htmlzip(self, version_slug=LATEST):
         return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
-
-    @property
-    def sponsored(self):
-        return False
 
     def vcs_repo(self, version=LATEST, environment=None):
         """
