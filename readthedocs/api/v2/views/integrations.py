@@ -27,7 +27,7 @@ from readthedocs.core.views.hooks import (
     build_external_version,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 
 log = logging.getLogger(__name__)
@@ -367,21 +367,22 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
 
-        if event == GITHUB_PULL_REQUEST and action:
-            if (
-                action in
-                [
-                    GITHUB_PULL_REQUEST_OPENED,
-                    GITHUB_PULL_REQUEST_REOPENED,
-                    GITHUB_PULL_REQUEST_SYNC
-                ]
-            ):
-                # Handle opened, synchronize, reopened pull_request event.
-                return self.get_external_version_response(self.project)
+        if self.project.has_feature(Feature.ENABLE_EXTERNAL_VERSION_BUILD):
+            if event == GITHUB_PULL_REQUEST and action:
+                if (
+                    action in
+                    [
+                        GITHUB_PULL_REQUEST_OPENED,
+                        GITHUB_PULL_REQUEST_REOPENED,
+                        GITHUB_PULL_REQUEST_SYNC
+                    ]
+                ):
+                    # Handle opened, synchronize, reopened pull_request event.
+                    return self.get_external_version_response(self.project)
 
-            if action == GITHUB_PULL_REQUEST_CLOSED:
-                # Handle closed pull_request event.
-                return self.get_delete_external_version_response(self.project)
+                if action == GITHUB_PULL_REQUEST_CLOSED:
+                    # Handle closed pull_request event.
+                    return self.get_delete_external_version_response(self.project)
 
         return None
 

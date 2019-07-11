@@ -1419,6 +1419,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
+    ENABLE_EXTERNAL_VERSION_BUILD = 'enable_external_version_build'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1458,6 +1459,10 @@ class Feature(models.Model):
         (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
+        ),
+        (
+            ENABLE_EXTERNAL_VERSION_BUILD,
+            _('Enable project to build on pull/merge requests'),
         ),
     )
 
