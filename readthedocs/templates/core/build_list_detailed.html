@@ -6,7 +6,7 @@
             <div id="build-{{ build.id }}">
                 <a href="{{ build.get_absolute_url }}">{% if build.is_stale %}<span class="icon-warning" title="{% trans 'This build is still waiting to be built' %}"></span>{% endif %}<span id="build-state">{% if build.state != 'finished' %}{{ build.get_state_display }} {% else %} {% if build.success %}{% trans "Passed" %}{% else %}{% trans "Failed" %}{% endif %}{% endif %}</span>
                   <img src="{% static 'core/img/loader.gif' %}" class="build-loading hide">
-              <span class="quiet">{% if build.version %}{% blocktrans with build.version.slug as slug and build.type as type %}version {{ slug }} ({{ type }}){% endblocktrans %}{% endif %}</span><span class="quiet right">{% blocktrans with build.date|timesince as date %}{{ date }} ago{% endblocktrans %}</span>
+              <span class="quiet">{% if build.version %}{% if build.is_external %}{% blocktrans %}External {% endblocktrans %}{% endif %}{% blocktrans with build.version.slug as slug and build.type as type %}version {{ slug }} ({{ type }}){% endblocktrans %}{% endif %}</span><span class="quiet right">{% blocktrans with build.date|timesince as date %}{{ date }} ago{% endblocktrans %}</span>
               </a>
             </div>
             </li>

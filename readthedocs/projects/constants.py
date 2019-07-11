@@ -325,6 +325,10 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITHUB_PULL_REQEST_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'

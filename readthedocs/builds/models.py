@@ -22,6 +22,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL,
     GITHUB_URL,
+    GITHUB_PULL_REQEST_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -36,6 +37,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    GITHUB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -539,6 +541,23 @@ class Version(models.Model):
             source_suffix=source_suffix,
         )
 
+    def get_external_version_url(self):
+        """Return a Pull/Merge Request URL."""
+        repo_url = self.project.repo
+        user, repo = get_github_username_repo(repo_url)
+
+        if not user and not repo:
+            return ''
+
+        if 'github' in repo_url:
+            repo = repo.rstrip('/')
+            return GITHUB_PULL_REQEST_URL.format(
+                user=user,
+                repo=repo,
+                number=self.verbose_name
+            )
+        return ''
+
 
 class APIVersion(Version):
 
@@ -755,6 +774,20 @@ class Build(models.Model):
         """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
         return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
+
+    @property
+    def is_external(self):
+        return self.version.type == EXTERNAL
+
+    @property
+    def external_version_name(self):
+        if self.is_external:
+            try:
+                if self.project.remote_repository.account.provider == 'github':
+                    return GITHUB_EXTERNAL_VERSION_NAME
+            except Exception:
+                return None
+        return None
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION

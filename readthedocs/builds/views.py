@@ -84,21 +84,6 @@ class BuildTriggerMixin:
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
-    def get_queryset(self):
-        # this is used to include only internal version
-        # builds in the build list page
-        self.project_slug = self.kwargs.get('project_slug', None)
-        self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
-            slug=self.project_slug,
-        )
-        queryset = Build.objects.public(
-            user=self.request.user,
-            project=self.project,
-        ).select_related('project', 'version')
-
-        return queryset
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
