@@ -27,7 +27,7 @@ from readthedocs.search.utils import _indexing_helper
 
 def _pretty_config(instance):
     """
-    Function to display pretty version of our data
+    Function to display pretty version of our data.
 
     Thanks to PyDanny: https://www.pydanny.com/pretty-formatting-json-django-admin.html
     """
