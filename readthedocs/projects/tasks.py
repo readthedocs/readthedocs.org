@@ -580,15 +580,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.send_notifications(self.version.pk, self.build['id'])
             # send build failure status to git Status API
             send_external_build_status(
-                self.build['id'], BUILD_STATUS_FAILURE
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
             )
         elif self.build_env.successful:
             # send build successful status to git Status API
             send_external_build_status(
-                self.build['id'], BUILD_STATUS_SUCCESS
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
             )
         else:
-            msg = 'Unhandled Build State'
+             msg = 'Unhandled Build Status'
             log.warning(
                 LOG_TEMPLATE,
                 {
@@ -1808,13 +1808,14 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build, state):
+def send_build_status(build_pk, status):
     """
     Send Build Status to Git Status API for project external versions.
 
-    :param build: Build
-    :param state: build state failed, pending, or success to be sent.
+    :param build_pk: Build primary key
+     :param status: build status failed, pending, or success to be sent.
     """
+    build = Build.objects.get(pk=build_pk)
     try:
         if build.project.remote_repository.account.provider == 'github':
             service = GitHubService(
@@ -1834,16 +1835,16 @@ def send_build_status(build, state):
     # TODO: Send build status for other providers.
 
 
-def send_external_build_status(build_pk, state):
+def send_external_build_status(version, build_pk, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-    :param build_pk: Build pk
-    :param state: build state failed, pending, or success to be sent.
+     :param version: Version instance
+     :param build_pk: Build pk
+     :param status: build status failed, pending, or success to be sent.
     """
-    build = Build.objects.get(pk=build_pk)
 
     # Send status reports for only External (pull/merge request) Versions.
-    if build.version.type == EXTERNAL:
+    if version.type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build, state)
+        send_build_status.delay(build_pk, status)
