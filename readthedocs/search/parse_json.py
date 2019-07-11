@@ -25,10 +25,8 @@ def generate_sections_from_pyquery(body):
                 if 'section' in next_p[0].attrib['class']:
                     break
 
-            h1_content += '\n%s\n' % next_p.text().replace('¶', '').strip()
-            h1_content = h1_content.split('\n')[1:]  # to remove the redundant text
-            h1_content = '\n'.join(h1_content)
-
+            h1_content += '\n%s\n' % next_p.text()
+            h1_content = parse_content(h1_content)
             next_p = next_p.next()
         if h1_content:
             yield {
@@ -45,9 +43,8 @@ def generate_sections_from_pyquery(body):
         title = header.text().replace('¶', '').strip()
         section_id = div.attr('id')
 
-        content = div.text().replace('¶', '').strip()
-        content = content.split('\n')[1:]  # to remove the redundant text
-        content = '\n'.join(content)
+        content = div.text()
+        content = parse_content(content)
 
         yield {
             'id': section_id,
@@ -92,3 +89,23 @@ def process_file(fjson_filename):
         'title': title,
         'sections': sections,
     }
+
+
+def parse_content(content):
+    """
+    Removes the starting text, ¶ and replaces all new lines to ". "
+
+    It removes the starting text from the content
+    because it contains the the title of that content,
+    which is redundant here.
+    """
+    content = content.replace('¶', '').strip()
+
+    # removing the starting text of each
+    content = content.split('\n')
+    if len(content) > 1:  # there were \n
+        content = content[1:]
+
+    # converting all newlines to ". "
+    content = '. '.join([text.strip() for text in content])
+    return content

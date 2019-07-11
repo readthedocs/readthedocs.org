@@ -23,3 +23,6 @@ class TestHacks(TestCase):
             'You can use Slumber'
         ))
         self.assertEqual(data['title'], 'Read the Docs Public API')
+
+        for section in data['sections']:
+            self.assertFalse('\n' in section['content'])
