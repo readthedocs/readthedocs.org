@@ -11,6 +11,7 @@ from django.utils import timezone
 from allauth.socialaccount.models import SocialAccount
 
 from readthedocs.builds.constants import (
+    BRANCH,
     EXTERNAL,
     GITHUB_EXTERNAL_VERSION_NAME,
     GENERIC_EXTERNAL_VERSION_NAME
@@ -377,6 +378,8 @@ class BuildEnvironmentTests(TestCase):
 
 class BuildModelTests(TestCase):
 
+    fixtures = ['test_data']
+
     def setUp(self):
         self.eric = User(username='eric')
         self.eric.set_password('test')
@@ -384,8 +387,27 @@ class BuildModelTests(TestCase):
 
         self.project = get(Project)
         self.project.users.add(self.eric)
-
         self.version = get(Version, project=self.project)
+
+        self.pip = Project.objects.get(slug='pip')
+        self.external_version = get(
+            Version,
+            identifier='9F86D081884C7D659A2FEAA0C55AD015A',
+            verbose_name='9999',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
+        self.pip_version = get(
+            Version,
+            identifier='origin/stable',
+            verbose_name='stable',
+            slug='stable',
+            project=self.pip,
+            active=True,
+            type=BRANCH
+        )
 
     def test_get_previous_build(self):
         build_one = get(
@@ -667,3 +689,29 @@ class BuildModelTests(TestCase):
             external_build.external_version_name,
             GENERIC_EXTERNAL_VERSION_NAME
         )
+
+    def test_get_commit_url_external_version_github(self):
+
+        external_build = get(
+            Build,
+            project=self.pip,
+            version=self.external_version,
+            config={'version': 1},
+        )
+        expected_url = 'https://github.com/pypa/pip/pull/{number}/commits/{sha}'.format(
+            number=self.external_version.verbose_name,
+            sha=external_build.commit
+        )
+        self.assertEqual(external_build.get_commit_url(), expected_url)
+
+    def test_get_commit_url_internal_version(self):
+        build = get(
+            Build,
+            project=self.pip,
+            version=self.pip_version,
+            config={'version': 1},
+        )
+        expected_url = 'https://github.com/pypa/pip/commit/{sha}'.format(
+            sha=build.commit
+        )
+        self.assertEqual(build.get_commit_url(), expected_url)

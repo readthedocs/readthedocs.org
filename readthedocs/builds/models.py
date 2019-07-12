@@ -20,10 +20,13 @@ import readthedocs.builds.automation_actions as actions
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
+    BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    GITHUB_COMMIT_URL,
     GITHUB_URL,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITLAB_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -163,19 +166,17 @@ class Version(models.Model):
         Generate VCS (github, gitlab, bitbucket) URL for this version.
 
         Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
-        External Version Example: https://github.com/rtfd/readthedocs.org/pull/99/commits/b630b630/.
+        External Version Example: https://github.com/rtfd/readthedocs.org/pull/99/.
         """
         if self.type == EXTERNAL:
             if 'github' in self.project.repo:
                 user, repo = get_github_username_repo(self.project.repo)
-                # Get Github Pull Request Commit URL.
-                return GITHUB_PULL_REQUEST_COMMIT_URL.format(
+                return GITHUB_PULL_REQUEST_URL.format(
                     user=user,
                     repo=repo,
                     number=self.verbose_name,
-                    commit=self.commit_name
                 )
-            # TODO: Add VCS ULR for other Git Providers
+            # TODO: Add VCS URL for other Git Providers
             return ''
 
         url = ''
@@ -543,24 +544,6 @@ class Version(models.Model):
             source_suffix=source_suffix,
         )
 
-    def get_external_version_url(self):
-        """Return a Pull/Merge Request URL."""
-        repo_url = self.project.repo
-
-        if 'github' in repo_url:
-            user, repo = get_github_username_repo(repo_url)
-            if not user and not repo:
-                return ''
-
-            repo = repo.rstrip('/')
-            return GITHUB_PULL_REQUEST_URL.format(
-                user=user,
-                repo=repo,
-                number=self.verbose_name
-            )
-        # TODO: Add External Version ULR for other Git Providers
-        return ''
-
 
 class APIVersion(Version):
 
@@ -767,6 +750,62 @@ class Build(models.Model):
         )
         return full_url
 
+    def get_commit_url(self):
+        """Return the commit URL."""
+        repo_url = self.project.repo
+        if self.is_external:
+            if 'github' in repo_url:
+                user, repo = get_github_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITHUB_PULL_REQUEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.version.verbose_name,
+                    commit=self.commit
+                )
+            # TODO: Add External Version Commit URL for other Git Providers
+        else:
+            if 'github' in repo_url:
+                user, repo = get_github_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITHUB_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+            elif 'gitlab' in repo_url:
+                user, repo = get_gitlab_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITLAB_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+            elif 'bitbucket' in repo_url:
+                user, repo = get_bitbucket_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return BITBUCKET_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+            else:
+                log.info('Unknown Git provider for %s', self.project)
+
+        return ''
+
     @property
     def finished(self):
         """Return if build has a finished state."""
@@ -788,7 +827,15 @@ class Build(models.Model):
             try:
                 if self.project.remote_repository.account.provider == 'github':
                     return GITHUB_EXTERNAL_VERSION_NAME
+                # TODO: Add External Version Name for other Git Providers
+            except RemoteRepository.DoesNotExist:
+                log.info('Remote repository does not exist for %s', self.project)
+                return GENERIC_EXTERNAL_VERSION_NAME
             except Exception:
+                log.exception(
+                    'Unhandled exception raised for %s while getting external_version_name',
+                    self.project
+                )
                 return GENERIC_EXTERNAL_VERSION_NAME
         return None
 
