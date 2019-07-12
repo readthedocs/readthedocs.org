@@ -25,5 +25,6 @@ class TestHacks(TestCase):
         self.assertEqual(data['title'], 'Read the Docs Public API')
         self.assertTrue(len(data['sections']) > 0, 'There are many sections for tthe processed file')
 
+        # There should be no new line character present
         for section in data['sections']:
             self.assertFalse('\n' in section['content'])
