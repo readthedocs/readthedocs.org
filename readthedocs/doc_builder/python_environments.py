@@ -405,6 +405,23 @@ class Conda(PythonEnvironment):
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
+    def _update_conda_startup(self):
+        """
+        Update ``conda`` before use it for the first time.
+
+        This makes the Docker image to use the latest version of ``conda``
+        independently the version of Miniconda that it has installed.
+        """
+        self.build_env.run(
+            'conda',
+            'update',
+            '--yes',
+            '--quiet',
+            '--name=base',
+            '--channel=defaults',
+            'conda',
+        )
+
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
         version_path = os.path.join(conda_env_path, self.version.slug)
@@ -417,9 +434,13 @@ class Conda(PythonEnvironment):
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': 'Removing existing conda directory',
-                }
+                },
             )
             shutil.rmtree(version_path)
+
+        if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
+            self._update_conda_startup()
+
         self.build_env.run(
             'conda',
             'env',

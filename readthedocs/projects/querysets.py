@@ -16,18 +16,18 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
             user_queryset = user.projects.all()
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def for_user_and_viewer(self, user, viewer):
         """Show projects that a user owns, that another user can see."""
         queryset = self.filter(privacy_level=constants.PUBLIC)
         queryset = self._add_user_repos(queryset, viewer)
         queryset = queryset.filter(users__in=[user])
-        return queryset
+        return queryset.distinct()
 
     def for_admin_user(self, user):
         if user.is_authenticated:
@@ -37,22 +37,22 @@ class ProjectQuerySetBase(models.QuerySet):
     def public(self, user=None):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
-            return self._add_user_repos(queryset, user)
-        return queryset
+            queryset = self._add_user_repos(queryset, user)
+        return queryset.distinct()
 
     def protected(self, user=None):
         queryset = self.filter(
             privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
         )
         if user:
-            return self._add_user_repos(queryset, user)
-        return queryset
+            queryset = self._add_user_repos(queryset, user)
+        return queryset.distinct()
 
     def private(self, user=None):
         queryset = self.filter(privacy_level=constants.PRIVATE)
         if user:
-            return self._add_user_repos(queryset, user)
-        return queryset
+            queryset = self._add_user_repos(queryset, user)
+        return queryset.distinct()
 
     def is_active(self, project):
         """
@@ -109,8 +109,8 @@ class ProjectQuerySetBase(models.QuerySet):
 
         queryset = self.none()
         if user:
-            return self._add_user_repos(queryset, user)
-        return queryset
+            queryset = self._add_user_repos(queryset, user)
+        return queryset.distinct()
 
 
 class ProjectQuerySet(SettingsOverrideObject):
@@ -133,12 +133,12 @@ class RelatedProjectQuerySetBase(models.QuerySet):
 
     def _add_user_repos(self, queryset, user=None):
         if user.has_perm('projects.view_project'):
-            return self.all().distinct()
+            return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
-        return queryset.distinct()
+        return queryset
 
     def public(self, user=None, project=None):
         kwargs = {'%s__privacy_level' % self.project_field: constants.PUBLIC}
@@ -147,7 +147,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
-        return queryset
+        return queryset.distinct()
 
     def protected(self, user=None, project=None):
         kwargs = {
@@ -161,7 +161,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
-        return queryset
+        return queryset.distinct()
 
     def private(self, user=None, project=None):
         kwargs = {
@@ -172,7 +172,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         if project:
             queryset = queryset.filter(project=project)
-        return queryset
+        return queryset.distinct()
 
     def api(self, user=None):
         return self.public(user)
