@@ -70,6 +70,7 @@ from readthedocs.builds.utils import (
     get_gitlab_username_repo,
 )
 from readthedocs.builds.version_slug import VersionSlugField
+from readthedocs.oauth.models import RemoteRepository
 
 
 log = logging.getLogger(__name__)
@@ -779,7 +780,7 @@ class Build(models.Model):
                     repo=repo,
                     commit=self.commit
                 )
-            elif 'gitlab' in repo_url:
+            if 'gitlab' in repo_url:
                 user, repo = get_gitlab_username_repo(repo_url)
                 if not user and not repo:
                     return ''
@@ -790,7 +791,7 @@ class Build(models.Model):
                     repo=repo,
                     commit=self.commit
                 )
-            elif 'bitbucket' in repo_url:
+            if 'bitbucket' in repo_url:
                 user, repo = get_bitbucket_username_repo(repo_url)
                 if not user and not repo:
                     return ''
@@ -801,8 +802,6 @@ class Build(models.Model):
                     repo=repo,
                     commit=self.commit
                 )
-            else:
-                log.info('Unknown Git provider for %s', self.project)
 
         return ''
 
