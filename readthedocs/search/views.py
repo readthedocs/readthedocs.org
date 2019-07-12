@@ -1,5 +1,6 @@
 """Search views."""
 import collections
+import itertools
 import logging
 from pprint import pformat
 
@@ -9,11 +10,10 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
-    AllSearch,
-    DomainSearch,
     PageSearch,
     ProjectSearch,
 )
+from readthedocs.search import utils
 
 
 log = logging.getLogger(__name__)
@@ -63,9 +63,7 @@ def elastic_search(request, project_slug=None):
         lambda: ProjectSearch,
         {
             'project': ProjectSearch,
-            'domain': DomainSearch,
             'file': PageSearch,
-            'all': AllSearch,
         }
     )
 
@@ -107,13 +105,36 @@ def elastic_search(request, project_slug=None):
             facets[avail_facet].insert(0, (value, 0, True))
 
     if results:
+
+        # sorting inner_hits (if present)
         if user_input.type == 'file':
-            # Change results to turn newlines in highlight into periods
-            # https://github.com/rtfd/readthedocs.org/issues/5168
-            for result in results:
-                if hasattr(result.meta.highlight, 'content'):
-                    result.meta.highlight.content = [result.replace(
-                        '\n', '. ') for result in result.meta.highlight.content]
+
+            try:
+                for result in results:
+                    inner_hits = result.meta.inner_hits
+                    sections = inner_hits.sections or []
+                    domains = inner_hits.domains or []
+                    all_results = itertools.chain(sections, domains)
+
+                    sorted_results = (
+                        {
+                            'type': hit._nested.field,
+
+                            # here _source term is not used because
+                            # django gives error if the names of the
+                            # variables start with underscore
+                            'source': hit._source.to_dict(),
+
+                            'highlight': utils._remove_newlines_from_dict(
+                                hit.highlight.to_dict()
+                            ),
+                        }
+                        for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+                    )
+
+                    result.meta.inner_hits = sorted_results
+            except Exception:
+                log.exception('Error while sorting the results (inner_hits).')
 
         log.debug('Search results: %s', pformat(results.to_dict()))
         log.debug('Search facets: %s', pformat(results.facets.to_dict()))

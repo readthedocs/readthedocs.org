@@ -1,3 +1,4 @@
+import itertools
 import logging
 from pprint import pformat
 
@@ -6,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search.utils import get_project_list_or_404
+from readthedocs.search import utils
 
 
 log = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class PageSearchSerializer(serializers.Serializer):
     path = serializers.CharField()
     link = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
+    inner_hits = serializers.SerializerMethodField()
 
     def get_link(self, obj):
         projects_url = self.context.get('projects_url')
@@ -35,13 +37,36 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            if hasattr(highlight, 'content'):
-                # Change results to turn newlines in highlight into periods
-                # https://github.com/rtfd/readthedocs.org/issues/5168
-                highlight.content = [result.replace('\n', '. ') for result in highlight.content]
-            ret = highlight.to_dict()
-            log.debug('API Search highlight: %s', pformat(ret))
+            ret = utils._remove_newlines_from_dict(highlight.to_dict())
+            log.debug('API Search highlight [Page title]: %s', pformat(ret))
             return ret
+
+    def get_inner_hits(self, obj):
+        inner_hits = getattr(obj.meta, 'inner_hits', None)
+        if inner_hits:
+            sections = inner_hits.sections or []
+            domains = inner_hits.domains or []
+            all_results = itertools.chain(sections, domains)
+
+            sorted_results = [
+                {
+                    'type': hit._nested.field,
+                    '_source': hit._source.to_dict(),
+                    'highlight': self._get_inner_hits_highlights(hit),
+                }
+                for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+            ]
+
+            return sorted_results
+
+    def _get_inner_hits_highlights(self, hit):
+        """Removes new lines from highlight and log it."""
+        highlight_dict = utils._remove_newlines_from_dict(
+            hit.highlight.to_dict()
+        )
+
+        log.debug('API Search highlight: %s', pformat(highlight_dict))
+        return highlight_dict
 
 
 class PageSearchAPIView(generics.ListAPIView):
@@ -112,7 +137,7 @@ class PageSearchAPIView(generics.ListAPIView):
         """
         project_slug = self.request.query_params.get('project')
         version_slug = self.request.query_params.get('version')
-        all_projects = get_project_list_or_404(
+        all_projects = utils.get_project_list_or_404(
             project_slug=project_slug, user=self.request.user, version_slug=version_slug,
         )
         return all_projects
