@@ -51,9 +51,28 @@ class TestDocumentSearch:
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()
 
-    @pytest.mark.parametrize('data_type', ['sections.title', 'sections.content'])
-    @pytest.mark.parametrize('page_num', [1, 0])
-    def test_search_works_with_sections_query(self, api_client, project, page_num, data_type):
+    @pytest.mark.parametrize(
+        'data_type',
+        [
+            # page sections fields
+            'sections.title',
+            'sections.content',
+
+            # domain fields
+            'domains.type_display',
+            'domains.name',
+
+            # TODO: Add test for "domains.display_name"
+        ]
+    )
+    @pytest.mark.parametrize('page_num', [0])
+    def test_search_works_with_sections_and_domains_query(
+        self,
+        api_client,
+        project,
+        page_num,
+        data_type
+    ):
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
@@ -73,67 +92,95 @@ class TestDocumentSearch:
 
         # Matching first result
         project_data = data[0]
-        inner_hits = list(project_data['inner_hits'])
-
         assert project_data['project'] == project.slug
+
+        inner_hits = list(project_data['inner_hits'])
+        # since there was a nested query,
+        # inner_hits should not be empty
         assert len(inner_hits) >= 1
 
         inner_hit_0 = inner_hits[0]  # first inner_hit
 
-        assert inner_hit_0['type'] == 'sections'
+        expected_type = data_type.split('.')[0]  # can be "sections" or "domains"
+        assert inner_hit_0['type'] == expected_type
 
         highlight = inner_hit_0['highlight'][data_type]
         assert (
             len(highlight) == 1
         ), 'number_of_fragments is set to 1'
 
-        queries = query.split()
+        # checking highlighting of results
+        queries = query.split()  # if query is more than one word
+        queries_len = len(queries)
         total_query_words_highlighted = 0
-        for q in queries:
-                if f'<em>{q.lower()}</em>' in highlight[0].lower():
-                    total_query_words_highlighted += 1
 
-        # it is not necessary to get all the words highlighted
-        assert (
-            abs(total_query_words_highlighted - len(queries)) <= 1
-        )
+        for q in queries:
+            if f'<em>{q.lower()}</em>' in highlight[0].lower():
+                total_query_words_highlighted += 1
+
+        if queries_len == 1:
+            # if the search was of one word,
+            # then the it must be highlighted
+            assert total_query_words_highlighted - queries_len <= 0
+        else:
+            # if the search was of two words or more,
+            # then it is not necessary for every word
+            # to get highlighted
+            assert total_query_words_highlighted - queries_len <= 1
 
     def test_doc_search_filter_by_project(self, api_client):
         """Test Doc search results are filtered according to project"""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
-        search_params = {'q': 'documentation', 'project': 'docs', 'version': 'latest'}
+        search_params = {
+            'q': 'documentation',
+            'project': 'docs',
+            'version': 'latest'
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
         assert len(data) == 2  # both pages of `docs` contains the word `documentation`
+
+        # all results must be from same project
         for res in data:
             assert res['project'] == 'docs'
 
-    # def test_doc_search_filter_by_version(self, api_client, project):
-    #     """Test Doc search result are filtered according to version"""
-    #     query = get_search_query_from_project_file(project_slug=project.slug)
-    #     latest_version = project.versions.all()[0]
-    #     # Create another version
-    #     dummy_version = G(Version, project=project, active=True)
-    #     # Create HTMLFile same as the latest version
-    #     latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
-    #     for f in latest_version_files:
-    #         f.version = dummy_version
-    #         # Make primary key to None, so django will create new object
-    #         f.pk = None
-    #         f.save()
-    #         PageDocument().update(f)
+    def test_doc_search_filter_by_version(self, api_client, project):
+        """Test Doc search result are filtered according to version"""
+        query = get_search_query_from_project_file(project_slug=project.slug)
+        latest_version = project.versions.all()[0]
+        # Create another version
+        dummy_version = G(Version, project=project, active=True)
+        # Create HTMLFile same as the latest version
+        latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
+        for f in latest_version_files:
+            f.version = dummy_version
+            # Make primary key to None, so django will create new object
+            f.pk = None
+            f.save()
+            PageDocument().update(f)
 
-    #     search_params = {'q': query, 'project': project.slug, 'version': dummy_version.slug}
-    #     resp = api_client.get(self.url, search_params)
-    #     assert resp.status_code == 200
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': dummy_version.slug
+            }
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
 
-    #     data = resp.data['results']
-    #     assert len(data) == 1
-    #     assert data[0]['project'] == project.slug
+        data = resp.data['results']
+
+        # there may be more than one results
+        # for some query like `documentation`
+        # for project `kuma`
+        assert len(data) >= 1
+
+        # all results must be from same project
+        for res in data:
+            assert res['project'] == project.slug
 
     # def test_doc_search_pagination(self, api_client, project):
     #     """Test Doc search result can be paginated"""

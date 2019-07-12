@@ -17,5 +17,25 @@
             "title": "Commercial Support",
             "content": "We offer commercial support for Read the Docs, commercial hosting, as well as consulting around all documentation systems. You can contact us at hello@readthedocs.com to learn more, or read more at https://readthedocs.com/services/#open-source-support."
         }
+    ],
+    "domains": [
+        {
+            "role_name": "http:post",
+            "doc_name": "api/v3.html",
+            "anchor": "post--api-v3-projects-(string-project_slug)-versions-(string-version_slug)-builds-",
+            "type_display": "post",
+            "doc_display": "API v3",
+            "name": "/api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/",
+            "display_name": ""
+        },
+        {
+            "role_name": "http:patch",
+            "doc_name": "api/v3.html",
+            "anchor": "patch--api-v3-projects-(string-project_slug)-version-(string-version_slug)-",
+            "type_display": "patch",
+            "doc_display": "API v3",
+            "name": "/api/v3/projects/(string:project_slug)/version/(string:version_slug)/",
+            "display_name": ""
+        }
     ]
 }

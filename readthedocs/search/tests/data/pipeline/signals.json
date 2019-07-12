@@ -17,5 +17,25 @@
             "title": "js_compressed",
             "content": "pipeline.signals.js_compressed. Whenever a js package is compressed, this signal is sent after the compression.. Arguments sent with this signal :. sender:. The Packager class that compressed the group.. package:. The package actually compressed."
         }
+    ],
+    "domains": [
+        {
+            "role_name": "py:method",
+            "doc_name": "autoapi/notfound/extension/index.html",
+            "anchor": "notfound.extension.OrphanMetadataCollector.process_doc",
+            "type_display": "method",
+            "doc_display": "notfound.extension",
+            "name": "notfound.extension.OrphanMetadataCollector.process_doc",
+            "display_name": ""
+        },
+        {
+            "role_name": "py:method",
+            "doc_name": "autoapi/notfound/extension/index.html",
+            "anchor": "notfound.extension.OrphanMetadataCollector.clear_doc",
+            "type_display": "method",
+            "doc_display": "notfound.extension",
+            "name": "notfound.extension.OrphanMetadataCollector.clear_doc",
+            "display_name": ""
+        }
     ]
 }

@@ -22,5 +22,16 @@
             "title": "Recommendations",
             "content": "Pipeline’s default CSS and JS compressor is Yuglify. Yuglify wraps UglifyJS and cssmin, applying the default YUI configurations to them. It can be downloaded from: https://github.com/yui/yuglify/.. If you do not install yuglify, make sure to disable the compressor in your settings."
         }
+    ],
+    "domains": [
+        {
+            "role_name": "std:confval",
+            "doc_name": "configuration.html",
+            "anchor": "confval-notfound_default_language",
+            "type_display": "confval",
+            "doc_display": "Configuration",
+            "name": "notfound_default_language",
+            "display_name": ""
+        }
     ]
 }

@@ -325,7 +325,8 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.7',
+                # 'readthedocs-sphinx-ext<0.7',
+                'git+https://github.com/readthedocs/readthedocs-sphinx-ext@master',
             ])
 
         cmd = copy.copy(pip_install_cmd)

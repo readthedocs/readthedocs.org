@@ -105,7 +105,7 @@ class PageSearchBase(RTDFacetedSearch):
     _section_fields = ['sections.title^3', 'sections.content']
     _domain_fields = [
         'domains.type_display',
-        'domains.name',
+        'domains.name^2',
         'domains.display_name',
     ]
     fields = _outer_fields

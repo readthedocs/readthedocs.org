@@ -12,5 +12,25 @@
             "title": "Generating documentation",
             "content": "Sphinx uses a Makefile in the docs subfolder to build documentation in several formats. MDN only uses the HTML format, and the generated document index is at docs/_build/html/index.html.. To generate the documentation in a virtualenv on the host machine, first install the requirements:. pip install -r requirements/docs.txt. Then switch to the docs folder to use the Makefile:. cd docs make html python -m webbrowser file://${PWD}/_build/html/index.html. To generate the documentation with Docker:. docker-compose run --rm --user $(id -u) web sh -c \"\\ virtualenv /tmp/.venvs/docs && \\ . /tmp/.venvs/docs/bin/activate && \\ pip install -r /app/requirements/docs.txt && \\ cd /app/docs && \\ make html\" python -m webbrowser file://${PWD}/docs/_build/html/index.html. A virtualenv is required, to avoid a pip bug when changing the version of a system-installed package."
         }
+    ],
+    "domains": [
+        {
+            "role_name": "py:module",
+            "doc_name": "autoapi/notfound/index.html",
+            "anchor": "module-notfound",
+            "type_display": "module",
+            "doc_display": "notfound",
+            "name": "notfound",
+            "display_name": ""
+        },
+        {
+            "role_name": "py:data",
+            "doc_name": "autoapi/notfound/index.html",
+            "anchor": "notfound.version",
+            "type_display": "data",
+            "doc_display": "notfound",
+            "name": "notfound.version",
+            "display_name": ""
+        }
     ]
 }
