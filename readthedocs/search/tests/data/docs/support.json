@@ -1,0 +1,41 @@
+{
+    "path": "support",
+    "title": "Support",
+    "sections": [
+        {
+            "id": "usage-questions",
+            "title": "Usage Questions",
+            "content": "If you have questions about how to use Read the Docs, or have an issue that isn’t related to a bug, Stack Overflow is the best place to ask. Tag questions with read-the-docs so other folks can find them easily.. Good questions for Stack Overflow would be:. “What is the best way to structure the table of contents across a project?”. “How do I structure translations inside of my project for easiest contribution from users?”. “How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?”"
+        },
+        {
+            "id": "community-support",
+            "title": "Community Support",
+            "content": "Read the Docs is supported by community contributions and advertising. We hope to bring in enough money with our Gold and Ethical Ads programs to keep Read the Docs sustainable.. All people answering your questions are doing it with their own time, so please be kind and provide as much information as possible.. Bugs & Support Issues. You can file bug reports on our GitHub issue tracker, and they will be addressed as soon as possible. Support is a volunteer effort, and there is no guaranteed response time. If you need answers quickly, you can buy commercial support below.. Reporting Issues. When reporting a bug, please include as much information as possible that will help us solve this issue. This includes:. Project name. URL. Action taken. Expected result. Actual result. Specific Requests. If you need a specific request for your project or account, like more resources, change of the project’s slug or username. Send an email to support@readthedocs.org."
+        },
+        {
+            "id": "commercial-support",
+            "title": "Commercial Support",
+            "content": "We offer commercial support for Read the Docs, commercial hosting, as well as consulting around all documentation systems. You can contact us at hello@readthedocs.com to learn more, or read more at https://readthedocs.com/services/#open-source-support."
+        }
+    ],
+    "domains": [
+        {
+            "role_name": "http:post",
+            "doc_name": "api/v3.html",
+            "anchor": "post--api-v3-projects-(string-project_slug)-versions-(string-version_slug)-builds-",
+            "type_display": "post",
+            "doc_display": "API v3",
+            "name": "/api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/",
+            "display_name": ""
+        },
+        {
+            "role_name": "http:patch",
+            "doc_name": "api/v3.html",
+            "anchor": "patch--api-v3-projects-(string-project_slug)-version-(string-version_slug)-",
+            "type_display": "patch",
+            "doc_display": "API v3",
+            "name": "/api/v3/projects/(string:project_slug)/version/(string:version_slug)/",
+            "display_name": ""
+        }
+    ]
+}

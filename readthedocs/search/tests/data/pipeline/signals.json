@@ -1,27 +1,41 @@
 {
-  "content": "pipelineSignals List of all signals sent by pipeline.\ncss_compressed\npipeline.signals.css_compressed\nWhenever a css package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.\njs_compressed\npipeline.signals.js_compressed\nWhenever a js package is compressed, this signal is sent after the compression.\nArguments sent with this signal :\nsender:\nThe Packager class that compressed the group.\npackage:\nThe package actually compressed.",
-  "headers": [
-    "Signals",
-    "css_compressed",
-    "js_compressed"
-  ],
-  "title": "Signals",
-  "sections": [
-    {
-      "content": "\nList of all signals sent by pipeline.\n",
-      "id": "signals",
-      "title": "Signals"
-    },
-    {
-      "content": "\n<h2>css_compressed<a class=\"headerlink\" href=\"#css-compressed\" title=\"Permalink to this headline\">\u00b6</a></h2>\n<p><strong>pipeline.signals.css_compressed</strong></p>\n<blockquote>\n<div><p>Whenever a css package is compressed, this signal is sent after the compression.</p>\n<p>Arguments sent with this signal :</p>\n<blockquote>\n<div><table class=\"docutils field-list\" frame=\"void\" rules=\"none\">\n<col class=\"field-name\"/>\n<col class=\"field-body\"/>\n<tbody valign=\"top\">\n<tr class=\"field-odd field\"><th class=\"field-name\">sender:</th><td class=\"field-body\">The <code class=\"docutils literal notranslate\"><span class=\"pre\">Packager</span></code> class that compressed the group.</td>\n</tr>\n<tr class=\"field-even field\"><th class=\"field-name\">package:</th><td class=\"field-body\">The package actually compressed.</td>\n</tr>\n</tbody>\n</table>\n</div></blockquote>\n</div></blockquote>\n",
-      "id": "css-compressed",
-      "title": "css_compressed"
-    },
-    {
-      "content": "\n<h2>js_compressed<a class=\"headerlink\" href=\"#js-compressed\" title=\"Permalink to this headline\">\u00b6</a></h2>\n<p><strong>pipeline.signals.js_compressed</strong></p>\n<blockquote>\n<div><p>Whenever a js package is compressed, this signal is sent after the compression.</p>\n<p>Arguments sent with this signal :</p>\n<blockquote>\n<div><table class=\"docutils field-list\" frame=\"void\" rules=\"none\">\n<col class=\"field-name\"/>\n<col class=\"field-body\"/>\n<tbody valign=\"top\">\n<tr class=\"field-odd field\"><th class=\"field-name\">sender:</th><td class=\"field-body\">The <code class=\"docutils literal notranslate\"><span class=\"pre\">Packager</span></code> class that compressed the group.</td>\n</tr>\n<tr class=\"field-even field\"><th class=\"field-name\">package:</th><td class=\"field-body\">The package actually compressed.</td>\n</tr>\n</tbody>\n</table>\n</div></blockquote>\n</div></blockquote>\n",
-      "id": "js-compressed",
-      "title": "js_compressed"
-    }
-  ],
-  "path": "signals"
+    "path": "signals",
+    "title": "Signals",
+    "sections": [
+        {
+            "id": "signals",
+            "title": "Signals",
+            "content": "List of all signals sent by pipeline."
+        },
+        {
+            "id": "css-compressed",
+            "title": "css_compressed",
+            "content": "pipeline.signals.css_compressed. Whenever a css package is compressed, this signal is sent after the compression.. Arguments sent with this signal :. sender:. The Packager class that compressed the group.. package:. The package actually compressed."
+        },
+        {
+            "id": "js-compressed",
+            "title": "js_compressed",
+            "content": "pipeline.signals.js_compressed. Whenever a js package is compressed, this signal is sent after the compression.. Arguments sent with this signal :. sender:. The Packager class that compressed the group.. package:. The package actually compressed."
+        }
+    ],
+    "domains": [
+        {
+            "role_name": "py:method",
+            "doc_name": "autoapi/notfound/extension/index.html",
+            "anchor": "notfound.extension.OrphanMetadataCollector.process_doc",
+            "type_display": "method",
+            "doc_display": "notfound.extension",
+            "name": "notfound.extension.OrphanMetadataCollector.process_doc",
+            "display_name": ""
+        },
+        {
+            "role_name": "py:method",
+            "doc_name": "autoapi/notfound/extension/index.html",
+            "anchor": "notfound.extension.OrphanMetadataCollector.clear_doc",
+            "type_display": "method",
+            "doc_display": "notfound.extension",
+            "name": "notfound.extension.OrphanMetadataCollector.clear_doc",
+            "display_name": ""
+        }
+    ]
 }
