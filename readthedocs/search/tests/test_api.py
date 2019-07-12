@@ -21,7 +21,7 @@ class TestDocumentSearch:
         cls.url = reverse('doc_search')
 
     @pytest.mark.parametrize('data_type', ['title'])
-    @pytest.mark.parametrize('page_num', [1, 0])
+    @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_works_with_title_query(self, api_client, project, page_num, data_type):
         query = get_search_query_from_project_file(
             project_slug=project.slug,
@@ -65,7 +65,7 @@ class TestDocumentSearch:
             # TODO: Add test for "domains.display_name"
         ]
     )
-    @pytest.mark.parametrize('page_num', [0])
+    @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_works_with_sections_and_domains_query(
         self,
         api_client,
@@ -214,30 +214,34 @@ class TestDocumentSearch:
 
     #     assert len(resp.data['results']) == 5
 
-    # def test_doc_search_without_parameters(self, api_client, project):
-    #     """Hitting Document Search endpoint without query parameters should return error"""
-    #     resp = api_client.get(self.url)
-    #     assert resp.status_code == 400
-    #     # Check error message is there
-    #     assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
+    def test_doc_search_without_parameters(self, api_client, project):
+        """Hitting Document Search endpoint without query parameters should return error"""
+        resp = api_client.get(self.url)
+        assert resp.status_code == 400
+        # Check error message is there
+        assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
 
-    # def test_doc_search_subprojects(self, api_client, all_projects):
-    #     """Test Document search return results from subprojects also"""
-    #     project = all_projects[0]
-    #     subproject = all_projects[1]
-    #     version = project.versions.all()[0]
-    #     # Add another project as subproject of the project
-    #     project.add_subproject(subproject)
+    def test_doc_search_subprojects(self, api_client, all_projects):
+        """Test Document search return results from subprojects also"""
+        project = all_projects[0]
+        subproject = all_projects[1]
+        version = project.versions.all()[0]
+        # Add another project as subproject of the project
+        project.add_subproject(subproject)
 
-    #     # Now search with subproject content but explicitly filter by the parent project
-    #     query = get_search_query_from_project_file(project_slug=subproject.slug)
-    #     search_params = {'q': query, 'project': project.slug, 'version': version.slug}
-    #     resp = api_client.get(self.url, search_params)
-    #     assert resp.status_code == 200
+        # Now search with subproject content but explicitly filter by the parent project
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
 
-    #     data = resp.data['results']
-    #     assert len(data) == 1
-    #     assert data[0]['project'] == subproject.slug
-    #     # Check the link is the subproject document link
-    #     document_link = subproject.get_docs_url(version_slug=version.slug)
-    #     assert document_link in data[0]['link']
+        data = resp.data['results']
+        assert len(data) == 1
+        assert data[0]['project'] == subproject.slug
+        # Check the link is the subproject document link
+        document_link = subproject.get_docs_url(version_slug=version.slug)
+        assert document_link in data[0]['link']
