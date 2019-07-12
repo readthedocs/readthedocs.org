@@ -92,7 +92,7 @@ def process_file(fjson_filename):
 
 def parse_content(content):
     """
-    Removes the starting text and ¶
+    Removes the starting text and ¶.
 
     It removes the starting text from the content
     because it contains the the title of that content,
