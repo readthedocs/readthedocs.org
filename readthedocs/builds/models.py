@@ -173,7 +173,7 @@ class Version(models.Model):
                     user=user,
                     repo=repo,
                     number=self.verbose_name,
-                    commit= self.commit_name
+                    commit=self.commit_name
                 )
             # TODO: Add VCS ULR for other Git Providers
             return ''
