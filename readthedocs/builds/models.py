@@ -22,8 +22,8 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_URL,
     GITHUB_URL,
-    GITHUB_PULL_REQEST_URL,
-    GITHUB_PULL_REQEST_COMMIT_URL,
+    GITHUB_PULL_REQUEST_URL,
+    GITHUB_PULL_REQUEST_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -162,9 +162,22 @@ class Version(models.Model):
         """
         Generate VCS (github, gitlab, bitbucket) URL for this version.
 
-        Branch/Tag Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
-        Pull/merge Request Example: https://github.com/rtfd/readthedocs.org/pull/99/commits/b630b630
+        Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
+        External Version Example: https://github.com/rtfd/readthedocs.org/pull/99/commits/b630b630/.
         """
+        if self.type == EXTERNAL:
+            if 'github' in self.project.repo:
+                user, repo = get_github_username_repo(self.project.repo)
+                # Get Github Pull Request Commit URL.
+                return GITHUB_PULL_REQUEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.verbose_name,
+                    commit= self.commit_name
+                )
+            # TODO: Add VCS ULR for other Git Providers
+            return ''
+
         url = ''
         if self.slug == STABLE:
             slug_url = self.ref
@@ -173,30 +186,12 @@ class Version(models.Model):
         else:
             slug_url = self.slug
 
-        if self.type == EXTERNAL:
-            if 'github' in self.project.repo:
-                user, repo = get_github_username_repo(self.project.repo)
-                return GITHUB_PULL_REQEST_COMMIT_URL.format(
-                    user=user,
-                    repo=repo,
-                    number=self.verbose_name,
-                    commit= self.commit_name
+        if ('github' in self.project.repo) or ('gitlab' in self.project.repo):
+            url = f'/tree/{slug_url}/'
 
-                )
-            if 'gitlab' in self.project.repo:
-                slug_url = self.identifier
-                url = f'/merge_requests/{slug_url}/'
-
-            if 'bitbucket' in self.project.repo:
-                slug_url = self.identifier
-                url = f'/pull-requests/{slug_url}'
-        else:
-            if ('github' in self.project.repo) or ('gitlab' in self.project.repo):
-                url = f'/tree/{slug_url}/'
-
-            if 'bitbucket' in self.project.repo:
-                slug_url = self.identifier
-                url = f'/src/{slug_url}'
+        if 'bitbucket' in self.project.repo:
+            slug_url = self.identifier
+            url = f'/src/{slug_url}'
 
         # TODO: improve this replacing
         return self.project.repo.replace('git://', 'https://').replace('.git', '') + url
@@ -558,11 +553,12 @@ class Version(models.Model):
                 return ''
 
             repo = repo.rstrip('/')
-            return GITHUB_PULL_REQEST_URL.format(
+            return GITHUB_PULL_REQUEST_URL.format(
                 user=user,
                 repo=repo,
                 number=self.verbose_name
             )
+        # TODO: Add External Version ULR for other Git Providers
         return ''
 
 

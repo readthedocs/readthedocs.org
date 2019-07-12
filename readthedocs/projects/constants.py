@@ -325,11 +325,11 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
-GITHUB_PULL_REQEST_URL = (
+GITHUB_PULL_REQUEST_URL = (
     'https://github.com/{user}/{repo}/'
     'pull/{number}'
 )
-GITHUB_PULL_REQEST_COMMIT_URL = (
+GITHUB_PULL_REQUEST_COMMIT_URL = (
     'https://github.com/{user}/{repo}/'
     'pull/{number}/commits/{commit}'
 )
