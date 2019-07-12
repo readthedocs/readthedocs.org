@@ -17,7 +17,12 @@ class TestHacks(TestCase):
                 'files/api.fjson',
             ),
         )
+        self.assertEqual(data['path'], 'api')
         self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
-        # Only capture h2's after the first section
-        for obj in data['sections'][1:]:
-            self.assertEqual(obj['content'][:5], '\n<h2>')
+        self.assertTrue(data['sections'][1]['content'].startswith(
+            'You can use Slumber'
+        ))
+        self.assertEqual(data['title'], 'Read the Docs Public API')
+
+        for section in data['sections']:
+            self.assertFalse('\n' in section['content'])
