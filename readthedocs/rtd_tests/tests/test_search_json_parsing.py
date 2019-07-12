@@ -23,6 +23,7 @@ class TestHacks(TestCase):
             'You can use Slumber'
         ))
         self.assertEqual(data['title'], 'Read the Docs Public API')
+        self.assertTrue(len(data['sections']) > 0, 'There are many sections for tthe processed file')
 
         for section in data['sections']:
             self.assertFalse('\n' in section['content'])
