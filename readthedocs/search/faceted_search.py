@@ -2,7 +2,8 @@ import logging
 
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.query import Bool, SimpleQueryString
+from elasticsearch_dsl.faceted_search import NestedFacet
+from elasticsearch_dsl.query import Bool, SimpleQueryString, Nested, Match
 
 from django.conf import settings
 
@@ -10,7 +11,6 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import (
     PageDocument,
     ProjectDocument,
-    SphinxDomainDocument,
 )
 
 
@@ -92,24 +92,97 @@ class ProjectSearchBase(RTDFacetedSearch):
 class PageSearchBase(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version')
+        'version': TermsFacet(field='version'),
+        'role_name': NestedFacet(
+            'domains',
+            TermsFacet(field='domains.role_name')
+        ),
     }
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
-    fields = ['title^10', 'headers^5', 'content']
+
+    _outer_fields = ['title^4']
+    _section_fields = ['sections.title^3', 'sections.content']
+    _domain_fields = [
+        'domains.type_display',
+        'domains.name^2',
+        'domains.display_name',
+    ]
+    fields = _outer_fields
+
+    # need to search for both 'and' and 'or' operations
+    # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
+    def query(self, search, query):
+        """Manipulates query to support nested query."""
+        search = search.highlight_options(encoder='html', number_of_fragments=1)
 
-class DomainSearchBase(RTDFacetedSearch):
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'role_name': TermsFacet(field='role_name'),
-    }
-    doc_types = [SphinxDomainDocument]
-    index = SphinxDomainDocument._doc_type.index
-    fields = ('display_name^5', 'name^3', 'project^3', 'type_display')
-    operators = ['and']
+        # match query for the title (of the page) field.
+        match_title_query = Match(title=query)
+
+        # nested query for search in sections
+        sections_nested_query = self.generate_nested_query(
+            query=query,
+            path='sections',
+            fields=self._section_fields,
+            inner_hits={
+                'highlight': {
+                    'number_of_fragments': 1,
+                    'fields': {
+                        'sections.title': {},
+                        'sections.content': {},
+                    }
+                }
+            }
+        )
+
+        # nested query for search in domains
+        domains_nested_query = self.generate_nested_query(
+            query=query,
+            path='domains',
+            fields=self._domain_fields,
+            inner_hits={
+                'highlight': {
+                    'number_of_fragments': 1,
+                    'fields': {
+                        'domains.type_display': {},
+                        'domains.name': {},
+                        'domains.display_name': {},
+                    }
+                }
+            }
+        )
+
+        final_query = Bool(should=[
+            match_title_query,
+            sections_nested_query,
+            domains_nested_query,
+        ])
+
+        search = search.query(final_query)
+        return search
+
+    def generate_nested_query(self, query, path, fields, inner_hits):
+        """Generate a nested query with passed parameters."""
+        queries = []
+
+        for operator in self.operators:
+            query_string = SimpleQueryString(
+                query=query,
+                fields=fields,
+                default_operator=operator
+            )
+            queries.append(query_string)
+
+        bool_query = Bool(should=queries)
+
+        nested_query = Nested(
+            path=path,
+            inner_hits=inner_hits,
+            query=bool_query
+        )
+        return nested_query
 
 
 class PageSearch(SettingsOverrideObject):
@@ -132,39 +205,3 @@ class ProjectSearch(SettingsOverrideObject):
     """
 
     _default_class = ProjectSearchBase
-
-
-class DomainSearch(SettingsOverrideObject):
-
-    """
-    Allow this class to be overridden based on CLASS_OVERRIDES setting.
-
-    This is primary used on the .com to adjust how we filter our search queries
-    """
-
-    _default_class = DomainSearchBase
-
-
-class AllSearch(RTDFacetedSearch):
-
-    """
-    Simplfy for testing.
-
-    It has some UI/UX problems that need to be addressed.
-    """
-
-    facets = {
-        'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'language': TermsFacet(field='language'),
-        'role_name': TermsFacet(field='role_name'),
-        # Need to improve UX here for exposing to users
-        # 'index': TermsFacet(field='_index'),
-    }
-    doc_types = [SphinxDomainDocument, PageDocument, ProjectDocument]
-    index = [SphinxDomainDocument._doc_type.index,
-             PageDocument._doc_type.index,
-             ProjectDocument._doc_type.index]
-    fields = ('title^10', 'headers^5', 'content', 'name^20',
-              'slug^5', 'description', 'display_name^5')
-    operators = ['and']
