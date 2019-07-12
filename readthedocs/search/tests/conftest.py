@@ -8,8 +8,6 @@ from django_dynamic_fixture import G
 
 from readthedocs.projects.models import Project, HTMLFile
 from readthedocs.search.documents import PageDocument
-from readthedocs.sphinx_domains.models import SphinxDomain
-
 from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
 
 
@@ -34,28 +32,6 @@ def all_projects(es_index, mock_processed_json, db, settings):
             file_name = file_basename + '.html'
             version = project.versions.all()[0]
             html_file = G(HTMLFile, project=project, version=version, name=file_name)
-
-            # creating sphinx domain test objects
-            file_path = get_json_file_path(project.slug, file_basename)
-            if os.path.exists(file_path):
-                with open (file_path) as f:
-                    data = json.load(f)
-                    domains = data['domains']
-
-                    for domain_data in domains:
-                        domain_role_name = domain_data.pop('role_name')
-                        domain, type_ = domain_role_name.split(':')
-
-                        G(
-                            SphinxDomain,
-                            project=project,
-                            version=version,
-                            html_file=html_file,
-                            domain=domain,
-                            type=type_,
-                            **domain_data
-                        )
-
             PageDocument().update(html_file)
 
         projects_list.append(project)
@@ -70,17 +46,12 @@ def project(all_projects):
     return all_projects[0]
 
 
-def get_json_file_path(project_slug, basename):
-    current_path = os.path.abspath(os.path.dirname(__file__))
-    file_name = f'{basename}.json'
-    file_path = os.path.join(current_path, 'data', project_slug, file_name)
-    return file_path
-
-
 def get_dummy_processed_json(instance):
     project_slug = instance.project.slug
     basename = os.path.splitext(instance.name)[0]
-    file_path = get_json_file_path(project_slug, basename)
+    file_name = basename + '.json'
+    current_path = os.path.abspath(os.path.dirname(__file__))
+    file_path = os.path.join(current_path, "data", project_slug, file_name)
 
     if os.path.exists(file_path):
         with open(file_path) as f:

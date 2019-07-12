@@ -1,36 +1,21 @@
 {
-    "path": "documentation",
-    "title": "Documentation",
-    "sections": [
-        {
-            "id": "documentation",
-            "title": "Documentation",
-            "content": "This documentation is generated and published at Read the Docs whenever the master branch is updated.GitHub can render our .rst documents as ReStructuredText, which is close enough to Sphinx for most code reviews, without features like links between documents.It is occasionally necessary to generate the documentation locally. It is easiest to do this with a virtualenv on the host system, using Docker only to regenerate the MDN Sphinx template. If you are not comfortable with that style of development, it can be done entirely in Docker using docker-compose."
-        },
-        {
-            "id": "generating-documentation",
-            "title": "Generating documentation",
-            "content": "Sphinx uses a Makefile in the docs subfolder to build documentation in several formats. MDN only uses the HTML format, and the generated document index is at docs/_build/html/index.html.. To generate the documentation in a virtualenv on the host machine, first install the requirements:. pip install -r requirements/docs.txt. Then switch to the docs folder to use the Makefile:. cd docs make html python -m webbrowser file://${PWD}/_build/html/index.html. To generate the documentation with Docker:. docker-compose run --rm --user $(id -u) web sh -c \"\\ virtualenv /tmp/.venvs/docs && \\ . /tmp/.venvs/docs/bin/activate && \\ pip install -r /app/requirements/docs.txt && \\ cd /app/docs && \\ make html\" python -m webbrowser file://${PWD}/docs/_build/html/index.html. A virtualenv is required, to avoid a pip bug when changing the version of a system-installed package."
-        }
-    ],
-    "domains": [
-        {
-            "role_name": "py:module",
-            "doc_name": "autoapi/notfound/index.html",
-            "anchor": "module-notfound",
-            "type_display": "module",
-            "doc_display": "notfound",
-            "name": "notfound",
-            "display_name": ""
-        },
-        {
-            "role_name": "py:data",
-            "doc_name": "autoapi/notfound/index.html",
-            "anchor": "notfound.version",
-            "type_display": "data",
-            "doc_display": "notfound",
-            "name": "notfound.version",
-            "display_name": ""
-        }
-    ]
+  "content": "kumadocumentation This documentation is generated and published at Read the Docs whenever the master branch is updated. GitHub can render our .rst documents as ReStructuredText, which is close enough to Sphinx for most code reviews, without features like links between documents.\nIt is occasionally necessary to generate the documentation locally. It is easiest to do this with a virtualenv on the host system, using only to regenerate the MDN Sphinx template. If you are not comfortable with that style of development, it can be done entirely in  using -compose.\nGenerating documentation\nSphinx uses a Makefile in the docs subfolder to build documentation in several formats. MDN only uses the HTML format, and the generated document index is at docs/_build/html/index.html.\nTo generate the documentation in a virtualenv on the host machine, first install the requirements:\npip install -r requirements/docs.txt\nThen switch to the docs folder to use the Makefile:\ncd docs make html python -m webbrowser file://${PWD}/_build/html/index.html\nTo generate the documentation with :\n-compose run --rm --user $(id -u) web sh -c \"\\ virtualenv /tmp/.venvs/docs && \\ . /tmp/.venvs/docs/bin/activate && \\ pip install -r /app/requirements/docs.txt && \\ cd /app/docs && \\ make html\" python -m webbrowser file://${PWD}/docs/_build/html/index.html\nA virtualenv is required, to avoid a pip bug when changing the version of a system-installed package.",
+  "headers": [
+    "Documentation",
+    "Generating documentation"
+  ],
+  "title": "Documentation",
+  "sections": [
+    {
+      "content": "\nThis documentation is generated and published at\n<a class=\"reference external\" href=\"https://kuma.readthedocs.io/en/latest/\">Read the Docs</a> whenever the master branch is updated.\n\nGitHub can render our <code class=\"docutils literal notranslate\"><span class=\"pre\">.rst</span></code> documents as <a class=\"reference external\" href=\"https://en.wikipedia.org/wiki/ReStructuredText\">ReStructuredText</a>, which is\nclose enough to <a class=\"reference external\" href=\"https://en.wikipedia.org/wiki/Sphinx_(documentation_generator)\">Sphinx</a> for most code reviews, without features like links\nbetween documents.\n\nIt is occasionally necessary to generate the documentation locally. It is\neasiest to do this with a <a class=\"reference external\" href=\"https://virtualenv.pypa.io/en/stable/\">virtualenv</a> on the host system, using  only to\nregenerate the MDN Sphinx template.  If you are not comfortable with that style\nof development, it can be done entirely in  using <code class=\"docutils literal notranslate\"><span class=\"pre\">-compose</span></code>.\n",
+      "id": "documentation",
+      "title": "Documentation"
+    },
+    {
+      "content": "\n<h2>Generating documentation<a class=\"headerlink\" href=\"#generating-documentation\" title=\"Permalink to this headline\">\u00b6</a></h2>\n<p>Sphinx uses a <code class=\"docutils literal notranslate\"><span class=\"pre\">Makefile</span></code> in the <code class=\"docutils literal notranslate\"><span class=\"pre\">docs</span></code> subfolder to build documentation in\nseveral formats.  MDN only uses the HTML format, and the generated document\nindex is at <code class=\"docutils literal notranslate\"><span class=\"pre\">docs/_build/html/index.html</span></code>.</p>\n<p>To generate the documentation in a virtualenv on the host machine, first\ninstall the requirements:</p>\n<div class=\"highlight-default notranslate\"><div class=\"highlight\"><pre><span/><span class=\"n\">pip</span> <span class=\"n\">install</span> <span class=\"o\">-</span><span class=\"n\">r</span> <span class=\"n\">requirements</span><span class=\"o\">/</span><span class=\"n\">docs</span><span class=\"o\">.</span><span class=\"n\">txt</span>\n</pre></div>\n</div>\n<p>Then switch to the <code class=\"docutils literal notranslate\"><span class=\"pre\">docs</span></code> folder to use the <code class=\"docutils literal notranslate\"><span class=\"pre\">Makefile</span></code>:</p>\n<div class=\"highlight-default notranslate\"><div class=\"highlight\"><pre><span/>cd docs\nmake html\npython -m webbrowser file://${PWD}/_build/html/index.html\n</pre></div>\n</div>\n<p>To generate the documentation with :</p>\n<div class=\"highlight-default notranslate\"><div class=\"highlight\"><pre><span/>-compose run --rm --user $(id -u) web sh -c \"\\\n  virtualenv /tmp/.venvs/docs &amp;&amp; \\\n  . /tmp/.venvs/docs/bin/activate &amp;&amp; \\\n  pip install -r /app/requirements/docs.txt &amp;&amp; \\\n  cd /app/docs &amp;&amp; \\\n  make html\"\npython -m webbrowser file://${PWD}/docs/_build/html/index.html\n</pre></div>\n</div>\n<p>A <code class=\"docutils literal notranslate\"><span class=\"pre\">virtualenv</span></code> is required, to avoid a <code class=\"docutils literal notranslate\"><span class=\"pre\">pip</span></code> bug when changing the version\nof a system-installed package.</p>\n",
+      "id": "generating-documentation",
+      "title": "Generating documentation"
+    }
+  ],
+  "path": "documentation"
 }
