@@ -5,6 +5,8 @@
 import logging
 import os
 import re
+import json
+from django.conf import settings
 
 import git
 from django.core.exceptions import ValidationError
@@ -53,6 +55,29 @@ class Backend(BaseVCS):
             # else:
             #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
+
+    def _get_repo_info(self):
+        cmd = [
+            'python3',
+            '-m',
+            'pip',
+            'install',
+            '--user',
+            'GitPython==2.1.10',
+        ]
+        code, stdout, stderr = self.run(*cmd)
+
+        cmd = [
+            'python3',
+            os.path.join(
+                settings.RTD_SCRIPTS_PATH,
+                'get_vcs_info.py',
+            ),
+            self.working_dir,
+        ]
+        code, stdout, stderr = self.run(*cmd)
+        __import__('pdb').set_trace()
+        self._repo_info = json.loads(stdout)
 
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
@@ -171,6 +196,8 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
             raise RepositoryError
+
+        self._get_repo_info()
         return code, stdout, stderr
 
     def checkout_revision(self, revision=None):
@@ -197,6 +224,8 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
             raise RepositoryError
+
+        self._get_repo_info()
         return code, stdout, stderr
 
     @property

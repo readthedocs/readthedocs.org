@@ -956,6 +956,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                 'bind': self.project.doc_path,
                 'mode': 'rw',
             },
+            settings.RTD_SCRIPTS_PATH: {
+                'bind': settings.RTD_SCRIPTS_PATH,
+                'mode': 'ro',
+            },
         }
 
         if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
