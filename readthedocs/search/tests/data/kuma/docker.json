@@ -5,7 +5,7 @@
         {
             "id": "docker",
             "title": "Docker",
-            "content": "Docker is used for development and for deployment."
+            "content": "Docker is used for development and for deployment. This is a test line which contains the word 'Elasticsearch'."
         },
         {
             "id": "docker-images",

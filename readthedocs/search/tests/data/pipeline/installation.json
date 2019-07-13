@@ -15,7 +15,7 @@
         {
             "id": "upgrading-from-1-5",
             "title": "Upgrading from 1.5",
-            "content": "To upgrade from pipeline 1.5, you will need update all your PIPELINE_* settings and move them under the new PIPELINE setting. See Configuration."
+            "content": "To upgrade from pipeline 1.5, you will need update all your PIPELINE_* settings and move them under the new PIPELINE setting. See Configuration. This is a test line containing 'Query' word"
         },
         {
             "id": "recommendations",
