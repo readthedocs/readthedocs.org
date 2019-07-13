@@ -128,6 +128,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._section_fields,
             inner_hits={
                 'highlight': {
+                    'encoder': 'html',
                     'number_of_fragments': 1,
                     'fields': {
                         'sections.title': {},
@@ -144,6 +145,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._domain_fields,
             inner_hits={
                 'highlight': {
+                    'encoder': 'html',
                     'number_of_fragments': 1,
                     'fields': {
                         'domains.type_display': {},
