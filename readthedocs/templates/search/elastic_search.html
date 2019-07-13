@@ -226,9 +226,11 @@
                             {% endfor %}
                           {% endwith %}
                         {% else %}
-                          {% with "100" as MAX_SUBSTRING_LIMIT %}
-                            {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
-                          {% endwith %}
+                          <p class="fragment">
+                            {% with "100" as MAX_SUBSTRING_LIMIT %}
+                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                            {% endwith %}
+                          </p>
                         {% endif %}
                       {% endif %}
                     {% endfor %}
