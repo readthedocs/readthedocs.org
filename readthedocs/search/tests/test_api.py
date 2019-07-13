@@ -6,7 +6,11 @@ from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
-from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.search.tests.utils import (
+    get_search_query_from_project_file,
+    SECTION_FIELDS,
+    DOMAIN_FIELDS,
+)
 from readthedocs.search.documents import PageDocument
 
 
@@ -52,20 +56,7 @@ class TestDocumentSearch:
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()
 
-    @pytest.mark.parametrize(
-        'data_type',
-        [
-            # page sections fields
-            'sections.title',
-            'sections.content',
-
-            # domain fields
-            'domains.type_display',
-            'domains.name',
-
-            # TODO: Add test for "domains.display_name"
-        ]
-    )
+    @pytest.mark.parametrize('data_type', SECTION_FIELDS + DOMAIN_FIELDS)
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_works_with_sections_and_domains_query(
         self,
@@ -233,8 +224,11 @@ class TestDocumentSearch:
         assert resp.status_code == 200
 
         data = resp.data['results']
-        assert len(data) == 1
-        assert data[0]['project'] == subproject.slug
+        assert len(data) >= 1  # there may be results from another projects
+
+        # First result should be the subproject
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
-        assert document_link in data[0]['link']
+        assert document_link in first_result['link']
