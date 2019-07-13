@@ -1012,8 +1012,14 @@ class IntegrationsTests(TestCase):
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)
 
+    @mock.patch('readthedocs.core.views.hooks.remove_build_storage_paths')
     @mock.patch('readthedocs.core.utils.trigger_build')
-    def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
+    def test_github_pull_request_closed_event(
+            self,
+            trigger_build,
+            remove_build_storage_paths,
+            core_trigger_build
+    ):
         client = APIClient()
 
         pull_request_number = '7'
@@ -1054,6 +1060,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [version.verbose_name])
         core_trigger_build.assert_not_called()
+        remove_build_storage_paths.delay.assert_called_once()
 
     def test_github_pull_request_no_action(self, trigger_build):
         client = APIClient()

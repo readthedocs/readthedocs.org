@@ -5,7 +5,11 @@ import logging
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.tasks import sync_repository_task
+from readthedocs.projects.constants import MEDIA_TYPES
+from readthedocs.projects.tasks import (
+    sync_repository_task,
+    remove_build_storage_paths
+)
 
 
 log = logging.getLogger(__name__)
@@ -149,8 +153,21 @@ def delete_external_version(project, identifier, verbose_name):
     ).first()
 
     if external_version:
+        # Delete External Version Files from storage
+        to_delete = []
+        for media_type in MEDIA_TYPES:
+            media_path = external_version.project.get_storage_path(
+                type_=media_type,
+                version_slug=external_version.slug,
+                version_type=EXTERNAL,
+            )
+            to_delete.append(media_path)
+
+        remove_build_storage_paths.delay(to_delete)
+
         # Delete External Version
         external_version.delete()
+
         log.info(
             '(Delete External Version) Deleted Version: [%s]', ' '.join(
                 external_version.slug
