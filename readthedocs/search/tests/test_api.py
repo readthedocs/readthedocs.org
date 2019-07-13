@@ -1,7 +1,8 @@
+import re
 import pytest
+
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
-
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
@@ -110,23 +111,15 @@ class TestDocumentSearch:
         ), 'number_of_fragments is set to 1'
 
         # checking highlighting of results
-        queries = query.split()  # if query is more than one word
-        queries_len = len(queries)
-        total_query_words_highlighted = 0
+        highlighted_words = re.findall(  # this gets all words inside <em> tag
+            '<em>(.*?)</em>',
+            highlight[0]
+        )
+        assert len(highlighted_words) > 0
 
-        for q in queries:
-            if f'<em>{q.lower()}</em>' in highlight[0].lower():
-                total_query_words_highlighted += 1
-
-        if queries_len == 1:
-            # if the search was of one word,
-            # then the it must be highlighted
-            assert total_query_words_highlighted - queries_len <= 0
-        else:
-            # if the search was of two words or more,
-            # then it is not necessary for every word
-            # to get highlighted
-            assert total_query_words_highlighted - queries_len <= 1
+        for word in highlighted_words:
+            # Make it lower because our search is case insensitive
+            assert word.lower() in query.lower()
 
     def test_doc_search_filter_by_project(self, api_client):
         """Test Doc search results are filtered according to project"""
