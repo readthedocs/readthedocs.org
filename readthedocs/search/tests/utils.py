@@ -5,6 +5,11 @@ import random
 from readthedocs.projects.models import HTMLFile
 
 
+SECTION_FIELDS = [ 'sections.title', 'sections.content' ]
+DOMAIN_FIELDS = [ 'domains.type_display', 'domains.name' ]
+DATA_TYPES_VALUES = ['title'] + SECTION_FIELDS + DOMAIN_FIELDS
+
+
 def get_search_query_from_project_file(project_slug, page_num=0, data_type='title'):
     """
     Return search query from the project's page file.
