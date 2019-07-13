@@ -8,12 +8,15 @@ from pyquery import PyQuery as pq
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.search.tests.utils import (
+    get_search_query_from_project_file,
+    DATA_TYPES_VALUES,
+)
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestProjectSearch(object):
+class TestProjectSearch:
     url = reverse('search')
 
     def _get_search_result(self, url, client, search_params):
@@ -79,38 +82,60 @@ class TestPageSearch(object):
         assert resp.status_code == 200
 
         page = pq(resp.content)
-        result = page.find('.module-list-wrapper .search-result-item')
-        return result, page
+        results = page.find('.module-list-wrapper .search-result-item')
+        return results, page
 
-    @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
+    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_file_search(self, client, project, data_type, page_num):
-        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
-                                                   data_type=data_type)
+        query = get_search_query_from_project_file(
+            project_slug=project.slug,
+            page_num=page_num,
+            data_type=data_type
+        )
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1
-        assert query in result.text()
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' }
+        )
 
+        assert len(results) >= 1
+        for res in results:
+            fragments = res.cssselect('.fragment')
+            assert len(fragments) >= 1
+
+        assert query in results.text()
+
+    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
-    def test_file_search_case_insensitive(self, client, project, case):
+    def test_file_search_case_insensitive(self, client, project, case, data_type):
         """
         Check File search is case insensitive.
 
         It tests with uppercase, lowercase and camelcase
         """
-        query_text = get_search_query_from_project_file(project_slug=project.slug)
+        query_text = get_search_query_from_project_file(
+            project_slug=project.slug,
+            data_type=data_type
+        )
 
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' }
+        )
 
-        assert len(result) == 1
+        assert len(results) >= 1
+        for res in results:
+            fragments = res.cssselect('.fragment')
+            assert len(fragments) >= 1
+
         # Check the actual text is in the result, not the cased one
-        assert query_text in result.text()
+        assert query_text in results.text()
 
     def test_file_search_exact_match(self, client, project):
         """
@@ -120,25 +145,34 @@ class TestPageSearch(object):
         ``foo bar`` phrase.
         """
 
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # But the phrase Github can is available only in kuma docs.
+        # `Sphinx` word is present both in `kuma` and `docs` files
+        # But the phrase `Sphinx uses` is available only in kuma docs.
         # So search with this phrase to check
-        query = r'"GitHub can"'
+        query = r'"Sphinx uses"'
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' })
 
-        assert len(result) == 1
+        # there must be only 1 result
+        # becuase the phrase is present in
+        # only one project
+        assert len(results) == 1
+
+        fragment = results[0].cssselect('.fragment')
+        assert len(fragment) == 1
 
     def test_file_search_show_projects(self, client, all_projects):
         """Test that search result page shows list of projects while searching
         for files."""
 
-        # `Github` word is present both in `kuma` and `pipeline` files
+        # `Sphinx` word is present both in `kuma` and `docs` files
         # so search with this phrase
         result, page = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': 'GitHub', 'type': 'file'},
+            url=self.url,
+            client=client,
+            search_params={ 'q': 'Sphinx', 'type': 'file' },
         )
 
         # There should be 2 search result
@@ -150,26 +184,33 @@ class TestPageSearch(object):
         text = content.text()
 
         # kuma and pipeline should be there
-        assert 'kuma' and 'pipeline' in text
+        assert 'kuma' and 'docs' in text
 
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 
-        # `Github` word is present both in `kuma` and `pipeline` files
+        # `Sphinx` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
-        search_params = {'q': 'GitHub', 'type': 'file', 'project': 'kuma'}
-        result, page = self._get_search_result(
-            url=self.url, client=client,
+        search_params = {
+            'q': 'Sphinx',
+            'type': 'file',
+            'project': 'kuma'
+        }
+        results, page = self._get_search_result(
+            url=self.url,
+            client=client,
             search_params=search_params,
         )
 
         # There should be 1 search result as we have filtered
-        assert len(result) == 1
-        content = page.find('.navigable .project-list')
+        assert len(results) == 1
+        fragments = results[0].cssselect('.fragment')
+        assert len(fragments) == 2  # `Sphinx` is present in two sections in that docs
 
+        headings = page.find('.module-list-wrapper .search-result-item p a').text()
         # kuma should should be there only
-        assert 'kuma' in result.text()
-        assert 'pipeline' not in result.text()
+        assert 'kuma' in headings
+        assert 'docs' not in headings
 
         # But there should be 2 projects in the left side column
         # as the query is present in both projects
@@ -177,7 +218,7 @@ class TestPageSearch(object):
         if len(content) != 2:
             pytest.xfail('failing because currently all projects are not showing in project list')
         else:
-            assert 'kuma' and 'pipeline' in content.text()
+            assert 'kuma' and 'docs' in content.text()
 
     @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
@@ -195,9 +236,8 @@ class TestPageSearch(object):
             search_params={'q': query, 'type': 'file'},
         )
 
-        # There should be only one result because by default
-        # only latest version result should be there
-        assert len(result) == 1
+        # Results can be from other projects also
+        assert len(result) >= 1
 
         content = page.find('.navigable .version-list')
         # There should be total 4 versions
@@ -228,10 +268,18 @@ class TestPageSearch(object):
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
-        search_params = {'q': query, 'type': 'file', 'project': project.slug}
-        result, page = self._get_search_result(
-            url=self.url, client=client,
+        search_params = {
+            'q': query,
+            'type': 'file',
+            'project': project.slug,
+        }
+        results, page = self._get_search_result(
+            url=self.url,
+            client=client,
             search_params=search_params,
         )
 
-        assert len(result) == 0
+        headings = page.find('.module-list-wrapper .search-result-item p a').text()
+        # Results can be from other sections also.
+        assert len(results) >= 0
+        assert f'{subproject.slug}' not in headings
