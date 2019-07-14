@@ -86,7 +86,7 @@ class TestDocumentSearch:
         project_data = data[0]
         assert project_data['project'] == project.slug
 
-        inner_hits = list(project_data['inner_hits'])
+        inner_hits = project_data['inner_hits']
         # since there was a nested query,
         # inner_hits should not be empty
         assert len(inner_hits) >= 1
@@ -151,20 +151,13 @@ class TestDocumentSearch:
             'q': query,
             'project': project.slug,
             'version': dummy_version.slug
-            }
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
-
-        # there may be more than one results
-        # for some query like `documentation`
-        # for project `kuma`
-        assert len(data) >= 1
-
-        # all results must be from same project
-        for res in data:
-            assert res['project'] == project.slug
+        assert len(data) == 1
+        assert data[0]['project'] == project.slug
 
     # def test_doc_search_pagination(self, api_client, project):
     #     """Test Doc search result can be paginated"""

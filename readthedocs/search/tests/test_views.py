@@ -85,6 +85,11 @@ class TestPageSearch(object):
         results = page.find('.module-list-wrapper .search-result-item')
         return results, page
 
+    def _get_result_headings(self, page):
+        headings_anchor = page.find('.module-list-wrapper .search-result-item p a')
+        headings_text = headings_anchor.text()
+        return headings_text
+
     @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_file_search(self, client, project, data_type, page_num):
@@ -207,7 +212,7 @@ class TestPageSearch(object):
         fragments = results[0].cssselect('.fragment')
         assert len(fragments) == 2  # `Sphinx` is present in two sections in that docs
 
-        headings = page.find('.module-list-wrapper .search-result-item p a').text()
+        headings = self._get_result_headings(page)
         # kuma should should be there only
         assert 'kuma' in headings
         assert 'docs' not in headings
@@ -279,7 +284,7 @@ class TestPageSearch(object):
             search_params=search_params,
         )
 
-        headings = page.find('.module-list-wrapper .search-result-item p a').text()
+        headings = self._get_result_headings(page)
         # Results can be from other sections also.
         assert len(results) >= 0
         assert f'{subproject.slug}' not in headings

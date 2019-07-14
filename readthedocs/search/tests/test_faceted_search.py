@@ -26,7 +26,7 @@ class TestPageSearch(object):
 
         assert len(results) == 1
         assert results[0]['project'] == 'kuma'
-        assert results[0]['path'] == 'documentation'
+        assert results[0]['path'] == 'testdocumentation'
 
     def test_search_combined_result(self, client, project):
         """Check search result are combined of both `AND` and `OR` operator

@@ -70,7 +70,10 @@ def get_search_query_from_project_file(project_slug, page_num=0, data_type='titl
             query = '.'.join(query_data[start:end])
 
         elif '/' in query_data[0]['name']:
-            query_data = query_data[0]['name'].split('/')
+            query_data = query_data[0]['name']
+
+            # this is done to remove empty query
+            query_data = [word for word in query_data.split('/') if word]
             start = 0
             end = random.randint(1, len(query_data))
             query = '/'.join(query_data[start:end])
