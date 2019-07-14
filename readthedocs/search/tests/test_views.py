@@ -112,6 +112,62 @@ class TestPageSearch(object):
 
         assert query in results.text()
 
+    def test_file_search_show_correct_role_name(self, client):
+        """Test that searching files should show all role_names."""
+
+        # searching for '/api/v3/' to test that
+        # correct role_name are displayed
+        results, page = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': '/api/v3/', 'type': 'file' }
+        )
+
+        assert len(results) >= 1
+        for res in results:
+            fragments = res.cssselect('.fragment')
+            assert len(fragments) >= 1
+
+        content = page.find('.navigable .language-list')
+        # these are taken from files `support` and `wiping`
+        expected_role_names = ['http:get', 'http:patch', 'http:post']
+
+        assert len(content) == 3
+        for role_name in expected_role_names:
+            assert role_name in content.text()
+
+    def test_file_search_filter_role_name(self, client):
+        """Test that searching files filtered according to role_names."""
+
+        search_params = {
+            'q': 'notfound',
+            'type': 'file',
+        }
+
+        # searching without the filter
+        results, page = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params=search_params
+        )
+        assert len(results) >= 2  # there are > 1 results without the filter
+
+        # checking if `std:confval` filter is present
+        content = page.find('.navigable .language-list').text()
+        assert 'std:confval' in content
+
+        # filtering with role_name=std:confval
+        search_params['role_name'] = 'std:confval'
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params=search_params
+        )
+        # there is only one result with role_name='std:confval'
+        # in `installation` page
+        assert len(results) == 1
+        assert 'std:confval' in results.text()
+
     @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_file_search_case_insensitive(self, client, project, case, data_type):
