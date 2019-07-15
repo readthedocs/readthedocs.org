@@ -15,7 +15,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from six.moves import shlex_quote
+from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
@@ -1476,5 +1476,5 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        self.value = shlex_quote(self.value)
+        self.value = quote(self.value)
         return super().save(*args, **kwargs)
