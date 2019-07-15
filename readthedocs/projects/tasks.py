@@ -1460,8 +1460,12 @@ def _manage_imported_files(version, commit, build):
         for filename in filenames:
             if filename.endswith('.html'):
                 model_class = HTMLFile
-            else:
+            elif version.project.cdn_enabled:
+                # We need to track all files for CDN enabled projects so the files can be purged
                 model_class = ImportedFile
+            else:
+                # For projects not behind a CDN, we don't care about non-HTML
+                continue
 
             relpath = storage.join(root, filename)
             try:
