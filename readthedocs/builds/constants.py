@@ -87,3 +87,6 @@ SELECT_BUILD_STATUS = {
         'description': 'The build succeeded!',
     },
 }
+
+GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
+GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
