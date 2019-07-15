@@ -114,6 +114,16 @@ class PageSearchBase(RTDFacetedSearch):
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
+    def count(self):
+        """Overriding ``count`` method to return the count of the results after post_filter."""
+        s = self.build_search()
+
+        # setting size=0 so that no results are returned,
+        # we are only interested in the total count
+        s = s.extra(size=0)
+        s = s.execute()
+        return s.hits.total
+
     def query(self, search, query):
         """Manipulates query to support nested query."""
         search = search.highlight_options(encoder='html', number_of_fragments=1)
