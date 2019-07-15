@@ -178,8 +178,7 @@ class TestDocumentSearch:
         assert resp.status_code == 200
 
         # Check the count is 61 (1 existing and 60 new created)
-        if not resp.data['count'] == 61:
-            pytest.xfail('Failing because the value of "count" is wrong.')
+        assert resp.data['count'] == 61
         # Check there are next url
         assert resp.data['next'] is not None
         # There should be only 50 data as the pagination is 50 by default
