@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
 import getpass
@@ -107,7 +106,6 @@ class CommunityBaseSettings(Settings):
             # third party apps
             'dj_pagination',
             'taggit',
-            'guardian',
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
@@ -474,9 +472,6 @@ class CommunityBaseSettings(Settings):
 
     INTERNAL_IPS = ('127.0.0.1',)
 
-    # Guardian Settings
-    GUARDIAN_RAISE_403 = True
-
     # Stripe
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
@@ -512,9 +507,10 @@ class CommunityBaseSettings(Settings):
             'user': '60/minute',
         },
         'PAGE_SIZE': 10,
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     }
 
-    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'

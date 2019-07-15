@@ -51,7 +51,9 @@ class Backend(BaseVCS):
 
     def parse_branches(self, data):
         """
-        Parses output of `hg branches --quiet`, eg:
+        Parses output of `hg branches --quiet`.
+
+        Example:
 
             default
             0.2
@@ -73,7 +75,9 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of `hg tags`, eg:
+        Parses output of `hg tags`.
+
+        Example:
 
             tip                              278:c4b2d21db51a
             0.2.2                            152:6b0364d98837

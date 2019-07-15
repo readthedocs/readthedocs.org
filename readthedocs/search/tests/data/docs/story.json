@@ -7,7 +7,7 @@
   "title": "Philosophy",
   "sections": [
     {
-      "content": "\nRead the Docs is Open Source software.\nWe have <a class=\"reference external\" href=\"https://github.com/rtfd/readthedocs.org/blob/master/LICENSE\">licensed</a> the code base as MIT,\nwhich provides almost no restrictions on the use of the code.\n\nHowever,\nas a project there are things that we care about more than others.\nWe built Read the Docs to support  in the Open Source community.\nThe code is open for people to contribute to,\nso that they may build features into <a class=\"reference external\" href=\"https://readthedocs.org\">https://readthedocs.org</a> that they want.\nWe also believe sharing the code openly is a valuable learning tool,\nespecially for demonsrating how to collaborate and maintain an enormous website.\n",
+      "content": "\nRead the Docs is Open Source software.\nWe have <a class=\"reference external\" href=\"https://github.com/readthedocs/readthedocs.org/blob/master/LICENSE\">licensed</a> the code base as MIT,\nwhich provides almost no restrictions on the use of the code.\n\nHowever,\nas a project there are things that we care about more than others.\nWe built Read the Docs to support  in the Open Source community.\nThe code is open for people to contribute to,\nso that they may build features into <a class=\"reference external\" href=\"https://readthedocs.org\">https://readthedocs.org</a> that they want.\nWe also believe sharing the code openly is a valuable learning tool,\nespecially for demonsrating how to collaborate and maintain an enormous website.\n",
       "id": "read-the-docs-open-source-philosophy",
       "title": "Read the Docs Open Source Philosophy"
     },

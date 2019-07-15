@@ -80,7 +80,7 @@ FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification
 
     For more details, see this `previous issue`_.
 
-    .. _previous issue: https://github.com/rtfd/readthedocs.org/issues/4395
+    .. _previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
 
 Proxy SSL

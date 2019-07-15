@@ -29,7 +29,7 @@ class BaseSyncer:
 
 class NullSyncer:
 
-    """A syncer that doesn't actually do anything"""
+    """A syncer that doesn't actually do anything."""
 
     @classmethod
     def copy(cls, path, target, is_file=False, **kwargs):

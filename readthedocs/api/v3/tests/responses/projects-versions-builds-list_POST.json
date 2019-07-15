@@ -23,7 +23,6 @@
         "created": "2019-04-29T10:00:00Z",
         "default_branch": "master",
         "default_version": "latest",
-        "description": "Project description",
         "id": 1,
         "language": {
             "code": "en",
@@ -32,6 +31,7 @@
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/",
             "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+            "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
             "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
             "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
             "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
@@ -47,6 +47,7 @@
             "code": "words",
             "name": "Only Words"
         },
+        "homepage": "http://project.com",
         "repository": {
             "type": "git",
             "url": "https://github.com/rtfd/project"
@@ -60,8 +61,10 @@
         ],
         "translation_of": null,
         "urls": {
+            "builds": "https://readthedocs.org/projects/project/builds/",
             "documentation": "http://readthedocs.org/docs/project/en/latest/",
-            "project_homepage": "http://project.com"
+            "home": "https://readthedocs.org/projects/project/",
+            "versions": "https://readthedocs.org/projects/project/versions/"
         },
         "users": [
             {
