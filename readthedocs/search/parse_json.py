@@ -106,5 +106,5 @@ def parse_content(content):
         content = content[1:]
 
     # converting newlines to ". "
-    content = '. '.join([text.strip() for text in content])
+    content = '. '.join([text.strip().rstrip('.') for text in content])
     return content
