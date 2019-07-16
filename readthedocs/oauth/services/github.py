@@ -12,7 +12,10 @@ from requests.exceptions import RequestException
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import SELECT_BUILD_STATUS
+from readthedocs.builds.constants import (
+    SELECT_BUILD_STATUS,
+    RTD_BUILD_STATUS_API_NAME
+)
 from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
@@ -336,7 +339,7 @@ class GitHubService(Service):
             'state': github_build_state,
             'target_url': build.get_full_url(),
             'description': description,
-            'context': 'continuous-documentation/read-the-docs'
+            'context': RTD_BUILD_STATUS_API_NAME
         }
 
         resp = None
@@ -349,7 +352,8 @@ class GitHubService(Service):
             )
             if resp.status_code == 201:
                 log.info(
-                    'GitHub commit status for project: %s',
+                    "GitHub '%s' commit status created for project: %s",
+                    github_build_state,
                     project,
                 )
                 return True

@@ -161,7 +161,8 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            'GitHub commit status for project: %s',
+            "GitHub '%s' commit status created for project: %s",
+            BUILD_STATUS_SUCCESS,
             self.project
         )
 

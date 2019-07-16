@@ -35,7 +35,7 @@ class BuildBase:
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
         self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
+            Project.objects.public(self.request.user),
             slug=self.project_slug,
         )
         queryset = Build.objects.public(

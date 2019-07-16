@@ -354,4 +354,4 @@ GITLAB_COMMIT_URL = (
     'commit/{commit}'
 )
 
-GITHUB_GIT_PATTERN = 'pull/{id}/head:external-{id}'
+GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
