@@ -20,12 +20,12 @@ class APIEndpointMixin(TestCase):
     fixtures = []
 
     def setUp(self):
-        created = make_aware(datetime.datetime(2019, 4, 29, 10, 0, 0))
-        modified = make_aware(datetime.datetime(2019, 4, 29, 12, 0, 0))
+        self.created = make_aware(datetime.datetime(2019, 4, 29, 10, 0, 0))
+        self.modified = make_aware(datetime.datetime(2019, 4, 29, 12, 0, 0))
 
         self.me = fixture.get(
             User,
-            date_joined=created,
+            date_joined=self.created,
             username='testuser',
             projects=[],
         )
@@ -34,8 +34,8 @@ class APIEndpointMixin(TestCase):
         # objects (like a Project for translations/subprojects)
         self.project = fixture.get(
             Project,
-            pub_date=created,
-            modified_date=modified,
+            pub_date=self.created,
+            modified_date=self.modified,
             description='Project description',
             repo='https://github.com/rtfd/project',
             project_url='http://project.com',
@@ -51,8 +51,8 @@ class APIEndpointMixin(TestCase):
 
         self.redirect = fixture.get(
             Redirect,
-            create_dt=created,
-            update_dt=modified,
+            create_dt=self.created,
+            update_dt=self.modified,
             from_url='/docs/',
             to_url='/documentation/',
             redirect_type='page',
@@ -61,8 +61,8 @@ class APIEndpointMixin(TestCase):
 
         self.subproject = fixture.get(
             Project,
-            pub_date=created,
-            modified_date=modified,
+            pub_date=self.created,
+            modified_date=self.modified,
             description='SubProject description',
             repo='https://github.com/rtfd/subproject',
             project_url='http://subproject.com',
@@ -91,7 +91,7 @@ class APIEndpointMixin(TestCase):
 
         self.build = fixture.get(
             Build,
-            date=created,
+            date=self.created,
             type='html',
             state='finished',
             error='',
