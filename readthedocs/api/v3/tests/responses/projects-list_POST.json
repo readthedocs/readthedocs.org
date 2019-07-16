@@ -44,7 +44,6 @@
     },
     "users": [
         {
-            "created": "2019-04-29T10:00:00Z",
             "username": "testuser"
         }
     ]

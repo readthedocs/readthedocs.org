@@ -16,13 +16,10 @@ from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE
 
 class UserSerializer(FlexFieldsModelSerializer):
 
-    created = serializers.DateTimeField(source='date_joined')
-
     class Meta:
         model = User
         fields = [
             'username',
-            'created',
         ]
 
 
