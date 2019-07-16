@@ -80,8 +80,7 @@ class Backend(BaseVCS):
             return False
 
         # Keep compatibility with previous projects
-        repo = git.Repo(self.working_dir)
-        return bool(repo.submodules)
+        return bool(self.submodules)
 
     def validate_submodules(self, config):
         """
@@ -104,8 +103,7 @@ class Backend(BaseVCS):
         Returns `False` if at least one submodule is invalid.
         Returns the list of invalid submodules.
         """
-        repo = git.Repo(self.working_dir)
-        submodules = {sub.path: sub for sub in repo.submodules}
+        submodules = {sub.path: sub for sub in self.submodules}
 
         for sub_path in config.submodules.exclude:
             path = sub_path.rstrip('/')
@@ -221,6 +219,16 @@ class Backend(BaseVCS):
             _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
             return stdout.strip()
         return None
+
+    @property
+    def submodules(self):
+        try:
+            repo = git.Repo(self.working_dir)
+            return list(repo.submodules)
+        except InvalidGitRepositoryError:
+            raise RepositoryError(
+                RepositoryError.INVALID_SUBMODULES_PATH,
+            )
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""

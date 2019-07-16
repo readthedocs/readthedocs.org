@@ -9,7 +9,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES
+from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
@@ -298,19 +298,35 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
         return 'Unknown'
 
 
-class ProjectURLsSerializer(serializers.Serializer):
-    documentation = serializers.CharField(source='get_docs_url')
-    project_homepage = serializers.SerializerMethodField()
+class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
-    def get_project_homepage(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.project_url or None
+    """Serializer with all the user-facing URLs under Read the Docs."""
+
+    documentation = serializers.CharField(source='get_docs_url')
+    home = serializers.SerializerMethodField()
+    builds = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+
+    def get_home(self, obj):
+        path = reverse('projects_detail', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_builds(self, obj):
+        path = reverse('builds_project_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_versions(self, obj):
+        path = reverse('project_version_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
 
 
 class RepositorySerializer(serializers.Serializer):
 
     url = serializers.CharField(source='repo')
-    type = serializers.CharField(source='repo_type')
+    type = serializers.ChoiceField(
+        source='repo_type',
+        choices=REPO_CHOICES,
+    )
 
 
 class ProjectLinksSerializer(BaseLinksSerializer):
@@ -383,8 +399,27 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
+class ProjectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to Import a Project."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url', required=False)
+
+    class Meta:
+        model = Project
+        fields = (
+            'name',
+            'language',
+            'programming_language',
+            'repository',
+            'homepage',
+        )
+
+
 class ProjectSerializer(FlexFieldsModelSerializer):
 
+    homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
@@ -395,8 +430,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
-
-    description = serializers.SerializerMethodField()
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -423,11 +456,11 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'slug',
-            'description',
             'created',
             'modified',
             'language',
             'programming_language',
+            'homepage',
             'repository',
             'default_version',
             'default_branch',
@@ -446,9 +479,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             '_links',
         ]
 
-    def get_description(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.description or None
+    def get_homepage(self, obj):
+        # Overridden only to return ``None`` when the project_url is ``''``
+        return obj.project_url or None
 
     def get_translation_of(self, obj):
         if obj.main_language_project:

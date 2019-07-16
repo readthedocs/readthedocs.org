@@ -99,6 +99,16 @@ class PageSearchBase(RTDFacetedSearch):
     fields = ['title^10', 'headers^5', 'content']
     operators = ['and', 'or']
 
+    def count(self):
+        """Overriding ``count`` method to return the count of the results after post_filter."""
+        s = self.build_search()
+
+        # setting size=0 so that no results are returned,
+        # we are only interested in the total count
+        s = s.extra(size=0)
+        s = s.execute()
+        return s.hits.total
+
 
 class DomainSearchBase(RTDFacetedSearch):
     facets = {
