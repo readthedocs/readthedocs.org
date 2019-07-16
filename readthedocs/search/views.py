@@ -117,7 +117,7 @@ def elastic_search(request, project_slug=None):
                     domains = inner_hits.domains or []
                     all_results = itertools.chain(sections, domains)
 
-                    sorted_results = (
+                    sorted_results = [
                         {
                             'type': hit._nested.field,
 

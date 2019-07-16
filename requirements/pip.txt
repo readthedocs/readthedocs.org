@@ -61,7 +61,7 @@ elasticsearch==6.4.0  # pyup: <7.0.0
 # ImportError: cannot import name 'DocTypeMeta'
 # 
 # Commit 97e3f75 adds the NestedFacet
-git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.0
+git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
 django-elasticsearch-dsl==0.5.1
 pyquery==1.4.0
 

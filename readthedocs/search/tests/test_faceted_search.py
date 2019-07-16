@@ -14,10 +14,10 @@ class TestPageSearch(object):
         Making a query with quoted text like ``"foo bar"`` should match
         exactly ``foo bar`` or ``Foo Bar`` etc
         """
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # But the phrase Github can is available only in kuma docs.
+        # `Sphinx` word is present both in `kuma` and `docs` files
+        # But the phrase `Sphinx uses` is available only in kuma docs.
         # So search with this phrase to check
-        query_text = r'"GitHub can"'
+        query_text = r'"Sphinx uses"'
         cased_query = getattr(query_text, case)
         query = cased_query()
 
@@ -26,7 +26,7 @@ class TestPageSearch(object):
 
         assert len(results) == 1
         assert results[0]['project'] == 'kuma'
-        assert results[0]['path'] == 'documentation'
+        assert results[0]['path'] == 'testdocumentation'
 
     def test_search_combined_result(self, client, project):
         """Check search result are combined of both `AND` and `OR` operator
@@ -36,15 +36,15 @@ class TestPageSearch(object):
         - Where both `Foo Bar` is present
         - Where `Foo` or `Bar` is present
         """
-        query = 'Official Support'
+        query = 'Elasticsearch Query'
         page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
         assert len(results) == 3
 
         result_paths = [r.path for r in results]
-        # ``open-source-philosophy`` page has both ``Official Support`` words
-        # ``docker`` page has ``Support`` word
-        # ``installation`` page has ``Official`` word
-        expected_paths = ['open-source-philosophy', 'docker', 'installation']
+        # ``guides/wipe-environment`` page has both ``Elasticsearch Query`` words
+        # ``docker`` page has ``Elasticsearch`` word
+        # ``installation`` page has ``Query`` word.
+        expected_paths = ['guides/wipe-environment', 'docker', 'installation']
 
         assert result_paths == expected_paths
