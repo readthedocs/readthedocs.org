@@ -771,7 +771,7 @@ class IntegrationsTests(TestCase):
         self.feature_flag = get(
             Feature,
             projects=[self.project],
-            feature_id=Feature.ENABLE_EXTERNAL_VERSION_BUILD,
+            feature_id=Feature.EXTERNAL_VERSION_BUILD,
         )
         self.version = get(
             Version, slug='master', verbose_name='master',

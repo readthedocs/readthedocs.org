@@ -369,7 +369,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return self.sync_versions(self.project)
 
         if (
-            self.project.has_feature(Feature.ENABLE_EXTERNAL_VERSION_BUILD) and
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
             event == GITHUB_PULL_REQUEST and action
         ):
             if (
