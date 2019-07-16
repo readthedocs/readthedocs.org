@@ -2,6 +2,7 @@
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/test-project/",
         "builds": "https://readthedocs.org/api/v3/projects/test-project/builds/",
+        "environmentvariables": "https://readthedocs.org/api/v3/projects/test-project/environmentvariables/",
         "redirects": "https://readthedocs.org/api/v3/projects/test-project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/test-project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/test-project/superproject/",
@@ -11,8 +12,8 @@
     "created": "2019-04-29T10:00:00Z",
     "default_branch": "master",
     "default_version": "latest",
-    "description": null,
     "id": 4,
+    "homepage": "http://template.readthedocs.io/",
     "language": {
         "code": "en",
         "name": "English"
@@ -36,8 +37,10 @@
     "tags": [],
     "translation_of": null,
     "urls": {
+        "builds": "https://readthedocs.org/projects/test-project/builds/",
         "documentation": "http://readthedocs.org/docs/test-project/en/latest/",
-        "project_homepage": "http://template.readthedocs.io/"
+        "home": "https://readthedocs.org/projects/test-project/",
+        "versions": "https://readthedocs.org/projects/test-project/versions/"
     },
     "users": [
         {

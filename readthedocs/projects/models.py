@@ -1472,6 +1472,8 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_('Project where this variable will be used'),
     )
 
+    objects = RelatedProjectQuerySet.as_manager()
+
     def __str__(self):
         return self.name
 
