@@ -759,3 +759,121 @@ Redirect delete
     :requestheader Authorization: token to authenticate.
 
     :statuscode 204: Deleted successfully
+
+
+Environment Variables
+~~~~~~~~~~~~~~~~~~~~~
+
+Environment Variables are variables that you can define for your project.
+These variables are used in the build process when building your documentation.
+They are useful to define secrets in a safe way that can be used by your documentation to build properly.
+See :doc:`/guides/environment-variables`
+
+
+Environment Variable details
+++++++++++++++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
+
+    Retrieve details of a single environment variable for a project.
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+
+    **Example response**
+
+    .. sourcecode:: json
+
+       {
+           "_links": {
+               "_self": "https://readthedocs.org/api/v3/projects/project/environmentvariables/1/",
+               "project": "https://readthedocs.org/api/v3/projects/project/"
+           },
+       "created": "2019-04-29T10:00:00Z",
+       "modified": "2019-04-29T12:00:00Z",
+       "pk": 1,
+       "project": "project",
+       "name": "ENVVAR"
+       }
+
+Environment Variables listing
++++++++++++++++++++++++++++++
+
+.. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/
+
+    Retrieve list of all the environment variables for this project.
+
+    **Example request**
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/
+
+    **Example response**
+
+    .. sourcecode:: json
+
+        {
+            "count": 15,
+            "next": "/api/v3/projects/pip/environmentvariables/?limit=10&offset=10",
+            "previous": null,
+            "results": ["ENVIRONMENTVARIABLE"]
+        }
+
+Environment Variable create
++++++++++++++++++++++++++++
+
+.. http:post:: /api/v3/projects/pip/environmentvariables/
+
+    Create an environment variable for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "name": "MYVAR",
+            "value": "My secret value"
+        }
+
+    **Example response**:
+
+    `See Environment Variable details <#environmentvariable-details>`_
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 201: Created
+    :statuscode 400: Some field is invalid
+
+
+Environment Variable delete
++++++++++++++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
+
+    Delete an environment variable for this project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X DELETE \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 204: Deleted successfully
