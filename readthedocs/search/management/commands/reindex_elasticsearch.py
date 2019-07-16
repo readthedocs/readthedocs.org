@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
             try:
                 for _ in range(chunk_size):
-                    objects_id.append(qs_iterator.__next__().pk)
+                    objects_id.append(next(qs_iterator).pk)
             except StopIteration:
                 is_iterator_empty = True
 
