@@ -50,10 +50,9 @@ function attach_elastic_search_query(data) {
                         }
 
                         // Creating the result from elements
-                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        var highlight_link = link + "?highlight=" + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX + "?highlight=" + $.urlencode(query);
 
-                        var item = $('<a>', {'href': highlight_link});
+                        var item = $('<a>', {'href': link});
                         item.html(title);
                         item.find('em').addClass('highlighted');
                         list_item.append(item);
