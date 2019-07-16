@@ -113,9 +113,8 @@ def get_or_create_external_version(project, identifier, verbose_name):
 
     if created:
         log.info(
-            '(Create External Version) Added Version: [%s] ', ' '.join(
-                external_version.slug
-            )
+            '(Create External Version) Added Version: [%s] ',
+            external_version.slug
         )
     else:
         # identifier will change if there is a new commit to the Pull/Merge Request
@@ -124,9 +123,8 @@ def get_or_create_external_version(project, identifier, verbose_name):
             external_version.save()
 
             log.info(
-                '(Update External Version) Updated Version: [%s] ', ' '.join(
-                    external_version.slug
-                )
+                '(Update External Version) Updated Version: [%s] ',
+                external_version.slug
             )
     return external_version
 
@@ -151,9 +149,8 @@ def delete_external_version(project, identifier, verbose_name):
         # Delete External Version
         external_version.delete()
         log.info(
-            '(Delete External Version) Deleted Version: [%s]', ' '.join(
-                external_version.slug
-            )
+            '(Delete External Version) Deleted Version: [%s]',
+            external_version.slug
         )
 
         return external_version.verbose_name
