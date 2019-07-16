@@ -155,7 +155,6 @@ Project details
             ],
             "users": [
                 {
-                    "created": "2010-10-23T18:12:31+00:00",
                     "username": "dstufft"
                 }
             ],
@@ -235,6 +234,7 @@ Versions are different versions of the same project documentation.
 
 The versions for a given project can be viewed in a project's version page.
 For example, here is the `Pip project's version page`_.
+See :doc:`/versions` for more information.
 
 .. _Pip project's version page: https://readthedocs.org/projects/pip/versions/
 
@@ -369,6 +369,7 @@ Frequently this happens automatically via a web hook but can be triggered manual
 
 Builds can be viewed in the build page for a project.
 For example, here is `Pip's build page`_.
+See :doc:`/builds` for more information.
 
 .. _Pip's build page: https://readthedocs.org/projects/pip/builds/
 
@@ -525,6 +526,12 @@ Build triggering
 Subprojects
 ~~~~~~~~~~~
 
+Projects can be configured in a nested manner,
+by configuring a project as a subproject of another project.
+This allows for documentation projects to share a search index and a namespace or custom domain,
+but still be maintained independently.
+See :doc:`/subprojects` for more information.
+
 Subprojects listing
 +++++++++++++++++++
 
@@ -560,6 +567,9 @@ Subprojects listing
 
 Translations
 ~~~~~~~~~~~~
+
+Translations are the same version of a Project in a different language.
+See :doc:`/localization` for more information.
 
 Translations listing
 ++++++++++++++++++++
@@ -731,7 +741,7 @@ Redirect update
     :statuscode 400: Some field is invalid
 
 
-Redirect destroy
+Redirect delete
 ++++++++++++++++
 
 .. http:delete:: /api/v3/projects/(str:project_slug)/redirects/(int:redirect_id)/
