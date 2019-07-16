@@ -161,9 +161,9 @@ class GitHubOAuthTests(TestCase):
 
         self.assertTrue(success)
         mock_logger.info.assert_called_with(
-            "GitHub '%s' commit status created for project: %s",
-            BUILD_STATUS_SUCCESS,
-            self.project
+            "GitHub commit status created for project: %s, commit status: %s",
+            self.project,
+            BUILD_STATUS_SUCCESS
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
