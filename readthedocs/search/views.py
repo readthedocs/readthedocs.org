@@ -2,6 +2,7 @@
 import collections
 import itertools
 import logging
+from operator import attrgetter
 from pprint import pformat
 
 from django.shortcuts import get_object_or_404, render
@@ -129,7 +130,7 @@ def elastic_search(request, project_slug=None):
                                 hit.highlight.to_dict()
                             ),
                         }
-                        for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+                        for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
                     )
 
                     result.meta.inner_hits = sorted_results

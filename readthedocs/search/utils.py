@@ -161,11 +161,6 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 delete_objects_in_es.delay(**kwargs)
 
 
-def _get_hit_score(res):
-    """Returns the _score of a single ES search result hits."""
-    return res._score
-
-
 def _remove_newlines_from_dict(highlight):
     """
     Recursively change results to turn newlines into periods.
