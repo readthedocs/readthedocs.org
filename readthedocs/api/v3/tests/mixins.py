@@ -10,6 +10,7 @@ from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
@@ -73,10 +74,7 @@ class APIEndpointMixin(TestCase):
             users=[],
             versions=[],
         )
-        # self.translation = fixture.get(Project, slug='translation')
-
         self.project.add_subproject(self.subproject)
-        # self.project.add_translation(self.translation)
 
         self.version = fixture.get(
             Version,
@@ -86,7 +84,7 @@ class APIEndpointMixin(TestCase):
             project=self.project,
             active=True,
             built=True,
-            type='tag',
+            type=TAG,
         )
 
         self.build = fixture.get(

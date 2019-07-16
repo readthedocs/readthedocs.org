@@ -10,7 +10,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 'projects-redirects-list',
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
-                }),
+                },
+            ),
         )
         self.assertEqual(response.status_code, 401)
 
@@ -21,7 +22,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 'projects-redirects-list',
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
-                }),
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
 
@@ -38,7 +40,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'redirect_pk': self.redirect.pk,
-                }),
+                },
+            ),
         )
         self.assertEqual(response.status_code, 401)
 
@@ -50,7 +53,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'redirect_pk': self.redirect.pk,
-                }),
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
 
@@ -68,7 +72,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 'projects-redirects-list',
                 kwargs={
                     'parent_lookup_project__slug': self.others_project.slug,
-                }),
+                },
+            ),
             data,
         )
         self.assertEqual(response.status_code, 401)
@@ -79,7 +84,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 'projects-redirects-list',
                 kwargs={
                     'parent_lookup_project__slug': self.others_project.slug,
-                }),
+                },
+            ),
             data,
         )
         self.assertEqual(response.status_code, 403)
@@ -97,7 +103,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 'projects-redirects-list',
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
-                }),
+                },
+            ),
             data,
         )
         self.assertEqual(response.status_code, 201)
@@ -124,7 +131,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'redirect_pk': self.redirect.pk,
-                }),
+                },
+            ),
             data,
         )
         self.assertEqual(response.status_code, 200)
@@ -145,7 +153,8 @@ class RedirectsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'redirect_pk': self.redirect.pk,
-                }),
+                },
+            ),
         )
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.redirects.count(), 0)

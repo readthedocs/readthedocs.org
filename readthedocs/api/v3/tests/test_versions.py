@@ -3,6 +3,7 @@ from django.urls import reverse
 
 import django_dynamic_fixture as fixture
 
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -16,8 +17,8 @@ class VerionsEndpointTests(APIEndpointMixin):
                 'projects-versions-list',
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
 
@@ -28,8 +29,8 @@ class VerionsEndpointTests(APIEndpointMixin):
                 'projects-versions-list',
                 kwargs={
                     'parent_lookup_project__slug': self.others_project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 403)
 
@@ -41,8 +42,8 @@ class VerionsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'version_slug': 'v1.0',
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
@@ -58,8 +59,8 @@ class VerionsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': 'nonexistent',
                     'version_slug': 'latest',
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
@@ -81,7 +82,7 @@ class VerionsEndpointTests(APIEndpointMixin):
             project=second_project,
             active=True,
             built=True,
-            type='tag',
+            type=TAG,
         )
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
@@ -90,7 +91,7 @@ class VerionsEndpointTests(APIEndpointMixin):
                 kwargs={
                     'parent_lookup_project__slug': self.project.slug,
                     'version_slug': self.version.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)

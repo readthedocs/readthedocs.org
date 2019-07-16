@@ -47,8 +47,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-superproject',
                 kwargs={
                     'project_slug': self.subproject.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
 
@@ -64,8 +64,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-subprojects-list',
                 kwargs={
                     'parent_lookup_superprojects__parent__slug': self.project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
@@ -80,8 +80,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-builds-list',
                 kwargs={
                     'parent_lookup_project__slug': self.others_project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 403)
 
@@ -92,8 +92,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-detail',
                 kwargs={
                     'project_slug': self.others_project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 200)
 
@@ -103,8 +103,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-detail',
                 kwargs={
                     'project_slug': self.others_project.slug,
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 401)
 
@@ -115,8 +115,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'projects-detail',
                 kwargs={
                     'project_slug': 'nonexistent',
-                }),
-
+                },
+            ),
         )
         self.assertEqual(response.status_code, 404)
 
