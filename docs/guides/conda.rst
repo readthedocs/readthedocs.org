@@ -33,5 +33,5 @@ we can't safely install it as a normal dependency into the normal Python virtual
 .. warning:: Installing conda into a virtualenv will override the ``activate`` script,
              making it so you can't properly activate that virtualenv anymore.
 
-.. _issue: https://github.com/rtfd/readthedocs.org/issues
+.. _issue: https://github.com/readthedocs/readthedocs.org/issues
 .. _Clinical Graphics: https://www.clinicalgraphics.com/

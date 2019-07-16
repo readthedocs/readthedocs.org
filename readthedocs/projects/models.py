@@ -15,8 +15,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from guardian.shortcuts import assign
-from six.moves import shlex_quote
+from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
@@ -329,8 +328,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository. '
-            'Protected means public but not in listings.',
+            'Level of privacy that you want on the repository.',
         ),
     )
     version_privacy_level = models.CharField(
@@ -421,8 +419,6 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        for owner in self.users.all():
-            assign('view_project', owner, self)
         try:
             latest = self.versions.filter(slug=LATEST).first()
             default_branch = self.get_default_branch()
@@ -759,24 +755,12 @@ class Project(models.Model):
             return os.path.dirname(conf_file)
 
     @property
-    def is_imported(self):
-        return bool(self.repo)
-
-    @property
     def has_good_build(self):
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, '_good_build'):
             return self._good_build
         return self.builds.filter(success=True).exists()
-
-    @property
-    def has_versions(self):
-        return self.versions.exists()
-
-    @property
-    def has_aliases(self):
-        return self.aliases.exists()
 
     def has_media(self, type_, version_slug=LATEST):
         path = self.get_production_media_path(
@@ -802,10 +786,6 @@ class Project(models.Model):
 
     def has_htmlzip(self, version_slug=LATEST):
         return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
-
-    @property
-    def sponsored(self):
-        return False
 
     def vcs_repo(self, version=LATEST, environment=None):
         """
@@ -1039,7 +1019,11 @@ class Project(models.Model):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
     def get_parent_relationship(self):
-        """Get the parent project relationship or None if this is a top level project"""
+        """
+        Get parent project relationship.
+
+        It returns ``None`` if this is a top level project.
+        """
         if hasattr(self, '_superprojects'):
             # Cached parent project relationship
             if self._superprojects:
@@ -1154,7 +1138,7 @@ class APIProject(Project):
 
     @property
     def show_advertising(self):
-        """Whether this project is ad-free (don't access the database)"""
+        """Whether this project is ad-free (don't access the database)."""
         return not self.ad_free
 
     @property
@@ -1252,8 +1236,6 @@ class HTMLFile(ImportedFile):
                 file_path,
             )
         return {
-            'headers': [],
-            'content': '',
             'path': file_path,
             'title': '',
             'sections': [],
@@ -1391,6 +1373,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
+    UPDATE_CONDA_STARTUP = 'update_conda_startup'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1430,6 +1413,10 @@ class Feature(models.Model):
         (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
+        ),
+        (
+            UPDATE_CONDA_STARTUP,
+            _('Upgrade conda before creating the environment'),
         ),
     )
 
@@ -1483,9 +1470,11 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_('Project where this variable will be used'),
     )
 
+    objects = RelatedProjectQuerySet.as_manager()
+
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        self.value = shlex_quote(self.value)
+        self.value = quote(self.value)
         return super().save(*args, **kwargs)

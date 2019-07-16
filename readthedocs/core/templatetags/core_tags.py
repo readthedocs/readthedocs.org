@@ -109,6 +109,14 @@ def key(d, key_name):
     return d[key_name]
 
 
+@register.filter
+def get_key_or_none(d, key_name):
+    try:
+        return d[key_name]
+    except KeyError:
+        return None
+
+
 @register.simple_tag
 def readthedocs_version():
     return __version__
@@ -117,7 +125,7 @@ def readthedocs_version():
 @register.filter
 def escapejson(data, indent=None):
     """
-    Escape JSON correctly for inclusion in Django templates
+    Escape JSON correctly for inclusion in Django templates.
 
     This code was mostly taken from Django's implementation
     https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#json-script

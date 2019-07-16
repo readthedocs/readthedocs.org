@@ -16,7 +16,7 @@ and HTTP response status codes are to designate success and failure.
     * Improved error reporting
 
     If there are features you would like in v3, please get in touch
-    in the `issue tracker <https://github.com/rtfd/readthedocs.org/issues>`_.
+    in the `issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`_.
 
 
 Authentication and authorization

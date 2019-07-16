@@ -223,7 +223,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
         GitHub use a HMAC hexdigest hash to sign the payload.
 
         It is sent in the request's header.
-        See https://developer.github.com/webhooks/securing/
+
+        See https://developer.github.com/webhooks/securing/.
         """
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
@@ -245,7 +246,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     @staticmethod
     def get_digest(secret, msg):
-        """Get a HMAC digest of `msg` using `secret.`"""
+        """Get a HMAC digest of `msg` using `secret`."""
         digest = hmac.new(
             secret.encode(),
             msg=msg.encode(),

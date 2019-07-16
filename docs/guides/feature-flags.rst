@@ -7,12 +7,18 @@ By default, these flags are disabled for every project.
 A separate request can be made by opening an issue on our `github`_ to enable
 or disable one or more of these featured flags for a particular project.
 
-.. _github: https://github.com/rtfd/readthedocs.org
+.. _github: https://github.com/readthedocs/readthedocs.org
 
 Available Flags
 ---------------
 
 ``PIP_ALWAYS_UPGRADE``: :featureflags:`PIP_ALWAYS_UPGRADE`
+
+``UPDATE_CONDA_STARTUP``: :featureflags:`UPDATE_CONDA_STARTUP`
+
+The version of ``conda`` used in the build process could not be the latest one.
+This is because we use Miniconda, which its release process is a little more slow than ``conda`` itself.
+In case you prefer to use the latest ``conda`` version available, this is the flag you need.
 
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 

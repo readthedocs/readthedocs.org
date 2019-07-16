@@ -1,33 +1,43 @@
 import django_filters.rest_framework as filters
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
+from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
     CreateModelMixin,
+    DestroyModelMixin,
     ListModelMixin,
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.redirects.models import Redirect
+
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import ProjectQuerySetMixin
-from .permissions import PublicDetailPrivateListing
+from .permissions import PublicDetailPrivateListing, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
+    EnvironmentVariableSerializer,
     ProjectSerializer,
+    ProjectCreateSerializer,
+    RedirectCreateSerializer,
+    RedirectDetailSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -62,7 +72,8 @@ class APIv3Settings:
 
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, ReadOnlyModelViewSet):
+                      FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
+                      ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
 
@@ -110,14 +121,13 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     * Subprojects of a project: ``/api/v3/projects/{project_slug}/subprojects/``
     * Superproject of a project: ``/api/v3/projects/{project_slug}/superproject/``
 
-    Go to [https://docs.readthedocs.io/en/stable/api/v3.html](https://docs.readthedocs.io/en/stable/api/v3.html)
+    Go to [https://docs.readthedocs.io/page/api/v3.html](https://docs.readthedocs.io/page/api/v3.html)
     for a complete documentation of the APIv3.
     """  # noqa
 
     model = Project
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
-    serializer_class = ProjectSerializer
     filterset_class = ProjectFilter
     queryset = Project.objects.all()
     permit_list_expands = [
@@ -125,6 +135,21 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         'active_versions.last_build',
         'active_versions.last_build.config',
     ]
+
+    def get_serializer_class(self):
+        """
+        Return correct serializer depending on the action.
+
+        For GET it returns a serializer with many fields and on PUT/PATCH/POST,
+        it return a serializer to validate just a few fields.
+        """
+        if self.action in ('list', 'retrieve', 'superproject'):
+            # NOTE: ``superproject`` is the @action defined in the
+            # ProjectViewSet that returns the superproject of a project.
+            return ProjectSerializer
+
+        if self.action == 'create':
+            return ProjectCreateSerializer
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
@@ -161,6 +186,32 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                 return mark_safe(description.format(project_slug=project.slug))
         return description
 
+    def create(self, request, *args, **kwargs):
+        """
+        Import Project.
+
+        Override to use a different serializer in the response.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        # Use serializer that fully render a Project
+        serializer = ProjectSerializer(instance=serializer.instance)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        """
+        Import Project.
+
+        Trigger our internal mechanism to import a project after it's saved in
+        the database.
+        """
+        project = serializer.save()
+        self.finish_import_project(self.request, project)
+
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
         """Return the superproject of a ``Project``."""
@@ -170,7 +221,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             data = self.get_serializer(superproject).data
             return Response(data)
         except Exception:
-            return Response(status=404)
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
@@ -259,7 +310,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
         # via Javascript
         super().update(request, *args, **kwargs)
-        return Response(status=204)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
@@ -299,8 +350,56 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
 
         if build:
             data.update({'triggered': True})
-            status = 202
+            code = status.HTTP_202_ACCEPTED
         else:
             data.update({'triggered': False})
-            status = 400
-        return Response(data=data, status=status)
+            code = status.HTTP_400_BAD_REQUEST
+        return Response(data=data, status=code)
+
+
+class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
+                       FlexFieldsMixin, ModelViewSet):
+    model = Redirect
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'redirect_pk'
+    queryset = Redirect.objects.all()
+    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.select_related('project')
+
+    def get_serializer_class(self):
+        if self.action in ('create', 'update', 'partial_update'):
+            return RedirectCreateSerializer
+        return RedirectDetailSerializer
+
+    def perform_create(self, serializer):
+        # Inject the project from the URL into the serializer
+        serializer.validated_data.update({
+            'project': self._get_parent_project(),
+        })
+        serializer.save()
+
+
+class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
+                                  ProjectQuerySetMixin, FlexFieldsMixin,
+                                  CreateModelMixin, DestroyModelMixin,
+                                  ReadOnlyModelViewSet):
+    model = EnvironmentVariable
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'environmentvariable_pk'
+    queryset = EnvironmentVariable.objects.all()
+    serializer_class = EnvironmentVariableSerializer
+    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.select_related('project')
+
+    def perform_create(self, serializer):
+        # Inject the project from the URL into the serializer
+        serializer.validated_data.update({
+            'project': self._get_parent_project(),
+        })
+        serializer.save()

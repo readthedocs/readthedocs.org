@@ -78,7 +78,9 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of svn list, eg:
+        Parses output of svn list.
+
+        Example:
 
         release-1.1/
         release-1.2/
