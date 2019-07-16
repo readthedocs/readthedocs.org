@@ -14,6 +14,12 @@ Available Flags
 
 ``PIP_ALWAYS_UPGRADE``: :featureflags:`PIP_ALWAYS_UPGRADE`
 
+``UPDATE_CONDA_STARTUP``: :featureflags:`UPDATE_CONDA_STARTUP`
+
+The version of ``conda`` used in the build process could not be the latest one.
+This is because we use Miniconda, which its release process is a little more slow than ``conda`` itself.
+In case you prefer to use the latest ``conda`` version available, this is the flag you need.
+
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`

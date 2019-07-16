@@ -15,7 +15,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from six.moves import shlex_quote
+from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
@@ -755,24 +755,12 @@ class Project(models.Model):
             return os.path.dirname(conf_file)
 
     @property
-    def is_imported(self):
-        return bool(self.repo)
-
-    @property
     def has_good_build(self):
         # Check if there is `_good_build` annotation in the Queryset.
         # Used for Database optimization.
         if hasattr(self, '_good_build'):
             return self._good_build
         return self.builds.filter(success=True).exists()
-
-    @property
-    def has_versions(self):
-        return self.versions.exists()
-
-    @property
-    def has_aliases(self):
-        return self.aliases.exists()
 
     def has_media(self, type_, version_slug=LATEST):
         path = self.get_production_media_path(
@@ -798,10 +786,6 @@ class Project(models.Model):
 
     def has_htmlzip(self, version_slug=LATEST):
         return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
-
-    @property
-    def sponsored(self):
-        return False
 
     def vcs_repo(self, version=LATEST, environment=None):
         """
@@ -1391,6 +1375,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
+    UPDATE_CONDA_STARTUP = 'update_conda_startup'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1430,6 +1415,10 @@ class Feature(models.Model):
         (
             CLEAN_AFTER_BUILD,
             _('Clean all files used in the build process'),
+        ),
+        (
+            UPDATE_CONDA_STARTUP,
+            _('Upgrade conda before creating the environment'),
         ),
     )
 
@@ -1489,5 +1478,5 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        self.value = shlex_quote(self.value)
+        self.value = quote(self.value)
         return super().save(*args, **kwargs)
