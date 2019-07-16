@@ -170,7 +170,12 @@ function attach_elastic_search_query(data) {
 
                             contents.find('em').addClass('highlighted');
                             list_item.append(contents);
-                            list_item.append($("<br>"));
+
+                            // Create some spacing between the results.
+                            // Also, don't add this spacing in the last hit.
+                            if (j !== inner_hits.length - 1) {
+                                list_item.append($("<div style='margin: 10px 0'></div>"));
+                            }
                         }
 
                         Search.output.append(list_item);
