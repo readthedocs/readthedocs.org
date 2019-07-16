@@ -105,30 +105,27 @@ def get_or_create_external_version(project, identifier, verbose_name):
     :returns:  External version.
     :rtype: Version
     """
-    external_version = project.versions(
-        manager=EXTERNAL
-    ).filter(verbose_name=verbose_name).first()
+    external_version, created = project.versions.get_or_create(
+        verbose_name=verbose_name,
+        type=EXTERNAL,
+        defaults={'identifier': identifier, 'active': True},
+    )
 
-    if external_version:
+    if created:
+        log.info(
+            '(Create External Version) Added Version: [%s] ',
+            external_version.slug
+        )
+    else:
         # identifier will change if there is a new commit to the Pull/Merge Request
         if external_version.identifier != identifier:
             external_version.identifier = identifier
             external_version.save()
-    else:
-        # create an external version if the version does not exist.
-        created_external_version = Version.objects.create(
-            project=project,
-            type=EXTERNAL,
-            identifier=identifier,
-            verbose_name=verbose_name,
-            active=True
-        )
-        log.info(
-            '(Create External Version) Added Version: [%s] ', ' '.join(
-                created_external_version.slug
+
+            log.info(
+                '(Update External Version) Updated Version: [%s] ',
+                external_version.slug
             )
-        )
-        return created_external_version
     return external_version
 
 
@@ -152,9 +149,8 @@ def delete_external_version(project, identifier, verbose_name):
         # Delete External Version
         external_version.delete()
         log.info(
-            '(Delete External Version) Deleted Version: [%s]', ' '.join(
-                external_version.slug
-            )
+            '(Delete External Version) Deleted Version: [%s]',
+            external_version.slug
         )
 
         return external_version.verbose_name

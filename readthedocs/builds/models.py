@@ -212,7 +212,7 @@ class Version(models.Model):
         """
         last_build = (
             self.builds(manager=INTERNAL).filter(
-                state='finished',
+                state=BUILD_STATE_FINISHED,
                 success=True,
             ).order_by('-date')
             .only('_config')
@@ -742,7 +742,11 @@ class Build(models.Model):
         return reverse('builds_detail', args=[self.project.slug, self.pk])
 
     def get_full_url(self):
-        """Get full url including domain."""
+        """
+        Get full url of the build including domain.
+
+        Example: https://readthedocs.org/projects/pip/builds/99999999/
+        """
         scheme = 'http' if settings.DEBUG else 'https'
         full_url = '{scheme}://{domain}{absolute_url}'.format(
             scheme=scheme,
@@ -803,7 +807,7 @@ class Build(models.Model):
                     commit=self.commit
                 )
 
-        return ''
+        return None
 
     @property
     def finished(self):

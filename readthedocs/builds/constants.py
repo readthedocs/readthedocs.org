@@ -90,3 +90,5 @@ SELECT_BUILD_STATUS = {
 
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
+
+RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'

@@ -200,7 +200,7 @@ class WebhookMixin:
 
     def get_external_version_response(self, project):
         """
-        Build External version on pull/merge request events and return API response.
+        Trigger builds for External versions on pull/merge request events and return API response.
 
         Return a JSON response with the following::
 
@@ -211,7 +211,7 @@ class WebhookMixin:
             }
 
         :param project: Project instance
-        :type project: Project
+        :type project: readthedocs.projects.models.Project
         """
         identifier, verbose_name = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
@@ -369,7 +369,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return self.sync_versions(self.project)
 
         if (
-            self.project.has_feature(Feature.ENABLE_EXTERNAL_VERSION_BUILD) and
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
             event == GITHUB_PULL_REQUEST and action
         ):
             if (

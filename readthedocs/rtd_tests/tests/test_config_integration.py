@@ -8,7 +8,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 from mock import MagicMock, PropertyMock, patch
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, BUILD_STATE_TRIGGERED
 from readthedocs.builds.models import Version
 from readthedocs.config import (
     ALL,
@@ -368,6 +368,7 @@ class TestLoadConfigV2:
             config=load_yaml_config(self.version),
             project=self.project,
             version=self.version,
+            build={'id': 99, 'state': BUILD_STATE_TRIGGERED}
         )
         return update_docs
 

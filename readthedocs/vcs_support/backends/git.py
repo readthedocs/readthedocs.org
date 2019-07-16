@@ -12,7 +12,7 @@ from git.exc import BadName, InvalidGitRepositoryError
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
-from readthedocs.projects.constants import GITHUB_GIT_PATTERN
+from readthedocs.projects.constants import GITHUB_PR_PULL_PATTERN
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -57,7 +57,6 @@ class Backend(BaseVCS):
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
-            # A fetch is always required to get external versions properly
             return self.fetch()
         self.make_clean_working_dir()
         # A fetch is always required to get external versions properly
@@ -154,17 +153,17 @@ class Backend(BaseVCS):
         cmd = ['git', 'fetch', 'origin',
                '--tags', '--prune', '--prune-tags']
 
+        if self.use_shallow_clone():
+            cmd.extend(['--depth', str(self.repo_depth)])
+
         if (
             self.verbose_name and
             self.version_type == EXTERNAL and
             'github.com' in self.repo_url
         ):
             cmd.append(
-                GITHUB_GIT_PATTERN.format(id=self.verbose_name)
+                GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
             )
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
 
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
