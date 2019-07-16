@@ -173,7 +173,7 @@ function attach_elastic_search_query(data) {
                             // Create some spacing between the results.
                             // Also, don't add this spacing in the last hit.
                             if (j !== inner_hits.length - 1) {
-                                list_item.append($("<div style='margin: 10px 0'></div>"));
+                                list_item.append($("<div class='rtd_search_hits_spacing'></div>"));
                             }
                         }
 
