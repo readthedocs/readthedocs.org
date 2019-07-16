@@ -92,15 +92,9 @@ $(document).ready(function () {
       </span>
       <span class="build-commit" data-bind="visible: commit">
         {% if build.get_commit_url %}
-          (<a data-bind="attr: {href: commit_url}">
-            <span data-bind="text: commit">
-                {{ build.commit }}
-            </span>
-          </a>)
+          (<a data-bind="attr: {href: commit_url}"><span data-bind="text: commit">{{ build.commit }}</span></a>)
         {% else %}
-            (<span data-bind="text: commit">
-                {{ build.commit }}
-            </span>)
+            (<span data-bind="text: commit">{{ build.commit }}</span>)
         {% endif %}
       </span>
     </div>
