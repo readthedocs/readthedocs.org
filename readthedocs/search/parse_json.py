@@ -95,7 +95,7 @@ def parse_content(content):
     Removes the starting text and ¶.
 
     It removes the starting text from the content
-    because it contains the the title of that content,
+    because it contains the title of that content,
     which is redundant here.
     """
     content = content.replace('¶', '').strip()
