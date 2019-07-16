@@ -94,14 +94,6 @@ def get_project_list_or_404(project_slug, user, version_slug=None):
     return project_list
 
 
-def get_chunk(total, chunk_size):
-    """Yield successive `chunk_size` chunks."""
-    # Based on https://stackoverflow.com/a/312464
-    # licensed under cc by-sa 3.0
-    for i in range(0, total, chunk_size):
-        yield (i, i + chunk_size)
-
-
 def _get_index(indices, index_name):
     """
     Get Index from all the indices.
@@ -159,3 +151,26 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 index_objects_to_es.delay(**kwargs)
             else:
                 delete_objects_in_es.delay(**kwargs)
+
+
+def _remove_newlines_from_dict(highlight):
+    """
+    Recursively change results to turn newlines into periods.
+
+    See: https://github.com/rtfd/readthedocs.org/issues/5168
+    :param highlight: highlight dict whose contents are to be edited.
+    :type highlight: dict
+    :returns: dict with all the newlines changed to periods.
+    :rtype: dict
+    """
+    for k, v in highlight.items():
+        if isinstance(v, dict):
+            highlight[k] = _remove_newlines_from_dict(v)
+        else:
+            # elastic returns the contents of the
+            # highlighted field in a list.
+            if isinstance(v, list):
+                v_new_list = [res.replace('\n', '. ') for res in v]
+                highlight[k] = v_new_list
+
+    return highlight
