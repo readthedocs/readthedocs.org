@@ -38,9 +38,8 @@ class Command(BaseCommand):
             except StopIteration:
                 is_iterator_empty = True
 
-            if objects_id:
-                data['objects_id']: objects_id
-                yield index_objects_to_es.si(**data)
+            data['objects_id'] = objects_id
+            yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
         apply_async_kwargs = {'priority': 0}
