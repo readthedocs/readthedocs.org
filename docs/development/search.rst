@@ -98,7 +98,7 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 
     The fields and ES Datatypes are specified in the `PageDocument`. The indexable data is taken
     from `processed_json` property of `HTMLFile`. This property provides python dictionary with
-    document data like `title`, `headers`, `content` etc.
+    document data like `title`, `sections`, `path` etc.
 
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
