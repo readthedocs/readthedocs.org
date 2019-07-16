@@ -578,18 +578,21 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
-            # send build failure status to git Status API
+            # if the build failed, send build failure status to git Status API
+            # to show status report on the providers pull/merge request UI.
             send_external_build_status(
                 version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
             )
         elif self.build_env.successful:
-            # send build successful status to git Status API
+            # if the build succeed, send build successful status to git Status API
+            # to show status report on the providers pull/merge request UI.
             send_external_build_status(
                 version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
             )
         else:
             msg = 'Unhandled Build Status'
-            # send build failure status to git Status API when Unhandled Build Status Found.
+            # if unhandled build status found, send build failure status to git Status API
+            # to show status report on the providers pull/merge request UI.
             send_external_build_status(
                 version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
             )
