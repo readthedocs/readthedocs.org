@@ -111,17 +111,23 @@ def get_or_create_external_version(project, identifier, verbose_name):
         defaults={'identifier': identifier, 'active': True},
     )
 
-    if not created:
-        # identifier will change if there is a new commit to the Pull/Merge Request
-        if external_version.identifier != identifier:
-            external_version.identifier = identifier
-            external_version.save()
-    else:
+    if created:
         log.info(
             '(Create External Version) Added Version: [%s] ', ' '.join(
                 external_version.slug
             )
         )
+    else:
+        # identifier will change if there is a new commit to the Pull/Merge Request
+        if external_version.identifier != identifier:
+            external_version.identifier = identifier
+            external_version.save()
+
+            log.info(
+                '(Update External Version) Updated Version: [%s] ', ' '.join(
+                    external_version.slug
+                )
+            )
     return external_version
 
 
