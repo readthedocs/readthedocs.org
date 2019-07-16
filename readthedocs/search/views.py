@@ -131,7 +131,7 @@ def elastic_search(request, project_slug=None):
                             ),
                         }
                         for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
-                    )
+                    ]
 
                     result.meta.inner_hits = sorted_results
             except Exception:
