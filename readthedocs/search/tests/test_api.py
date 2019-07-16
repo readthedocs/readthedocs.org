@@ -25,13 +25,12 @@ class TestDocumentSearch:
         # installed
         cls.url = reverse('doc_search')
 
-    @pytest.mark.parametrize('data_type', ['title'])
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_works_with_title_query(self, api_client, project, page_num, data_type):
+    def test_search_works_with_title_query(self, api_client, project, page_num):
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type=data_type
+            data_type='title'
         )
 
         version = project.versions.all().first()
@@ -51,7 +50,7 @@ class TestDocumentSearch:
         assert project_data['project'] == project.slug
 
         # Check highlight return correct object of first result
-        title_highlight = project_data['highlight'][data_type]
+        title_highlight = project_data['highlight']['title']
 
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()

@@ -102,7 +102,7 @@
     {% if facets.role_name %}
       <h5>{% trans 'Code API Type' %}</h5>
       {% for name, count, selected in facets.role_name %}
-        <li class="{% if selected %}active{% endif %} language-list">
+        <li class="{% if selected %}active{% endif %} role-list">
           {% if role_name == name %}
             <a href="?{% url_replace request 'role_name' ''  %}">{{ name }}
           {% else %}

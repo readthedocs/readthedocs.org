@@ -128,7 +128,7 @@ class TestPageSearch(object):
             fragments = res.cssselect('.fragment')
             assert len(fragments) >= 1
 
-        content = page.find('.navigable .language-list')
+        content = page.find('.navigable .role-list')
         # these are taken from files `support` and `wiping`
         expected_role_names = ['http:get', 'http:patch', 'http:post']
 
@@ -153,7 +153,7 @@ class TestPageSearch(object):
         assert len(results) >= 2  # there are > 1 results without the filter
 
         # checking if `std:confval` filter is present
-        content = page.find('.navigable .language-list').text()
+        content = page.find('.navigable .role-list').text()
         assert 'std:confval' in content
 
         # filtering with role_name=std:confval
