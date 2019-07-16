@@ -34,7 +34,12 @@ class Command(BaseCommand):
 
             try:
                 for _ in range(chunk_size):
-                    objects_id.append(next(qs_iterator).pk)
+                    pk = next(qs_iterator).pk
+                    objects_id.append(pk)
+
+                    if pk % 5000 == 0:
+                        log.info('Total: %s', pk)
+
             except StopIteration:
                 is_iterator_empty = True
 
