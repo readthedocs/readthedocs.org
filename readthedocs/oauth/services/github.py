@@ -352,9 +352,9 @@ class GitHubService(Service):
             )
             if resp.status_code == 201:
                 log.info(
-                    "GitHub '%s' commit status created for project: %s",
-                    github_build_state,
+                    "GitHub commit status created for project: %s, commit status: %s",
                     project,
+                    github_build_state,
                 )
                 return True
 
