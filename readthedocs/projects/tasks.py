@@ -589,6 +589,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
         else:
             msg = 'Unhandled Build Status'
+            # send build failure status to git Status API when Unhandled Build Status Found.
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+            )
             log.warning(
                 LOG_TEMPLATE,
                 {
