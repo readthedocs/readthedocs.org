@@ -50,10 +50,9 @@ function attach_elastic_search_query(data) {
                         }
 
                         // Creating the result from elements
-                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        var highlight_link = link + "?highlight=" + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX + "?highlight=" + $.urlencode(query);
 
-                        var item = $('<a>', {'href': highlight_link});
+                        var item = $('<a>', {'href': link});
                         item.html(title);
                         item.find('em').addClass('highlighted');
                         list_item.append(item);
@@ -170,7 +169,12 @@ function attach_elastic_search_query(data) {
 
                             contents.find('em').addClass('highlighted');
                             list_item.append(contents);
-                            list_item.append($("<br>"));
+
+                            // Create some spacing between the results.
+                            // Also, don't add this spacing in the last hit.
+                            if (j !== inner_hits.length - 1) {
+                                list_item.append($("<div class='rtd_search_hits_spacing'></div>"));
+                            }
                         }
 
                         Search.output.append(list_item);
