@@ -803,7 +803,7 @@ class Build(models.Model):
                     commit=self.commit
                 )
 
-        return ''
+        return None
 
     @property
     def finished(self):
