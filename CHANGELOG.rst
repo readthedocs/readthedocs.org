@@ -1,3 +1,48 @@
+Version 3.6.0
+-------------
+
+:Date: July 16, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Bump the Sphinx extension to 1.0 (`#5942 <https://github.com/readthedocs/readthedocs.org/pull/5942>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add READTHEDOCS_LANGUAGE to the environment during builds (`#5941 <https://github.com/readthedocs/readthedocs.org/pull/5941>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Small search doc fix (`#5940 <https://github.com/readthedocs/readthedocs.org/pull/5940>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Indexing speedup (`#5939 <https://github.com/readthedocs/readthedocs.org/pull/5939>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Small improvement in parse_json (`#5938 <https://github.com/readthedocs/readthedocs.org/pull/5938>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Use `attrgetter` in sorted function (`#5936 <https://github.com/readthedocs/readthedocs.org/pull/5936>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refine PR Builder Code (`#5933 <https://github.com/readthedocs/readthedocs.org/pull/5933>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix spacing between the results and add highlight url param (`#5932 <https://github.com/readthedocs/readthedocs.org/pull/5932>`__)
+* `@Abhi-khandelwal <http://github.com/Abhi-khandelwal>`__: remove the usage of six (`#5930 <https://github.com/readthedocs/readthedocs.org/pull/5930>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix count value of docsearch REST api (`#5926 <https://github.com/readthedocs/readthedocs.org/pull/5926>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Merge the GSOC 2019 in-doc search changes (`#5919 <https://github.com/readthedocs/readthedocs.org/pull/5919>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add tests for section-linking (`#5918 <https://github.com/readthedocs/readthedocs.org/pull/5918>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update build list and detail page UX (`#5916 <https://github.com/readthedocs/readthedocs.org/pull/5916>`__)
+* `@humitos <http://github.com/humitos>`__: These Project's methods are not used (`#5915 <https://github.com/readthedocs/readthedocs.org/pull/5915>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Github Status reporting Test fix (`#5914 <https://github.com/readthedocs/readthedocs.org/pull/5914>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 endpoint to manage Environment Variables (`#5913 <https://github.com/readthedocs/readthedocs.org/pull/5913>`__)
+* `@humitos <http://github.com/humitos>`__: Split APIv3 tests on different files (`#5911 <https://github.com/readthedocs/readthedocs.org/pull/5911>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add Feature Flag to Enable External Version Building (`#5910 <https://github.com/readthedocs/readthedocs.org/pull/5910>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Pass the build_pk to the task instead of the build object itself (`#5904 <https://github.com/readthedocs/readthedocs.org/pull/5904>`__)
+* `@stsewd <http://github.com/stsewd>`__: Better msg when gitpython fails (`#5903 <https://github.com/readthedocs/readthedocs.org/pull/5903>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Exclude external versions from get_latest_build (`#5901 <https://github.com/readthedocs/readthedocs.org/pull/5901>`__)
+* `@humitos <http://github.com/humitos>`__: Update conda at startup (`#5897 <https://github.com/readthedocs/readthedocs.org/pull/5897>`__)
+* `@humitos <http://github.com/humitos>`__: Update APIv3 documentation with latest changes (`#5895 <https://github.com/readthedocs/readthedocs.org/pull/5895>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add tests for version and project querysets (`#5894 <https://github.com/readthedocs/readthedocs.org/pull/5894>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Rework on documentation guides (`#5893 <https://github.com/readthedocs/readthedocs.org/pull/5893>`__)
+* `@humitos <http://github.com/humitos>`__: Lint (pep257: D415) (`#5892 <https://github.com/readthedocs/readthedocs.org/pull/5892>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix spaces in email subject link (`#5891 <https://github.com/readthedocs/readthedocs.org/pull/5891>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Build only HTML and Save external version artifacts in different directory (`#5886 <https://github.com/readthedocs/readthedocs.org/pull/5886>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 CRUD for Redirect objects (`#5879 <https://github.com/readthedocs/readthedocs.org/pull/5879>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add config to Build and Version admin (`#5877 <https://github.com/readthedocs/readthedocs.org/pull/5877>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 26 (`#5874 <https://github.com/readthedocs/readthedocs.org/pull/5874>`__)
+* `@stsewd <http://github.com/stsewd>`__: Call distinct to the end of the querysets (`#5872 <https://github.com/readthedocs/readthedocs.org/pull/5872>`__)
+* `@pranay414 <http://github.com/pranay414>`__: Change rtfd to readthedocs (`#5871 <https://github.com/readthedocs/readthedocs.org/pull/5871>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 refactor some fields (`#5868 <https://github.com/readthedocs/readthedocs.org/pull/5868>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Send Build Status Report Using GitHub Status API (`#5865 <https://github.com/readthedocs/readthedocs.org/pull/5865>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 "Import Project" endpoint (`#5857 <https://github.com/readthedocs/readthedocs.org/pull/5857>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove django guardian from querysets (`#5853 <https://github.com/readthedocs/readthedocs.org/pull/5853>`__)
+* `@humitos <http://github.com/humitos>`__: Hide "Protected" privacy level from users (`#5833 <https://github.com/readthedocs/readthedocs.org/pull/5833>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add section linking for the search result (`#5829 <https://github.com/readthedocs/readthedocs.org/pull/5829>`__)
+
 Version 3.5.3
 -------------
 
