@@ -1,5 +1,6 @@
 import itertools
 import logging
+from operator import attrgetter
 from pprint import pformat
 
 from rest_framework import generics, serializers
@@ -54,7 +55,7 @@ class PageSearchSerializer(serializers.Serializer):
                     '_source': hit._source.to_dict(),
                     'highlight': self._get_inner_hits_highlights(hit),
                 }
-                for hit in sorted(all_results, key=utils._get_hit_score, reverse=True)
+                for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
             ]
 
             return sorted_results
