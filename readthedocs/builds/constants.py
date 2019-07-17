@@ -62,33 +62,33 @@ NON_REPOSITORY_VERSIONS = (
     STABLE,
 )
 
-# GitHub Build Statuses
-GITHUB_BUILD_STATE_FAILURE = 'failure'
-GITHUB_BUILD_STATE_PENDING = 'pending'
-GITHUB_BUILD_STATE_SUCCESS = 'success'
-
 # General Build Statuses
 BUILD_STATUS_FAILURE = 'failed'
 BUILD_STATUS_PENDING = 'pending'
 BUILD_STATUS_SUCCESS = 'success'
 
+# GitHub Build Statuses
+GITHUB_BUILD_STATUS_FAILURE = 'failure'
+GITHUB_BUILD_STATUS_PENDING = 'pending'
+GITHUB_BUILD_STATUS_SUCCESS = 'success'
+
 # Used to select correct Build status and description to be sent to each service API
 SELECT_BUILD_STATUS = {
     BUILD_STATUS_FAILURE: {
-        'github': GITHUB_BUILD_STATE_FAILURE,
+        'github': GITHUB_BUILD_STATUS_FAILURE,
         'description': 'The build failed!',
     },
     BUILD_STATUS_PENDING: {
-        'github': GITHUB_BUILD_STATE_PENDING,
+        'github': GITHUB_BUILD_STATUS_PENDING,
         'description': 'The build is pending!',
     },
     BUILD_STATUS_SUCCESS: {
-        'github': GITHUB_BUILD_STATE_SUCCESS,
+        'github': GITHUB_BUILD_STATUS_SUCCESS,
         'description': 'The build succeeded!',
     },
 }
 
+RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
+
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
-
-RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
