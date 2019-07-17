@@ -1,7 +1,5 @@
 import itertools
 import logging
-from operator import attrgetter
-from pprint import pformat
 
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
@@ -38,8 +36,8 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            ret = utils._remove_newlines_from_dict(highlight.to_dict())
-            log.debug('API Search highlight [Page title]: %s', pformat(ret))
+            ret = highlight.to_dict()
+            log.debug('API Search highlight [Page title]: %s', ret)
             return ret
 
     def get_inner_hits(self, obj):
@@ -49,27 +47,13 @@ class PageSearchSerializer(serializers.Serializer):
             domains = inner_hits.domains or []
             all_results = itertools.chain(sections, domains)
 
-            sorted_results = [
-                {
-                    'type': hit._nested.field,
-                    '_source': hit._source.to_dict(),
-                    'highlight': self._get_inner_hits_highlights(hit),
-                }
-                for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
-            ]
-
-            return sorted_results
-
-    def _get_inner_hits_highlights(self, hit):
-        """Removes new lines from highlight and log it."""
-        if hasattr(hit, 'highlight'):
-            highlight_dict = utils._remove_newlines_from_dict(
-                hit.highlight.to_dict()
+            sorted_results = utils._get_sorted_results(
+                results=all_results,
+                source_key='_source',
             )
 
-            log.debug('API Search highlight: %s', pformat(highlight_dict))
-            return highlight_dict
-        return {}
+            log.debug('[API] Sorted Results: %s', sorted_results)
+            return sorted_results
 
 
 class PageSearchAPIView(generics.ListAPIView):
