@@ -69,7 +69,7 @@ class PageSearchSerializer(serializers.Serializer):
 
             log.debug('API Search highlight: %s', pformat(highlight_dict))
             return highlight_dict
-        return None
+        return {}
 
 
 class PageSearchAPIView(generics.ListAPIView):
