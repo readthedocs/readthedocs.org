@@ -62,12 +62,14 @@ class PageSearchSerializer(serializers.Serializer):
 
     def _get_inner_hits_highlights(self, hit):
         """Removes new lines from highlight and log it."""
-        highlight_dict = utils._remove_newlines_from_dict(
-            hit.highlight.to_dict()
-        )
+        if hasattr(hit, 'highlight'):
+            highlight_dict = utils._remove_newlines_from_dict(
+                hit.highlight.to_dict()
+            )
 
-        log.debug('API Search highlight: %s', pformat(highlight_dict))
-        return highlight_dict
+            log.debug('API Search highlight: %s', pformat(highlight_dict))
+            return highlight_dict
+        return None
 
 
 class PageSearchAPIView(generics.ListAPIView):
