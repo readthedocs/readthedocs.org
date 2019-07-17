@@ -70,13 +70,14 @@
       </span>
 
       <h1>{% trans "Import a Repository" %}</h1>
+
       {% if has_connected_accounts %}
-        {% block import-repo %}
+        {% block private-repo-tip %}
           <div class="import-repo">
             <p>
             {% blocktrans trimmed %}
-                Here only public repositories are listed, If you want to find your private
-                repositories, you can find them on <a href="https://readthedocs.com/">readthedocs.com</a>.
+                We're only showing public repositories. For private projects and many of features,
+                please use <a href="https://readthedocs.com/">Read the Docs for Business</a>.
             {% endblocktrans %}
             </p>
           </div>
