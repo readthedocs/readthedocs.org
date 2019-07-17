@@ -1,6 +1,8 @@
 """Utilities related to reading and generating indexable search content."""
 
 import logging
+from pprint import pformat
+from operator import attrgetter
 
 from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.apps import DEDConfig
@@ -174,3 +176,31 @@ def _remove_newlines_from_dict(highlight):
                 highlight[k] = v_new_list
 
     return highlight
+
+
+def _get_inner_hits_highlights(hit, logging=False):
+    """Removes new lines from highlight dict"""
+    if hasattr(hit, 'highlight'):
+        highlight_dict = _remove_newlines_from_dict(
+            hit.highlight.to_dict()
+        )
+
+        if logging:
+            log.debug('API Search highlight: %s', pformat(highlight_dict))
+
+        return highlight_dict
+    return {}
+
+
+def _get_sorted_results(results, source_key='_source', logging=False):
+    """Sort results according to their score and return a generator expression."""
+    sorted_results = (
+        {
+            'type': hit._nested.field,
+            source_key: hit._source.to_dict(),
+            'highlight': _get_inner_hits_highlights(hit, logging)
+        }
+        for hit in sorted(results, key=attrgetter('_score'), reverse=True)
+    )
+
+    return sorted_results

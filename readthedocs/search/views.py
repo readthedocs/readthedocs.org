@@ -117,21 +117,11 @@ def elastic_search(request, project_slug=None):
                     domains = inner_hits.domains or []
                     all_results = itertools.chain(sections, domains)
 
-                    sorted_results = [
-                        {
-                            'type': hit._nested.field,
-
-                            # here _source term is not used because
-                            # django gives error if the names of the
-                            # variables start with underscore
-                            'source': hit._source.to_dict(),
-
-                            'highlight': utils._remove_newlines_from_dict(
-                                hit.highlight.to_dict()
-                            ),
-                        }
-                        for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
-                    ]
+                    sorted_results = list(utils._get_sorted_results(
+                        results=all_results,
+                        source_key='source',
+                        logging=False,
+                    ))
 
                     result.meta.inner_hits = sorted_results
             except Exception:

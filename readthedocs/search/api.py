@@ -1,6 +1,5 @@
 import itertools
 import logging
-from operator import attrgetter
 from pprint import pformat
 
 from rest_framework import generics, serializers
@@ -48,26 +47,12 @@ class PageSearchSerializer(serializers.Serializer):
             sections = inner_hits.sections or []
             domains = inner_hits.domains or []
             all_results = itertools.chain(sections, domains)
-
-            sorted_results = [
-                {
-                    'type': hit._nested.field,
-                    '_source': hit._source.to_dict(),
-                    'highlight': self._get_inner_hits_highlights(hit),
-                }
-                for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
-            ]
-
+            sorted_results = list(utils._get_sorted_results(
+                results=all_results,
+                source_key='_source',
+                logging=True,
+            ))
             return sorted_results
-
-    def _get_inner_hits_highlights(self, hit):
-        """Removes new lines from highlight and log it."""
-        highlight_dict = utils._remove_newlines_from_dict(
-            hit.highlight.to_dict()
-        )
-
-        log.debug('API Search highlight: %s', pformat(highlight_dict))
-        return highlight_dict
 
 
 class PageSearchAPIView(generics.ListAPIView):
