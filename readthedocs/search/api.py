@@ -1,6 +1,5 @@
 import itertools
 import logging
-from pprint import pformat
 
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
@@ -38,7 +37,7 @@ class PageSearchSerializer(serializers.Serializer):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
             ret = highlight.to_dict()
-            log.debug('API Search highlight [Page title]: %s', pformat(ret))
+            log.debug('API Search highlight [Page title]: %s', ret)
             return ret
 
     def get_inner_hits(self, obj):
@@ -47,11 +46,13 @@ class PageSearchSerializer(serializers.Serializer):
             sections = inner_hits.sections or []
             domains = inner_hits.domains or []
             all_results = itertools.chain(sections, domains)
-            sorted_results = list(utils._get_sorted_results(
+
+            sorted_results = utils._get_sorted_results(
                 results=all_results,
                 source_key='_source',
-                logging=True,
-            ))
+            )
+
+            log.debug('[API] Sorted Results: %s', sorted_results)
             return sorted_results
 
 

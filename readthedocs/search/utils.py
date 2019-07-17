@@ -1,7 +1,6 @@
 """Utilities related to reading and generating indexable search content."""
 
 import logging
-from pprint import pformat
 from operator import attrgetter
 
 from django.shortcuts import get_object_or_404
@@ -155,27 +154,15 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 delete_objects_in_es.delay(**kwargs)
 
 
-def _get_inner_hits_highlights(hit, logging=False):
-    """Returns highlight dict and does conditional logging of the same."""
-    if hasattr(hit, 'highlight'):
-        highlight_dict = hit.highlight.to_dict()
-
-        if logging:
-            log.debug('API Search highlight: %s', pformat(highlight_dict))
-
-        return highlight_dict
-    return {}
-
-
-def _get_sorted_results(results, source_key='_source', logging=False):
-    """Sort results according to their score and return a generator expression."""
-    sorted_results = (
+def _get_sorted_results(results, source_key='_source'):
+    """Sort results according to their score and returns results as list."""
+    sorted_results = [
         {
             'type': hit._nested.field,
             source_key: hit._source.to_dict(),
-            'highlight': _get_inner_hits_highlights(hit, logging)
+            'highlight': hit.highlight.to_dict() if hasattr(hit, 'highlight') else {}
         }
         for hit in sorted(results, key=attrgetter('_score'), reverse=True)
-    )
+    ]
 
     return sorted_results

@@ -3,7 +3,6 @@ import collections
 import itertools
 import logging
 from operator import attrgetter
-from pprint import pformat
 
 from django.shortcuts import get_object_or_404, render
 
@@ -117,18 +116,17 @@ def elastic_search(request, project_slug=None):
                     domains = inner_hits.domains or []
                     all_results = itertools.chain(sections, domains)
 
-                    sorted_results = list(utils._get_sorted_results(
+                    sorted_results = utils._get_sorted_results(
                         results=all_results,
                         source_key='source',
-                        logging=False,
-                    ))
+                    )
 
                     result.meta.inner_hits = sorted_results
             except Exception:
                 log.exception('Error while sorting the results (inner_hits).')
 
-        log.debug('Search results: %s', pformat(results.to_dict()))
-        log.debug('Search facets: %s', pformat(results.facets.to_dict()))
+        log.debug('Search results: %s', results.to_dict())
+        log.debug('Search facets: %s', results.facets.to_dict())
 
     template_vars = user_input._asdict()
     template_vars.update({
