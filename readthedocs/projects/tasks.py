@@ -1495,7 +1495,7 @@ def _sync_imported_files(version, build, changed_files):
 
     # Delete SphinxDomain objects from previous versions
     # This has to be done before deleting ImportedFiles and not with a cascade,
-    # because multiple Domain's can reference a specific HTMLFile. 
+    # because multiple Domain's can reference a specific HTMLFile.
     (
         SphinxDomain.objects
         .filter(project=version.project, version=version)
