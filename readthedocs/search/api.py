@@ -37,7 +37,7 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            ret = utils._remove_newlines_from_dict(highlight.to_dict())
+            ret = highlight.to_dict()
             log.debug('API Search highlight [Page title]: %s', pformat(ret))
             return ret
 

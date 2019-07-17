@@ -155,35 +155,10 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 delete_objects_in_es.delay(**kwargs)
 
 
-def _remove_newlines_from_dict(highlight):
-    """
-    Recursively change results to turn newlines into periods.
-
-    See: https://github.com/rtfd/readthedocs.org/issues/5168
-    :param highlight: highlight dict whose contents are to be edited.
-    :type highlight: dict
-    :returns: dict with all the newlines changed to periods.
-    :rtype: dict
-    """
-    for k, v in highlight.items():
-        if isinstance(v, dict):
-            highlight[k] = _remove_newlines_from_dict(v)
-        else:
-            # elastic returns the contents of the
-            # highlighted field in a list.
-            if isinstance(v, list):
-                v_new_list = [res.replace('\n', '. ') for res in v]
-                highlight[k] = v_new_list
-
-    return highlight
-
-
 def _get_inner_hits_highlights(hit, logging=False):
-    """Removes new lines from highlight dict"""
+    """Returns highlight dict and does conditional logging of the same."""
     if hasattr(hit, 'highlight'):
-        highlight_dict = _remove_newlines_from_dict(
-            hit.highlight.to_dict()
-        )
+        highlight_dict = hit.highlight.to_dict()
 
         if logging:
             log.debug('API Search highlight: %s', pformat(highlight_dict))
