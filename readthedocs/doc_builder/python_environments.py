@@ -420,6 +420,7 @@ class Conda(PythonEnvironment):
             '--name=base',
             '--channel=defaults',
             'conda',
+            cwd=self.checkout_path,
         )
 
     def setup_base(self):
