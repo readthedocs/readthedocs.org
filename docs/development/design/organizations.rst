@@ -72,3 +72,17 @@ So, we should only support admin permissions for teams.
 
 Subscriptions, this is only valid for the corporate site,
 since we don't charge for use in the community site.
+
+Namespace
+---------
+
+Currently we use the project's slug as namespace,
+in the commercial site we use the combination of `organization.slug` + `project.slug` as namespace.
+
+For the community site probably this approach isn't the best,
+since we alway serve docs publicly from `slug.readthedocs.io`.
+And most of the users don't have a custom domain.
+
+We could keep the current behavior for the community site and use `organization.slug` + `project.slug` for the corporate site,
+since in the corporate site we don't care so much about a unique namespace between all users, but a unique namespace per organization.
+We can refactor the way we get the namespace to be more easy to manage in both sites.
