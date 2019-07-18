@@ -523,7 +523,7 @@ class Conda(PythonEnvironment):
                 yaml.safe_dump(environment, outputfile)
             except IOError:
                 log.warning(
-                    'There was an error while writing the new Conda ',
+                    'There was an error while writing the new Conda '
                     'environment file.',
                 )
 
