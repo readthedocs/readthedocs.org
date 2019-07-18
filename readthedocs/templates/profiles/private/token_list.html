@@ -1,0 +1,34 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Personal Access Tokens" %}{% endblock %}
+
+{% block profile-admin-tokens %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Personal Access Tokens" %} {% endblock %}
+
+{% block edit_content %}
+  <p>Personal Access Token are tokens that allow you to use the Read the Docs APIv3 being authenticated as yourself. See <a href="https://docs.readthedocs.org/page/api/v3.html">APIv3 documentation</a> for more information.</p>
+
+    <div class="module">
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% for token in object_list %}
+              <li class="module-item">
+                  <div>Created: {{ token.created }}</div>
+                  <div>Token: {{ token.key }}</div>
+              </li>
+            {% empty %}
+              <li class="module-item">
+                <p class="quiet">
+                  {% trans 'No Personal Access Tokens currently configured.' %}
+                </p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+{% endblock %}

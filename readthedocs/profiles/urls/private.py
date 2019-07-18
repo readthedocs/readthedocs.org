@@ -25,3 +25,13 @@ urlpatterns = [
         name='account_advertising',
     ),
 ]
+
+tokens_urls = [
+    url(
+        r'^tokens/$',
+        views.TokenList.as_view(),
+        name='profiles_tokens',
+    ),
+]
+
+urlpatterns += tokens_urls
