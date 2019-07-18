@@ -30,4 +30,4 @@ e.g. python-reno release notes manager is known to do that
 
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
 
-``ENABLE_EXTERNAL_VERSION_BUILD``: :featureflags:`ENABLE_EXTERNAL_VERSION_BUILD`
+``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`

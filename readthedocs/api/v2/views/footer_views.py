@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework_jsonp.renderers import JSONPRenderer
 
 from readthedocs.api.v2.signals import footer_response
-from readthedocs.builds.constants import LATEST, TAG, INTERNAL
+from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (

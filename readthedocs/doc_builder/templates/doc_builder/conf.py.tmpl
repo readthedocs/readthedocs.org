@@ -141,6 +141,10 @@ if 'extensions' in globals():
 else:
     extensions = ["readthedocs_ext.readthedocs"]
 
+# Add External version warning banner to the external version documentation
+if '{{ version.type }}' == 'external':
+    extensions.insert(1, "readthedocs_ext.external_version_warning")
+
 project_language = '{{ project.language }}'
 
 # User's Sphinx configurations

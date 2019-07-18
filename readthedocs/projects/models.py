@@ -1407,7 +1407,7 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
-    EXTERNAL_VERSION_BUILD = 'enable_external_version_build'
+    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
 
     FEATURES = (
