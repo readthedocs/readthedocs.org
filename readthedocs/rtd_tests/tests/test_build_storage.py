@@ -30,7 +30,7 @@ class TestBuildMediaStorage(TestCase):
         self.storage.copy_directory(files_dir, 'files')
         dirs, files = self.storage.listdir('files')
         self.assertEqual(dirs, [])
-        self.assertEqual(files, ['api.fjson', 'conf.py', 'test.html'])
+        self.assertCountEqual(files, ['api.fjson', 'conf.py', 'test.html'])
 
         self.storage.delete_directory('files/')
         dirs, files = self.storage.listdir('files')
@@ -43,10 +43,13 @@ class TestBuildMediaStorage(TestCase):
 
         output = list(self.storage.walk('files'))
         self.assertEqual(len(output), 2)
-        self.assertEqual(
-            output,
-            [
-                ('files', ['subfiles'], ['api.fjson', 'conf.py', 'test.html']),
-                ('files/subfiles', [], ['api.fjson', 'conf.py', 'test.html']),
-            ],
-        )
+
+        top, dirs, files = output[0]
+        self.assertEqual(top, 'files')
+        self.assertCountEqual(dirs, ['subfiles'])
+        self.assertCountEqual(files, ['api.fjson', 'conf.py', 'test.html'])
+
+        top, dirs, files = output[1]
+        self.assertEqual(top, 'files/subfiles')
+        self.assertCountEqual(dirs, [])
+        self.assertCountEqual(files, ['api.fjson', 'conf.py', 'test.html'])
