@@ -43,7 +43,11 @@ But, for whatever option we choose,
 we'll need to move the models defined in the corporate site
 to the community site.
 
-We should start by removing unused features and dead code from the organizations in the corporate site.
+From the technical site
+~~~~~~~~~~~~~~~~~~~~~~~
+
+We should start by removing unused features and dead code from the organizations in the corporate site,
+and isolate/separate the models to be moved from the ones that aren't going to be moved.
 After that, it should be more easy to move the organizations *app* (or part of it)
 to the community site (and not changes in table names would be required).
 
