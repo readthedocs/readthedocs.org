@@ -19,6 +19,7 @@ from .models import (
     Mkdocs,
     Python,
     PythonInstall,
+    PythonInstallPipfile,
     PythonInstallRequirements,
     Sphinx,
     Submodules,
@@ -825,12 +826,49 @@ class BuildConfigV2(BuildConfigBase):
                         code=PYTHON_INVALID,
                     )
                 python_install['extra_requirements'] = extra_requirements
+        elif 'pipfile' in raw_install:
+            python_install.update(self.validate_pipfile(key))
         else:
             self.error(
                 key,
                 '"path" or "requirements" key is required',
                 code=CONFIG_REQUIRED,
             )
+        return python_install
+
+    def validate_pipfile(self, key):
+        """
+        Validates the pipfile key.
+
+        :param key: The key in a dotted form
+        :return: The dictionary with valid data
+        """
+        python_install = {}
+        pipfile_key = key + '.pipfile'
+        with self.catch_validation_error(pipfile_key):
+            python_install['pipfile'] = validate_directory(
+                self.pop_config(pipfile_key),
+                self.base_path
+            )
+
+        dev_key = key + '.dev'
+        with self.catch_validation_error(dev_key):
+            python_install['dev'] = validate_bool(
+                self.pop_config(dev_key, False),
+            )
+
+        ignore_pipfile_key = key + '.ignore_pipfile'
+        with self.catch_validation_error(ignore_pipfile_key):
+            python_install['ignore_pipfile'] = validate_bool(
+                self.pop_config(ignore_pipfile_key, False),
+            )
+
+        skip_lock_key = key + '.skip_lock'
+        with self.catch_validation_error(skip_lock_key):
+            python_install['skip_lock'] = validate_bool(
+                self.pop_config(skip_lock_key, True),
+            )
+
         return python_install
 
     def get_valid_python_versions(self):
@@ -1067,9 +1105,17 @@ class BuildConfigV2(BuildConfigBase):
         python = self._config['python']
         for install in python['install']:
             if 'requirements' in install:
-                python_install.append(PythonInstallRequirements(**install),)
+                python_install.append(
+                    PythonInstallRequirements(**install)
+                )
             elif 'path' in install:
-                python_install.append(PythonInstall(**install),)
+                python_install.append(
+                    PythonInstall(**install)
+                )
+            elif 'pipfile' in install:
+                python_install.append(
+                    PythonInstallPipfile(**install)
+                )
         return Python(
             version=python['version'],
             install=python_install,

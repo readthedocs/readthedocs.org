@@ -50,6 +50,10 @@ class PythonInstall(Base):
     )
 
 
+class PythonInstallPipfile(Base):
+    __slots__ = ('pipfile', 'dev', 'ignore_pipfile', 'skip_lock')
+
+
 class Conda(Base):
 
     __slots__ = ('environment',)

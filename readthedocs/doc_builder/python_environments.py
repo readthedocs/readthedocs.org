@@ -9,7 +9,7 @@ import os
 import shutil
 
 from readthedocs.config import PIP, SETUPTOOLS
-from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import PythonInstall, PythonInstallRequirements, PythonInstallPipfile
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -74,6 +74,8 @@ class PythonEnvironment:
                 self.install_requirements_file(install)
             if isinstance(install, PythonInstall):
                 self.install_package(install)
+            if isinstance(install, PythonInstallPipfile):
+                self.install_pipfile(install)
 
     def install_package(self, install):
         """
@@ -118,6 +120,30 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def install_pipfile(self, install):
+        extra_args = []
+        if install.dev:
+            extra_args.append('--dev')
+        if install.ignore_pipfile:
+            extra_args.append('--ignore-pipfile')
+        if install.skip_lock:
+            extra_args.append('--skip-lock')
+        pipfile = os.path.relpath(
+            os.path.join(install.pipfile, 'Pipfile'),
+            self.checkout_path
+        )
+        pipfile = os.path.join('.', pipfile)
+        self.build_env.run(
+            'PIPENV_PIPFILE={}'.format(pipfile),
+            'python',
+            self.venv_bin(filename='pipenv'),
+            'install',
+            '--system',
+            *extra_args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin()  # no comma here for py2.7
+        )
 
     def venv_bin(self, filename=None):
         """
@@ -303,6 +329,7 @@ class Virtualenv(PythonEnvironment):
             'mock==1.0.1',
             'pillow==5.4.1',
             'alabaster>=0.7,<0.8,!=0.7.5',
+            'pipenv==2018.11.26',
             'commonmark==0.8.1',
             'recommonmark==0.5.0',
         ]
