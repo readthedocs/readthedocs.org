@@ -63,6 +63,10 @@ def generate_sections_from_pyquery(body):
 
 def process_file(fjson_storage_path):
     """Read the fjson file from disk and parse it into a structured dict."""
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+        raise RuntimeError('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     log.debug('Processing JSON file for indexing: %s', fjson_storage_path)

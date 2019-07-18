@@ -718,103 +718,115 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if settings.RTD_BUILD_MEDIA_STORAGE:
+        if not settings.RTD_BUILD_MEDIA_STORAGE:
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
+                        'RTD_BUILD_MEDIA_STORAGE is missing - '
+                        'Not writing build artifacts to media storage'
+                    ),
+                },
+            )
+            return
+
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.version.project.slug,
+                'version': self.version.slug,
+                'msg': 'Writing build artifacts to media storage',
+            },
+        )
+
+        types_to_copy = []
+        types_to_delete = []
+
+        # HTML media
+        if html:
+            types_to_copy.append(('html', self.config.doctype))
+
+        # Search media (JSON)
+        if search:
+            types_to_copy.append(('json', 'sphinx_search'))
+
+        if localmedia:
+            types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+        else:
+            types_to_delete.append('htmlzip')
+
+        if pdf:
+            types_to_copy.append(('pdf', 'sphinx_pdf'))
+        else:
+            types_to_delete.append('pdf')
+
+        if epub:
+            types_to_copy.append(('epub', 'sphinx_epub'))
+        else:
+            types_to_delete.append('epub')
+
+        for media_type, build_type in types_to_copy:
+            from_path = self.version.project.artifact_path(
+                version=self.version.slug,
+                type_=build_type,
+            )
+            to_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+            )
             log.info(
                 LOG_TEMPLATE,
                 {
                     'project': self.version.project.slug,
                     'version': self.version.slug,
-                    'msg': 'Writing build artifacts to media storage',
+                    'msg': f'Writing {media_type} to media storage - {to_path}',
                 },
             )
-
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
-            types_to_copy = []
-            types_to_delete = []
-
-            # HTML media
-            if html:
-                types_to_copy.append(('html', self.config.doctype))
-
-            # Search media (JSON)
-            if search:
-                types_to_copy.append(('json', 'sphinx_search'))
-
-            if localmedia:
-                types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
-            else:
-                types_to_delete.append('htmlzip')
-
-            if pdf:
-                types_to_copy.append(('pdf', 'sphinx_pdf'))
-            else:
-                types_to_delete.append('pdf')
-
-            if epub:
-                types_to_copy.append(('epub', 'sphinx_epub'))
-            else:
-                types_to_delete.append('epub')
-
-            for media_type, build_type in types_to_copy:
-                from_path = self.version.project.artifact_path(
-                    version=self.version.slug,
-                    type_=build_type,
-                )
-                to_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                )
-                log.info(
+            try:
+                storage.copy_directory(from_path, to_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Writing {media_type} to media storage - {to_path}',
+                        'msg': f'Error copying {from_path} to storage (not failing build)',
                     },
                 )
-                try:
-                    storage.copy_directory(from_path, to_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error copying {from_path} to storage (not failing build)',
-                        },
-                    )
 
-            for media_type in types_to_delete:
-                media_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                )
-                log.info(
+        for media_type in types_to_delete:
+            media_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+            )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': f'Deleting {media_type} from media storage - {media_path}',
+                },
+            )
+            try:
+                storage.delete_directory(media_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Deleting {media_type} from media storage - {media_path}',
+                        'msg': f'Error deleting {media_path} from storage (not failing build)',
                     },
                 )
-                try:
-                    storage.delete_directory(media_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error deleting {media_path} from storage (not failing build)',
-                        },
-                    )
 
     def update_app_instances(
             self,
@@ -1296,6 +1308,7 @@ def _update_intersphinx_data(version, commit, build):
     :param build: Build id
     """
     if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
         return
 
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -1446,6 +1459,7 @@ def _manage_imported_files(version, commit, build):
     """
 
     if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
         return
 
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -1715,11 +1729,14 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if settings.RTD_BUILD_MEDIA_STORAGE:
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        for storage_path in paths:
-            log.info('Removing %s from media storage', storage_path)
-            storage.delete_directory(storage_path)
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    for storage_path in paths:
+        log.info('Removing %s from media storage', storage_path)
+        storage.delete_directory(storage_path)
 
 
 @app.task(queue='web')
