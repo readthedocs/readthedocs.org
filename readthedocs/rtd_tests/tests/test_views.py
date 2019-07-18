@@ -276,3 +276,12 @@ class BuildViewTests(TestCase):
             r._headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
+
+class HomepageViewTests(TestCase):
+
+    def test_projects_count(self):
+        url = reverse('homepage') 
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        expected_count = Project.objects.exclude(users__profile__banned=True).count()
+        self.assertEqual(expected_count, response.context['projects_count']) 
