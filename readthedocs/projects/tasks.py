@@ -649,6 +649,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
             'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
         }
 
         if self.config.conda is not None:
@@ -1289,19 +1290,25 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        _manage_imported_files(version, commit, build)
+        changed_files = _create_imported_files(version, commit, build)
     except Exception:
+        changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _update_intersphinx_data(version, commit, build)
+        _create_intersphinx_data(version, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
+    try:
+        _sync_imported_files(version, build, changed_files)
+    except Exception:
+        log.exception('Failed during ImportedFile syncing')
 
-def _update_intersphinx_data(version, commit, build):
+
+def _create_intersphinx_data(version, commit, build):
     """
-    Update intersphinx data for this version.
+    Create intersphinx data for this version.
 
     :param version: Version instance
     :param commit: Commit that updated path
@@ -1401,24 +1408,6 @@ def _update_intersphinx_data(version, commit, build):
                 build=build,
             )
 
-    # Index new SphinxDomain objects to elasticsearch
-    index_new_files(model=SphinxDomain, version=version, build=build)
-
-    # Remove old SphinxDomain from elasticsearch
-    remove_indexed_files(
-        model=SphinxDomain,
-        version=version,
-        build=build,
-    )
-
-    # Delete SphinxDomain objects from the previous build of the version.
-    (
-        SphinxDomain.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
-    )
-
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
@@ -1449,13 +1438,15 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, commit, build):
+def _create_imported_files(version, commit, build):
     """
-    Update imported files for version.
+    Create imported files for version.
 
     :param version: Version instance
     :param commit: Commit that updated path
     :param build: Build id
+    :returns: paths of changed files
+    :rtype: set
     """
 
     if not settings.RTD_BUILD_MEDIA_STORAGE:
@@ -1518,14 +1509,36 @@ def _manage_imported_files(version, commit, build):
                 build=build,
             )
 
-    # Index new HTMLFiles to elasticsearch
+    return changed_files
+
+
+def _sync_imported_files(version, build, changed_files):
+    """
+    Sync/Update/Delete ImportedFiles objects of this version.
+
+    :param version: Version instance
+    :param build: Build id
+    :param changed_files: path of changed files
+    """
+
+    # Index new HTMLFiles to ElasticSearch
     index_new_files(model=HTMLFile, version=version, build=build)
 
-    # Remove old HTMLFiles from elasticsearch
+    # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
         model=HTMLFile,
         version=version,
         build=build,
+    )
+
+    # Delete SphinxDomain objects from previous versions
+    # This has to be done before deleting ImportedFiles and not with a cascade,
+    # because multiple Domain's can reference a specific HTMLFile.
+    (
+        SphinxDomain.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
     )
 
     # Delete ImportedFiles objects (including HTMLFiles)

@@ -109,6 +109,14 @@ def key(d, key_name):
     return d[key_name]
 
 
+@register.filter
+def get_key_or_none(d, key_name):
+    try:
+        return d[key_name]
+    except KeyError:
+        return None
+
+
 @register.simple_tag
 def readthedocs_version():
     return __version__

@@ -1246,8 +1246,6 @@ class HTMLFile(ImportedFile):
             )
 
         return {
-            'headers': [],
-            'content': '',
             'path': file_path,
             'title': '',
             'sections': [],
@@ -1481,6 +1479,8 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         on_delete=models.CASCADE,
         help_text=_('Project where this variable will be used'),
     )
+
+    objects = RelatedProjectQuerySet.as_manager()
 
     def __str__(self):
         return self.name

@@ -43,7 +43,6 @@
             ],
             "users": [
                 {
-                    "created": "2019-04-29T10:00:00Z",
                     "username": "testuser"
                 }
             ],
@@ -51,6 +50,7 @@
                 "_self": "https://readthedocs.org/api/v3/projects/project/",
                 "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
                 "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
+                "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
                 "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
                 "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
                 "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",

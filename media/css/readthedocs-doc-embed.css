@@ -286,3 +286,8 @@ div.ethical-footer {
     font-size: 14px;
     line-height: 20px;
 }
+
+/* Margin between the search results */
+.rtd_search_hits_spacing {
+    margin: 10px 0;
+}
