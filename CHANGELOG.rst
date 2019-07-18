@@ -1,3 +1,32 @@
+Version 3.6.1
+-------------
+
+:Date: July 17, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Missed a couple places to set READTHEDOCS_LANGUAGE (`#5951 <https://github.com/readthedocs/readthedocs.org/pull/5951>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Hotfix: Return empty dict when no highlight dict is present (`#5950 <https://github.com/readthedocs/readthedocs.org/pull/5950>`__)
+* `@humitos <http://github.com/humitos>`__: Use a cwd where the user has access inside the container (`#5949 <https://github.com/readthedocs/readthedocs.org/pull/5949>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Small Changes to PR Builder Code (`#5948 <https://github.com/readthedocs/readthedocs.org/pull/5948>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Explicitly delete SphinxDomain objects from previous versions (`#5945 <https://github.com/readthedocs/readthedocs.org/pull/5945>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Properly return None when there's no highlight on a hit. (`#5944 <https://github.com/readthedocs/readthedocs.org/pull/5944>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.6.0 (`#5943 <https://github.com/readthedocs/readthedocs.org/pull/5943>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Bump the Sphinx extension to 1.0 (`#5942 <https://github.com/readthedocs/readthedocs.org/pull/5942>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add READTHEDOCS_LANGUAGE to the environment during builds (`#5941 <https://github.com/readthedocs/readthedocs.org/pull/5941>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Small search doc fix (`#5940 <https://github.com/readthedocs/readthedocs.org/pull/5940>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Indexing speedup (`#5939 <https://github.com/readthedocs/readthedocs.org/pull/5939>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Small improvement in parse_json (`#5938 <https://github.com/readthedocs/readthedocs.org/pull/5938>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Use `attrgetter` in sorted function (`#5936 <https://github.com/readthedocs/readthedocs.org/pull/5936>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refine PR Builder Code (`#5933 <https://github.com/readthedocs/readthedocs.org/pull/5933>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix spacing between the results and add highlight url param (`#5932 <https://github.com/readthedocs/readthedocs.org/pull/5932>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Merge the GSOC 2019 in-doc search changes (`#5919 <https://github.com/readthedocs/readthedocs.org/pull/5919>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add tests for section-linking (`#5918 <https://github.com/readthedocs/readthedocs.org/pull/5918>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update build list and detail page UX (`#5916 <https://github.com/readthedocs/readthedocs.org/pull/5916>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 endpoint to manage Environment Variables (`#5913 <https://github.com/readthedocs/readthedocs.org/pull/5913>`__)
+* `@humitos <http://github.com/humitos>`__: Split APIv3 tests on different files (`#5911 <https://github.com/readthedocs/readthedocs.org/pull/5911>`__)
+* `@stsewd <http://github.com/stsewd>`__: Better msg when gitpython fails (`#5903 <https://github.com/readthedocs/readthedocs.org/pull/5903>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add check for external version in conf.py.tmpl for warning banner (`#5900 <https://github.com/readthedocs/readthedocs.org/pull/5900>`__)
+* `@humitos <http://github.com/humitos>`__: Update APIv3 documentation with latest changes (`#5895 <https://github.com/readthedocs/readthedocs.org/pull/5895>`__)
+
 Version 3.6.0
 -------------
 
