@@ -76,15 +76,15 @@ GITHUB_BUILD_STATUS_SUCCESS = 'success'
 SELECT_BUILD_STATUS = {
     BUILD_STATUS_FAILURE: {
         'github': GITHUB_BUILD_STATUS_FAILURE,
-        'description': 'The build failed!',
+        'description': 'Read the Docs build failed!',
     },
     BUILD_STATUS_PENDING: {
         'github': GITHUB_BUILD_STATUS_PENDING,
-        'description': 'The build is pending!',
+        'description': 'Read the Docs build is in progress!',
     },
     BUILD_STATUS_SUCCESS: {
         'github': GITHUB_BUILD_STATUS_SUCCESS,
-        'description': 'The build succeeded!',
+        'description': 'Read the Docs build succeeded!',
     },
 }
 
