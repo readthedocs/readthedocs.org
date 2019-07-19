@@ -3,14 +3,24 @@ import datetime
 import os
 
 import mock
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
 from django.utils import timezone
 
+from allauth.socialaccount.models import SocialAccount
+
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    GITHUB_EXTERNAL_VERSION_NAME,
+    GENERIC_EXTERNAL_VERSION_NAME
+)
 from readthedocs.builds.models import Build, Version
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import EnvironmentVariable, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
@@ -369,9 +379,36 @@ class BuildEnvironmentTests(TestCase):
 
 class BuildModelTests(TestCase):
 
+    fixtures = ['test_data']
+
     def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
+
         self.project = get(Project)
+        self.project.users.add(self.eric)
         self.version = get(Version, project=self.project)
+
+        self.pip = Project.objects.get(slug='pip')
+        self.external_version = get(
+            Version,
+            identifier='9F86D081884C7D659A2FEAA0C55AD015A',
+            verbose_name='9999',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
+        self.pip_version = get(
+            Version,
+            identifier='origin/stable',
+            verbose_name='stable',
+            slug='stable',
+            project=self.pip,
+            active=True,
+            type=BRANCH
+        )
 
     def test_get_previous_build(self):
         build_one = get(
@@ -583,3 +620,99 @@ class BuildModelTests(TestCase):
         build.save()
 
         self.assertTrue(build.using_latest_config())
+
+    def test_build_is_external(self):
+        # Turn the build version to EXTERNAL type.
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertTrue(external_build.is_external)
+
+    def test_build_is_not_external(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertFalse(build.is_external)
+
+    def test_no_external_version_name(self):
+        build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertEqual(build.external_version_name, None)
+
+    def test_external_version_name_github(self):
+        social_account = get(SocialAccount, provider='github')
+        remote_repo = get(
+            RemoteRepository,
+            account=social_account,
+            project=self.project
+        )
+        remote_repo.users.add(self.eric)
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+
+        self.assertEqual(
+            external_build.external_version_name,
+            GITHUB_EXTERNAL_VERSION_NAME
+        )
+
+    def test_external_version_name_generic(self):
+        # Turn the build version to EXTERNAL type.
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        external_build = get(
+            Build,
+            project=self.project,
+            version=self.version,
+            config={'version': 1},
+        )
+
+        self.assertEqual(
+            external_build.external_version_name,
+            GENERIC_EXTERNAL_VERSION_NAME
+        )
+
+    def test_get_commit_url_external_version_github(self):
+
+        external_build = get(
+            Build,
+            project=self.pip,
+            version=self.external_version,
+            config={'version': 1},
+        )
+        expected_url = 'https://github.com/pypa/pip/pull/{number}/commits/{sha}'.format(
+            number=self.external_version.verbose_name,
+            sha=external_build.commit
+        )
+        self.assertEqual(external_build.get_commit_url(), expected_url)
+
+    def test_get_commit_url_internal_version(self):
+        build = get(
+            Build,
+            project=self.pip,
+            version=self.pip_version,
+            config={'version': 1},
+        )
+        expected_url = 'https://github.com/pypa/pip/commit/{sha}'.format(
+            sha=build.commit
+        )
+        self.assertEqual(build.get_commit_url(), expected_url)

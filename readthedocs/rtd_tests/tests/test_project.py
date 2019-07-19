@@ -14,8 +14,9 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     LATEST,
+    EXTERNAL,
 )
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import Build, Version
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
@@ -29,6 +30,16 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+        # Create a External Version. ie: pull/merge request Version.
+        self.external_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='99',
+            slug='99',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
 
 
 class TestProject(ProjectMixin, TestCase):
@@ -133,6 +144,54 @@ class TestProject(ProjectMixin, TestCase):
             self.pip.get_storage_path('htmlzip', LATEST),
             'htmlzip/pip/latest/pip.zip',
         )
+
+    def test_get_storage_path_for_external_versions(self):
+        self.assertEqual(
+            self.pip.get_storage_path(
+                'pdf', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/pdf/pip/99/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/epub/pip/99/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/htmlzip/pip/99/pip.zip',
+        )
+
+    def test_ordered_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.ordered_active_versions())
+
+    def test_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.active_versions())
+
+    def test_all_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.all_active_versions())
+
+    def test_update_stable_version_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for stable.
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+    def test_has_good_build_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for has_good_build.
+        self.assertFalse(self.pip.has_good_build)
+
+    def test_get_latest_build_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for get_latest_build.
+        self.assertEqual(self.pip.get_latest_build(), None)
 
 
 class TestProjectTranslations(ProjectMixin, TestCase):

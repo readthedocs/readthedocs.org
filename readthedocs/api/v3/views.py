@@ -281,7 +281,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     lookup_value_regex = r'[^/]+'
 
     filterset_class = VersionFilter
-    queryset = Version.objects.all()
+    queryset = Version.internal.all()
     permit_list_expands = [
         'last_build',
         'last_build.config',
@@ -320,7 +320,7 @@ class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     lookup_url_kwarg = 'build_pk'
     serializer_class = BuildSerializer
     filterset_class = BuildFilter
-    queryset = Build.objects.all()
+    queryset = Build.internal.all()
     permit_list_expands = [
         'config',
     ]

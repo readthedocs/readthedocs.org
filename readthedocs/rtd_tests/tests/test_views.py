@@ -7,8 +7,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build
+from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import HTMLFile, Project
@@ -266,6 +266,7 @@ class BuildViewTests(TestCase):
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_build_redirect(self, mock):
@@ -276,6 +277,26 @@ class BuildViewTests(TestCase):
             r._headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
+        
+     def test_build_list_includes_external_versions(self):
+        external_version = get(
+            Version,
+            project = self.pip,
+            active = True,
+            type = EXTERNAL,
+        )
+        external_version_build = get(
+            Build,
+            project = self.pip,
+            version = external_version
+        )
+        response = self.client.get(
+            reverse('builds_project_list', args=[self.pip.slug]),
+        )
+        self.assertEqual(response.status_code, 200)
+        
+        self.assertIn(external_version_build, response.context['build_qs'])
+
 
 class HomepageViewTests(TestCase):
 
