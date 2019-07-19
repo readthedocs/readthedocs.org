@@ -278,7 +278,7 @@ class BuildViewTests(TestCase):
             '/projects/pip/builds/%s/' % build.pk,
         )
         
-     def test_build_list_includes_external_versions(self):
+    def test_build_list_includes_external_versions(self):
         external_version = get(
             Version,
             project = self.pip,
@@ -293,8 +293,7 @@ class BuildViewTests(TestCase):
         response = self.client.get(
             reverse('builds_project_list', args=[self.pip.slug]),
         )
-        self.assertEqual(response.status_code, 200)
-        
+        self.assertEqual(response.status_code, 200)       
         self.assertIn(external_version_build, response.context['build_qs'])
 
 
