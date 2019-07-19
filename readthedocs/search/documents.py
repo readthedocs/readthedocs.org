@@ -6,7 +6,6 @@ from django_elasticsearch_dsl import DocType, Index, fields
 from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.sphinx_domains.models import SphinxDomain
 
 
 project_conf = settings.ES_INDEXES['project']
@@ -16,10 +15,6 @@ project_index.settings(**project_conf['settings'])
 page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
-
-domain_conf = settings.ES_INDEXES['domain']
-domain_index = Index(domain_conf['name'])
-domain_index.settings(**domain_conf['settings'])
 
 log = logging.getLogger(__name__)
 
@@ -33,46 +28,6 @@ class RTDDocTypeMixin:
         log.info('Hacking Elastic indexing to fix connection pooling')
         self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
         super().update(*args, **kwargs)
-
-
-@domain_index.doc_type
-class SphinxDomainDocument(RTDDocTypeMixin, DocType):
-    project = fields.KeywordField(attr='project.slug')
-    version = fields.KeywordField(attr='version.slug')
-    role_name = fields.KeywordField(attr='role_name')
-
-    # For linking to the URL
-    doc_name = fields.KeywordField(attr='doc_name')
-    anchor = fields.KeywordField(attr='anchor')
-
-    # For showing in the search result
-    type_display = fields.TextField(attr='type_display')
-    doc_display = fields.TextField(attr='doc_display')
-
-    # Simple analyzer breaks on `.`,
-    # otherwise search results are too strict for this use case
-    name = fields.TextField(attr='name', analyzer='simple')
-    display_name = fields.TextField(attr='display_name', analyzer='simple')
-
-    modified_model_field = 'modified'
-
-    class Meta:
-        model = SphinxDomain
-        fields = ('commit', 'build')
-        ignore_signals = True
-
-    def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
-        queryset = super().get_queryset()
-
-        excluded_types = [
-            {'domain': 'std', 'type': 'doc'},
-            {'domain': 'std', 'type': 'label'},
-        ]
-
-        for exclude in excluded_types:
-            queryset = queryset.exclude(**exclude)
-        return queryset
 
 
 @project_index.doc_type
@@ -120,8 +75,32 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
-    headers = fields.TextField(attr='processed_json.headers')
-    content = fields.TextField(attr='processed_json.content')
+    sections = fields.NestedField(
+        attr='processed_json.sections',
+        properties={
+            'id': fields.KeywordField(),
+            'title': fields.TextField(),
+            'content': fields.TextField(),
+        }
+    )
+    domains = fields.NestedField(
+        properties={
+            'role_name': fields.KeywordField(),
+
+            # For linking to the URL
+            'doc_name': fields.KeywordField(),
+            'anchor': fields.KeywordField(),
+
+            # For showing in the search result
+            'type_display': fields.TextField(),
+            'doc_display': fields.TextField(),
+
+            # Simple analyzer breaks on `.`,
+            # otherwise search results are too strict for this use case
+            'name': fields.TextField(analyzer='simple'),
+            'display_name': fields.TextField(analyzer='simple'),
+        }
+    )
 
     modified_model_field = 'modified_date'
 
@@ -129,6 +108,28 @@ class PageDocument(RTDDocTypeMixin, DocType):
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
+
+    def prepare_domains(self, html_file):
+        """Prepares and returns the values for domains field."""
+        domains_qs = html_file.sphinx_domains.exclude(
+            domain='std',
+            type__in=['doc', 'label']
+        ).iterator()
+
+        all_domains = [
+            {
+                'role_name': domain.role_name,
+                'doc_name': domain.doc_name,
+                'anchor': domain.anchor,
+                'type_display': domain.type_display,
+                'doc_display': domain.doc_display,
+                'name': domain.name,
+                'display_name': domain.display_name if domain.display_name != '-' else '',
+            }
+            for domain in domains_qs
+        ]
+
+        return all_domains
 
     @classmethod
     def faceted_search(

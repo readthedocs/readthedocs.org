@@ -351,6 +351,7 @@ class BuildEnvironmentTests(TestCase):
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': version.slug,
             'READTHEDOCS_PROJECT': project.slug,
+            'READTHEDOCS_LANGUAGE': project.language,
             'BIN_PATH': os.path.join(
                 project.doc_path,
                 'envs',

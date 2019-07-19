@@ -156,6 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
         if self.build_env is not None:
             environment['READTHEDOCS_VERSION'] = self.build_env.version.slug
             environment['READTHEDOCS_PROJECT'] = self.build_env.project.slug
+            environment['READTHEDOCS_LANGUAGE'] = self.build_env.project.language
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:

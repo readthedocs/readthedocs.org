@@ -15,7 +15,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from six.moves import shlex_quote
+from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
@@ -1268,8 +1268,6 @@ class HTMLFile(ImportedFile):
                 file_path,
             )
         return {
-            'headers': [],
-            'content': '',
             'path': file_path,
             'title': '',
             'sections': [],
@@ -1509,9 +1507,11 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
         help_text=_('Project where this variable will be used'),
     )
 
+    objects = RelatedProjectQuerySet.as_manager()
+
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        self.value = shlex_quote(self.value)
+        self.value = quote(self.value)
         return super().save(*args, **kwargs)

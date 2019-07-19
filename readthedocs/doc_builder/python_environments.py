@@ -325,7 +325,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.7',
+                'readthedocs-sphinx-ext<1.1',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -420,6 +420,7 @@ class Conda(PythonEnvironment):
             '--name=base',
             '--channel=defaults',
             'conda',
+            cwd=self.checkout_path,
         )
 
     def setup_base(self):

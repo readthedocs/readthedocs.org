@@ -1,16 +1,22 @@
+import re
 import pytest
+
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile
-from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.search.tests.utils import (
+    get_search_query_from_project_file,
+    SECTION_FIELDS,
+    DOMAIN_FIELDS,
+)
 from readthedocs.search.documents import PageDocument
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestDocumentSearch(object):
+class TestDocumentSearch:
 
     @classmethod
     def setup_class(cls):
@@ -19,40 +25,111 @@ class TestDocumentSearch(object):
         # installed
         cls.url = reverse('doc_search')
 
-    @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_works(self, api_client, project, data_type, page_num):
-        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
-                                                   data_type=data_type)
+    def test_search_works_with_title_query(self, api_client, project, page_num):
+        query = get_search_query_from_project_file(
+            project_slug=project.slug,
+            page_num=page_num,
+            data_type='title'
+        )
 
-        version = project.versions.all()[0]
-        search_params = {'project': project.slug, 'version': version.slug, 'q': query}
+        version = project.versions.all().first()
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': query
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
-        assert len(data) == 1
+        assert len(data) >= 1
+
+        # Matching first result
         project_data = data[0]
         assert project_data['project'] == project.slug
 
-        # Check highlight return correct object
-        all_highlights = project_data['highlight'][data_type]
-        for highlight in all_highlights:
-            # Make it lower because our search is case insensitive
-            assert query.lower() in highlight.lower()
+        # Check highlight return correct object of first result
+        title_highlight = project_data['highlight']['title']
 
-    def test_doc_search_filter_by_project(self, api_client):
-        """Test Doc search result are filtered according to project"""
+        assert len(title_highlight) == 1
+        assert query.lower() in title_highlight[0].lower()
 
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # so search with this phrase but filter through `kuma` project
-        search_params = {'q': 'GitHub', 'project': 'kuma', 'version': 'latest'}
+    @pytest.mark.parametrize('data_type', SECTION_FIELDS + DOMAIN_FIELDS)
+    @pytest.mark.parametrize('page_num', [0, 1])
+    def test_search_works_with_sections_and_domains_query(
+        self,
+        api_client,
+        project,
+        page_num,
+        data_type
+    ):
+        query = get_search_query_from_project_file(
+            project_slug=project.slug,
+            page_num=page_num,
+            data_type=data_type
+        )
+        version = project.versions.all().first()
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': query
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
-        assert len(data) == 1
-        assert data[0]['project'] == 'kuma'
+        assert len(data) >= 1
+
+        # Matching first result
+        project_data = data[0]
+        assert project_data['project'] == project.slug
+
+        inner_hits = project_data['inner_hits']
+        # since there was a nested query,
+        # inner_hits should not be empty
+        assert len(inner_hits) >= 1
+
+        inner_hit_0 = inner_hits[0]  # first inner_hit
+
+        expected_type = data_type.split('.')[0]  # can be "sections" or "domains"
+        assert inner_hit_0['type'] == expected_type
+
+        highlight = inner_hit_0['highlight'][data_type]
+        assert (
+            len(highlight) == 1
+        ), 'number_of_fragments is set to 1'
+
+        # checking highlighting of results
+        highlighted_words = re.findall(  # this gets all words inside <em> tag
+            '<em>(.*?)</em>',
+            highlight[0]
+        )
+        assert len(highlighted_words) > 0
+
+        for word in highlighted_words:
+            # Make it lower because our search is case insensitive
+            assert word.lower() in query.lower()
+
+    def test_doc_search_filter_by_project(self, api_client):
+        """Test Doc search results are filtered according to project"""
+
+        # `documentation` word is present both in `kuma` and `docs` files
+        # and not in `pipeline`, so search with this phrase but filter through project
+        search_params = {
+            'q': 'documentation',
+            'project': 'docs',
+            'version': 'latest'
+        }
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
+
+        data = resp.data['results']
+        assert len(data) == 2  # both pages of `docs` contains the word `documentation`
+
+        # all results must be from same project
+        for res in data:
+            assert res['project'] == 'docs'
 
     def test_doc_search_filter_by_version(self, api_client, project):
         """Test Doc search result are filtered according to version"""
@@ -69,7 +146,11 @@ class TestDocumentSearch(object):
             f.save()
             PageDocument().update(f)
 
-        search_params = {'q': query, 'project': project.slug, 'version': dummy_version.slug}
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': dummy_version.slug
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
@@ -126,13 +207,20 @@ class TestDocumentSearch(object):
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
-        search_params = {'q': query, 'project': project.slug, 'version': version.slug}
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
-        assert len(data) == 1
-        assert data[0]['project'] == subproject.slug
+        assert len(data) >= 1  # there may be results from another projects
+
+        # First result should be the subproject
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
-        assert document_link in data[0]['link']
+        assert document_link in first_result['link']
