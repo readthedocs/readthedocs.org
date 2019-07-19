@@ -31,9 +31,12 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATUS_SUCCESS,
+    BUILD_STATUS_FAILURE,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
+    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -59,6 +62,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -106,6 +111,8 @@ class SyncRepositoryMixin:
             # a ``setup_env`` so we use just ``None`` and commands won't
             # be recorded
             getattr(self, 'setup_env', None),
+            verbose_name=self.version.verbose_name,
+            version_type=self.version.type
         )
         return version_repo
 
@@ -571,6 +578,26 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+            )
+        elif self.build_env.successful:
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
+            )
+        else:
+            msg = 'Unhandled Build Status'
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+            )
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -766,6 +793,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,
@@ -794,6 +822,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,
@@ -952,13 +981,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """Build search data."""
         # Search is always run in sphinx using the rtd-sphinx-extension.
         # Mkdocs has no search currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.version.type != EXTERNAL:
             return True
         return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
-        if 'htmlzip' not in self.config.formats:
+        if (
+            'htmlzip' not in self.config.formats or
+            self.version.type == EXTERNAL
+        ):
             return False
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
@@ -967,7 +999,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if 'pdf' not in self.config.formats:
+        if 'pdf' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -976,7 +1008,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if 'epub' not in self.config.formats:
+        if 'epub' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -1524,8 +1556,11 @@ def _sync_imported_files(version, build, changed_files):
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+
+    # only send notification for Internal versions
+    if not version or version.type == EXTERNAL:
         return
+
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
@@ -1784,3 +1819,46 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
+
+
+@app.task(queue='web')
+def send_build_status(build_pk, status):
+    """
+    Send Build Status to Git Status API for project external versions.
+
+    :param build_pk: Build primary key
+    :param status: build status failed, pending, or success to be sent.
+    """
+    build = Build.objects.get(pk=build_pk)
+    try:
+        if build.project.remote_repository.account.provider == 'github':
+            service = GitHubService(
+                build.project.remote_repository.users.first(),
+                build.project.remote_repository.account
+            )
+
+            # send Status report using the API.
+            service.send_build_status(build, status)
+
+    except RemoteRepository.DoesNotExist:
+        log.info('Remote repository does not exist for %s', build.project)
+
+    except Exception:
+        log.exception('Send build status task failed for %s', build.project)
+
+    # TODO: Send build status for other providers.
+
+
+def send_external_build_status(version, build_pk, status):
+    """
+    Check if build is external and Send Build Status for project external versions.
+
+     :param version: Version instance
+     :param build_pk: Build pk
+     :param status: build status failed, pending, or success to be sent.
+    """
+
+    # Send status reports for only External (pull/merge request) Versions.
+    if version.type == EXTERNAL:
+        # call the task that actually send the build status.
+        send_build_status.delay(build_pk, status)

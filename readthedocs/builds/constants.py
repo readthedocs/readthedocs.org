@@ -31,6 +31,13 @@ BUILD_TYPES = (
     ('dash', _('Dash')),
 )
 
+# Manager name for Internal Versions or Builds.
+# ie: Versions and Builds Excluding pull request/merge request Versions and Builds.
+INTERNAL = 'internal'
+# Manager name for External Versions or Builds.
+# ie: Only pull request/merge request Versions and Builds.
+EXTERNAL = 'external'
+
 BRANCH = 'branch'
 TAG = 'tag'
 UNKNOWN = 'unknown'
@@ -38,6 +45,7 @@ UNKNOWN = 'unknown'
 VERSION_TYPES = (
     (BRANCH, _('Branch')),
     (TAG, _('Tag')),
+    (EXTERNAL, _('External')),
     (UNKNOWN, _('Unknown')),
 )
 
@@ -53,3 +61,34 @@ NON_REPOSITORY_VERSIONS = (
     LATEST,
     STABLE,
 )
+
+# General Build Statuses
+BUILD_STATUS_FAILURE = 'failed'
+BUILD_STATUS_PENDING = 'pending'
+BUILD_STATUS_SUCCESS = 'success'
+
+# GitHub Build Statuses
+GITHUB_BUILD_STATUS_FAILURE = 'failure'
+GITHUB_BUILD_STATUS_PENDING = 'pending'
+GITHUB_BUILD_STATUS_SUCCESS = 'success'
+
+# Used to select correct Build status and description to be sent to each service API
+SELECT_BUILD_STATUS = {
+    BUILD_STATUS_FAILURE: {
+        'github': GITHUB_BUILD_STATUS_FAILURE,
+        'description': 'Read the Docs build failed!',
+    },
+    BUILD_STATUS_PENDING: {
+        'github': GITHUB_BUILD_STATUS_PENDING,
+        'description': 'Read the Docs build is in progress!',
+    },
+    BUILD_STATUS_SUCCESS: {
+        'github': GITHUB_BUILD_STATUS_SUCCESS,
+        'description': 'Read the Docs build succeeded!',
+    },
+}
+
+RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
+
+GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
+GENERIC_EXTERNAL_VERSION_NAME = 'External Version'

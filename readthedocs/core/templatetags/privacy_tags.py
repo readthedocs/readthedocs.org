@@ -26,7 +26,7 @@ def get_public_projects(context, user):
         viewer=context['request'].user,
     ).prefetch_latest_build().annotate(
         _good_build=Exists(
-            Build.objects.filter(success=True, project=OuterRef('pk')))
+            Build.internal.filter(success=True, project=OuterRef('pk')))
     )
     context['public_projects'] = projects
     return ''

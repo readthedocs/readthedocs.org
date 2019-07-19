@@ -3,6 +3,7 @@
 from django.db import models
 from django.db.models import OuterRef, Prefetch, Q, Subquery
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
 from . import constants
@@ -86,13 +87,13 @@ class ProjectQuerySetBase(models.QuerySet):
 
         # Prefetch the latest build for each project.
         subquery = Subquery(
-            Build.objects.filter(
+            Build.internal.filter(
                 project=OuterRef('project_id')
             ).order_by('-date').values_list('id', flat=True)[:1]
         )
         latest_build = Prefetch(
             'builds',
-            Build.objects.filter(pk__in=subquery),
+            Build.internal.filter(pk__in=subquery),
             to_attr=self.model.LATEST_BUILD_CACHE,
         )
         return self.prefetch_related(latest_build)
@@ -211,3 +212,27 @@ class FeatureQuerySet(models.QuerySet):
             Q(projects=project) |
             Q(default_true=True, add_date__gt=project.pub_date),
         ).distinct()
+
+
+class HTMLFileQuerySetBase(models.QuerySet):
+
+    def internal(self):
+        """
+        HTMLFileQuerySet method that only includes internal version html files.
+
+        It will exclude pull request/merge request Version html files from the queries
+        and only include BRANCH, TAG, UNKONWN type Version html files.
+        """
+        return self.exclude(version__type=EXTERNAL)
+
+    def external(self):
+        """
+        HTMLFileQuerySet method that only includes external version html files.
+
+        It will only include pull request/merge request Version html files in the queries.
+        """
+        return self.filter(version__type=EXTERNAL)
+
+
+class HTMLFileQuerySet(SettingsOverrideObject):
+    _default_class = HTMLFileQuerySetBase
