@@ -31,7 +31,7 @@ if globals().get('source_suffix', False):
         # Sphinx >= 1.3 supports list/tuple to define multiple suffixes
         SUFFIX = source_suffix[0]
     elif isinstance(source_suffix, dict):
-        # Sphinx >= 1.8 supports a mapping dictionary for mulitple suffixes
+        # Sphinx >= 1.8 supports a mapping dictionary for multiple suffixes
         SUFFIX = list(source_suffix.keys())[0]  # make a ``list()`` for py2/py3 compatibility
     else:
         # default to .rst
