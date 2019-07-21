@@ -92,7 +92,7 @@ class InternalVersionManagerBase(VersionManagerBase):
     Version manager that only includes internal version.
 
     It will exclude pull request/merge request versions from the queries
-    and only include BRANCH, TAG, UNKONWN type Versions.
+    and only include BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def get_queryset(self):
@@ -150,7 +150,7 @@ class InternalBuildManagerBase(BuildManagerBase):
     Build manager that only includes internal version builds.
 
     It will exclude pull request/merge request version builds from the queries
-    and only include BRANCH, TAG, UNKONWN type Version builds.
+    and only include BRANCH, TAG, UNKNOWN type Version builds.
     """
 
     def get_queryset(self):
