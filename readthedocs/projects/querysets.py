@@ -221,7 +221,7 @@ class HTMLFileQuerySetBase(models.QuerySet):
         HTMLFileQuerySet method that only includes internal version html files.
 
         It will exclude pull request/merge request Version html files from the queries
-        and only include BRANCH, TAG, UNKONWN type Version html files.
+        and only include BRANCH, TAG, UNKNOWN type Version html files.
         """
         return self.exclude(version__type=EXTERNAL)
 

@@ -113,7 +113,7 @@ class WebhookMixin:
         """
         Normalize posted data.
 
-        This can be overriden to support multiples content types.
+        This can be overridden to support multiples content types.
         """
         return self.request.data
 

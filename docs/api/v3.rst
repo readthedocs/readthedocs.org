@@ -355,7 +355,7 @@ Version update
 
     :requestheader Authorization: token to authenticate.
 
-    :statuscode 204: Edited sucessfully
+    :statuscode 204: Edited successfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
     :statuscode 404: There is no ``Version`` with this slug for this project

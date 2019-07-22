@@ -100,10 +100,10 @@ class Backend(BaseVCS):
 
         Returns `True` if all required submodules URLs are valid.
         Returns a list of all required submodules:
-        - Include is `ALL`, returns all submodules avaliable.
+        - Include is `ALL`, returns all submodules available.
         - Include is a list, returns just those.
         - Exclude is `ALL` - this should never happen.
-        - Exlude is a list, returns all avaliable submodules
+        - Exlude is a list, returns all available submodules
           but those from the list.
 
         Returns `False` if at least one submodule is invalid.

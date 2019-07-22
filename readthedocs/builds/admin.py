@@ -66,7 +66,7 @@ class BuildAdmin(admin.ModelAdmin):
         'pretty_config',
     )
     readonly_fields = (
-        'pretty_config',  # required to be read-only becuase it's a @property
+        'pretty_config',  # required to be read-only because it's a @property
     )
     list_display = (
         'id',
@@ -104,7 +104,7 @@ class VersionAdmin(admin.ModelAdmin):
         'built',
     )
     readonly_fields = (
-        'pretty_config',  # required to be read-only becuase it's a @property
+        'pretty_config',  # required to be read-only because it's a @property
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')

@@ -129,7 +129,7 @@ class Version(models.Model):
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
-    # Only include BRANCH, TAG, UNKONWN type Versions.
+    # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
     # Only include EXTERNAL type Versions.
     external = ExternalVersionManager.from_queryset(VersionQuerySet)()
@@ -641,7 +641,7 @@ class Build(models.Model):
 
     # Managers
     objects = BuildManager.from_queryset(BuildQuerySet)()
-    # Only include BRANCH, TAG, UNKONWN type Version builds.
+    # Only include BRANCH, TAG, UNKNOWN type Version builds.
     internal = InternalBuildManager.from_queryset(BuildQuerySet)()
     # Only include EXTERNAL type Version builds.
     external = ExternalBuildManager.from_queryset(BuildQuerySet)()

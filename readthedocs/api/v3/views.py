@@ -101,7 +101,7 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     expensive to calculate. Although, they are available for those cases where
     they are needed.
 
-    Allowed via ``?expand=`` URL attribue:
+    Allowed via ``?expand=`` URL attribute:
 
     * users
     * active_versions

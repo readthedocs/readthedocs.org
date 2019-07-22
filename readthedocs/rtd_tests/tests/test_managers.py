@@ -50,7 +50,7 @@ class TestInternalVersionManager(TestVersionManagerBase):
     Queries using Internal Manager should only include Internal Versions.
 
     It will exclude EXTERNAL type Versions from the queries
-    and only include BRANCH, TAG, UNKONWN type Versions.
+    and only include BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def test_internal_version_manager_with_all(self):
@@ -163,7 +163,7 @@ class TestInternalBuildManager(TestBuildManagerBase):
     Queries using Internal Manager should only include Internal Version builds.
 
     It will exclude pull/merge request Version builds from the queries
-    and only include BRANCH, TAG, UNKONWN type Versions.
+    and only include BRANCH, TAG, UNKNOWN type Versions.
     """
 
     def test_internal_build_manager_with_all(self):
@@ -243,7 +243,7 @@ class TestHTMLFileManager(TestCase):
     def test_internal_html_file_queryset(self):
         """
         It will exclude pull/merge request Version html files from the queries
-        and only include BRANCH, TAG, UNKONWN type Version files.
+        and only include BRANCH, TAG, UNKNOWN type Version files.
         """
         self.assertNotIn(self.html_file, HTMLFile.objects.internal())
 

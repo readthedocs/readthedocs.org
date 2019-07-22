@@ -45,7 +45,7 @@ We follow `semantic versioning`_ for our release numbering and our point release
 milestones follow these guidelines. For example, our next release milestones
 might be ``2.8``, ``2.9``, and ``3.0``. Releases ``2.8`` and ``2.9`` will
 contain bug fix issues and one backwards compatible feature (this dictates the
-change in minor verison). Release ``3.0`` will contain bugfixes and at least one
+change in minor version). Release ``3.0`` will contain bugfixes and at least one
 backwards incompatible change.
 
 Point release milestones try to remain static, but can shift upwards on a

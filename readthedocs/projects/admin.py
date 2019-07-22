@@ -174,7 +174,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
         This will only ban single owners, because a malicious user could add a
         user as a co-owner of the project. We don't want to induce and
-        collatoral damage when flagging users.
+        collateral damage when flagging users.
         """
         total = 0
         for project in queryset:
