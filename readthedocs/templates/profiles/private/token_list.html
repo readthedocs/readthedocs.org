@@ -9,6 +9,14 @@
 {% block edit_content_header %} {% trans "Personal Access Tokens" %} {% endblock %}
 
 {% block edit_content %}
+  <p class="empty">
+    {% blocktrans trimmed with contact_email="support@readthedocs.org" %}
+      Access Tokens are currently in Beta state and are not possible to create by yourself.
+      In case you want to test APIv3 and help giving us feedback,
+      please <a href="mailto:{{ contact_email }}">contact us</a> and let us know.
+    {% endblocktrans %}
+  </p>
+
   <p>Personal Access Token are tokens that allow you to use the Read the Docs APIv3 being authenticated as yourself. See <a href="https://docs.readthedocs.org/page/api/v3.html">APIv3 documentation</a> for more information.</p>
 
     <div class="module">
