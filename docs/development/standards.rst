@@ -64,6 +64,13 @@ Celery is isolated from database
     put up a similar barrier in development, so that logic errors aren't
     uncovered after we release.
 
+    You can use the ``readthedocs.settings.celery_nodb`` for this in development::
+
+        # Run builds with nodb
+        DJANGO_SETTINGS_MODULE=readthedocs.settings.celery_nodb celery worker -A readthedocs.worker -l DEBUG -Ofair -Q celery
+        # Run webs with DB
+        DJANGO_SETTINGS_MODULE=readthedocs.settings.dev celery worker -A readthedocs.worker -l DEBUG -Ofair -Q web
+
 Debugging Celery
 ~~~~~~~~~~~~~~~~
 
