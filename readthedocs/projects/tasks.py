@@ -1033,7 +1033,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def send_notifications(self, version_pk, build_pk):
         """Send notifications on build failure."""
-        send_notifications.delay(version_pk, build_pk=build_pk)
+        if self.version.type != EXTERNAL:
+            send_notifications.delay(version_pk, build_pk=build_pk)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1557,8 +1558,7 @@ def _sync_imported_files(version, build, changed_files):
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
-    # only send notification for Internal versions
-    if not version or version.type == EXTERNAL:
+    if not version:
         return
 
     build = Build.objects.get(pk=build_pk)
