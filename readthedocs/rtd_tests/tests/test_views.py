@@ -278,7 +278,7 @@ class BuildViewTests(TestCase):
             r._headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
-        
+
     def test_build_list_includes_external_versions(self):
         external_version = get(
             Version,
