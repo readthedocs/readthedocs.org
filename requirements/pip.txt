@@ -89,7 +89,7 @@ docker==4.0.2
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
 # if there is an update they could break our code
-nltk==3.4.3
+nltk==3.4.4
 textblob==0.15.3
 
 django-annoying==0.10.4
