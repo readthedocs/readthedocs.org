@@ -15,7 +15,7 @@ djangorestframework==3.10.1
 Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.1.0
+django-filter==2.2.0
 
 drf-flex-fields==0.5.0
 drf-extensions==0.5.0
