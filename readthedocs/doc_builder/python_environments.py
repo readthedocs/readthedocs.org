@@ -551,6 +551,9 @@ class Conda(PythonEnvironment):
         """Install basic Read the Docs requirements into the Conda env."""
 
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
+            # Skip install core requirements since they were already appended to
+            # the user's ``environment.yml`` and installed at ``conda env
+            # create`` step.
             return
 
         pip_requirements, conda_requirements = self._get_core_requirements()
