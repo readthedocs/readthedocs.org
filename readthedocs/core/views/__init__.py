@@ -42,7 +42,7 @@ class HomepageView(TemplateView):
         """Add latest builds and featured projects."""
         context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
-        context['projects_count'] = Project.objects.count()
+        context['projects_count'] = Project.objects.exclude(users__profile__banned=True).count()
         return context
 
 
