@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 
 from allauth.account.models import EmailAddress
@@ -12,10 +11,11 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 from mock import patch
 
-from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
@@ -390,7 +390,7 @@ class TestImportDemoView(MockBuildTestCase):
 
 class TestPublicViews(MockBuildTestCase):
     def setUp(self):
-        self.pip = get(Project, slug='pip')
+        self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
         self.external_version = get(
             Version,
             identifier='pr-version',
