@@ -123,7 +123,7 @@ def generate_domains_data_from_pyquery(body):
         dd = dl_tag.findall('dd')
 
         # len(dt) should be equal to len(dd)
-        # becuase these tags go together.
+        # because these tags go together.
         for title, desc in zip(dt, dd):
             id_ = title.attrib.get('id')
             if id_:
