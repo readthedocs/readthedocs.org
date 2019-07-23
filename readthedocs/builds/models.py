@@ -13,17 +13,20 @@ from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from guardian.shortcuts import assign
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
-from taggit.managers import TaggableManager
 
 import readthedocs.builds.automation_actions as actions
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
+    BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    GITHUB_COMMIT_URL,
     GITHUB_URL,
+    GITHUB_PULL_REQUEST_URL,
+    GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITLAB_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -32,26 +35,42 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from .constants import (
+from readthedocs.builds.constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    GENERIC_EXTERNAL_VERSION_NAME,
+    GITHUB_EXTERNAL_VERSION_NAME,
+    INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
+    EXTERNAL,
     STABLE,
     TAG,
     VERSION_TYPES,
 )
-from .managers import VersionManager
-from .querysets import BuildQuerySet, RelatedBuildQuerySet, VersionQuerySet
-from .utils import (
+from readthedocs.builds.managers import (
+    VersionManager,
+    InternalVersionManager,
+    ExternalVersionManager,
+    BuildManager,
+    InternalBuildManager,
+    ExternalBuildManager,
+)
+from readthedocs.builds.querysets import (
+    BuildQuerySet,
+    RelatedBuildQuerySet,
+    VersionQuerySet,
+)
+from readthedocs.builds.utils import (
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
 )
-from .version_slug import VersionSlugField
+from readthedocs.builds.version_slug import VersionSlugField
+from readthedocs.oauth.models import RemoteRepository
 
 
 log = logging.getLogger(__name__)
@@ -107,10 +126,13 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
-    tags = TaggableManager(blank=True)
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
+    # Only include BRANCH, TAG, UNKNOWN type Versions.
+    internal = InternalVersionManager.from_queryset(VersionQuerySet)()
+    # Only include EXTERNAL type Versions.
+    external = ExternalVersionManager.from_queryset(VersionQuerySet)()
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -133,7 +155,9 @@ class Version(models.Model):
     @property
     def ref(self):
         if self.slug == STABLE:
-            stable = determine_stable_version(self.project.versions.all())
+            stable = determine_stable_version(
+                self.project.versions(manager=INTERNAL).all()
+            )
             if stable:
                 return stable.slug
 
@@ -143,7 +167,19 @@ class Version(models.Model):
         Generate VCS (github, gitlab, bitbucket) URL for this version.
 
         Example: https://github.com/rtfd/readthedocs.org/tree/3.4.2/.
+        External Version Example: https://github.com/rtfd/readthedocs.org/pull/99/.
         """
+        if self.type == EXTERNAL:
+            if 'github' in self.project.repo:
+                user, repo = get_github_username_repo(self.project.repo)
+                return GITHUB_PULL_REQUEST_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.verbose_name,
+                )
+            # TODO: Add VCS URL for other Git Providers
+            return ''
+
         url = ''
         if self.slug == STABLE:
             slug_url = self.ref
@@ -175,10 +211,12 @@ class Version(models.Model):
         :rtype: dict
         """
         last_build = (
-            self.builds.filter(
-                state='finished',
+            self.builds(manager=INTERNAL).filter(
+                state=BUILD_STATE_FINISHED,
                 success=True,
-            ).order_by('-date').first()
+            ).order_by('-date')
+            .only('_config')
+            .first()
         )
         return last_build.config
 
@@ -220,7 +258,14 @@ class Version(models.Model):
             # the actual tag name.
             return self.verbose_name
 
-        # If we came that far it's not a special version nor a branch or tag.
+        if self.type == EXTERNAL:
+            # If this version is a EXTERNAL version, the identifier will
+            # contain the actual commit hash. which we can use to
+            # generate url for a given file name
+            return self.identifier
+
+        # If we came that far it's not a special version
+        # nor a branch, tag or EXTERNAL version.
         # Therefore just return the identifier to make a safe guess.
         log.debug(
             'TODO: Raise an exception here. Testing what cases it happens',
@@ -246,8 +291,6 @@ class Version(models.Model):
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super().save(*args, **kwargs)
-        for owner in self.project.users.all():
-            assign('view_version', owner, self)
         broadcast(
             type='app',
             task=tasks.symlink_project,
@@ -302,17 +345,17 @@ class Version(models.Model):
         def prettify(k):
             return k if pretty else k.lower()
 
-        if project.has_pdf(self.slug):
+        if project.has_pdf(self.slug, version_type=self.type):
             data[prettify('PDF')] = project.get_production_media_url(
                 'pdf',
                 self.slug,
             )
-        if project.has_htmlzip(self.slug):
+        if project.has_htmlzip(self.slug, version_type=self.type):
             data[prettify('HTML')] = project.get_production_media_url(
                 'htmlzip',
                 self.slug,
             )
-        if project.has_epub(self.slug):
+        if project.has_epub(self.slug, version_type=self.type):
             data[prettify('Epub')] = project.get_production_media_url(
                 'epub',
                 self.slug,
@@ -363,6 +406,7 @@ class Version(models.Model):
                     type_=type_,
                     version_slug=self.slug,
                     include_file=False,
+                    version_type=self.type,
                 )
             )
 
@@ -595,9 +639,12 @@ class Build(models.Model):
         help_text='Build steps stored outside the database.',
     )
 
-    # Manager
-
-    objects = BuildQuerySet.as_manager()
+    # Managers
+    objects = BuildManager.from_queryset(BuildQuerySet)()
+    # Only include BRANCH, TAG, UNKNOWN type Version builds.
+    internal = InternalBuildManager.from_queryset(BuildQuerySet)()
+    # Only include EXTERNAL type Version builds.
+    external = ExternalBuildManager.from_queryset(BuildQuerySet)()
 
     CONFIG_KEY = '__config'
 
@@ -639,7 +686,12 @@ class Build(models.Model):
         ones).
         """
         if self.CONFIG_KEY in self._config:
-            return Build.objects.get(pk=self._config[self.CONFIG_KEY])._config
+            return (
+                Build.objects
+                .only('_config')
+                .get(pk=self._config[self.CONFIG_KEY])
+                ._config
+            )
         return self._config
 
     @config.setter
@@ -689,6 +741,74 @@ class Build(models.Model):
     def get_absolute_url(self):
         return reverse('builds_detail', args=[self.project.slug, self.pk])
 
+    def get_full_url(self):
+        """
+        Get full url of the build including domain.
+
+        Example: https://readthedocs.org/projects/pip/builds/99999999/
+        """
+        scheme = 'http' if settings.DEBUG else 'https'
+        full_url = '{scheme}://{domain}{absolute_url}'.format(
+            scheme=scheme,
+            domain=settings.PRODUCTION_DOMAIN,
+            absolute_url=self.get_absolute_url()
+        )
+        return full_url
+
+    def get_commit_url(self):
+        """Return the commit URL."""
+        repo_url = self.project.repo
+        if self.is_external:
+            if 'github' in repo_url:
+                user, repo = get_github_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITHUB_PULL_REQUEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.version.verbose_name,
+                    commit=self.commit
+                )
+            # TODO: Add External Version Commit URL for other Git Providers
+        else:
+            if 'github' in repo_url:
+                user, repo = get_github_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITHUB_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+            if 'gitlab' in repo_url:
+                user, repo = get_gitlab_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITLAB_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+            if 'bitbucket' in repo_url:
+                user, repo = get_bitbucket_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return BITBUCKET_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    commit=self.commit
+                )
+
+        return None
+
     @property
     def finished(self):
         """Return if build has a finished state."""
@@ -699,6 +819,28 @@ class Build(models.Model):
         """Return if build state is triggered & date more than 5m ago."""
         mins_ago = timezone.now() - datetime.timedelta(minutes=5)
         return self.state == BUILD_STATE_TRIGGERED and self.date < mins_ago
+
+    @property
+    def is_external(self):
+        return self.version.type == EXTERNAL
+
+    @property
+    def external_version_name(self):
+        if self.is_external:
+            try:
+                if self.project.remote_repository.account.provider == 'github':
+                    return GITHUB_EXTERNAL_VERSION_NAME
+                # TODO: Add External Version Name for other Git Providers
+            except RemoteRepository.DoesNotExist:
+                log.info('Remote repository does not exist for %s', self.project)
+                return GENERIC_EXTERNAL_VERSION_NAME
+            except Exception:
+                log.exception(
+                    'Unhandled exception raised for %s while getting external_version_name',
+                    self.project
+                )
+                return GENERIC_EXTERNAL_VERSION_NAME
+        return None
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION

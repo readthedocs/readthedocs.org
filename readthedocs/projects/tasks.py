@@ -31,9 +31,12 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATUS_SUCCESS,
+    BUILD_STATUS_FAILURE,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
+    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -59,6 +62,8 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
+from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -106,6 +111,8 @@ class SyncRepositoryMixin:
             # a ``setup_env`` so we use just ``None`` and commands won't
             # be recorded
             getattr(self, 'setup_env', None),
+            verbose_name=self.version.verbose_name,
+            version_type=self.version.type
         )
         return version_repo
 
@@ -571,6 +578,26 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+            )
+        elif self.build_env.successful:
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
+            )
+        else:
+            msg = 'Unhandled Build Status'
+            send_external_build_status(
+                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+            )
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -649,6 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             'READTHEDOCS': True,
             'READTHEDOCS_VERSION': self.version.slug,
             'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
         }
 
         if self.config.conda is not None:
@@ -703,7 +731,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             epub=False,
     ):
         """
-        Save build artifacts to "storage" using Django's storage API
+        Save build artifacts to "storage" using Django's storage API.
 
         The storage could be local filesystem storage OR cloud blob storage
         such as S3, Azure storage or Google Cloud Storage.
@@ -765,6 +793,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,
@@ -793,6 +822,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     type_=media_type,
                     version_slug=self.version.slug,
                     include_file=False,
+                    version_type=self.version.type,
                 )
                 log.info(
                     LOG_TEMPLATE,
@@ -951,13 +981,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """Build search data."""
         # Search is always run in sphinx using the rtd-sphinx-extension.
         # Mkdocs has no search currently.
-        if self.is_type_sphinx():
+        if self.is_type_sphinx() and self.version.type != EXTERNAL:
             return True
         return False
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
-        if 'htmlzip' not in self.config.formats:
+        if (
+            'htmlzip' not in self.config.formats or
+            self.version.type == EXTERNAL
+        ):
             return False
         # We don't generate a zip for mkdocs currently.
         if self.is_type_sphinx():
@@ -966,7 +999,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_pdf(self):
         """Build PDF docs."""
-        if 'pdf' not in self.config.formats:
+        if 'pdf' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no pdf generation currently.
         if self.is_type_sphinx():
@@ -975,7 +1008,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def build_docs_epub(self):
         """Build ePub docs."""
-        if 'epub' not in self.config.formats:
+        if 'epub' not in self.config.formats or self.version.type == EXTERNAL:
             return False
         # Mkdocs has no epub generation currently.
         if self.is_type_sphinx():
@@ -1000,7 +1033,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def send_notifications(self, version_pk, build_pk):
         """Send notifications on build failure."""
-        send_notifications.delay(version_pk, build_pk=build_pk)
+        if self.version.type != EXTERNAL:
+            send_notifications.delay(version_pk, build_pk=build_pk)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1278,19 +1312,25 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        _manage_imported_files(version, path, commit, build)
+        changed_files = _create_imported_files(version, path, commit, build)
     except Exception:
+        changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _update_intersphinx_data(version, path, commit, build)
+        _create_intersphinx_data(version, path, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
+    try:
+        _sync_imported_files(version, build, changed_files)
+    except Exception:
+        log.exception('Failed during ImportedFile syncing')
 
-def _update_intersphinx_data(version, path, commit, build):
+
+def _create_intersphinx_data(version, path, commit, build):
     """
-    Update intersphinx data for this version.
+    Create intersphinx data for this version.
 
     :param version: Version instance
     :param path: Path to search
@@ -1376,24 +1416,6 @@ def _update_intersphinx_data(version, path, commit, build):
                 build=build,
             )
 
-    # Index new SphinxDomain objects to elasticsearch
-    index_new_files(model=SphinxDomain, version=version, build=build)
-
-    # Remove old SphinxDomain from elasticsearch
-    remove_indexed_files(
-        model=SphinxDomain,
-        version=version,
-        build=build,
-    )
-
-    # Delete SphinxDomain objects from the previous build of the version.
-    (
-        SphinxDomain.objects
-        .filter(project=version.project, version=version)
-        .exclude(build=build)
-        .delete()
-    )
-
 
 def clean_build(version_pk):
     """Clean the files used in the build of the given version."""
@@ -1424,14 +1446,16 @@ def clean_build(version_pk):
         return True
 
 
-def _manage_imported_files(version, path, commit, build):
+def _create_imported_files(version, path, commit, build):
     """
-    Update imported files for version.
+    Create imported files for version.
 
     :param version: Version instance
     :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
+    :returns: paths of changed files
+    :rtype: set
     """
 
     changed_files = set()
@@ -1481,14 +1505,36 @@ def _manage_imported_files(version, path, commit, build):
                 build=build,
             )
 
-    # Index new HTMLFiles to elasticsearch
+    return changed_files
+
+
+def _sync_imported_files(version, build, changed_files):
+    """
+    Sync/Update/Delete ImportedFiles objects of this version.
+
+    :param version: Version instance
+    :param build: Build id
+    :param changed_files: path of changed files
+    """
+
+    # Index new HTMLFiles to ElasticSearch
     index_new_files(model=HTMLFile, version=version, build=build)
 
-    # Remove old HTMLFiles from elasticsearch
+    # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
         model=HTMLFile,
         version=version,
         build=build,
+    )
+
+    # Delete SphinxDomain objects from previous versions
+    # This has to be done before deleting ImportedFiles and not with a cascade,
+    # because multiple Domain's can reference a specific HTMLFile.
+    (
+        SphinxDomain.objects
+        .filter(project=version.project, version=version)
+        .exclude(build=build)
+        .delete()
     )
 
     # Delete ImportedFiles objects (including HTMLFiles)
@@ -1511,8 +1557,10 @@ def _manage_imported_files(version, path, commit, build):
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk):
     version = Version.objects.get_object_or_log(pk=version_pk)
+
     if not version:
         return
+
     build = Build.objects.get(pk=build_pk)
 
     for hook in version.project.webhook_notifications.all():
@@ -1688,7 +1736,7 @@ def remove_dirs(paths):
 @app.task(queue='web')
 def remove_build_storage_paths(paths):
     """
-    Remove artifacts from build media storage (cloud or local storage)
+    Remove artifacts from build media storage (cloud or local storage).
 
     :param paths: list of paths in build media storage to delete
     """
@@ -1771,3 +1819,46 @@ def retry_domain_verification(domain_pk):
         sender=domain.__class__,
         domain=domain,
     )
+
+
+@app.task(queue='web')
+def send_build_status(build_pk, status):
+    """
+    Send Build Status to Git Status API for project external versions.
+
+    :param build_pk: Build primary key
+    :param status: build status failed, pending, or success to be sent.
+    """
+    build = Build.objects.get(pk=build_pk)
+    try:
+        if build.project.remote_repository.account.provider == 'github':
+            service = GitHubService(
+                build.project.remote_repository.users.first(),
+                build.project.remote_repository.account
+            )
+
+            # send Status report using the API.
+            service.send_build_status(build, status)
+
+    except RemoteRepository.DoesNotExist:
+        log.info('Remote repository does not exist for %s', build.project)
+
+    except Exception:
+        log.exception('Send build status task failed for %s', build.project)
+
+    # TODO: Send build status for other providers.
+
+
+def send_external_build_status(version, build_pk, status):
+    """
+    Check if build is external and Send Build Status for project external versions.
+
+     :param version: Version instance
+     :param build_pk: Build pk
+     :param status: build status failed, pending, or success to be sent.
+    """
+
+    # Send status reports for only External (pull/merge request) Versions.
+    if version.type == EXTERNAL:
+        # call the task that actually send the build status.
+        send_build_status.delay(build_pk, status)

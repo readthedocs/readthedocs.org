@@ -2,15 +2,17 @@
 
 {% load core_tags i18n static %}
 
-{% block title %}{% blocktrans with query=query|default:"" %}Search: {{ query }} {% endblocktrans %}{% endblock %}
+{% block title %}
+  {% blocktrans with query=query|default:"" %}
+    Search: {{ query }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block extra_links %}
-{{ super }}
-
-<style>
-.navigable > ul > li { border-bottom: 0; }
-</style>
-
+  {{ super }}
+  <style>
+    .navigable > ul > li { border-bottom: 0; }
+  </style>
 {% endblock %}
 
 {% block project_editing %}
@@ -25,218 +27,226 @@
 
 <div class="navigable">
   <ul>
-      <h5>{% trans 'Object Type' %}</h5>
-      {% if not project_obj %}
+    <h5>{% trans 'Object Type' %}</h5>
+    {% if not project_obj %}
       <li class="{% if type == 'project' %}active{% endif %}"><a href="?{% url_replace request 'type' 'project' %}">{% trans 'Projects' %}</a></li>
-      {% endif %}
+    {% endif %}
       <li class="{% if type == 'file' %}active{% endif %}"><a href="?{% url_replace request 'type' 'file' %}">{% trans 'Files' %}</a></li>
-      {# <li class="{% if type == 'domain' %}active{% endif %}"><a href="?{% url_replace request 'type' 'domain' %}">{% trans 'Code API' %}</a></li> #}
-      {# <li class="{% if type == 'all' %}active{% endif %}"><a href="?{% url_replace request 'type' 'all' %}">{% trans 'All' %}</a></li> #}
+    <hr>
 
+    {% if facets.index %}
+      <h5>{% trans 'Index' %}</h5>
+      {% for name, count, selected in facets.index %}
+        <li class="{% if selected %}active{% endif %} index-list">
+          {% if index == name %}
+            <a href="?{% url_replace request 'index' ''  %}">{{ name }}
+          {% else %}
+            <a href="?{% url_replace request 'index' name  %}">{{ name }}
+          {% endif %}
+          ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
       <hr>
+    {% endif %}
 
-      {% if facets.index %}
-
-        <h5>{% trans 'Index' %}</h5>
-          {% for name, count, selected in facets.index %}
-            <li class="{% if selected %}active{% endif %} index-list">
-              {% if index == name %}
-                <a href="?{% url_replace request 'index' ''  %}">{{ name }}
-              {% else %}
-                <a href="?{% url_replace request 'index' name  %}">{{ name }}
-              {% endif %}
-              ({{ count }})
-              </a>
-           </li>
-          {% endfor %}
-
+    {% if facets.project and not project_obj %}
+      <h5>{% trans 'Projects' %}</h5>
+      {% for name, count, selected in facets.project %}
+        <li class="{% if selected %}active{% endif %} project-list">
+          {% if project == name %}
+            <a href="?{% url_replace request 'project' ''  %}">{{ name }}
+          {% else %}
+            <a href="?{% url_replace request 'project' name  %}">{{ name }}
+          {% endif %}
+          ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
       <hr>
-      {% endif %}
+    {% endif %}
 
-      {% if facets.project and not project_obj %}
-
-        <h5>{% trans 'Projects' %}</h5>
-          {% for name, count, selected in facets.project %}
-            <li class="{% if selected %}active{% endif %} project-list">
-              {% if project == name %}
-                <a href="?{% url_replace request 'project' ''  %}">{{ name }}
-              {% else %}
-                <a href="?{% url_replace request 'project' name  %}">{{ name }}
-              {% endif %}
-              ({{ count }})
-              </a>
-           </li>
-          {% endfor %}
-
+    {% if facets.version %}
+      <h5>{% trans 'Version' %}</h5>
+      {% for name, count, selected in facets.version %}
+        <li class="{% if selected %}active{% endif %} version-list">
+          {% if version == name %}
+            <a href="?{% url_replace request 'version' ''  %}">{{ name }}
+          {% else %}
+            <a href="?{% url_replace request 'version' name  %}">{{ name }}
+          {% endif %}
+          ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
       <hr>
-      {% endif %}
+    {% endif %}
 
-      {% if facets.version %}
-        <h5>{% trans 'Version' %}</h5>
-          {% for name, count, selected in facets.version %}
-            <li class="{% if selected %}active{% endif %} version-list">
-              {% if version == name %}
-                <a href="?{% url_replace request 'version' ''  %}">{{ name }}
-              {% else %}
-                <a href="?{% url_replace request 'version' name  %}">{{ name }}
-              {% endif %}
-              ({{ count }})
-              </a>
-           </li>
-          {% endfor %}
-
+    {% if facets.language %}
+      <h5>{% trans 'Language' %}</h5>
+      {% for name, count, selected in facets.language %}
+        <li class="{% if selected %}active{% endif %} language-list">
+          {% if language == name %}
+            <a href="?{% url_replace request 'language' ''  %}">{{ name }}
+          {% else %}
+            <a href="?{% url_replace request 'language' name  %}">{{ name }}
+          {% endif %}
+          ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
       <hr>
-      {% endif %}
+    {% endif %}
 
-      {% if facets.language %}
-        <h5>{% trans 'Language' %}</h5>
-          {% for name, count, selected in facets.language %}
-            <li class="{% if selected %}active{% endif %} language-list">
-              {% if language == name %}
-                <a href="?{% url_replace request 'language' ''  %}">{{ name }}
-              {% else %}
-                <a href="?{% url_replace request 'language' name  %}">{{ name }}
-              {% endif %}
-              ({{ count }})
-              </a>
-           </li>
-          {% endfor %}
+
+    {% if facets.role_name %}
+      <h5>{% trans 'Code API Type' %}</h5>
+      {% for name, count, selected in facets.role_name %}
+        <li class="{% if selected %}active{% endif %} role-list">
+          {% if role_name == name %}
+            <a href="?{% url_replace request 'role_name' ''  %}">{{ name }}
+          {% else %}
+            <a href="?{% url_replace request 'role_name' name  %}">{{ name }}
+          {% endif %}
+          ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
       <hr>
+    {% endif %}
 
-      {% endif %}
-
-
-      {% if facets.role_name %}
-        <h5>{% trans 'Code API Type' %}</h5>
-          {% for name, count, selected in facets.role_name %}
-            <li class="{% if selected %}active{% endif %} language-list">
-              {% if role_name == name %}
-                <a href="?{% url_replace request 'role_name' ''  %}">{{ name }}
-              {% else %}
-                <a href="?{% url_replace request 'role_name' name  %}">{{ name }}
-              {% endif %}
-              ({{ count }})
-              </a>
-           </li>
-          {% endfor %}
-
-      <hr>
-      {% endif %}
-
-  {% block sponsor %}
-  <div class="search-sponsored">
-  Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.
-  </div>
-  {% endblock sponsor %}
-
+    {% block sponsor %}
+      <div class="search-sponsored">
+        Search is sponsored by <a href="https://www.elastic.co/">Elastic</a>, and hosted on <a href="https://www.elastic.co/cloud">Elastic Cloud</a>.
+      </div>
+    {% endblock sponsor %}
   </ul>
+<div>
 
-  <div>
-        <h2>{% trans 'Search' %}</h2>
-        <!-- BEGIN search form -->
-        <div class="wide-search-bar">
-          <div class="wide-search-bar-wrapper clearfix">
-            <form action="." method="GET">
-              <div class="text-input-wrapper">
-                <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
-                {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
-                {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
-                {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
-                {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
-                {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
-                {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
-              </div>
-              <div class="submit-input-wrapper">
-                {% comment %}Translators: This is about starting a search{% endcomment %}
-                <input type="submit" value="{% trans 'Search' %}">
-              </div>
-            </form>
-          </div>
-        </div>
-        <!-- END search form -->
+<h2>{% trans 'Search' %}</h2>
+<!-- BEGIN search form -->
+<div class="wide-search-bar">
+  <div class="wide-search-bar-wrapper clearfix">
+    <form action="." method="GET">
+      <div class="text-input-wrapper">
+        <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
+        {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
+        {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
+        {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
+        {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
+        {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
+        {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
+      </div>
+      <div class="submit-input-wrapper">
+        {% comment %}Translators: This is about starting a search{% endcomment %}
+        <input type="submit" value="{% trans 'Search' %}">
+      </div>
+    </form>
+  </div>
+</div>
+<!-- END search form -->
 
+{% if query %}
+  <!-- BEGIN search results -->
+  <div class="module">
+    <div class="module-wrapper">
+      <div class="module-header">
+        <h3>
+          {% blocktrans with count=results.hits.total query=query|default:"" %}
+            {{ count }} results for `{{ query }}`
+          {% endblocktrans %}
+        </h3>
+      </div>
 
-        {% if query %}
-        <!-- BEGIN search results -->
-        <div class="module">
-          <div class="module-wrapper">
-            <div class="module-header">
-              <h3>
-              {% blocktrans with count=results.hits.total query=query|default:"" %}
-               {{ count }} results for `{{ query }}`
-               {% endblocktrans %}
-             </h3>
-            </div>
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
 
-            <div class="module-list">
-              <div class="module-list-wrapper">
+            {% for result in results %}
 
-                <ul>
+              <li class="module-item search-result-item">
+                <p class="module-item-title">
+                  {% if 'project' in result.meta.index %}
+                    <a href="{{ result.url }}">
+                      {{ result.name }} (<em>{{ result.slug }}</em>)
+                    </a>
+                    {% for fragment in result.meta.highlight.description %}
+                      <p class="fragment">
+                        ...{{ fragment|safe }}...
+                      </p>
+                    {% empty %}
+                      <p><em>No description for project.</em></p>
+                    {% endfor %}
 
-                  {% for result in results %}
-                    <li class="module-item search-result-item">
-                      <p class="module-item-title">
+                  {% elif 'page' in result.meta.index %}
+                    <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
+                      {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                    </a>
 
-                        {% if 'project' in result.meta.index %}
-                          <a href="{{ result.url }}">
-                            {{ result.name }} (<em>{{ result.slug }}</em>)
+                    {% for inner_hit in result.meta.inner_hits %}
+                      {% if inner_hit.type == 'domains' %}
+                        <p>
+                          <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}?highlight= {{ query }}#{{ inner_hit.source.anchor }}">
+
+                            {% if inner_hit.source.display_name|length >= 1 %}
+                              ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
+                            {% else %}
+                              {{ inner_hit.source.role_name }}
+                            {% endif %}
                           </a>
-                          {% for fragment in result.meta.highlight.description %}
-                            <p class="fragment">
-                            ...{{ fragment|safe }}...
-                            </p>
-                          {% empty %}
-                          <p><em>No description for project.</em></p>
-                          {% endfor %}
-
-                      {% elif 'domain' in result.meta.index %}
-
-                        <a href="{% doc_url result.project|get_project result.version result.doc_name %}?highlight={{ query }}#{{ result.anchor }}">
-                          {{ result.project }} - {% if result.meta.highlight.name|length %} {{ result.meta.highlight.name.0|safe }} {% else %} {{ result.name }} {% endif %}
-                        </a>
+                        </p>
                         <p class="fragment">
-                          {% if result.type_display %}
-                            {{ result.type_display|capfirst }}
+                          {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
+                            {% with domain_name=inner_hit.highlight|get_key_or_none:"domains.name" %}
+                              {{ inner_hit.source.type_display }} -- {{ domain_name.0|safe }} -- in {{ inner_hit.source.doc_display }}
+                            {% endwith %}
                           {% else %}
-                            {{ result.role_name }}
-                          {% endif %}
-                          in
-                          {% if result.doc_display %}
-                            {{ result.doc_display|capfirst }}
-                          {% else %}
-                            {{ result.doc_name }}
+                            {{ inner_hit.source.type_display }} -- {{ inner_hit.source.name }} -- {{ inner_hit.source.doc_display }}
                           {% endif %}
                         </p>
 
-                      {% elif 'page' in result.meta.index %}
-
-                        <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
-                          {{ result.project }} - {{ result.title }}
-                        </a>
-                        {% for fragment in result.meta.highlight.content %}
+                      {% elif inner_hit.type == 'sections' %}
+                        <p>
+                          <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.id }}">
+                            {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
+                              {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
+                                {{ section_title.0|safe }}
+                              {% endwith %}
+                            {% else %}
+                              {{ inner_hit.source.title }}
+                            {% endif %}
+                          </a>
+                        </p>
+                        {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
+                          {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
+                            {% for content in section_content %}
+                              <p class="fragment">
+                                ... {{ content|safe }} ...
+                              </p>
+                            {% endfor %}
+                          {% endwith %}
+                        {% else %}
                           <p class="fragment">
-                          ...{{ fragment|safe }}...
+                            {% with "100" as MAX_SUBSTRING_LIMIT %}
+                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                            {% endwith %}
                           </p>
-                        {% endfor %}
-
+                        {% endif %}
                       {% endif %}
-
-                    </p>
-                  </li>
-
-                {% empty %}
-                  <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
-                {% endfor %}
-
-                </ul>
-
-              </div>
-            </div>
-
-          </div>
+                    {% endfor %}
+                  {% endif %}
+                </p>
+              </li>
+            {% empty %}
+              <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
+            {% endfor %}
+          </ul>
         </div>
-        {% endif %}
-        <!-- END search results -->
+      </div>
+    </div>
   </div>
+{% endif %}
+<!-- END search results -->
+</div>
 </div>
 {% endblock %}

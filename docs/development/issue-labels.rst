@@ -4,7 +4,7 @@ Overview of issue labels
 Here is a full list of labels that we use in the `GitHub issue tracker`_ and
 what they stand for.
 
-.. _GitHub issue tracker: https://github.com/rtfd/readthedocs.org/issues
+.. _GitHub issue tracker: https://github.com/readthedocs/readthedocs.org/issues
 
 *Accepted*
     Issues with this label are issues that the core team has accepted on to the

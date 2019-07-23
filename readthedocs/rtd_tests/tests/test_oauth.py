@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from django_dynamic_fixture import get
+
+from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
+from readthedocs.builds.models import Version, Build
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -26,6 +30,10 @@ class GitHubOAuthTests(TestCase):
         self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
         self.privacy = self.project.version_privacy_level
         self.service = GitHubService(user=self.user, account=None)
+        self.external_version = get(Version, project=self.project, type=EXTERNAL)
+        self.external_build = get(
+            Build, project=self.project, version=self.external_version
+        )
 
     def test_make_project_pass(self):
         repo_json = {
@@ -141,6 +149,52 @@ class GitHubOAuthTests(TestCase):
 
         self.assertEqual(github_project, github_project_5)
         self.assertEqual(github_project_2, github_project_6)
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_send_build_status_successful(self, session, mock_logger):
+        session().post.return_value.status_code = 201
+        success = self.service.send_build_status(
+            self.external_build,
+            BUILD_STATUS_SUCCESS
+        )
+
+        self.assertTrue(success)
+        mock_logger.info.assert_called_with(
+            "GitHub commit status created for project: %s, commit status: %s",
+            self.project,
+            BUILD_STATUS_SUCCESS
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_send_build_status_404_error(self, session, mock_logger):
+        session().post.return_value.status_code = 404
+        success = self.service.send_build_status(
+            self.external_build,
+            BUILD_STATUS_SUCCESS
+        )
+
+        self.assertFalse(success)
+        mock_logger.info.assert_called_with(
+            'GitHub project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_send_build_status_value_error(self, session, mock_logger):
+        session().post.side_effect = ValueError
+        success = self.service.send_build_status(
+            self.external_build, BUILD_STATUS_SUCCESS
+        )
+
+        self.assertFalse(success)
+        mock_logger.exception.assert_called_with(
+            'GitHub commit status creation failed for project: %s',
+            self.project,
+        )
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_make_private_project(self):

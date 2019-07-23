@@ -183,4 +183,4 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
    please `get in touch`_ to discuss alternatives to advertising.
 
 .. _paid plans: https://readthedocs.com/pricing/
-.. _get in touch: mailto:ads@readthedocs.org?subject=Alternatives+to+advertising
+.. _get in touch: mailto:ads@readthedocs.org?subject=Alternatives%20to%20advertising

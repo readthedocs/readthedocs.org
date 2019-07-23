@@ -12,7 +12,7 @@ This extra context can be used to build some awesome features in your own theme.
     This design document details future features that are **not yet implemented**.
     To discuss this document, please get in touch in the `issue tracker`_.
 
-.. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
+.. _issue tracker: https://github.com/readthedocs/readthedocs.org/issues
 
 .. note::
 
@@ -28,7 +28,7 @@ Note that this dictionary is injected under the main key `readthedocs`:
 
 
 .. This context comes from ``readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params`` class.
-   The source code is at, https://github.com/rtfd/readthedocs.org/blob/0c547f47fb9dffbeb17e4e9ccf205a10caf31189/readthedocs/doc_builder/backends/sphinx.py#L65
+   The source code is at, https://github.com/readthedocs/readthedocs.org/blob/0c547f47fb9dffbeb17e4e9ccf205a10caf31189/readthedocs/doc_builder/backends/sphinx.py#L65
 
 .. code:: python
 

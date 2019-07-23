@@ -47,7 +47,7 @@ Non-Goals
 Existing Search Implementation
 ------------------------------
 
-We have a detailed documentation explaing the underlying architecture of our search backend
+We have a detailed documentation explaining the underlying architecture of our search backend
 and how we index documents to our Elasticsearch index.
 You can read about it :doc:`here <../search>`.
 
@@ -174,10 +174,10 @@ Open Questions
 * Should we go for edge ngrams or completion suggester?
 
 
-.. _issue tracker: https://github.com/rtfd/readthedocs.org/issues
+.. _issue tracker: https://github.com/readthedocs/readthedocs.org/issues
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _querySelector(): https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
 .. _document.createElement(): https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement
 .. _node.removeChild(): https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild
-.. _here: https://github.com/rtfd/readthedocs.org/blob/9ca5858e859dea0759d913e8db70a623d62d6a16/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl#L135-L142
-.. _404 extension : https://github.com/rtfd/sphinx-notfound-page
+.. _here: https://github.com/readthedocs/readthedocs.org/blob/9ca5858e859dea0759d913e8db70a623d62d6a16/readthedocs/doc_builder/templates/doc_builder/conf.py.tmpl#L135-L142
+.. _404 extension : https://github.com/readthedocs/sphinx-notfound-page

@@ -2,29 +2,31 @@
     "_links": {
         "_self": "https://readthedocs.org/api/v3/projects/test-project/",
         "builds": "https://readthedocs.org/api/v3/projects/test-project/builds/",
+        "environmentvariables": "https://readthedocs.org/api/v3/projects/test-project/environmentvariables/",
+        "redirects": "https://readthedocs.org/api/v3/projects/test-project/redirects/",
         "subprojects": "https://readthedocs.org/api/v3/projects/test-project/subprojects/",
         "superproject": "https://readthedocs.org/api/v3/projects/test-project/superproject/",
         "translations": "https://readthedocs.org/api/v3/projects/test-project/translations/",
         "versions": "https://readthedocs.org/api/v3/projects/test-project/versions/"
     },
-    "created": "2019-04-29T14:00:00Z",
+    "created": "2019-04-29T10:00:00Z",
     "default_branch": "master",
     "default_version": "latest",
-    "description": null,
     "id": 4,
+    "homepage": "http://template.readthedocs.io/",
     "language": {
         "code": "en",
         "name": "English"
     },
-    "modified": "2019-04-29T14:00:00Z",
+    "modified": "2019-04-29T12:00:00Z",
     "name": "Test Project",
     "privacy_level": {
         "code": "public",
         "name": "Public"
     },
     "programming_language": {
-        "code": "words",
-        "name": "Only Words"
+        "code": "py",
+        "name": "Python"
     },
     "repository": {
         "type": "git",
@@ -35,12 +37,13 @@
     "tags": [],
     "translation_of": null,
     "urls": {
+        "builds": "https://readthedocs.org/projects/test-project/builds/",
         "documentation": "http://readthedocs.org/docs/test-project/en/latest/",
-        "project_homepage": null
+        "home": "https://readthedocs.org/projects/test-project/",
+        "versions": "https://readthedocs.org/projects/test-project/versions/"
     },
     "users": [
         {
-            "created": "2019-04-29T10:00:00Z",
             "username": "testuser"
         }
     ]

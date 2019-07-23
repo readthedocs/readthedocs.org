@@ -6,7 +6,7 @@ the documentation for Read the Docs is built using Sphinx and hosted on Read the
 The docs are kept in the ``docs/`` directory at the top of the source tree.
 
 You can build the docs by first ensuring this project is set up locally according to the :doc:`Installation Guide <install>`.
-Follow the instructions just up to the point of activating the virtual enviroment and then continue here.
+Follow the instructions just up to the point of activating the virtual environment and then continue here.
 
 Next, install the documentation dependencies using ``pip`` (make sure you are inside of the virtual environment)::
 

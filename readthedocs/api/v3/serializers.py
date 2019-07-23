@@ -10,18 +10,16 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
 class UserSerializer(FlexFieldsModelSerializer):
-
-    created = serializers.DateTimeField(source='date_joined')
 
     class Meta:
         model = User
         fields = [
             'username',
-            'created',
         ]
 
 
@@ -300,13 +298,26 @@ class ProgrammingLanguageSerializer(serializers.Serializer):
         return 'Unknown'
 
 
-class ProjectURLsSerializer(serializers.Serializer):
-    documentation = serializers.CharField(source='get_docs_url')
-    project_homepage = serializers.SerializerMethodField()
+class ProjectURLsSerializer(BaseLinksSerializer, serializers.Serializer):
 
-    def get_project_homepage(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.project_url or None
+    """Serializer with all the user-facing URLs under Read the Docs."""
+
+    documentation = serializers.CharField(source='get_docs_url')
+    home = serializers.SerializerMethodField()
+    builds = serializers.SerializerMethodField()
+    versions = serializers.SerializerMethodField()
+
+    def get_home(self, obj):
+        path = reverse('projects_detail', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_builds(self, obj):
+        path = reverse('builds_project_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
+
+    def get_versions(self, obj):
+        path = reverse('project_version_list', kwargs={'project_slug': obj.slug})
+        return self._absolute_url(path)
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -324,6 +335,8 @@ class ProjectLinksSerializer(BaseLinksSerializer):
 
     versions = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
+    environmentvariables = serializers.SerializerMethodField()
+    redirects = serializers.SerializerMethodField()
     subprojects = serializers.SerializerMethodField()
     superproject = serializers.SerializerMethodField()
     translations = serializers.SerializerMethodField()
@@ -335,6 +348,24 @@ class ProjectLinksSerializer(BaseLinksSerializer):
     def get_versions(self, obj):
         path = reverse(
             'projects-versions-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_environmentvariables(self, obj):
+        path = reverse(
+            'projects-environmentvariables-list',
+            kwargs={
+                'parent_lookup_project__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_redirects(self, obj):
+        path = reverse(
+            'projects-redirects-list',
             kwargs={
                 'parent_lookup_project__slug': obj.slug,
             },
@@ -383,19 +414,22 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url', required=False)
 
     class Meta:
         model = Project
         fields = (
             'name',
             'language',
+            'programming_language',
             'repository',
-            'project_url',  # project_homepage
+            'homepage',
         )
 
 
 class ProjectSerializer(FlexFieldsModelSerializer):
 
+    homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
@@ -406,8 +440,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
-
-    description = serializers.SerializerMethodField()
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -434,11 +466,11 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'slug',
-            'description',
             'created',
             'modified',
             'language',
             'programming_language',
+            'homepage',
             'repository',
             'default_version',
             'default_branch',
@@ -457,9 +489,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             '_links',
         ]
 
-    def get_description(self, obj):
-        # Overridden only to return ``None`` when the description is ``''``
-        return obj.description or None
+    def get_homepage(self, obj):
+        # Overridden only to return ``None`` when the project_url is ``''``
+        return obj.project_url or None
 
     def get_translation_of(self, obj):
         if obj.main_language_project:
@@ -470,3 +502,113 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class RedirectLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-redirects-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'redirect_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class RedirectSerializerBase(serializers.ModelSerializer):
+
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    created = serializers.DateTimeField(source='create_dt', read_only=True)
+    modified = serializers.DateTimeField(source='update_dt', read_only=True)
+    _links = RedirectLinksSerializer(source='*', read_only=True)
+
+    type = serializers.ChoiceField(source='redirect_type', choices=REDIRECT_TYPE_CHOICES)
+
+    class Meta:
+        model = Redirect
+        fields = [
+            'pk',
+            'created',
+            'modified',
+            'project',
+            'type',
+            'from_url',
+            'to_url',
+            '_links',
+        ]
+
+
+class RedirectCreateSerializer(RedirectSerializerBase):
+    pass
+
+
+class RedirectDetailSerializer(RedirectSerializerBase):
+
+    """Override RedirectSerializerBase to sanitize the empty fields."""
+
+    from_url = serializers.SerializerMethodField()
+    to_url = serializers.SerializerMethodField()
+
+    def get_from_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.from_url or None
+
+    def get_to_url(self, obj):
+        # Overridden only to return ``None`` when the description is ``''``
+        return obj.to_url or None
+
+
+class EnvironmentVariableLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    project = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-environmentvariables-detail',
+            kwargs={
+                'parent_lookup_project__slug': obj.project.slug,
+                'environmentvariable_pk': obj.pk,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class EnvironmentVariableSerializer(serializers.ModelSerializer):
+
+    value = serializers.CharField(write_only=True)
+    project = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    _links = EnvironmentVariableLinksSerializer(source='*', read_only=True)
+
+    class Meta:
+        model = EnvironmentVariable
+        fields = [
+            'pk',
+            'created',
+            'modified',
+            'name',
+            'value',
+            'project',
+            '_links',
+        ]

@@ -35,3 +35,13 @@ class ListCreateProject(BasePermission):
         ]):
             # hitting ``/projects/``, allowing
             return True
+
+
+class IsProjectAdmin(BasePermission):
+
+    """Grant permission if user has admin rights on the Project."""
+
+    def has_permission(self, request, view):
+        project = view._get_parent_project()
+        if view.is_project_maintainer(request.user, project):
+            return True

@@ -38,7 +38,14 @@ class RepositoryError(BuildEnvironmentError):
         'Private repositories are not supported.',
     )
 
-    INVALID_SUBMODULES = _('One or more submodule URLs are not valid: {}.',)
+    INVALID_SUBMODULES = _(
+        'One or more submodule URLs are not valid: {}, '
+        'git/ssh URL schemas for submodules are not supported.'
+    )
+    INVALID_SUBMODULES_PATH = _(
+        'One or more submodule paths are not valid. '
+        'Check that all your submodules in .gitmodules are used.'
+    )
 
     DUPLICATED_RESERVED_VERSIONS = _(
         'You can not have two versions with the name latest or stable.',

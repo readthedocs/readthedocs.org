@@ -1,11 +1,16 @@
 """Django admin interface for `~builds.models.Build` and related models."""
 
+import json
 from django.contrib import admin, messages
-from guardian.admin import GuardedModelAdmin
+from django.utils.safestring import mark_safe
 from polymorphic.admin import (
     PolymorphicChildModelAdmin,
     PolymorphicParentModelAdmin,
 )
+
+from pygments import highlight
+from pygments.lexers import JsonLexer
+from pygments.formatters import HtmlFormatter
 
 from readthedocs.builds.models import (
     Build,
@@ -18,6 +23,29 @@ from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
+
+
+def _pretty_config(instance):
+    """
+    Function to display pretty version of our data.
+
+    Thanks to PyDanny: https://www.pydanny.com/pretty-formatting-json-django-admin.html
+    """
+
+    # Convert the data to sorted, indented JSON
+    response = json.dumps(instance.config, sort_keys=True, indent=2)
+
+    # Get the Pygments formatter
+    formatter = HtmlFormatter()
+
+    # Highlight the data
+    response = highlight(response, JsonLexer(), formatter)
+
+    # Get the stylesheet
+    style = "<style>" + formatter.get_style_defs() + "</style><br>"
+
+    # Safe the output
+    return mark_safe(style + response)
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -35,6 +63,10 @@ class BuildAdmin(admin.ModelAdmin):
         'success',
         'length',
         'cold_storage',
+        'pretty_config',
+    )
+    readonly_fields = (
+        'pretty_config',  # required to be read-only because it's a @property
     )
     list_display = (
         'id',
@@ -50,13 +82,19 @@ class BuildAdmin(admin.ModelAdmin):
     list_select_related = ('project', 'version')
     raw_id_fields = ('project', 'version')
     inlines = (BuildCommandResultInline,)
-    search_fields = ('project__name', 'version__slug')
+    search_fields = ('project__slug', 'version__slug')
 
     def version_name(self, obj):
         return obj.version.verbose_name
 
+    def pretty_config(self, instance):
+        return _pretty_config(instance)
 
-class VersionAdmin(GuardedModelAdmin):
+    pretty_config.short_description = 'Config File'
+
+
+class VersionAdmin(admin.ModelAdmin):
+
     list_display = (
         'slug',
         'type',
@@ -64,6 +102,9 @@ class VersionAdmin(GuardedModelAdmin):
         'privacy_level',
         'active',
         'built',
+    )
+    readonly_fields = (
+        'pretty_config',  # required to be read-only because it's a @property
     )
     list_filter = ('type', 'privacy_level', 'active', 'built')
     search_fields = ('slug', 'project__slug')
@@ -83,6 +124,10 @@ class VersionAdmin(GuardedModelAdmin):
                 level=messages.SUCCESS
             )
 
+    def pretty_config(self, instance):
+        return _pretty_config(instance)
+
+    pretty_config.short_description = 'Config File'
     wipe_selected_versions.short_description = 'Wipe selected versions'
 
     def build_version(self, request, queryset):
