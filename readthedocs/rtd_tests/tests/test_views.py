@@ -330,4 +330,4 @@ class HomepageViewTests(TestCase):
         response = self.client.get(self.homepage_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(expected_count, response.context['projects_count']) 
+        self.assertEqual(expected_count, response.context['projects_count'])
