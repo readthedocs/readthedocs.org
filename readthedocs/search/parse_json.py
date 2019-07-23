@@ -3,7 +3,6 @@
 import codecs
 import json
 import logging
-import os
 
 from pyquery import PyQuery
 
