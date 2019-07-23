@@ -1,3 +1,34 @@
+Version 3.7.0
+-------------
+
+:Date: July 23, 2019
+
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search Fix: `section_subtitle_link` is not defined (`#5980 <https://github.com/readthedocs/readthedocs.org/pull/5980>`__)
+* `@stsewd <http://github.com/stsewd>`__: More explicit setup for tests (`#5977 <https://github.com/readthedocs/readthedocs.org/pull/5977>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update gitpython (`#5974 <https://github.com/readthedocs/readthedocs.org/pull/5974>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Community only ads for more themes (`#5973 <https://github.com/readthedocs/readthedocs.org/pull/5973>`__)
+* `@kittenking <http://github.com/kittenking>`__: Fix typos across readthedocs.org repository (`#5971 <https://github.com/readthedocs/readthedocs.org/pull/5971>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix: `parse_json` also including html in titles (`#5970 <https://github.com/readthedocs/readthedocs.org/pull/5970>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: update external version check for notification task (`#5969 <https://github.com/readthedocs/readthedocs.org/pull/5969>`__)
+* `@pranay414 <http://github.com/pranay414>`__: Improve error message for invalid submodule URLs (`#5957 <https://github.com/readthedocs/readthedocs.org/pull/5957>`__)
+* `@humitos <http://github.com/humitos>`__: Append core requirements to Conda environment file (`#5956 <https://github.com/readthedocs/readthedocs.org/pull/5956>`__)
+* `@Abhi-khandelwal <http://github.com/Abhi-khandelwal>`__: Exclude Spam projects count from total_projects count (`#5955 <https://github.com/readthedocs/readthedocs.org/pull/5955>`__)
+* `@humitos <http://github.com/humitos>`__: Show APIv3 Token under Profile settings (`#5954 <https://github.com/readthedocs/readthedocs.org/pull/5954>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.6.1 (`#5953 <https://github.com/readthedocs/readthedocs.org/pull/5953>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Missed a couple places to set READTHEDOCS_LANGUAGE (`#5951 <https://github.com/readthedocs/readthedocs.org/pull/5951>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Hotfix: Return empty dict when no highlight dict is present (`#5950 <https://github.com/readthedocs/readthedocs.org/pull/5950>`__)
+* `@humitos <http://github.com/humitos>`__: Use a cwd where the user has access inside the container (`#5949 <https://github.com/readthedocs/readthedocs.org/pull/5949>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Small Changes to PR Builder Code (`#5948 <https://github.com/readthedocs/readthedocs.org/pull/5948>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: update build status message for github (`#5947 <https://github.com/readthedocs/readthedocs.org/pull/5947>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Integrate indoc search into our prod docs (`#5946 <https://github.com/readthedocs/readthedocs.org/pull/5946>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Explicitly delete SphinxDomain objects from previous versions (`#5945 <https://github.com/readthedocs/readthedocs.org/pull/5945>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Properly return None when there's no highlight on a hit. (`#5944 <https://github.com/readthedocs/readthedocs.org/pull/5944>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add READTHEDOCS_LANGUAGE to the environment during builds (`#5941 <https://github.com/readthedocs/readthedocs.org/pull/5941>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Merge the GSOC 2019 in-doc search changes (`#5919 <https://github.com/readthedocs/readthedocs.org/pull/5919>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add check for external version in conf.py.tmpl for warning banner (`#5900 <https://github.com/readthedocs/readthedocs.org/pull/5900>`__)
+* `@Abhi-khandelwal <http://github.com/Abhi-khandelwal>`__: Point users to commercial solution for their private repositories (`#5849 <https://github.com/readthedocs/readthedocs.org/pull/5849>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Merge initial work from Pull Request Builder GSOC (`#5823 <https://github.com/readthedocs/readthedocs.org/pull/5823>`__)
+
 Version 3.6.1
 -------------
 
