@@ -61,7 +61,10 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         return queryset.none()
 
     def is_project_maintainer(self, user, project):
-        if project in self.admin_projects(user).only('id'):
+        # Use .only for small optimization
+        admin_projects = self.admin_projects(user).only('id')
+
+        if project in admin_projects:
             return True
 
         return False
