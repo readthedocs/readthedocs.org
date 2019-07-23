@@ -1,5 +1,4 @@
 """Local setting for celery without DB access"""
-from __future__ import absolute_import
 
 import os
 
