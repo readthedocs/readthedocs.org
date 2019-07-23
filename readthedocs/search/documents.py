@@ -94,6 +94,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
             # For showing in the search result
             'type_display': fields.TextField(),
             'doc_display': fields.TextField(),
+            'docstrings': fields.TextField(),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
@@ -123,6 +124,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 'anchor': domain.anchor,
                 'type_display': domain.type_display,
                 'doc_display': domain.doc_display,
+                'docstrings': html_file.domain_data_json.get(domain.anchor, ''),
                 'name': domain.name,
                 'display_name': domain.display_name if domain.display_name != '-' else '',
             }

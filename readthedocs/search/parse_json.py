@@ -3,6 +3,7 @@
 import codecs
 import json
 import logging
+import os
 
 from pyquery import PyQuery
 
@@ -107,3 +108,13 @@ def parse_content(content):
     # converting newlines to ". "
     content = '. '.join([text.strip().rstrip('.') for text in content])
     return content
+
+
+def process_domain_file(file_path):
+    """Read the ``readthedocs-sphinx-domain-data.json`` file and return its data."""
+    if not os.path.exists(file_path):
+        return {}
+
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+    return data
