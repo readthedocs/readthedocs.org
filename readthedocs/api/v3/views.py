@@ -28,7 +28,7 @@ from readthedocs.redirects.models import Redirect
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import ProjectQuerySetMixin
-from .permissions import PublicDetailPrivateListing, ListCreateProject, IsProjectAdmin
+from .permissions import PublicDetailPrivateListing, ListCreateProject, IsProjectMaintainer
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -363,7 +363,7 @@ class RedirectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
     lookup_field = 'pk'
     lookup_url_kwarg = 'redirect_pk'
     queryset = Redirect.objects.all()
-    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+    permission_classes = (IsAuthenticated & IsProjectMaintainer,)
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -391,7 +391,7 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
     lookup_url_kwarg = 'environmentvariable_pk'
     queryset = EnvironmentVariable.objects.all()
     serializer_class = EnvironmentVariableSerializer
-    permission_classes = (IsAuthenticated & IsProjectAdmin,)
+    permission_classes = (IsAuthenticated & IsProjectMaintainer,)
 
     def get_queryset(self):
         queryset = super().get_queryset()

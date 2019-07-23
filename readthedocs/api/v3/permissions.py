@@ -37,7 +37,7 @@ class ListCreateProject(BasePermission):
             return True
 
 
-class IsProjectAdmin(BasePermission):
+class IsProjectMaintainer(BasePermission):
 
     """Grant permission if user has admin rights on the Project."""
 
