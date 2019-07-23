@@ -65,6 +65,7 @@ def process_file(fjson_filename):
     sections = []
     path = ''
     title = ''
+    domain_data = {}
 
     if 'current_page_name' in data:
         path = data['current_page_name']
@@ -74,6 +75,7 @@ def process_file(fjson_filename):
     if data.get('body'):
         body = PyQuery(data['body'])
         sections.extend(generate_sections_from_pyquery(body))
+        domain_data = generate_domains_data_from_pyquery(body)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
 
@@ -87,6 +89,7 @@ def process_file(fjson_filename):
         'path': path,
         'title': title,
         'sections': sections,
+        'domain_data': domain_data,
     }
 
 
@@ -110,11 +113,36 @@ def parse_content(content):
     return content
 
 
-def process_domain_file(file_path):
-    """Read the ``readthedocs-sphinx-domain-data.json`` file and return its data."""
-    if not os.path.exists(file_path):
-        return {}
+def generate_domains_data_from_pyquery(body):
 
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-    return data
+    dl_tags = body('dl')
+    domain_data = {}
+
+    for dl_tag in dl_tags:
+
+        dt = dl_tag.findall('dt')  
+        dd = dl_tag.findall('dd')
+
+        for title, desc in zip(dt, dd):
+            id_ = title.attrib.get('id')
+            if id_:
+                # clone the PyQuery objects so that
+                # the original one remains undisturbed
+                desc_contents = PyQuery(desc).clone()
+
+                # remove the 'dl', 'dt' and 'dd' tags from it
+                # because all the 'dd' and 'dt' tags are inside 'dl'
+                # and all 'dl' tags are already captured.
+                desc_contents.remove('dl')
+                desc_contents.remove('dt')
+                desc_contents.remove('dd')
+
+                docstrings = desc_contents.text().replace('¶', '').strip()
+                docstrings = '. '.join(
+                    [
+                        text.strip().rstrip('.') for text in docstrings.split('\n')
+                    ]
+                )
+                domain_data[id_] = docstrings
+
+    return domain_data

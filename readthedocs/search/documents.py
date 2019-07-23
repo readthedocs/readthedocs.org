@@ -124,7 +124,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 'anchor': domain.anchor,
                 'type_display': domain.type_display,
                 'doc_display': domain.doc_display,
-                'docstrings': html_file.domain_data_json.get(domain.anchor, ''),
+                'docstrings': html_file.processed_json['domain_data'].get(domain.anchor, ''),
                 'name': domain.name,
                 'display_name': domain.display_name if domain.display_name != '-' else '',
             }

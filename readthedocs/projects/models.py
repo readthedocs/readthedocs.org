@@ -38,7 +38,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file, process_domain_file
+from readthedocs.search.parse_json import process_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -1271,38 +1271,12 @@ class HTMLFile(ImportedFile):
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property
     def processed_json(self):
         return self.get_processed_json()
-
-    def get_domain_data(self):
-        """Get sphinx domain data from ``readthedocs-sphinx-domain-data.json`` file for indexing."""
-        domain_data_dir = self.project.get_production_media_path(
-            type_='json',
-            version_slug=self.version.slug,
-            include_file=False
-        )
-
-        domain_data_json = os.path.join(
-            domain_data_dir,
-            'readthedocs-sphinx-domain-data.json'
-        )
-
-        domain_data = {}
-        try:
-            domain_data = process_domain_file(domain_data_json)
-        except Exception as e:
-            log.warning(
-                'Unhandled exception during search process domain data file: %s',
-                domain_data_json
-            )
-        return domain_data
-
-    @cached_property
-    def domain_data_json(self):
-        return self.get_domain_data()
 
 
 class Notification(models.Model):
