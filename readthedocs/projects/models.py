@@ -1407,6 +1407,7 @@ class Feature(models.Model):
     CLEAN_AFTER_BUILD = 'clean_after_build'
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
+    CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1454,6 +1455,10 @@ class Feature(models.Model):
         (
             UPDATE_CONDA_STARTUP,
             _('Upgrade conda before creating the environment'),
+        ),
+        (
+            CONDA_APPEND_CORE_REQUIREMENTS,
+            _('Append Read the Docs core requirements to environment.yml file'),
         ),
     )
 
