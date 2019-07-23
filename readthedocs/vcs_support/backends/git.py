@@ -238,13 +238,8 @@ class Backend(BaseVCS):
 
     @property
     def submodules(self):
-        try:
-            repo = git.Repo(self.working_dir)
-            return list(repo.submodules)
-        except InvalidGitRepositoryError:
-            raise RepositoryError(
-                RepositoryError.INVALID_SUBMODULES_PATH,
-            )
+        repo = git.Repo(self.working_dir)
+        return list(repo.submodules)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
