@@ -49,7 +49,7 @@
           <li class="{% block profile-admin-social-accounts %}{% endblock %}"><a href="{% url 'socialaccount_connections' %}">{% trans "Connected Services" %}</a></li>
           <li class="{% block profile-admin-change-password %}{% endblock %}"><a href="{% url 'account_change_password' %}">{% trans "Change Password" %}</a></li>
           <li class="{% block profile-admin-change-email %}{% endblock %}"><a href="{% url 'account_email' %}">{% trans "Change Email" %}</a></li>
-          <li class="{% block profile-admin-tokens %}{% endblock %}"><a href="{% url 'profiles_tokens' %}">{% trans "Personal Access Tokens" %}</a></li>
+          <li class="{% block profile-admin-tokens %}{% endblock %}"><a href="{% url 'profiles_tokens' %}">{% trans "API Tokens" %}</a></li>
           <li class="{% block profile-admin-delete-account %}{% endblock %}"><a href="{% url 'delete_account' %}">{% trans "Delete Account" %}</a></li>
           <li class="{% block profile-admin-gold-edit %}{% endblock %}"><a href="{% url 'gold_detail' %}">{% trans "Gold" %}</a></li>
           {% if USE_PROMOS %}

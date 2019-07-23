@@ -2,16 +2,16 @@
 
 {% load i18n %}
 
-{% block title %}{% trans "Personal Access Tokens" %}{% endblock %}
+{% block title %}{% trans "API Tokens" %}{% endblock %}
 
 {% block profile-admin-tokens %}active{% endblock %}
 
-{% block edit_content_header %} {% trans "Personal Access Tokens" %} {% endblock %}
+{% block edit_content_header %} {% trans "API Tokens" %} {% endblock %}
 
 {% block edit_content %}
   <p class="empty">
     {% blocktrans trimmed with contact_email="support@readthedocs.org" %}
-      Access Tokens are currently in Beta state and are not possible to create by yourself.
+      API Tokens are currently in Beta state and are not possible to create by yourself.
       In case you want to test APIv3 and help giving us feedback,
       please <a href="mailto:{{ contact_email }}">contact us</a> and let us know.
     {% endblocktrans %}
@@ -31,7 +31,7 @@
             {% empty %}
               <li class="module-item">
                 <p class="quiet">
-                  {% trans 'No Personal Access Tokens currently configured.' %}
+                  {% trans 'No API Tokens currently configured.' %}
                 </p>
               </li>
             {% endfor %}
