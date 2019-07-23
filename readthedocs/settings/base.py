@@ -463,6 +463,10 @@ class CommunityBaseSettings(Settings):
 
     INTERNAL_IPS = ('127.0.0.1',)
 
+    # Taggit
+    # https://django-taggit.readthedocs.io
+    TAGGIT_TAGS_FROM_STRING = 'readthedocs.core.tag_utils.rtd_parse_tags'
+
     # Stripe
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
