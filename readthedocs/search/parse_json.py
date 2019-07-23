@@ -78,8 +78,7 @@ def process_file(fjson_filename):
 
     if 'title' in data:
         title = data['title']
-        if title.startswith('<'):
-            title = PyQuery(data['title']).text()
+        title = PyQuery(data['title']).text().replace('¶', '').strip()
     else:
         log.info('Unable to index title for: %s', fjson_filename)
 

@@ -35,7 +35,7 @@ class BuildBase:
     def get_queryset(self):
         self.project_slug = self.kwargs.get('project_slug', None)
         self.project = get_object_or_404(
-            Project.objects.protected(self.request.user),
+            Project.objects.public(self.request.user),
             slug=self.project_slug,
         )
         queryset = Build.objects.public(
@@ -57,7 +57,7 @@ class BuildTriggerMixin:
 
         version_slug = request.POST.get('version_slug')
         version = get_object_or_404(
-            Version,
+            Version.internal.all(),
             project=project,
             slug=version_slug,
         )
@@ -93,7 +93,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.objects.public(
+        context['versions'] = Version.internal.public(
             user=self.request.user,
             project=self.project,
         )

@@ -7,7 +7,7 @@ Read the Docs now has support for configuring builds with a YAML file.
 .. warning::
 
    Version 1 shouldn't be used.
-   The version 2 of the configuration file is now avaliable.
+   The version 2 of the configuration file is now available.
    See the :ref:`new features <config-file/v2:New settings>`
    and :ref:`how to migrate from v1 <config-file/v2:Migrating from v1>`.
 

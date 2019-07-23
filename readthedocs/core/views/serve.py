@@ -404,7 +404,7 @@ def sitemap_xml(request, project):
         raise Http404
 
     sorted_versions = sort_version_aware(
-        Version.objects.public(
+        Version.internal.public(
             project=project,
             only_active=True,
         ),
@@ -444,7 +444,7 @@ def sitemap_xml(request, project):
         if project.translations.exists():
             for translation in project.translations.all():
                 translation_versions = (
-                    Version.objects.public(project=translation)
+                    Version.internal.public(project=translation)
                     .values_list('slug', flat=True)
                 )
                 if version.slug in translation_versions:

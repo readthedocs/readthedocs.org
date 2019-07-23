@@ -174,7 +174,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
         This will only ban single owners, because a malicious user could add a
         user as a co-owner of the project. We don't want to induce and
-        collatoral damage when flagging users.
+        collateral damage when flagging users.
         """
         total = 0
         for project in queryset:
@@ -236,7 +236,7 @@ class ProjectAdmin(admin.ModelAdmin):
         """Reindex all active versions of the selected projects to ES."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            version_qs = Version.objects.filter(project=project)
+            version_qs = Version.internal.filter(project=project)
             active_versions = version_qs.filter(active=True)
 
             if not active_versions.exists():
@@ -268,7 +268,7 @@ class ProjectAdmin(admin.ModelAdmin):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            version_qs = Version.objects.filter(project=project)
+            version_qs = Version.internal.filter(project=project)
             if not version_qs.exists():
                 self.message_user(
                     request,

@@ -20,6 +20,11 @@ The version of ``conda`` used in the build process could not be the latest one.
 This is because we use Miniconda, which its release process is a little more slow than ``conda`` itself.
 In case you prefer to use the latest ``conda`` version available, this is the flag you need.
 
+``CONDA_APPEND_CORE_REQUIREMENTS``: :featureflags:`CONDA_APPEND_CORE_REQUIREMENTS`
+
+Makes Read the Docs to install all the requirements at once on ``conda create`` step.
+This helps users to pin dependencies on conda and to improve build time.
+
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
 ``DONT_SHALLOW_CLONE``: :featureflags:`DONT_SHALLOW_CLONE`
@@ -29,3 +34,5 @@ e.g. python-reno release notes manager is known to do that
 (error message line would probably include one of old Git commit id's).
 
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
+
+``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
