@@ -228,7 +228,7 @@ class TestGitBackend(RTDTestCase):
         repo.checkout('submodule')
         gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
 
-        with open(gitmodules_path, 'w+') as f:
+        with open(gitmodules_path, 'a') as f:
             content = textwrap.dedent("""
                 [submodule "not-valid-path"]
                     path = not-valid-path
