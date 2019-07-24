@@ -8,7 +8,7 @@ var MAX_RESULT_PER_SECTION = 3;
 var MAX_SUBSTRING_LIMIT = 100;
 
 /**
- * Use try...catch block to append html to contens
+ * Use try...catch block to append html to contents
  *
  * @param {Object} contents html element on which additional html is be appended
  * @param {String} template underscore.js template string
