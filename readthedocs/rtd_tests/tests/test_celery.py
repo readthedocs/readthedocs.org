@@ -343,9 +343,13 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
 
-        send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
+        send_build_status.assert_called_once_with(
+            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+        )
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
     def test_send_build_status_task_without_remote_repo(self, send_build_status):
@@ -353,6 +357,8 @@ class TestCeleryBuilding(RTDTestCase):
         external_build = get(
             Build, project=self.project, version=external_version
         )
-        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
 
         send_build_status.assert_not_called()

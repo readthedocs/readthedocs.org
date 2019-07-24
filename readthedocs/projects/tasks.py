@@ -579,16 +579,25 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if self.build_env.failed:
             self.send_notifications(self.version.pk, self.build['id'])
             send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+                version_type=self.version.type,
+                build_pk=self.build['id'],
+                commit=self.build['commit'],
+                status=BUILD_STATUS_FAILURE
             )
         elif self.build_env.successful:
             send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
+                version_type=self.version.type,
+                build_pk=self.build['id'],
+                commit=self.build['commit'],
+                status=BUILD_STATUS_SUCCESS
             )
         else:
             msg = 'Unhandled Build Status'
             send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
+                version_type=self.version.type,
+                build_pk=self.build['id'],
+                commit=self.build['commit'],
+                status=BUILD_STATUS_FAILURE
             )
             log.warning(
                 LOG_TEMPLATE,
@@ -1822,11 +1831,12 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, status):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build primary key
+    :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
@@ -1838,7 +1848,7 @@ def send_build_status(build_pk, status):
             )
 
             # send Status report using the API.
-            service.send_build_status(build, status)
+            service.send_build_status(build, commit, status)
 
     except RemoteRepository.DoesNotExist:
         log.info('Remote repository does not exist for %s', build.project)
@@ -1849,16 +1859,17 @@ def send_build_status(build_pk, status):
     # TODO: Send build status for other providers.
 
 
-def send_external_build_status(version, build_pk, status):
+def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-     :param version: Version instance
+     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
      :param build_pk: Build pk
+     :param commit: commit sha of the pull/merge request
      :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
-    if version.type == EXTERNAL:
+    if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build_pk, status)
+        send_build_status.delay(build_pk, commit, status)
