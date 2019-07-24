@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from urllib.parse import urlsplit
 
 import mock
@@ -7,10 +6,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.models import UserProfile
+from readthedocs.core.permissions import AdminPermission
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import HTMLFile, Project
 
@@ -282,19 +282,22 @@ class BuildViewTests(TestCase):
     def test_build_list_includes_external_versions(self):
         external_version = get(
             Version,
-            project = self.pip,
-            active = True,
-            type = EXTERNAL,
+            project=self.pip,
+            active=True,
+            type=EXTERNAL,
+            privacy_level=PUBLIC,
         )
         external_version_build = get(
             Build,
-            project = self.pip,
-            version = external_version
+            project=self.pip,
+            version=external_version
         )
+        self.pip.privacy_level = PUBLIC
+        self.pip.save()
         response = self.client.get(
             reverse('builds_project_list', args=[self.pip.slug]),
         )
-        self.assertEqual(response.status_code, 200)       
+        self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
 
@@ -327,4 +330,4 @@ class HomepageViewTests(TestCase):
         response = self.client.get(self.homepage_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(expected_count, response.context['projects_count']) 
+        self.assertEqual(expected_count, response.context['projects_count'])

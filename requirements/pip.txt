@@ -42,14 +42,7 @@ celery==4.1.1  # pyup: ignore
 
 django-allauth==0.39.1
 
-# GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
-# of an UnicodeError
-# This commit,
-# https://github.com/gitpython-developers/GitPython/commit/7f08b7730438bde34ae55bc3793fa524047bb804,
-# introduces the usage of ``str`` which behaves differently in Py2 and
-# Py3 We should check if all the tests pass again when we drop Py2
-# support and we should be able to upgrade
-GitPython==2.1.10  # pyup: ignore
+GitPython==2.1.12
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0

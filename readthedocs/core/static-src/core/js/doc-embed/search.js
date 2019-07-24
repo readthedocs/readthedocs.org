@@ -69,6 +69,18 @@ function attach_elastic_search_query(data) {
 
                             var contents = $('<div class="context">');
 
+                            var section = "";
+                            var section_subtitle = "";
+                            var section_subtitle_link = "";
+                            var section_content = "";
+                            var content = "";
+
+                            var domain = "";
+                            var domain_subtitle = "";
+                            var domain_subtitle_link = "";
+                            var domain_content = "";
+                            var domain_name = "";
+
                             var section_template = '' +
                                 '<div>' +
                                     '<a href="<%= section_subtitle_link %>">' +
@@ -94,10 +106,10 @@ function attach_elastic_search_query(data) {
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
 
-                                var section = inner_hits[j];
-                                var section_subtitle = section._source.title;
-                                var section_subtitle_link = link + "#" + section._source.id;
-                                var section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
+                                section = inner_hits[j];
+                                section_subtitle = section._source.title;
+                                section_subtitle_link = link + "#" + section._source.id;
+                                section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
@@ -105,7 +117,7 @@ function attach_elastic_search_query(data) {
                                     }
 
                                     if (section.highlight["sections.content"]) {
-                                        var content = section.highlight["sections.content"];
+                                        content = section.highlight["sections.content"];
                                         section_content = [];
                                         for (
                                             var k = 0;
@@ -132,11 +144,11 @@ function attach_elastic_search_query(data) {
                             // if the result is a sphinx domain object
                             if (inner_hits[j].type === "domains") {
 
-                                var domain = inner_hits[j];
-                                var domain_subtitle = domain._source.role_name;
-                                var domain_subtitle_link = link + "#" + domain._source.anchor;
-                                var domain_content = "";
-                                var domain_name = domain._source.name;
+                                domain = inner_hits[j];
+                                domain_subtitle = domain._source.role_name;
+                                domain_subtitle_link = link + "#" + domain._source.anchor;
+                                domain_content = "";
+                                domain_name = domain._source.name;
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
