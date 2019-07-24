@@ -25,7 +25,7 @@ def generate_sections_from_pyquery(body):
                 if 'section' in next_p[0].attrib['class']:
                     break
 
-            h1_content += parse_content(next_p.text())
+            h1_content += parse_content(next_p.text(), remove_first_line=True)
             next_p = next_p.next()
         if h1_content:
             yield {
@@ -43,7 +43,7 @@ def generate_sections_from_pyquery(body):
         section_id = div.attr('id')
 
         content = div.text()
-        content = parse_content(content)
+        content = parse_content(content, remove_first_line=True)
 
         yield {
             'id': section_id,
@@ -74,7 +74,7 @@ def process_file(fjson_filename):
     if data.get('body'):
         body = PyQuery(data['body'])
         sections.extend(generate_sections_from_pyquery(body))
-        domain_data = generate_domains_data_from_pyquery(body)
+        domain_data = generate_domains_data_from_pyquery(body, fjson_filename)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
 
@@ -92,7 +92,7 @@ def process_file(fjson_filename):
     }
 
 
-def parse_content(content):
+def parse_content(content, remove_first_line=False):
     """
     Removes the starting text and ¶.
 
@@ -104,7 +104,7 @@ def parse_content(content):
 
     # removing the starting text of each
     content = content.split('\n')
-    if len(content) > 1:  # there were \n
+    if remove_first_line and len(content) > 1:
         content = content[1:]
 
     # converting newlines to ". "
@@ -112,38 +112,63 @@ def parse_content(content):
     return content
 
 
-def generate_domains_data_from_pyquery(body):
+def _get_text_for_domain_data(desc_contents):
+    """Returns the text from the PyQuery object ``desc_contents``."""
+    # remove the 'dl', 'dt' and 'dd' tags from it
+    # because all the 'dd' and 'dt' tags are inside 'dl'
+    # and all 'dl' tags are already captured.
+    desc_contents.remove('dl')
+    desc_contents.remove('dt')
+    desc_contents.remove('dd')
 
-    dl_tags = body('dl')
+    # remove multiple spaces, new line characters and '¶' symbol.
+    docstrings = parse_content(desc_contents.text())
+    return docstrings
+
+
+def generate_domains_data_from_pyquery(body, fjson_filename):
+    """
+    Given a pyquery object, generate sphinx domain objects' docstrings.
+
+    Returns a dict with the generated data.
+    The returned dict is in the following form::
+
+        {
+            "domain-id-1": {
+                "signature": "domain_signature_1(*args, **kwargs),
+                "docstrings": "docstrings for the domain-id-1",
+            },
+            "domain-id-2": {
+                "signature": "domain_signature_2(*args, **kwargs),
+                "docstrings": "docstrings for the domain-id-2",
+            }
+        }
+    """
+
     domain_data = {}
+    try:
+        dl_tags = body('dl')
+        for dl_tag in dl_tags:
 
-    for dl_tag in dl_tags:
+            dt = dl_tag.findall('dt')
+            dd = dl_tag.findall('dd')
 
-        dt = dl_tag.findall('dt')  
-        dd = dl_tag.findall('dd')
+            # len(dt) should be equal to len(dd)
+            # because these tags go together.
+            for title, desc in zip(dt, dd):
+                id_ = title.attrib.get('id')
+                if id_:
+                    # clone the PyQuery objects so that
+                    # the original one remains undisturbed
+                    signature = _get_text_for_domain_data(PyQuery(title).clone())
+                    docstrings = _get_text_for_domain_data(PyQuery(desc).clone())
 
-        # len(dt) should be equal to len(dd)
-        # because these tags go together.
-        for title, desc in zip(dt, dd):
-            id_ = title.attrib.get('id')
-            if id_:
-                # clone the PyQuery objects so that
-                # the original one remains undisturbed
-                desc_contents = PyQuery(desc).clone()
+                    domain_data[id_] = {
+                        'signature': signature,
+                        'docstrings': docstrings
+                    }
 
-                # remove the 'dl', 'dt' and 'dd' tags from it
-                # because all the 'dd' and 'dt' tags are inside 'dl'
-                # and all 'dl' tags are already captured.
-                desc_contents.remove('dl')
-                desc_contents.remove('dt')
-                desc_contents.remove('dd')
-
-                docstrings = desc_contents.text().replace('¶', '').strip()
-                docstrings = '. '.join(
-                    [
-                        text.strip().rstrip('.') for text in docstrings.split('\n')
-                    ]
-                )
-                domain_data[id_] = docstrings
+    except Exception:
+        log.exception('Error parsing docstrings for domains in file %s', fjson_filename)
 
     return domain_data

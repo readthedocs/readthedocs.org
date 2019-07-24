@@ -107,7 +107,6 @@ class PageSearchBase(RTDFacetedSearch):
         'domains.type_display',
         'domains.name^2',
         'domains.display_name',
-        'domains.docstrings',
     ]
     fields = _outer_fields
 
@@ -162,7 +161,6 @@ class PageSearchBase(RTDFacetedSearch):
                         'domains.type_display': {},
                         'domains.name': {},
                         'domains.display_name': {},
-                        'domains.docstrings': {},
                     }
                 }
             }

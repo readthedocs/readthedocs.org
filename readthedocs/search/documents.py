@@ -95,6 +95,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
             'type_display': fields.TextField(),
             'doc_display': fields.TextField(),
             'docstrings': fields.TextField(),
+            'signature': fields.TextField(),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
@@ -124,7 +125,10 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 'anchor': domain.anchor,
                 'type_display': domain.type_display,
                 'doc_display': domain.doc_display,
-                'docstrings': html_file.processed_json['domain_data'].get(domain.anchor, ''),
+                'docstrings': self._get_domain_data(html_file.processed_json['domain_data'],
+                                                    'docstrings', domain.anchor),
+                'signature': self._get_domain_data(html_file.processed_json['domain_data'],
+                                                   'signature', domain.anchor),
                 'name': domain.name,
                 'display_name': domain.display_name if domain.display_name != '-' else '',
             }
@@ -132,6 +136,18 @@ class PageDocument(RTDDocTypeMixin, DocType):
         ]
 
         return all_domains
+
+    def _get_domain_data(self, data, data_type, anchor):
+        """Returns sphinx domains data from the ``data`` dict."""
+        domain_data = data.get(anchor, None)
+
+        if not domain_data:
+            return ''
+        text = domain_data.get(data_type, '')
+        if data_type == 'signature':
+            # '[source]' is present in every domain signature at the end.
+            text = text.replace('[source]', '')
+        return text
 
     @classmethod
     def faceted_search(
