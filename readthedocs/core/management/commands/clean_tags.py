@@ -1,5 +1,5 @@
 """
-Cleanup project tags
+Cleanup project tags.
 
 This specifically aims to cleanup:
 

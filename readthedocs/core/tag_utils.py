@@ -1,11 +1,11 @@
-"""Customizations to Django Taggit"""
+"""Customizations to Django Taggit."""
 from django.utils.text import slugify
 from taggit.utils import _parse_tags
 
 
 def rtd_parse_tags(tag_string):
     """
-    Parses a string into its tags
+    Parses a string into its tags.
 
     - Lowercases all tags
     - Slugifies tags
