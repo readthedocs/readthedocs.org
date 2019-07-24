@@ -40,16 +40,20 @@ class Command(BaseCommand):
                 if new_tags != old_tags:
                     if not self.dry_run:
                         self.stdout.write(
-                            '[{}/{}] Setting tags on "{}"'.format(i, project_total, project.slug)
+                            '[{}/{}] Setting tags on "{}"'.format(
+                                i + 1,
+                                project_total,
+                                project.slug,
+                            )
                         )
                         project.tags.set(*new_tags)
                     else:
                         self.stdout.write(
                             '[{}/{}] Not setting tags on "{}" (dry run)'.format(
-                                i,
+                                i + 1,
                                 project_total,
                                 project.slug,
-                            ),
+                            )
                         )
 
     def remove_tags_with_no_projects(self):
