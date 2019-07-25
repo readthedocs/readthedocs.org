@@ -566,6 +566,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                     # Finalize build and update web servers
+                    # We upload EXTERNAL version media files to blob storage
+                    # We should have this check here to make sure
+                    # the files don't get re-uploaded on web.
                     if self.version.type != EXTERNAL:
                         self.update_app_instances(
                             html=bool(outcomes['html']),
@@ -964,6 +967,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
+            # We upload EXTERNAL version media files to blob storage
+            # We should have this check here to make sure
+            # the files don't get re-uploaded on web.
             if self.version.type != EXTERNAL:
                 broadcast(
                     type='app',
