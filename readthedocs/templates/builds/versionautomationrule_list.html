@@ -1,0 +1,48 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Automation Rules" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-automation-rules-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Automation Rule" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p>Run specific actions when a new version is added.</p>
+
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="{% url 'projects_automation_rule_regex_create' project_slug=project.slug %}">
+          {% trans "Add Rule" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for rule in object_list %}
+          <li class="module-item">
+            <a href="{{ rule.edit_url }}">
+              {{ rule.get_description }}
+            </a>
+            <span class="quiet">
+              ({{ rule.get_version_type_display }})
+            </span>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No automation rules are currently configured.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
