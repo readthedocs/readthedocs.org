@@ -1039,3 +1039,10 @@ class RegexAutomationRule(VersionAutomationRule):
         except Exception as e:
             log.info('Error parsing regex: %s', e)
             return False, None
+
+    @property
+    def edit_url(self):
+        return reverse(
+            'projects_automation_rule_regex_edit',
+            args=[self.project.slug, self.pk],
+        )

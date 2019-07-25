@@ -8,6 +8,8 @@ from readthedocs.constants import pattern_opts
 from readthedocs.projects.backends.views import ImportDemoView, ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
+    AutomationRuleDelete,
+    AutomationRuleList,
     DomainCreate,
     DomainDelete,
     DomainList,
@@ -27,6 +29,8 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectUpdate,
+    RegexAutomationRuleCreate,
+    RegexAutomationRuleUpdate,
 )
 
 
@@ -264,3 +268,28 @@ environmentvariable_urls = [
 ]
 
 urlpatterns += environmentvariable_urls
+
+automation_rule_urls = [
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/$',
+        AutomationRuleList.as_view(),
+        name='projects_automation_rule_list',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>)[-\w]+/delete/$',
+        AutomationRuleDelete.as_view(),
+        name='projects_automation_rule_delete',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/regex/create/$',
+        RegexAutomationRuleCreate.as_view(),
+        name='projects_automation_rule_regex_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/regex/(?P<automation_rule_pk>[-\w]+)/$',
+        RegexAutomationRuleUpdate.as_view(),
+        name='projects_automation_rule_regex_edit',
+    ),
+]
+
+urlpatterns += automation_rule_urls
