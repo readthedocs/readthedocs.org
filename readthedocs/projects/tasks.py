@@ -1402,8 +1402,8 @@ def _create_intersphinx_data(version, path, commit, build):
             # and ``sphinx.builders.dirhtml.DirectoryHTMLBuilder``.
             # They both have different ways of generating HTML Files,
             # and therefore the doc_name generated is different.
-            # More info on: http://bit.ly/sphinx-builders-info
-            # Also see issue: https://git.io/fjyft
+            # More info on: http://www.sphinx-doc.org/en/master/usage/builders/index.html#builders
+            # Also see issue: https://github.com/readthedocs/readthedocs.org/issues/5821
             if doc_name.endswith('/'):
                 doc_name += 'index.html'
 
