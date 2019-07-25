@@ -6,14 +6,17 @@ This specifically aims to cleanup:
 - Differences only in lowercase/uppercase
 - Slugify all tags
 - Remove tags with no projects (old & spam mostly)
+
+This command can probably be completely removed after being run.
+Future tags should be canonicalized because of the new tag parser in
+``readthedocs.projects.tag_utils.rtd_parse_tags``
 """
 
 from django.core.management.base import BaseCommand
-from django.db.models import Count
-from taggit.models import Tag
 from taggit.utils import parse_tags, edit_string_for_tags
 
 from readthedocs.projects.models import Project
+from readthedocs.projects.tag_utils import remove_unused_tags
 
 
 class Command(BaseCommand):
@@ -57,13 +60,10 @@ class Command(BaseCommand):
                         )
 
     def remove_tags_with_no_projects(self):
-        self.stdout.write('Removing tags with no projects...')
-        for tag in Tag.objects.all().annotate(num=Count('taggit_taggeditem_items')).filter(num=0):
-            if not self.dry_run:
-                self.stdout.write('Removing tag {}'.format(tag.name))
-                tag.delete()
-            else:
-                self.stdout.write('Not removing tag "{}" (dry run)'.format(tag.name))
+        if not self.dry_run:
+            self.stdout.write('Removing tags with no projects...')
+            num_deleted, _ = remove_unused_tags()
+            self.stdout.write('{} unused tags deleted'.format(num_deleted))
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -71,9 +71,16 @@ class Command(BaseCommand):
             action="store_true",
             help="Don't actually perform the actions, just print output",
         )
+        parser.add_argument(
+            "--remove-unused-only",
+            action="store_true",
+            help="Don't canonicalize tags, just delete unused",
+        )
 
     def handle(self, *args, **options):
         self.dry_run = options["dry_run"]
 
-        self.reprocess_tags()
+        if not options["remove_unused_only"]:
+            self.reprocess_tags()
+
         self.remove_tags_with_no_projects()

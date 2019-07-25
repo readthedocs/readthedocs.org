@@ -465,7 +465,7 @@ class CommunityBaseSettings(Settings):
 
     # Taggit
     # https://django-taggit.readthedocs.io
-    TAGGIT_TAGS_FROM_STRING = 'readthedocs.core.tag_utils.rtd_parse_tags'
+    TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
     STRIPE_SECRET = None
