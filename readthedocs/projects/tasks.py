@@ -566,13 +566,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                     # Finalize build and update web servers
-                    self.update_app_instances(
-                        html=bool(outcomes['html']),
-                        search=bool(outcomes['search']),
-                        localmedia=bool(outcomes['localmedia']),
-                        pdf=bool(outcomes['pdf']),
-                        epub=bool(outcomes['epub']),
-                    )
+                    if self.version.type != EXTERNAL:
+                        self.update_app_instances(
+                            html=bool(outcomes['html']),
+                            search=bool(outcomes['search']),
+                            localmedia=bool(outcomes['localmedia']),
+                            pdf=bool(outcomes['pdf']),
+                            epub=bool(outcomes['epub']),
+                        )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -963,15 +964,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            broadcast(
-                type='app',
-                task=move_files,
-                args=[
-                    self.version.pk,
-                    socket.gethostname(), self.config.doctype
-                ],
-                kwargs=dict(html=True),
-            )
+            if self.version.type != EXTERNAL:
+                broadcast(
+                    type='app',
+                    task=move_files,
+                    args=[
+                        self.version.pk,
+                        socket.gethostname(), self.config.doctype
+                    ],
+                    kwargs=dict(html=True),
+                )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
