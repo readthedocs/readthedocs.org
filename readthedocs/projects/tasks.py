@@ -321,6 +321,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=None,
             project=None,
             version=None,
+            commit=None,
             task=None,
     ):
         self.build_env = build_env
@@ -332,6 +333,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.version = {}
         if version is not None:
             self.version = version
+        self.commit = commit
         self.project = {}
         if project is not None:
             self.project = project
@@ -342,7 +344,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
             force=False, **__
     ):
         """
@@ -363,6 +365,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         :param version_pk int: Project Version id
         :param build_pk int: Build id (if None, commands are not recorded)
+        :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
@@ -379,6 +382,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.version.project
             self.build = self.get_build(build_pk)
             self.build_force = force
+            self.commit = commit
             self.config = None
 
             # Build process starts here
@@ -577,36 +581,42 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
+            # TODO: Send RTD Webhook notification for build failure.
             self.send_notifications(self.version.pk, self.build['id'])
-            send_external_build_status(
-                version_type=self.version.type,
-                build_pk=self.build['id'],
-                commit=self.build['commit'],
-                status=BUILD_STATUS_FAILURE
-            )
+
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
         elif self.build_env.successful:
-            send_external_build_status(
-                version_type=self.version.type,
-                build_pk=self.build['id'],
-                commit=self.build['commit'],
-                status=BUILD_STATUS_SUCCESS
-            )
+            # TODO: Send RTD Webhook notification for build success.
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_SUCCESS
+                )
         else:
-            msg = 'Unhandled Build Status'
-            send_external_build_status(
-                version_type=self.version.type,
-                build_pk=self.build['id'],
-                commit=self.build['commit'],
-                status=BUILD_STATUS_FAILURE
-            )
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
+            if self.commit:
+                msg = 'Unhandled Build Status'
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
+                )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 

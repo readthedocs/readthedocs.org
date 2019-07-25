@@ -371,8 +371,7 @@ class TestLoadConfigV2:
             build={
                 'id': 99,
                 'state': BUILD_STATE_TRIGGERED,
-                'commit': 'abc859dada4faf'
-            }
+            },
         )
         return update_docs
 

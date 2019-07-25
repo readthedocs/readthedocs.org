@@ -52,6 +52,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
 
         update_docs_task.signature.assert_called_with(
@@ -74,6 +75,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
 
         update_docs_task.signature.assert_called_with(
@@ -92,6 +94,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
         options = {
             'queue': 'build03',
@@ -113,6 +116,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
         options = {
             'queue': mock.ANY,
@@ -135,6 +139,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
         options = {
             'queue': mock.ANY,
@@ -157,6 +162,7 @@ class CoreUtilTests(TestCase):
             'record': True,
             'force': False,
             'build_pk': mock.ANY,
+            'commit': None
         }
         options = {
             'queue': mock.ANY,
