@@ -125,3 +125,61 @@ class TestRegexAutomationRules:
         assert self.project.get_default_version() == LATEST
         assert rule.run(version) is True
         assert self.project.get_default_version() == version.slug
+
+
+@pytest.mark.django_db
+class TestAutomationRuleManager:
+
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
+        self.project = get(Project)
+
+    def test_append_rule_regex(self):
+        assert not self.project.automation_rules.all()
+
+        rule = RegexAutomationRule.objects.append_rule(
+            project=self.project,
+            description='First rule',
+            match_arg='.*',
+            version_type=TAG,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+        )
+
+        # First rule gets added with priority 0
+        assert self.project.automation_rules.count() == 1
+        assert rule.priority == 0
+
+        # Adding a second rule
+        rule = RegexAutomationRule.objects.append_rule(
+            project=self.project,
+            description='Second rule',
+            match_arg='.*',
+            version_type=BRANCH,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+        )
+        assert self.project.automation_rules.count() == 2
+        assert rule.priority == 1
+
+        # Adding a rule with a not secuencial priority
+        rule = get(
+            RegexAutomationRule,
+            description='Third rule',
+            project=self.project,
+            priority=9,
+            match_arg='.*',
+            version_type=TAG,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+        )
+        assert self.project.automation_rules.count() == 3
+        assert rule.priority == 9
+
+        # Adding a new rule
+        rule = RegexAutomationRule.objects.append_rule(
+            project=self.project,
+            description='Fourth rule',
+            match_arg='.*',
+            version_type=BRANCH,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+        )
+        assert self.project.automation_rules.count() == 4
+        assert rule.priority == 10

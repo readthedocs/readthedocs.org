@@ -17,47 +17,30 @@ from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
-from readthedocs.projects.constants import (
-    BITBUCKET_COMMIT_URL,
-    BITBUCKET_URL,
-    GITHUB_COMMIT_URL,
-    GITHUB_URL,
-    GITHUB_PULL_REQUEST_URL,
-    GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITLAB_COMMIT_URL,
-    GITLAB_URL,
-    PRIVACY_CHOICES,
-    PRIVATE,
-    MEDIA_TYPES,
-)
-from readthedocs.projects.models import APIProject, Project
-from readthedocs.projects.version_handling import determine_stable_version
-
 from readthedocs.builds.constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
-    EXTERNAL,
     STABLE,
     TAG,
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
-    VersionManager,
-    InternalVersionManager,
-    ExternalVersionManager,
     BuildManager,
-    InternalBuildManager,
     ExternalBuildManager,
+    ExternalVersionManager,
+    InternalBuildManager,
+    InternalVersionManager,
+    VersionAutomationRuleManager,
+    VersionManager,
 )
 from readthedocs.builds.querysets import (
     BuildQuerySet,
@@ -70,7 +53,24 @@ from readthedocs.builds.utils import (
     get_gitlab_username_repo,
 )
 from readthedocs.builds.version_slug import VersionSlugField
+from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import broadcast
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.constants import (
+    BITBUCKET_COMMIT_URL,
+    BITBUCKET_URL,
+    GITHUB_COMMIT_URL,
+    GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITHUB_PULL_REQUEST_URL,
+    GITHUB_URL,
+    GITLAB_COMMIT_URL,
+    GITLAB_URL,
+    MEDIA_TYPES,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
+from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.version_handling import determine_stable_version
 
 
 log = logging.getLogger(__name__)
@@ -928,6 +928,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
     )
+    description = models.CharField(
+        _('Description'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     match_arg = models.CharField(
         _('Match argument'),
         help_text=_('Value used for the rule to match the version'),
@@ -950,6 +956,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         max_length=32,
         choices=VERSION_TYPES,
     )
+
+    objects = VersionAutomationRuleManager()
 
     class Meta:
         unique_together = (('project', 'priority'),)
@@ -993,6 +1001,15 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
+
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f'{self.get_action_display()}'
+
+    @property
+    def edit_url(self):
+        raise NotImplementedError
 
     def __str__(self):
         class_name = self.__class__.__name__
