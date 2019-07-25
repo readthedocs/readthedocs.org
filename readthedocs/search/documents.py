@@ -132,11 +132,11 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 for domain in domains_qs
             ]
 
-            log.debug("[%s] [%s] Domains for file %s are: %s" % (
+            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
                 html_file.project.slug,
                 html_file.version.slug,
                 html_file.path,
-                all_domains,
+                len(all_domains),
             ))
 
         except Exception:
