@@ -22,8 +22,12 @@ from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
 from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
-from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import Version
+from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
+from readthedocs.builds.models import (
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -899,3 +903,37 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
     # This removes the delete confirmation
     def get(self, request, *args, **kwargs):
         return self.http_method_not_allowed(request, *args, **kwargs)
+
+
+class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = VersionAutomationRule
+    lookup_url_kwarg = 'automation_rule_pk'
+
+    def get_success_url(self):
+        return reverse(
+            'projects_automation_rule_list',
+            args=[self.get_project().slug],
+        )
+
+
+class AutomationRuleList(AutomationRuleMixin, ListView):
+    pass
+
+
+class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
+    pass
+
+
+class RegexAutomationRuleMixin(AutomationRuleMixin):
+
+    model = RegexAutomationRule
+    form_class = RegexAutomationRuleForm
+
+
+class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
+    pass
+
+
+class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
+    pass

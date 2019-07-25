@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Views for builds app."""
 
 import logging
 import textwrap
+from urllib.parse import urlparse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -17,12 +16,11 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
-from urllib.parse import urlparse
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import Project
 
 
