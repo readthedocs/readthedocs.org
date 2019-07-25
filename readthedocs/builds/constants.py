@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Constants for the builds app."""
 
 from django.conf import settings
@@ -37,16 +35,20 @@ INTERNAL = 'internal'
 # Manager name for External Versions or Builds.
 # ie: Only pull request/merge request Versions and Builds.
 EXTERNAL = 'external'
+EXTERNAL_TEXT = _('External')
 
 BRANCH = 'branch'
+BRANCH_TEXT = _('Branch')
 TAG = 'tag'
+TAG_TEXT = _('Tag')
 UNKNOWN = 'unknown'
+UNKNOWN_TEXT = _('Unknown')
 
 VERSION_TYPES = (
-    (BRANCH, _('Branch')),
-    (TAG, _('Tag')),
-    (EXTERNAL, _('External')),
-    (UNKNOWN, _('Unknown')),
+    (BRANCH, BRANCH_TEXT),
+    (TAG, TAG_TEXT),
+    (EXTERNAL, EXTERNAL_TEXT),
+    (UNKNOWN, UNKNOWN_TEXT),
 )
 
 LATEST = settings.RTD_LATEST
