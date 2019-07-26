@@ -114,6 +114,7 @@ def prepare_build(
             type='html',
             state=BUILD_STATE_TRIGGERED,
             success=True,
+            commit=commit
         )
         kwargs['build_pk'] = build.pk
 
