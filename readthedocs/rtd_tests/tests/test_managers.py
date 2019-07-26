@@ -193,51 +193,6 @@ class TestBuildManagerBase(TestCase):
             project=self.shared_project,
         )
 
-        self.all_builds = {
-            self.build_private,
-            self.build_private_external,
-            self.another_build_private,
-            self.another_build_private_external,
-            self.shared_build_private,
-            self.shared_build_private_external,
-            self.build_public,
-            self.build_public_external,
-            self.another_build_public,
-            self.another_build_public_external,
-            self.shared_build_public,
-            self.shared_build_public_external,
-        }
-
-        self.external_builds = {
-            self.build_private_external,
-            self.another_build_private_external,
-            self.shared_build_private_external,
-            self.build_public_external,
-            self.another_build_public_external,
-            self.shared_build_public_external,
-        }
-        self.user_builds = {
-            self.build_private,
-            self.build_private_external,
-            self.shared_build_private,
-            self.shared_build_private_external,
-            self.build_public,
-            self.build_public_external,
-            self.shared_build_public,
-            self.shared_build_public_external,
-        }
-
-        self.another_user_builds = {
-            self.another_build_private,
-            self.another_build_private_external,
-            self.shared_build_private,
-            self.shared_build_private_external,
-            self.another_build_public,
-            self.another_build_public_external,
-            self.shared_build_public,
-            self.shared_build_public_external,
-        }
-
 
 class TestInternalBuildManager(TestBuildManagerBase):
 
