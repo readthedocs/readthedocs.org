@@ -510,6 +510,7 @@ class Conda(PythonEnvironment):
                     break
 
             dependencies.append(pip_dependencies)
+            dependencies.extend(conda_requirements)
             environment.update({'dependencies': dependencies})
             try:
                 outputfile = codecs.open(

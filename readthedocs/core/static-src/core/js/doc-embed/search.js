@@ -81,7 +81,7 @@ function attach_elastic_search_query(data) {
 
                         var item = $('<a>', {'href': link});
                         item.html(title);
-                        item.find('em').addClass('highlighted');
+                        item.find('span').addClass('highlighted');
                         list_item.append(item);
 
                         // If the document is from subproject, add extra information
@@ -126,9 +126,9 @@ function attach_elastic_search_query(data) {
                                         '<%= domain_subtitle %>' +
                                     '</a>' +
                                 '</div>' +
-                                '<span>' +
+                                '<div>' +
                                     '<%= domain_content %>' +
-                                '</span>';
+                                '</div>';
 
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
@@ -204,7 +204,7 @@ function attach_elastic_search_query(data) {
                                 );
                             }
 
-                            contents.find('em').addClass('highlighted');
+                            contents.find('span').addClass('highlighted');
                             list_item.append(contents);
 
                             // Create some spacing between the results.
