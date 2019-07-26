@@ -12,6 +12,13 @@ log = logging.getLogger(__name__)
 
 def generate_sections_from_pyquery(body):
     """Given a pyquery object, generate section dicts for each section."""
+
+    # Removing all <dl>, <dd> and <dt> tags
+    # to prevent duplicate indexing with Sphinx Domains.
+    body('dl').remove()
+    body('dd').remove()
+    body('dt').remove()
+
     # Capture text inside h1 before the first h2
     h1_section = body('.section > h1')
     if h1_section:
@@ -73,8 +80,8 @@ def process_file(fjson_filename):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections.extend(generate_sections_from_pyquery(body))
-        domain_data = generate_domains_data_from_pyquery(body, fjson_filename)
+        sections.extend(generate_sections_from_pyquery(body.clone()))
+        domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_filename)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
 
