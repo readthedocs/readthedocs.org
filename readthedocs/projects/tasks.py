@@ -1404,10 +1404,34 @@ def _create_intersphinx_data(version, path, commit, build):
                     f'domain->name',
                 )
                 continue
+
+            # HACK: This is done because the difference between
+            # ``sphinx.builders.html.StandaloneHTMLBuilder``
+            # and ``sphinx.builders.dirhtml.DirectoryHTMLBuilder``.
+            # They both have different ways of generating HTML Files,
+            # and therefore the doc_name generated is different.
+            # More info on: http://www.sphinx-doc.org/en/master/usage/builders/index.html#builders
+            # Also see issue: https://github.com/readthedocs/readthedocs.org/issues/5821
+            if doc_name.endswith('/'):
+                doc_name += 'index.html'
+
             html_file = HTMLFile.objects.filter(
                 project=version.project, version=version,
                 path=doc_name, build=build,
             ).first()
+
+            if not html_file:
+                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                    version.project,
+                    version,
+                    build,
+                    doc_name,
+                ))
+
+                # Don't create Sphinx Domain objects
+                # if the HTMLFile object is not found.
+                continue
+
             SphinxDomain.objects.create(
                 project=version.project,
                 version=version,
