@@ -147,7 +147,8 @@ class SyncRepositoryMixin:
             version_repo = self.get_vcs_repo()
             version_repo.update()
             self.sync_versions(version_repo)
-            version_repo.checkout(self.version.identifier)
+            identifier = self.commit or self.version.identifier
+            version_repo.checkout(identifier)
         finally:
             after_vcs.send(sender=self.version)
 
@@ -685,7 +686,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
 
