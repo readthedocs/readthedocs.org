@@ -19,7 +19,7 @@ function append_html_to_contents(contents, template, data) {
     // because of change of syntax in new versions.
     // See: https://stackoverflow.com/a/25881231/8601393
     try {
-        // this is the old syntax
+        // this is the pre-1.7 syntax from Underscore.js
         contents.append(
             $u.template(
                 template,
