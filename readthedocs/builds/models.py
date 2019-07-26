@@ -994,6 +994,58 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             raise NotImplementedError
         action(version, match_result, self.action_arg)
 
+    def move(self, steps):
+        """
+        Move the rule n steps.
+
+        :param steps: Number of steps to be moved
+        :returns: True if the priority was changed
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+
+        if current_priority == new_priority:
+            return False
+
+        # Avoid integrity errors
+        self.priority = total + 99
+        self.save()
+
+        # Move other's priority
+        if new_priority > current_priority:
+            # It was moved down
+            rules = (
+                self.project.automation_rules
+                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                # We sort the queryset in asc order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('priority')
+            )
+            for rule in rules:
+                rule.priority -= 1
+                rule.save()
+        else:
+            # It was moved up
+            rules = (
+                self.project.automation_rules
+                .filter(priority__lt=current_priority, priority__gte=new_priority)
+                # We sort the queryset in desc order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('-priority')
+            )
+            for rule in rules:
+                rule.priority += 1
+                rule.save()
+        self.priority = new_priority
+        self.save()
+        return True
+
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f'{self.get_action_display()}'
+
     def __str__(self):
         class_name = self.__class__.__name__
         return (
