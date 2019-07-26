@@ -273,6 +273,16 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
+        if self.type == EXTERNAL:
+            scheme = 'http' if settings.DEBUG else 'https'
+            full_url = '{scheme}://{domain}{media_url}external/html/{project_slug}/{version_slug}'.format(
+                scheme=scheme,
+                domain=settings.PRODUCTION_DOMAIN,
+                media_url=settings.MEDIA_URL,
+                project_slug=self.project.slug,
+                version_slug=self.slug
+            )
+            return full_url
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
