@@ -108,6 +108,12 @@ class PageSearchBase(RTDFacetedSearch):
         'domains.name^2',
         'domains.display_name',
     ]
+    _common_highlight_options = {
+        'encoder': 'html',
+        'number_of_fragments': 1,
+        'pre_tags': ['<span>'],
+        'post_tags': ['</span>'],
+    }
     fields = _outer_fields
 
     # need to search for both 'and' and 'or' operations
@@ -126,7 +132,7 @@ class PageSearchBase(RTDFacetedSearch):
 
     def query(self, search, query):
         """Manipulates query to support nested query."""
-        search = search.highlight_options(encoder='html', number_of_fragments=1)
+        search = search.highlight_options(**self._common_highlight_options)
 
         # match query for the title (of the page) field.
         match_title_query = Match(title=query)
@@ -137,14 +143,13 @@ class PageSearchBase(RTDFacetedSearch):
             path='sections',
             fields=self._section_fields,
             inner_hits={
-                'highlight': {
-                    'encoder': 'html',
-                    'number_of_fragments': 1,
-                    'fields': {
+                'highlight': dict(
+                    self._common_highlight_options,
+                    fields={
                         'sections.title': {},
                         'sections.content': {},
                     }
-                }
+                )
             }
         )
 
@@ -154,15 +159,14 @@ class PageSearchBase(RTDFacetedSearch):
             path='domains',
             fields=self._domain_fields,
             inner_hits={
-                'highlight': {
-                    'encoder': 'html',
-                    'number_of_fragments': 1,
-                    'fields': {
+                'highlight': dict(
+                    self._common_highlight_options,
+                    fields={
                         'domains.type_display': {},
                         'domains.name': {},
                         'domains.display_name': {},
                     }
-                }
+                )
             }
         )
 

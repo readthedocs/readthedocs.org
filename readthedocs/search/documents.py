@@ -113,6 +113,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
+<<<<<<< HEAD
         domains_qs = html_file.sphinx_domains.exclude(
             domain='std',
             type__in=['doc', 'label']
@@ -134,6 +135,46 @@ class PageDocument(RTDDocTypeMixin, DocType):
             }
             for domain in domains_qs
         ]
+=======
+        all_domains = []
+
+        try:
+            domains_qs = html_file.sphinx_domains.exclude(
+                domain='std',
+                type__in=['doc', 'label']
+            ).iterator()
+
+            all_domains = [
+                {
+                    'role_name': domain.role_name,
+                    'doc_name': domain.doc_name,
+                    'anchor': domain.anchor,
+                    'type_display': domain.type_display,
+                    'doc_display': domain.doc_display,
+                    'docstrings': self._get_domain_data(html_file.processed_json['domain_data'],
+                                                        'docstrings', domain.anchor),
+                    'signature': self._get_domain_data(html_file.processed_json['domain_data'],
+                                                    'signature', domain.anchor),
+                    'name': domain.name,
+                    'display_name': domain.display_name if domain.display_name != '-' else '',
+                }
+                for domain in domains_qs
+            ]
+
+            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+                len(all_domains),
+            ))
+
+        except Exception:
+            log.exception("[%s] [%s] Error preparing domain data for file %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+            ))
+>>>>>>> master
 
         return all_domains
 
