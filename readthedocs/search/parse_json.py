@@ -153,16 +153,17 @@ def generate_domains_data_from_pyquery(body, fjson_filename):
     """
 
     domain_data = {}
-    try:
-        dl_tags = body('dl')
-        for dl_tag in dl_tags:
+    dl_tags = body('dl')
 
-            dt = dl_tag.findall('dt')
-            dd = dl_tag.findall('dd')
+    for dl_tag in dl_tags:
 
-            # len(dt) should be equal to len(dd)
-            # because these tags go together.
-            for title, desc in zip(dt, dd):
+        dt = dl_tag.findall('dt')
+        dd = dl_tag.findall('dd')
+
+        # len(dt) should be equal to len(dd)
+        # because these tags go together.
+        for title, desc in zip(dt, dd):
+            try:
                 id_ = title.attrib.get('id')
                 if id_:
                     # clone the PyQuery objects so that
@@ -174,8 +175,7 @@ def generate_domains_data_from_pyquery(body, fjson_filename):
                         'signature': signature,
                         'docstrings': docstrings
                     }
-
-    except Exception:
-        log.exception('Error parsing docstrings for domains in file %s', fjson_filename)
+            except Exception:
+                log.exception('Error parsing docstrings for domains in file %s', fjson_filename)
 
     return domain_data
