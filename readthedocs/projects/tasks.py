@@ -810,17 +810,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 try:
                     storage.copy_directory(from_path, to_path)
                     # Update version if we have successfully built HTML output
-                    try:
-                        if html:
+                    if html:
+                        try:
                             version = api_v2.version(self.version.pk)
-                            version.patch({
-                                'built': True,
-                            })
-                    except HttpClientError:
-                        log.exception(
-                            'Updating version failed, version=%s',
-                            self.version,
-                        )
+                            version.patch({'built': True,})
+                        except HttpClientError:
+                            log.exception(
+                                'Updating version failed, version=%s',
+                                self.version,
+                            )
                 except Exception:
                     # Ideally this should just be an IOError
                     # but some storage backends unfortunately throw other errors
