@@ -5,6 +5,7 @@ from urllib.parse import urlunparse
 
 from django.conf import settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 
@@ -63,6 +64,8 @@ class ResolverBase:
             subproject_slug=None,
             subdomain=None,
             cname=None,
+            version_type=None
+
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
@@ -73,13 +76,20 @@ class ResolverBase:
         else:
             url = '/docs/{project_slug}/'
 
+        if version_type == EXTERNAL:
+            # we serve external version media files from media storage
+            url = '/media/external/html/{project_slug}/'
+
         if subproject_slug:
             url += 'projects/{subproject_slug}/'
 
         if single_version:
             url += '{filename}'
         else:
-            url += '{language}/{version_slug}/{filename}'
+            if version_type == EXTERNAL:
+                url += '{version_slug}/{filename}'
+            else:
+                url += '{language}/{version_slug}/{filename}'
 
         return url.format(
             project_slug=project_slug,
@@ -100,6 +110,7 @@ class ResolverBase:
             subdomain=None,
             cname=None,
             private=None,
+            version_type=None
     ):
         """Resolve a URL with a subset of fields defined."""
         cname = cname or project.get_canonical_custom_domain()
@@ -145,6 +156,7 @@ class ResolverBase:
             cname=cname,
             private=private,
             subdomain=subdomain,
+            version_type=version_type
         )
 
     def resolve_domain(self, project, private=None):
@@ -161,7 +173,7 @@ class ResolverBase:
 
     def resolve(
             self, project, require_https=False, filename='', query_params='',
-            private=None, **kwargs
+            private=None, version_type=None, **kwargs
     ):
         if private is None:
             version_slug = kwargs.get('version_slug')
@@ -193,7 +205,8 @@ class ResolverBase:
         protocol = 'https' if use_https_protocol else 'http'
 
         path = self.resolve_path(
-            project, filename=filename, private=private, **kwargs
+            project, filename=filename, private=private,
+            version_type=version_type, **kwargs
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
 

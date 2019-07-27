@@ -38,6 +38,17 @@ docs_urls = [
         serve.serve_docs,
         name='docs_detail',
     ),
+    # Serving external version docs
+    url(
+        (
+            r'^media/external/html/(?P<project_slug>{project_slug})/'
+            r'(?:|projects/(?P<subproject_slug>{project_slug})/)'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<filename>{filename_slug})'.format(**pattern_opts)
+        ),
+        serve.serve_docs,
+        name='docs_detail',
+    ),
 ]
 
 core_urls = [

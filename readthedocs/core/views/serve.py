@@ -38,7 +38,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
@@ -236,6 +236,7 @@ def serve_docs(
         language=lang_slug,
         filename=filename,
         subdomain=True,  # subdomain will make it a "full" path without a URL prefix
+        version_type=version.type
     )
     if (version.privacy_level == constants.PRIVATE and
             not AdminPermission.is_member(user=request.user, obj=project)):
@@ -245,11 +246,12 @@ def serve_docs(
         filename=filename,
         project=project,
         privacy_level=version.privacy_level,
+        version_type=version.type
     )
 
 
 @map_project_slug
-def _serve_symlink_docs(request, project, privacy_level, filename=''):
+def _serve_symlink_docs(request, project, privacy_level, version_type=None, filename=''):
     """Serve a file by symlink, or a 404 if not found."""
     # Handle indexes
     if filename == '' or filename[-1] == '/':
@@ -264,8 +266,13 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
     files_tried = []
 
     if (settings.DEBUG or constants.PUBLIC in settings.SERVE_DOCS) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
-        public_symlink = PublicSymlink(project)
-        basepath = public_symlink.project_root
+        if version_type == EXTERNAL:
+            # we serve external version media files from media storage
+            basepath = settings.SITE_ROOT
+        else:
+            public_symlink = PublicSymlink(project)
+            basepath = public_symlink.project_root
+
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
 
@@ -273,8 +280,12 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     if (settings.DEBUG or constants.PRIVATE in settings.SERVE_DOCS) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
-        private_symlink = PrivateSymlink(project)
-        basepath = private_symlink.project_root
+        if version_type == EXTERNAL:
+            # we serve external version media files from media storage
+            basepath = settings.SITE_ROOT
+        else:
+            private_symlink = PrivateSymlink(project)
+            basepath = private_symlink.project_root
 
         if os.path.exists(os.path.join(basepath, filename)):
             return _serve_file(request, filename, basepath)
