@@ -75,12 +75,12 @@ class ResolverBase:
         else:
             url = '/docs/{project_slug}/'
 
+        if subproject_slug:
+            url += 'projects/{subproject_slug}/'
+
         if version_type == EXTERNAL:
             # we serve external version media files from media storage
             url = '/media/external/html/{project_slug}/'
-
-        if subproject_slug:
-            url += 'projects/{subproject_slug}/'
 
         if single_version:
             url += '{filename}'
@@ -126,22 +126,26 @@ class ResolverBase:
         subproject_slug = None
         # We currently support more than 2 levels of nesting subprojects and
         # translations, only loop twice to avoid sticking in the loop
-        for _ in range(0, 2):
-            main_language_project = current_project.main_language_project
-            relation = current_project.get_parent_relationship()
+        # We do not need this for external versions
+        # as we are serving from a different domain and
+        # not using main_language_project or relation slug
+        if version_type != EXTERNAL:
+            for _ in range(0, 2):
+                main_language_project = current_project.main_language_project
+                relation = current_project.get_parent_relationship()
 
-            if main_language_project:
-                current_project = main_language_project
-                project_slug = main_language_project.slug
-                language = project.language
-                subproject_slug = None
-            elif relation:
-                current_project = relation.parent
-                project_slug = relation.parent.slug
-                subproject_slug = relation.alias
-                cname = relation.parent.domains.filter(canonical=True).first()
-            else:
-                break
+                if main_language_project:
+                    current_project = main_language_project
+                    project_slug = main_language_project.slug
+                    language = project.language
+                    subproject_slug = None
+                elif relation:
+                    current_project = relation.parent
+                    project_slug = relation.parent.slug
+                    subproject_slug = relation.alias
+                    cname = relation.parent.domains.filter(canonical=True).first()
+                else:
+                    break
 
         single_version = bool(project.single_version or single_version)
 
