@@ -65,7 +65,6 @@ class ResolverBase:
             subdomain=None,
             cname=None,
             version_type=None
-
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally

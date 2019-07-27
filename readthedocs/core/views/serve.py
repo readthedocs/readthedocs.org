@@ -268,6 +268,7 @@ def _serve_symlink_docs(request, project, privacy_level, version_type=None, file
     if (settings.DEBUG or constants.PUBLIC in settings.SERVE_DOCS) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         if version_type == EXTERNAL:
             # we serve external version media files from media storage
+            # so we need to join site root with the filename which includes media path
             basepath = settings.SITE_ROOT
         else:
             public_symlink = PublicSymlink(project)
@@ -282,6 +283,7 @@ def _serve_symlink_docs(request, project, privacy_level, version_type=None, file
         # Handle private
         if version_type == EXTERNAL:
             # we serve external version media files from media storage
+            # so we need to join site root with the filename which includes media path
             basepath = settings.SITE_ROOT
         else:
             private_symlink = PrivateSymlink(project)
