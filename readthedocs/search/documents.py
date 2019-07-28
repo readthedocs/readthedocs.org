@@ -141,18 +141,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         return all_domains
 
-    def _get_domain_data(self, data, data_type, anchor):
-        """Returns sphinx domains data from the ``data`` dict."""
-        domain_data = data.get(anchor, None)
-
-        if not domain_data:
-            return ''
-        text = domain_data.get(data_type, '')
-        if data_type == 'signature':
-            # '[source]' is present in every domain signature at the end.
-            text = text.replace('[source]', '')
-        return text
-
     @classmethod
     def faceted_search(
             cls, query, user, projects_list=None, versions_list=None,
