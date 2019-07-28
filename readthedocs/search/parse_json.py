@@ -73,11 +73,6 @@ def process_file(fjson_filename):
     title = ''
     domain_data = {}
 
-    if 'current_page_name' in data:
-        path = data['current_page_name']
-    else:
-        log.info('Unable to index file due to no name %s', fjson_filename)
-
     if data.get('body'):
         body = PyQuery(data['body'])
         sections.extend(generate_sections_from_pyquery(body.clone()))
@@ -100,13 +95,7 @@ def process_file(fjson_filename):
 
 
 def parse_content(content, remove_first_line=False):
-    """
-    Removes the starting text and ¶.
-
-    It removes the starting text from the content
-    because it contains the title of that content,
-    which is redundant here.
-    """
+    """Removes new line characters and ¶."""
     content = content.replace('¶', '').strip()
 
     # removing the starting text of each
@@ -141,14 +130,8 @@ def generate_domains_data_from_pyquery(body, fjson_filename):
     The returned dict is in the following form::
 
         {
-            "domain-id-1": {
-                "signature": "domain_signature_1(*args, **kwargs),
-                "docstrings": "docstrings for the domain-id-1",
-            },
-            "domain-id-2": {
-                "signature": "domain_signature_2(*args, **kwargs),
-                "docstrings": "docstrings for the domain-id-2",
-            }
+            "domain-id-1": "docstrings for the domain-id-1",
+            "domain-id-2": "docstrings for the domain-id-2",
         }
     """
 
@@ -168,13 +151,8 @@ def generate_domains_data_from_pyquery(body, fjson_filename):
                 if id_:
                     # clone the PyQuery objects so that
                     # the original one remains undisturbed
-                    signature = _get_text_for_domain_data(PyQuery(title).clone())
                     docstrings = _get_text_for_domain_data(PyQuery(desc).clone())
-
-                    domain_data[id_] = {
-                        'signature': signature,
-                        'docstrings': docstrings
-                    }
+                    domain_data[id_] = docstrings
             except Exception:
                 log.exception('Error parsing docstrings for domains in file %s', fjson_filename)
 

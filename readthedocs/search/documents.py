@@ -70,7 +70,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
-    path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
 
     # Searchable content
@@ -88,19 +87,14 @@ class PageDocument(RTDDocTypeMixin, DocType):
             'role_name': fields.KeywordField(),
 
             # For linking to the URL
-            'doc_name': fields.KeywordField(),
             'anchor': fields.KeywordField(),
 
             # For showing in the search result
-            'type_display': fields.TextField(),
-            'doc_display': fields.TextField(),
             'docstrings': fields.TextField(),
-            'signature': fields.TextField(),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
             'name': fields.TextField(analyzer='simple'),
-            'display_name': fields.TextField(analyzer='simple'),
         }
     )
 
@@ -124,16 +118,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
             all_domains = [
                 {
                     'role_name': domain.role_name,
-                    'doc_name': domain.doc_name,
                     'anchor': domain.anchor,
-                    'type_display': domain.type_display,
-                    'doc_display': domain.doc_display,
-                    'docstrings': self._get_domain_data(html_file.processed_json['domain_data'],
-                                                        'docstrings', domain.anchor),
-                    'signature': self._get_domain_data(html_file.processed_json['domain_data'],
-                                                    'signature', domain.anchor),
+                    'docstrings': html_file.processed_json.get('domain_data', {}).get(domain.anchor, ''),
                     'name': domain.name,
-                    'display_name': domain.display_name if domain.display_name != '-' else '',
                 }
                 for domain in domains_qs
             ]

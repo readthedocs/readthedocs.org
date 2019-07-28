@@ -104,9 +104,8 @@ class PageSearchBase(RTDFacetedSearch):
     _outer_fields = ['title^4']
     _section_fields = ['sections.title^3', 'sections.content']
     _domain_fields = [
-        'domains.type_display',
         'domains.name^2',
-        'domains.display_name',
+        'domains.docstrings',
     ]
     _common_highlight_options = {
         'encoder': 'html',
@@ -162,9 +161,8 @@ class PageSearchBase(RTDFacetedSearch):
                 'highlight': dict(
                     self._common_highlight_options,
                     fields={
-                        'domains.type_display': {},
                         'domains.name': {},
-                        'domains.display_name': {},
+                        'domains.docstrings': {},
                     }
                 )
             }
