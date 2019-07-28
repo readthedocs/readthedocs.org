@@ -70,25 +70,22 @@ class ResolverBase:
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         # pylint: disable=unused-argument
-        if subdomain or cname or (self._use_subdomain()):
-            url = '/'
-        else:
-            url = '/docs/{project_slug}/'
+        if version_type != EXTERNAL:
+            if subdomain or cname or (self._use_subdomain()):
+                url = '/'
+            else:
+                url = '/docs/{project_slug}/'
 
-        if subproject_slug:
-            url += 'projects/{subproject_slug}/'
+            if subproject_slug:
+                url += 'projects/{subproject_slug}/'
 
-        if version_type == EXTERNAL:
-            # we serve external version media files from media storage
-            url = '/media/external/html/{project_slug}/'
-
-        if single_version:
-            url += '{filename}'
-        else:
-            if version_type == EXTERNAL:
-                url += '{version_slug}/{filename}'
+            if single_version:
+                url += '{filename}'
             else:
                 url += '{language}/{version_slug}/{filename}'
+        else:
+            # we serve external version media files from media storage
+            url = '/media/external/html/{project_slug}/{version_slug}/{filename}'
 
         return url.format(
             project_slug=project_slug,
