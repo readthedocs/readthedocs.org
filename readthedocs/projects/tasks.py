@@ -813,7 +813,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     if html:
                         try:
                             version = api_v2.version(self.version.pk)
-                            version.patch({'built': True,})
+                            version.patch({'built': True, })
                         except HttpClientError:
                             log.exception(
                                 'Updating version failed, version=%s',
