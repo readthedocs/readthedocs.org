@@ -32,7 +32,12 @@ def generate_sections_from_pyquery(body):
                 if 'section' in next_p[0].attrib['class']:
                     break
 
-            h1_content += parse_content(next_p.text(), remove_first_line=True)
+            text = parse_content(next_p.text(), remove_first_line=True)
+            if h1_content:
+                h1_content = f'{h1_content.rstrip(".")}. {text}'
+            else:
+                h1_content = text
+
             next_p = next_p.next()
         if h1_content:
             yield {
