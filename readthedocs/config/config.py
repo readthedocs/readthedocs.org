@@ -151,7 +151,7 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    default_build_image = settings.DOCKER_DEFAULT_VERSION
+    default_build_image = settings.RTD_DOCKER_DEFAULT_VERSION
 
     version = None
 

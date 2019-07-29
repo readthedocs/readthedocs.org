@@ -334,16 +334,16 @@ class CommunityBaseSettings(Settings):
     SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
-    DOCKER_ENABLE = False
-    DOCKER_SOCKET = 'unix:///var/run/docker.sock'
+    RTD_DOCKER_ENABLE = False
+    RTD_DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
-    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
-    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-    DOCKER_VERSION = 'auto'
-    DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-    DOCKER_IMAGE_SETTINGS = {
+    RTD_DOCKER_BUILD_IMAGES = None
+    RTD_DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+    RTD_DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    RTD_DOCKER_VERSION = 'auto'
+    RTD_DOCKER_DEFAULT_VERSION = 'latest'
+    RTD_DOCKER_IMAGE = '{}:{}'.format(RTD_DOCKER_DEFAULT_IMAGE, RTD_DOCKER_DEFAULT_VERSION)
+    RTD_DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.4]},
         },
@@ -362,9 +362,9 @@ class CommunityBaseSettings(Settings):
     }
 
     # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+    RTD_DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth
