@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, HTML, Submit
+from captcha.fields import ReCaptchaField
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -82,6 +83,8 @@ class ProjectBackendForm(forms.Form):
 class ProjectBasicsForm(ProjectForm):
 
     """Form for basic project fields."""
+
+    recaptcha = ReCaptchaField()
 
     class Meta:
         model = Project

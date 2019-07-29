@@ -118,6 +118,7 @@ class CommunityBaseSettings(Settings):
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
+            'captcha',
 
             # our apps
             'readthedocs.projects',

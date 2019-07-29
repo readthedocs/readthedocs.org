@@ -54,6 +54,9 @@ class CommunityDevSettings(CommunityBaseSettings):
     # Disable password validators on development
     AUTH_PASSWORD_VALIDATORS = []
 
+    # reCaptcha settings
+    SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
