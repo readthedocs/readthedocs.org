@@ -89,7 +89,7 @@ def process_file(fjson_filename):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections.extend(generate_sections_from_pyquery(body.clone()), fjson_filename)
+        sections.extend(generate_sections_from_pyquery(body.clone(), fjson_filename))
         domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_filename)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
