@@ -1,7 +1,15 @@
 -r pip.txt
 
 # Base packages
-docutils==0.14
+
+# doctuils==0.15 produces this error
+#   File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
+#    nodes[0][0].rawsource = unescape(text, True)
+# AttributeError: 'str' object has no attribute 'rawsource'  File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
+#     nodes[0][0].rawsource = unescape(text, True)
+# AttributeError: 'str' object has no attribute 'rawsource'
+docutils==0.14  # pyup: ignore
+
 sphinx_rtd_theme==0.4.3
 sphinx-tabs==1.1.11
 # Required to avoid Transifex error with reserved slug
