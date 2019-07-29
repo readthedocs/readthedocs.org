@@ -33,10 +33,8 @@ Additionally Read the Docs depends on:
 
 .. note::
 
-    If you plan to import Python 2 projects to your RTD,
-    then you'll need to install Python 2 with virtualenv in your system as well.
-    The project works will all versions of Python 3.x, make sure you setup the
-    environment based on Python version you will be running in RTD.
+    You can import Python 2.x or 3.x projects in RTD, make sure you install the
+    appropriate Python version (2.xxx or 3.xxx) with virtualenv.
 
 In order to get all the dependencies successfully installed,
 you need these libraries.
