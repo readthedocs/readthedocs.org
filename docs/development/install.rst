@@ -184,3 +184,38 @@ For building this documentation,
 see :doc:`docs`.
 
 And for setting up for the front end development, see :doc:`standards`.
+
+Troubleshooting
+---------------
+
+You might face issues while installing.
+
+Error: `SocialApp matching query does not exist.`
+
+Please follow the guidelines for installation given here:
+
+- Edit `readthedocs/settings/base.py`
+  Add entry to the authentication backend section:
+  `'allauth.account.auth_backends.AuthenticationBackend'`
+  ``AUTHENTICATION_BACKENDS = ( # Needed to login by username in Django admin, regardless ofallauth'django.contrib.auth.backends.ModelBackend', #allauth specific authentication methods, such as login by e-mail 'allauth.account.auth_backends.AuthenticationBackend', 'guardian.backends.ObjectPermissionBackend' )``
+
+- Start the installation
+  Run the installation: `sudo python3 manage.py runserver 0.0.0.0:<number>`
+
+- Visit the readthedocs DJANGO Admin site:
+  `http://localhost:<number>/admin`
+
+- EDIT the SITES section:
+  In the sites section of the Django Admin UI change the example.com domain as
+  the localhost admint/sites domain with: `http://localhost:<number>/admin/sites`
+
+**Note:** The ID of the site should be of the `SITE_ID` key in `readthedocs/settings/base.py`.
+
+- Connect GitHub account
+
+- Add a social account in the readthedocs installation via Django admin UI
+  - visit `http://localhost/admin/socialaccount/ and tab on a social account`.
+  - Write in the tab saying `GitHub`
+  - Add `availble site` and `chosen site`.
+
+- Verify by pressing connect GitHub account in readthedocs UI.
