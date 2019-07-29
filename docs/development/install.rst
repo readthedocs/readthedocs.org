@@ -34,7 +34,7 @@ Additionally Read the Docs depends on:
 .. note::
 
     You can import Python 2.x or 3.x projects in RTD, make sure you install the
-    appropriate Python version (2.xxx or 3.xxx) with virtualenv.
+    appropriate Python version (2.x or 3.x) with virtualenv.
 
 In order to get all the dependencies successfully installed,
 you need these libraries.
