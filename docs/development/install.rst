@@ -206,16 +206,20 @@ Please follow the guidelines for installation given here:
   `http://localhost:<number>/admin`
 
 - EDIT the SITES section:
-  In the sites section of the Django Admin UI change the example.com domain as
+  In the sites section of the Django Admin panel change the example.com domain as
   the localhost admint/sites domain with: `http://localhost:<number>/admin/sites`
 
 **Note:** The ID of the site should be of the `SITE_ID` key in `readthedocs/settings/base.py`.
 
 - Connect GitHub account
 
-- Add a social account in the readthedocs installation via Django admin UI
+- You should create a test [GitHub OAuth Apps](https://github.com/settings/applications/new).
+
+- Add a social account in the readthedocs installation via Django admin panel
   - visit `http://localhost/admin/socialaccount/ and tab on a social account`.
   - Write in the tab saying `GitHub`
   - Add `availble site` and `chosen site`.
 
-- Verify by pressing connect GitHub account in readthedocs UI.
+- You might require using services like `ngrok` for setting GitHub connection.
+
+- Verify by pressing connect GitHub account in readthedocs panel.
