@@ -1,4 +1,4 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
 
 class PublicDetailPrivateListing(IsAuthenticated):
@@ -16,6 +16,7 @@ class PublicDetailPrivateListing(IsAuthenticated):
         if is_authenticated:
             if view.basename == 'projects' and any([
                     view.action == 'list',
+                    view.action == 'create',  # used to create Form in BrowsableAPIRenderer
                     view.action is None,  # needed for BrowsableAPIRenderer
             ]):
                 # hitting ``/projects/``, allowing
@@ -29,3 +30,13 @@ class PublicDetailPrivateListing(IsAuthenticated):
                 return True
 
         return False
+
+
+class IsProjectAdmin(BasePermission):
+
+    """Grant permission if user has admin rights on the Project."""
+
+    def has_permission(self, request, view):
+        project = view._get_parent_project()
+        if view.has_admin_permission(request.user, project):
+            return True

@@ -16,7 +16,7 @@ The goal of this document is to shed light on the advertising industry,
 exactly what we do for advertising, and how what we do is different.
 If you have questions or comments,
 `send us an email <mailto:rev@readthedocs.org>`_
-or `open an issue on GitHub <https://github.com/rtfd/readthedocs.org/issues>`_.
+or `open an issue on GitHub <https://github.com/readthedocs/readthedocs.org/issues>`_.
 
 
 Other ad networks' targeting

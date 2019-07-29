@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from urllib.parse import urlsplit
 
 import mock
@@ -7,9 +6,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build
+from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import HTMLFile, Project
 
@@ -266,6 +267,7 @@ class BuildViewTests(TestCase):
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_build_redirect(self, mock):
@@ -276,3 +278,56 @@ class BuildViewTests(TestCase):
             r._headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
+
+    def test_build_list_includes_external_versions(self):
+        external_version = get(
+            Version,
+            project=self.pip,
+            active=True,
+            type=EXTERNAL,
+            privacy_level=PUBLIC,
+        )
+        external_version_build = get(
+            Build,
+            project=self.pip,
+            version=external_version
+        )
+        self.pip.privacy_level = PUBLIC
+        self.pip.save()
+        response = self.client.get(
+            reverse('builds_project_list', args=[self.pip.slug]),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(external_version_build, response.context['build_qs'])
+
+
+class HomepageViewTests(TestCase):
+
+    def setUp(self):
+        self.homepage_url = reverse('homepage')
+
+    def test_projects_count(self):
+        user_1 = get(User)
+        profile_1 = get(UserProfile, user=user_1, banned=True)
+
+        user_2 = get(User)
+        profile_2 = get(UserProfile, user=user_2, banned=True)
+
+        user_3 = get(User)
+        profile_3 = get(UserProfile, user=user_3, banned=False)
+
+        project_a = get(Project, users=[user_1])
+        project_b = get(Project, users=[user_2])
+        project_c = get(Project, users=[user_3])
+
+        spam_proj_count = Project.objects.filter(users__profile__banned=True).count()
+
+        self.assertEqual(spam_proj_count, 2)
+        self.assertEqual(User.objects.all().count(), 3)
+        self.assertEqual(User.objects.filter(profile__banned=True).count(), 2)
+
+        expected_count = Project.objects.all().count() - spam_proj_count
+        response = self.client.get(self.homepage_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(expected_count, response.context['projects_count'])

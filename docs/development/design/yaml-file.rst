@@ -148,13 +148,13 @@ Dependencies
 ------------
 
 Current repository which contains the code related to the configuration file:
-https://github.com/rtfd/readthedocs-build
+https://github.com/readthedocs/readthedocs-build
 
 Footnotes
 ---------
 
-.. [#privacy-level] https://github.com/rtfd/readthedocs.org/issues/2663
-.. [#project-description] https://github.com/rtfd/readthedocs.org/issues/3689
+.. [#privacy-level] https://github.com/readthedocs/readthedocs.org/issues/2663
+.. [#project-description] https://github.com/readthedocs/readthedocs.org/issues/3689
 .. [#yaml-spec] http://yaml.org/spec/1.2/spec.html
-.. [#specversioning] https://github.com/rtfd/readthedocs.org/issues/3806
-.. [#one-checkout] https://github.com/rtfd/readthedocs.org/issues/1375
+.. [#specversioning] https://github.com/readthedocs/readthedocs.org/issues/3806
+.. [#one-checkout] https://github.com/readthedocs/readthedocs.org/issues/1375

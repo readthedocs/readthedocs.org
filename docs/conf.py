@@ -38,6 +38,7 @@ extensions = [
     'sphinx-prompt',
     'recommonmark',
     'notfound.extension',
+    'sphinx_search.extension',
 ]
 templates_path = ['_templates']
 
@@ -91,7 +92,7 @@ html_theme_options = {
 autosectionlabel_prefix_document = True
 
 # sphinx-notfound-page
-# https://github.com/rtfd/sphinx-notfound-page
+# https://github.com/readthedocs/sphinx-notfound-page
 notfound_context = {
     'title': 'Page Not Found',
     'body': '''

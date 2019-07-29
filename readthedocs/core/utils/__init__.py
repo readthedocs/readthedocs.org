@@ -11,7 +11,10 @@ from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import (
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_PENDING,
+)
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
 
@@ -78,7 +81,10 @@ def prepare_build(
     # Avoid circular import
     from readthedocs.builds.models import Build
     from readthedocs.projects.models import Project
-    from readthedocs.projects.tasks import update_docs_task
+    from readthedocs.projects.tasks import (
+        update_docs_task,
+        send_external_build_status,
+    )
 
     build = None
 
@@ -124,6 +130,10 @@ def prepare_build(
     # will cleanly finish.
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
+
+    if build:
+        # Send pending Build Status using Git Status API for External Builds.
+        send_external_build_status(version=version, build_pk=build.id, status=BUILD_STATUS_PENDING)
 
     return (
         update_docs_task.signature(

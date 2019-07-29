@@ -19,9 +19,15 @@ from readthedocs.core.signals import (
     webhook_github,
     webhook_gitlab,
 )
-from readthedocs.core.views.hooks import build_branches, sync_versions
+from readthedocs.core.views.hooks import (
+    build_branches,
+    sync_versions,
+    get_or_create_external_version,
+    delete_external_version,
+    build_external_version,
+)
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 
 log = logging.getLogger(__name__)
@@ -29,6 +35,11 @@ log = logging.getLogger(__name__)
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
+GITHUB_PULL_REQUEST = 'pull_request'
+GITHUB_PULL_REQUEST_OPENED = 'opened'
+GITHUB_PULL_REQUEST_CLOSED = 'closed'
+GITHUB_PULL_REQUEST_REOPENED = 'reopened'
+GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
 GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
@@ -102,12 +113,16 @@ class WebhookMixin:
         """
         Normalize posted data.
 
-        This can be overriden to support multiples content types.
+        This can be overridden to support multiples content types.
         """
         return self.request.data
 
     def handle_webhook(self):
         """Handle webhook payload."""
+        raise NotImplementedError
+
+    def get_external_version_data(self):
+        """Get External Version data from payload."""
         raise NotImplementedError
 
     def is_payload_valid(self):
@@ -183,28 +198,96 @@ class WebhookMixin:
             'versions': [version],
         }
 
+    def get_external_version_response(self, project):
+        """
+        Trigger builds for External versions on pull/merge request events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "build_triggered": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: readthedocs.projects.models.Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
+        # create or get external version object using `verbose_name`.
+        external_version = get_or_create_external_version(
+            project, identifier, verbose_name
+        )
+        # returns external version verbose_name (pull/merge request number)
+        to_build = build_external_version(project, external_version)
+
+        return {
+            'build_triggered': True,
+            'project': project.slug,
+            'versions': [to_build],
+        }
+
+    def get_delete_external_version_response(self, project):
+        """
+        Delete External version on pull/merge request `closed` events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "version_deleted": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
+        # Delete external version
+        deleted_version = delete_external_version(
+            project, identifier, verbose_name
+        )
+        return {
+            'version_deleted': deleted_version is not None,
+            'project': project.slug,
+            'versions': [deleted_version],
+        }
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
     """
     Webhook consumer for GitHub.
 
-    Accepts webhook events from GitHub, 'push' events trigger builds. Expects the
-    webhook event type will be included in HTTP header ``X-GitHub-Event``, and
-    we will have a JSON payload.
+    Accepts webhook events from GitHub, 'push' and 'pull_request' events trigger builds.
+    Expects the webhook event type will be included in HTTP header ``X-GitHub-Event``,
+    and we will have a JSON payload.
 
     Expects the following JSON::
 
-        {
-            "ref": "branch-name",
-            ...
-        }
+        For push, create, delete Events:
+            {
+                "ref": "branch-name",
+                ...
+            }
+
+        For pull_request Events:
+            {
+                "action": "opened",
+                "number": 2,
+                "pull_request": {
+                    "head": {
+                        "sha": "ec26de721c3235aad62de7213c562f8c821"
+                    }
+                }
+            }
 
     See full payload here:
 
     - https://developer.github.com/v3/activity/events/types/#pushevent
     - https://developer.github.com/v3/activity/events/types/#createevent
     - https://developer.github.com/v3/activity/events/types/#deleteevent
+    - https://developer.github.com/v3/activity/events/types/#pullrequestevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
@@ -218,12 +301,24 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 pass
         return super().get_data()
 
+    def get_external_version_data(self):
+        """Get Commit Sha and pull request number from payload."""
+        try:
+            identifier = self.data['pull_request']['head']['sha']
+            verbose_name = str(self.data['number'])
+
+            return identifier, verbose_name
+
+        except KeyError:
+            raise ParseError('Parameters "sha" and "number" are required')
+
     def is_payload_valid(self):
         """
         GitHub use a HMAC hexdigest hash to sign the payload.
 
         It is sent in the request's header.
-        See https://developer.github.com/webhooks/securing/
+
+        See https://developer.github.com/webhooks/securing/.
         """
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
@@ -245,7 +340,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     @staticmethod
     def get_digest(secret, msg):
-        """Get a HMAC digest of `msg` using `secret.`"""
+        """Get a HMAC digest of `msg` using `secret`."""
         digest = hmac.new(
             secret.encode(),
             msg=msg.encode(),
@@ -255,6 +350,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
+        action = self.data.get('action', None)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -271,6 +367,26 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
+
+        if (
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            event == GITHUB_PULL_REQUEST and action
+        ):
+            if (
+                action in
+                [
+                    GITHUB_PULL_REQUEST_OPENED,
+                    GITHUB_PULL_REQUEST_REOPENED,
+                    GITHUB_PULL_REQUEST_SYNC
+                ]
+            ):
+                # Handle opened, synchronize, reopened pull_request event.
+                return self.get_external_version_response(self.project)
+
+            if action == GITHUB_PULL_REQUEST_CLOSED:
+                # Handle closed pull_request event.
+                return self.get_delete_external_version_response(self.project)
+
         return None
 
     def _normalize_ref(self, ref):

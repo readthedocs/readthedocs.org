@@ -2,7 +2,9 @@ from .routers import DefaultRouterWithNesting
 from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
+    EnvironmentVariablesViewSet,
     ProjectsViewSet,
+    RedirectsViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
     VersionsViewSet,
@@ -63,6 +65,24 @@ projects.register(
     r'builds',
     BuildsViewSet,
     basename='projects-builds',
+    parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/projects/pip/redirects/
+# allows /api/v3/projects/pip/redirects/1053/
+projects.register(
+    r'redirects',
+    RedirectsViewSet,
+    basename='projects-redirects',
+    parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/projects/pip/environmentvariables/
+# allows /api/v3/projects/pip/environmentvariables/1053/
+projects.register(
+    r'environmentvariables',
+    EnvironmentVariablesViewSet,
+    basename='projects-environmentvariables',
     parents_query_lookups=['project__slug'],
 )
 

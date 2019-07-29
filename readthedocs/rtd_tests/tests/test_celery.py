@@ -7,11 +7,14 @@ from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from mock import MagicMock, patch
 
-from readthedocs.builds.constants import LATEST
+from allauth.socialaccount.models import SocialAccount
+
+from readthedocs.builds.constants import LATEST, BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.projects import tasks
 from readthedocs.builds.models import Version
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -329,3 +332,27 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.fileify(version_pk=345343, commit=None, build=1)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task(self, send_build_status):
+        social_account = get(SocialAccount, provider='github')
+        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
+        remote_repo.users.add(self.eric)
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
+
+        send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task_without_remote_repo(self, send_build_status):
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
+
+        send_build_status.assert_not_called()

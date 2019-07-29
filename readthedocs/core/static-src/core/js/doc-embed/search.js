@@ -4,6 +4,8 @@
 
 var rtddata = require('./rtd-data');
 var xss = require('xss/lib/index');
+var MAX_RESULT_PER_SECTION = 3;
+var MAX_SUBSTRING_LIMIT = 100;
 
 
 /*
@@ -35,14 +37,24 @@ function attach_elastic_search_query(data) {
                     for (var i = 0; i < hit_list.length; i += 1) {
                         var doc = hit_list[i];
                         var highlight = doc.highlight;
+                        var inner_hits = doc.inner_hits || [];
                         var list_item = $('<li style="display: none;"></li>');
 
+                        var title = doc.title;
+                        // if highlighted title is present,
+                        // use that.
+                        if (highlight) {
+                            if (highlight.title) {
+                                title = xss(highlight.title[0]);
+                            }
+                        }
+
                         // Creating the result from elements
-                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX +
-                                   '?highlight=' + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX + "?highlight=" + $.urlencode(query);
 
                         var item = $('<a>', {'href': link});
-                        item.html(doc.title);
+                        item.html(title);
+                        item.find('em').addClass('highlighted');
                         list_item.append(item);
 
                         // If the document is from subproject, add extra information
@@ -53,19 +65,127 @@ function attach_elastic_search_query(data) {
                             list_item.append(extra);
                         }
 
-                        // Show highlighted texts
-                        if (highlight.content) {
-                            for (var index = 0; index < highlight.content.length; index += 1) {
-                                if (index < 3) {
-                                    // Show up to 3 results for search
-                                    var content = highlight.content[index];
-                                    var content_text = xss(content);
-                                    var contents = $('<div class="context">');
+                        for (var j = 0; j < inner_hits.length; j += 1) {
 
-                                    contents.html("..." + content_text + "...");
-                                    contents.find('em').addClass('highlighted');
-                                    list_item.append(contents);
+                            var contents = $('<div class="context">');
+
+                            var section = "";
+                            var section_subtitle = "";
+                            var section_subtitle_link = "";
+                            var section_content = "";
+                            var content = "";
+
+                            var domain = "";
+                            var domain_subtitle = "";
+                            var domain_subtitle_link = "";
+                            var domain_content = "";
+                            var domain_name = "";
+
+                            var section_template = '' +
+                                '<div>' +
+                                    '<a href="<%= section_subtitle_link %>">' +
+                                        '<%= section_subtitle %>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<% for (var i = 0; i < section_content.length; ++i) { %>' +
+                                    '<div>' +
+                                        '<%= section_content[i] %>' +
+                                    '</div>' +
+                                '<% } %>';
+
+                            var domain_template = '' +
+                                '<div>' +
+                                    '<a href="<%= domain_subtitle_link %>">' +
+                                        '<%= domain_subtitle %>' +
+                                    '</a>' +
+                                '</div>' +
+                                '<span>' +
+                                    '<%= domain_content %>' +
+                                '</span>';
+
+                            // if the result is page section
+                            if(inner_hits[j].type === "sections") {
+
+                                section = inner_hits[j];
+                                section_subtitle = section._source.title;
+                                section_subtitle_link = link + "#" + section._source.id;
+                                section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
+
+                                if (section.highlight) {
+                                    if (section.highlight["sections.title"]) {
+                                        section_subtitle = xss(section.highlight["sections.title"][0]);
+                                    }
+
+                                    if (section.highlight["sections.content"]) {
+                                        content = section.highlight["sections.content"];
+                                        section_content = [];
+                                        for (
+                                            var k = 0;
+                                            k < content.length && k < MAX_RESULT_PER_SECTION;
+                                             k += 1
+                                        ) {
+                                            section_content.push("... " + xss(content[k]) + " ...");
+                                        }
+                                    }
                                 }
+
+                                contents.append(
+                                    $u.template(
+                                        section_template,
+                                        {
+                                            section_subtitle_link: section_subtitle_link,
+                                            section_subtitle: section_subtitle,
+                                            section_content: section_content
+                                        }
+                                    )
+                                );
+                            }
+
+                            // if the result is a sphinx domain object
+                            if (inner_hits[j].type === "domains") {
+
+                                domain = inner_hits[j];
+                                domain_subtitle = domain._source.role_name;
+                                domain_subtitle_link = link + "#" + domain._source.anchor;
+                                domain_content = "";
+                                domain_name = domain._source.name;
+
+                                if (
+                                    typeof domain._source.display_name === "string" &&
+                                    domain._source.display_name.length >= 1
+                                ) {
+                                    domain_subtitle = "(" + domain._source.role_name + ") " + domain._source.display_name;
+                                }
+
+                                if (domain.highlight) {
+                                    if (domain.highlight["domains.name"]) {
+                                        // domain_content = type_display -- name
+                                        domain_name = xss(domain.highlight["domains.name"][0]);
+                                    }
+                                }
+
+                                // domain_content = type_display -- name -- in doc_display
+                                domain_content = domain._source.type_display + " -- " + domain_name + " -- in " + domain._source.doc_display;
+
+                                contents.append(
+                                    $u.template(
+                                        domain_template,
+                                        {
+                                            domain_subtitle_link: domain_subtitle_link,
+                                            domain_subtitle: domain_subtitle,
+                                            domain_content: domain_content
+                                        }
+                                    )
+                                );
+                            }
+
+                            contents.find('em').addClass('highlighted');
+                            list_item.append(contents);
+
+                            // Create some spacing between the results.
+                            // Also, don't add this spacing in the last hit.
+                            if (j !== inner_hits.length - 1) {
+                                list_item.append($("<div class='rtd_search_hits_spacing'></div>"));
                             }
                         }
 

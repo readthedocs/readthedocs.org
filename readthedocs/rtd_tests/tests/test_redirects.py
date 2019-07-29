@@ -4,7 +4,6 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
-from mock import patch
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
@@ -19,21 +18,6 @@ class RedirectTests(TestCase):
     def setUp(self):
         logging.disable(logging.DEBUG)
         self.client.login(username='eric', password='test')
-        self.client.post(
-            '/dashboard/import/',
-            {
-                'repo_type': 'git', 'name': 'Pip',
-                'tags': 'big, fucking, monkey', 'default_branch': '',
-                'project_url': 'http://pip.rtfd.org',
-                'repo': 'https://github.com/fail/sauce',
-                'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-                'default_version': LATEST,
-                'privacy_level': 'public',
-                'version_privacy_level': 'public',
-                'description': 'wat',
-                'documentation_type': 'sphinx',
-            },
-        )
         pip = Project.objects.get(slug='pip')
         pip.versions.create_latest()
 
@@ -135,21 +119,6 @@ class RedirectAppTests(TestCase):
 
     def setUp(self):
         self.client.login(username='eric', password='test')
-        self.client.post(
-            '/dashboard/import/',
-            {
-                'repo_type': 'git', 'name': 'Pip',
-                'tags': 'big, fucking, monkey', 'default_branch': '',
-                'project_url': 'http://pip.rtfd.org',
-                'repo': 'https://github.com/fail/sauce',
-                'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-                'default_version': LATEST,
-                'privacy_level': 'public',
-                'version_privacy_level': 'public',
-                'description': 'wat',
-                'documentation_type': 'sphinx',
-            },
-        )
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.create_latest()
 
@@ -398,35 +367,33 @@ class RedirectAppTests(TestCase):
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html',
         )
-        with patch('readthedocs.core.views.serve._serve_symlink_docs') as _serve_docs:
-            _serve_docs.side_effect = Http404()
-            r = self.client.get(
-                '/en/0.8.1/how_to_install.html',
-                HTTP_HOST='pip.readthedocs.org',
-            )
-            self.assertEqual(r.status_code, 302)
-            self.assertEqual(
-                r['Location'],
-                'http://pip.readthedocs.org/en/0.8.1/install.html',
-            )
+        r = self.client.get(
+            '/en/0.8.2/how_to_install.html',
+            HTTP_HOST='pip.readthedocs.org',
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.readthedocs.org/en/0.8.2/install.html',
+        )
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_keeps_language(self):
+        self.pip.language = 'de'
+        self.pip.save()
         Redirect.objects.create(
             project=self.pip, redirect_type='page',
             from_url='/how_to_install.html', to_url='/install.html',
         )
-        with patch('readthedocs.core.views.serve._serve_symlink_docs') as _serve_docs:
-            _serve_docs.side_effect = Http404()
-            r = self.client.get(
-                '/de/0.8.1/how_to_install.html',
-                HTTP_HOST='pip.readthedocs.org',
-            )
-            self.assertEqual(r.status_code, 302)
-            self.assertEqual(
-                r['Location'],
-                'http://pip.readthedocs.org/de/0.8.1/install.html',
-            )
+        r = self.client.get(
+            '/de/0.8.2/how_to_install.html',
+            HTTP_HOST='pip.readthedocs.org',
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'],
+            'http://pip.readthedocs.org/de/0.8.2/install.html',
+        )
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_redirect_recognizes_custom_cname(self):

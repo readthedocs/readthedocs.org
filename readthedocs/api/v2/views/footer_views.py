@@ -25,7 +25,7 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    versions_qs = Version.objects.public(project=project)
+    versions_qs = Version.internal.public(project=project)
 
     # Take preferences over tags only if the project has at least one tag
     if versions_qs.filter(type=TAG).exists():

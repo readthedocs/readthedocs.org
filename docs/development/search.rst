@@ -39,7 +39,7 @@ the search index will update automatically.
 
 Architecture
 ------------
-The search architecture is devided into 2 parts.
+The search architecture is divided into 2 parts.
 
 * One part is responsible for **indexing** the documents and projects (``documents.py``)
 * The other part is responsible for **querying** the Index to show the proper results to users (``faceted_search.py``)
@@ -52,7 +52,7 @@ Indexing
 ^^^^^^^^
 All the Sphinx documents are indexed into Elasticsearch after the build is successful.
 Currently, we do not index MkDocs documents to elasticsearch, but
-`any kind of help is welcome <https://github.com/rtfd/readthedocs.org/issues/1088>`_.
+`any kind of help is welcome <https://github.com/readthedocs/readthedocs.org/issues/1088>`_.
 
 How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,12 +98,12 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 
     The fields and ES Datatypes are specified in the `PageDocument`. The indexable data is taken
     from `processed_json` property of `HTMLFile`. This property provides python dictionary with
-    document data like `title`, `headers`, `content` etc.
+    document data like `title`, `sections`, `path` etc.
 
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Elasticsearch 6.3: https://www.elastic.co/guide/en/elasticsearch/reference/6.3/index.html
-.. _GitHub Repository: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/search
+.. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/search
 .. _the Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
 .. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
