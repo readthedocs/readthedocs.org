@@ -19,6 +19,9 @@ def generate_sections_from_pyquery(body):
     body('dd').remove()
     body('dt').remove()
 
+    # remove toctree elements
+    body('.toctree-wrapper').remove()
+
     # Capture text inside h1 before the first h2
     h1_section = body('.section > h1')
     if h1_section:
