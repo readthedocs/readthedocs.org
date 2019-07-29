@@ -10,17 +10,23 @@ from pyquery import PyQuery
 log = logging.getLogger(__name__)
 
 
-def generate_sections_from_pyquery(body):
+def generate_sections_from_pyquery(body, fjson_filename):
     """Given a pyquery object, generate section dicts for each section."""
 
     # Removing all <dl>, <dd> and <dt> tags
     # to prevent duplicate indexing with Sphinx Domains.
-    body('dl').remove()
-    body('dd').remove()
-    body('dt').remove()
+    try:
+        body('dl').remove()
+        body('dd').remove()
+        body('dt').remove()
+    except Exception:
+        log.exception('Error removing <dd>, <dl> and <dt> tag from file: %s', fjson_filename)
 
     # remove toctree elements
-    body('.toctree-wrapper').remove()
+    try:
+        body('.toctree-wrapper').remove()
+    except Exception:
+        log.exception('Error removing toctree elements from file: %s', fjson_filename)
 
     # Capture text inside h1 before the first h2
     h1_section = body('.section > h1')
@@ -83,7 +89,7 @@ def process_file(fjson_filename):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections.extend(generate_sections_from_pyquery(body.clone()))
+        sections.extend(generate_sections_from_pyquery(body.clone()), fjson_filename)
         domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_filename)
     else:
         log.info('Unable to index content for: %s', fjson_filename)
