@@ -13,8 +13,6 @@ User = get_user_model()
 
 class TestBuildManagerBase(TestCase):
 
-    fixtures = ['test_data']
-
     def setUp(self):
         self.user = get(User)
         self.another_user = get(User)
