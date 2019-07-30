@@ -1050,7 +1050,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
 
         # We update each object one by one to
-        # to avoid hitting the unique constraint (project, priority).
+        # avoid hitting the unique constraint (project, priority).
         for rule in rules:
             rule.priority = expression
             rule.save()
