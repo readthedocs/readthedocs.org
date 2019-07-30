@@ -234,9 +234,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         :rtype: bool
         """
         try:
-            before_vcs.send(sender=self.version)
             self.version = self.get_version(version_pk)
             self.project = self.version.project
+            before_vcs.send(sender=self.version)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo()
             return True
@@ -262,8 +262,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 },
             )
         finally:
-                after_vcs.send(sender=self.version)
+            after_vcs.send(sender=self.version)
 
+        # Always return False for any exceptions
         return False
 
 
