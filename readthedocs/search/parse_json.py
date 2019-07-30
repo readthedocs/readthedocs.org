@@ -13,14 +13,13 @@ log = logging.getLogger(__name__)
 def generate_sections_from_pyquery(body, fjson_filename):
     """Given a pyquery object, generate section dicts for each section."""
 
-    # Removing all <dl>, <dd> and <dt> tags
-    # to prevent duplicate indexing with Sphinx Domains.
+    # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
     try:
-        body('dl').remove()
-        body('dd').remove()
-        body('dt').remove()
+        # remove all <dl> tags which contains <dt> tags having 'id' attribute
+        dt_tags = body('dt[id]')
+        dt_tags.parents('dl').remove()
     except Exception:
-        log.exception('Error removing <dd>, <dl> and <dt> tag from file: %s', fjson_filename)
+        log.exception('Error removing <dl> tags from file: %s', fjson_filename)
 
     # remove toctree elements
     try:
