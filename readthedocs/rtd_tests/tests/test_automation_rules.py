@@ -279,3 +279,96 @@ class TestAutomationRuleMove:
         for priority, rule in enumerate(self.project.automation_rules.all()):
             assert rule == new_order[priority]
             assert rule.priority == priority
+
+    def test_move_rule_one_negative_step(self):
+        self.rule_3.move(-1)
+        new_order = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_3,
+            self.rule_2,
+            self.rule_4,
+            self.rule_5,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_move_rule_negative_steps(self):
+        self.rule_4.move(-1)
+        self.rule_4.move(-2)
+
+        new_order = [
+            self.rule_0,
+            self.rule_4,
+            self.rule_1,
+            self.rule_2,
+            self.rule_3,
+            self.rule_5,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_move_rule_negative_steps_overflow(self):
+        self.rule_2.move(-3)
+        self.rule_2.move(-2)
+
+        new_order = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_3,
+            self.rule_2,
+            self.rule_4,
+            self.rule_5,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_move_rules_negative_steps(self):
+        self.rule_2.move(-2)
+        self.rule_5.refresh_from_db()
+        self.rule_5.move(-7)
+        self.rule_3.refresh_from_db()
+        self.rule_3.move(-2)
+        self.rule_1.refresh_from_db()
+        self.rule_1.move(-1)
+
+        new_order = [
+            self.rule_2,
+            self.rule_3,
+            self.rule_1,
+            self.rule_0,
+            self.rule_5,
+            self.rule_4,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_move_rules_up_and_down(self):
+        self.rule_2.move(2)
+        self.rule_5.refresh_from_db()
+        self.rule_5.move(-3)
+        self.rule_3.refresh_from_db()
+        self.rule_3.move(4)
+        self.rule_1.refresh_from_db()
+        self.rule_1.move(-1)
+
+        new_order = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_3,
+            self.rule_5,
+            self.rule_4,
+            self.rule_2,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
