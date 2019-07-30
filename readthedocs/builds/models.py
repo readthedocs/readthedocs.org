@@ -1018,11 +1018,6 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if current_priority == new_priority:
             return False
 
-        # Put an imposible priority to avoid
-        # the unique constraint (project, priority)
-        # while updating.
-        self.update(priority=total + 99)
-
         # Move other's priority
         if new_priority > current_priority:
             # It was moved down
@@ -1040,6 +1035,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             rules = (
                 self.project.automation_rules
                 .filter(priority__lt=current_priority, priority__gte=new_priority)
+                .exclude(pk=self.pk)
                 # We sort the queryset in desc order
                 # to be updated in that order
                 # to avoid hitting the unique constraint (project, priority).
@@ -1047,12 +1043,21 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             )
             expression = F('priority') + 1
 
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.priority = total + 99
+        self.save()
+
         # We update each object one by one to
         # to avoid hitting the unique constraint (project, priority).
         for rule in rules:
-            rule.update(priority=expression)
+            rule.priority = expression
+            rule.save()
 
-        self.update(priority=new_priority)
+        # Put back new priority
+        self.priority = new_priority
+        self.save()
         return True
 
     def get_description(self):
