@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Build and Version class model Managers."""
 
 import logging
 
-from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from polymorphic.managers import PolymorphicManager
 
 from readthedocs.core.utils.extend import (
     SettingsOverrideObject,
@@ -14,14 +13,15 @@ from readthedocs.core.utils.extend import (
 
 from .constants import (
     BRANCH,
+    EXTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
-    EXTERNAL,
 )
-from .querysets import VersionQuerySet, BuildQuerySet
+from .querysets import BuildQuerySet, VersionQuerySet
+
 
 log = logging.getLogger(__name__)
 
@@ -179,3 +179,37 @@ class InternalBuildManager(SettingsOverrideObject):
 
 class ExternalBuildManager(SettingsOverrideObject):
     _default_class = ExternalBuildManagerBase
+
+
+class VersionAutomationRuleManager(PolymorphicManager):
+
+    def append_rule(
+        self, *, project, description, match_arg, version_type,
+        action, action_arg=None,
+    ):
+        """
+        Append an automation rule to `project`.
+
+        The rule is created with a priority higher than the last rule
+        in `project`.
+        """
+        last_priority = (
+            project.automation_rules
+            .values_list('priority', flat=True)
+            .last()
+        )
+        if last_priority is None:
+            priority = 0
+        else:
+            priority = last_priority + 1
+
+        rule = self.create(
+            project=project,
+            priority=priority,
+            description=description,
+            match_arg=match_arg,
+            version_type=version_type,
+            action=action,
+            action_arg=action_arg,
+        )
+        return rule
