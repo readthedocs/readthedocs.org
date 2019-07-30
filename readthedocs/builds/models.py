@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
+from django.db.models import F
 
 import readthedocs.builds.automation_actions as actions
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
@@ -999,6 +1000,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         Move the rule n steps.
 
         :param steps: Number of steps to be moved
+                      (it can be negative)
         :returns: True if the priority was changed
         """
         total = self.project.automation_rules.count()
@@ -1008,9 +1010,10 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if current_priority == new_priority:
             return False
 
-        # Avoid integrity errors
-        self.priority = total + 99
-        self.save()
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.update(priority=total + 99)
 
         # Move other's priority
         if new_priority > current_priority:
@@ -1019,26 +1022,29 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
                 self.project.automation_rules
                 .filter(priority__gt=current_priority, priority__lte=new_priority)
                 # We sort the queryset in asc order
+                # to be updated in that order
                 # to avoid hitting the unique constraint (project, priority).
                 .order_by('priority')
             )
-            for rule in rules:
-                rule.priority -= 1
-                rule.save()
+            expression = F('priority') - 1
         else:
             # It was moved up
             rules = (
                 self.project.automation_rules
                 .filter(priority__lt=current_priority, priority__gte=new_priority)
                 # We sort the queryset in desc order
+                # to be updated in that order
                 # to avoid hitting the unique constraint (project, priority).
                 .order_by('-priority')
             )
-            for rule in rules:
-                rule.priority += 1
-                rule.save()
-        self.priority = new_priority
-        self.save()
+            expression = F('priority') + 1
+
+        # We update each object one by one to
+        # to avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.update(priority=expression)
+
+        self.update(priority=new_priority)
         return True
 
     def get_description(self):
