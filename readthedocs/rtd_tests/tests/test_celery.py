@@ -334,7 +334,7 @@ class TestCeleryBuilding(RTDTestCase):
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task(self, send_build_status):
+    def test_send_build_status_task_with_remote_repo(self, send_build_status):
         social_account = get(SocialAccount, provider='github')
         remote_repo = get(RemoteRepository, account=social_account, project=self.project)
         remote_repo.users.add(self.eric)
@@ -348,7 +348,22 @@ class TestCeleryBuilding(RTDTestCase):
         send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task_without_remote_repo(self, send_build_status):
+    def test_send_build_status_task_with_social_account(self, send_build_status):
+        social_account = get(SocialAccount, user=self.eric, provider='github')
+
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(external_build.id, BUILD_STATUS_SUCCESS)
+
+        send_build_status.assert_called_once_with(external_build, BUILD_STATUS_SUCCESS)
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task_without_remote_repo_or_social_account(self, send_build_status):
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
