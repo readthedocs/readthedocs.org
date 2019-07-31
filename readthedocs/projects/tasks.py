@@ -130,26 +130,22 @@ class SyncRepositoryMixin:
             )
 
         # Get the actual code on disk
-        try:
-            before_vcs.send(sender=self.version)
-            msg = 'Checking out version {slug}: {identifier}'.format(
-                slug=self.version.slug,
-                identifier=self.version.identifier,
-            )
-            log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
-            version_repo = self.get_vcs_repo()
-            version_repo.update()
-            self.sync_versions(version_repo)
-            version_repo.checkout(self.version.identifier)
-        finally:
-            after_vcs.send(sender=self.version)
+        msg = 'Checking out version {slug}: {identifier}'.format(
+            slug=self.version.slug,
+            identifier=self.version.identifier,
+        )
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        version_repo = self.get_vcs_repo()
+        version_repo.update()
+        self.sync_versions(version_repo)
+        version_repo.checkout(self.version.identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -240,6 +236,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
+            before_vcs.send(sender=self.version)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo()
             return True
@@ -264,6 +261,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+        finally:
+            after_vcs.send(sender=self.version)
+
+        # Always return False for any exceptions
         return False
 
 
@@ -440,25 +441,29 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
-            if self.project.skip:
-                raise ProjectBuildsSkippedError
             try:
-                with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_vcs()
-            except vcs_support_utils.LockTimeout as e:
-                self.task.retry(exc=e, throw=False)
-                raise VersionLockedError
-            try:
-                self.config = load_yaml_config(version=self.version)
-            except ConfigError as e:
-                raise YAMLParseError(
-                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                        exception=str(e),
-                    ),
-                )
+                before_vcs.send(sender=self.version)
+                if self.project.skip:
+                    raise ProjectBuildsSkippedError
+                try:
+                    with self.project.repo_nonblockinglock(version=self.version):
+                        self.setup_vcs()
+                except vcs_support_utils.LockTimeout as e:
+                    self.task.retry(exc=e, throw=False)
+                    raise VersionLockedError
+                try:
+                    self.config = load_yaml_config(version=self.version)
+                except ConfigError as e:
+                    raise YAMLParseError(
+                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                            exception=str(e),
+                        ),
+                    )
 
-            self.save_build_config()
-            self.additional_vcs_operations()
+                self.save_build_config()
+                self.additional_vcs_operations()
+            finally:
+                after_vcs.send(sender=self.version)
 
         if self.setup_env.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(

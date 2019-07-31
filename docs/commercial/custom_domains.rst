@@ -30,9 +30,6 @@ We require two steps from your side:
 Custom domain SSL
 -----------------
 
-We do support SSL for CNAMEs on our side.
-Please, `contact our support team`_ to setup it.
-
-.. note:: SSL is required for *private* projects.
-
-.. _contact our support team: mailto:support@readthedocs.com
+We require SSL for custom domains.
+During the setup process, you will need to add a record to your DNS
+which will allow us to issue an SSL certificate for your custom domain.
