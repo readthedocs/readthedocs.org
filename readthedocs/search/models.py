@@ -1,6 +1,4 @@
-"""
-Search Queries
-"""
+"""Search Queries."""
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -14,9 +12,7 @@ from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 class SearchQuery(TimeStampedModel):
 
-    """
-    Information about the search queries.
-    """
+    """Information about the search queries."""
 
     project = models.ForeignKey(
         Project,

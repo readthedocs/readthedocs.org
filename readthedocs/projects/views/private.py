@@ -956,14 +956,14 @@ def search_analytics_view(request, project_slug):
                     modified__gte=last_48_hrs,
                     modified__lte=now,
                 ).order_by('-count')
-        
+
             elif period == 'last-7-days':
                 last_7_days = now - timezone.timedelta(days=7)
                 queries = search_queries.filter(
                     modified__gte=last_7_days,
                     modified__lte=now,
                 ).order_by('-count')
-        
+
             elif period == 'last-1-month':
                 last_30_days = now - timezone.timedelta(days=30)
                 queries = search_queries.filter(
@@ -981,5 +981,5 @@ def search_analytics_view(request, project_slug):
     return render(
         request,
         'projects/projects_search_analytics.html',
-        { 'form': form, 'project': project, 'queries': queries },
+        {'form': form, 'project': project, 'queries': queries},
     )
