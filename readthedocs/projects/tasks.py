@@ -130,27 +130,23 @@ class SyncRepositoryMixin:
             )
 
         # Get the actual code on disk
-        try:
-            before_vcs.send(sender=self.version)
-            msg = 'Checking out version {slug}: {identifier}'.format(
-                slug=self.version.slug,
-                identifier=self.version.identifier,
-            )
-            log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
-            version_repo = self.get_vcs_repo()
-            version_repo.update()
-            self.sync_versions(version_repo)
-            identifier = self.commit or self.version.identifier
-            version_repo.checkout(identifier)
-        finally:
-            after_vcs.send(sender=self.version)
+        msg = 'Checking out version {slug}: {identifier}'.format(
+            slug=self.version.slug,
+            identifier=self.version.identifier,
+        )
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        version_repo = self.get_vcs_repo()
+        version_repo.update()
+        self.sync_versions(version_repo)
+        identifier = self.commit or self.version.identifier
+        version_repo.checkout(self.version.identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -241,6 +237,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
+            before_vcs.send(sender=self.version)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo()
             return True
@@ -265,6 +262,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+        finally:
+            after_vcs.send(sender=self.version)
+
+        # Always return False for any exceptions
         return False
 
 
@@ -445,25 +446,29 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
-            if self.project.skip:
-                raise ProjectBuildsSkippedError
             try:
-                with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_vcs()
-            except vcs_support_utils.LockTimeout as e:
-                self.task.retry(exc=e, throw=False)
-                raise VersionLockedError
-            try:
-                self.config = load_yaml_config(version=self.version)
-            except ConfigError as e:
-                raise YAMLParseError(
-                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                        exception=str(e),
-                    ),
-                )
+                before_vcs.send(sender=self.version)
+                if self.project.skip:
+                    raise ProjectBuildsSkippedError
+                try:
+                    with self.project.repo_nonblockinglock(version=self.version):
+                        self.setup_vcs()
+                except vcs_support_utils.LockTimeout as e:
+                    self.task.retry(exc=e, throw=False)
+                    raise VersionLockedError
+                try:
+                    self.config = load_yaml_config(version=self.version)
+                except ConfigError as e:
+                    raise YAMLParseError(
+                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                            exception=str(e),
+                        ),
+                    )
 
-            self.save_build_config()
-            self.additional_vcs_operations()
+                self.save_build_config()
+                self.additional_vcs_operations()
+            finally:
+                after_vcs.send(sender=self.version)
 
         if self.setup_env.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
@@ -571,13 +576,17 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                     # Finalize build and update web servers
-                    self.update_app_instances(
-                        html=bool(outcomes['html']),
-                        search=bool(outcomes['search']),
-                        localmedia=bool(outcomes['localmedia']),
-                        pdf=bool(outcomes['pdf']),
-                        epub=bool(outcomes['epub']),
-                    )
+                    # We upload EXTERNAL version media files to blob storage
+                    # We should have this check here to make sure
+                    # the files don't get re-uploaded on web.
+                    if self.version.type != EXTERNAL:
+                        self.update_app_instances(
+                            html=bool(outcomes['html']),
+                            search=bool(outcomes['search']),
+                            localmedia=bool(outcomes['localmedia']),
+                            pdf=bool(outcomes['pdf']),
+                            epub=bool(outcomes['epub']),
+                        )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -983,15 +992,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            broadcast(
-                type='app',
-                task=move_files,
-                args=[
-                    self.version.pk,
-                    socket.gethostname(), self.config.doctype
-                ],
-                kwargs=dict(html=True),
-            )
+            # We upload EXTERNAL version media files to blob storage
+            # We should have this check here to make sure
+            # the files don't get re-uploaded on web.
+            if self.version.type != EXTERNAL:
+                broadcast(
+                    type='app',
+                    task=move_files,
+                    args=[
+                        self.version.pk,
+                        socket.gethostname(), self.config.doctype
+                    ],
+                    kwargs=dict(html=True),
+                )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
@@ -1416,10 +1429,34 @@ def _create_intersphinx_data(version, path, commit, build):
                     f'domain->name',
                 )
                 continue
+
+            # HACK: This is done because the difference between
+            # ``sphinx.builders.html.StandaloneHTMLBuilder``
+            # and ``sphinx.builders.dirhtml.DirectoryHTMLBuilder``.
+            # They both have different ways of generating HTML Files,
+            # and therefore the doc_name generated is different.
+            # More info on: http://www.sphinx-doc.org/en/master/usage/builders/index.html#builders
+            # Also see issue: https://github.com/readthedocs/readthedocs.org/issues/5821
+            if doc_name.endswith('/'):
+                doc_name += 'index.html'
+
             html_file = HTMLFile.objects.filter(
                 project=version.project, version=version,
                 path=doc_name, build=build,
             ).first()
+
+            if not html_file:
+                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                    version.project,
+                    version,
+                    build,
+                    doc_name,
+                ))
+
+                # Don't create Sphinx Domain objects
+                # if the HTMLFile object is not found.
+                continue
+
             SphinxDomain.objects.create(
                 project=version.project,
                 version=version,

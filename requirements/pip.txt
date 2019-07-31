@@ -1,13 +1,13 @@
 # Base packages
 pip==19.1.1
 appdirs==1.4.3
-virtualenv==16.6.1
+virtualenv==16.6.2
 
 django==1.11.22  # pyup: <1.12
-django-extensions==2.1.9
-django_polymorphic==2.0.3
+django-extensions==2.2.1
+django_polymorphic==2.1.2
 
-djangorestframework==3.9.4
+djangorestframework==3.10.1
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -15,7 +15,7 @@ djangorestframework==3.9.4
 Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.1.0
+django-filter==2.2.0
 
 drf-flex-fields==0.5.0
 drf-extensions==0.5.0
@@ -52,10 +52,17 @@ elasticsearch==6.4.0  # pyup: <7.0.0
 #   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
 #     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
 # ImportError: cannot import name 'DocTypeMeta'
-# 
+#
 # Commit 97e3f75 adds the NestedFacet
 git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
-django-elasticsearch-dsl==0.5.1
+
+# django-elasticsearch-dsl==6.4.1 produces this error
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/__init__.py", line 3, in <module>
+#     from .documents import DocType  # noqa
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 7, in <module>
+#     from elasticsearch_dsl import Document as DSLDocument
+# ImportError: cannot import name 'Document'
+django-elasticsearch-dsl==0.5.1  # pyup: ignore
 pyquery==1.4.0
 
 # lxml is used by pyquery
@@ -69,7 +76,7 @@ pytz==2019.1
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.32.0
+stripe==2.32.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -82,7 +89,7 @@ docker==4.0.2
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
 # if there is an update they could break our code
-nltk==3.4.3
+nltk==3.4.4
 textblob==0.15.3
 
 django-annoying==0.10.4
