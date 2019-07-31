@@ -145,7 +145,8 @@ class SyncRepositoryMixin:
         version_repo = self.get_vcs_repo()
         version_repo.update()
         self.sync_versions(version_repo)
-        version_repo.checkout(self.version.identifier)
+        identifier = self.commit or self.version.identifier
+        version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -322,6 +323,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=None,
             project=None,
             version=None,
+            commit=None,
             task=None,
     ):
         self.build_env = build_env
@@ -333,6 +335,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.version = {}
         if version is not None:
             self.version = version
+        self.commit = commit
         self.project = {}
         if project is not None:
             self.project = project
@@ -343,7 +346,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
             force=False, **__
     ):
         """
@@ -364,6 +367,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         :param version_pk int: Project Version id
         :param build_pk int: Build id (if None, commands are not recorded)
+        :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
@@ -380,6 +384,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.version.project
             self.build = self.get_build(build_pk)
             self.build_force = force
+            self.commit = commit
             self.config = None
 
             # Build process starts here
@@ -586,27 +591,42 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
+            # TODO: Send RTD Webhook notification for build failure.
             self.send_notifications(self.version.pk, self.build['id'])
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
+
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
         elif self.build_env.successful:
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
-            )
+            # TODO: Send RTD Webhook notification for build success.
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_SUCCESS
+                )
         else:
-            msg = 'Unhandled Build Status'
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
+            if self.commit:
+                msg = 'Unhandled Build Status'
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
+                )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -675,7 +695,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
 
@@ -1859,11 +1879,12 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, status):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build primary key
+    :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
@@ -1875,7 +1896,7 @@ def send_build_status(build_pk, status):
             )
 
             # send Status report using the API.
-            service.send_build_status(build, status)
+            service.send_build_status(build, commit, status)
 
     except RemoteRepository.DoesNotExist:
         log.info('Remote repository does not exist for %s', build.project)
@@ -1886,16 +1907,17 @@ def send_build_status(build_pk, status):
     # TODO: Send build status for other providers.
 
 
-def send_external_build_status(version, build_pk, status):
+def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-     :param version: Version instance
+     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
      :param build_pk: Build pk
+     :param commit: commit sha of the pull/merge request
      :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
-    if version.type == EXTERNAL:
+    if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build_pk, status)
+        send_build_status.delay(build_pk, commit, status)
