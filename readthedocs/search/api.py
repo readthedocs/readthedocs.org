@@ -152,3 +152,29 @@ class PageSearchAPIView(generics.ListAPIView):
         for project in all_projects:
             projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
         return projects_url
+
+    def list(self, request, *args, **kwargs):
+        """Overriding ``list`` method to record query in database."""
+
+        response = super().list(request, *args, **kwargs)
+
+        project_slug = self.request.query_params.get('project', None)
+        version_slug = self.request.query_params.get('version', None)
+        query = self.request.query_params.get('q', '')
+        total_results = response.data.get('count', 0)
+
+        try:
+            utils.record_search_query(
+                project_slug,
+                version_slug,
+                query,
+                total_results,
+            )
+        except Exception:
+            log.exception('[%s] [%s] [Query: %s] Error recording search query in database.' % (
+                project_slug,
+                version_slug,
+                query,
+            ))
+
+        return response
