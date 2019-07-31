@@ -146,7 +146,7 @@ class SyncRepositoryMixin:
         version_repo.update()
         self.sync_versions(version_repo)
         identifier = self.commit or self.version.identifier
-        version_repo.checkout(self.version.identifier)
+        version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
         """
