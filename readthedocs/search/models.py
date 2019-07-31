@@ -39,5 +39,9 @@ class SearchQuery(TimeStampedModel):
     )
     objects = RelatedProjectQuerySet.as_manager()
 
+    class Meta:
+        verbose_name = 'Search query'
+        verbose_name_plural = 'Search queries'
+
     def __str__(self):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
