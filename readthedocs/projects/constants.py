@@ -355,3 +355,19 @@ GITLAB_COMMIT_URL = (
 )
 
 GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
+
+SEARCH_ANALYTICS_PARAMS = {
+    'period': (
+        ('recent', 'Recent Queries'),
+        ('last-24-hrs', 'Top Queries of Last 24 Today'),
+        ('last-48-hrs', 'Top Queries of Yesterday'),
+        ('last-7-days', 'Top Queries of Last 7 Days'),
+        ('last-1-month', 'Top Queries of Last 1 Month'),
+    ),
+    'size': (
+        (5, 5),
+        (10, 10),
+        (50, 50),
+        (100, 100),
+    )
+}

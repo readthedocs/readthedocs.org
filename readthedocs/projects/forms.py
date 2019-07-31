@@ -19,6 +19,7 @@ from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.constants import SEARCH_ANALYTICS_PARAMS
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import (
     Domain,
@@ -806,3 +807,29 @@ class EnvironmentVariableForm(forms.ModelForm):
                 _('Only letters, numbers and underscore are allowed'),
             )
         return name
+
+
+class SearchAnalyticsForm(forms.Form):
+    version = forms.ChoiceField(required=False)
+    period = forms.ChoiceField(
+        choices=SEARCH_ANALYTICS_PARAMS['period'],
+        required=False
+    )
+    size = forms.ChoiceField(
+        choices=SEARCH_ANALYTICS_PARAMS['size'],
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop('project', None)
+        super().__init__(*args, **kwargs)
+
+        versions = (
+            self.project.versions(manager=INTERNAL)
+            .filter(project=self.project, active=True)
+        )
+        sorted_versions = sort_version_aware(versions)
+
+        self.fields['version'].choices = [
+            (version.slug, version.verbose_name) for version in sorted_versions
+        ]
