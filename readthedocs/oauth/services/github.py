@@ -13,6 +13,7 @@ from requests.exceptions import RequestException
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
+    BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
     RTD_BUILD_STATUS_API_NAME
 )
@@ -336,9 +337,14 @@ class GitHubService(Service):
         github_build_state = SELECT_BUILD_STATUS[state]['github']
         description = SELECT_BUILD_STATUS[state]['description']
 
+        target_url = build.get_full_url()
+
+        if state == BUILD_STATUS_SUCCESS:
+            target_url = build.version.get_absolute_url()
+
         data = {
             'state': github_build_state,
-            'target_url': build.get_full_url(),
+            'target_url': target_url,
             'description': description,
             'context': RTD_BUILD_STATUS_API_NAME
         }
