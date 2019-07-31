@@ -63,6 +63,7 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
@@ -1867,6 +1868,7 @@ def send_build_status(build_pk, status):
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
+
     try:
         if build.project.remote_repository.account.provider == 'github':
             service = GitHubService(
@@ -1878,10 +1880,35 @@ def send_build_status(build_pk, status):
             service.send_build_status(build, status)
 
     except RemoteRepository.DoesNotExist:
-        log.info('Remote repository does not exist for %s', build.project)
+        # Get the service provider for the project
+        for service_cls in registry:
+            if service_cls.is_project_service(build.project):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            return False
+
+        # Try to loop through all project users to get their social accounts
+        for user in build.project.users.all():
+            user_accounts = service.for_user(user)
+            # Try to loop through users all social accounts to send a successful request
+            for account in user_accounts:
+                # Currently we only support GitHub Status API
+                if account.provider_name == 'GitHub':
+                    success = account.send_build_status(build, status)
+                    if success:
+                        return True
+
+        log.info(
+            'No social account or repository permission available for %s',
+            build.project
+        )
+        return False
 
     except Exception:
         log.exception('Send build status task failed for %s', build.project)
+        return False
 
     # TODO: Send build status for other providers.
 
