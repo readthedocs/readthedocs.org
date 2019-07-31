@@ -375,7 +375,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         try:
             if docker is None:
-                docker = settings.DOCKER_ENABLE
+                docker = settings.RTD_DOCKER_ENABLE
             self.version = self.get_version(version_pk)
             self.project = self.version.project
             self.build = self.get_build(build_pk)
