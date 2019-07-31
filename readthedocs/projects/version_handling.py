@@ -16,7 +16,9 @@ def parse_version_failsafe(version_string):
     """
     Parse a version in string form and return Version object.
 
-    If there is an error parsing the string, ``None`` is returned.
+    If there is an error parsing the string
+    or the version doesn't have a "comparable" version number,
+    ``None`` is returned.
 
     :param version_string: version as string object (e.g. '3.10.1')
     :type version_string: str or unicode
