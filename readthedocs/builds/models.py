@@ -277,7 +277,10 @@ class Version(models.Model):
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
         if self.type == EXTERNAL:
-            return f"{settings.EXTERNAL_VERSION_URL}/html/{self.project.slug}/{self.slug}/index.html"
+            url = f"{settings.EXTERNAL_VERSION_URL}/html/{self.project.slug}/{self.slug}/"
+            if settings.DEBUG:
+                url += 'index.html'
+            return url
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
