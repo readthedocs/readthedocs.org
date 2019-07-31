@@ -194,11 +194,6 @@ Error: `SocialApp matching query does not exist.`
 
 Please follow the guidelines for installation given here:
 
-- Edit `readthedocs/settings/base.py`
-  Add entry to the authentication backend section:
-  `'allauth.account.auth_backends.AuthenticationBackend'`
-  ``AUTHENTICATION_BACKENDS = ( # Needed to login by username in Django admin, regardless ofallauth'django.contrib.auth.backends.ModelBackend', #allauth specific authentication methods, such as login by e-mail 'allauth.account.auth_backends.AuthenticationBackend', 'guardian.backends.ObjectPermissionBackend' )``
-
 - Start the installation
   Run the installation: `sudo python3 manage.py runserver 0.0.0.0:<number>`
 
