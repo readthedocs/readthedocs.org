@@ -77,6 +77,9 @@ def sort_versions(version_list):
     """
     Take a list of Version models and return a sorted list.
 
+    This only considers versions with comparable version numbers.
+    It excludes versions like "latest" and "stable".
+
     :param version_list: list of Version models
     :type version_list: list(readthedocs.builds.models.Version)
 
