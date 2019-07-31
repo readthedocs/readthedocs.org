@@ -24,6 +24,7 @@
         <li class="{% block project-integrations-active %}{% endblock %}"><a href="{% url "projects_integrations" project.slug %}">{% trans "Integrations" %}</a></li>
         <li class="{% block project-environment-variables-active %}{% endblock %}"><a href="{% url "projects_environmentvariables" project.slug %}">{% trans "Environment Variables" %}</a></li>
         <li class="{% block project-notifications-active %}{% endblock %}"><a href="{% url "projects_notifications" project.slug %}">{% trans "Notifications" %}</a></li>
+        <li class="{% block project-searcn-analytics-active %}{% endblock %}"><a href="{% url "projects_search_analytics" project.slug %}">{% trans "Search Analytics" %}</a></li>
         {% if USE_PROMOS %}
           <li class="{% block project-ads-active %}{% endblock %}"><a href="{% url "projects_advertising" project.slug %}">{% trans "Advertising" %} </a></li>
         {% endif %}

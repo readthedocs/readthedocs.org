@@ -1,0 +1,39 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Search Analytics" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-searcn-analytics-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Search Analytics" %}{% endblock %}
+
+{% block project_edit_content %}
+  <p>
+    Use the below form to get the required search analytics for your docs.
+  </p>
+
+  <form method="get">
+    {{ form.as_p }}
+    <button type="submit">Get Analytics</button>
+  </form>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for query in queries %}
+          <li class="module-item">
+              {{ query.query }}
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No date available.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
