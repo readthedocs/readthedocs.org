@@ -941,7 +941,10 @@ def search_analytics_view(request, project_slug):
             )
 
             # data for plotting the line-chart
-            chart_data = SearchQuery.generate_graph_data(project_slug, version_slug)
+            chart_data = SearchQuery.generate_line_chart_data(
+                project_slug,
+                version_slug
+            )
             now = timezone.now()
 
             if period == 'recent':
@@ -977,8 +980,23 @@ def search_analytics_view(request, project_slug):
 
     queries = queries[:size]
 
+    # prepare doughnut chart data
+    doughnut_chart_data = {}
+    if queries:
+        query_list = queries.values_list('query', flat=True)
+        query_count_list = queries.values_list('count', flat=True)
+
+        doughnut_chart_data['labels'] = list(query_list)[:10]
+        doughnut_chart_data['int_data'] = list(query_count_list)[:10]
+
     return render(
         request,
         'projects/projects_search_analytics.html',
-        {'form': form, 'project': project, 'queries': queries, 'chart_data': chart_data},
+        {
+            'form': form,
+            'project': project,
+            'queries': queries,
+            'chart_data': chart_data,
+            'doughnut_chart_data': doughnut_chart_data,
+        }
     )

@@ -44,7 +44,7 @@ class SearchQuery(TimeStampedModel):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
 
     @classmethod
-    def generate_graph_data(cls, project_slug, version_slug):
+    def generate_line_chart_data(cls, project_slug, version_slug):
         yesterday = timezone.now().date() - timezone.timedelta(days=1)
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
         last_30_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(30)]

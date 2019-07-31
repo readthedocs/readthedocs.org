@@ -41,7 +41,13 @@
 
   <br/>
 
-  {% if chart_data %}
+  {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
+    <h2>Distribution of top queries</h2>
+    <canvas id="analytics-doughnut-last-7-days" width="400" height="150"></canvas>
+  {% endif %}
+
+  <br/>
+  {% if chart_data.labels and chart_data.int_data %}
     <h2>Overview of the past 30 days:</h2>
     <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
   {% endif %}
@@ -58,17 +64,19 @@
 {% endblock %}
 
 {% block footerjs %}
-  var ctx = document.getElementById("analytics-chart-last-7-days").getContext('2d');
-  var labels = {{ chart_data.labels|safe }}
-  var int_data = {{ chart_data.int_data|safe }};
 
-  var line_chart = new Chart(ctx, {
+  // Line chart
+  var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
+  var line_chart_labels = {{ chart_data.labels|safe }}
+  var line_chart_data = {{ chart_data.int_data|safe }};
+
+  var line_chart = new Chart(line_chart, {
     type: "line",
     data: {
-      labels: labels,
+      labels: line_chart_labels,
       datasets: [{
         label: "# of searches",
-        data: int_data,
+        data: line_chart_data,
         backgroundColor: "rgba(75,192,192,0.4)",
         borderColor: "rgba(75, 192, 192, 1)",
         pointBorderColor: "rgba(75, 192, 192, 1)",
@@ -85,5 +93,54 @@
       }
     }
   });
+
+  // Doughnut chart
+  var doughnut_chart = document.getElementById("analytics-doughnut-last-7-days").getContext("2d");
+  var doughnut_labels = {{ doughnut_chart_data.labels|safe }};
+  var doughnut_data = {{ doughnut_chart_data.int_data|safe }};
+  colors = [
+    "#81ecec",
+    "#74b9ff",
+    "#a29bfe",
+    "#ffeaa7",
+    "#ff7675",
+    "#fdcb6e",
+    "#636e72",
+    "#e17055",
+    "#e84393",
+    "#00cec9",
+  ]
+  var doughnut_chart = new Chart(doughnut_chart, {
+    type: "doughnut",
+    data: {
+      labels: doughnut_labels,
+      datasets: [{
+        data: doughnut_data,
+        backgroundColor: colors,
+      }],
+      borderAlign: "center",
+    },
+    options: {
+      responsive: true,
+      legend: {
+        position: "right",
+      },
+      tooltips: {
+        callbacks: {
+          label: function(tooltipItem, data) {
+            var dataset = data.datasets[tooltipItem.datasetIndex];
+            var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+            var total = meta.total;
+            var currentValue = dataset.data[tooltipItem.index];
+            var percentage = parseFloat((currentValue/total*100).toFixed(1));
+            return percentage + '%';
+          },
+          title: function(tooltipItem, data) {
+            return data.labels[tooltipItem[0].index];
+          }
+        }
+      }
+    }
+  })
 
 {% endblock %}
