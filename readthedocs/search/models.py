@@ -1,6 +1,7 @@
 """Search Queries."""
 
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_extensions.db.models import TimeStampedModel
@@ -41,3 +42,35 @@ class SearchQuery(TimeStampedModel):
 
     def __str__(self):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
+
+    @classmethod
+    def generate_graph_data(cls, project_slug, version_slug):
+        yesterday = timezone.now().date() - timezone.timedelta(days=1)
+        last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
+        last_30_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(30)]
+
+        qs = cls.objects.filter(
+            project__slug=project_slug,
+            version__slug=version_slug,
+            modified__date__lte=yesterday,
+            modified__date__gte=last_30th_day,
+        ).order_by('-modified')
+
+        count_data = [
+            qs.filter(modified__date=date).count()
+            for date in last_30_days_iter
+        ]
+
+        # format the date string to more readable form
+        # Eg. `16 Jul`
+        last_30_days_str = [
+            timezone.datetime.strftime(date, '%d %b')
+            for date in last_30_days_iter
+        ]
+
+        final_data = {
+            'labels': last_30_days_str,
+            'int_data': count_data,
+        }
+
+        return final_data

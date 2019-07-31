@@ -927,6 +927,8 @@ def search_analytics_view(request, project_slug):
     }
 
     form = SearchAnalyticsForm(data=data, project=project)
+    chart_data = {}
+    queries = []
 
     if version_slug:
         version_qs = Version.objects.filter(project=project, slug=version_slug)
@@ -938,6 +940,8 @@ def search_analytics_view(request, project_slug):
                 version=version,
             )
 
+            # data for plotting the line-chart
+            chart_data = SearchQuery.generate_graph_data(project_slug, version_slug)
             now = timezone.now()
 
             if period == 'recent':
@@ -971,15 +975,10 @@ def search_analytics_view(request, project_slug):
                     modified__lte=now,
                 ).order_by('-count')
 
-            else:
-                queries = []
-    else:
-        queries = []
-
     queries = queries[:size]
 
     return render(
         request,
         'projects/projects_search_analytics.html',
-        {'form': form, 'project': project, 'queries': queries},
+        {'form': form, 'project': project, 'queries': queries, 'chart_data': chart_data},
     )

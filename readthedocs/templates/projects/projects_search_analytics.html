@@ -1,6 +1,7 @@
 {% extends "projects/project_edit_base.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Search Analytics" %}{% endblock %}
 
@@ -19,7 +20,7 @@
     <button type="submit">Get Analytics</button>
   </form>
 
-  <h2>Results:</h2>
+  <h3>Results:</h3>
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul>
@@ -37,4 +38,51 @@
       </ul>
     </div>
   </div>
+
+  <br/>
+
+  {% if chart_data %}
+    <h2>In The Last 30 Days:</h2>
+    <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
+  {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <!-- Chart.js v2.8.0 -->
+  <script src="{% static 'vendor/chartjs/chartjs.bundle.min.js' %}"></script>
+{% endblock %}
+
+{% block extra_links %}
+  <!-- Chart.js v2.8.0 -->
+  <link rel="stylesheet" href="{% static 'vendor/chartjs/chartjs.min.css' %}">
+{% endblock %}
+
+{% block footerjs %}
+  var ctx = document.getElementById("analytics-chart-last-7-days").getContext('2d');
+  var labels = {{ chart_data.labels|safe }}
+  var int_data = {{ chart_data.int_data|safe }};
+
+  var line_chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "# of searches",
+        data: int_data,
+        backgroundColor: "rgba(75,192,192,0.4)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        pointBorderColor: "rgba(75, 192, 192, 1)",
+      }]
+    },
+    options: {
+      scales: {
+        yAxes: [{
+          ticks: {
+            min: 0
+          }
+        }]
+      }
+    }
+  });
+
 {% endblock %}
