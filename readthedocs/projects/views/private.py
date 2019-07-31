@@ -16,6 +16,7 @@ from django.http import (
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
@@ -42,6 +43,7 @@ from readthedocs.projects.forms import (
     ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
+    SearchAnalyticsForm,
     TranslationForm,
     UpdateProjectForm,
     UserForm,
@@ -58,6 +60,7 @@ from readthedocs.projects.models import (
 from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
 
@@ -899,3 +902,84 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
     # This removes the delete confirmation
     def get(self, request, *args, **kwargs):
         return self.http_method_not_allowed(request, *args, **kwargs)
+
+
+@login_required
+def search_analytics_view(request, project_slug):
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
+
+    version_slug = request.GET.get('version', project.default_version)
+    period = request.GET.get('period', 'recent')
+    size = request.GET.get('size', 5)
+
+    try:
+        size = int(size)
+    except ValueError:
+        size = 5
+
+    data = {
+        'version': version_slug,
+        'period': period,
+        'size': size,
+    }
+
+    form = SearchAnalyticsForm(data=data, project=project)
+
+    if version_slug:
+        version_qs = Version.objects.filter(project=project, slug=version_slug)
+
+        if version_qs.exists():
+            version = version_qs.first()
+            search_queries = SearchQuery.objects.filter(
+                project=project,
+                version=version,
+            )
+
+            now = timezone.now()
+
+            if period == 'recent':
+                queries = search_queries.order_by('-modified')
+
+            elif period == 'last-24-hrs':
+                last_24_hrs = now - timezone.timedelta(days=1)
+                queries = search_queries.filter(
+                    modified__gte=last_24_hrs,
+                    modified__lte=now,
+                ).order_by('-count')
+
+            elif period == 'last-48-hrs':
+                last_48_hrs = now - timezone.timedelta(days=2)
+                queries = search_queries.filter(
+                    modified__gte=last_48_hrs,
+                    modified__lte=now,
+                ).order_by('-count')
+        
+            elif period == 'last-7-days':
+                last_7_days = now - timezone.timedelta(days=7)
+                queries = search_queries.filter(
+                    modified__gte=last_7_days,
+                    modified__lte=now,
+                ).order_by('-count')
+        
+            elif period == 'last-1-month':
+                last_30_days = now - timezone.timedelta(days=30)
+                queries = search_queries.filter(
+                    modified__gte=last_30_days,
+                    modified__lte=now,
+                ).order_by('-count')
+
+            else:
+                queries = []
+    else:
+        queries = []
+
+    queries = queries[:size]
+
+    return render(
+        request,
+        'projects/projects_search_analytics.html',
+        { 'form': form, 'project': project, 'queries': queries },
+    )
