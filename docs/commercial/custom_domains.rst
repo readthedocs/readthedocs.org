@@ -1,12 +1,16 @@
 Custom Domains
 ==============
 
+.. note:: These directions are for projects hosted on Read the Docs for Business.
+          For setting up a custom domain on a project hosted on readthedocs.org,
+          please read our :doc:`community documentation </custom_domains>`.
+
 Subdomain support
 -----------------
 
-Once a project is imported under Read the Docs,
+Once a project is imported into Read the Docs,
 by default it's hosted under a subdomain on one of our domains.
-If you need a custom domain, continue on custom domain setup.
+If you need a custom domain, continue on to custom domain setup.
 
 
 Serving documentation with a custom domain

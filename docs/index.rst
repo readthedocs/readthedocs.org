@@ -176,7 +176,7 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`advertising/index` |
   :doc:`Sponsors <sponsors>`
 
-* **Read the Docs for business**:
+* **Read the Docs for Business**:
   :doc:`Support and additional features <commercial/index>`
 
 * **Running your own version of Read the Docs**:
