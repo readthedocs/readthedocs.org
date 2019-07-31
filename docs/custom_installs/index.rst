@@ -11,9 +11,10 @@ please consider :doc:`Read the Docs for Business </commercial/index>`.
 It has those features and more!
 
 .. warning::
-    Read the Docs developers do not support custom installs of our software.
     These documents are maintained by the community, and might not be up to date.
-
+    Read the Docs developers do not support custom installs of our software
+    in our public issue tracker. For additional support of a custom installation,
+    please see our `paid support plans <https://readthedocs.com/services/#open-source-support>`_.
 
 .. toctree::
     :maxdepth: 2
