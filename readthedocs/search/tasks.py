@@ -127,10 +127,14 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
-    """Delete old searches. This is run by celery beat every day."""
+    """
+    Delete old SearchQuery objects.
+
+    This is run by celery beat every day.
+    """
     last_3_months = timezone.now().date() - timezone.timedelta(days=90)
     search_queries_qs = SearchQuery.objects.filter(
-        modified__date__lte=last_3_months,
+        created__date__lte=last_3_months,
     )
 
     if search_queries_qs.exists():
@@ -162,19 +166,8 @@ def record_search_query(project_slug, version_slug, query, total_results):
         return
 
     version = version_qs.first()
-    search_query_qs = SearchQuery.objects.filter(
+    SearchQuery.objects.create(
         project=project,
         version=version,
         query=query,
     )
-
-    if search_query_qs.exists():
-        search_query_obj = search_query_qs.first()
-        search_query_obj.count += 1
-        search_query_obj.save()
-    else:
-        SearchQuery.objects.create(
-            project=project,
-            version=version,
-            query=query,
-        )
