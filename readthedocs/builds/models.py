@@ -1007,10 +1007,6 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             return self.description
         return f'{self.get_action_display()}'
 
-    @property
-    def edit_url(self):
-        raise NotImplementedError
-
     def __str__(self):
         class_name = self.__class__.__name__
         return (

@@ -196,6 +196,7 @@ class VersionAutomationRuleManager(PolymorphicManager):
         last_priority = (
             project.automation_rules
             .values_list('priority', flat=True)
+            .order_by('priority')
             .last()
         )
         if last_priority is None:
