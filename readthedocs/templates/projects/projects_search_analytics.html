@@ -68,8 +68,18 @@
   {% if chart_data.labels and chart_data.int_data %}
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
-    var line_chart_labels = {{ chart_data.labels|safe }}
+    var line_chart_labels = {{ chart_data.labels|safe }};
     var line_chart_data = {{ chart_data.int_data|safe }};
+
+    var ticks_options = {
+      precision: 0
+    }
+
+    // checks if line_chart_data only contains zero.
+    // if yes, set the minimum value to zero
+    if(!(/[^0]/).exec(line_chart_data.join(""))){
+      ticks_options.min = 0;
+    }
 
     var line_chart = new Chart(line_chart, {
       type: "line",
@@ -86,10 +96,7 @@
       options: {
         scales: {
           yAxes: [{
-            ticks: {
-              min: 0,
-              precision: 0
-            }
+            ticks: ticks_options
           }]
         }
       }
@@ -99,11 +106,10 @@
   {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
     // Doughnut chart
     var doughnut_chart = document.getElementById("analytics-doughnut-top-queries").getContext("2d");
-    {{ doughnut_chart_data.labels|safe }}
     var doughnut_labels = {{ doughnut_chart_data.labels|safe }};
     var doughnut_data = {{ doughnut_chart_data.int_data|safe }};
     colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675",
-                "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ]
+                "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ];
     var doughnut_chart = new Chart(doughnut_chart, {
       type: "doughnut",
       data: {
@@ -135,7 +141,7 @@
           }
         }
       }
-    })
+    });
   {% endif %}
 
 {% endblock %}
