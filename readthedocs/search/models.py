@@ -1,6 +1,7 @@
 """Search Queries."""
 
 from django.db import models
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -30,10 +31,6 @@ class SearchQuery(TimeStampedModel):
         _('Query'),
         max_length=4092,
     )
-    count = models.PositiveIntegerField(
-        _('No. of times this query was searched'),
-        default=1,
-    )
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
@@ -45,6 +42,18 @@ class SearchQuery(TimeStampedModel):
 
     @classmethod
     def generate_queries_count_for_last_thirty_days(cls, project_slug, version_slug):
+        """
+        Returns the total queries performed each day of the last 30 days.
+
+        Structure of returned data is compatible to make graphs.
+        Sample returned data::
+            {
+                'labels': ['01 Jul', '02 Jul', '03 Jul'],
+                'int_data': [150, 200, 143]
+            }
+        This data shows that there were 150 searches were made on 01 July,
+        200 searches on 02 July and 143 searches on 03 July.
+        """
         yesterday = timezone.now().date() - timezone.timedelta(days=1)
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
         last_30_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(30)]
@@ -52,12 +61,13 @@ class SearchQuery(TimeStampedModel):
         qs = cls.objects.filter(
             project__slug=project_slug,
             version__slug=version_slug,
-            modified__date__lte=yesterday,
-            modified__date__gte=last_30th_day,
-        ).order_by('-modified')
+            created__date__lte=yesterday,
+            created__date__gte=last_30th_day,
+        ).order_by('-created')
 
+        # list containing the total number of queries each day for the past 30 days
         count_data = [
-            qs.filter(modified__date=date).count()
+            qs.filter(created__date=date).count()
             for date in last_30_days_iter
         ]
 
@@ -77,19 +87,44 @@ class SearchQuery(TimeStampedModel):
 
     @classmethod
     def generate_distribution_of_top_queries(cls, project_slug, version_slug, n):
+        """
+        Returns top `n` most searched queries with their count.
+
+        Structure of returned data is compatible to make graphs.
+        Sample returned data::
+            {
+                'labels': ['read the docs', 'documentation', 'sphinx'],
+                'int_data': [150, 200, 143]
+            }
+        This data shows that `read the docs` was searched 150 times,
+        `documentation` was searched 200 times and `sphinx` was searched 143 times.
+        """
         qs = cls.objects.filter(
             project__slug=project_slug,
             version__slug=version_slug
-        ).order_by('-count')
+        )
 
-        values = qs.values_list('query', 'count')
-        total_count = sum((value[1] for value in values))
-        count_of_top_n = sum([value[1] for value in values][:n])
+        # total searches ever made
+        total_count = len(qs)
+
+        # search queries with their count
+        # Eg. [('read the docs', 150), ('documentation', 200), ('sphinx', 143')]
+        count_of_each_query = (
+            qs.values('query')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+            .values_list('query', 'count')
+        )
+
+        # total number of searches made for top `n` queries
+        count_of_top_n = sum([value[1] for value in count_of_each_query][:n])
+
+        # total number of remaining searches
         count_of_other = total_count - count_of_top_n
 
         final_data = {
-            'labels': [value[0] for value in values][:n],
-            'int_data': [value[1] for value in values][:n],
+            'labels': [value[0] for value in count_of_each_query][:n],
+            'int_data': [value[1] for value in count_of_each_query][:n],
         }
 
         if count_of_other:
