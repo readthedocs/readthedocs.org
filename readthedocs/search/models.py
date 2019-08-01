@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -65,13 +66,19 @@ class SearchQuery(TimeStampedModel):
             created__date__gte=last_30th_day,
         ).order_by('-created')
 
-        # list containing the total number of queries each day for the past 30 days
-        count_data = [
-            qs.filter(created__date=date).count()
-            for date in last_30_days_iter
-        ]
+        # dict containing the total number of queries
+        # of each day for the past 30 days (if present in database).
+        count_dict = dict(
+            qs.annotate(created_date=TruncDate('created'))
+            .values('created_date')
+            .order_by('created_date')
+            .annotate(count=Count('id'))
+            .values_list('created_date', 'count')
+        )
 
-        # format the date string to more readable form
+        count_data = [count_dict.get(date) or 0 for date in last_30_days_iter]
+
+        # format the date value to a more readable form
         # Eg. `16 Jul`
         last_30_days_str = [
             timezone.datetime.strftime(date, '%d %b')
