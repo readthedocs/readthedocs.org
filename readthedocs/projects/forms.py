@@ -4,7 +4,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, HTML, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -561,7 +561,7 @@ class TranslationBaseForm(forms.Form):
         ) for project in self.get_translation_queryset().all()]
 
     def clean_project(self):
-        translation_project_slug = self.cleaned_data['project']
+        translation_slug = self.cleaned_data['project']
 
         # Ensure parent project isn't already itself a translation
         if self.parent.main_language_project is not None:
@@ -570,41 +570,40 @@ class TranslationBaseForm(forms.Form):
                 (_(msg).format(project=self.parent.slug)),
             )
 
-        project_translation_qs = self.get_translation_queryset().filter(
-            slug=translation_project_slug,
+        translation = (
+            self.get_translation_queryset()
+            .filter(slug=translation_slug)
+            .first()
         )
-        if not project_translation_qs.exists():
+        if not translation:
             msg = 'Project "{project}" does not exist.'
             raise forms.ValidationError(
-                (_(msg).format(project=translation_project_slug)),
+                (_(msg).format(project=translation_slug)),
             )
-        self.translation = project_translation_qs.first()
-        if self.translation.language == self.parent.language:
+        if translation.language == self.parent.language:
             msg = ('Both projects can not have the same language ({lang}).')
             raise forms.ValidationError(
                 _(msg).format(lang=self.parent.get_language_display()),
             )
 
-        # yapf: disable
         exists_translation = (
             self.parent.translations
-            .filter(language=self.translation.language)
+            .filter(language=translation.language)
             .exists()
         )
-        # yapf: enable
         if exists_translation:
             msg = ('This project already has a translation for {lang}.')
             raise forms.ValidationError(
-                _(msg).format(lang=self.translation.get_language_display()),
+                _(msg).format(lang=translation.get_language_display()),
             )
-        is_parent = self.translation.translations.exists()
+        is_parent = translation.translations.exists()
         if is_parent:
             msg = (
                 'A project with existing translations '
                 'can not be added as a project translation.'
             )
             raise forms.ValidationError(_(msg))
-        return translation_project_slug
+        return translation_slug
 
     def get_translation_queryset(self):
         queryset = (
@@ -615,7 +614,12 @@ class TranslationBaseForm(forms.Form):
         return queryset
 
     def save(self):
-        project = self.parent.translations.add(self.translation)
+        translation_slug = self.cleaned_data['project']
+        translation = (
+            self.get_translation_queryset()
+            .get(slug=translation_slug)
+        )
+        project = self.parent.translations.add(translation)
         # Run symlinking and other sync logic to make sure we are in a good
         # state.
         self.parent.save()
