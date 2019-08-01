@@ -102,8 +102,8 @@
     {{ doughnut_chart_data.labels|safe }}
     var doughnut_labels = {{ doughnut_chart_data.labels|safe }};
     var doughnut_data = {{ doughnut_chart_data.int_data|safe }};
-    colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675", "#fdcb6e", "#636e72", "#e17055",
-                "#e84393", "#00cec9", "#eb2f06", "#4a69bd", "#38ada9", "#b8e994","#78e08f"]
+    colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675",
+                "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ]
     var doughnut_chart = new Chart(doughnut_chart, {
       type: "doughnut",
       data: {
