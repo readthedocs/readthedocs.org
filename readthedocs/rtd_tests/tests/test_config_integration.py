@@ -368,7 +368,10 @@ class TestLoadConfigV2:
             config=load_yaml_config(self.version),
             project=self.project,
             version=self.version,
-            build={'id': 99, 'state': BUILD_STATE_TRIGGERED}
+            build={
+                'id': 99,
+                'state': BUILD_STATE_TRIGGERED,
+            },
         )
         return update_docs
 
