@@ -127,6 +127,7 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
 
 @app.task(queue='web')
 def delete_old_search_queries_from_db():
+    """Delete old searches. This is run by celery beat every day."""
     last_3_months = timezone.now().date() - timezone.timedelta(days=90)
     search_queries_qs = SearchQuery.objects.filter(
         modified__date__lte=last_3_months,

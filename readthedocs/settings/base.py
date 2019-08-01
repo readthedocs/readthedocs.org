@@ -326,14 +326,9 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
-        'every-three-month-delete-old-search-queries': {
+        'every-day-delete-old-search-queries': {
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
-            'schedule': crontab(
-                minute=0,
-                hour=0,
-                day_of_month=1,
-                month_of_year='*/4'
-            ),
+            'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
         }
     }
