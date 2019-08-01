@@ -41,6 +41,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'

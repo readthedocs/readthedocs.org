@@ -5,8 +5,8 @@ Importing Your Documentation
    :description lang=en: Import your existing technical documentation from version control into Read the Docs.
 
 
-To import a public documentation repository, visit your `Read the Docs dashboard`_ and click Import_. For private
-repositories, use the Read the Docs  :doc:`commercial solution <../commercial/index>`.
+To import a public documentation repository, visit your `Read the Docs dashboard`_ and click Import_.
+For private repositories, please use :doc:`Read the Docs for Business </commercial/index>`.
 
 
 If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,

@@ -16,7 +16,9 @@ def parse_version_failsafe(version_string):
     """
     Parse a version in string form and return Version object.
 
-    If there is an error parsing the string, ``None`` is returned.
+    If there is an error parsing the string
+    or the version doesn't have a "comparable" version number,
+    ``None`` is returned.
 
     :param version_string: version as string object (e.g. '3.10.1')
     :type version_string: str or unicode
@@ -30,13 +32,21 @@ def parse_version_failsafe(version_string):
     else:
         uni_version = version_string
 
+    final_form = ''
+
     try:
         normalized_version = unicodedata.normalize('NFKD', uni_version)
         ascii_version = normalized_version.encode('ascii', 'ignore')
         final_form = ascii_version.decode('ascii')
         return Version(final_form)
-    except (UnicodeError, InvalidVersion):
-        return None
+    except InvalidVersion:
+        # Handle the special case of 1.x, 2.x or 1.0.x, 1.1.x
+        if final_form and '.x' in final_form:
+            return parse_version_failsafe(final_form.replace('.x', '.0'))
+    except UnicodeError:
+        pass
+
+    return None
 
 
 def comparable_version(version_string):
@@ -68,6 +78,9 @@ def comparable_version(version_string):
 def sort_versions(version_list):
     """
     Take a list of Version models and return a sorted list.
+
+    This only considers versions with comparable version numbers.
+    It excludes versions like "latest" and "stable".
 
     :param version_list: list of Version models
     :type version_list: list(readthedocs.builds.models.Version)

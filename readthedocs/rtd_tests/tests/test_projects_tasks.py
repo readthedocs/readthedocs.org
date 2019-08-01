@@ -138,14 +138,22 @@ class SendBuildStatusTests(TestCase):
 
     @patch('readthedocs.projects.tasks.send_build_status')
     def test_send_external_build_status_with_external_version(self, send_build_status):
-        send_external_build_status(self.external_version,
-                                   self.external_build.id, BUILD_STATUS_SUCCESS)
+        send_external_build_status(
+            self.external_version.type, self.external_build.id,
+            self.external_build.commit, BUILD_STATUS_SUCCESS
+        )
 
-        send_build_status.delay.assert_called_once_with(self.external_build.id, BUILD_STATUS_SUCCESS)
+        send_build_status.delay.assert_called_once_with(
+            self.external_build.id,
+            self.external_build.commit,
+            BUILD_STATUS_SUCCESS
+        )
 
     @patch('readthedocs.projects.tasks.send_build_status')
     def test_send_external_build_status_with_internal_version(self, send_build_status):
-        send_external_build_status(self.internal_version,
-                                   self.internal_build.id, BUILD_STATUS_SUCCESS)
+        send_external_build_status(
+            self.internal_version.type, self.internal_build.id,
+            self.external_build.commit, BUILD_STATUS_SUCCESS
+        )
 
         send_build_status.delay.assert_not_called()
