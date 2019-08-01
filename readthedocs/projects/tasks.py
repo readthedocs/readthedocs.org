@@ -1917,7 +1917,7 @@ def send_build_status(build_pk, commit, status):
             for account in user_accounts:
                 # Currently we only support GitHub Status API
                 if account.provider_name == 'GitHub':
-                    success = account.send_build_status(build, status)
+                    success = account.send_build_status(build, commit, status)
                     if success:
                         return True
 
