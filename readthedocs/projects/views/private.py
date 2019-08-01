@@ -917,11 +917,6 @@ def search_analytics_view(request, project_slug):
     period = request.GET.get('period', 'recent')
     size = request.GET.get('size', 5)
 
-    try:
-        size = int(size)
-    except ValueError:
-        size = 5
-
     data = {
         'version': version_slug,
         'period': period,
@@ -936,6 +931,8 @@ def search_analytics_view(request, project_slug):
     queries = []
 
     if form.is_valid():
+
+        size = int(size)
 
         if version_slug:
             version_qs = Version.objects.filter(project=project, slug=version_slug)

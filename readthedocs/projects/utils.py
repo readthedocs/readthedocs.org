@@ -66,11 +66,12 @@ def _get_search_queries_from_queryset(queryset, sort=True):
     )
 
     if sort:
-        # If sort is true, order the results by ``count``.
+        # If ``sort``` is true, order the results by ``count``.
         count_data = count_data.order_by('-count')
 
     final_values = count_data.values_list('query', flat=True)
 
     # This is done to prevent duplication of queries in the result.
+    # and to preserve the order.
     final_values = list(OrderedDict.fromkeys(final_values))
     return final_values
