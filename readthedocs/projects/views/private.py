@@ -996,6 +996,14 @@ def search_analytics_view(request, project_slug):
                     )
                     queries = _get_search_queries_from_queryset(qs)
 
+                elif period == 'last-3-months':
+                    last_3_months = now - timezone.timedelta(days=90)
+                    qs = search_queries_qs.filter(
+                        created__gte=last_3_months,
+                        created__lte=now,
+                    )
+                    queries = _get_search_queries_from_queryset(qs)
+
         queries = queries[:size]
 
     return render(

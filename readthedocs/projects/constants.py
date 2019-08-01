@@ -363,6 +363,7 @@ SEARCH_ANALYTICS_PARAMS = {
         ('last-48-hrs', 'Top Queries of Past 48 Hrs'),
         ('last-7-days', 'Top Queries of Past 7 Days'),
         ('last-1-month', 'Top Queries of Past 1 Month'),
+        ('last-3-months', 'Top Queries of Past 3 Months'),
     ),
     'size': (
         (5, 5),
