@@ -4,6 +4,9 @@ from django.apps import apps
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 from .models import SearchQuery
 from .utils import _get_index, _get_document
@@ -132,3 +135,39 @@ def delete_old_search_queries_from_db():
     if search_queries_qs.exists():
         log.info('Deleting search queries for last 3 months. Total: %s', search_queries_qs.count())
         search_queries_qs.delete()
+
+
+@app.task(queue='web')
+def record_search_query(project_slug, version_slug, query, total_results):
+    """Record search query in database."""
+    if not project_slug or not version_slug or not query or not total_results:
+        return
+
+    project_qs = Project.objects.filter(slug=project_slug)
+
+    if not project_qs.exists():
+        return
+
+    project = project_qs.first()
+    version_qs = Version.objects.filter(project=project, slug=version_slug)
+
+    if not version_qs.exists():
+        return
+
+    version = version_qs.first()
+    search_query_qs = SearchQuery.objects.filter(
+        project=project,
+        version=version,
+        query=query,
+    )
+
+    if search_query_qs.exists():
+        search_query_obj = search_query_qs.first()
+        search_query_obj.count += 1
+        search_query_obj.save()
+    else:
+        SearchQuery.objects.create(
+            project=project,
+            version=version,
+            query=query,
+        )

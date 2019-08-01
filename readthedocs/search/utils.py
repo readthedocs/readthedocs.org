@@ -10,7 +10,6 @@ from django_elasticsearch_dsl.registries import registry
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.models import SearchQuery
 
 
 log = logging.getLogger(__name__)
@@ -169,38 +168,3 @@ def _get_sorted_results(results, source_key='_source'):
     ]
 
     return sorted_results
-
-
-def record_search_query(project_slug, version_slug, query, total_results):
-    """Record search query in database."""
-    if not project_slug or not version_slug or not query or not total_results:
-        return
-
-    project_qs = Project.objects.filter(slug=project_slug)
-
-    if not project_qs.exists():
-        return
-
-    project = project_qs.first()
-    version_qs = Version.objects.filter(project=project, slug=version_slug)
-
-    if not version_qs.exists():
-        return
-
-    version = version_qs.first()
-    search_query_qs = SearchQuery.objects.filter(
-        project=project,
-        version=version,
-        query=query,
-    )
-
-    if search_query_qs.exists():
-        search_query_obj = search_query_qs.first()
-        search_query_obj.count += 1
-        search_query_obj.save()
-    else:
-        SearchQuery.objects.create(
-            project=project,
-            version=version,
-            query=query,
-        )

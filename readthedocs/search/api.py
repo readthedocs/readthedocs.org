@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search import utils
+from readthedocs.search import utils, tasks
 
 
 log = logging.getLogger(__name__)
@@ -163,18 +163,12 @@ class PageSearchAPIView(generics.ListAPIView):
         query = self.request.query_params.get('q', '')
         total_results = response.data.get('count', 0)
 
-        try:
-            utils.record_search_query(
-                project_slug,
-                version_slug,
-                query,
-                total_results,
-            )
-        except Exception:
-            log.exception('[%s] [%s] [Query: %s] Error recording search query in database.' % (
-                project_slug,
-                version_slug,
-                query,
-            ))
+        # record the search query with a celery task
+        tasks.record_search_query.delay(
+            project_slug,
+            version_slug,
+            query,
+            total_results,
+        )
 
         return response
