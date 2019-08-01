@@ -8,7 +8,6 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
-from .models import SearchQuery
 from .utils import _get_index, _get_document
 
 log = logging.getLogger(__name__)

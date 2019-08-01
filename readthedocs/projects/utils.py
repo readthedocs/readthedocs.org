@@ -60,7 +60,7 @@ def _get_search_queries_from_queryset(queryset, sort=True):
     :returns: list of search queries
     :rtype: list
     """
-    count_data =  (
+    count_data = (
         queryset.values('query')
         .annotate(count=Count('id'))
     )
