@@ -44,7 +44,7 @@ class SearchQuery(TimeStampedModel):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
 
     @classmethod
-    def generate_line_chart_data(cls, project_slug, version_slug):
+    def generate_queries_count_for_last_thirty_days(cls, project_slug, version_slug):
         yesterday = timezone.now().date() - timezone.timedelta(days=1)
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
         last_30_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(30)]
@@ -72,5 +72,28 @@ class SearchQuery(TimeStampedModel):
             'labels': last_30_days_str,
             'int_data': count_data,
         }
+
+        return final_data
+
+    @classmethod
+    def generate_distribution_of_top_queries(cls, project_slug, version_slug, n):
+        qs = cls.objects.filter(
+            project__slug=project_slug,
+            version__slug=version_slug
+        ).order_by('-count')
+
+        values = qs.values_list('query', 'count')
+        total_count = sum((value[1] for value in values))
+        count_of_top_n = sum([value[1] for value in values][:n])
+        count_of_other = total_count - count_of_top_n
+
+        final_data = {
+            'labels': [value[0] for value in values][:n],
+            'int_data': [value[1] for value in values][:n],
+        }
+
+        if count_of_other:
+            final_data['labels'].append('Other queries')
+            final_data['int_data'].append(count_of_other)
 
         return final_data

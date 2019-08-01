@@ -928,6 +928,7 @@ def search_analytics_view(request, project_slug):
 
     form = SearchAnalyticsForm(data=data, project=project)
     chart_data = {}
+    doughnut_chart_data = {}
     queries = []
 
     if version_slug:
@@ -941,9 +942,14 @@ def search_analytics_view(request, project_slug):
             )
 
             # data for plotting the line-chart
-            chart_data = SearchQuery.generate_line_chart_data(
+            chart_data = SearchQuery.generate_queries_count_for_last_thirty_days(
                 project_slug,
                 version_slug
+            )
+            doughnut_chart_data = SearchQuery.generate_distribution_of_top_queries(
+                project_slug,
+                version_slug,
+                10,
             )
             now = timezone.now()
 
@@ -979,15 +985,6 @@ def search_analytics_view(request, project_slug):
                 ).order_by('-count')
 
     queries = queries[:size]
-
-    # prepare doughnut chart data
-    doughnut_chart_data = {}
-    if queries:
-        query_list = queries.values_list('query', flat=True)
-        query_count_list = queries.values_list('count', flat=True)
-
-        doughnut_chart_data['labels'] = list(query_list)[:10]
-        doughnut_chart_data['int_data'] = list(query_count_list)[:10]
 
     return render(
         request,
