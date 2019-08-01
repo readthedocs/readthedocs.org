@@ -141,6 +141,12 @@ def delete_old_search_queries_from_db():
 def record_search_query(project_slug, version_slug, query, total_results):
     """Record search query in database."""
     if not project_slug or not version_slug or not query or not total_results:
+        log.debug(
+            'Not recording the search query. Passed arguments: '
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s' % (
+                project_slug, version_slug, query, total_results
+            )
+        )
         return
 
     project_qs = Project.objects.filter(slug=project_slug)
