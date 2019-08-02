@@ -51,7 +51,7 @@ def _get_search_queries_from_queryset(queryset, sort=True):
     Return list of search queries from queryset.
 
     If ``sort`` is True, resulted list will be ordered in the descending order,
-    from most searched query to least search query.
+    from most searched query to least search query (and alphabetically in case of conflict).
     Sample returned data: ['query1', 'query2', 'query3']
     :param queryset: Queryset of the class SearchQuery
     :type queryset: projects.querysets.RelatedProjectQuerySetBase
@@ -67,7 +67,8 @@ def _get_search_queries_from_queryset(queryset, sort=True):
 
     if sort:
         # If ``sort``` is true, order the results by ``count``.
-        count_data = count_data.order_by('-count')
+        # If ``count`` is same, then order the results alphabetically.
+        count_data = count_data.order_by('-count', 'query')
 
     final_values = count_data.values_list('query', flat=True)
 
