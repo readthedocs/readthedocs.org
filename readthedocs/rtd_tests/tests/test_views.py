@@ -1,9 +1,11 @@
 from urllib.parse import urlsplit
 
 import mock
+import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
@@ -13,6 +15,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.models import SearchQuery
 
 
 class Testmaker(TestCase):
@@ -331,3 +334,141 @@ class HomepageViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(expected_count, response.context['projects_count'])
+
+
+class TestSearchAnalyticsView(TestCase):
+
+    """Tests for search analytics page."""
+
+    fixtures = ['eric', 'test_data', 'test_search_queries']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        self.version = self.pip.versions.order_by('id').first()
+        self.analyics_page = reverse('projects_search_analytics', args=[self.pip.slug])
+
+        test_time = timezone.datetime(2019, 8, 2, 12, 0)
+        self.test_time = timezone.make_aware(test_time)
+
+    def test_recent_queries(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['advertising', 'github', 'hello', 'elasticsearch', 'read the docs',
+                                    'sphinx', 'search', 'documentation', 'hello world']
+
+            resp = self.client.get(self.analyics_page, {'version':self.version.slug, 'size': 100})
+            self.assertEqual(
+                expected_result,
+                resp.context['queries'],
+            )
+
+    def test_top_queries_past_24_hrs(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['advertising', 'sphinx', 'elasticsearch',
+                                'github', 'hello', 'read the docs', 'search']
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'size': 100, 'period': 'last-24-hrs'}
+            )
+
+            self.assertEqual(
+                expected_result,
+                resp.context['queries']
+            )
+
+    def test_top_queries_past_48_hrs(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['read the docs', 'advertising', 'elasticsearch',
+                                'sphinx', 'github', 'hello', 'search']
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'size': 100, 'period': 'last-48-hrs'}
+            )
+
+            self.assertEqual(
+                expected_result,
+                resp.context['queries'],
+            )
+
+    def test_top_queries_past_1_month(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['documentation', 'read the docs', 'advertising',
+                                'elasticsearch','sphinx', 'github', 'hello', 'search']
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'size': 100, 'period': 'last-1-month'}
+            )
+
+            self.assertEqual(
+                expected_result,
+                resp.context['queries'],
+            )
+
+    def test_top_queries_past_3_months(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['hello world', 'documentation', 'read the docs','advertising',
+                                'elasticsearch', 'sphinx', 'github', 'hello', 'search']
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'size': 100, 'period': 'last-3-months'}
+            )
+
+            self.assertEqual(
+                expected_result,
+                resp.context['queries'],
+            )
+
+    def test_distribution_of_top_queries(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = {
+                'labels': ['hello world', 'documentation', 'read the docs', 'advertising',
+                            'elasticsearch', 'sphinx', 'github', 'hello', 'search'],
+                'int_data': [5, 4, 4, 3, 2, 2, 1, 1, 1],
+            }
+            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
+
+            self.assertDictEqual(
+                expected_result,
+                resp.context['doughnut_chart_data'],
+            )
+
+    def test_count_of_queries_for_last_30_days(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result_data = (
+                [0] * 12 +
+                [1, 1, 2] +
+                [0] * 13 +
+                [4, 3]
+            )
+            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
+
+            self.assertListEqual(
+                expected_result_data,
+                resp.context['chart_data']['int_data'],
+            )
+            self.assertEqual(
+                '03 Jul',
+                resp.context['chart_data']['labels'][0],
+            )
+            self.assertEqual(
+                '01 Aug',
+                resp.context['chart_data']['labels'][-1],
+            )
