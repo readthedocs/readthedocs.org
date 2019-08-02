@@ -157,7 +157,7 @@ def delete_external_version(project, identifier, verbose_name):
     return None
 
 
-def build_external_version(project, version):
+def build_external_version(project, version, commit):
     """
     Where we actually trigger builds for external versions.
 
@@ -173,6 +173,6 @@ def build_external_version(project, version):
         project.slug,
         version.slug,
     )
-    trigger_build(project=project, version=version, force=True)
+    trigger_build(project=project, version=version, commit=commit, force=True)
 
     return version.verbose_name

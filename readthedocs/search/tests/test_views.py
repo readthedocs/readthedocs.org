@@ -120,7 +120,7 @@ class TestPageSearch(object):
 
     def _get_highlighted_words(self, string):
         highlighted_words = re.findall(
-            '<em>(.*?)</em>',
+            '<span>(.*?)</span>',
             string
         )
         return highlighted_words
@@ -238,6 +238,7 @@ class TestPageSearch(object):
         highlight = self._get_highlight(first_result, data_type)
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
         for word in highlighted_words:
             assert word.lower() in query.lower()
 
@@ -271,6 +272,7 @@ class TestPageSearch(object):
         highlight = self._get_highlight(results[0], 'sections.content')
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
         for word in highlighted_words:
             assert word.lower() in query.lower()
 

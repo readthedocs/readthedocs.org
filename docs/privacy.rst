@@ -1,6 +1,10 @@
 Privacy Levels
 ==============
 
+.. note::
+    For private documentation or docs from private repositories,
+    use :doc:`Read the Docs for Business </commercial/index>`.
+
 Read the Docs supports 3 different privacy levels on 2 different objects;
 Public, Private on Projects and Versions.
 

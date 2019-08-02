@@ -1,7 +1,8 @@
 Sharing
 -------
 
-.. note:: This feature only exists on our Business offering at `readthedocs.com <https://readthedocs.com/>`_.
+.. note::
+    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`_.
 
 You can share your project with users outside of your company.
 There are two ways to do this:

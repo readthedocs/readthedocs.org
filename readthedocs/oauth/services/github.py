@@ -13,6 +13,7 @@ from requests.exceptions import RequestException
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
+    BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
     RTD_BUILD_STATUS_API_NAME
 )
@@ -315,7 +316,7 @@ class GitHubService(Service):
             )
             return (False, resp)
 
-    def send_build_status(self, build, state):
+    def send_build_status(self, build, commit, state):
         """
         Create GitHub commit status for project.
 
@@ -323,21 +324,27 @@ class GitHubService(Service):
         :type build: Build
         :param state: build state failure, pending, or success.
         :type state: str
+        :param commit: commit sha of the pull request
+        :type commit: str
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
         session = self.get_session()
         project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        build_sha = build.version.identifier
 
         # select the correct state and description.
         github_build_state = SELECT_BUILD_STATUS[state]['github']
         description = SELECT_BUILD_STATUS[state]['description']
 
+        target_url = build.get_full_url()
+
+        if state == BUILD_STATUS_SUCCESS:
+            target_url = build.version.get_absolute_url()
+
         data = {
             'state': github_build_state,
-            'target_url': build.get_full_url(),
+            'target_url': target_url,
             'description': description,
             'context': RTD_BUILD_STATUS_API_NAME
         }
@@ -346,7 +353,7 @@ class GitHubService(Service):
 
         try:
             resp = session.post(
-                f'https://api.github.com/repos/{owner}/{repo}/statuses/{build_sha}',
+                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )

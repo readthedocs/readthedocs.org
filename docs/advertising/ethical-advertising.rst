@@ -175,8 +175,8 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
    * Change your advertising settings
 
 4. If you are part of a company that uses Read the Docs to host documentation for a commercial product,
-   we offer `paid plans`_ on readthedocs.com that offer a completely ad-free experience, additional build resources,
-   and features like CDN support and private documentation.
+   we offer :doc:`Read the Docs for Business </commercial/index>` that offers a completely ad-free experience,
+   additional build resources, and other great features like CDN support and private documentation.
 
 5. If you would like to completely remove advertising from your open source project,
    but our commercial plans don't seem like the right fit,
