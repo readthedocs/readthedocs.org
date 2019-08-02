@@ -55,3 +55,21 @@ class InvalidProjectWebhookNotification(SiteNotification):
             ),
         })
         return context
+
+
+class SendBuildStatusFailureNotification(SiteNotification):
+
+    context_object_name = 'project'
+    failure_level = ERROR_PERSISTENT
+    failure_message = _(
+        'Could not send {{ provider.name }} build status report for {{ project.name }}. '
+        'Make sure you have the correct {{ provider.name }} repository permissions</a> and '
+        'your <a href="{{ url_connect_account }}"> {{ provider.name }} account</a> is connected to ReadtheDocs.'
+    )  # noqa
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({
+            'url_connect_account': reverse('socialaccount_connections'),
+        })
+        return context

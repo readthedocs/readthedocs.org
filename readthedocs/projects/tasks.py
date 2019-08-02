@@ -15,6 +15,7 @@ import socket
 from collections import Counter, defaultdict
 
 import requests
+from allauth.socialaccount.providers import registry as allauth_registry
 from celery.exceptions import SoftTimeLimitExceeded
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -63,6 +64,7 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import SendBuildStatusFailureNotification
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.models import APIProject, Feature
@@ -1897,7 +1899,7 @@ def send_build_status(build_pk, commit, status):
                 build.project.remote_repository.account
             )
 
-            # send Status report using the API.
+            # Send status report using the API.
             service.send_build_status(build, commit, status)
 
     except RemoteRepository.DoesNotExist:
@@ -1910,8 +1912,10 @@ def send_build_status(build_pk, commit, status):
             log.warning('There are no registered services in the application.')
             return False
 
+        users = build.project.users.all()
+
         # Try to loop through all project users to get their social accounts
-        for user in build.project.users.all():
+        for user in users:
             user_accounts = service.for_user(user)
             # Try to loop through users all social accounts to send a successful request
             for account in user_accounts:
@@ -1920,6 +1924,19 @@ def send_build_status(build_pk, commit, status):
                     success = account.send_build_status(build, commit, status)
                     if success:
                         return True
+
+        provider = allauth_registry.by_id(service.adapter.provider_id)
+
+        for user in users:
+            # Send Site notification about Build status reporting failure
+            # to all the users of the project.
+            notification = SendBuildStatusFailureNotification(
+                context_object=build.project,
+                extra_context={'provider': provider},
+                user=user,
+                success=False,
+            )
+            notification.send()
 
         log.info(
             'No social account or repository permission available for %s',
