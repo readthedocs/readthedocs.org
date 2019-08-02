@@ -784,12 +784,13 @@ class IntegrationsTests(TestCase):
         self.github_payload = {
             'ref': 'master',
         }
+        self.commit = "ec26de721c3235aad62de7213c562f8c821"
         self.github_pull_request_payload = {
             "action": "opened",
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": "ec26de721c3235aad62de7213c562f8c821"
+                    "sha": self.commit
                 }
             }
         }
@@ -932,7 +933,8 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project, version=external_version
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
 
@@ -963,7 +965,8 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project, version=external_version
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
         )
         self.assertTrue(external_version)
 
@@ -1007,7 +1010,8 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['project'], self.project.slug)
         self.assertEqual(resp.data['versions'], [external_version.verbose_name])
         core_trigger_build.assert_called_once_with(
-            force=True, project=self.project, version=external_version
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
         )
         # `synchronize` webhook event updated the identifier (commit hash)
         self.assertNotEqual(prev_identifier, external_version.identifier)

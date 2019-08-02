@@ -219,7 +219,9 @@ class WebhookMixin:
             project, identifier, verbose_name
         )
         # returns external version verbose_name (pull/merge request number)
-        to_build = build_external_version(project, external_version)
+        to_build = build_external_version(
+            project=project, version=external_version, commit=identifier
+        )
 
         return {
             'build_triggered': True,
