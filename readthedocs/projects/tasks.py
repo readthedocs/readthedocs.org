@@ -1889,10 +1889,11 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
-    service_class = build.project.git_service_class()
     provider_name = build.project.git_provider_name
 
     if provider_name == 'GitHub':
+        # get the service class for the project e.g: GitHubService.
+        service_class = build.project.git_service_class()
         try:
             service = service_class(
                 build.project.remote_repository.users.first(),
