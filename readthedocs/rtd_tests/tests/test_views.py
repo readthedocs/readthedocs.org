@@ -14,7 +14,7 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.search.models import SearchQuery
 
 
@@ -318,6 +318,8 @@ class TestSearchAnalyticsView(TestCase):
 
         test_time = timezone.datetime(2019, 8, 2, 12, 0)
         self.test_time = timezone.make_aware(test_time)
+
+        get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
 
     def test_recent_queries(self):
         with mock.patch('django.utils.timezone.now') as test_time:
