@@ -11,45 +11,55 @@
 {% block project_edit_content_header %}{% trans "Search Analytics" %}{% endblock %}
 
 {% block project_edit_content %}
-  <p>
-    Use the below form to get the required search analytics for your docs.
-  </p>
+  {% if show_analytics %}
+    <p>
+      Use the below form to get the required search analytics for your docs.
+    </p>
 
-  <form method="get">
-    {{ form.as_p }}
-    <button type="submit">Get Analytics</button>
-  </form>
+    <form method="get">
+      {{ form.as_p }}
+      <button type="submit">Get Analytics</button>
+    </form>
 
-  <h3>Results:</h3>
-  <div class="module-list">
-    <div class="module-list-wrapper">
-      <ul>
-        {% for query in queries %}
-          <li class="module-item">
-              {{ query }}
-          </li>
-        {% empty %}
-          <li class="module-item">
-            <p class="quiet">
-              {% trans 'No date available.' %}
-            </p>
-          </li>
-        {% endfor %}
-      </ul>
+    <h3>Results:</h3>
+    <div class="module-list">
+      <div class="module-list-wrapper">
+        <ul>
+          {% for query in queries %}
+            <li class="module-item">
+                {{ query }}
+            </li>
+          {% empty %}
+            <li class="module-item">
+              <p class="quiet">
+                {% trans 'No date available.' %}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-  </div>
 
-  <br/>
+    <br/>
 
-  {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
-    <h2>Distribution of top queries</h2>
-    <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
-  {% endif %}
+    {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
+      <h2>Distribution of top queries</h2>
+      <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
+    {% endif %}
 
-  <br/>
-  {% if chart_data.labels and chart_data.int_data %}
-    <h2>Overview of the past 30 days:</h2>
-    <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
+    <br/>
+    {% if chart_data.labels and chart_data.int_data %}
+      <h2>Overview of the past 30 days:</h2>
+      <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
+    {% endif %}
+  {% else %}
+    <p class="empty">
+      Hey there! This feature is currently in beta state and is available under a
+      <a href="https://docs.readthedocs.io/page/guides/feature-flags.html#available-flags">feature flag</a>
+      In case you want to test this feature and help giving us feedback,
+      please contact us via
+      <a href="https://github.com/readthedocs/readthedocs.org/issues/new?title=Request%20to%20enable%20SEARCH_ANALYTICS%20feature%20flag%20for%20project%20{{ project.slug }}">GitHub issues</a>.
+    </p>
   {% endif %}
 {% endblock %}
 
@@ -65,7 +75,7 @@
 
 {% block footerjs %}
 
-  {% if chart_data.labels and chart_data.int_data %}
+  {% if chart_data.labels and chart_data.int_data and show_analytics %}
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
     var line_chart_labels = {{ chart_data.labels|safe }};
@@ -103,7 +113,7 @@
     });
   {% endif %}
 
-  {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
+  {% if doughnut_chart_data.labels and doughnut_chart_data.int_data and show_analytics %}
     // Doughnut chart
     var doughnut_chart = document.getElementById("analytics-doughnut-top-queries").getContext("2d");
     var doughnut_labels = {{ doughnut_chart_data.labels|safe }};

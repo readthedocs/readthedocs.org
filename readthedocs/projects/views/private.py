@@ -53,6 +53,7 @@ from readthedocs.projects.models import (
     Domain,
     EmailHook,
     EnvironmentVariable,
+    Feature,
     Project,
     ProjectRelationship,
     WebHook,
@@ -913,6 +914,16 @@ def search_analytics_view(request, project_slug):
         slug=project_slug,
     )
 
+    if not project.has_feature(Feature.SEARCH_ANALYTICS):
+        return render (
+            request,
+            'projects/projects_search_analytics.html',
+            {
+                'project': project,
+                'show_analytics': False,
+            }
+        )
+
     version_slug = request.GET.get('version', project.default_version)
     period = request.GET.get('period', 'recent')
     size = request.GET.get('size', 5)
@@ -1006,13 +1017,14 @@ def search_analytics_view(request, project_slug):
 
         queries = queries[:size]
 
-    return render(
+    return render (
         request,
         'projects/projects_search_analytics.html',
         {
             'form': form,
             'project': project,
             'queries': queries,
+            'show_analytics': True,
             'chart_data': chart_data,
             'doughnut_chart_data': doughnut_chart_data,
         }
