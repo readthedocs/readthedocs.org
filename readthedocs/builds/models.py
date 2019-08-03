@@ -837,19 +837,11 @@ class Build(models.Model):
     @property
     def external_version_name(self):
         if self.is_external:
-            try:
-                if self.project.remote_repository.account.provider == 'github':
-                    return GITHUB_EXTERNAL_VERSION_NAME
-                # TODO: Add External Version Name for other Git Providers
-            except RemoteRepository.DoesNotExist:
-                log.info('Remote repository does not exist for %s', self.project)
-                return GENERIC_EXTERNAL_VERSION_NAME
-            except Exception:
-                log.exception(
-                    'Unhandled exception raised for %s while getting external_version_name',
-                    self.project
-                )
-                return GENERIC_EXTERNAL_VERSION_NAME
+            if self.project.git_provider_name == 'GitHub':
+                return GITHUB_EXTERNAL_VERSION_NAME
+            # TODO: Add External Version Name for other Git Providers
+
+            return GENERIC_EXTERNAL_VERSION_NAME
         return None
 
     def using_latest_config(self):

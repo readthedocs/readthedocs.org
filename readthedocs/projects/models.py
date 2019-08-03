@@ -6,6 +6,7 @@ import os
 import re
 from urllib.parse import urlparse
 
+from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
@@ -838,6 +839,29 @@ class Project(models.Model):
                 verbose_name=verbose_name, version_type=version_type
             )
         return repo
+
+    def git_service_class(self):
+        """Get the service class for project. e.g: GitHubService, GitLabService."""
+        from readthedocs.oauth.services import registry
+
+        for service_cls in registry:
+            if service_cls.is_project_service(self):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            service = None
+
+        return service
+
+    @property
+    def git_provider_name(self):
+        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        service = self.git_service_class()
+        if service:
+            provider = allauth_registry.by_id(service.adapter.provider_id)
+            return provider.name
+        return None
 
     def repo_nonblockinglock(self, version, max_lock_age=None):
         """

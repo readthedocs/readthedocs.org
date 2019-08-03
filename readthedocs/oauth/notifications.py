@@ -62,9 +62,9 @@ class SendBuildStatusFailureNotification(SiteNotification):
     context_object_name = 'project'
     failure_level = ERROR_PERSISTENT
     failure_message = _(
-        'Could not send {{ provider.name }} build status report for {{ project.name }}. '
-        'Make sure you have the correct {{ provider.name }} repository permissions</a> and '
-        'your <a href="{{ url_connect_account }}">{{ provider.name }} account</a> '
+        'Could not send {{ provider_name }} build status report for {{ project.name }}. '
+        'Make sure you have the correct {{ provider_name }} repository permissions</a> and '
+        'your <a href="{{ url_connect_account }}">{{ provider_name }} account</a> '
         'is connected to ReadtheDocs.'
     )  # noqa
 
