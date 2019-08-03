@@ -24,7 +24,7 @@ from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
+from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
@@ -704,7 +704,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse('projects_domains', args=[self.get_project().slug])
 
 
-class DomainList(DomainMixin, ListViewWithForm):
+class DomainList(DomainMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -727,13 +727,8 @@ class DomainUpdate(DomainMixin, UpdateView):
     pass
 
 
-class DomainDelete(DomainMixin, View):
-
-    # POST request is required for the deletion of the domain.
-    def post(self, request, *args, **kwargs):
-        domain = get_object_or_404(Domain, pk=kwargs.get('domain_pk'))
-        domain.delete()
-        return HttpResponseRedirect(self.get_success_url())
+class DomainDelete(DomainMixin, DeleteView):
+    pass
 
 
 class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):

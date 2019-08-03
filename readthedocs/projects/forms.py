@@ -660,6 +660,14 @@ class DomainBaseForm(forms.ModelForm):
     class Meta:
         model = Domain
         exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
+        error_messages = {
+            'domain':  {
+                'unique': (
+                    'This domain is already configured. '
+                    'Please choose another.'
+                ),
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -680,16 +688,6 @@ class DomainBaseForm(forms.ModelForm):
         else:
             domain_string = parsed.path
 
-        if Domain.objects.filter(domain=domain_string).exists():
-            project_domains = self.project.domains.values_list('domain', flat=True)
-            if domain_string in project_domains:
-                raise forms.ValidationError(
-                    _('This domain already exists for this project. Please choose another.')
-                )
-            else:
-                raise forms.ValidationError(
-                    _('This domain already exists on Read the Docs. Please choose another.')
-                )
         return domain_string
 
     def clean_canonical(self):
