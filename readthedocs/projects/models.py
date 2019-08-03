@@ -852,7 +852,7 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                settings.DOCKER_LIMITS.get('time') or
+                settings.RTD_DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
