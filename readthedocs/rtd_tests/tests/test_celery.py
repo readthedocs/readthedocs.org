@@ -336,6 +336,9 @@ class TestCeleryBuilding(RTDTestCase):
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
     def test_send_build_status_task_with_remote_repo(self, send_build_status):
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+
         social_account = get(SocialAccount, provider='github')
         remote_repo = get(RemoteRepository, account=social_account, project=self.project)
         remote_repo.users.add(self.eric)
