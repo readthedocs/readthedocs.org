@@ -614,12 +614,14 @@ class TranslationBaseForm(forms.Form):
         )
         return queryset
 
-    def save(self):
-        project = self.parent.translations.add(self.translation)
-        # Run symlinking and other sync logic to make sure we are in a good
-        # state.
-        self.parent.save()
-        return project
+    def save(self, commit=True):
+        if commit:
+            self.translation.save()
+            self.parent.translations.add(self.translation)
+            # Run symlinking and other sync logic to make sure we are in a good
+            # state.
+            self.parent.save()
+        return self.parent
 
 
 class TranslationForm(SettingsOverrideObject):
