@@ -917,7 +917,7 @@ def search_analytics_view(request, project_slug):
     )
 
     if not project.has_feature(Feature.SEARCH_ANALYTICS):
-        return render (
+        return render(
             request,
             'projects/search_analytics/projects_search_analytics.html',
             {
@@ -1025,7 +1025,7 @@ def search_analytics_view(request, project_slug):
 
         queries = queries[:size]
 
-    return render (
+    return render(
         request,
         'projects/search_analytics/projects_search_analytics.html',
         {
