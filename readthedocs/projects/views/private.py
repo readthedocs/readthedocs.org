@@ -9,12 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
     HttpResponseRedirect,
 )
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
+from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -917,16 +919,22 @@ def search_analytics_view(request, project_slug):
     if not project.has_feature(Feature.SEARCH_ANALYTICS):
         return render (
             request,
-            'projects/projects_search_analytics.html',
+            'projects/search_analytics/projects_search_analytics.html',
             {
                 'project': project,
                 'show_analytics': False,
             }
         )
 
+    download_data = request.GET.get('download', False)
     version_slug = request.GET.get('version', project.default_version)
     period = request.GET.get('period', 'recent')
     size = request.GET.get('size', 5)
+
+    # if the user has requested to download all data
+    # return csv file in response.
+    if download_data:
+        return _search_analytics_csv_data(request, project_slug, version_slug)
 
     data = {
         'version': version_slug,
@@ -1019,7 +1027,7 @@ def search_analytics_view(request, project_slug):
 
     return render (
         request,
-        'projects/projects_search_analytics.html',
+        'projects/search_analytics/projects_search_analytics.html',
         {
             'form': form,
             'project': project,
@@ -1029,3 +1037,52 @@ def search_analytics_view(request, project_slug):
             'doughnut_chart_data': doughnut_chart_data,
         }
     )
+
+
+def _search_analytics_csv_data(request, project_slug, version_slug):
+    """Generate raw csv data of search queries."""
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
+
+    version = get_object_or_404(
+        Version,
+        project=project,
+        slug=version_slug,
+    )
+
+    now = timezone.now().date()
+    last_3_month = now - timezone.timedelta(days=90)
+
+    data = (
+        SearchQuery.objects.filter(
+            project=project,
+            version=version,
+            created__date__gte=last_3_month,
+            created__date__lte=now,
+        )
+        .order_by('-created')
+        .values_list('created', 'query')
+    )
+
+    file_name = '{project_slug}_{version_slug}_from_{start}_to_{end}.csv'.format(
+        project_slug=project_slug,
+        version_slug=version_slug,
+        start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
+        end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+    )
+    # remove any spaces in filename.
+    file_name = '-'.join([text for text in file_name.split() if text])
+
+    csv_data = (
+        (timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query)
+        for time, query in data
+    )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    template = loader.get_template('projects/search_analytics/csv_data_template.txt')
+    ctx = {'data': csv_data}
+    response.write(template.render(ctx))
+    return response
