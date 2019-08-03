@@ -11,7 +11,7 @@ from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, HTMLFile
 from readthedocs.projects.querysets import RelatedProjectQuerySet
 
 
@@ -32,7 +32,13 @@ class SphinxDomain(TimeStampedModel):
         verbose_name=_('Version'),
         related_name='sphinx_domains',
     )
+    html_file = models.ForeignKey(
+        HTMLFile,
+        related_name='sphinx_domains',
+        null=True,
+    )
     commit = models.CharField(_('Commit'), max_length=255, null=True)
+    build = models.IntegerField(_('Build id'), null=True)
 
     domain = models.CharField(
         _('Domain'),
@@ -71,11 +77,14 @@ class SphinxDomain(TimeStampedModel):
     objects = RelatedProjectQuerySet.as_manager()
 
     def __str__(self):
-        return f'''
+        ret = f'''
             SphinxDomain [{self.project.slug}:{self.version.slug}]
             [{self.domain}:{self.type}] {self.name} ->
-            {self.doc_name}#{self.anchor}
-        '''
+            {self.doc_name}
+        '''.strip()
+        if self.anchor:
+            ret += f'#{self.anchor}'
+        return ret
 
     @property
     def role_name(self):

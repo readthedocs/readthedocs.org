@@ -19,6 +19,19 @@ DOCUMENTATION_CHOICES = (
     ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
 )
 
+MEDIA_TYPE_HTML = 'html'
+MEDIA_TYPE_PDF = 'pdf'
+MEDIA_TYPE_EPUB = 'epub'
+MEDIA_TYPE_HTMLZIP = 'htmlzip'
+MEDIA_TYPE_JSON = 'json'
+MEDIA_TYPES = (
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_JSON,
+)
+
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
     ('Getting started', 'projects/samples/getting_started.rst.html'),
@@ -312,11 +325,33 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITHUB_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITHUB_PULL_REQUEST_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}'
+)
+GITHUB_PULL_REQUEST_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}/commits/{commit}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
+)
+BITBUCKET_COMMIT_URL = (
+    'https://bitbucket.org/{user}/{repo}/'
+    'commits/{commit}'
 )
 GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITLAB_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+
+GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'

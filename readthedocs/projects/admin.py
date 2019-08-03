@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Django administration interface for `projects.models`."""
 
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
 from django.utils.translation import ugettext_lazy as _
-from guardian.admin import GuardedModelAdmin
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
@@ -111,17 +108,23 @@ class ProjectOwnerBannedFilter(admin.SimpleListFilter):
     parameter_name = 'project_owner_banned'
 
     OWNER_BANNED = 'true'
+    NOT_OWNER_BANNED = 'false'
 
     def lookups(self, request, model_admin):
-        return ((self.OWNER_BANNED, _('Yes')),)
+        return (
+            (self.OWNER_BANNED, _('Yes')),
+            (self.NOT_OWNER_BANNED, _('No')),
+        )
 
     def queryset(self, request, queryset):
         if self.value() == self.OWNER_BANNED:
             return queryset.filter(users__profile__banned=True)
+        if self.value() == self.NOT_OWNER_BANNED:
+            return queryset.filter(users__profile__banned=False)
         return queryset
 
 
-class ProjectAdmin(GuardedModelAdmin):
+class ProjectAdmin(admin.ModelAdmin):
 
     """Project model admin view."""
 
@@ -171,7 +174,7 @@ class ProjectAdmin(GuardedModelAdmin):
 
         This will only ban single owners, because a malicious user could add a
         user as a co-owner of the project. We don't want to induce and
-        collatoral damage when flagging users.
+        collateral damage when flagging users.
         """
         total = 0
         for project in queryset:
@@ -233,7 +236,7 @@ class ProjectAdmin(GuardedModelAdmin):
         """Reindex all active versions of the selected projects to ES."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            version_qs = Version.objects.filter(project=project)
+            version_qs = Version.internal.filter(project=project)
             active_versions = version_qs.filter(active=True)
 
             if not active_versions.exists():
@@ -265,7 +268,7 @@ class ProjectAdmin(GuardedModelAdmin):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()
         for project in qs_iterator:
-            version_qs = Version.objects.filter(project=project)
+            version_qs = Version.internal.filter(project=project)
             if not version_qs.exists():
                 self.message_user(
                     request,
@@ -306,8 +309,9 @@ class ImportedFileAdmin(admin.ModelAdmin):
     """Admin view for :py:class:`ImportedFile`."""
 
     raw_id_fields = ('project', 'version')
-    list_display = ('path', 'name', 'version')
-    search_fields = ('project', 'path')
+    list_display = ('path', 'version', 'build')
+    list_select_related = ('project', 'version', 'version__project')
+    search_fields = ('project__slug', 'version__slug', 'path', 'build')
 
 
 class DomainAdmin(admin.ModelAdmin):

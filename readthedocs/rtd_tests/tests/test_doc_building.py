@@ -1484,7 +1484,6 @@ class AutoWipeEnvironmentBase:
             python_env.save_environment_json()
             json_data = json.load(open(python_env.environment_json_path()))
 
-        
         expected_data = {
             'build': {
                 'image': 'readthedocs/build:2.0',

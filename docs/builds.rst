@@ -3,7 +3,7 @@ Build Process
 
 Files: `tasks.py`_ - `doc_builder/`_
 
-.. _tasks.py: https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/projects/tasks.py
+.. _tasks.py: https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/projects/tasks.py
 .. _doc_builder/: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder
 
 Every documentation build has limited resources.
@@ -13,9 +13,12 @@ Our current build limits are:
 * 1GB of RAM memory
 
 We can increase build limits on a per-project basis,
-if you provide a good reason your documentation needs more resources.
+sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
+If your business is hitting build limits hosting documentation on Read the Docs,
+please consider :doc:`Read the Docs for Business </commercial/index>`
+which has much higher build resources.
 
-You can see the current Docker build images that we use in our `docker repository <https://github.com/rtfd/readthedocs-docker-images>`_.
+You can see the current Docker build images that we use in our `docker repository <https://github.com/readthedocs/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
 
 Currently in production we're using the ``readthedocs/build:latest`` docker image as our default image.
@@ -138,7 +141,7 @@ but you can change that using a :doc:`config-file/index`.
    If you want to know the specific version of a package that is installed in the image
    you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
-More details on software installed in images could be found by browsing specific branch in `rtfd/readthedocs-docker-images <https://github.com/rtfd/readthedocs-docker-images>`__ repository.
+More details on software installed in images could be found by browsing specific branch in `rtfd/readthedocs-docker-images <https://github.com/readthedocs/readthedocs-docker-images>`__ repository.
 
 Writing your own builder
 ------------------------
@@ -159,7 +162,7 @@ The documentation build system in RTD is made pluggable, so that you can build o
     if success:
         backend.move(version)
 
-.. _The builder backends: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder/backends
+.. _The builder backends: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/doc_builder/backends
 
 Deleting a stale or broken build environment
 --------------------------------------------
@@ -171,15 +174,14 @@ Build environment
 
 The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment variables when building your documentation:
 
-+-------------------------+--------------------------------------------------+----------------------+
-| Environment variable    | Description                                      | Example value        |
-+-------------------------+--------------------------------------------------+----------------------+
-| ``READTHEDOCS``         | Whether the build is running inside RTD          | ``True``             |
-+-------------------------+--------------------------------------------------+----------------------+
-| ``READTHEDOCS_VERSION`` | The RTD name of the version which is being built | ``latest``           |
-+-------------------------+--------------------------------------------------+----------------------+
-| ``READTHEDOCS_PROJECT`` | The RTD name of the project which is being built | ``myexampleproject`` |
-+-------------------------+--------------------------------------------------+----------------------+
+.. csv-table::
+   :header-rows: 1
+
+ Environment variable, Description, Example value  
+ ``READTHEDOCS``, Whether the build is running inside RTD, ``True``   
+ ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``   
+ ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
+ ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
 .. tip::
 

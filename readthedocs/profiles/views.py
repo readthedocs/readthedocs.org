@@ -10,6 +10,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.generic import ListView
+from rest_framework.authtoken.models import Token
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
 
@@ -207,3 +209,26 @@ def account_advertising(request):
             'user': profile_obj.user,
         },
     )
+
+
+class TokenMixin:
+
+    """Environment Variables to be added when building the Project."""
+
+    model = Token
+    lookup_url_kwarg = 'token_pk'
+    template_name = 'profiles/private/token_list.html'
+
+    def get_queryset(self):
+        # Token has a OneToOneField relation with User
+        return Token.objects.filter(user__in=[self.request.user])
+
+    def get_success_url(self):
+        return reverse(
+            'projects_token',
+            args=[self.get_project().slug],
+        )
+
+
+class TokenList(TokenMixin, ListView):
+    pass

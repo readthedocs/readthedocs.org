@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import safe_join, get_available_overwrite_name
 
@@ -11,7 +12,7 @@ log = logging.getLogger(__name__)
 class BuildMediaStorageMixin:
 
     """
-    A mixin for Storage classes needed to write build artifacts
+    A mixin for Storage classes needed to write build artifacts.
 
     This adds and modifies some functionality to Django's File Storage API.
     By default, classes mixing this in will now overwrite files by default instead
@@ -23,7 +24,11 @@ class BuildMediaStorageMixin:
 
     @staticmethod
     def _dirpath(path):
-        """It may just be Azure, but for listdir to work correctly, the path must end in '/'"""
+        """
+        Make the path to end with `/`.
+
+        It may just be Azure, but for listdir to work correctly, this is needed.
+        """
         path = str(path)
         if not path.endswith('/'):
             path += '/'
@@ -32,7 +37,7 @@ class BuildMediaStorageMixin:
 
     def get_available_name(self, name, max_length=None):
         """
-        Overrides Django's storage implementation to always return the passed name (overwrite)
+        Overrides Django's storage to always return the passed name (overwrite).
 
         By default, Django will not overwrite files even if the same name is specified.
         This changes that functionality so that the default is to use the same name and overwrite
@@ -42,7 +47,7 @@ class BuildMediaStorageMixin:
 
     def delete_directory(self, path):
         """
-        Delete all files under a certain path from storage
+        Delete all files under a certain path from storage.
 
         Many storage backends (S3, Azure storage) don't care about "directories".
         The directory effectively doesn't exist if there are no files in it.
@@ -51,6 +56,9 @@ class BuildMediaStorageMixin:
 
         :param path: the path to the directory to remove
         """
+        if path in ('', '/'):
+            raise SuspiciousFileOperation('Deleting all storage cannot be right')
+
         log.debug('Deleting directory %s from media storage', path)
         folders, files = self.listdir(self._dirpath(path))
         for folder_name in folders:
@@ -63,7 +71,7 @@ class BuildMediaStorageMixin:
 
     def copy_directory(self, source, destination):
         """
-        Copy a directory recursively to storage
+        Copy a directory recursively to storage.
 
         :param source: the source path on the local disk
         :param destination: the destination path in storage
@@ -82,11 +90,11 @@ class BuildMediaStorageMixin:
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
 
-    """Storage subclass that writes build artifacts under MEDIA_ROOT"""
+    """Storage subclass that writes build artifacts under MEDIA_ROOT."""
 
     def get_available_name(self, name, max_length=None):
         """
-        A hack to overwrite by default with the FileSystemStorage
+        A hack to overwrite by default with the FileSystemStorage.
 
         After upgrading to Django 2.2, this method can be removed
         because subclasses can set OS_OPEN_FLAGS such that FileSystemStorage._save
@@ -99,7 +107,11 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         return name
 
     def listdir(self, path):
-        """Return empty lists for nonexistent directories (as cloud storages do)"""
+        """
+        Return empty lists for nonexistent directories.
+
+        This mimics what cloud storages do.
+        """
         if not self.exists(path):
             return [], []
         return super().listdir(path)

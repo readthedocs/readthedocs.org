@@ -8,6 +8,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 from mock import MagicMock, PropertyMock, patch
 
+from readthedocs.builds.constants import EXTERNAL, BUILD_STATE_TRIGGERED
 from readthedocs.builds.models import Version
 from readthedocs.config import (
     ALL,
@@ -24,7 +25,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-from doc_builder.constants import DOCKER_IMAGE_SETTINGS
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -367,6 +368,10 @@ class TestLoadConfigV2:
             config=load_yaml_config(self.version),
             project=self.project,
             version=self.version,
+            build={
+                'id': 99,
+                'state': BUILD_STATE_TRIGGERED,
+            },
         )
         return update_docs
 
@@ -438,6 +443,36 @@ class TestLoadConfigV2:
         assert outcomes['html']
         build_docs_class.assert_called_with('sphinx_pdf')
         assert outcomes['pdf']
+        assert not outcomes['localmedia']
+        assert not outcomes['epub']
+
+    @patch('readthedocs.projects.models.Project.repo_nonblockinglock', new=MagicMock())
+    @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs_class')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.build')
+    @patch('readthedocs.doc_builder.backends.sphinx.HtmlBuilder.append_conf')
+    def test_build_formats_only_html_for_external_versions(
+            self, append_conf, html_build, build_docs_class,
+            checkout_path, tmpdir,
+    ):
+        # Convert to external Version
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        checkout_path.return_value = str(tmpdir)
+        self.create_config_file(tmpdir, {'formats': ['pdf', 'htmlzip', 'epub']})
+
+        update_docs = self.get_update_docs_task()
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=update_docs.build_env,
+            config=update_docs.config,
+        )
+        update_docs.python_env = python_env
+
+        outcomes = update_docs.build_docs()
+
+        assert outcomes['html']
+        assert not outcomes['pdf']
         assert not outcomes['localmedia']
         assert not outcomes['epub']
 

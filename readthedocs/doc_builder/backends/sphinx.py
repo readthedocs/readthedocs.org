@@ -60,6 +60,11 @@ class BaseSphinx(BaseBuilder):
 
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
+        log.info(
+            'Creating default Sphinx config file for project: %s:%s',
+            self.project.slug,
+            self.version.slug,
+        )
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
             'sphinx/conf.py.conf',
@@ -467,25 +472,37 @@ class PdfBuilder(BaseSphinx):
             cwd=latex_cwd,
         )
 
-        cmd = self.run(
+        if self.build_env.command_class == DockerBuildCommand:
+            latex_class = DockerLatexBuildCommand
+        else:
+            latex_class = LatexBuildCommand
+
+        cmd = [
             'latexmk',
             '-r',
             rcfile,
-
             # FIXME: check for platex here as well
             '-pdfdvi' if self.project.language == 'ja' else '-pdf',
-
+            # When ``-f`` is used, latexmk will continue building if it
+            # encounters errors. We still receive a failure exit code in this
+            # case, but the correct steps should run.
+            '-f',
             '-dvi-',
             '-ps-',
             f'-jobname={self.project.slug}',
             '-interaction=nonstopmode',
+        ]
+
+        cmd_ret = self.build_env.run_command_class(
+            cls=latex_class,
+            cmd=cmd,
             warn_only=True,
             cwd=latex_cwd,
         )
 
         self.pdf_file_name = f'{self.project.slug}.pdf'
 
-        return cmd.successful
+        return cmd_ret.successful
 
     def _build_pdflatex(self, tex_files, latex_cwd):
         pdflatex_cmds = [
@@ -495,7 +512,7 @@ class PdfBuilder(BaseSphinx):
         makeindex_cmds = [
             [
                 'makeindex', '-s', 'python.ist', '{}.idx'.format(
-                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
+                    os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
                 ),
             ]
             for tex_file in tex_files

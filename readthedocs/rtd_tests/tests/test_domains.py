@@ -105,13 +105,14 @@ class FormTests(TestCase):
         self.assertEqual(form.errors['canonical'][0], 'Only 1 Domain can be canonical at a time.')
 
         form = DomainForm(
-            {'domain': 'example2.com', 'canonical': True},
+            {'canonical': False},
             project=self.project,
             instance=domain,
         )
         self.assertTrue(form.is_valid())
         domain = form.save()
-        self.assertEqual(domain.domain, 'example2.com')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertFalse(domain.canonical)
 
     def test_adding_duplicate_domain_for_same_project(self):
         form = DomainForm({'domain': 'example.com'}, project=self.project)

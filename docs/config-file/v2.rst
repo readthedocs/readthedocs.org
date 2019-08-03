@@ -260,8 +260,8 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/rtfd/readthedocs-docker-images/tree/releases/3.x>`_: :buildpyversions:`3.0`
-* `latest <https://github.com/rtfd/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`4.0`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/4.x>`_: :buildpyversions:`stable`
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`latest`
 
 sphinx
 ~~~~~~
@@ -412,7 +412,7 @@ Schema
 ------
 
 You can see the complete schema
-`here <https://github.com/rtfd/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.yml>`_.
+`here <https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/rtd_tests/fixtures/spec/v2/schema.yml>`_.
 
 Migrating from v1
 -----------------

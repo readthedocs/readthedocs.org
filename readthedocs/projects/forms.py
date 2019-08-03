@@ -11,9 +11,10 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from guardian.shortcuts import assign
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -189,7 +190,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -240,7 +241,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        versions_choices = self.instance.versions.filter(
+        versions_choices = self.instance.versions(manager=INTERNAL).filter(
             machine=False).values_list('verbose_name', flat=True)
 
         self.fields['default_branch'].widget = forms.Select(
@@ -484,8 +485,6 @@ class UserForm(forms.Form):
 
     def save(self):
         self.project.users.add(self.user)
-        # Force update of permissions
-        assign('view_project', self.user, self.project)
         return self.user
 
 
@@ -665,6 +664,11 @@ class DomainBaseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Disable domain manipulation on Update, but allow on Create
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['domain'].disabled = True
 
     def clean_project(self):
         return self.project

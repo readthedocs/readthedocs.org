@@ -1,29 +1,14 @@
 """Views pertaining to builds."""
 
-import json
 import logging
-import re
 
-from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import redirect
-from django.views.decorators.csrf import csrf_exempt
-
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects import constants
-from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
 
 
 log = logging.getLogger(__name__)
-
-
-class NoProjectException(Exception):
-    pass
-
-
-def _allow_deprecated_webhook(project):
-    return project.has_feature(Feature.ALLOW_DEPRECATED_WEBHOOKS)
 
 
 def _build_version(project, slug, already_built=()):
@@ -64,6 +49,7 @@ def build_branches(project, branch_list):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
+
         for version in versions:
             log.info(
                 '(Branch Build) Processing %s:%s',
@@ -107,282 +93,86 @@ def sync_versions(project):
     return None
 
 
-def get_project_from_url(url):
-    if not url:
-        return Project.objects.none()
-    projects = (
-        Project.objects.filter(repo__iendswith=url) |
-        Project.objects.filter(repo__iendswith=url + '.git')
-    )
-    return projects
+def get_or_create_external_version(project, identifier, verbose_name):
+    """
+    Get or create external versions using `identifier` and `verbose_name`.
 
+    if external version does not exist create an external version
 
-def log_info(project, msg):
-    log.info(
-        constants.LOG_TEMPLATE,
-        {
-            'project': project,
-            'version': '',
-            'msg': msg,
-        }
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  External version.
+    :rtype: Version
+    """
+    external_version, created = project.versions.get_or_create(
+        verbose_name=verbose_name,
+        type=EXTERNAL,
+        defaults={'identifier': identifier, 'active': True},
     )
 
-
-def _build_url(url, projects, branches):
-    """
-    Map a URL onto specific projects to build that are linked to that URL.
-
-    Check each of the ``branches`` to see if they are active and should be
-    built.
-    """
-    ret = ''
-    all_built = {}
-    all_not_building = {}
-
-    # This endpoint doesn't require authorization, we shouldn't allow builds to
-    # be triggered from this any longer. Deprecation plan is to selectively
-    # allow access to this endpoint for now.
-    if not any(_allow_deprecated_webhook(project) for project in projects):
-        return HttpResponse('This API endpoint is deprecated', status=403)
-
-    for project in projects:
-        (built, not_building) = build_branches(project, branches)
-        if not built:
-            # Call sync_repository_task to update tag/branch info
-            version = project.versions.get(slug=LATEST)
-            sync_repository_task.delay(version.pk)
-            msg = '(URL Build) Syncing versions for %s' % project.slug
-            log.info(msg)
-        all_built[project.slug] = built
-        all_not_building[project.slug] = not_building
-
-    for project_slug, built in list(all_built.items()):
-        if built:
-            msg = '(URL Build) Build Started: {} [{}]'.format(
-                url,
-                ' '.join(built),
-            )
-            log_info(project_slug, msg=msg)
-            ret += msg
-
-    for project_slug, not_building in list(all_not_building.items()):
-        if not_building:
-            msg = '(URL Build) Not Building: {} [{}]'.format(
-                url,
-                ' '.join(not_building),
-            )
-            log_info(project_slug, msg=msg)
-            ret += msg
-
-    if not ret:
-        ret = '(URL Build) No known branches were pushed to.'
-
-    return HttpResponse(ret)
-
-
-@csrf_exempt
-def github_build(request):  # noqa: D205
-    """
-    GitHub webhook consumer.
-
-    .. warning:: **DEPRECATED**
-        Use :py:class:`readthedocs.api.v2.views.integrations.GitHubWebhookView`
-        instead of this view function
-
-    This will search for projects matching either a stripped down HTTP or SSH
-    URL. The search is error prone, use the API v2 webhook for new webhooks.
-
-    Old webhooks may not have specified the content type to POST with, and
-    therefore can use ``application/x-www-form-urlencoded`` to pass the JSON
-    payload. More information on the API docs here:
-    https://developer.github.com/webhooks/creating/#content-type
-    """
-    if request.method == 'POST':
-        try:
-            if request.META['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
-                data = json.loads(request.POST.get('payload'))
-            else:
-                data = json.loads(request.body)
-            http_url = data['repository']['url']
-            http_search_url = http_url.replace('http://', '').replace('https://', '')
-            ssh_url = data['repository']['ssh_url']
-            ssh_search_url = ssh_url.replace('git@', '').replace('.git', '')
-            branches = [data['ref'].replace('refs/heads/', '')]
-        except (ValueError, TypeError, KeyError):
-            log.exception('Invalid GitHub webhook payload')
-            return HttpResponse('Invalid request', status=400)
-        try:
-            repo_projects = get_project_from_url(http_search_url)
-            if repo_projects:
-                log.info(
-                    'GitHub webhook search: url=%s branches=%s',
-                    http_search_url,
-                    branches,
-                )
-            ssh_projects = get_project_from_url(ssh_search_url)
-            if ssh_projects:
-                log.info(
-                    'GitHub webhook search: url=%s branches=%s',
-                    ssh_search_url,
-                    branches,
-                )
-            projects = repo_projects | ssh_projects
-            return _build_url(http_search_url, projects, branches)
-        except NoProjectException:
-            log.exception('Project match not found: url=%s', http_search_url)
-            return HttpResponseNotFound('Project not found')
+    if created:
+        log.info(
+            '(Create External Version) Added Version: [%s] ',
+            external_version.slug
+        )
     else:
-        return HttpResponse('Method not allowed, POST is required', status=405)
+        # identifier will change if there is a new commit to the Pull/Merge Request
+        if external_version.identifier != identifier:
+            external_version.identifier = identifier
+            external_version.save()
 
-
-@csrf_exempt
-def gitlab_build(request):  # noqa: D205
-    """
-    GitLab webhook consumer.
-
-    .. warning:: **DEPRECATED**
-        Use :py:class:`readthedocs.api.v2.views.integrations.GitLabWebhookView`
-        instead of this view function
-
-    Search project repository URLs using the site URL from GitLab webhook payload.
-    This search is error-prone, use the API v2 webhook view for new webhooks.
-    """
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            url = data['project']['http_url']
-            search_url = re.sub(r'^https?://(.*?)(?:\.git|)$', '\\1', url)
-            branches = [data['ref'].replace('refs/heads/', '')]
-        except (ValueError, TypeError, KeyError):
-            log.exception('Invalid GitLab webhook payload')
-            return HttpResponse('Invalid request', status=400)
-        log.info(
-            'GitLab webhook search: url=%s branches=%s',
-            search_url,
-            branches,
-        )
-        projects = get_project_from_url(search_url)
-        if projects:
-            return _build_url(search_url, projects, branches)
-
-        log.info('Project match not found: url=%s', search_url)
-        return HttpResponseNotFound('Project match not found')
-    return HttpResponse('Method not allowed, POST is required', status=405)
-
-
-@csrf_exempt
-def bitbucket_build(request):
-    """
-    Consume webhooks from multiple versions of Bitbucket's API.
-
-    .. warning:: **DEPRECATED**
-        Use :py:class:`readthedocs.api.v2.views.integrations.BitbucketWebhookView`
-        instead of this view function
-
-    New webhooks are set up with v2, but v1 webhooks will still point to this
-    endpoint. There are also "services" that point here and submit
-    ``application/x-www-form-urlencoded`` data.
-
-    API v1
-        https://confluence.atlassian.com/bitbucket/events-resources-296095220.html
-
-    API v2
-        https://confluence.atlassian.com/bitbucket/event-payloads-740262817.html#EventPayloads-Push
-
-    Services
-        https://confluence.atlassian.com/bitbucket/post-service-management-223216518.html
-    """
-    if request.method == 'POST':
-        try:
-            if request.META['CONTENT_TYPE'] == 'application/x-www-form-urlencoded':
-                data = json.loads(request.POST.get('payload'))
-            else:
-                data = json.loads(request.body)
-
-            version = 2 if request.META.get('HTTP_USER_AGENT') == 'Bitbucket-Webhooks/2.0' else 1  # yapf: disabled  # noqa
-            if version == 1:
-                branches = [
-                    commit.get('branch', '') for commit in data['commits']
-                ]
-                repository = data['repository']
-                if not repository['absolute_url']:
-                    return HttpResponse('Invalid request', status=400)
-                search_url = 'bitbucket.org{}'.format(
-                    repository['absolute_url'].rstrip('/'),
-                )
-            elif version == 2:
-                changes = data['push']['changes']
-                branches = [change['new']['name'] for change in changes]
-                if not data['repository']['full_name']:
-                    return HttpResponse('Invalid request', status=400)
-                search_url = 'bitbucket.org/{}'.format(
-                    data['repository']['full_name'],
-                )
-        except (TypeError, ValueError, KeyError):
-            log.exception('Invalid Bitbucket webhook payload')
-            return HttpResponse('Invalid request', status=400)
-
-        log.info(
-            'Bitbucket webhook search: url=%s branches=%s',
-            search_url,
-            branches,
-        )
-        log.debug('Bitbucket webhook payload:\n\n%s\n\n', data)
-
-        projects = get_project_from_url(search_url)
-        if projects and branches:
-            return _build_url(search_url, projects, branches)
-
-        if not branches:
             log.info(
-                'Commit/branch not found url=%s branches=%s',
-                search_url,
-                branches,
+                '(Update External Version) Updated Version: [%s] ',
+                external_version.slug
             )
-            return HttpResponseNotFound('Commit/branch not found')
-
-        log.info('Project match not found: url=%s', search_url)
-        return HttpResponseNotFound('Project match not found')
-    return HttpResponse('Method not allowed, POST is required', status=405)
+    return external_version
 
 
-@csrf_exempt
-def generic_build(request, project_id_or_slug=None):
+def delete_external_version(project, identifier, verbose_name):
     """
-    Generic webhook build endpoint.
+    Delete external versions using `identifier` and `verbose_name`.
 
-    .. warning:: **DEPRECATED**
+    if external version does not exist then returns `None`.
 
-      Use :py:class:`readthedocs.api.v2.views.integrations.GenericWebhookView`
-      instead of this view function
+    :param project: Project instance
+    :param identifier: Commit Hash
+    :param verbose_name: pull/merge request number
+    :returns:  verbose_name (pull/merge request number).
+    :rtype: str
     """
-    try:
-        project = Project.objects.get(pk=project_id_or_slug)
-    # Allow slugs too
-    except (Project.DoesNotExist, ValueError):
-        try:
-            project = Project.objects.get(slug=project_id_or_slug)
-        except (Project.DoesNotExist, ValueError):
-            log.exception(
-                '(Incoming Generic Build) Repo not found:  %s',
-                project_id_or_slug,
-            )
-            return HttpResponseNotFound(
-                'Repo not found: %s' % project_id_or_slug,
-            )
-    # This endpoint doesn't require authorization, we shouldn't allow builds to
-    # be triggered from this any longer. Deprecation plan is to selectively
-    # allow access to this endpoint for now.
-    if not _allow_deprecated_webhook(project):
-        return HttpResponse('This API endpoint is deprecated', status=403)
-    if request.method == 'POST':
-        slug = request.POST.get('version_slug', project.default_version)
+    external_version = project.versions(manager=EXTERNAL).filter(
+        verbose_name=verbose_name, identifier=identifier
+    ).first()
+
+    if external_version:
+        # Delete External Version
+        external_version.delete()
         log.info(
-            '(Incoming Generic Build) %s [%s]',
-            project.slug,
-            slug,
+            '(Delete External Version) Deleted Version: [%s]',
+            external_version.slug
         )
-        _build_version(project, slug)
-    else:
-        return HttpResponse('You must POST to this resource.')
-    return redirect('builds_project_list', project.slug)
+
+        return external_version.verbose_name
+    return None
+
+
+def build_external_version(project, version, commit):
+    """
+    Where we actually trigger builds for external versions.
+
+    All pull/merge request webhook logic should route here to call ``trigger_build``.
+    """
+    if not project.has_valid_webhook:
+        project.has_valid_webhook = True
+        project.save()
+
+    # Build External version
+    log.info(
+        '(External Version build) Building %s:%s',
+        project.slug,
+        version.slug,
+    )
+    trigger_build(project=project, version=version, commit=commit, force=True)
+
+    return version.verbose_name

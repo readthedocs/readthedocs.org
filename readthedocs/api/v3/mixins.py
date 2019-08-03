@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.exceptions import NotFound
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -62,7 +61,10 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         return queryset.none()
 
     def has_admin_permission(self, user, project):
-        if project in self.admin_projects(user):
+        # Use .only for small optimization
+        admin_projects = self.admin_projects(user).only('id')
+
+        if project in admin_projects:
             return True
 
         return False
@@ -81,8 +83,7 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         4. raise a ``NotFound`` exception otherwise
         """
 
-        # NOTE: ``super().get_queryset`` produces the filter by ``NestedViewSetMixin``
-        # we need to have defined the class attribute as ``queryset = Model.objects.all()``
+        # We need to have defined the class attribute as ``queryset = Model.objects.all()``
         queryset = super().get_queryset()
 
         # Detail requests are public
@@ -90,8 +91,4 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
             return self.detail_objects(queryset, self.request.user)
 
         # List view are only allowed if user is owner of parent project
-        listing_objects = self.listing_objects(queryset, self.request.user)
-        if listing_objects:
-            return listing_objects
-
-        raise NotFound
+        return self.listing_objects(queryset, self.request.user)

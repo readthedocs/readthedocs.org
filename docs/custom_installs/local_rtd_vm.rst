@@ -43,12 +43,12 @@ To host your documentation on a local RTD installation, set it up in your VM:
 
     mkdir checkouts
     cd checkouts
-    git clone https://github.com/rtfd/readthedocs.org.git
+    git clone https://github.com/readthedocs/readthedocs.org.git
     cd readthedocs.org
     sudo pip install -r requirements.txt
     
-Possible Error and Resolution
-`````````````````````````````
+Possible errors with a local RTD setup
+``````````````````````````````````````
 
 **Error**: ``error: command 'gcc' failed with exit status 1``
 
@@ -116,8 +116,8 @@ Go to the dashboard at  ``http://[VM IP ADDRESS]:8000/dashboard`` and follow the
 
 This generates the HTML documentation site using the default Sphinx theme. Verify the output in your local documentation folder under ``../build/html``
 
-Possible Error and Resolution
-`````````````````````````````
+Possible errors administering a RTD server
+``````````````````````````````````````````
 
 **Error**: Couldn't access Git Corp from VM.
 
@@ -136,9 +136,9 @@ Possible Error and Resolution
 3. Now, SSH to the VM.
 4. Open the ``id_rsa`` file in the VM:
 
-.. prompt:: bash $
+    .. prompt:: bash $
 
-    vim /home/<username>/.ssh/id_rsa
+        vim /home/<username>/.ssh/id_rsa
 
 5. Paste the RSA key copied from your machine and save file (``Esc``. ``:wq!``).
 

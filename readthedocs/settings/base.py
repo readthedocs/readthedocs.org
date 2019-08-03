@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
 import getpass
@@ -42,6 +41,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
@@ -107,7 +107,6 @@ class CommunityBaseSettings(Settings):
             # third party apps
             'dj_pagination',
             'taggit',
-            'guardian',
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
@@ -429,12 +428,6 @@ class CommunityBaseSettings(Settings):
     ES_TASK_CHUNK_SIZE = 100
 
     ES_INDEXES = {
-        'domain': {
-            'name': 'domain_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
-                         }
-        },
         'project': {
             'name': 'project_index',
             'settings': {'number_of_shards': 2,
@@ -446,9 +439,6 @@ class CommunityBaseSettings(Settings):
             'settings': {
                 'number_of_shards': 2,
                 'number_of_replicas': 0,
-                "index": {
-                    "sort.field": ["project", "version"]
-                }
             }
         },
     }
@@ -473,9 +463,6 @@ class CommunityBaseSettings(Settings):
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
-
-    # Guardian Settings
-    GUARDIAN_RAISE_403 = True
 
     # Stripe
     STRIPE_SECRET = None
@@ -512,9 +499,10 @@ class CommunityBaseSettings(Settings):
             'user': '60/minute',
         },
         'PAGE_SIZE': 10,
+        'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     }
 
-    SILENCED_SYSTEM_CHECKS = ['fields.W342', 'guardian.W001']
+    SILENCED_SYSTEM_CHECKS = ['fields.W342']
 
     # Logging
     LOG_FORMAT = '%(name)s:%(lineno)s[%(process)d]: %(levelname)s %(message)s'

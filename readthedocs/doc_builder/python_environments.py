@@ -1,14 +1,16 @@
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
+import codecs
 import hashlib
 import itertools
 import json
 import logging
 import os
 import shutil
+import yaml
 
-from readthedocs.config import PIP, SETUPTOOLS
+from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
@@ -97,7 +99,9 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--force-reinstall',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
@@ -323,7 +327,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.6',
+                'readthedocs-sphinx-ext<1.1',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -403,6 +407,24 @@ class Conda(PythonEnvironment):
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
+    def _update_conda_startup(self):
+        """
+        Update ``conda`` before use it for the first time.
+
+        This makes the Docker image to use the latest version of ``conda``
+        independently the version of Miniconda that it has installed.
+        """
+        self.build_env.run(
+            'conda',
+            'update',
+            '--yes',
+            '--quiet',
+            '--name=base',
+            '--channel=defaults',
+            'conda',
+            cwd=self.checkout_path,
+        )
+
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
         version_path = os.path.join(conda_env_path, self.version.slug)
@@ -415,9 +437,17 @@ class Conda(PythonEnvironment):
                     'project': self.project.slug,
                     'version': self.version.slug,
                     'msg': 'Removing existing conda directory',
-                }
+                },
             )
             shutil.rmtree(version_path)
+
+        if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
+            self._update_conda_startup()
+
+        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
+            self._append_core_requirements()
+            self._show_environment_yaml()
+
         self.build_env.run(
             'conda',
             'env',
@@ -431,10 +461,76 @@ class Conda(PythonEnvironment):
             cwd=self.checkout_path,
         )
 
-    def install_core_requirements(self):
-        """Install basic Read the Docs requirements into the Conda env."""
+    def _show_environment_yaml(self):
+        """Show ``environment.yml`` file in the Build output."""
+        self.build_env.run(
+            'cat',
+            self.config.conda.environment,
+            cwd=self.checkout_path,
+        )
+
+    def _append_core_requirements(self):
+        """
+        Append Read the Docs dependencies to Conda environment file.
+
+        This help users to pin their dependencies properly without us upgrading
+        them in the second ``conda install`` run.
+
+        See https://github.com/readthedocs/readthedocs.org/pull/5631
+        """
+        try:
+            inputfile = codecs.open(
+                os.path.join(
+                    self.checkout_path,
+                    self.config.conda.environment,
+                ),
+                encoding='utf-8',
+                mode='r',
+            )
+            environment = parse_yaml(inputfile)
+        except IOError:
+            log.warning(
+                'There was an error while reading Conda environment file.',
+            )
+        except ParseError:
+            log.warning(
+                'There was an error while parsing Conda environment file.',
+            )
+        else:
+            # Append conda dependencies directly to ``dependencies`` and pip
+            # dependencies to ``dependencies.pip``
+            pip_requirements, conda_requirements = self._get_core_requirements()
+            dependencies = environment.get('dependencies', [])
+            pip_dependencies = {'pip': pip_requirements}
+
+            for item in dependencies:
+                if isinstance(item, dict) and 'pip' in item:
+                    pip_requirements.extend(item.get('pip', []))
+                    dependencies.remove(item)
+                    break
+
+            dependencies.append(pip_dependencies)
+            dependencies.extend(conda_requirements)
+            environment.update({'dependencies': dependencies})
+            try:
+                outputfile = codecs.open(
+                    os.path.join(
+                        self.checkout_path,
+                        self.config.conda.environment,
+                    ),
+                    encoding='utf-8',
+                    mode='w',
+                )
+                yaml.safe_dump(environment, outputfile)
+            except IOError:
+                log.warning(
+                    'There was an error while writing the new Conda '
+                    'environment file.',
+                )
+
+    def _get_core_requirements(self):
         # Use conda for requirements it packages
-        requirements = [
+        conda_requirements = [
             'mock',
             'pillow',
         ]
@@ -448,8 +544,22 @@ class Conda(PythonEnvironment):
             pip_requirements.append('mkdocs')
         else:
             pip_requirements.append('readthedocs-sphinx-ext')
-            requirements.extend(['sphinx', 'sphinx_rtd_theme'])
+            conda_requirements.extend(['sphinx', 'sphinx_rtd_theme'])
 
+        return pip_requirements, conda_requirements
+
+    def install_core_requirements(self):
+        """Install basic Read the Docs requirements into the Conda env."""
+
+        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
+            # Skip install core requirements since they were already appended to
+            # the user's ``environment.yml`` and installed at ``conda env
+            # create`` step.
+            return
+
+        pip_requirements, conda_requirements = self._get_core_requirements()
+        # Install requirements via ``conda install`` command if they were
+        # not appended to the ``environment.yml`` file.
         cmd = [
             'conda',
             'install',
@@ -458,12 +568,13 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
         ]
-        cmd.extend(requirements)
+        cmd.extend(conda_requirements)
         self.build_env.run(
             *cmd,
             cwd=self.checkout_path,
         )
 
+        # Install requirements via ``pip install``
         pip_cmd = [
             self.venv_bin(filename='python'),
             '-m',

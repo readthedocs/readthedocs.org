@@ -250,7 +250,7 @@ div.ethical-footer {
 
 /* Dark theme */
 .ethical-dark-theme .ethical-sidebar {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #4e4b4b;
     border: 1px solid #a0a0a0;
     color: #c2c2c2 !important;
 }
@@ -285,4 +285,9 @@ div.ethical-footer {
     color: #efefef;
     font-size: 14px;
     line-height: 20px;
+}
+
+/* Margin between the search results */
+.rtd_search_hits_spacing {
+    margin: 10px 0;
 }

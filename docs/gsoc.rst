@@ -29,7 +29,7 @@ the more likely we are to choose your application!
 Getting Started
 ---------------
 
-The :doc:`/install` doc is probably the best place to get going.
+The :doc:`/development/install` doc is probably the best place to get going.
 It will walk you through getting a basic environment for Read the Docs setup. 
 
 Then you can look through our :doc:`/contribute` doc for information on how to get started contributing to RTD.
@@ -109,8 +109,8 @@ This would include:
 
 More info here: 
 
-* https://github.com/rtfd/readthedocs.org/issues/1340
-* https://github.com/rtfd/readthedocs.org/issues/2465
+* https://github.com/readthedocs/readthedocs.org/issues/1340
+* https://github.com/readthedocs/readthedocs.org/issues/2465
 
 
 Build a new Sphinx theme
@@ -141,9 +141,9 @@ This project would include:
 * Write a plugin to allow us to have more control over the build process (`#4924`_)
 * Support search (`#1088`_)
 
-.. _#1939: https://github.com/rtfd/readthedocs.org/issues/1939
-.. _#4924: https://github.com/rtfd/readthedocs.org/issues/4924
-.. _#1088: https://github.com/rtfd/readthedocs.org/issues/1088
+.. _#1939: https://github.com/readthedocs/readthedocs.org/issues/1939
+.. _#4924: https://github.com/readthedocs/readthedocs.org/issues/4924
+.. _#1088: https://github.com/readthedocs/readthedocs.org/issues/1088
 
 Integrated Redirects
 ~~~~~~~~~~~~~~~~~~~~
@@ -200,8 +200,8 @@ Looking through `these issues`_ is a good place to start.
 You might also look through our `milestones`_ on GitHub,
 which provide outlines on the larger tasks that we're hoping to accomplish.
 
-.. _these issues: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
-.. _milestones: https://github.com/rtfd/readthedocs.org/milestones
+.. _these issues: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
+.. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
 
 Thanks
 ------

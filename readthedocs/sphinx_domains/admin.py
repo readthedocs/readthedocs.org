@@ -6,9 +6,11 @@ from .models import SphinxDomain
 
 class SphinxDomainAdmin(admin.ModelAdmin):
     list_filter = ('type',)
-    raw_id_fields = ('project', 'version')
-    search_fields = ('doc_name', 'name')
+    list_display = ('__str__', 'version', 'build')
+    search_fields = ('doc_name', 'name', 'project__slug', 'version__slug', 'build')
     readonly_fields = ('created', 'modified')
+    raw_id_fields = ('project', 'version', 'html_file')
+    list_select_related = ('project', 'version', 'version__project')
 
 
 admin.site.register(SphinxDomain, SphinxDomainAdmin)
