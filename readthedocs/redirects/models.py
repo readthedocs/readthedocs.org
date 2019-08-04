@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
-from .managers import RedirectManager
+from .querysets import RedirectQuerySet
 
 
 log = logging.getLogger(__name__)
@@ -87,14 +87,14 @@ class Redirect(models.Model):
     http_status = models.SmallIntegerField(
         _('HTTP Status'),
         choices=HTTP_STATUS_CHOICES,
-        default=301,
+        default=302,
     )
     status = models.BooleanField(choices=STATUS_CHOICES, default=True)
 
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
 
-    objects = RedirectManager()
+    objects = RedirectQuerySet.as_manager()
 
     class Meta:
         verbose_name = _('redirect')
@@ -129,7 +129,7 @@ class Redirect(models.Model):
             )
         return ''
 
-    def get_full_path(self, filename, language=None, version_slug=None):
+    def get_full_path(self, filename, language=None, version_slug=None, allow_crossdomain=False):
         """
         Return a full path for a given filename.
 
@@ -137,7 +137,7 @@ class Redirect(models.Model):
         is returned.
         """
         # Handle explicit http redirects
-        if re.match('^https?://', filename):
+        if allow_crossdomain and re.match('^https?://', filename):
             return filename
 
         return resolve_path(
@@ -160,10 +160,12 @@ class Redirect(models.Model):
         if path.startswith(self.from_url):
             log.debug('Redirecting %s', self)
             cut_path = re.sub('^%s' % self.from_url, '', path)
+
             to = self.get_full_path(
                 filename=cut_path,
                 language=language,
                 version_slug=version_slug,
+                allow_crossdomain=False,
             )
             return to
 
@@ -174,6 +176,7 @@ class Redirect(models.Model):
                 filename=self.to_url.lstrip('/'),
                 language=language,
                 version_slug=version_slug,
+                allow_crossdomain=True,
             )
             return to
 
@@ -181,7 +184,7 @@ class Redirect(models.Model):
         full_path = path
         if language and version_slug:
             # reconstruct the full path for an exact redirect
-            full_path = self.get_full_path(path, language, version_slug)
+            full_path = self.get_full_path(path, language, version_slug, allow_crossdomain=False)
         if full_path == self.from_url:
             log.debug('Redirecting %s', self)
             return self.to_url
@@ -202,6 +205,7 @@ class Redirect(models.Model):
                     filename=to,
                     language=language,
                     version_slug=version_slug,
+                    allow_crossdomain=False,
                 )
 
     def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
@@ -213,4 +217,5 @@ class Redirect(models.Model):
                 filename=to,
                 language=language,
                 version_slug=version_slug,
+                allow_crossdomain=False,
             )

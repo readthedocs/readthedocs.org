@@ -45,7 +45,7 @@ We follow `semantic versioning`_ for our release numbering and our point release
 milestones follow these guidelines. For example, our next release milestones
 might be ``2.8``, ``2.9``, and ``3.0``. Releases ``2.8`` and ``2.9`` will
 contain bug fix issues and one backwards compatible feature (this dictates the
-change in minor verison). Release ``3.0`` will contain bugfixes and at least one
+change in minor version). Release ``3.0`` will contain bugfixes and at least one
 backwards incompatible change.
 
 Point release milestones try to remain static, but can shift upwards on a
@@ -80,21 +80,21 @@ In addition to the point release milestones currently established, our current
 roadmap priorities also include:
 
 Admin UX
-    https://github.com/rtfd/readthedocs.org/milestone/16
+    https://github.com/readthedocs/readthedocs.org/milestone/16
 
 Search Improvements
-    https://github.com/rtfd/readthedocs.org/milestone/23
+    https://github.com/readthedocs/readthedocs.org/milestone/23
 
 YAML File Completion
-    https://github.com/rtfd/readthedocs.org/milestone/28
+    https://github.com/readthedocs/readthedocs.org/milestone/28
 
 There are also several milestones that are explicitly *not* a priority for the
 core team:
 
 Cleanup
-    https://github.com/rtfd/readthedocs.org/milestone/10
+    https://github.com/readthedocs/readthedocs.org/milestone/10
 
 Refactoring
-    https://github.com/rtfd/readthedocs.org/milestone/34
+    https://github.com/readthedocs/readthedocs.org/milestone/34
 
 Core team will not be focusing their time on these milestones in development.

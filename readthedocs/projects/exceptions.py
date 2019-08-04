@@ -37,9 +37,10 @@ class RepositoryError(BuildEnvironmentError):
         'ensure that your repository URL is correct and your repository is public. '
         'Private repositories are not supported.',
     )
-
-    INVALID_SUBMODULES = _('One or more submodule URLs are not valid: {}.',)
-
+    INVALID_SUBMODULES = _(
+        'One or more submodule URLs are not valid: {}, '
+        'git/ssh URL schemas for submodules are not supported.'
+    )
     DUPLICATED_RESERVED_VERSIONS = _(
         'You can not have two versions with the name latest or stable.',
     )

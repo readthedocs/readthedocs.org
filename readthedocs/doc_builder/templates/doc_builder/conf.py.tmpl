@@ -31,7 +31,7 @@ if globals().get('source_suffix', False):
         # Sphinx >= 1.3 supports list/tuple to define multiple suffixes
         SUFFIX = source_suffix[0]
     elif isinstance(source_suffix, dict):
-        # Sphinx >= 1.8 supports a mapping dictionary for mulitple suffixes
+        # Sphinx >= 1.8 supports a mapping dictionary for multiple suffixes
         SUFFIX = list(source_suffix.keys())[0]  # make a ``list()`` for py2/py3 compatibility
     else:
         # default to .rst
@@ -141,7 +141,10 @@ if 'extensions' in globals():
 else:
     extensions = ["readthedocs_ext.readthedocs"]
 
-{% if use_pdf_latexmk %}
+# Add External version warning banner to the external version documentation
+if '{{ version.type }}' == 'external':
+    extensions.insert(1, "readthedocs_ext.external_version_warning")
+
 project_language = '{{ project.language }}'
 
 # User's Sphinx configurations
@@ -173,4 +176,3 @@ if chinese:
     latex_elements = latex_elements_user or latex_elements_rtd
 elif japanese:
     latex_engine = latex_engine_user or 'platex'
-{% endif %}

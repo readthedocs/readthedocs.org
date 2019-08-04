@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
-
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
+import codecs
+import hashlib
 import itertools
 import json
 import logging
 import os
 import shutil
+import yaml
 
-from django.conf import settings
-
-from readthedocs.config import PIP, SETUPTOOLS
+from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
@@ -47,11 +46,12 @@ class PythonEnvironment:
         )
         if os.path.exists(build_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing build directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing build directory',
+                }
             )
             shutil.rmtree(build_dir)
 
@@ -60,11 +60,12 @@ class PythonEnvironment:
         # Handle deleting old venv dir
         if os.path.exists(venv_dir):
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing venv directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing venv directory',
+                }
             )
             shutil.rmtree(venv_dir)
 
@@ -83,11 +84,10 @@ class PythonEnvironment:
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
         """
-        rel_path = os.path.relpath(install.path, self.checkout_path)
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
-                os.path.join('.', rel_path) if rel_path != '.' else rel_path
+                os.path.join('.', install.path) if install.path != '.' else install.path
             )
             extra_req_param = ''
             if install.extra_requirements:
@@ -99,7 +99,9 @@ class PythonEnvironment:
                 '-m',
                 'pip',
                 'install',
-                '--force-reinstall',
+                '--upgrade',
+                '--upgrade-strategy',
+                'eager',
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '{path}{extra_requirements}'.format(
@@ -112,7 +114,7 @@ class PythonEnvironment:
         elif install.method == SETUPTOOLS:
             self.build_env.run(
                 self.venv_bin(filename='python'),
-                os.path.join(rel_path, 'setup.py'),
+                os.path.join(install.path, 'setup.py'),
                 'install',
                 '--force',
                 cwd=self.checkout_path,
@@ -149,6 +151,7 @@ class PythonEnvironment:
         * the Python version (e.g. 2.7, 3, 3.6, etc)
         * the Docker image name
         * the Docker image hash
+        * the environment variables hash
 
         :returns: ``True`` when it's obsolete and ``False`` otherwise
 
@@ -174,6 +177,7 @@ class PythonEnvironment:
 
         env_python = environment_conf.get('python', {})
         env_build = environment_conf.get('build', {})
+        env_vars_hash = environment_conf.get('env_vars_hash', None)
 
         # By defaulting non-existent options to ``None`` we force a wipe since
         # we don't know how the environment was created
@@ -197,7 +201,22 @@ class PythonEnvironment:
             env_python_version != self.config.python_full_version,
             env_build_image != build_image,
             env_build_hash != image_hash,
+            env_vars_hash != self._get_env_vars_hash(),
         ])
+
+    def _get_env_vars_hash(self):
+        """
+        Returns the sha256 hash of all the environment variables and their values.
+
+        If there are no environment variables configured for the associated project,
+        it returns sha256 hash of empty string.
+        """
+        m = hashlib.sha256()
+        env_vars = self.version.project.environment_variables
+        for variable, value in env_vars.items():
+            hash_str = f'_{variable}_{value}_'
+            m.update(hash_str.encode('utf-8'))
+        return m.hexdigest()
 
     def save_environment_json(self):
         """
@@ -208,11 +227,13 @@ class PythonEnvironment:
         - python.version
         - build.image
         - build.hash
+        - env_vars_hash
         """
         data = {
             'python': {
                 'version': self.config.python_full_version,
             },
+            'env_vars_hash': self._get_env_vars_hash(),
         }
 
         if isinstance(self.build_env, DockerBuildEnvironment):
@@ -279,13 +300,7 @@ class Virtualenv(PythonEnvironment):
 
         requirements = [
             'Pygments==2.3.1',
-            # Assume semver for setuptools version, support up to next backwards
-            # incompatible release
-            self.project.get_feature_value(
-                Feature.USE_SETUPTOOLS_LATEST,
-                positive='setuptools<41',
-                negative='setuptools<41',
-            ),
+            'setuptools==41.0.1',
             'docutils==0.14',
             'mock==1.0.1',
             'pillow==5.4.1',
@@ -295,7 +310,13 @@ class Virtualenv(PythonEnvironment):
         ]
 
         if self.config.doctype == 'mkdocs':
-            requirements.append('mkdocs==0.17.3')
+            requirements.append(
+                self.project.get_feature_value(
+                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
+                    positive='mkdocs==0.17.3',
+                    negative='mkdocs<1.1',
+                ),
+            )
         else:
             # We will assume semver here and only automate up to the next
             # backward incompatible release: 2.x
@@ -306,7 +327,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<0.6',
+                'readthedocs-sphinx-ext<1.1',
             ])
 
         cmd = copy.copy(pip_install_cmd)
@@ -346,7 +367,10 @@ class Virtualenv(PythonEnvironment):
             for path, req_file in itertools.product(paths, req_files):
                 test_path = os.path.join(self.checkout_path, path, req_file)
                 if os.path.exists(test_path):
-                    requirements_file_path = test_path
+                    requirements_file_path = os.path.relpath(
+                        test_path,
+                        self.checkout_path,
+                    )
                     break
 
         if requirements_file_path:
@@ -363,10 +387,7 @@ class Virtualenv(PythonEnvironment):
                 '--cache-dir',
                 self.project.pip_cache_path,
                 '-r',
-                os.path.relpath(
-                    requirements_file_path,
-                    self.checkout_path
-                ),
+                requirements_file_path,
             ]
             self.build_env.run(
                 *args,
@@ -386,6 +407,24 @@ class Conda(PythonEnvironment):
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
+    def _update_conda_startup(self):
+        """
+        Update ``conda`` before use it for the first time.
+
+        This makes the Docker image to use the latest version of ``conda``
+        independently the version of Miniconda that it has installed.
+        """
+        self.build_env.run(
+            'conda',
+            'update',
+            '--yes',
+            '--quiet',
+            '--name=base',
+            '--channel=defaults',
+            'conda',
+            cwd=self.checkout_path,
+        )
+
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
         version_path = os.path.join(conda_env_path, self.version.slug)
@@ -393,13 +432,22 @@ class Conda(PythonEnvironment):
         if os.path.exists(version_path):
             # Re-create conda directory each time to keep fresh state
             log.info(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Removing existing conda directory',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': 'Removing existing conda directory',
+                },
             )
             shutil.rmtree(version_path)
+
+        if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
+            self._update_conda_startup()
+
+        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
+            self._append_core_requirements()
+            self._show_environment_yaml()
+
         self.build_env.run(
             'conda',
             'env',
@@ -413,10 +461,76 @@ class Conda(PythonEnvironment):
             cwd=self.checkout_path,
         )
 
-    def install_core_requirements(self):
-        """Install basic Read the Docs requirements into the Conda env."""
+    def _show_environment_yaml(self):
+        """Show ``environment.yml`` file in the Build output."""
+        self.build_env.run(
+            'cat',
+            self.config.conda.environment,
+            cwd=self.checkout_path,
+        )
+
+    def _append_core_requirements(self):
+        """
+        Append Read the Docs dependencies to Conda environment file.
+
+        This help users to pin their dependencies properly without us upgrading
+        them in the second ``conda install`` run.
+
+        See https://github.com/readthedocs/readthedocs.org/pull/5631
+        """
+        try:
+            inputfile = codecs.open(
+                os.path.join(
+                    self.checkout_path,
+                    self.config.conda.environment,
+                ),
+                encoding='utf-8',
+                mode='r',
+            )
+            environment = parse_yaml(inputfile)
+        except IOError:
+            log.warning(
+                'There was an error while reading Conda environment file.',
+            )
+        except ParseError:
+            log.warning(
+                'There was an error while parsing Conda environment file.',
+            )
+        else:
+            # Append conda dependencies directly to ``dependencies`` and pip
+            # dependencies to ``dependencies.pip``
+            pip_requirements, conda_requirements = self._get_core_requirements()
+            dependencies = environment.get('dependencies', [])
+            pip_dependencies = {'pip': pip_requirements}
+
+            for item in dependencies:
+                if isinstance(item, dict) and 'pip' in item:
+                    pip_requirements.extend(item.get('pip', []))
+                    dependencies.remove(item)
+                    break
+
+            dependencies.append(pip_dependencies)
+            dependencies.extend(conda_requirements)
+            environment.update({'dependencies': dependencies})
+            try:
+                outputfile = codecs.open(
+                    os.path.join(
+                        self.checkout_path,
+                        self.config.conda.environment,
+                    ),
+                    encoding='utf-8',
+                    mode='w',
+                )
+                yaml.safe_dump(environment, outputfile)
+            except IOError:
+                log.warning(
+                    'There was an error while writing the new Conda '
+                    'environment file.',
+                )
+
+    def _get_core_requirements(self):
         # Use conda for requirements it packages
-        requirements = [
+        conda_requirements = [
             'mock',
             'pillow',
         ]
@@ -430,8 +544,22 @@ class Conda(PythonEnvironment):
             pip_requirements.append('mkdocs')
         else:
             pip_requirements.append('readthedocs-sphinx-ext')
-            requirements.extend(['sphinx', 'sphinx_rtd_theme'])
+            conda_requirements.extend(['sphinx', 'sphinx_rtd_theme'])
 
+        return pip_requirements, conda_requirements
+
+    def install_core_requirements(self):
+        """Install basic Read the Docs requirements into the Conda env."""
+
+        if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
+            # Skip install core requirements since they were already appended to
+            # the user's ``environment.yml`` and installed at ``conda env
+            # create`` step.
+            return
+
+        pip_requirements, conda_requirements = self._get_core_requirements()
+        # Install requirements via ``conda install`` command if they were
+        # not appended to the ``environment.yml`` file.
         cmd = [
             'conda',
             'install',
@@ -440,12 +568,13 @@ class Conda(PythonEnvironment):
             '--name',
             self.version.slug,
         ]
-        cmd.extend(requirements)
+        cmd.extend(conda_requirements)
         self.build_env.run(
             *cmd,
             cwd=self.checkout_path,
         )
 
+        # Install requirements via ``pip install``
         pip_cmd = [
             self.venv_bin(filename='python'),
             '-m',

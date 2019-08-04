@@ -38,6 +38,7 @@ from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import resolve, resolve_path
@@ -110,11 +111,27 @@ def map_project_slug(view_func):
 def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
     """Handle / -> /en/latest/ directs on subdomains."""
     urlparse_result = urlparse(request.get_full_path())
+
+    # When accessing docs.customdomain.org/projects/subproject/ and the
+    # ``subproject`` is a single-version, we don't have to redirect but to serve
+    # the index file instead.
+    if subproject and subproject.single_version:
+        try:
+            # HACK: this only affects corporate site and won't be hit on the
+            # community. This can be removed once the middleware incorporates
+            # more data or redirects happen outside this application
+            # See: https://github.com/rtfd/readthedocs.org/pull/5690
+            log.warning('Serving docs for a single-version subproject instead redirecting')
+            from readthedocsinc.core.views import serve_docs as corporate_serve_docs  # noqa
+            return corporate_serve_docs(request, project, project.slug, subproject, subproject.slug)
+        except Exception:
+            log.exception('Error trying to redirect a single-version subproject')
+
     return HttpResponseRedirect(
         resolve(
             subproject or project,
             query_params=urlparse_result.query,
-        )
+        ),
     )
 
 
@@ -135,7 +152,7 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
-    log.debug('Unauthorized access to {} documentation'.format(project.slug))
+    log.debug('Unauthorized access to %s documentation', project.slug)
     return res
 
 
@@ -158,7 +175,7 @@ def _serve_file(request, filename, basepath):
     :raises: ``Http404`` on ``UnicodeEncodeError``
     """
     # Serve the file from the proper location
-    if settings.DEBUG or getattr(settings, 'PYTHON_MEDIA', False):
+    if settings.DEBUG or settings.PYTHON_MEDIA:
         # Serve from Python
         return serve(request, filename, basepath)
 
@@ -202,7 +219,11 @@ def serve_docs(
     if not version_slug:
         version_slug = project.get_default_version()
     try:
-        version = project.versions.public(request.user).get(slug=version_slug)
+        version = (
+            Version.objects
+            .public(user=request.user, project=project)
+            .get(slug=version_slug)
+        )
     except Version.DoesNotExist:
         # Properly raise a 404 if the version doesn't exist (or is inactive) and
         # a 401 if it does
@@ -242,9 +263,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
     files_tried = []
 
-    serve_docs = getattr(settings, 'SERVE_DOCS', [constants.PRIVATE])
-
-    if (settings.DEBUG or constants.PUBLIC in serve_docs) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PUBLIC in settings.SERVE_DOCS) and privacy_level != constants.PRIVATE:  # yapf: disable  # noqa
         public_symlink = PublicSymlink(project)
         basepath = public_symlink.project_root
         if os.path.exists(os.path.join(basepath, filename)):
@@ -252,7 +271,7 @@ def _serve_symlink_docs(request, project, privacy_level, filename=''):
 
         files_tried.append(os.path.join(basepath, filename))
 
-    if (settings.DEBUG or constants.PRIVATE in serve_docs) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
+    if (settings.DEBUG or constants.PRIVATE in settings.SERVE_DOCS) and privacy_level == constants.PRIVATE:  # yapf: disable  # noqa
         # Handle private
         private_symlink = PrivateSymlink(project)
         basepath = private_symlink.project_root
@@ -356,29 +375,52 @@ def sitemap_xml(request, project):
         priorities = [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2]
         yield from itertools.chain(priorities, itertools.repeat(0.1))
 
+    def hreflang_formatter(lang):
+        """
+        sitemap hreflang should follow correct format.
+
+        Use hyphen instead of underscore in language and country value.
+        ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
+        """
+        if '_' in lang:
+            return lang.replace("_", "-")
+        return lang
+
     def changefreqs_generator():
         """
         Generator returning ``changefreq`` needed by sitemap.xml.
 
-        It returns ``daily`` on first iteration, then ``weekly`` and then it
+        It returns ``weekly`` on first iteration, then ``daily`` and then it
         will return always ``monthly``.
 
         We are using ``monthly`` as last value because ``never`` is too
         aggressive. If the tag is removed and a branch is created with the same
         name, we will want bots to revisit this.
         """
-        changefreqs = ['daily', 'weekly']
+        changefreqs = ['weekly', 'daily']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
     if project.privacy_level == constants.PRIVATE:
         raise Http404
 
     sorted_versions = sort_version_aware(
-        Version.objects.public(
+        Version.internal.public(
             project=project,
             only_active=True,
         ),
     )
+
+    # This is a hack to swap the latest version with
+    # stable version to get the stable version first in the sitemap.
+    # We want stable with priority=1 and changefreq='weekly' and
+    # latest with priority=0.9 and changefreq='daily'
+    # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
+    if (
+        len(sorted_versions) >= 2 and
+        sorted_versions[0].slug == LATEST and
+        sorted_versions[1].slug == STABLE
+    ):
+        sorted_versions[0], sorted_versions[1] = sorted_versions[1], sorted_versions[0]
 
     versions = []
     for version, priority, changefreq in zip(
@@ -401,15 +443,20 @@ def sitemap_xml(request, project):
 
         if project.translations.exists():
             for translation in project.translations.all():
-                href = project.get_docs_url(
-                    version_slug=version.slug,
-                    lang_slug=translation.language,
-                    private=version.privacy_level == constants.PRIVATE,
+                translation_versions = (
+                    Version.internal.public(project=translation)
+                    .values_list('slug', flat=True)
                 )
-                element['languages'].append({
-                    'hreflang': translation.language,
-                    'href': href,
-                })
+                if version.slug in translation_versions:
+                    href = project.get_docs_url(
+                        version_slug=version.slug,
+                        lang_slug=translation.language,
+                        private=False,
+                    )
+                    element['languages'].append({
+                        'hreflang': hreflang_formatter(translation.language),
+                        'href': href,
+                    })
 
             # Add itself also as protocol requires
             element['languages'].append({

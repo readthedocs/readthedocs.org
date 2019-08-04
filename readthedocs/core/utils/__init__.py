@@ -1,27 +1,24 @@
-# -*- coding: utf-8 -*-
-
 """Common utilty functions."""
 
-from __future__ import absolute_import
-
 import errno
-import getpass
 import logging
 import os
 import re
 
+from celery import chord, group
 from django.conf import settings
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
-from celery import group, chord
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import (
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_PENDING,
+)
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
-log = logging.getLogger(__name__)
 
-SYNC_USER = getattr(settings, 'SYNC_USER', getpass.getuser())
+log = logging.getLogger(__name__)
 
 
 def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
@@ -37,11 +34,11 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
         raise ValueError('allowed value of `type` are web, app and build.')
     if kwargs is None:
         kwargs = {}
-    default_queue = getattr(settings, 'CELERY_DEFAULT_QUEUE', 'celery')
+
     if type in ['web', 'app']:
-        servers = getattr(settings, 'MULTIPLE_APP_SERVERS', [default_queue])
+        servers = settings.MULTIPLE_APP_SERVERS
     elif type in ['build']:
-        servers = getattr(settings, 'MULTIPLE_BUILD_SERVERS', [default_queue])
+        servers = settings.MULTIPLE_BUILD_SERVERS
 
     tasks = []
     for server in servers:
@@ -63,6 +60,7 @@ def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=
 def prepare_build(
         project,
         version=None,
+        commit=None,
         record=True,
         force=False,
         immutable=True,
@@ -75,6 +73,7 @@ def prepare_build(
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``project.get_default_version()``
+    :param commit: commit sha of the version required for sending build status reports
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :param immutable: whether or not create an immutable Celery signature
@@ -84,7 +83,10 @@ def prepare_build(
     # Avoid circular import
     from readthedocs.builds.models import Build
     from readthedocs.projects.models import Project
-    from readthedocs.projects.tasks import update_docs_task
+    from readthedocs.projects.tasks import (
+        update_docs_task,
+        send_external_build_status,
+    )
 
     build = None
 
@@ -100,9 +102,9 @@ def prepare_build(
         version = project.versions.get(slug=default_version)
 
     kwargs = {
-        'version_pk': version.pk,
         'record': record,
         'force': force,
+        'commit': commit,
     }
 
     if record:
@@ -112,6 +114,7 @@ def prepare_build(
             type='html',
             state=BUILD_STATE_TRIGGERED,
             success=True,
+            commit=commit
         )
         kwargs['build_pk'] = build.pk
 
@@ -132,9 +135,16 @@ def prepare_build(
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
+    if build and commit:
+        # Send pending Build Status using Git Status API for External Builds.
+        send_external_build_status(
+            version_type=version.type, build_pk=build.id,
+            commit=commit, status=BUILD_STATUS_PENDING
+        )
+
     return (
         update_docs_task.signature(
-            args=(project.pk,),
+            args=(version.pk,),
             kwargs=kwargs,
             options=options,
             immutable=True,
@@ -143,7 +153,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None, record=True, force=False):
     """
     Trigger a Build.
 
@@ -152,6 +162,7 @@ def trigger_build(project, version=None, record=True, force=False):
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
+    :param commit: commit sha of the version required for sending build status reports
     :param record: whether or not record the build in a new Build object
     :param force: build the HTML documentation even if the files haven't changed
     :returns: Celery AsyncResult promise and Build instance
@@ -160,6 +171,7 @@ def trigger_build(project, version=None, record=True, force=False):
     update_docs_task, build = prepare_build(
         project,
         version,
+        commit,
         record,
         force,
         immutable=True,

@@ -49,7 +49,9 @@ class Backend(BaseVCS):
 
     def parse_tags(self, data):
         """
-        Parses output of bzr tags, eg:
+        Parses output of bzr tags.
+
+        Example:
 
             0.1.0                171
             0.1.1                173

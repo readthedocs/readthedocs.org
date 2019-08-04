@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """
-Core views, including the main homepage,
+Core views.
 
-documentation and header rendering, and server errors.
+Including the main homepage, documentation and header rendering,
+and server errors.
 """
 
 import os
@@ -14,13 +13,12 @@ from django.conf import settings
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
-
+from django.views.static import serve as static_serve
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.views.serve import _serve_file
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.redirects.utils import (
@@ -44,7 +42,6 @@ class HomepageView(TemplateView):
         """Add latest builds and featured projects."""
         context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
-        context['projects_count'] = Project.objects.count()
         return context
 
 
@@ -53,14 +50,10 @@ class SupportView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        support_email = getattr(settings, 'SUPPORT_EMAIL', None)
+        support_email = settings.SUPPORT_EMAIL
         if not support_email:
             support_email = 'support@{domain}'.format(
-                domain=getattr(
-                    settings,
-                    'PRODUCTION_DOMAIN',
-                    'readthedocs.org',
-                ),
+                domain=settings.PRODUCTION_DOMAIN
             )
 
         context['support_email'] = support_email
@@ -68,7 +61,7 @@ class SupportView(TemplateView):
 
 
 def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    html_file = HTMLFile.objects.order_by('?')
+    html_file = HTMLFile.objects.internal().order_by('?')
     if project_slug:
         html_file = html_file.filter(project__slug=project_slug)
     html_file = html_file.first()
@@ -80,7 +73,7 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
 
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
-        Version,
+        Version.internal.all(),
         project__slug=project_slug,
         slug=version_slug,
     )
@@ -92,7 +85,7 @@ def wipe_version(request, project_slug, version_slug):
     if request.method == 'POST':
         wipe_version_via_slugs(
             version_slug=version_slug,
-            project_slug=project_slug
+            project_slug=project_slug,
         )
         return redirect('project_version_list', project_slug)
     return render(
@@ -150,7 +143,7 @@ def server_error_404_subdomain(request, template_name='404.html'):
     the Docs default page (Maze Found) is rendered by Django and served.
     """
 
-    def resolve_404_path(project, version_slug=None, language=None):
+    def resolve_404_path(project, version_slug=None, language=None, filename='404.html'):
         """
         Helper to resolve the path of ``404.html`` for project.
 
@@ -164,7 +157,7 @@ def server_error_404_subdomain(request, template_name='404.html'):
             project,
             version_slug=version_slug,
             language=language,
-            filename='404.html',
+            filename=filename,
             subdomain=True,  # subdomain will make it a "full" path without a URL prefix
         )
 
@@ -200,18 +193,20 @@ def server_error_404_subdomain(request, template_name='404.html'):
             language, version_slug, path = language_and_version_from_path(path)
 
         # Firstly, attempt to serve the 404 of the current version (version_slug)
-        # Secondly, try to serve the 404 page for the default version (project.get_default_version())
+        # Secondly, try to serve the 404 page for the default version
+        # (project.get_default_version())
         for slug in (version_slug, project.get_default_version()):
-            basepath, filename, fullpath = resolve_404_path(project, slug, language)
-            if os.path.exists(fullpath):
-                log.debug(
-                    'serving 404.html page current version: [project: %s] [version: %s]',
-                    project.slug,
-                    slug,
-                )
-                r = _serve_file(request, filename, basepath)
-                r.status_code = 404
-                return r
+            for tryfile in ('404.html', '404/index.html'):
+                basepath, filename, fullpath = resolve_404_path(project, slug, language, tryfile)
+                if os.path.exists(fullpath):
+                    log.debug(
+                        'serving 404.html page current version: [project: %s] [version: %s]',
+                        project.slug,
+                        slug,
+                    )
+                    r = static_serve(request, filename, basepath)
+                    r.status_code = 404
+                    return r
 
     # Finally, return the default 404 page generated by Read the Docs
     r = render(request, template_name)

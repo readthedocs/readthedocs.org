@@ -1,6 +1,10 @@
 Advertising
 ===========
 
+.. meta::
+   :description lang=en: Read the Docs is a large open source project funded by ethical advertising which respects user privacy and doesn't track people.
+
+
 Advertising is the single largest source of funding for Read the Docs.
 It allows us to:
 
@@ -20,6 +24,9 @@ We recognize that advertising is not for everyone.
 You may :ref:`opt out of paid advertising <advertising/ethical-advertising:Opting Out>`
 -- you will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>` --
 or you can go ad-free by `becoming a Gold Member`_ or a `Supporter`_ of Read the Docs.
+
+For businesses looking to remove advertising,
+please consider :doc:`Read the Docs for Business </commercial/index>`.
 
 .. _becoming a Gold Member: https://readthedocs.org/accounts/gold/
 .. _Supporter: https://readthedocs.org/sustainability/#donations
