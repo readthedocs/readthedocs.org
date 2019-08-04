@@ -1,3 +1,5 @@
+import csv
+import io
 from urllib.parse import urlsplit
 
 import mock
@@ -329,6 +331,8 @@ class TestSearchAnalyticsView(TestCase):
                                     'sphinx', 'search', 'documentation', 'hello world']
 
             resp = self.client.get(self.analyics_page, {'version':self.version.slug, 'size': 100})
+
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
                 resp.context['queries'],
@@ -346,6 +350,7 @@ class TestSearchAnalyticsView(TestCase):
                 {'version': self.version.slug, 'size': 100, 'period': 'last-24-hrs'}
             )
 
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
                 resp.context['queries']
@@ -363,6 +368,7 @@ class TestSearchAnalyticsView(TestCase):
                 {'version': self.version.slug, 'size': 100, 'period': 'last-48-hrs'}
             )
 
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
                 resp.context['queries'],
@@ -380,6 +386,7 @@ class TestSearchAnalyticsView(TestCase):
                 {'version': self.version.slug, 'size': 100, 'period': 'last-1-month'}
             )
 
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
                 resp.context['queries'],
@@ -397,6 +404,7 @@ class TestSearchAnalyticsView(TestCase):
                 {'version': self.version.slug, 'size': 100, 'period': 'last-3-months'}
             )
 
+            self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
                 resp.context['queries'],
@@ -413,6 +421,7 @@ class TestSearchAnalyticsView(TestCase):
             }
             resp = self.client.get(self.analyics_page, {'version': self.version.slug})
 
+            self.assertEqual(resp.status_code, 200)
             self.assertDictEqual(
                 expected_result,
                 resp.context['doughnut_chart_data'],
@@ -430,6 +439,7 @@ class TestSearchAnalyticsView(TestCase):
             )
             resp = self.client.get(self.analyics_page, {'version': self.version.slug})
 
+            self.assertEqual(resp.status_code, 200)
             self.assertListEqual(
                 expected_result_data,
                 resp.context['chart_data']['int_data'],
@@ -442,3 +452,27 @@ class TestSearchAnalyticsView(TestCase):
                 '01 Aug',
                 resp.context['chart_data']['labels'][-1],
             )
+
+    def test_generated_csv_data(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'download': 'true'}
+            )
+
+            self.assertEqual(resp.status_code, 200)
+
+            content = resp.content.decode('utf-8')
+            cvs_reader = csv.reader(io.StringIO(content))
+            body = list(cvs_reader)
+            headers = body.pop(0)
+
+            self.assertEqual(
+                headers,
+                ['serial_no', 'date_time', 'query'],
+            )
+            self.assertEqual(len(body), 23)
+            self.assertEqual(body[0][2], 'advertising')
+            self.assertEqual(body[-1][2], 'hello world')
