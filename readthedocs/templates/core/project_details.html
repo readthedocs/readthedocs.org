@@ -33,6 +33,16 @@
           {% if request.user in project.users.all %}
             <span class="right-menu quiet">{{ version.get_privacy_level_display }}</span>
           {% endif %}
+          {% if request.user|is_admin:project %}
+            <span class="right-menu quiet">
+              {% is_latest_built_success version as is_success %}
+              {% if is_success %}
+                <span class="build-state build-state-passing">{% trans "passing" %}</span>
+              {% else %}
+                <span class="build-state build-state-failing">{% trans "failing" %}</span>
+              {% endif %}
+            </span>
+          {% endif %}
           </a>
         {% else %}
           <a class="module-item-title" href="{{ version.project.get_builds_url }}">
@@ -42,16 +52,6 @@
           {% if request.user|is_admin:project %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
-              <li>
-                <span class="right quiet status-middle">
-                  {% is_latest_built_success version as is_success %}
-                  {% if is_success %}
-                    <span class="build-state build-state-passing">{% trans "passing" %}</span>
-                  {% else %}
-                    <span class="build-state build-state-failing status-failing">{% trans "failing" %}</span>
-                  {% endif %}
-                </span>
-              <li>
             </ul>
           {% endif %}
         </li>

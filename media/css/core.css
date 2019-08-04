@@ -720,8 +720,6 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .hide { display: none; }
 .left { float: left; }
 .right { float: right; }
-.status-middle { margin: 10px 5px 0px 0px; }
-.status-failing { margin-left: 14px }
 .right-menu { float: right; margin-right: 132px; }
 .help_text { color: #999; }
 .highlighted { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
