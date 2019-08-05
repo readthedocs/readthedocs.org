@@ -1,6 +1,9 @@
 Organizations
 -------------
 
+.. note::
+    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`_.
+
 Organizations allow you to segment who has access to what projects in your company.
 Your company will be represented as an Organization,
 let's use ACME Corporation as our example.
