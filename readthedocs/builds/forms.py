@@ -47,7 +47,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
         label='Rule',
         choices=[
             (r'.*', 'All versions'),
-            (r'v?[^.]+\.[^.]+\.[^.]+(-.+)?', 'Semver versions'),
+            (r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$', 'Semver versions'),
             (None, 'Custom'),
         ],
         required=False,
@@ -55,7 +55,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
     match_arg = forms.CharField(
         label='Custom rule',
-        help_text='A Python regular expression',
+        help_text=_('A Python regular expression'),
         required=False,
     )
 
