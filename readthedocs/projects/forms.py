@@ -616,8 +616,8 @@ class TranslationBaseForm(forms.Form):
 
     def save(self, commit=True):
         if commit:
+            self.translation.main_language_project = self.parent
             self.translation.save()
-            self.parent.translations.add(self.translation)
             # Run symlinking and other sync logic to make sure we are in a good
             # state.
             self.parent.save()
