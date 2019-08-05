@@ -619,7 +619,14 @@ class TranslationBaseForm(forms.Form):
             self.get_translation_queryset()
             .get(slug=translation_slug)
         )
-        project = self.parent.translations.add(translation)
+        project = self.parent.translations.add(
+            translation,
+            # Django only allows to add an object from the same database
+            # used for write. The translation object could have been retrieved
+            # from a replica, with bulk False Django ignores from where
+            # the object came.
+            bulk=False
+        )
         # Run symlinking and other sync logic to make sure we are in a good
         # state.
         self.parent.save()
