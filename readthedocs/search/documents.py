@@ -91,6 +91,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
             'anchor': fields.KeywordField(),
 
             # For showing in the search result
+            'type_display': fields.TextField(),
             'docstrings': fields.TextField(),
 
             # Simple analyzer breaks on `.`,
@@ -120,6 +121,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
                 {
                     'role_name': domain.role_name,
                     'anchor': domain.anchor,
+                    'type_display': domain.type_display,
                     'docstrings': html_file.processed_json.get('domain_data', {}).get(domain.anchor, ''),
                     'name': domain.name,
                 }
