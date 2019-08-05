@@ -70,6 +70,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
+    path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
 
     # Searchable content

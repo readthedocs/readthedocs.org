@@ -22,9 +22,16 @@ class PageSearchSerializer(serializers.Serializer):
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()
-    full_path = serializers.CharField()
+    path = serializers.CharField()
+    link = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
     inner_hits = serializers.SerializerMethodField()
+
+    def get_link(self, obj):
+        projects_url = self.context.get('projects_url')
+        if projects_url:
+            docs_url = projects_url[obj.project]
+            return docs_url + obj.path
 
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)

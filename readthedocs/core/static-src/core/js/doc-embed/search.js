@@ -18,7 +18,6 @@ function attach_elastic_search_query(data) {
     var version = data.version;
     var language = data.language || 'en';
     var api_host = data.api_host;
-    var canonical_url = data.canonical_url;
 
     var query_override = function (query) {
         var search_def = $.Deferred();
@@ -50,7 +49,7 @@ function attach_elastic_search_query(data) {
                             }
                         }
 
-                        var link = canonical_url + doc.full_path + "?highlight=" + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX + "?highlight=" + $.urlencode(query);
                         var item = $('<a>', {'href': link});
 
                         item.html(title);

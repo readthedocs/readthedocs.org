@@ -86,6 +86,11 @@ def process_file(fjson_filename):
     title = ''
     domain_data = {}
 
+    if 'current_page_name' in data:
+        path = data['current_page_name']
+    else:
+        log.info('Unable to index file due to no name %s', fjson_filename)
+
     if data.get('body'):
         body = PyQuery(data['body'])
         sections.extend(generate_sections_from_pyquery(body.clone(), fjson_filename))
