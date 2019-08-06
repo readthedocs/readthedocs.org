@@ -317,9 +317,10 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage
-        storage_paths = self.get_storage_paths()
-        tasks.remove_build_storage_paths.delay(storage_paths)
+        # Remove build artifacts from storage if the version is not external
+        if self.type != EXTERNAL:
+            storage_paths = self.get_storage_paths()
+            tasks.remove_build_storage_paths.delay(storage_paths)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
