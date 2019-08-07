@@ -63,7 +63,9 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.projects.constants import GITHUB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -130,26 +132,23 @@ class SyncRepositoryMixin:
             )
 
         # Get the actual code on disk
-        try:
-            before_vcs.send(sender=self.version)
-            msg = 'Checking out version {slug}: {identifier}'.format(
-                slug=self.version.slug,
-                identifier=self.version.identifier,
-            )
-            log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
-            version_repo = self.get_vcs_repo()
-            version_repo.update()
-            self.sync_versions(version_repo)
-            version_repo.checkout(self.version.identifier)
-        finally:
-            after_vcs.send(sender=self.version)
+        msg = 'Checking out version {slug}: {identifier}'.format(
+            slug=self.version.slug,
+            identifier=self.version.identifier,
+        )
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        version_repo = self.get_vcs_repo()
+        version_repo.update()
+        self.sync_versions(version_repo)
+        identifier = self.commit or self.version.identifier
+        version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -240,6 +239,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
+            before_vcs.send(sender=self.version)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo()
             return True
@@ -264,6 +264,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+        finally:
+            after_vcs.send(sender=self.version)
+
+        # Always return False for any exceptions
         return False
 
 
@@ -321,6 +325,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=None,
             project=None,
             version=None,
+            commit=None,
             task=None,
     ):
         self.build_env = build_env
@@ -332,6 +337,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.version = {}
         if version is not None:
             self.version = version
+        self.commit = commit
         self.project = {}
         if project is not None:
             self.project = project
@@ -342,7 +348,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
             force=False, **__
     ):
         """
@@ -363,6 +369,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         :param version_pk int: Project Version id
         :param build_pk int: Build id (if None, commands are not recorded)
+        :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
@@ -379,6 +386,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.version.project
             self.build = self.get_build(build_pk)
             self.build_force = force
+            self.commit = commit
             self.config = None
 
             # Build process starts here
@@ -440,25 +448,29 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
-            if self.project.skip:
-                raise ProjectBuildsSkippedError
             try:
-                with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_vcs()
-            except vcs_support_utils.LockTimeout as e:
-                self.task.retry(exc=e, throw=False)
-                raise VersionLockedError
-            try:
-                self.config = load_yaml_config(version=self.version)
-            except ConfigError as e:
-                raise YAMLParseError(
-                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                        exception=str(e),
-                    ),
-                )
+                before_vcs.send(sender=self.version)
+                if self.project.skip:
+                    raise ProjectBuildsSkippedError
+                try:
+                    with self.project.repo_nonblockinglock(version=self.version):
+                        self.setup_vcs()
+                except vcs_support_utils.LockTimeout as e:
+                    self.task.retry(exc=e, throw=False)
+                    raise VersionLockedError
+                try:
+                    self.config = load_yaml_config(version=self.version)
+                except ConfigError as e:
+                    raise YAMLParseError(
+                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                            exception=str(e),
+                        ),
+                    )
 
-            self.save_build_config()
-            self.additional_vcs_operations()
+                self.save_build_config()
+                self.additional_vcs_operations()
+            finally:
+                after_vcs.send(sender=self.version)
 
         if self.setup_env.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
@@ -566,38 +578,57 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                     # Finalize build and update web servers
-                    self.update_app_instances(
-                        html=bool(outcomes['html']),
-                        search=bool(outcomes['search']),
-                        localmedia=bool(outcomes['localmedia']),
-                        pdf=bool(outcomes['pdf']),
-                        epub=bool(outcomes['epub']),
-                    )
+                    # We upload EXTERNAL version media files to blob storage
+                    # We should have this check here to make sure
+                    # the files don't get re-uploaded on web.
+                    if self.version.type != EXTERNAL:
+                        self.update_app_instances(
+                            html=bool(outcomes['html']),
+                            search=bool(outcomes['search']),
+                            localmedia=bool(outcomes['localmedia']),
+                            pdf=bool(outcomes['pdf']),
+                            epub=bool(outcomes['epub']),
+                        )
                 else:
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
+            # TODO: Send RTD Webhook notification for build failure.
             self.send_notifications(self.version.pk, self.build['id'])
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
+
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
         elif self.build_env.successful:
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
-            )
+            # TODO: Send RTD Webhook notification for build success.
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_SUCCESS
+                )
         else:
-            msg = 'Unhandled Build Status'
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
+            if self.commit:
+                msg = 'Unhandled Build Status'
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
+                )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -666,7 +697,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
 
@@ -963,15 +994,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Gracefully attempt to move files via task on web workers.
         try:
-            broadcast(
-                type='app',
-                task=move_files,
-                args=[
-                    self.version.pk,
-                    socket.gethostname(), self.config.doctype
-                ],
-                kwargs=dict(html=True),
-            )
+            # We upload EXTERNAL version media files to blob storage
+            # We should have this check here to make sure
+            # the files don't get re-uploaded on web.
+            if self.version.type != EXTERNAL:
+                broadcast(
+                    type='app',
+                    task=move_files,
+                    args=[
+                        self.version.pk,
+                        socket.gethostname(), self.config.doctype
+                    ],
+                    kwargs=dict(html=True),
+                )
         except socket.error:
             log.exception('move_files task has failed on socket error.')
 
@@ -1396,10 +1431,34 @@ def _create_intersphinx_data(version, path, commit, build):
                     f'domain->name',
                 )
                 continue
+
+            # HACK: This is done because the difference between
+            # ``sphinx.builders.html.StandaloneHTMLBuilder``
+            # and ``sphinx.builders.dirhtml.DirectoryHTMLBuilder``.
+            # They both have different ways of generating HTML Files,
+            # and therefore the doc_name generated is different.
+            # More info on: http://www.sphinx-doc.org/en/master/usage/builders/index.html#builders
+            # Also see issue: https://github.com/readthedocs/readthedocs.org/issues/5821
+            if doc_name.endswith('/'):
+                doc_name += 'index.html'
+
             html_file = HTMLFile.objects.filter(
                 project=version.project, version=version,
                 path=doc_name, build=build,
             ).first()
+
+            if not html_file:
+                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                    version.project,
+                    version,
+                    build,
+                    doc_name,
+                ))
+
+                # Don't create Sphinx Domain objects
+                # if the HTMLFile object is not found.
+                continue
+
             SphinxDomain.objects.create(
                 project=version.project,
                 version=version,
@@ -1822,43 +1881,79 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, status):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build primary key
+    :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
-    try:
-        if build.project.remote_repository.account.provider == 'github':
-            service = GitHubService(
+    provider_name = build.project.git_provider_name
+
+    if provider_name == GITHUB_BRAND:
+        # get the service class for the project e.g: GitHubService.
+        service_class = build.project.git_service_class()
+        try:
+            service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
+            # Send status report using the API.
+            service.send_build_status(build, commit, status)
 
-            # send Status report using the API.
-            service.send_build_status(build, status)
+        except RemoteRepository.DoesNotExist:
+            users = build.project.users.all()
 
-    except RemoteRepository.DoesNotExist:
-        log.info('Remote repository does not exist for %s', build.project)
+            # Try to loop through all project users to get their social accounts
+            for user in users:
+                user_accounts = service_class.for_user(user)
+                # Try to loop through users all social accounts to send a successful request
+                for account in user_accounts:
+                    # Currently we only support GitHub Status API
+                    if account.provider_name == provider_name:
+                        success = account.send_build_status(build, commit, status)
+                        if success:
+                            return True
 
-    except Exception:
-        log.exception('Send build status task failed for %s', build.project)
+            for user in users:
+                # Send Site notification about Build status reporting failure
+                # to all the users of the project.
+                notification = GitBuildStatusFailureNotification(
+                    context_object=build.project,
+                    extra_context={'provider_name': provider_name},
+                    user=user,
+                    success=False,
+                )
+                notification.send()
+
+            log.info(
+                'No social account or repository permission available for %s',
+                build.project.slug
+            )
+            return False
+
+        except Exception:
+            log.exception('Send build status task failed for %s', build.project.slug)
+            return False
+
+    return False
 
     # TODO: Send build status for other providers.
 
 
-def send_external_build_status(version, build_pk, status):
+def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-     :param version: Version instance
+     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
      :param build_pk: Build pk
+     :param commit: commit sha of the pull/merge request
      :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
-    if version.type == EXTERNAL:
+    if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build_pk, status)
+        send_build_status.delay(build_pk, commit, status)

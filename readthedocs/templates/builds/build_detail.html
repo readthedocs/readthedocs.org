@@ -122,7 +122,7 @@ $(document).ready(function () {
     </div>
 
     {% if request.user|is_admin:project %}
-      {% if not build.success and build.commands.count < 4 %}
+      {% if not build.success and build.commands.count < 4 and build.version.supports_wipe %}
         <div class="build-ideas">
           <p>
             {% url 'wipe_version' build.version.project.slug build.version.slug as wipe_url %}

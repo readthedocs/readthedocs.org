@@ -156,6 +156,7 @@ class GitHubOAuthTests(TestCase):
         session().post.return_value.status_code = 201
         success = self.service.send_build_status(
             self.external_build,
+            self.external_build.commit,
             BUILD_STATUS_SUCCESS
         )
 
@@ -172,6 +173,7 @@ class GitHubOAuthTests(TestCase):
         session().post.return_value.status_code = 404
         success = self.service.send_build_status(
             self.external_build,
+            self.external_build.commit,
             BUILD_STATUS_SUCCESS
         )
 
@@ -187,7 +189,7 @@ class GitHubOAuthTests(TestCase):
     def test_send_build_status_value_error(self, session, mock_logger):
         session().post.side_effect = ValueError
         success = self.service.send_build_status(
-            self.external_build, BUILD_STATUS_SUCCESS
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
         )
 
         self.assertFalse(success)

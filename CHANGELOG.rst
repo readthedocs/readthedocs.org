@@ -1,3 +1,46 @@
+Version 3.7.1
+-------------
+
+:Date: August 07, 2019
+
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 31 (`#6042 <https://github.com/readthedocs/readthedocs.org/pull/6042>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Fix issue with save on translation form (`#6037 <https://github.com/readthedocs/readthedocs.org/pull/6037>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Do not delete media storage files for external version (`#6035 <https://github.com/readthedocs/readthedocs.org/pull/6035>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Do not show wipe version message on build details page for External versions (`#6034 <https://github.com/readthedocs/readthedocs.org/pull/6034>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Send site notification on Build status reporting failure and follow DRY (`#6033 <https://github.com/readthedocs/readthedocs.org/pull/6033>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Use Read the Docs for Business everywhere (`#6029 <https://github.com/readthedocs/readthedocs.org/pull/6029>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Remove project count on homepage (`#6028 <https://github.com/readthedocs/readthedocs.org/pull/6028>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix missing arg in tests (`#6022 <https://github.com/readthedocs/readthedocs.org/pull/6022>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Update get_absolute_url for External Versions (`#6020 <https://github.com/readthedocs/readthedocs.org/pull/6020>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search analytics (`#6019 <https://github.com/readthedocs/readthedocs.org/pull/6019>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Fix issues around remote repository for sending Build status reports (`#6017 <https://github.com/readthedocs/readthedocs.org/pull/6017>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Expand the scope between `before_vcs` and `after_vcs` (`#6015 <https://github.com/readthedocs/readthedocs.org/pull/6015>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Handle .x in version sorting (`#6012 <https://github.com/readthedocs/readthedocs.org/pull/6012>`__)
+* `@tapaswenipathak <http://github.com/tapaswenipathak>`__: Update note (`#6008 <https://github.com/readthedocs/readthedocs.org/pull/6008>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Link to Read the Docs for Business docs from relevant sections (`#6004 <https://github.com/readthedocs/readthedocs.org/pull/6004>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Note RTD for Biz requires SSL for custom domains (`#6003 <https://github.com/readthedocs/readthedocs.org/pull/6003>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow searching in the Django Admin for gold (`#6001 <https://github.com/readthedocs/readthedocs.org/pull/6001>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: More explicit tests for build managers (`#6000 <https://github.com/readthedocs/readthedocs.org/pull/6000>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix logic involving creation of Sphinx Domains (`#5997 <https://github.com/readthedocs/readthedocs.org/pull/5997>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Fix: no highlighting of matched keywords in search results (`#5994 <https://github.com/readthedocs/readthedocs.org/pull/5994>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Do not copy external version artifacts twice (`#5992 <https://github.com/readthedocs/readthedocs.org/pull/5992>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update GitHub build status details URL (`#5987 <https://github.com/readthedocs/readthedocs.org/pull/5987>`__)
+* `@humitos <http://github.com/humitos>`__: Missing list.extend line when appending conda dependencies (`#5986 <https://github.com/readthedocs/readthedocs.org/pull/5986>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Fix github build status reporting bug (`#5985 <https://github.com/readthedocs/readthedocs.org/pull/5985>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Use try...catch block with underscore.js template. (`#5984 <https://github.com/readthedocs/readthedocs.org/pull/5984>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Cleanup project tags (`#5983 <https://github.com/readthedocs/readthedocs.org/pull/5983>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.7.0 (`#5982 <https://github.com/readthedocs/readthedocs.org/pull/5982>`__)
+* `@stsewd <http://github.com/stsewd>`__: More explicit tests for version managers (`#5981 <https://github.com/readthedocs/readthedocs.org/pull/5981>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search Fix: `section_subtitle_link` is not defined (`#5980 <https://github.com/readthedocs/readthedocs.org/pull/5980>`__)
+* `@stsewd <http://github.com/stsewd>`__: More explicit setup for tests (`#5977 <https://github.com/readthedocs/readthedocs.org/pull/5977>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 29 (`#5975 <https://github.com/readthedocs/readthedocs.org/pull/5975>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update gitpython (`#5974 <https://github.com/readthedocs/readthedocs.org/pull/5974>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Community only ads for more themes (`#5973 <https://github.com/readthedocs/readthedocs.org/pull/5973>`__)
+* `@darrowco <http://github.com/darrowco>`__: updated to psycopg2 (2.8.3) (`#5965 <https://github.com/readthedocs/readthedocs.org/pull/5965>`__)
+* `@humitos <http://github.com/humitos>`__: Append core requirements to Conda environment file (`#5956 <https://github.com/readthedocs/readthedocs.org/pull/5956>`__)
+* `@humitos <http://github.com/humitos>`__: Show APIv3 Token under Profile settings (`#5954 <https://github.com/readthedocs/readthedocs.org/pull/5954>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove skip submodules flag (`#5406 <https://github.com/readthedocs/readthedocs.org/pull/5406>`__)
+
 Version 3.7.0
 -------------
 

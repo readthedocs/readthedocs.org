@@ -25,6 +25,9 @@ You may :ref:`opt out of paid advertising <advertising/ethical-advertising:Optin
 -- you will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>` --
 or you can go ad-free by `becoming a Gold Member`_ or a `Supporter`_ of Read the Docs.
 
+For businesses looking to remove advertising,
+please consider :doc:`Read the Docs for Business </commercial/index>`.
+
 .. _becoming a Gold Member: https://readthedocs.org/accounts/gold/
 .. _Supporter: https://readthedocs.org/sustainability/#donations
 
