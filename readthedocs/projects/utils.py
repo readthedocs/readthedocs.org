@@ -2,10 +2,8 @@
 
 import logging
 import os
-from collections import OrderedDict
 
 from django.conf import settings
-from django.db.models import Count
 
 
 log = logging.getLogger(__name__)
