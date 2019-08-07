@@ -323,57 +323,6 @@ class TestSearchAnalyticsView(TestCase):
 
         get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
 
-    def test_recent_queries(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = ['advertising', 'github', 'hello', 'elasticsearch', 'read the docs',
-                                    'sphinx', 'search', 'documentation', 'hello world']
-
-            resp = self.client.get(self.analyics_page, {'version':self.version.slug, 'size': 100})
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(
-                expected_result,
-                resp.context['queries'],
-            )
-
-    def test_top_queries_past_24_hrs(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = ['advertising', 'sphinx', 'elasticsearch',
-                                'github', 'hello', 'read the docs', 'search']
-
-            resp = self.client.get(
-                self.analyics_page,
-                {'version': self.version.slug, 'size': 100, 'period': 'last-24-hrs'}
-            )
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(
-                expected_result,
-                resp.context['queries']
-            )
-
-    def test_top_queries_past_48_hrs(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = ['read the docs', 'advertising', 'elasticsearch',
-                                'sphinx', 'github', 'hello', 'search']
-
-            resp = self.client.get(
-                self.analyics_page,
-                {'version': self.version.slug, 'size': 100, 'period': 'last-48-hrs'}
-            )
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(
-                expected_result,
-                resp.context['queries'],
-            )
-
     def test_top_queries_past_1_month(self):
         with mock.patch('django.utils.timezone.now') as test_time:
             test_time.return_value = self.test_time
@@ -383,13 +332,31 @@ class TestSearchAnalyticsView(TestCase):
 
             resp = self.client.get(
                 self.analyics_page,
-                {'version': self.version.slug, 'size': 100, 'period': 'last-1-month'}
+                {'version': self.version.slug }
             )
 
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
-                resp.context['queries'],
+                list(resp.context['queries']),
+            )
+
+    def test_top_queries_past_2_months(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['documentation', 'read the docs','advertising',
+                                'elasticsearch', 'sphinx', 'github', 'hello', 'search']
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'period': 'past-2-months'}
+            )
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(
+                expected_result,
+                list(resp.context['queries']),
             )
 
     def test_top_queries_past_3_months(self):
@@ -401,13 +368,13 @@ class TestSearchAnalyticsView(TestCase):
 
             resp = self.client.get(
                 self.analyics_page,
-                {'version': self.version.slug, 'size': 100, 'period': 'last-3-months'}
+                {'version': self.version.slug, 'period': 'past-3-months'}
             )
 
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
-                resp.context['queries'],
+                list(resp.context['queries']),
             )
 
     def test_distribution_of_top_queries(self):
@@ -424,7 +391,7 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertDictEqual(
                 expected_result,
-                resp.context['doughnut_chart_data'],
+                resp.context['distribution_of_top_queries'],
             )
 
     def test_count_of_queries_for_last_30_days(self):
@@ -442,15 +409,15 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertListEqual(
                 expected_result_data,
-                resp.context['chart_data']['int_data'],
+                resp.context['query_count_of_past_30_days']['int_data'],
             )
             self.assertEqual(
                 '03 Jul',
-                resp.context['chart_data']['labels'][0],
+                resp.context['query_count_of_past_30_days']['labels'][0],
             )
             self.assertEqual(
                 '01 Aug',
-                resp.context['chart_data']['labels'][-1],
+                resp.context['query_count_of_past_30_days']['labels'][-1],
             )
 
     def test_generated_csv_data(self):

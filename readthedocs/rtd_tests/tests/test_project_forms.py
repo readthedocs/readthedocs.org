@@ -837,8 +837,7 @@ class TestSearchAnalyticsForm(TestCase):
         error_msg_template = 'Select a valid choice. {} is not one of the available choices.'
         correct_data = {
             'version': LATEST,
-            'period': 'recent',
-            'size': 10,
+            'period': 'past-1-month',
         }
 
         # test for wrong 'version' value
@@ -860,21 +859,11 @@ class TestSearchAnalyticsForm(TestCase):
             form.errors['period'],
         )
 
-        # test for wrong 'size' value
-        data = dict(correct_data, size=342)
-        form = SearchAnalyticsForm(data, project=self.project)
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            error_msg_template.format(342),
-            form.errors['size'],
-        )
-
     def test_correct_values(self):
 
         correct_data = {
             'version': LATEST,
             'period': 'recent',
-            'size': 10,
         }
         form = SearchAnalyticsForm(correct_data, project=self.project)
         self.assertTrue(form.is_valid())
