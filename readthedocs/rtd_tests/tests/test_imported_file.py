@@ -127,10 +127,8 @@ class ImportedFileTests(TestCase):
             return_value=test_objects_inv
         ) as mock_fetch_inventory:
 
-            test_dir = os.path.join(base_dir, 'files')
-
-            _create_imported_files(self.version, test_dir, 'commit01', 1)
-            _create_intersphinx_data(self.version, test_dir, 'commit01', 1)
+            _create_imported_files(self.version, 'commit01', 1)
+            _create_intersphinx_data(self.version, 'commit01', 1)
 
             # there will be two html files,
             # `api/index.html` and `test.html`
