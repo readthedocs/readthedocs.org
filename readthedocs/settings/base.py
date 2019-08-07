@@ -327,6 +327,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-search-queries': {
+            'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
+            'schedule': crontab(minute=0, hour=0),
+            'options': {'queue': 'web'},
+        }
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]

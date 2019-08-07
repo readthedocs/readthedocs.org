@@ -1431,6 +1431,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    SEARCH_ANALYTICS = 'search_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1482,6 +1483,10 @@ class Feature(models.Model):
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
+        (
+            SEARCH_ANALYTICS,
+            _('Enable search analytics'),
+        )
     )
 
     projects = models.ManyToManyField(

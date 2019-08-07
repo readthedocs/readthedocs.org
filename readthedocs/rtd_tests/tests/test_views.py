@@ -1,9 +1,13 @@
+import csv
+import io
 from urllib.parse import urlsplit
 
 import mock
+import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
@@ -12,7 +16,8 @@ from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.search.models import SearchQuery
 
 
 class Testmaker(TestCase):
@@ -299,3 +304,103 @@ class BuildViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
+
+
+class TestSearchAnalyticsView(TestCase):
+
+    """Tests for search analytics page."""
+
+    fixtures = ['eric', 'test_data', 'test_search_queries']
+
+    def setUp(self):
+        self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
+        self.version = self.pip.versions.order_by('id').first()
+        self.analyics_page = reverse('projects_search_analytics', args=[self.pip.slug])
+
+        test_time = timezone.datetime(2019, 8, 2, 12, 0)
+        self.test_time = timezone.make_aware(test_time)
+
+        get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
+
+    def test_top_queries(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = ['hello world', 'documentation', 'read the docs','advertising',
+                                'elasticsearch', 'sphinx', 'github', 'hello', 'search']
+
+            resp = self.client.get(self.analyics_page)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(
+                expected_result,
+                list(resp.context['queries']),
+            )
+
+    def test_distribution_of_top_queries(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result = {
+                'labels': ['hello world', 'documentation', 'read the docs', 'advertising',
+                            'elasticsearch', 'sphinx', 'github', 'hello', 'search'],
+                'int_data': [5, 4, 4, 3, 2, 2, 1, 1, 1],
+            }
+            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertDictEqual(
+                expected_result,
+                resp.context['distribution_of_top_queries'],
+            )
+
+    def test_count_of_queries_for_last_30_days(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            expected_result_data = (
+                [0] * 12 +
+                [1, 1, 2] +
+                [0] * 13 +
+                [4, 3]
+            )
+            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertListEqual(
+                expected_result_data,
+                resp.context['query_count_of_past_30_days']['int_data'],
+            )
+            self.assertEqual(
+                '03 Jul',
+                resp.context['query_count_of_past_30_days']['labels'][0],
+            )
+            self.assertEqual(
+                '01 Aug',
+                resp.context['query_count_of_past_30_days']['labels'][-1],
+            )
+
+    def test_generated_csv_data(self):
+        with mock.patch('django.utils.timezone.now') as test_time:
+            test_time.return_value = self.test_time
+
+            resp = self.client.get(
+                self.analyics_page,
+                {'version': self.version.slug, 'download': 'true'}
+            )
+
+            self.assertEqual(resp.status_code, 200)
+
+            content = resp.content.decode('utf-8')
+            cvs_reader = csv.reader(io.StringIO(content))
+            body = list(cvs_reader)
+            headers = body.pop(0)
+
+            self.assertEqual(
+                headers,
+                ['serial_no', 'date_time', 'query'],
+            )
+            self.assertEqual(len(body), 23)
+            self.assertEqual(body[0][2], 'advertising')
+            self.assertEqual(body[-1][2], 'hello world')

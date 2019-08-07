@@ -1,0 +1,156 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Search Analytics" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-search-analytics-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Search Analytics" %}{% endblock %}
+
+{% block project_edit_content %}
+  {% if show_analytics %}
+
+    <h3>{% trans "Top Queries:" %}</h3>
+    <div class="module-list">
+      <div class="module-list-wrapper">
+        <ul class="long-list-overflow">
+          {% for query in queries %}
+            <li class="module-item">
+                {{ query }}
+            </li>
+          {% empty %}
+            <li class="module-item">
+              <p class="quiet">
+                {% trans 'No date available.' %}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <br/>
+
+    {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data %}
+      <h2>{% trans "Distribution of top queries" %}</h2>
+      <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
+    {% endif %}
+
+    <br/>
+    {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data %}
+      <h2>{% trans "Overview of the past 30 days:" %}</h2>
+      <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
+    {% endif %}
+
+    <br />
+    <form method="get">
+      <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+    </form>
+  {% else %}
+    <p class="empty">
+      {% blocktrans trimmed %}
+        Hey there! This feature is currently in beta state and is available under a
+        <a href='https://docs.readthedocs.io/page/guides/feature-flags.html#available-flags'>feature flag</a>.
+        In case you want to test this feature and help giving us feedback,
+        please contact us via
+        <a href='https://github.com/readthedocs/readthedocs.org/issues/new?title=Request%20to%20enable%20SEARCH_ANALYTICS%20feature%20flag%20for%20project%20{{ project }}'>GitHub issues</a>.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+  <!-- Chart.js v2.8.0 -->
+  <script src="{% static 'vendor/chartjs/chartjs.bundle.min.js' %}"></script>
+{% endblock %}
+
+{% block extra_links %}
+  <!-- Chart.js v2.8.0 -->
+  <link rel="stylesheet" href="{% static 'vendor/chartjs/chartjs.min.css' %}">
+{% endblock %}
+
+{% block footerjs %}
+
+  {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data and show_analytics %}
+    // Line chart
+    var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
+    var line_chart_labels = {{ query_count_of_past_30_days.labels|safe }};
+    var line_chart_data = {{ query_count_of_past_30_days.int_data|safe }};
+
+    var ticks_options = {
+      precision: 0
+    }
+
+    // checks if line_chart_data only contains zero.
+    // if yes, set the minimum value to zero
+    if(!(/[^0]/).exec(line_chart_data.join(""))){
+      ticks_options.min = 0;
+    }
+
+    var line_chart = new Chart(line_chart, {
+      type: "line",
+      data: {
+        labels: line_chart_labels,
+        datasets: [{
+          label: "# of searches",
+          data: line_chart_data,
+          backgroundColor: "rgba(75,192,192,0.4)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          pointBorderColor: "rgba(75, 192, 192, 1)",
+        }]
+      },
+      options: {
+        scales: {
+          yAxes: [{
+            ticks: ticks_options
+          }]
+        }
+      }
+    });
+  {% endif %}
+
+  {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data and show_analytics %}
+    // Doughnut chart
+    var doughnut_chart = document.getElementById("analytics-doughnut-top-queries").getContext("2d");
+    var doughnut_labels = {{ distribution_of_top_queries.labels|safe }};
+    var doughnut_data = {{ distribution_of_top_queries.int_data|safe }};
+    colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675",
+                "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ];
+    var doughnut_chart = new Chart(doughnut_chart, {
+      type: "doughnut",
+      data: {
+        labels: doughnut_labels,
+        datasets: [{
+          data: doughnut_data,
+          backgroundColor: colors,
+        }],
+        borderAlign: "center",
+      },
+      options: {
+        responsive: true,
+        legend: {
+          position: "right",
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var dataset = data.datasets[tooltipItem.datasetIndex];
+              var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+              var total = meta.total;
+              var currentValue = dataset.data[tooltipItem.index];
+              var percentage = parseFloat((currentValue/total*100).toFixed(1));
+              return percentage + '%';
+            },
+            title: function(tooltipItem, data) {
+              return data.labels[tooltipItem[0].index];
+            }
+          }
+        }
+      }
+    });
+  {% endif %}
+
+{% endblock %}
