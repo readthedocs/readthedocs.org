@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -240,7 +241,7 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
-        versions_choices = self.instance.versions.filter(
+        versions_choices = self.instance.versions(manager=INTERNAL).filter(
             machine=False).values_list('verbose_name', flat=True)
 
         self.fields['default_branch'].widget = forms.Select(
@@ -613,12 +614,18 @@ class TranslationBaseForm(forms.Form):
         )
         return queryset
 
-    def save(self):
-        project = self.parent.translations.add(self.translation)
-        # Run symlinking and other sync logic to make sure we are in a good
-        # state.
-        self.parent.save()
-        return project
+    def save(self, commit=True):
+        if commit:
+            # Don't use ``self.parent.translations.add()`` here as this
+            # triggeres a problem with database routing and multiple databases.
+            # Directly set the ``main_language_project`` instead of doing a
+            # bulk update.
+            self.translation.main_language_project = self.parent
+            self.translation.save()
+            # Run symlinking and other sync logic to make sure we are in a good
+            # state.
+            self.parent.save()
+        return self.parent
 
 
 class TranslationForm(SettingsOverrideObject):

@@ -18,6 +18,9 @@ class TestHacks(TestCase):
 
         self.assertEqual(data['path'], 'api')
         self.assertEqual(data['sections'][1]['id'], 'a-basic-api-client-using-slumber')
+
+        # In api.fjson, title is in the form: A basic API client ``using slumber``
+        self.assertEqual(data['sections'][1]['title'], 'A basic API client using slumber')
         self.assertTrue(data['sections'][1]['content'].startswith(
             'You can use Slumber'
         ))

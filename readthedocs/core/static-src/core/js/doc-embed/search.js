@@ -7,6 +7,33 @@ var xss = require('xss/lib/index');
 var MAX_RESULT_PER_SECTION = 3;
 var MAX_SUBSTRING_LIMIT = 100;
 
+/**
+ * Use try...catch block to append html to contents
+ *
+ * @param {Object} contents html element on which additional html is be appended
+ * @param {String} template underscore.js template string
+ * @param {Object} data template vars and their values
+ */
+function append_html_to_contents(contents, template, data) {
+    // underscore.js throws variable not defined error
+    // because of change of syntax in new versions.
+    // See: https://stackoverflow.com/a/25881231/8601393
+    try {
+        // this is the pre-1.7 syntax from Underscore.js
+        contents.append(
+            $u.template(
+                template,
+                data
+            )
+        );
+    }
+    catch (error) {
+        // this is the new syntax
+        contents.append(
+            $u.template(template)(data)
+        );
+    }
+}
 
 /*
  * Search query override for hitting our local API instead of the standard
@@ -54,7 +81,7 @@ function attach_elastic_search_query(data) {
 
                         var item = $('<a>', {'href': link});
                         item.html(title);
-                        item.find('em').addClass('highlighted');
+                        item.find('span').addClass('highlighted');
                         list_item.append(item);
 
                         // If the document is from subproject, add extra information
@@ -68,6 +95,18 @@ function attach_elastic_search_query(data) {
                         for (var j = 0; j < inner_hits.length; j += 1) {
 
                             var contents = $('<div class="context">');
+
+                            var section = "";
+                            var section_subtitle = "";
+                            var section_subtitle_link = "";
+                            var section_content = "";
+                            var content = "";
+
+                            var domain = "";
+                            var domain_subtitle = "";
+                            var domain_subtitle_link = "";
+                            var domain_content = "";
+                            var domain_name = "";
 
                             var section_template = '' +
                                 '<div>' +
@@ -87,17 +126,17 @@ function attach_elastic_search_query(data) {
                                         '<%= domain_subtitle %>' +
                                     '</a>' +
                                 '</div>' +
-                                '<span>' +
+                                '<div>' +
                                     '<%= domain_content %>' +
-                                '</span>';
+                                '</div>';
 
                             // if the result is page section
                             if(inner_hits[j].type === "sections") {
 
-                                var section = inner_hits[j];
-                                var section_subtitle = section._source.title;
-                                var section_subtitle_link = link + "#" + section._source.id;
-                                var section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
+                                section = inner_hits[j];
+                                section_subtitle = section._source.title;
+                                section_subtitle_link = link + "#" + section._source.id;
+                                section_content = [section._source.content.substring(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
@@ -105,7 +144,7 @@ function attach_elastic_search_query(data) {
                                     }
 
                                     if (section.highlight["sections.content"]) {
-                                        var content = section.highlight["sections.content"];
+                                        content = section.highlight["sections.content"];
                                         section_content = [];
                                         for (
                                             var k = 0;
@@ -117,26 +156,25 @@ function attach_elastic_search_query(data) {
                                     }
                                 }
 
-                                contents.append(
-                                    $u.template(
-                                        section_template,
-                                        {
-                                            section_subtitle_link: section_subtitle_link,
-                                            section_subtitle: section_subtitle,
-                                            section_content: section_content
-                                        }
-                                    )
+                                append_html_to_contents(
+                                    contents,
+                                    section_template,
+                                    {
+                                        section_subtitle_link: section_subtitle_link,
+                                        section_subtitle: section_subtitle,
+                                        section_content: section_content
+                                    }
                                 );
                             }
 
                             // if the result is a sphinx domain object
                             if (inner_hits[j].type === "domains") {
 
-                                var domain = inner_hits[j];
-                                var domain_subtitle = domain._source.role_name;
-                                var domain_subtitle_link = link + "#" + domain._source.anchor;
-                                var domain_content = "";
-                                var domain_name = domain._source.name;
+                                domain = inner_hits[j];
+                                domain_subtitle = domain._source.role_name;
+                                domain_subtitle_link = link + "#" + domain._source.anchor;
+                                domain_content = "";
+                                domain_name = domain._source.name;
 
                                 if (
                                     typeof domain._source.display_name === "string" &&
@@ -155,19 +193,18 @@ function attach_elastic_search_query(data) {
                                 // domain_content = type_display -- name -- in doc_display
                                 domain_content = domain._source.type_display + " -- " + domain_name + " -- in " + domain._source.doc_display;
 
-                                contents.append(
-                                    $u.template(
-                                        domain_template,
-                                        {
-                                            domain_subtitle_link: domain_subtitle_link,
-                                            domain_subtitle: domain_subtitle,
-                                            domain_content: domain_content
-                                        }
-                                    )
+                                append_html_to_contents(
+                                    contents,
+                                    domain_template,
+                                    {
+                                        domain_subtitle_link: domain_subtitle_link,
+                                        domain_subtitle: domain_subtitle,
+                                        domain_content: domain_content
+                                    }
                                 );
                             }
 
-                            contents.find('em').addClass('highlighted');
+                            contents.find('span').addClass('highlighted');
                             list_item.append(contents);
 
                             // Create some spacing between the results.

@@ -47,7 +47,7 @@ Non-Goals
 Existing Search Implementation
 ------------------------------
 
-We have a detailed documentation explaing the underlying architecture of our search backend
+We have a detailed documentation explaining the underlying architecture of our search backend
 and how we index documents to our Elasticsearch index.
 You can read about it :doc:`here <../search>`.
 

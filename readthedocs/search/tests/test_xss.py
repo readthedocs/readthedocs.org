@@ -12,7 +12,7 @@ class TestXSS:
         page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
         expected = """
-        &lt;h3&gt;<em>XSS</em> exploit&lt;&#x2F;h3&gt;
+        &lt;h3&gt;<span>XSS</span> exploit&lt;&#x2F;h3&gt;
         """.strip()
 
         hits = results.hits.hits

@@ -5,13 +5,17 @@ from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
+from messages_extends.models import Message
 from mock import MagicMock, patch
 
-from readthedocs.builds.constants import LATEST
+from allauth.socialaccount.models import SocialAccount
+
+from readthedocs.builds.constants import LATEST, BUILD_STATUS_SUCCESS, EXTERNAL
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.projects import tasks
 from readthedocs.builds.models import Version
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -329,3 +333,60 @@ class TestCeleryBuilding(RTDTestCase):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
         tasks.fileify(version_pk=345343, commit=None, build=1)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task_with_remote_repo(self, send_build_status):
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+
+        social_account = get(SocialAccount, provider='github')
+        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
+        remote_repo.users.add(self.eric)
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_called_once_with(
+            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task_with_social_account(self, send_build_status):
+        social_account = get(SocialAccount, user=self.eric, provider='github')
+
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_called_once_with(
+            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+
+    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
+    def test_send_build_status_task_without_remote_repo_or_social_account(self, send_build_status):
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_not_called()
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)

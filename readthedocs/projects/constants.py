@@ -325,11 +325,36 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITHUB_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITHUB_PULL_REQUEST_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}'
+)
+GITHUB_PULL_REQUEST_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}/commits/{commit}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
+)
+BITBUCKET_COMMIT_URL = (
+    'https://bitbucket.org/{user}/{repo}/'
+    'commits/{commit}'
 )
 GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITLAB_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+
+GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
+
+# Git provider names
+GITHUB_BRAND = 'GitHub'

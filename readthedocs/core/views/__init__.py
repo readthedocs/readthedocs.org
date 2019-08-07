@@ -42,7 +42,6 @@ class HomepageView(TemplateView):
         """Add latest builds and featured projects."""
         context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
-        context['projects_count'] = Project.objects.count()
         return context
 
 
@@ -62,7 +61,7 @@ class SupportView(TemplateView):
 
 
 def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    html_file = HTMLFile.objects.order_by('?')
+    html_file = HTMLFile.objects.internal().order_by('?')
     if project_slug:
         html_file = html_file.filter(project__slug=project_slug)
     html_file = html_file.first()
@@ -74,7 +73,7 @@ def random_page(request, project_slug=None):  # pylint: disable=unused-argument
 
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
-        Version,
+        Version.internal.all(),
         project__slug=project_slug,
         slug=version_slug,
     )
