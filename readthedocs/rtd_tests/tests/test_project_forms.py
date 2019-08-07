@@ -23,7 +23,6 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectBasicsForm,
     ProjectExtraForm,
-    SearchAnalyticsForm,
     TranslationForm,
     UpdateProjectForm,
     WebHookForm,
@@ -826,44 +825,3 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
         self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
         self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
-
-
-class TestSearchAnalyticsForm(TestCase):
-
-    def setUp(self):
-        self.project = get(Project)
-
-    def test_invalid_values_in_form(self):
-        error_msg_template = 'Select a valid choice. {} is not one of the available choices.'
-        correct_data = {
-            'version': LATEST,
-            'period': 'past-1-month',
-        }
-
-        # test for wrong 'version' value
-        self.assertFalse(self.project.versions.filter(slug='dummy').exists())
-        data = dict(correct_data, version='dummy')
-        form = SearchAnalyticsForm(data, project=self.project)
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            error_msg_template.format('dummy'),
-            form.errors['version'],
-        )
-
-        # test for wrong 'period' value
-        data = dict(correct_data, period='not-valid')
-        form = SearchAnalyticsForm(data, project=self.project)
-        self.assertFalse(form.is_valid())
-        self.assertIn(
-            error_msg_template.format('not-valid'),
-            form.errors['period'],
-        )
-
-    def test_correct_values(self):
-
-        correct_data = {
-            'version': LATEST,
-            'period': 'recent',
-        }
-        form = SearchAnalyticsForm(correct_data, project=self.project)
-        self.assertTrue(form.is_valid())

@@ -323,53 +323,14 @@ class TestSearchAnalyticsView(TestCase):
 
         get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
 
-    def test_top_queries_past_1_month(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = ['documentation', 'read the docs', 'advertising',
-                                'elasticsearch','sphinx', 'github', 'hello', 'search']
-
-            resp = self.client.get(
-                self.analyics_page,
-                {'version': self.version.slug }
-            )
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(
-                expected_result,
-                list(resp.context['queries']),
-            )
-
-    def test_top_queries_past_2_months(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = ['documentation', 'read the docs','advertising',
-                                'elasticsearch', 'sphinx', 'github', 'hello', 'search']
-
-            resp = self.client.get(
-                self.analyics_page,
-                {'version': self.version.slug, 'period': 'past-2-months'}
-            )
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertEqual(
-                expected_result,
-                list(resp.context['queries']),
-            )
-
-    def test_top_queries_past_3_months(self):
+    def test_top_queries(self):
         with mock.patch('django.utils.timezone.now') as test_time:
             test_time.return_value = self.test_time
 
             expected_result = ['hello world', 'documentation', 'read the docs','advertising',
                                 'elasticsearch', 'sphinx', 'github', 'hello', 'search']
 
-            resp = self.client.get(
-                self.analyics_page,
-                {'version': self.version.slug, 'period': 'past-3-months'}
-            )
+            resp = self.client.get(self.analyics_page)
 
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(
