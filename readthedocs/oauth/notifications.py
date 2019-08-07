@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
 from readthedocs.notifications import SiteNotification
+from readthedocs.notifications.constants import ERROR_NON_PERSISTENT
 
 
 class AttachWebhookNotification(SiteNotification):
@@ -60,7 +61,7 @@ class InvalidProjectWebhookNotification(SiteNotification):
 class GitBuildStatusFailureNotification(SiteNotification):
 
     context_object_name = 'project'
-    failure_level = ERROR_PERSISTENT
+    failure_level = ERROR_NON_PERSISTENT
     failure_message = _(
         'Could not send {{ provider_name }} build status report for {{ project.name }}. '
         'Make sure you have the correct {{ provider_name }} repository permissions</a> and '
