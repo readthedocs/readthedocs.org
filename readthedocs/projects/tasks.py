@@ -428,7 +428,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications(version_pk, build_pk)
+            self.send_notifications(version_pk, build_pk, email=True)
             return False
 
     def run_setup(self, record=True):
@@ -489,7 +489,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications(self.version.pk, self.build['id'])
+                self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             return False
 
@@ -592,8 +592,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            # TODO: Send RTD Webhook notification for build failure.
-            self.send_notifications(self.version.pk, self.build['id'])
+            # Send Webhook and email notification for build failure.
+            self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             if self.commit:
                 send_external_build_status(
@@ -603,8 +603,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     status=BUILD_STATUS_FAILURE
                 )
         elif self.build_env.successful:
-            # TODO: Send RTD Webhook notification for build success.
-            self.send_notifications(self.version.pk, self.build['id'])
+            # Send Webhook notification for build success.
+            self.send_notifications(self.version.pk, self.build['id'], email=False)
 
             if self.commit:
                 send_external_build_status(
@@ -1067,10 +1067,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self, version_pk, build_pk):
+    def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
         if self.version.type != EXTERNAL:
-            send_notifications.delay(version_pk, build_pk=build_pk)
+            send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1615,7 +1615,7 @@ def _sync_imported_files(version, build, changed_files):
 
 
 @app.task(queue='web')
-def send_notifications(version_pk, build_pk):
+def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
     if not version:
@@ -1625,11 +1625,13 @@ def send_notifications(version_pk, build_pk):
 
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
-    for email in version.project.emailhook_notifications.all().values_list(
+
+    if email:
+        for email in version.project.emailhook_notifications.all().values_list(
             'email',
             flat=True,
-    ):
-        email_notification(version, build, email)
+        ):
+            email_notification(version, build, email)
 
 
 def email_notification(version, build, email):
@@ -1705,6 +1707,8 @@ def webhook_notification(version, build, hook_url):
         'slug': project.slug,
         'build': {
             'id': build.id,
+            'commit': build.commit,
+            'state': build.state,
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
         },
