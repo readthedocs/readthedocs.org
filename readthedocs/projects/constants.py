@@ -357,4 +357,4 @@ GITLAB_COMMIT_URL = (
 GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
 
 # Git provider names
-GITHUB = 'GitHub'
+GITHUB_BRAND = 'GitHub'

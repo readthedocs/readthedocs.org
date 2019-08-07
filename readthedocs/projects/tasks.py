@@ -65,7 +65,7 @@ from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
-from readthedocs.projects.constants import GITHUB
+from readthedocs.projects.constants import GITHUB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -1892,7 +1892,7 @@ def send_build_status(build_pk, commit, status):
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
-    if provider_name == GITHUB:
+    if provider_name == GITHUB_BRAND:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
         try:
