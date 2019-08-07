@@ -35,7 +35,6 @@ from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects import tasks
-from readthedocs.projects.constants import SEARCH_ANALYTICS_PARAMS
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
@@ -47,7 +46,6 @@ from readthedocs.projects.forms import (
     ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
-    SearchAnalyticsForm,
     TranslationForm,
     UpdateProjectForm,
     UserForm,
@@ -928,110 +926,54 @@ def search_analytics_view(request, project_slug):
         )
 
     download_data = request.GET.get('download', False)
-    version_slug = request.GET.get('version', project.default_version)
-    period = request.GET.get('period', 'past-1-month')
 
     # if the user has requested to download all data
     # return csv file in response.
     if download_data:
-        return _search_analytics_csv_data(request, project_slug, version_slug)
+        return _search_analytics_csv_data(request, project_slug)
 
-    data = {
-        'version': version_slug,
-        'period': period,
-    }
+    # data for plotting the line-chart
+    query_count_of_past_30_days = SearchQuery.generate_queries_count_for_last_thirty_days(
+        project_slug
+    )
+    # data for plotting the doughnut-chart
+    distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
+        project_slug,
+        10,
+    )
+    now = timezone.now()
 
-    form = SearchAnalyticsForm(data=data, project=project)
-
-    # template vars default values
-    query_count_of_past_30_days = {}
-    distribution_of_top_queries = {}
     queries = []
-    result_heading = dict(SEARCH_ANALYTICS_PARAMS['period']).get(period, 'Results')
+    qs = SearchQuery.objects.filter(project=project)
+    if qs.exists():
+        qs = (
+            qs.values('query')
+            .annotate(count=Count('id'))
+            .order_by('-count', 'query')
+            .values_list('query', flat=True)
+        )
 
-    if form.is_valid():
-
-        version_qs = Version.objects.filter(project=project, slug=version_slug)
-
-        # ``version``` is required to generate the analytics
-        if version_qs.exists():
-            version = version_qs.first()
-            search_queries_qs = SearchQuery.objects.filter(
-                project=project,
-                version=version,
-            )
-
-            # data for plotting the line-chart
-            query_count_of_past_30_days = SearchQuery.generate_queries_count_for_last_thirty_days(
-                project_slug,
-                version_slug
-            )
-            # data for plotting the doughnut-chart
-            distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
-                project_slug,
-                version_slug,
-                10,
-            )
-            now = timezone.now()
-
-            if period == 'past-1-month':
-                last_30_days = now - timezone.timedelta(days=30)
-                qs = search_queries_qs.filter(
-                    created__gte=last_30_days,
-                    created__lte=now,
-                )
-
-            elif period == 'past-2-months':
-                last_30_days = now - timezone.timedelta(days=30)
-                qs = search_queries_qs.filter(
-                    created__gte=last_30_days,
-                    created__lte=now,
-                )
-
-            elif period == 'past-3-months':
-                last_3_months = now - timezone.timedelta(days=90)
-                qs = search_queries_qs.filter(
-                    created__gte=last_3_months,
-                    created__lte=now,
-                )
-
-            if qs.exists():
-                qs = (
-                    qs.values('query')
-                    .annotate(count=Count('id'))
-                    .order_by('-count', 'query')
-                    .values_list('query', flat=True)
-                )
-
-                # only show top 100 queries
-                queries = qs[:100]
+        # only show top 100 queries
+        queries = qs[:100]
 
     return render(
         request,
         'projects/search_analytics/projects_search_analytics.html',
         {
-            'form': form,
             'project': project,
             'queries': queries,
             'show_analytics': True,
             'query_count_of_past_30_days': query_count_of_past_30_days,
             'distribution_of_top_queries': distribution_of_top_queries,
-            'result_heading': result_heading,
         }
     )
 
 
-def _search_analytics_csv_data(request, project_slug, version_slug):
+def _search_analytics_csv_data(request, project_slug):
     """Generate raw csv data of search queries."""
     project = get_object_or_404(
         Project.objects.for_admin_user(request.user),
         slug=project_slug,
-    )
-
-    version = get_object_or_404(
-        Version,
-        project=project,
-        slug=version_slug,
     )
 
     now = timezone.now().date()
@@ -1040,7 +982,6 @@ def _search_analytics_csv_data(request, project_slug, version_slug):
     data = (
         SearchQuery.objects.filter(
             project=project,
-            version=version,
             created__date__gte=last_3_month,
             created__date__lte=now,
         )
@@ -1048,9 +989,8 @@ def _search_analytics_csv_data(request, project_slug, version_slug):
         .values_list('created', 'query')
     )
 
-    file_name = '{project_slug}_{version_slug}_from_{start}_to_{end}.csv'.format(
+    file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
         project_slug=project_slug,
-        version_slug=version_slug,
         start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
         end=timezone.datetime.strftime(now, '%Y-%m-%d'),
     )

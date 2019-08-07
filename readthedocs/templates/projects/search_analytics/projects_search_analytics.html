@@ -12,17 +12,8 @@
 
 {% block project_edit_content %}
   {% if show_analytics %}
-    <p>
-      Use the below form to get the required search analytics for your docs.
-    </p>
 
-    <form method="get">
-      {{ form.as_p }}
-      <button type="submit">{% trans "Get Analytics" %}</button>
-      <button type="submit" name="download" value="true">{% trans "Download all data for selected version" %}</button>
-    </form>
-
-    <h3>{{ result_heading }}</h3>
+    <h3>{% trans "Top Queries:" %}</h3>
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
@@ -53,6 +44,11 @@
       <h2>{% trans "Overview of the past 30 days:" %}</h2>
       <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
     {% endif %}
+
+    <br />
+    <form method="get">
+      <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+    </form>
   {% else %}
     <p class="empty">
       {% blocktrans trimmed %}

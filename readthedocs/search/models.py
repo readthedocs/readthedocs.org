@@ -42,7 +42,7 @@ class SearchQuery(TimeStampedModel):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
 
     @classmethod
-    def generate_queries_count_for_last_thirty_days(cls, project_slug, version_slug):
+    def generate_queries_count_for_last_thirty_days(cls, project_slug):
         """
         Returns the total queries performed each day of the last 30 days.
 
@@ -61,7 +61,6 @@ class SearchQuery(TimeStampedModel):
 
         qs = cls.objects.filter(
             project__slug=project_slug,
-            version__slug=version_slug,
             created__date__lte=yesterday,
             created__date__gte=last_30th_day,
         ).order_by('-created')
@@ -93,7 +92,7 @@ class SearchQuery(TimeStampedModel):
         return final_data
 
     @classmethod
-    def generate_distribution_of_top_queries(cls, project_slug, version_slug, n):
+    def generate_distribution_of_top_queries(cls, project_slug, n):
         """
         Returns top `n` most searched queries with their count.
 
@@ -106,10 +105,7 @@ class SearchQuery(TimeStampedModel):
         This data shows that `read the docs` was searched 150 times,
         `documentation` was searched 200 times and `sphinx` was searched 143 times.
         """
-        qs = cls.objects.filter(
-            project__slug=project_slug,
-            version__slug=version_slug
-        )
+        qs = cls.objects.filter(project__slug=project_slug)
 
         # total searches ever made
         total_count = len(qs)
