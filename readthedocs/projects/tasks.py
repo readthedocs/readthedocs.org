@@ -604,6 +604,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 )
         elif self.build_env.successful:
             # TODO: Send RTD Webhook notification for build success.
+            self.send_notifications(self.version.pk, self.build['id'])
+
             if self.commit:
                 send_external_build_status(
                     version_type=self.version.type,
