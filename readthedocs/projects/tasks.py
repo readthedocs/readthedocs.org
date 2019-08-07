@@ -63,8 +63,9 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.notifications import SendBuildStatusFailureNotification
+from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.projects.constants import GITHUB
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -1891,7 +1892,7 @@ def send_build_status(build_pk, commit, status):
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
-    if provider_name == 'GitHub':
+    if provider_name == GITHUB:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
         try:
@@ -1919,7 +1920,7 @@ def send_build_status(build_pk, commit, status):
             for user in users:
                 # Send Site notification about Build status reporting failure
                 # to all the users of the project.
-                notification = SendBuildStatusFailureNotification(
+                notification = GitBuildStatusFailureNotification(
                     context_object=build.project,
                     extra_context={'provider_name': provider_name},
                     user=user,
@@ -1929,12 +1930,12 @@ def send_build_status(build_pk, commit, status):
 
             log.info(
                 'No social account or repository permission available for %s',
-                build.project
+                build.project.slug
             )
             return False
 
         except Exception:
-            log.exception('Send build status task failed for %s', build.project)
+            log.exception('Send build status task failed for %s', build.project.slug)
             return False
 
     return False

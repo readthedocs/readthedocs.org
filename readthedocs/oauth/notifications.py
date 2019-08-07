@@ -57,7 +57,7 @@ class InvalidProjectWebhookNotification(SiteNotification):
         return context
 
 
-class SendBuildStatusFailureNotification(SiteNotification):
+class GitBuildStatusFailureNotification(SiteNotification):
 
     context_object_name = 'project'
     failure_level = ERROR_PERSISTENT

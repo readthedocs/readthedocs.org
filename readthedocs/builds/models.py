@@ -22,6 +22,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    GITHUB,
     GITHUB_COMMIT_URL,
     GITHUB_URL,
     GITHUB_PULL_REQUEST_URL,
@@ -837,7 +838,7 @@ class Build(models.Model):
     @property
     def external_version_name(self):
         if self.is_external:
-            if self.project.git_provider_name == 'GitHub':
+            if self.project.git_provider_name == GITHUB:
                 return GITHUB_EXTERNAL_VERSION_NAME
             # TODO: Add External Version Name for other Git Providers
 
