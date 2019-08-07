@@ -1396,7 +1396,6 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
-    SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
@@ -1413,7 +1412,6 @@ class Feature(models.Model):
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
