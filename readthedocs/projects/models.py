@@ -6,6 +6,7 @@ import os
 import re
 from urllib.parse import urlparse
 
+from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
@@ -839,6 +840,29 @@ class Project(models.Model):
             )
         return repo
 
+    def git_service_class(self):
+        """Get the service class for project. e.g: GitHubService, GitLabService."""
+        from readthedocs.oauth.services import registry
+
+        for service_cls in registry:
+            if service_cls.is_project_service(self):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            service = None
+
+        return service
+
+    @property
+    def git_provider_name(self):
+        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        service = self.git_service_class()
+        if service:
+            provider = allauth_registry.by_id(service.adapter.provider_id)
+            return provider.name
+        return None
+
     def repo_nonblockinglock(self, version, max_lock_age=None):
         """
         Return a ``NonBlockingLock`` to acquire the lock via context manager.
@@ -1396,7 +1420,6 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
-    SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
@@ -1408,12 +1431,12 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    SEARCH_ANALYTICS = 'search_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1460,6 +1483,10 @@ class Feature(models.Model):
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
+        (
+            SEARCH_ANALYTICS,
+            _('Enable search analytics'),
+        )
     )
 
     projects = models.ManyToManyField(

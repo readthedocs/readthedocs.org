@@ -111,23 +111,40 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
-        domains_qs = html_file.sphinx_domains.exclude(
-            domain='std',
-            type__in=['doc', 'label']
-        ).iterator()
+        all_domains = []
 
-        all_domains = [
-            {
-                'role_name': domain.role_name,
-                'doc_name': domain.doc_name,
-                'anchor': domain.anchor,
-                'type_display': domain.type_display,
-                'doc_display': domain.doc_display,
-                'name': domain.name,
-                'display_name': domain.display_name if domain.display_name != '-' else '',
-            }
-            for domain in domains_qs
-        ]
+        try:
+            domains_qs = html_file.sphinx_domains.exclude(
+                domain='std',
+                type__in=['doc', 'label']
+            ).iterator()
+
+            all_domains = [
+                {
+                    'role_name': domain.role_name,
+                    'doc_name': domain.doc_name,
+                    'anchor': domain.anchor,
+                    'type_display': domain.type_display,
+                    'doc_display': domain.doc_display,
+                    'name': domain.name,
+                    'display_name': domain.display_name if domain.display_name != '-' else '',
+                }
+                for domain in domains_qs
+            ]
+
+            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+                len(all_domains),
+            ))
+
+        except Exception:
+            log.exception("[%s] [%s] Error preparing domain data for file %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+            ))
 
         return all_domains
 

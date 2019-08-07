@@ -41,6 +41,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
@@ -326,6 +327,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-search-queries': {
+            'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
+            'schedule': crontab(minute=0, hour=0),
+            'options': {'queue': 'web'},
+        }
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -462,6 +468,10 @@ class CommunityBaseSettings(Settings):
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
+
+    # Taggit
+    # https://django-taggit.readthedocs.io
+    TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
     STRIPE_SECRET = None

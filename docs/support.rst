@@ -57,9 +57,11 @@ Send an email to support@readthedocs.org.
 Commercial Support
 ------------------
 
-We offer commercial support for Read the Docs, :doc:`commercial hosting </commercial/index>`,
-as well as consulting around all documentation systems.
-You can contact us at hello@readthedocs.com to learn more,
+We offer commercial support with :doc:`Read the Docs for Business </commercial/index>`
+and we have a dedicated team that responds to support requests during business hours.
+
+For consulting services around documentation systems,
+you can `contact us <mailto:hello@readthedocs.com?subject=Consulting%20Services%20Inquiry>`_
 or read more at https://readthedocs.com/services/#open-source-support.
 
 .. _Stack Overflow: http://stackoverflow.com/questions/tagged/read-the-docs

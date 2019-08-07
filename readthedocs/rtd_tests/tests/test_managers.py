@@ -2,159 +2,194 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
-from readthedocs.builds.models import Version, Build
-from readthedocs.projects.constants import PUBLIC, PRIVATE, PROTECTED
-from readthedocs.projects.models import Project, HTMLFile
+from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.models import Build, Version
+from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.models import HTMLFile, Project
 
 
 User = get_user_model()
 
 
-class TestVersionManagerBase(TestCase):
-
-    fixtures = ['test_data']
-
-    def setUp(self):
-        self.user = User.objects.create(username='test_user', password='test')
-        self.client.login(username='test_user', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        # Create a External Version. ie: pull/merge request Version.
-        self.public_external_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PUBLIC
-        )
-        self.private_external_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PRIVATE
-        )
-        self.protected_external_version = get(
-            Version,
-            project=self.pip,
-            active=True,
-            type=EXTERNAL,
-            privacy_level=PROTECTED
-        )
-        self.internal_versions = Version.objects.exclude(type=EXTERNAL)
-
-
-class TestInternalVersionManager(TestVersionManagerBase):
-
-    """
-    Queries using Internal Manager should only include Internal Versions.
-
-    It will exclude EXTERNAL type Versions from the queries
-    and only include BRANCH, TAG, UNKNOWN type Versions.
-    """
-
-    def test_internal_version_manager_with_all(self):
-        self.assertNotIn(self.public_external_version, Version.internal.all())
-
-    def test_internal_version_manager_with_public(self):
-        self.assertNotIn(self.public_external_version, Version.internal.public())
-
-    def test_internal_version_manager_with_public_with_user_and_project(self):
-        self.assertNotIn(
-            self.public_external_version,
-            Version.internal.public(self.user, self.pip)
-        )
-
-    def test_internal_version_manager_with_protected(self):
-        self.assertNotIn(self.protected_external_version, Version.internal.protected())
-
-    def test_internal_version_manager_with_private(self):
-        self.assertNotIn(self.private_external_version, Version.internal.private())
-
-    def test_internal_version_manager_with_api(self):
-        self.assertNotIn(self.public_external_version, Version.internal.api())
-
-    def test_internal_version_manager_with_for_project(self):
-        self.assertNotIn(self.public_external_version, Version.internal.for_project(self.pip))
-
-
-class TestExternalVersionManager(TestVersionManagerBase):
-
-    """
-    Queries using External Manager should only include External Versions.
-
-    It will only include pull/merge request Version in the queries.
-    """
-
-    def test_external_version_manager_with_all(self):
-        self.assertNotIn(self.internal_versions, Version.external.all())
-        self.assertIn(self.public_external_version, Version.external.all())
-
-    def test_external_version_manager_with_public(self):
-        self.assertNotIn(self.internal_versions, Version.external.public())
-        self.assertIn(self.public_external_version, Version.external.public())
-
-    def test_external_version_manager_with_public_with_user_and_project(self):
-        self.assertNotIn(
-            self.internal_versions,
-            Version.external.public(self.user, self.pip)
-        )
-        self.assertIn(
-            self.public_external_version,
-            Version.external.public(self.user, self.pip)
-        )
-
-    def test_external_version_manager_with_protected(self):
-        self.assertNotIn(self.internal_versions, Version.external.protected())
-        self.assertIn(self.protected_external_version, Version.external.protected())
-
-    def test_external_version_manager_with_private(self):
-        self.assertNotIn(self.internal_versions, Version.external.private())
-        self.assertIn(self.private_external_version, Version.external.private())
-
-    def test_external_version_manager_with_api(self):
-        self.assertNotIn(self.internal_versions, Version.external.api())
-        self.assertIn(self.public_external_version, Version.external.api())
-
-    def test_external_version_manager_with_for_project(self):
-        self.assertNotIn(
-            self.internal_versions, Version.external.for_project(self.pip)
-        )
-        self.assertIn(
-            self.public_external_version, Version.external.for_project(self.pip)
-        )
-
-
 class TestBuildManagerBase(TestCase):
 
-    fixtures = ['test_data']
-
     def setUp(self):
-        self.user = User.objects.create(username='test_user', password='test')
-        self.client.login(username='test_user', password='test')
-        self.pip = Project.objects.get(slug='pip')
-        print(self.pip.versions.all())
-        # Create a External Version and build. ie: pull/merge request Version.
-        self.external_version = get(
+        self.user = get(User)
+        self.another_user = get(User)
+
+        self.project = get(
+            Project,
+            privacy_level=PUBLIC,
+            users=[self.user],
+            main_language_project=None,
+            versions=[],
+        )
+        self.version_public = get(
             Version,
-            project=self.pip,
+            privacy_level=PUBLIC,
+            project=self.project,
+            active=True,
+            slug='version_public'
+        )
+        self.build_public = get(
+            Build,
+            version=self.version_public,
+            project=self.project,
+        )
+        self.version_public_external = get(
+            Version,
+            privacy_level=PUBLIC,
+            project=self.project,
             active=True,
             type=EXTERNAL,
-            privacy_level=PUBLIC
+            slug='version_public_external'
         )
-        self.external_version_build = get(
+        self.build_public_external = get(
             Build,
-            project=self.pip,
-            version=self.external_version
+            version=self.version_public_external,
+            project=self.project,
         )
-        # Create a Internal Version build.
-        self.internal_version_build = get(
+        self.version_private = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.project,
+            active=True,
+            slug='version_private'
+        )
+        self.build_private = get(
             Build,
-            project=self.pip,
-            version=self.pip.versions.get(slug='0.8')
+            version=self.version_private,
+            project=self.project,
+        )
+        self.version_private_external = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.project,
+            active=True,
+            type=EXTERNAL,
+            slug='version_private_external'
+        )
+        self.build_private_external = get(
+            Build,
+            version=self.version_private_external,
+            project=self.project,
         )
 
-        self.internal_builds = Build.objects.exclude(version__type=EXTERNAL)
+        self.another_project = get(
+            Project,
+            privacy_level=PUBLIC,
+            users=[self.another_user],
+            main_language_project=None,
+            versions=[],
+        )
+        self.another_version_public = get(
+            Version,
+            privacy_level=PUBLIC,
+            project=self.another_project,
+            active=True,
+            slug='another_version_public'
+        )
+        self.another_build_public = get(
+            Build,
+            version=self.another_version_public,
+            project=self.another_project,
+        )
+        self.another_version_public_external = get(
+            Version,
+            privacy_level=PUBLIC,
+            project=self.another_project,
+            active=True,
+            type=EXTERNAL,
+            slug='another_version_public_external'
+        )
+        self.another_build_public_external = get(
+            Build,
+            version=self.another_version_public_external,
+            project=self.another_project,
+        )
+        self.another_version_private = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.another_project,
+            active=True,
+            slug='another_version_private'
+        )
+        self.another_build_private = get(
+            Build,
+            version=self.another_version_private,
+            project=self.another_project,
+        )
+        self.another_version_private_external = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.another_project,
+            active=True,
+            type=EXTERNAL,
+            slug='another_version_private_external'
+        )
+        self.another_build_private_external = get(
+            Build,
+            version=self.another_version_private_external,
+            project=self.another_project,
+        )
+
+        self.shared_project = get(
+            Project,
+            privacy_level=PUBLIC,
+            users=[self.user, self.another_user],
+            main_language_project=None,
+            versions=[],
+        )
+        self.shared_version_public = get(
+            Version,
+            privacy_level=PUBLIC,
+            project=self.shared_project,
+            active=True,
+            slug='shared_version_public'
+        )
+        self.shared_build_public = get(
+            Build,
+            version=self.shared_version_public,
+            project=self.shared_project,
+        )
+        self.shared_version_public_external = get(
+            Version,
+            privacy_level=PUBLIC,
+            project=self.shared_project,
+            active=True,
+            type=EXTERNAL,
+            slug='shared_version_public_external'
+        )
+        self.shared_build_public_external = get(
+            Build,
+            version=self.shared_version_public_external,
+            project=self.shared_project,
+        )
+        self.shared_version_private = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.shared_project,
+            active=True,
+            slug='shared_version_private'
+        )
+        self.shared_build_private = get(
+            Build,
+            version=self.shared_version_private,
+            project=self.shared_project,
+        )
+        self.shared_version_private_external = get(
+            Version,
+            privacy_level=PRIVATE,
+            project=self.shared_project,
+            active=True,
+            type=EXTERNAL,
+            slug='shared_version_private_external'
+        )
+        self.shared_build_private_external = get(
+            Build,
+            version=self.shared_version_private_external,
+            project=self.shared_project,
+        )
 
 
 class TestInternalBuildManager(TestBuildManagerBase):
@@ -166,20 +201,72 @@ class TestInternalBuildManager(TestBuildManagerBase):
     and only include BRANCH, TAG, UNKNOWN type Versions.
     """
 
-    def test_internal_build_manager_with_all(self):
-        self.assertNotIn(self.external_version_build, Build.internal.all())
+    def test_all(self):
+        query = Build.internal.all()
+        internal_builds = {
+            self.build_private,
+            self.another_build_private,
+            self.shared_build_private,
+            self.build_public,
+            self.another_build_public,
+            self.shared_build_public,
+        }
+        self.assertEqual(query.count(), len(internal_builds))
+        self.assertEqual(set(query), internal_builds)
 
-    def test_internal_build_manager_with_public(self):
-        self.assertNotIn(self.external_version_build, Build.internal.public())
+    def test_public(self):
+        query = Build.internal.public()
+        public_internal_builds = {
+            self.build_public,
+            self.another_build_public,
+            self.shared_build_public,
+        }
+        self.assertEqual(query.count(), len(public_internal_builds))
+        self.assertEqual(set(query), public_internal_builds)
 
-    def test_internal_build_manager_with_public_with_user_and_project(self):
-        self.assertNotIn(
-            self.external_version_build,
-            Build.internal.public(self.user, self.pip)
-        )
+    def test_public_user(self):
+        query = Build.internal.public(user=self.user)
+        builds = {
+            self.build_private,
+            self.shared_build_private,
+            self.build_public,
+            self.shared_build_public,
+            self.another_build_public,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
 
-    def test_internal_build_manager_with_api(self):
-        self.assertNotIn(self.external_version_build, Build.internal.api())
+    def test_public_project(self):
+        query = Build.internal.public(user=self.user, project=self.project)
+        builds = {
+            self.build_private,
+            self.build_public,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
+
+    def test_api(self):
+        query = Build.internal.api(user=self.user)
+        builds = {
+            self.build_private,
+            self.shared_build_private,
+            self.build_public,
+            self.shared_build_public,
+            self.another_build_public,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
+
+    def test_api_user(self):
+        query = Build.internal.api(user=self.user, detail=False)
+        builds = {
+            self.build_private,
+            self.shared_build_private,
+            self.build_public,
+            self.shared_build_public,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
 
 
 class TestExternalBuildManager(TestBuildManagerBase):
@@ -190,27 +277,72 @@ class TestExternalBuildManager(TestBuildManagerBase):
     It will only include pull/merge request Version builds in the queries.
     """
 
-    def test_external_build_manager_with_all(self):
-        self.assertNotIn(self.internal_builds, Build.external.all())
-        self.assertIn(self.external_version_build, Build.external.all())
+    def test_all(self):
+        query = Build.external.all()
+        external_builds = {
+            self.build_private_external,
+            self.another_build_private_external,
+            self.shared_build_private_external,
+            self.build_public_external,
+            self.another_build_public_external,
+            self.shared_build_public_external,
+        }
+        self.assertEqual(query.count(), len(external_builds))
+        self.assertEqual(set(query), external_builds)
 
-    def test_external_build_manager_with_public(self):
-        self.assertNotIn(self.internal_builds, Build.external.public())
-        self.assertIn(self.external_version_build, Build.external.public())
+    def test_public(self):
+        query = Build.external.public()
+        public_external_builds = {
+            self.build_public_external,
+            self.another_build_public_external,
+            self.shared_build_public_external,
+        }
+        self.assertEqual(query.count(), len(public_external_builds))
+        self.assertEqual(set(query), public_external_builds)
 
-    def test_external_build_manager_with_public_with_user_and_project(self):
-        self.assertNotIn(
-            self.internal_builds,
-            Build.external.public(self.user, self.pip)
-        )
-        self.assertIn(
-            self.external_version_build,
-            Build.external.public(self.user, self.pip)
-        )
+    def test_public_user(self):
+        query = Build.external.public(user=self.user)
+        builds = {
+            self.build_private_external,
+            self.shared_build_private_external,
+            self.build_public_external,
+            self.another_build_public_external,
+            self.shared_build_public_external,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
 
-    def test_external_build_manager_with_api(self):
-        self.assertNotIn(self.internal_builds, Build.external.api())
-        self.assertIn(self.external_version_build, Build.external.api())
+    def test_public_project(self):
+        query = Build.external.public(user=self.user, project=self.project)
+        builds = {
+            self.build_private_external,
+            self.build_public_external,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
+
+    def test_api(self):
+        query = Build.external.api(user=self.user)
+        builds = {
+            self.build_private_external,
+            self.shared_build_private_external,
+            self.build_public_external,
+            self.another_build_public_external,
+            self.shared_build_public_external,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
+
+    def test_api_user(self):
+        query = Build.external.api(user=self.user, detail=False)
+        builds = {
+            self.build_private_external,
+            self.shared_build_private_external,
+            self.build_public_external,
+            self.shared_build_public_external,
+        }
+        self.assertEqual(query.count(), len(builds))
+        self.assertEqual(set(query), builds)
 
 
 class TestHTMLFileManager(TestCase):
@@ -229,7 +361,13 @@ class TestHTMLFileManager(TestCase):
             type=EXTERNAL,
             privacy_level=PUBLIC
         )
-        self.html_file = HTMLFile.objects.create(
+        self.internal_version = get(
+            Version,
+            project=self.pip,
+            active=True,
+            privacy_level=PUBLIC
+        )
+        self.external_html_file = HTMLFile.objects.create(
             project=self.pip,
             version=self.external_version,
             name='file.html',
@@ -238,18 +376,27 @@ class TestHTMLFileManager(TestCase):
             md5='abcdef',
             commit='1234567890abcdef',
         )
-        self.internal_html_files = HTMLFile.objects.exclude(version__type=EXTERNAL)
+        self.internal_html_file = HTMLFile.objects.create(
+            project=self.pip,
+            version=self.internal_version,
+            name='file.html',
+            slug='file',
+            path='file.html',
+            md5='abcdef',
+            commit='1234567890abcdef',
+        )
 
     def test_internal_html_file_queryset(self):
         """
         It will exclude pull/merge request Version html files from the queries
         and only include BRANCH, TAG, UNKNOWN type Version files.
         """
-        self.assertNotIn(self.html_file, HTMLFile.objects.internal())
+        self.assertNotIn(self.external_html_file, HTMLFile.objects.internal())
+        self.assertIn(self.internal_html_file, HTMLFile.objects.internal())
 
     def test_external_html_file_queryset(self):
         """
         It will only include pull/merge request Version html files in the queries.
         """
-        self.assertNotIn(self.internal_html_files, HTMLFile.objects.external())
-        self.assertIn(self.html_file, HTMLFile.objects.external())
+        self.assertNotIn(self.internal_html_file, HTMLFile.objects.external())
+        self.assertIn(self.external_html_file, HTMLFile.objects.external())
