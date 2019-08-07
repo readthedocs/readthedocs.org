@@ -63,8 +63,9 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.services import registry
+from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.projects.constants import GITHUB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -1889,47 +1890,55 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
+    provider_name = build.project.git_provider_name
 
-    try:
-        if build.project.remote_repository.account.provider == 'github':
-            service = GitHubService(
+    if provider_name == GITHUB_BRAND:
+        # get the service class for the project e.g: GitHubService.
+        service_class = build.project.git_service_class()
+        try:
+            service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-
-            # send Status report using the API.
+            # Send status report using the API.
             service.send_build_status(build, commit, status)
 
-    except RemoteRepository.DoesNotExist:
-        # Get the service provider for the project
-        for service_cls in registry:
-            if service_cls.is_project_service(build.project):
-                service = service_cls
-                break
-        else:
-            log.warning('There are no registered services in the application.')
+        except RemoteRepository.DoesNotExist:
+            users = build.project.users.all()
+
+            # Try to loop through all project users to get their social accounts
+            for user in users:
+                user_accounts = service_class.for_user(user)
+                # Try to loop through users all social accounts to send a successful request
+                for account in user_accounts:
+                    # Currently we only support GitHub Status API
+                    if account.provider_name == provider_name:
+                        success = account.send_build_status(build, commit, status)
+                        if success:
+                            return True
+
+            for user in users:
+                # Send Site notification about Build status reporting failure
+                # to all the users of the project.
+                notification = GitBuildStatusFailureNotification(
+                    context_object=build.project,
+                    extra_context={'provider_name': provider_name},
+                    user=user,
+                    success=False,
+                )
+                notification.send()
+
+            log.info(
+                'No social account or repository permission available for %s',
+                build.project.slug
+            )
             return False
 
-        # Try to loop through all project users to get their social accounts
-        for user in build.project.users.all():
-            user_accounts = service.for_user(user)
-            # Try to loop through users all social accounts to send a successful request
-            for account in user_accounts:
-                # Currently we only support GitHub Status API
-                if account.provider_name == 'GitHub':
-                    success = account.send_build_status(build, commit, status)
-                    if success:
-                        return True
+        except Exception:
+            log.exception('Send build status task failed for %s', build.project.slug)
+            return False
 
-        log.info(
-            'No social account or repository permission available for %s',
-            build.project
-        )
-        return False
-
-    except Exception:
-        log.exception('Send build status task failed for %s', build.project)
-        return False
+    return False
 
     # TODO: Send build status for other providers.
 

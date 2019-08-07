@@ -5,6 +5,7 @@ from tempfile import mkdtemp
 
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
+from messages_extends.models import Message
 from mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
@@ -335,6 +336,9 @@ class TestCeleryBuilding(RTDTestCase):
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
     def test_send_build_status_task_with_remote_repo(self, send_build_status):
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+
         social_account = get(SocialAccount, provider='github')
         remote_repo = get(RemoteRepository, account=social_account, project=self.project)
         remote_repo.users.add(self.eric)
@@ -350,6 +354,7 @@ class TestCeleryBuilding(RTDTestCase):
         send_build_status.assert_called_once_with(
             external_build, external_build.commit, BUILD_STATUS_SUCCESS
         )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
     def test_send_build_status_task_with_social_account(self, send_build_status):
@@ -369,9 +374,12 @@ class TestCeleryBuilding(RTDTestCase):
         send_build_status.assert_called_once_with(
             external_build, external_build.commit, BUILD_STATUS_SUCCESS
         )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
     @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
     def test_send_build_status_task_without_remote_repo_or_social_account(self, send_build_status):
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
             Build, project=self.project, version=external_version
@@ -381,3 +389,4 @@ class TestCeleryBuilding(RTDTestCase):
         )
 
         send_build_status.assert_not_called()
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
