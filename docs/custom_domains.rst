@@ -1,11 +1,9 @@
 Custom Domains
 ==============
 
-.. note:: These setup directions are for our community site.
-          If you want to setup a custom domain under our `commercial hosting`_,
-          please read our :ref:`commercial documentation <commercial/custom_domains:Custom Domains>`.
-
-.. _commercial hosting: https://readthedocs.com
+.. note:: These directions are for projects hosted on our community site.
+          If you want to setup a custom domain on `Read the Docs for Business <https://readthedocs.com/>`_,
+          please read our :doc:`commercial documentation <commercial/custom_domains>`.
 
 Read the Docs supports a number of custom domains for your convenience. Shorter URLs make everyone happy, and we like making people happy!
 
@@ -80,7 +78,7 @@ FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification
 
     For more details, see this `previous issue`_.
 
-    .. _previous issue: https://github.com/rtfd/readthedocs.org/issues/4395
+    .. _previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
 
 Proxy SSL

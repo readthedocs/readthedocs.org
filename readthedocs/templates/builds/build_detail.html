@@ -79,15 +79,23 @@ $(document).ready(function () {
 
     <div class="build-version">
       <span class="build-version-slug">
-        {% if request.user|is_admin:project %}
+        {% if request.user|is_admin:project and not build.is_external %}
           <a href="{% url "project_version_detail" build.version.project.slug build.version.slug %}">{{ build.version.slug }}</a>
-        {% else  %}
+        {% elif build.is_external %}
+          {% blocktrans with build.external_version_name as external_version_name %}
+            <b>{{ external_version_name }}</b>
+          {% endblocktrans %}
+            #<a href="{{ build.version.vcs_url }}">{{ build.version.verbose_name }}</a>
+        {% else %}
           {{ build.version.slug }}
         {% endif %}
       </span>
-      <span class="build-commit"
-            data-bind="visible: commit">
-        (<span data-bind="text: commit">{{ build.commit }}</span>)
+      <span class="build-commit" data-bind="visible: commit">
+        {% if build.get_commit_url %}
+          (<a data-bind="attr: {href: commit_url}"><span data-bind="text: commit">{{ build.commit }}</span></a>)
+        {% else %}
+            (<span data-bind="text: commit">{{ build.commit }}</span>)
+        {% endif %}
       </span>
     </div>
 
@@ -131,6 +139,18 @@ $(document).ready(function () {
             {% blocktrans trimmed %}
               Don't want <em>setup.py install</em> called?
               Change the <strong>Install Project</strong> setting in your <a href="{{ advanced_url }}">advanced settings</a>.
+            {% endblocktrans %}
+          </p>
+        </div>
+      {% endif %}
+      {% if build.finished and not build.using_latest_config %}
+        <div class="build-ideas">
+          <p>
+            {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
+              <strong>Configure your documentation builds!</strong>
+              Adding a <a href="{{ config_file_link }}">.readthedocs.yml</a> file to your project
+              is the recommended way to configure your documentation builds.
+              You can declare dependencies, set up submodules, and many other great features.
             {% endblocktrans %}
           </p>
         </div>

@@ -34,7 +34,7 @@
               Your documentation has been built.
               Ensure your documentation is kept up to date with every commit to
               your repository, by
-              <a href="http://docs.readthedocs.io/en/latest/webhooks.html">setting up a webhook</a>.
+              <a href="http://docs.readthedocs.io/page/webhooks.html">setting up a webhook</a>.
             {% endblocktrans %}
             </p>
 
@@ -50,7 +50,7 @@
               There was a problem building your documentation,
               you can see what went wrong in the build output.
               If you need more help, check out some of the
-              <a href="http://docs.readthedocs.io/en/latest/faq.html">problems frequently encountered</a>
+              <a href="http://docs.readthedocs.io/page/faq.html">problems frequently encountered</a>
               during builds.
             {% endblocktrans %}
             </p>
@@ -59,8 +59,10 @@
           </form>
         {% endif %}
       {% else %}
-        <h2>{% trans "Your documentation is building" %}</h2>
-
+        
+        {% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk as latest_build_url %}
+        <a href="{{ latest_build_url }}"><h2>{% trans "Your documentation is building" %}</h2></a>
+        
         <p>
         {% blocktrans trimmed %}
           You'll be able to view your documentation in a minute or two,

@@ -46,12 +46,13 @@ subdomain_urls = [
         serve_docs,
         name='docs_detail',
     ),
+
 ]
 
 groups = [subdomain_urls]
 
 # Needed to serve media locally
-if getattr(settings, 'DEBUG', False):
+if settings.DEBUG:
     groups.insert(
         0,
         static(

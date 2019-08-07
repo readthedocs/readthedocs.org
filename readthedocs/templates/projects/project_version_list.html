@@ -104,9 +104,6 @@ Versions
 
                       {% if request.user|is_admin:project %}
                         <ul class="module-item-menu">
-                          {% if version.built %}
-                            <li><a href="{% url "project_version_delete_html" project.slug version.slug %}">{% trans "Clean" %}</a></li>
-                          {% endif %}
                           <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                         </ul>
                       {% endif %}

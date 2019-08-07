@@ -6,14 +6,15 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
 
-class VersionForm(forms.ModelForm):
+class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     class Meta:
         model = Version
-        fields = ['active', 'privacy_level', 'tags']
+        fields = ['active', 'privacy_level']
 
     def clean_active(self):
         active = self.cleaned_data['active']

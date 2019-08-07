@@ -20,6 +20,8 @@ Once you have Docker set up, you will need to pull down our build image. These
 images are found on our `Docker Hub repository`_, the source comes from our
 `container image repo`_.
 
+.. note:: The size of the Docker images is around 5 to 9 GB.
+
 To get started using Docker for build environments, you'll need to pull down at
 least one build image. For example, to pull down our latest image::
 
@@ -35,7 +37,7 @@ image -- see `Configuration`_.
 
 .. _`Docker`: http://docker.com
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
-.. _`container image repo`: https://github.com/rtfd/readthedocs-docker-images
+.. _`container image repo`: https://github.com/readthedocs/readthedocs-docker-images
 
 Configuration
 -------------
@@ -80,3 +82,29 @@ DOCKER_VERSION
     Version of the API to use for the Docker API client.
 
     Default: :djangosetting:`DOCKER_VERSION`
+
+
+Local development
+-----------------
+
+On Linux development environments, it's likely that your UID and GID do not
+match the ``docs`` user that is set up as the default user for builds. In this
+case, it's necessary to make a new image that overrides the UID and GID for the
+normal container user::
+
+    contrib/docker_build.sh latest
+
+This will create a new image, ``readthedocs/build-dev:latest``. To build a
+different image, you can instead specify a version to build::
+
+    contrib/docker_build.sh 5.0
+
+This will create a new image, ``readthedocs/build-dev:5.0``.
+
+You can set a ``local_settings.py`` option to automatically patch the image
+names to the development image names that are built here:
+
+DOCKER_USE_DEV_IMAGES
+    If set to ``True``, replace the normal Docker image name used in building
+    ``readthedocs/build`` with the image name output for these commands,
+    ``readthedocs/build-dev``.

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-import json
 import logging
 
 import mock
@@ -9,7 +7,6 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects import tasks
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
 
@@ -17,6 +14,8 @@ from readthedocs.projects.models import Project
 log = logging.getLogger(__name__)
 
 
+@mock.patch('readthedocs.projects.tasks.clean_build', new=mock.MagicMock)
+@mock.patch('readthedocs.projects.tasks.update_docs_task.signature', new=mock.MagicMock)
 class PrivacyTests(TestCase):
 
     def setUp(self):
@@ -27,8 +26,6 @@ class PrivacyTests(TestCase):
         self.tester = User(username='tester')
         self.tester.set_password('test')
         self.tester.save()
-
-        tasks.update_docs_task.delay = mock.Mock()
 
     def _create_kong(
         self, privacy_level='private',
@@ -171,67 +168,6 @@ class PrivacyTests(TestCase):
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/')
         self.assertContains(r, 'test-slug')
-
-    def test_public_repo_api(self):
-        self._create_kong('public', 'public')
-        self.client.login(username='eric', password='test')
-        resp = self.client.get(
-            'http://testserver/api/v1/project/django-kong/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-
-        resp = self.client.get(
-            'http://testserver/api/v1/project/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 1)
-
-        self.client.login(username='tester', password='test')
-        resp = self.client.get(
-            'http://testserver/api/v1/project/django-kong/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(
-            'http://testserver/api/v1/project/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 1)
-
-    def test_private_repo_api(self):
-        self._create_kong('private', 'private')
-        self.client.login(username='eric', password='test')
-        resp = self.client.get(
-            'http://testserver/api/v1/project/django-kong/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        resp = self.client.get(
-            'http://testserver/api/v1/project/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 1)
-
-        self.client.login(username='tester', password='test')
-        resp = self.client.get(
-            'http://testserver/api/v1/project/django-kong/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 404)
-        resp = self.client.get(
-            'http://testserver/api/v1/project/',
-            data={'format': 'json'},
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = json.loads(resp.content)
-        self.assertEqual(data['meta']['total_count'], 0)
 
     def test_private_doc_serving(self):
         kong = self._create_kong('public', 'private')

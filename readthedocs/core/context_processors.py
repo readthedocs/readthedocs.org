@@ -8,21 +8,14 @@ from django.conf import settings
 def readthedocs_processor(request):
     # pylint: disable=unused-argument
     exports = {
-        'PUBLIC_DOMAIN': getattr(settings, 'PUBLIC_DOMAIN', None),
-        'PRODUCTION_DOMAIN': getattr(settings, 'PRODUCTION_DOMAIN', None),
-        'USE_SUBDOMAINS': getattr(settings, 'USE_SUBDOMAINS', None),
-        'GLOBAL_ANALYTICS_CODE': getattr(settings, 'GLOBAL_ANALYTICS_CODE'),
-        'DASHBOARD_ANALYTICS_CODE': getattr(
-            settings,
-            'DASHBOARD_ANALYTICS_CODE',
-        ),
-        'SITE_ROOT': getattr(settings, 'SITE_ROOT', '') + '/',
-        'TEMPLATE_ROOT': getattr(settings, 'TEMPLATE_ROOT', '') + '/',
-        'DO_NOT_TRACK_ENABLED': getattr(
-            settings,
-            'DO_NOT_TRACK_ENABLED',
-            False,
-        ),
-        'USE_PROMOS': getattr(settings, 'USE_PROMOS', False),
+        'PUBLIC_DOMAIN': settings.PUBLIC_DOMAIN,
+        'PRODUCTION_DOMAIN': settings.PRODUCTION_DOMAIN,
+        'USE_SUBDOMAIN': settings.USE_SUBDOMAIN,
+        'GLOBAL_ANALYTICS_CODE': settings.GLOBAL_ANALYTICS_CODE,
+        'DASHBOARD_ANALYTICS_CODE': settings.DASHBOARD_ANALYTICS_CODE,
+        'SITE_ROOT': settings.SITE_ROOT + '/',
+        'TEMPLATE_ROOT': settings.TEMPLATE_ROOT + '/',
+        'DO_NOT_TRACK_ENABLED': settings.DO_NOT_TRACK_ENABLED,
+        'USE_PROMOS': settings.USE_PROMOS,
     }
     return exports

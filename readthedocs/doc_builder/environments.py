@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Documentation Builder Environments."""
 
 import logging
@@ -20,12 +18,12 @@ from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
+from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
-from readthedocs.restapi.client import api as api_v2
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -35,7 +33,6 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
-    MKDOCS_TEMPLATE_DIR,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -84,6 +81,7 @@ class BuildCommand(BuildCommandResultMixin):
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
     :param description: a more grokable description of the command being run
+    :param kwargs: allow to subclass this class and extend it
     """
 
     def __init__(
@@ -98,6 +96,7 @@ class BuildCommand(BuildCommandResultMixin):
             bin_path=None,
             description=None,
             record_as_success=False,
+            **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -106,7 +105,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd
         self.environment = os.environ.copy()
         if environment is not None:
-            assert 'PATH' not in environment, "PATH can't be set"
+            if 'PATH' in environment:
+                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
             self.environment.update(environment)
 
         self.combine_output = combine_output
@@ -156,6 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
         if self.build_env is not None:
             environment['READTHEDOCS_VERSION'] = self.build_env.version.slug
             environment['READTHEDOCS_PROJECT'] = self.build_env.project.slug
+            environment['READTHEDOCS_LANGUAGE'] = self.build_env.project.language
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
@@ -166,8 +167,13 @@ class BuildCommand(BuildCommandResultMixin):
             environment['PATH'] = ':'.join(env_paths)
 
         try:
+            # When using ``shell=True`` the command should be flatten
+            command = self.command
+            if self.shell:
+                command = self.get_command()
+
             proc = subprocess.Popen(
-                self.command,
+                command,
                 shell=self.shell,
                 # This is done here for local builds, but not for docker,
                 # as we want docker to expand inside the container
@@ -296,14 +302,20 @@ class DockerBuildCommand(BuildCommand):
     Build command to execute in docker container
     """
 
-    def run(self):
+    def __init__(self, *args, escape_command=True, **kwargs):
         """
-        Execute command in existing Docker container.
+        Override default to extend behavior.
 
-        :param cmd_input: input to pass to command in STDIN
-        :type cmd_input: str
-        :param combine_output: combine STDERR into STDOUT
+        :param escape_command: whether escape special chars the command before
+            executing it in the container. This should only be disabled on
+            trusted or internal commands.
+        :type escape_command: bool
         """
+        self.escape_command = escape_command
+        super(DockerBuildCommand, self).__init__(*args, **kwargs)
+
+    def run(self):
+        """Execute command in existing Docker container."""
         log.info(
             "Running in container %s: '%s' [%s]",
             self.build_env.container_id,
@@ -352,13 +364,15 @@ class DockerBuildCommand(BuildCommand):
 
     def get_wrapped_command(self):
         """
-        Escape special bash characters in command to wrap in shell.
+        Wrap command in a shell and optionally escape special bash characters.
 
         In order to set the current working path inside a docker container, we
-        need to wrap the command in a shell call manually. Some characters will
-        be interpreted as shell characters without escaping, such as: ``pip
-        install requests<0.8``. This escapes a good majority of those
-        characters.
+        need to wrap the command in a shell call manually.
+
+        Some characters will be interpreted as shell characters without
+        escaping, such as: ``pip install requests<0.8``. When passing
+        ``escape_command=True`` in the init method this escapes a good majority
+        of those characters.
         """
         bash_escape_re = re.compile(
             r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
@@ -367,16 +381,18 @@ class DockerBuildCommand(BuildCommand):
         prefix = ''
         if self.bin_path:
             prefix += 'PATH={}:$PATH '.format(self.bin_path)
+
+        command = (
+            ' '.join([
+                bash_escape_re.sub(r'\\\1', part) if self.escape_command else part
+                for part in self.command
+            ])
+        )
         return (
             "/bin/sh -c 'cd {cwd} && {prefix}{cmd}'".format(
                 cwd=self.cwd,
                 prefix=prefix,
-                cmd=(
-                    ' '.join([
-                        bash_escape_re.sub(r'\\\1', part)
-                        for part in self.command
-                    ])
-                ),
+                cmd=command,
             )
         )
 
@@ -434,7 +450,8 @@ class BaseEnvironment:
         env_path = self.environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
-        assert 'environment' not in kwargs, "environment can't be passed in via commands."
+        if 'environment' in kwargs:
+            raise BuildEnvironmentError('environment can\'t be passed in via commands.')
         kwargs['environment'] = self.environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
@@ -462,11 +479,12 @@ class BaseEnvironment:
 
             if warn_only:
                 log.warning(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version='latest',
-                        msg=msg,
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': 'latest',
+                        'msg': msg,
+                    }
                 )
             else:
                 raise BuildEnvironmentWarning(msg)
@@ -550,11 +568,12 @@ class BuildEnvironment(BaseEnvironment):
         ret = self.handle_exception(exc_type, exc_value, tb)
         self.update_build(BUILD_STATE_FINISHED)
         log.info(
-            LOG_TEMPLATE.format(
-                project=self.project.slug,
-                version=self.version.slug,
-                msg='Build finished',
-            ),
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': 'Build finished',
+            }
         )
         return ret
 
@@ -585,11 +604,12 @@ class BuildEnvironment(BaseEnvironment):
                 self.failure = exc_value
 
             log_level_function(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=exc_value,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': exc_value,
+                },
                 exc_info=True,
                 extra={
                     'stack': True,
@@ -639,7 +659,7 @@ class BuildEnvironment(BaseEnvironment):
     def done(self):
         """Is build in finished state."""
         return (
-            self.build is not None and
+            self.build and
             self.build['state'] == BUILD_STATE_FINISHED
         )
 
@@ -819,15 +839,16 @@ class DockerBuildEnvironment(BuildEnvironment):
                     raise exc
                 else:
                     log.warning(
-                        LOG_TEMPLATE.format(
-                            project=self.project.slug,
-                            version=self.version.slug,
-                            msg=(
+                        LOG_TEMPLATE,
+                        {
+                            'project': self.project.slug,
+                            'version': self.version.slug,
+                            'msg': (
                                 'Removing stale container {}'.format(
                                     self.container_id,
                                 )
                             ),
-                        ),
+                        }
                     )
                     client = self.get_client()
                     client.remove_container(self.container_id)
@@ -873,11 +894,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             # request. These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
-                    LOG_TEMPLATE.format(
-                        project=self.project.slug,
-                        version=self.version.slug,
-                        msg="Couldn't remove container",
-                    ),
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': "Couldn't remove container",
+                    }
                 )
             self.container = None
         except BuildEnvironmentError:
@@ -901,11 +923,12 @@ class DockerBuildEnvironment(BuildEnvironment):
             return self.client
         except DockerException:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg='Could not connect to Docker API',
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': "Could not connect to Docker API",
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -929,17 +952,13 @@ class DockerBuildEnvironment(BuildEnvironment):
         ``client.create_container``.
         """
         binds = {
-            MKDOCS_TEMPLATE_DIR: {
-                'bind': MKDOCS_TEMPLATE_DIR,
-                'mode': 'ro',
-            },
             self.project.doc_path: {
                 'bind': self.project.doc_path,
                 'mode': 'rw',
             },
         }
 
-        if getattr(settings, 'GLOBAL_PIP_CACHE', False) and settings.DEBUG:
+        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
             binds.update({
                 self.project.pip_cache_path: {
                     'bind': self.project.pip_cache_path,
@@ -1027,14 +1046,15 @@ class DockerBuildEnvironment(BuildEnvironment):
             client.start(container=self.container_id)
         except ConnectionError:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
                         'Could not connect to the Docker API, '
                         'make sure Docker is running'
                     ),
-                ),
+                }
             )
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
@@ -1046,10 +1066,11 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         except DockerAPIError as e:
             log.exception(
-                LOG_TEMPLATE.format(
-                    project=self.project.slug,
-                    version=self.version.slug,
-                    msg=e.explanation,
-                ),
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': e.explanation,
+                }
             )
             raise BuildEnvironmentCreationFailed

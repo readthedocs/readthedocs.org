@@ -1,99 +1,114 @@
 # Base packages
-pip==19.0.3
+pip==19.2.1
 appdirs==1.4.3
-virtualenv==16.4.3
+virtualenv==16.7.2
 
-django==1.11.20  # pyup: <1.12
-django-tastypie==0.14.2
-django-guardian==1.5.0
-django-extensions==2.1.6
+django==1.11.23  # pyup: <1.12
+django-extensions==2.2.1
+django_polymorphic==2.1.2
 
-djangorestframework==3.9.2
+djangorestframework==3.10.2
 
 # For intersphinx during builds
-Sphinx==1.8.4
+# Use <2.x until we fix some issues in our theme.
+# Some things are not rendering properly and sidebar shows titles in gray.
+Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.1.0
+django-filter==2.2.0
+
+drf-flex-fields==0.5.0
+drf-extensions==0.5.0
 
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
-requests==2.21.0
+requests==2.22.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==3.13
-Pygments==2.3.1
-
-# These has to be removed once APIv1 is removed
-# https://github.com/rtfd/readthedocs.org/pull/5293
-# https://github.com/rtfd/readthedocs.org/pull/3082
-lxml==4.3.1
-defusedxml==0.5.0
+pyyaml==5.1.2
+Pygments==2.4.2
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
 # https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
 # https://github.com/sebleier/django-redis-cache/pull/162
 redis==2.10.6  # pyup: ignore
+# Kombu >4.3 requires redis>=3.2
+kombu==4.3.0  # pyup: ignore
 # Celery 4.2 is incompatible with our code
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
 django-allauth==0.39.1
 
-# GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
-# of an UnicodeError
-# This commit,
-# https://github.com/gitpython-developers/GitPython/commit/7f08b7730438bde34ae55bc3793fa524047bb804,
-# introduces the usage of ``str`` which behaves differently in Py2 and
-# Py3 We should check if all the tests pass again when we drop Py2
-# support and we should be able to upgrade
-GitPython==2.1.10  # pyup: ignore
+GitPython==2.1.13
 
 # Search
-elasticsearch==6.3.1
+elasticsearch==6.4.0  # pyup: <7.0.0
 
 
 # elasticsearch-dsl==6.3.1 produces this error
 #   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
 #     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
 # ImportError: cannot import name 'DocTypeMeta'
-elasticsearch-dsl==6.1.0  # pyup: ignore
-django-elasticsearch-dsl==0.5.1
+#
+# Commit 97e3f75 adds the NestedFacet
+git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
+
+# django-elasticsearch-dsl==6.4.1 produces this error
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/__init__.py", line 3, in <module>
+#     from .documents import DocType  # noqa
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 7, in <module>
+#     from elasticsearch_dsl import Document as DSLDocument
+# ImportError: cannot import name 'Document'
+django-elasticsearch-dsl==0.5.1  # pyup: ignore
 pyquery==1.4.0
+
+# lxml is used by pyquery
+# defusedxml is recommended when using lxml
+lxml==4.4.0
+defusedxml==0.6.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2018.9
+pytz==2019.2
 Unipath==1.1
 django-kombu==0.9.4
-mock==2.0.0
-stripe==2.21.0
+mock==3.0.5
+stripe==2.33.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
-git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify
+git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
+django-crispy-forms==1.7.2
 
-# docker is pinned to 3.1.3 because we found some strange behavior
-# related to timeouts on EXEC with 3.2.1 and 3.3.0 that's not present
-# with 3.1.3
-# https://github.com/rtfd/readthedocs.org/issues/3999
-docker==3.1.3  # pyup: ignore
+docker==4.0.2
 
 django-textclassifier==1.0
+# django-textclassifier doesn't have pinned versions
+# if there is an update they could break our code
+nltk==3.4.4
+textblob==0.15.3
+
 django-annoying==0.10.4
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==0.24.0
+django-taggit==1.1.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==19.0
+packaging==19.1
 
 # Commenting stuff
-django-cors-middleware==1.3.1
+django-cors-middleware==1.4.0
 
 # User agent parsing - used for analytics purposes
-user-agents<1.2.0
+user-agents==2.0
+
+# Utilities used to upload build media to cloud storage
+django-storages==1.7.1  # pyup: <1.8
+
+# Required only in development and linting
+django-debug-toolbar==2.0

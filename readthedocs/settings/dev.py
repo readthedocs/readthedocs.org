@@ -32,6 +32,8 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_API_HOST = 'http://127.0.0.1:8000'
     PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
+    EXTERNAL_VERSION_URL = 'http://127.0.0.1:8000/static/external'
+
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
@@ -51,6 +53,9 @@ class CommunityDevSettings(CommunityBaseSettings):
     # Disable auto syncing elasticsearch documents in development
     ELASTICSEARCH_DSL_AUTOSYNC = False
 
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
@@ -58,6 +63,18 @@ class CommunityDevSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False
         return logging
+
+    @property
+    def INSTALLED_APPS(self):
+        apps = super().INSTALLED_APPS
+        apps.append('debug_toolbar')
+        return apps
+
+    @property
+    def MIDDLEWARE(self):
+        middlewares = list(super().MIDDLEWARE)
+        middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
 
 
 CommunityDevSettings.load_settings(__name__)
@@ -68,3 +85,14 @@ if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
         from .local_settings import *  # noqa
     except ImportError:
         pass
+
+# Allow for local settings override to trigger images name change
+try:
+    if DOCKER_USE_DEV_IMAGES:
+        DOCKER_IMAGE_SETTINGS = {
+            key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
+            for (key, settings)
+            in DOCKER_IMAGE_SETTINGS.items()
+        }
+except NameError:
+    pass

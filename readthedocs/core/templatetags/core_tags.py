@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """Template tags for core app."""
 
 import hashlib
+import json
 from urllib.parse import urlencode
 
 from django import template
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import force_bytes, force_text
 from django.utils.safestring import mark_safe
 
@@ -61,7 +61,7 @@ def restructuredtext(value, short=False):
             'file_insertion_enabled': False,
         }
         docutils_settings.update(
-            getattr(settings, 'RESTRUCTUREDTEXT_FILTER_SETTINGS', {}),
+            settings.RESTRUCTUREDTEXT_FILTER_SETTINGS,
         )
         try:
             parts = publish_parts(
@@ -109,6 +109,45 @@ def key(d, key_name):
     return d[key_name]
 
 
+@register.filter
+def get_key_or_none(d, key_name):
+    try:
+        return d[key_name]
+    except KeyError:
+        return None
+
+
 @register.simple_tag
 def readthedocs_version():
     return __version__
+
+
+@register.filter
+def escapejson(data, indent=None):
+    """
+    Escape JSON correctly for inclusion in Django templates.
+
+    This code was mostly taken from Django's implementation
+    https://docs.djangoproject.com/en/2.2/ref/templates/builtins/#json-script
+    https://github.com/django/django/blob/2.2.2/django/utils/html.py#L74-L92
+
+    After upgrading to Django 2.1+, we could replace this with Django's implementation
+    although the inputs and outputs are a bit different.
+
+    Example:
+
+        var jsvar = {{ dictionary_value | escapejson }}
+    """
+    if indent:
+        indent = int(indent)
+    _json_script_escapes = {
+        ord('>'): '\\u003E',
+        ord('<'): '\\u003C',
+        ord('&'): '\\u0026',
+    }
+    return mark_safe(
+        json.dumps(
+            data,
+            cls=DjangoJSONEncoder,
+            indent=indent,
+        ).translate(_json_script_escapes))

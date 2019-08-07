@@ -2,7 +2,7 @@ Contributing to Read the Docs
 =============================
 
 You are here to help on Read the Docs? Awesome, feel welcome and read the
-following sections in order to know how to ask questions and how to work on something. 
+following sections in order to know how to ask questions and how to work on something.
 
 All members of our community are expected to follow our :doc:`/code-of-conduct`.
 Please make sure you are welcoming and friendly in all of our spaces.
@@ -16,7 +16,7 @@ Get in touch
 - On IRC find us at `#readthedocs`_.
 
 .. _StackOverFlow: https://stackoverflow.com/questions/tagged/read-the-docs
-.. _on GitHub: https://github.com/rtfd/readthedocs.org
+.. _on GitHub: https://github.com/readthedocs/readthedocs.org
 .. _Gitter: https://gitter.im/rtfd/readthedocs.org
 .. _#readthedocs: irc://irc.freenode.net/readthedocs
 
@@ -25,7 +25,7 @@ Contributing to development
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:doc:`Installation Guide <install>`. After that is done we
+:doc:`Installation Guide <development/install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -81,11 +81,11 @@ command will be run immediately and will inform you of the changes and errors.
     linting changes would be a great help to making this possible.
 
 
-.. _Feature: https://github.com/rtfd/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
-.. _Improvement: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
-.. _Accepted: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AAccepted
-.. _Good First Issue: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
-.. _Sprintable: https://github.com/rtfd/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
+.. _Feature: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
+.. _Improvement: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
+.. _Accepted: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AAccepted
+.. _Good First Issue: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22
+.. _Sprintable: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
 .. _pre-commit: https://github.com/pre-commit/pre-commit
@@ -96,6 +96,43 @@ command will be run immediately and will inform you of the changes and errors.
 .. _prospector: https://prospector.landscape.io/en/master
 .. _unify: https://github.com/myint/unify
 .. _yapf: https://github.com/google/yapf
+
+Contributing to documentation
+-----------------------------
+
+Documentation for Read the Docs itself is hosted by Read the Docs at https://docs.readthedocs.io (likely the website you are currently reading).
+
+There are guidelines around writing and formatting documentation for the project.
+For full details, including how to build it, see :doc:`/development/docs`.
+
+
+Developer documentation
+-----------------------
+
+These are guides and helpful documentation to running your own local version of Read the Docs
+for development or taking the open source Read the Docs codebase
+for your own :doc:`custom installation <custom_installs/index>`.
+
+.. toctree::
+   :maxdepth: 1
+
+   development/install
+   development/standards
+   development/search
+   development/architecture
+   development/tests
+   development/docs
+   development/front-end
+   development/design/index
+   development/buildenvironments
+   development/symlinks
+   development/settings
+   development/i18n
+   development/issue-labels
+   development/design
+   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
+
+
 
 Triaging tickets
 ----------------
@@ -214,7 +251,7 @@ label. The reported issue …
 After we finished the initial triaging of new tickets, no ticket should be left
 without a label.
 
-.. _list of untriaged tickets: https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label
+.. _list of untriaged tickets: https://github.com/readthedocs/readthedocs.org/issues?q=is:issue+is:open+no:label
 
 Additional labels for categorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -236,7 +273,7 @@ few more at hand to further categorize issues.
     handled during a sprint. They are very focused and encapsulated.
 
 For a full list of available labels and their meanings, see
-:doc:`issue-labels`.
+:doc:`/development/issue-labels`.
 
 Helpful links for triaging
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -244,22 +281,22 @@ Helpful links for triaging
 Here is a list of links for contributors that look for work:
 
 - `Untriaged tickets
-  <https://github.com/rtfd/readthedocs.org/issues?q=is:issue+is:open+no:label>`_:
+  <https://github.com/readthedocs/readthedocs.org/issues?q=is:issue+is:open+no:label>`_:
   Go and triage them!
 - `Tickets labelled with Needed: more information
-  <https://github.com/rtfd/readthedocs.org/issues?utf8=✓&q=is:open+is:issue+label:"Needed:+more+information">`_:
+  <https://github.com/readthedocs/readthedocs.org/issues?utf8=✓&q=is:open+is:issue+label:"Needed:+more+information">`_:
   Come back to these tickets once in a while and close those that did not get
   any new information from the reporter. If new information is available, go
   and re-triage the ticket.
 - `Tickets labelled with Operations
-  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:Operations>`_:
+  <https://github.com/readthedocs/readthedocs.org/issues?q=is:open+is:issue+label:Operations>`_:
   These tickets are for contributors who have access to the servers.
 - `Tickets labelled with Support
-  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:Support>`_:
+  <https://github.com/readthedocs/readthedocs.org/issues?q=is:open+is:issue+label:Support>`_:
   Experienced contributors or community members with a broad knowledge about
   the project should handle those.
 - `Tickets labelled with Needed: design decision
-  <https://github.com/rtfd/readthedocs.org/issues?q=is:open+is:issue+label:"Needed:+design+decision">`_:
+  <https://github.com/readthedocs/readthedocs.org/issues?q=is:open+is:issue+label:"Needed:+design+decision">`_:
   Project leaders must take actions on these tickets. Otherwise no other
   contributor can go forward on them.
 

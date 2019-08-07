@@ -5,7 +5,6 @@
     <a class="module-item-title" href="{{ project.get_absolute_url }}">{{ project.name }}</a>
 
     {% with project.users.all as users %}
-
       {% if users|length > 1 %}
       ({% for user in project.users.all|slice:":3" %}
         {% if omit and user.pk != omit.pk %}
@@ -24,29 +23,20 @@
     {% endwith %}
 
     {% if project.has_good_build %}
-    <span class="right-menu quiet">{% blocktrans with date=project.builds.all.0.date|timesince %}{{ date }} ago{% endblocktrans %}</span>
+    <span class="right-menu quiet">{% blocktrans with date=project.get_latest_build.date|timesince %}{{ date }} ago{% endblocktrans %}</span>
     {% else %}
     <span class="right-menu quiet">{% trans "No builds" %}</span>
     {% endif %}
 
-    {% if project.has_good_build %}
-    <span class="dropdown" style="position:absolute; right:0px; top:0px;">
-      <span>
-          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
-        <a href="#">&#x25BC;</a>
-      </span>
-      <ul>
-          <li><input type="search" placeholder="{% trans "Search" %}&hellip;" /></li>
-          {% for version in project.ordered_active_versions reversed %}
-              <li><a href="{{ version.get_absolute_url }}">{{ version.slug }}</a></li>
-          {% endfor %}
-      </ul>
-    </span>
-    {% else %}
     <ul class="module-item-menu">
-      <li><a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a></li>
+      <li>
+        {% if project.has_good_build %}
+          <a href="{{ project.get_docs_url }}">{% trans "View Docs" %}</a>
+        {% else %}
+          <a href="{{ project.get_builds_url }}">{% trans "No Docs" %}</a>
+        {% endif %}
+      </li>
     </ul>
-    {% endif %}
 
 
   </li>

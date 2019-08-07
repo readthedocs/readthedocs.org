@@ -19,8 +19,9 @@ from .constants import (
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
+    EXTERNAL,
 )
-from .querysets import VersionQuerySet
+from .querysets import VersionQuerySet, BuildQuerySet
 
 log = logging.getLogger(__name__)
 
@@ -85,6 +86,96 @@ class VersionManagerBase(models.Manager):
             log.warning('Version not found for given kwargs. %s' % kwargs)
 
 
+class InternalVersionManagerBase(VersionManagerBase):
+
+    """
+    Version manager that only includes internal version.
+
+    It will exclude pull request/merge request versions from the queries
+    and only include BRANCH, TAG, UNKNOWN type Versions.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(type=EXTERNAL)
+
+
+class ExternalVersionManagerBase(VersionManagerBase):
+
+    """
+    Version manager that only includes external version.
+
+    It will only include pull request/merge request Versions in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(type=EXTERNAL)
+
+
 class VersionManager(SettingsOverrideObject):
     _default_class = VersionManagerBase
     _override_setting = 'VERSION_MANAGER'
+
+
+class InternalVersionManager(SettingsOverrideObject):
+    _default_class = InternalVersionManagerBase
+
+
+class ExternalVersionManager(SettingsOverrideObject):
+    _default_class = ExternalVersionManagerBase
+
+
+class BuildManagerBase(models.Manager):
+
+    """
+    Build manager for manager only queries.
+
+    For creating different Managers.
+    """
+
+    @classmethod
+    def from_queryset(cls, queryset_class, class_name=None):
+        # This is overridden because :py:meth:`models.Manager.from_queryset`
+        # uses `inspect` to retrieve the class methods, and the proxy class has
+        # no direct members.
+        queryset_class = get_override_class(
+            BuildQuerySet,
+            BuildQuerySet._default_class,  # pylint: disable=protected-access
+        )
+        return super().from_queryset(queryset_class, class_name)
+
+
+class InternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes internal version builds.
+
+    It will exclude pull request/merge request version builds from the queries
+    and only include BRANCH, TAG, UNKNOWN type Version builds.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(version__type=EXTERNAL)
+
+
+class ExternalBuildManagerBase(BuildManagerBase):
+
+    """
+    Build manager that only includes external version builds.
+
+    It will only include pull request/merge request version builds in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(version__type=EXTERNAL)
+
+
+class BuildManager(SettingsOverrideObject):
+    _default_class = BuildManagerBase
+
+
+class InternalBuildManager(SettingsOverrideObject):
+    _default_class = InternalBuildManagerBase
+
+
+class ExternalBuildManager(SettingsOverrideObject):
+    _default_class = ExternalBuildManagerBase

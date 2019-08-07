@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 
 from allauth.account.models import EmailAddress
@@ -12,10 +11,11 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 from mock import patch
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
@@ -104,6 +104,27 @@ class TestBasicsForm(WizardTestCase):
     def request(self, *args, **kwargs):
         kwargs['user'] = self.user
         return super().request(*args, **kwargs)
+
+    def test_form_import_from_remote_repo(self):
+        self.client.force_login(self.user)
+
+        data = {
+            'name': 'pipdocs',
+            'repo': 'https://github.com/fail/sauce',
+            'repo_type': 'git',
+            'remote_repository': '1234',
+        }
+        resp = self.client.post(
+            '/dashboard/import/',
+            data,
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The form is filled with the previous information
+        self.assertEqual(
+            resp.context['form'].initial,
+            data,
+        )
 
     def test_form_pass(self):
         """Only submit the basics."""
@@ -369,12 +390,40 @@ class TestImportDemoView(MockBuildTestCase):
 
 class TestPublicViews(MockBuildTestCase):
     def setUp(self):
-        self.pip = get(Project, slug='pip')
+        self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
+        self.external_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
 
     def test_project_download_media(self):
         url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
+
+    def test_project_detail_view_only_shows_internal_versons(self):
+        url = reverse('projects_detail', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_downloads_only_shows_internal_versons(self):
+        url = reverse('project_downloads', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_versions_only_shows_internal_versons(self):
+        url = reverse('project_version_list', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['active_versions'])
+        self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
 class TestPrivateViews(MockBuildTestCase):
@@ -404,7 +453,7 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+        with patch('readthedocs.projects.models.broadcast') as broadcast:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
@@ -413,6 +462,24 @@ class TestPrivateViews(MockBuildTestCase):
                 task=tasks.remove_dirs,
                 args=[(project.doc_path,)],
             )
+
+    def test_delete_superproject(self):
+        super_proj = get(Project, slug='pip', users=[self.user])
+        sub_proj = get(Project, slug='test-sub-project', users=[self.user])
+
+        self.assertFalse(super_proj.subprojects.all().exists())
+        super_proj.add_subproject(sub_proj)
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
+            'Deleting this project will make them to become regular projects. '
+            'This will break the URLs of all its subprojects and they will be served normally as other projects.',
+            count=1,
+            html=True,
+        )
 
     def test_subproject_create(self):
         project = get(Project, slug='pip', users=[self.user])
@@ -498,6 +565,13 @@ class TestBadges(TestCase):
 
         # The social badge (but not the other badges) has this element
         self.assertContains(res, 'rlink')
+
+    def test_badge_redirect(self):
+        # Test that a project with an underscore redirects
+        badge_url = reverse('project_badge', args=['project_slug'])
+        resp = self.client.get(badge_url, {'version': 'latest'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue('project-slug' in resp['location'])
 
 
 class TestTags(TestCase):

@@ -476,6 +476,9 @@ div.module.search-dashboard input {
     background-size: 24px 24px;
 }
 
+/* Admin project Translation */
+.module-translation { padding-bottom: 25px; }
+
 /* project bar */
 
 #project_bar { background: #E8ECEF url(../images/project-bar-bg.png) top left repeat; border-bottom: 1px solid #DAE1E5; overflow:hidden; position:relative; }

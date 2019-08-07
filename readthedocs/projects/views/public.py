@@ -13,8 +13,9 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
@@ -32,7 +33,6 @@ from .base import ProjectOnboardMixin
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
-storage = get_storage_class()()
 
 
 class ProjectIndex(ListView):
@@ -69,6 +69,21 @@ class ProjectIndex(ListView):
         return context
 
 
+def project_redirect(request, invalid_project_slug):
+    """
+    Redirect project slugs that have underscores (``_``).
+
+    Slugs with underscores are no longer allowed.
+    Underscores are replaced by ``-`` and then redirected to that URL.
+    """
+    new_project_slug = invalid_project_slug.replace('_', '-')
+    new_path = request.path.replace(invalid_project_slug, new_project_slug)
+    return redirect('{}?{}'.format(
+        new_path,
+        request.GET.urlencode(),
+    ))
+
+
 class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
     """Display project onboard steps."""
@@ -83,7 +98,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = self.get_object()
-        context['versions'] = Version.objects.public(
+        context['versions'] = Version.internal.public(
             user=self.request.user,
             project=project,
         )
@@ -169,7 +184,7 @@ def project_downloads(request, project_slug):
         Project.objects.protected(request.user),
         slug=project_slug,
     )
-    versions = Version.objects.public(user=request.user, project=project)
+    versions = Version.internal.public(user=request.user, project=project)
     versions = sort_version_aware(versions)
     version_data = OrderedDict()
     for version in versions:
@@ -204,13 +219,17 @@ def project_download_media(request, project_slug, type_, version_slug):
         project__slug=project_slug,
         slug=version_slug,
     )
-    privacy_level = getattr(settings, 'DEFAULT_PRIVACY_LEVEL', 'public')
-    if privacy_level == 'public' or settings.DEBUG:
-        storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug
-        )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
+
+    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+            storage_path = version.project.get_storage_path(
+                type_=type_, version_slug=version_slug,
+                version_type=version.type,
+            )
+            if storage.exists(storage_path):
+                return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
             settings.MEDIA_URL,
@@ -255,7 +274,7 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.objects.public(
+    versions = Version.internal.public(
         user=request.user,
         project=project,
         only_active=False,
@@ -270,6 +289,9 @@ def project_versions(request, project_slug):
     wiped_version = versions.filter(slug=wiped)
     if wiped and wiped_version.count():
         messages.success(request, 'Version wiped: ' + wiped)
+
+    # Optimize project permission checks
+    prefetch_related_objects([project], 'users')
 
     return render(
         request,

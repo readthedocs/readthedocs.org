@@ -1,16 +1,16 @@
-
 import os
 
 import django_dynamic_fixture as fixture
 import mock
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
+from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -201,13 +201,10 @@ class TestPublicDocs(BaseDocServing):
         ROOT_URLCONF=settings.SUBDOMAIN_URLCONF,
     )
 
-    @patch('readthedocs.core.views.serve.os')
+    @patch('readthedocs.core.views.static_serve')
     @patch('readthedocs.core.views.os')
-    def test_custom_404_page(self, os_view_mock, os_serve_mock):
+    def test_custom_404_page(self, os_view_mock, static_serve_mock):
         os_view_mock.path.exists.return_value = True
-
-        os_serve_mock.path.join.side_effect = os.path.join
-        os_serve_mock.path.exists.return_value = True
 
         self.public.versions.update(active=True, built=True)
 
@@ -221,7 +218,6 @@ class TestPublicDocs(BaseDocServing):
         middleware.process_request(request)
         response = server_error_404_subdomain(request)
         self.assertEqual(response.status_code, 404)
-        self.assertTrue(response['X-Accel-Redirect'].endswith('/public/en/latest/404.html'))
 
     @override_settings(
         USE_SUBDOMAIN=True,
@@ -235,13 +231,54 @@ class TestPublicDocs(BaseDocServing):
             privacy_level=constants.PRIVATE,
             project=self.public,
         )
+        not_translated_public_version = fixture.get(
+            Version,
+            identifier='not-translated-version',
+            verbose_name='not-translated-version',
+            slug='not-translated-version',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
+        stable_version = fixture.get(
+            Version,
+            identifier='stable',
+            verbose_name='stable',
+            slug='stable',
+            privacy_level=constants.PUBLIC,
+            project=self.public,
+            active=True
+        )
+        # This is a EXTERNAL Version
+        external_version = fixture.get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.public,
+            active=True,
+            type=EXTERNAL
+        )
+        # This also creates a Version `latest` Automatically for this project
+        translation = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='translation-es'
+        )
+        # sitemap hreflang should follow correct format.
+        # ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
+        hreflang_test_translation_project = fixture.get(
+            Project,
+            main_language_project=self.public,
+            language='zh_CN'
+        )
         response = self.client.get(
             reverse('sitemap_xml'),
             HTTP_HOST='public.readthedocs.io',
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/xml')
-        for version in self.public.versions.filter(privacy_level=constants.PUBLIC):
+        for version in self.public.versions(manager=INTERNAL).filter(privacy_level=constants.PUBLIC):
             self.assertContains(
                 response,
                 self.public.get_docs_url(
@@ -251,7 +288,7 @@ class TestPublicDocs(BaseDocServing):
                 ),
             )
 
-        # stable is marked as PRIVATE and should not appear here
+        # PRIVATE version should not appear here
         self.assertNotContains(
             response,
             self.public.get_docs_url(
@@ -260,3 +297,86 @@ class TestPublicDocs(BaseDocServing):
                 private=True,
             ),
         )
+        # The `translation` project doesn't have a version named `not-translated-version`
+        # so, the sitemap should not have a doc url for
+        # `not-translated-version` with `translation-es` language.
+        # ie: http://public.readthedocs.io/translation-es/not-translated-version/
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=not_translated_public_version.slug,
+                lang_slug=translation.language,
+                private=False,
+            ),
+        )
+        # hreflang should use hyphen instead of underscore
+        # in language and country value. (zh_CN should be zh-CN)
+        self.assertContains(response, 'zh-CN')
+
+        # External Versions should not be in the sitemap_xml.
+        self.assertNotContains(
+            response,
+            self.public.get_docs_url(
+                version_slug=external_version.slug,
+                lang_slug=self.public.language,
+                private=True,
+            ),
+        )
+
+        # Check if STABLE version has 'priority of 1 and changefreq of weekly.
+        self.assertEqual(
+            response.context['versions'][0]['loc'],
+            self.public.get_docs_url(
+                version_slug=stable_version.slug,
+                lang_slug=self.public.language,
+                private=False,
+            ),)
+        self.assertEqual(response.context['versions'][0]['priority'], 1)
+        self.assertEqual(response.context['versions'][0]['changefreq'], 'weekly')
+
+        # Check if LATEST version has priority of 0.9 and changefreq of daily.
+        self.assertEqual(
+            response.context['versions'][1]['loc'],
+            self.public.get_docs_url(
+                version_slug='latest',
+                lang_slug=self.public.language,
+                private=False,
+            ),)
+        self.assertEqual(response.context['versions'][1]['priority'], 0.9)
+        self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
+
+    @override_settings(
+        PYTHON_MEDIA=True,
+        USE_SUBDOMAIN=False,
+    )
+    @patch(
+        'readthedocs.core.views.serve._serve_symlink_docs',
+        new=mock.MagicMock(return_value=HttpResponse(content_type='text/html')),
+    )
+    def test_user_with_multiple_projects_serve_from_same_domain(self):
+        project = fixture.get(
+            Project,
+            main_language_project=None,
+            users=[self.eric],
+        )
+        other_project = fixture.get(
+            Project,
+            main_language_project=None,
+            users=[self.eric],
+        )
+
+        # Trigger the save method of the versions
+        project.versions.get(slug=LATEST).save()
+        other_project.versions.get(slug=LATEST).save()
+
+        # Two projects of one owner with versions with the same slug
+        self.assertIn(self.eric, project.users.all())
+        self.assertIn(self.eric, other_project.users.all())
+        self.assertTrue(project.versions.filter(slug=LATEST).exists())
+        self.assertTrue(other_project.versions.filter(slug=LATEST).exists())
+
+        self.client.force_login(self.eric)
+        request = self.client.get(
+            f'/docs/{project.slug}/en/latest/'
+        )
+        self.assertEqual(request.status_code, 200)

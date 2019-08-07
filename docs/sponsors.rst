@@ -25,7 +25,6 @@ Past sponsors
 * `Rackspace`_
 * `Mozilla`_
 
-.. _MOSS grant: https://blog.readthedocs.com/rtd-awarded-mozilla-open-source-support-grant/
 .. _Revsys: http://www.revsys.com/
 .. _Python Software Foundation: http://python.org/psf/
 .. _Mozilla Web Dev: http://blog.mozilla.com/webdev/

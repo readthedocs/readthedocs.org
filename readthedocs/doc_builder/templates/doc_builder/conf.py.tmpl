@@ -31,7 +31,7 @@ if globals().get('source_suffix', False):
         # Sphinx >= 1.3 supports list/tuple to define multiple suffixes
         SUFFIX = source_suffix[0]
     elif isinstance(source_suffix, dict):
-        # Sphinx >= 1.8 supports a mapping dictionary for mulitple suffixes
+        # Sphinx >= 1.8 supports a mapping dictionary for multiple suffixes
         SUFFIX = list(source_suffix.keys())[0]  # make a ``list()`` for py2/py3 compatibility
     else:
         # default to .rst
@@ -140,3 +140,39 @@ if 'extensions' in globals():
     extensions.insert(0, "readthedocs_ext.readthedocs")
 else:
     extensions = ["readthedocs_ext.readthedocs"]
+
+# Add External version warning banner to the external version documentation
+if '{{ version.type }}' == 'external':
+    extensions.insert(1, "readthedocs_ext.external_version_warning")
+
+project_language = '{{ project.language }}'
+
+# User's Sphinx configurations
+language_user = globals().get('language', None)
+latex_engine_user = globals().get('latex_engine', None)
+latex_elements_user = globals().get('latex_elements', None)
+
+# Remove this once xindy gets installed in Docker image and XINDYOPS
+# env variable is supported
+# https://github.com/rtfd/readthedocs-docker-images/pull/98
+latex_use_xindy = False
+
+chinese = any([
+    language_user in ('zh_CN', 'zh_TW'),
+    project_language in ('zh_CN', 'zh_TW'),
+])
+
+japanese = any([
+    language_user == 'ja',
+    project_language == 'ja',
+])
+
+if chinese:
+    latex_engine = latex_engine_user or 'xelatex'
+
+    latex_elements_rtd = {
+        'preamble': '\\usepackage[UTF8]{ctex}\n',
+    }
+    latex_elements = latex_elements_user or latex_elements_rtd
+elif japanese:
+    latex_engine = latex_engine_user or 'platex'

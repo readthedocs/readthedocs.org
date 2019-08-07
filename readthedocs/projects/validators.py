@@ -59,14 +59,13 @@ class RepositoryURLValidator:
     re_git_user = re.compile(r'^[\w]+@.+')
 
     def __call__(self, value):
-        allow_private_repos = getattr(settings, 'ALLOW_PRIVATE_REPOS', False)
         public_schemes = ['https', 'http', 'git', 'ftps', 'ftp']
         private_schemes = ['ssh', 'ssh+git']
         local_schemes = ['file']
         valid_schemes = public_schemes
-        if allow_private_repos:
+        if settings.ALLOW_PRIVATE_REPOS:
             valid_schemes += private_schemes
-        if getattr(settings, 'DEBUG'):  # allow `file://` urls in dev
+        if settings.DEBUG:  # allow `file://` urls in dev
             valid_schemes += local_schemes
         url = urlparse(value)
 
@@ -86,7 +85,7 @@ class RepositoryURLValidator:
             return value
         # SSH cloning and ``git@github.com:user/project.git``
         elif self.re_git_user.search(value) or url.scheme in private_schemes:
-            if allow_private_repos:
+            if settings.ALLOW_PRIVATE_REPOS:
                 return value
 
             # Throw a more helpful error message

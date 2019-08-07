@@ -10,14 +10,17 @@ from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as build_utils
+from readthedocs.builds.constants import (
+    BUILD_STATUS_SUCCESS,
+    SELECT_BUILD_STATUS,
+    RTD_BUILD_STATUS_API_NAME
+)
 from readthedocs.integrations.models import Integration
-from readthedocs.integrations.utils import get_secret
-from readthedocs.restapi.client import api
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
 
 
 log = logging.getLogger(__name__)
@@ -81,8 +84,10 @@ class GitHubService(Service):
         :rtype: RemoteRepository
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
-        if ((privacy == 'private') or
-            (fields['private'] is False and privacy == 'public')):
+        if any([
+                (privacy == 'private'),
+                (fields['private'] is False and privacy == 'public'),
+        ]):
             try:
                 repo = RemoteRepository.objects.get(
                     full_name=fields['full_name'],
@@ -311,15 +316,96 @@ class GitHubService(Service):
             )
             return (False, resp)
 
+    def send_build_status(self, build, commit, state):
+        """
+        Create GitHub commit status for project.
+
+        :param build: Build to set up commit status for
+        :type build: Build
+        :param state: build state failure, pending, or success.
+        :type state: str
+        :param commit: commit sha of the pull request
+        :type commit: str
+        :returns: boolean based on commit status creation was successful or not.
+        :rtype: Bool
+        """
+        session = self.get_session()
+        project = build.project
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        # select the correct state and description.
+        github_build_state = SELECT_BUILD_STATUS[state]['github']
+        description = SELECT_BUILD_STATUS[state]['description']
+
+        target_url = build.get_full_url()
+
+        if state == BUILD_STATUS_SUCCESS:
+            target_url = build.version.get_absolute_url()
+
+        data = {
+            'state': github_build_state,
+            'target_url': target_url,
+            'description': description,
+            'context': RTD_BUILD_STATUS_API_NAME
+        }
+
+        resp = None
+
+        try:
+            resp = session.post(
+                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
+                data=json.dumps(data),
+                headers={'content-type': 'application/json'},
+            )
+            if resp.status_code == 201:
+                log.info(
+                    "GitHub commit status created for project: %s, commit status: %s",
+                    project,
+                    github_build_state,
+                )
+                return True
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return False
+
+            return False
+
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.exception(
+                'GitHub commit status creation failed for project: %s',
+                project,
+            )
+            # Response data should always be JSON, still try to log if not
+            # though
+            if resp is not None:
+                try:
+                    debug_data = resp.json()
+                except ValueError:
+                    debug_data = resp.content
+            else:
+                debug_data = resp
+
+            log.debug(
+                'GitHub commit status creation failure response: %s',
+                debug_data,
+            )
+            return False
+
     @classmethod
     def get_token_for_project(cls, project, force_local=False):
         """Get access token for project by iterating over project users."""
         # TODO why does this only target GitHub?
-        if not getattr(settings, 'ALLOW_PRIVATE_REPOS', False):
+        if not settings.ALLOW_PRIVATE_REPOS:
             return None
         token = None
         try:
-            if getattr(settings, 'DONT_HIT_DB', True) and not force_local:
+            if settings.DONT_HIT_DB and not force_local:
                 token = api.project(project.pk).token().get()['token']
             else:
                 for user in project.users.all():

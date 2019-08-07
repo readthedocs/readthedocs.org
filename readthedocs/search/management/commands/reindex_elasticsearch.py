@@ -10,7 +10,6 @@ from django_elasticsearch_dsl.registries import registry
 
 from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
                       index_missing_objects)
-from ...utils import get_chunk
 
 log = logging.getLogger(__name__)
 
@@ -19,23 +18,38 @@ class Command(BaseCommand):
 
     @staticmethod
     def _get_indexing_tasks(app_label, model_name, index_name, queryset, document_class):
-        total = queryset.count()
-        chunks = get_chunk(total, settings.ES_TASK_CHUNK_SIZE)
+        chunk_size = settings.ES_TASK_CHUNK_SIZE
+        qs_iterator = queryset.only('pk').iterator()
+        is_iterator_empty = False
 
-        for chunk in chunks:
-            data = {
-                'app_label': app_label,
-                'model_name': model_name,
-                'document_class': document_class,
-                'index_name': index_name,
-                'chunk': chunk
-            }
+        data = {
+            'app_label': app_label,
+            'model_name': model_name,
+            'document_class': document_class,
+            'index_name': index_name,
+        }
+
+        while not is_iterator_empty:
+            objects_id = []
+
+            try:
+                for _ in range(chunk_size):
+                    pk = next(qs_iterator).pk
+                    objects_id.append(pk)
+
+                    if pk % 5000 == 0:
+                        log.info('Total: %s', pk)
+
+            except StopIteration:
+                is_iterator_empty = True
+
+            data['objects_id'] = objects_id
             yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
         apply_async_kwargs = {'priority': 0}
         if queue:
-            log.info('Adding indexing tasks to queue {0}'.format(queue))
+            log.info('Adding indexing tasks to queue %s', queue)
             apply_async_kwargs['queue'] = queue
         else:
             log.info('Adding indexing tasks to default queue')

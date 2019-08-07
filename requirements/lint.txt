@@ -6,6 +6,6 @@ pylint<=2.1.1  # pyup: ignore
 # prospector 1.1.6.2 is not compatible with 2.0.3
 pylint-django==2.0.2  # pyup: ignore
 pylint-celery==0.3
-prospector==1.1.6.2
+prospector==1.1.6.4  # pyup: ignore
 # prospector 1.1.6.2 is not compatible with 2.0.0
 pyflakes<2.0.0  # pyup: ignore

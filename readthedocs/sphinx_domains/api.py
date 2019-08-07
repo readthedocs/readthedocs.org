@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from readthedocs.restapi.views.model_views import UserSelectViewSet
+from readthedocs.api.v2.views.model_views import UserSelectViewSet
 
 from .models import SphinxDomain
 
@@ -33,7 +33,7 @@ class SphinxDomainAPIView(UserSelectViewSet):  # pylint: disable=too-many-ancest
     model = SphinxDomain
     serializer_class = SphinxDomainSerializer
     admin_serializer_class = SphinxDomainAdminSerializer
-    filter_fields = (
+    filterset_fields = (
         'project__slug',
         'version__slug',
         'domain',

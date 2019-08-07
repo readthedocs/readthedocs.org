@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from urllib.parse import urlsplit
 
 import mock
@@ -7,11 +6,13 @@ from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Build
+from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.models import Build, Version
+from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import ImportedFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 
 class Testmaker(TestCase):
@@ -50,8 +51,6 @@ class Testmaker(TestCase):
         _ = form.save()
         _ = Project.objects.get(slug='django-kong')
 
-        r = self.client.get('/dashboard/django-kong/versions/', {})
-        self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/builds/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/django-kong/edit/', {})
@@ -103,10 +102,6 @@ class PrivateViewsAreProtectedTests(TestCase):
 
     def test_version_detail(self):
         response = self.client.get('/dashboard/pip/version/0.8.1/')
-        self.assertRedirectToLogin(response)
-
-    def test_versions(self):
-        response = self.client.get('/dashboard/pip/versions/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):
@@ -170,10 +165,10 @@ class RandomPageTests(TestCase):
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.pip_version = self.pip.versions.all()[0]
-        ImportedFile.objects.create(
+        HTMLFile.objects.create(
             project=self.pip,
             version=self.pip_version,
-            name='File',
+            name='file.html',
             slug='file',
             path='file.html',
             md5='abcdef',
@@ -193,8 +188,8 @@ class RandomPageTests(TestCase):
         response = self.client.get('/random/not-existent/')
         self.assertEqual(response.status_code, 404)
 
-    def test_404_for_with_no_imported_files(self):
-        ImportedFile.objects.all().delete()
+    def test_404_for_with_no_html_files(self):
+        HTMLFile.objects.all().delete()
         response = self.client.get('/random/pip/')
         self.assertEqual(response.status_code, 404)
 
@@ -272,6 +267,7 @@ class BuildViewTests(TestCase):
 
     def setUp(self):
         self.client.login(username='eric', password='test')
+        self.pip = Project.objects.get(slug='pip')
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
     def test_build_redirect(self, mock):
@@ -282,3 +278,24 @@ class BuildViewTests(TestCase):
             r._headers['location'][1],
             '/projects/pip/builds/%s/' % build.pk,
         )
+
+    def test_build_list_includes_external_versions(self):
+        external_version = get(
+            Version,
+            project=self.pip,
+            active=True,
+            type=EXTERNAL,
+            privacy_level=PUBLIC,
+        )
+        external_version_build = get(
+            Build,
+            project=self.pip,
+            version=external_version
+        )
+        self.pip.privacy_level = PUBLIC
+        self.pip.save()
+        response = self.client.get(
+            reverse('builds_project_list', args=[self.pip.slug]),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(external_version_build, response.context['build_qs'])

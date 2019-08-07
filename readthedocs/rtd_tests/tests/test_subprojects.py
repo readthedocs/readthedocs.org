@@ -65,6 +65,10 @@ class SubprojectFormTests(TestCase):
             form.errors['child'][0],
             r'Select a valid choice.',
         )
+        self.assertEqual(
+            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [''],
+        )
 
     def test_adding_subproject_passes_when_user_is_admin(self):
         user = fixture.get(User)
@@ -161,6 +165,45 @@ class SubprojectFormTests(TestCase):
             [proj_id for (proj_id, __) in form.fields['child'].choices],
         )
 
+    def test_alias_already_exists_for_a_project(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        subproject_2 = fixture.get(Project, users=[user])
+        relation = fixture.get(
+             ProjectRelationship, parent=project, child=subproject,
+             alias='subproject'
+        )
+        form = ProjectRelationshipForm(
+            {
+                'child': subproject_2.id,
+                'alias': 'subproject'
+            },
+            project=project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        error_msg = 'A subproject with this alias already exists'
+        self.assertDictEqual(form.errors, {'alias': [error_msg]})
+
+    def test_edit_only_lists_instance_project_in_child_choices(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+             ProjectRelationship, parent=project, child=subproject,
+             alias='subproject'
+        )
+        form = ProjectRelationshipForm(
+            instance=relation,
+            project=project,
+            user=user,
+        )
+        self.assertEqual(
+            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            ['', relation.child.id],
+        )
+
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org')
 class ResolverBase(TestCase):
@@ -172,12 +215,12 @@ class ResolverBase(TestCase):
             self.pip = fixture.get(Project, slug='pip', users=[self.owner], main_language_project=None)
             self.subproject = fixture.get(
                 Project, slug='sub', language='ja',
-                users=[ self.owner],
+                users=[self.owner],
                 main_language_project=None,
             )
             self.translation = fixture.get(
                 Project, slug='trans', language='ja',
-                users=[ self.owner],
+                users=[self.owner],
                 main_language_project=None,
             )
             self.pip.add_subproject(self.subproject)

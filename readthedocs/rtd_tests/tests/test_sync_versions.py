@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import json
+import mock
 
 from django.test import TestCase
 from django.urls import reverse
 
-from readthedocs.builds.constants import BRANCH, STABLE, TAG
-from readthedocs.builds.models import Version
+from readthedocs.builds.constants import BRANCH, STABLE, TAG, LATEST
+from readthedocs.builds.models import (
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
 from readthedocs.projects.models import Project
 
 
@@ -56,7 +61,6 @@ class TestSyncVersions(TestCase):
         self.assertEqual(json_data['added_versions'], ['to_add'])
 
     def test_new_tag_update_active(self):
-
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -102,7 +106,6 @@ class TestSyncVersions(TestCase):
         )
 
     def test_new_tag_dont_update_inactive(self):
-
         Version.objects.create(
             project=self.pip,
             identifier='0.8.3',
@@ -733,6 +736,107 @@ class TestSyncVersions(TestCase):
             1,
         )
 
+    @mock.patch('readthedocs.api.v2.utils.run_automation_rules')
+    def test_automation_rules_are_triggered_for_new_versions(self, run_automation_rules):
+        Version.objects.create(
+            project=self.pip,
+            identifier='0.8.3',
+            verbose_name='0.8.3',
+            active=True,
+            type=TAG,
+        )
+
+        version_post_data = {
+            'branches': [
+                {
+                    'identifier': 'origin/master',
+                    'verbose_name': 'master',
+                },
+                {
+                    'identifier': 'origin/new_branch',
+                    'verbose_name': 'new_branch',
+                },
+            ],
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        run_automation_rules.assert_called_with(
+            self.pip, {'new_branch', 'new_tag'}
+        )
+
+    def test_automation_rule_activate_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^new_tag$',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        self.assertFalse(
+            self.pip.versions.filter(verbose_name='new_tag').exists()
+        )
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        new_tag = self.pip.versions.get(verbose_name='new_tag')
+        self.assertTrue(new_tag.active)
+
+    def test_automation_rule_set_default_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^new_tag$',
+            action=VersionAutomationRule.SET_DEFAULT_VERSION_ACTION,
+            version_type=TAG,
+        )
+        self.assertEqual(self.pip.get_default_version(), LATEST)
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.pip.refresh_from_db()
+        self.assertEqual(self.pip.get_default_version(), 'new_tag')
+
 
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
@@ -967,9 +1071,11 @@ class TestStableVersion(TestCase):
             content_type='application/json',
         )
 
+        # The identifier of stable is updated
+        # but the version is still not active
         version_stable = Version.objects.get(slug=STABLE)
         self.assertFalse(version_stable.active)
-        self.assertEqual(version_stable.identifier, '0.9')
+        self.assertEqual(version_stable.identifier, '1.0.0')
 
     def test_stable_version_tags_over_branches(self):
         version_post_data = {

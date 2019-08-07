@@ -1,45 +1,16 @@
-# -*- coding: utf-8 -*-
-
 """We define custom Django signals to trigger before executing searches."""
+import logging
+
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
+from django_elasticsearch_dsl.registries import registry
 
-from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.projects.signals import bulk_post_create, bulk_post_delete
+from readthedocs.projects.models import Project
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
 
-@receiver(bulk_post_create, sender=HTMLFile)
-def index_html_file(instance_list, **_):
-    """Handle indexing from the build process."""
-    from readthedocs.search.documents import PageDocument
-    kwargs = {
-        'app_label': HTMLFile._meta.app_label,
-        'model_name': HTMLFile.__name__,
-        'document_class': str(PageDocument),
-        'objects_id': [obj.id for obj in instance_list],
-    }
-
-    # Do not index if autosync is disabled globally
-    if DEDConfig.autosync_enabled():
-        index_objects_to_es(**kwargs)
-
-
-@receiver(bulk_post_delete, sender=HTMLFile)
-def remove_html_file(instance_list, **_):
-    """Remove deleted files from the build process."""
-    from readthedocs.search.documents import PageDocument
-    kwargs = {
-        'app_label': HTMLFile._meta.app_label,
-        'model_name': HTMLFile.__name__,
-        'document_class': str(PageDocument),
-        'objects_id': [obj.id for obj in instance_list],
-    }
-
-    # Do not index if autosync is disabled globally
-    if DEDConfig.autosync_enabled():
-        delete_objects_in_es(**kwargs)
+log = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Project)

@@ -8,7 +8,7 @@ GitHub, Bitbucket and GitLab Integration
 
 We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation.
 
-More information can be found in the :doc:`vcs` page.
+More information can be found in :doc:`guides/vcs`.
 
 Auto-updating
 -------------
@@ -18,14 +18,15 @@ The :doc:`webhooks` page talks about the different ways you can ping RTD to let 
 Internationalization
 --------------------
 
-Read the Docs itself is localized, and we support documentation translated into multiple languages. Read more on the :doc:`localization` and :doc:`i18n` pages.
+Read the Docs itself is localized, and we support documentation translated into multiple languages.
+Read more on the :doc:`localization` and :doc:`development/i18n` pages.
 
 Canonical URLs
 --------------
 
 Canonical URLs give your docs better search performance, by pointing all URLs to one version. This also helps to solve the issues around users landing on outdated versions of documentation.
 
-More information can be found in the :doc:`canonical` page.
+More information can be found in the :doc:`guides/canonical` page.
 
 Versions
 --------
@@ -60,7 +61,7 @@ When you build your project on RTD, we automatically build a PDF of your project
 Search
 ------
 
-We provide full-text search across all of the pages of documentation hosted on our site. This uses the excellent Haystack project and Elasticsearch as the search backend. We hope to be integrating this into the site more fully in the future.
+We provide full-text search across all of the pages of documentation hosted on our site. This uses Elasticsearch as the search backend. We hope to be integrating this into the site more fully in the future.
 
 Alternate Domains
 -----------------

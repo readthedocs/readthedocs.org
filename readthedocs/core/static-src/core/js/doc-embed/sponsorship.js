@@ -67,9 +67,6 @@ function create_sidebar_placement() {
         if (!offset || offset.top > $(window).height()) {
             // If this is off screen, lower the priority
             priority = constants.LOW_PROMO_PRIORITY;
-        } else if (bowser && !bowser.mobile) {
-            // If this isn't mobile, then the ad will be ATF, so raise the priority
-            priority = constants.MAXIMUM_PROMO_PRIORITY;
         }
 
         return {
@@ -131,20 +128,21 @@ function create_footer_placement() {
 function create_fixed_footer_placement() {
     var element_id = 'rtd-' + (Math.random() + 1).toString(36).substring(4);
     var display_type = constants.PROMO_TYPES.FIXED_FOOTER;
+    var priority = constants.DEFAULT_PROMO_PRIORITY;
 
-    // Only propose the fixed footer ad for mobile
     if (bowser && bowser.mobile) {
-        $('<div />').attr('id', element_id).appendTo('body');
-        return {
-            'div_id': element_id,
-            'display_type': display_type,
-
-            // Prioritize mobile ads when on mobile
-            'priority': constants.MAXIMUM_PROMO_PRIORITY,
-        };
+        // If this is mobile, then prioritize fixed footer
+        priority = constants.MAXIMUM_PROMO_PRIORITY;
     }
 
-    return null;
+    $('<div />').attr('id', element_id).appendTo('body');
+    return {
+        'div_id': element_id,
+        'display_type': display_type,
+
+        // Prioritize mobile ads when on mobile
+        'priority': priority,
+    };
 }
 
 function Promo(data) {
@@ -200,6 +198,9 @@ Promo.prototype.display = function () {
     // Check whether the ad is actually viewed
     $(window).on('DOMContentLoaded.rtdinview load.rtdinview scroll.rtdinview resize.rtdinview', handler);
     $('.wy-side-scroll').on('scroll.rtdinview', handler);
+
+    // Add a handler to close the ad on mobile
+    $('.ethical-close').on('click', function () { $(ad_selector).hide(); return false; });
 
     this.post_promo_display();
 };
@@ -314,6 +315,11 @@ function init() {
     request_data.display_types = display_types.join('|');
     request_data.priorities = priorities.join('|');
     request_data.project = rtd.project;
+    request_data.theme = rtd.get_theme_name();
+
+    // These will get community only ads temporarily
+    // After the fixed footer rollout is complete, this can be removed
+    request_data.community_only = rtd.theme_supports_paid_promo() ? 0 : 1;
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed

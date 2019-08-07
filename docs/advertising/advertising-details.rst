@@ -16,7 +16,7 @@ The goal of this document is to shed light on the advertising industry,
 exactly what we do for advertising, and how what we do is different.
 If you have questions or comments,
 `send us an email <mailto:rev@readthedocs.org>`_
-or `open an issue on GitHub <https://github.com/rtfd/readthedocs.org/issues>`_.
+or `open an issue on GitHub <https://github.com/readthedocs/readthedocs.org/issues>`_.
 
 
 Other ad networks' targeting
@@ -97,14 +97,14 @@ Currently we show ads on:
 * Sphinx theme provided by Read the Docs
 * MkDocs theme provided by Read the Docs (beginning in May 2018)
 * Alabaster Sphinx theme
+* `Pylons Sphinx Themes <https://github.com/Pylons/pylons-sphinx-themes>`_,
+  including pyramid, pylons, and pylonsfw.
 
 This list will expand as we strive to put advertising on a
 larger percentage of the documentation served by us.
 However, we always give advance notice in our issue tracker
 and via email about showing ads where none were shown before.
 
-
-.. _advertising-details-do-not-track:
 
 Do Not Track Policy
 -------------------
@@ -113,8 +113,6 @@ Read the Docs supports Do Not Track (DNT) and respects users' tracking preferenc
 For more details, see the :ref:`Do Not Track section <privacy-policy:Do Not Track>`
 of our privacy policy.
 
-
-.. _advertising-analytics:
 
 Analytics
 ---------

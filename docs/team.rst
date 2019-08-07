@@ -29,18 +29,18 @@ This might include tasks like:
 * Asking for a project name to be released
 * Troubleshooting build errors
 
-Members
-~~~~~~~
+Support team members
+~~~~~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`__ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`__ (Mountain Time)
-* `Manuel Kaufmann <https://github.com/humitos>`__ (Central Time)
+* `Eric Holscher`_ (Pacific Time)
+* `Anthony Johnson`_ (Mountain Time)
+* `Manuel Kaufmann`_ (Central Time)
 * Your Name Here
 
-Feel free to ask any of us if you have questions or want to join!
+**Please don't email us personally for support on Read the Docs.** You can email support@readthedocs.org for any issues you may have. 
 
-Joining
-~~~~~~~
+Joining the support team
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 The best place to start would be to start addressing some of the issues in our issue tracker.
 We have our support policies quite well documented in our :doc:`/contribute`.
@@ -59,18 +59,18 @@ As part of operating the site,
 we maintain a 24/7 on-call rotation.
 This means that folks have to be available and have their phone in service.
 
-Members
-~~~~~~~
+Ops team members
+~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`_ (Pacific Time)
-* `Anthony Johnson <https://github.com/agjohnson>`_ (Mountain Time)
-* `Matt Robenolt <https://github.com/mattrobenolt>`_ (Pacific Time)
+* `Eric Holscher`_ (Pacific Time)
+* `Anthony Johnson`_ (Mountain Time)
+* `Matt Robenolt`_ (Pacific Time)
 * Your Name Here
 
 Feel free to ask any of us if you have questions or want to join!
 
-Joining
-~~~~~~~
+Joining the ops team
+~~~~~~~~~~~~~~~~~~~~
 
 We are always looking for more people to share the on-call responsibility.
 If you are on-call for your job already,
@@ -103,20 +103,20 @@ Development Team
 Also known as the "Core Team" in other projects.
 These folks have the ability to commit code to the project.
 
-Members
-~~~~~~~
+Dev team members
+~~~~~~~~~~~~~~~~
 
-* `Eric Holscher <https://github.com/ericholscher>`_
-* `Anthony Johnson <https://github.com/agjohnson>`_
-* `Manuel Kaufmann <https://github.com/humitos>`_
-* `David Fischer <https://github.com/davidfischer>`_
-* `Santos Gallegos <https://github.com/stsewd>`_
+* `Eric Holscher`_
+* `Anthony Johnson`_
+* `Manuel Kaufmann`_
+* `David Fischer`_
+* `Santos Gallegos`_
 * Your name here
 
 Feel free to ask any of us if you have questions or want to join!
 
-Joining
-~~~~~~~
+Joining the dev team
+~~~~~~~~~~~~~~~~~~~~
 
 We try to be pretty flexible with who we allow on the development team.
 The best path is to send a few pull requests,
@@ -125,3 +125,11 @@ You can check out our :doc:`contribute` to get more information,
 and find issues that need to be addressed.
 After that,
 feel free to ask for a commit bit.
+
+
+.. _Eric Holscher: https://github.com/ericholscher
+.. _Anthony Johnson: https://github.com/agjohnson
+.. _Manuel Kaufmann: https://github.com/humitos
+.. _David Fischer: https://github.com/davidfischer
+.. _Santos Gallegos: https://github.com/stsewd
+.. _Matt Robenolt: https://github.com/mattrobenolt

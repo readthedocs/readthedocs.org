@@ -1,27 +1,26 @@
-# -*- coding: utf-8 -*-
-
 """
 Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
 import codecs
+import itertools
 import logging
 import os
 import shutil
-import sys
 import zipfile
 from glob import glob
+from pathlib import Path
 
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
 
+from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
-from readthedocs.restapi.client import api
 
 from ..base import BaseBuilder, restoring_chdir
 from ..constants import PDF_RE
@@ -43,6 +42,11 @@ class BaseSphinx(BaseBuilder):
         try:
             if not self.config_file:
                 self.config_file = self.project.conf_file(self.version.slug)
+            else:
+                self.config_file = os.path.join(
+                    self.project.checkout_path(self.version.slug),
+                    self.config_file,
+                )
             self.old_artifact_path = os.path.join(
                 os.path.dirname(self.config_file),
                 self.sphinx_build_dir,
@@ -56,6 +60,11 @@ class BaseSphinx(BaseBuilder):
 
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
+        log.info(
+            'Creating default Sphinx config file for project: %s:%s',
+            self.project.slug,
+            self.version.slug,
+        )
         docs_dir = self.docs_dir()
         conf_template = render_to_string(
             'sphinx/conf.py.conf',
@@ -102,7 +111,7 @@ class BaseSphinx(BaseBuilder):
         display_gitlab = gitlab_user is not None
 
         # Avoid hitting database and API if using Docker build environment
-        if getattr(settings, 'DONT_HIT_API', False):
+        if settings.DONT_HIT_API:
             versions = self.project.active_versions()
             downloads = self.version.get_downloads(pretty=True)
         else:
@@ -117,11 +126,7 @@ class BaseSphinx(BaseBuilder):
             'version': self.version,
             'settings': settings,
             'conf_py_path': conf_py_path,
-            'api_host': getattr(
-                settings,
-                'PUBLIC_API_URL',
-                'https://readthedocs.org',
-            ),
+            'api_host': settings.PUBLIC_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
@@ -176,11 +181,8 @@ class BaseSphinx(BaseBuilder):
                 self.config_file or self.project.conf_file(self.version.slug)
             )
             outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
-        except (ProjectConfigurationError, IOError):
-            trace = sys.exc_info()[2]
-            raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND,
-            ).with_traceback(trace)
+        except IOError:
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -213,11 +215,14 @@ class BaseSphinx(BaseBuilder):
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
             build_command.append('-W')
+        doctree_path = f'_build/doctrees-{self.sphinx_builder}'
+        if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
+            doctree_path = '_build/doctrees'
         build_command.extend([
             '-b',
             self.sphinx_builder,
             '-d',
-            '_build/doctrees-{format}'.format(format=self.sphinx_builder),
+            doctree_path,
             '-D',
             'language={lang}'.format(lang=project.language),
             '.',
@@ -228,6 +233,38 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
+
+    def venv_sphinx_supports_latexmk(self):
+        """
+        Check if ``sphinx`` from the user's venv supports ``latexmk``.
+
+        If the version of ``sphinx`` is greater or equal to 1.6.1 it returns
+        ``True`` and ``False`` otherwise.
+
+        See: https://www.sphinx-doc.org/en/master/changes.html#release-1-6-1-released-may-16-2017
+        """
+
+        command = [
+            self.python_env.venv_bin(filename='python'),
+            '-c',
+            (
+                '"'
+                'import sys; '
+                'import sphinx; '
+                'sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)'
+                '"'
+            ),
+        ]
+
+        cmd_ret = self.run(
+            *command,
+            bin_path=self.python_env.venv_bin(),
+            cwd=self.project.checkout_path(self.version.slug),
+            escape_command=False,  # used on DockerBuildCommand
+            shell=True,  # used on BuildCommand
+            record=False,
+        )
+        return cmd_ret.exit_code == 0
 
 
 class HtmlBuilder(BaseSphinx):
@@ -392,6 +429,82 @@ class PdfBuilder(BaseSphinx):
             raise BuildEnvironmentError('No TeX files were found')
 
         # Run LaTeX -> PDF conversions
+        # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
+        # to ``pdflatex`` to support old versions
+        if self.venv_sphinx_supports_latexmk():
+            return self._build_latexmk(cwd, latex_cwd)
+
+        return self._build_pdflatex(tex_files, latex_cwd)
+
+    def _build_latexmk(self, cwd, latex_cwd):
+        # These steps are copied from the Makefile generated by Sphinx >= 1.6
+        # https://github.com/sphinx-doc/sphinx/blob/master/sphinx/texinputs/Makefile_t
+        latex_path = Path(latex_cwd)
+        images = []
+        for extension in ('png', 'gif', 'jpg', 'jpeg'):
+            images.extend(latex_path.glob(f'*.{extension}'))
+
+        # FIXME: instead of checking by language here, what we want to check if
+        # ``latex_engine`` is ``platex``
+        pdfs = []
+        if self.project.language == 'ja':
+            # Japanese language is the only one that requires this extra
+            # step. I don't know exactly why but most of the documentation that
+            # I read differentiate this language from the others. I suppose
+            # it's because it mix kanji (Chinese) with its own symbols.
+            pdfs = latex_path.glob('*.pdf')
+
+        for image in itertools.chain(images, pdfs):
+            self.run(
+                'extractbb',
+                image.name,
+                cwd=latex_cwd,
+                record=False,
+            )
+
+        rcfile = 'latexmkrc'
+        if self.project.language == 'ja':
+            rcfile = 'latexmkjarc'
+
+        self.run(
+            'cat',
+            rcfile,
+            cwd=latex_cwd,
+        )
+
+        if self.build_env.command_class == DockerBuildCommand:
+            latex_class = DockerLatexBuildCommand
+        else:
+            latex_class = LatexBuildCommand
+
+        cmd = [
+            'latexmk',
+            '-r',
+            rcfile,
+            # FIXME: check for platex here as well
+            '-pdfdvi' if self.project.language == 'ja' else '-pdf',
+            # When ``-f`` is used, latexmk will continue building if it
+            # encounters errors. We still receive a failure exit code in this
+            # case, but the correct steps should run.
+            '-f',
+            '-dvi-',
+            '-ps-',
+            f'-jobname={self.project.slug}',
+            '-interaction=nonstopmode',
+        ]
+
+        cmd_ret = self.build_env.run_command_class(
+            cls=latex_class,
+            cmd=cmd,
+            warn_only=True,
+            cwd=latex_cwd,
+        )
+
+        self.pdf_file_name = f'{self.project.slug}.pdf'
+
+        return cmd_ret.successful
+
+    def _build_pdflatex(self, tex_files, latex_cwd):
         pdflatex_cmds = [
             ['pdflatex', '-interaction=nonstopmode', tex_file]
             for tex_file in tex_files
@@ -399,7 +512,7 @@ class PdfBuilder(BaseSphinx):
         makeindex_cmds = [
             [
                 'makeindex', '-s', 'python.ist', '{}.idx'.format(
-                os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
+                    os.path.splitext(os.path.relpath(tex_file, latex_cwd))[0],
                 ),
             ]
             for tex_file in tex_files

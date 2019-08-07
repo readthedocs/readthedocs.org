@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 
 from readthedocs.projects.models import Project
@@ -34,6 +33,12 @@ class TestRepoParsing(TestCase):
         self.pip.repo = 'https://github.com/user/repo.git.git'
         self.assertEqual(self.version.get_github_url(docroot='/docs/', filename='file'), 'https://github.com/user/repo.git/blob/master/docs/file.rst')
 
+        self.pip.repo = 'https://github.com/user/repo/'
+        self.assertEqual(
+            self.version.get_github_url(docroot='/docs/', filename=''),
+            'https://github.com/user/repo/blob/master/docs/',
+        )
+
     def test_github_ssh(self):
         self.pip.repo = 'git@github.com:user/repo.git'
         self.assertEqual(self.version.get_github_url(docroot='/docs/', filename='file'), 'https://github.com/user/repo/blob/master/docs/file.rst')
@@ -63,6 +68,12 @@ class TestRepoParsing(TestCase):
         self.pip.repo = 'https://gitlab.com/user/repo.git.git'
         self.assertEqual(self.version.get_gitlab_url(docroot='/foo/bar/', filename='file'), 'https://gitlab.com/user/repo.git/blob/master/foo/bar/file.rst')
 
+        self.pip.repo = 'https://gitlab.com/user/repo.git'
+        self.assertEqual(
+            self.version.get_gitlab_url(docroot='/foo/bar/', filename=''),
+            'https://gitlab.com/user/repo/blob/master/foo/bar/',
+        )
+
     def test_gitlab_ssh(self):
         self.pip.repo = 'git@gitlab.com:user/repo.git'
         self.assertEqual(self.version.get_gitlab_url(docroot='/foo/bar/', filename='file'), 'https://gitlab.com/user/repo/blob/master/foo/bar/file.rst')
@@ -91,6 +102,12 @@ class TestRepoParsing(TestCase):
 
         self.pip.repo = 'https://bitbucket.org/user/repo.git.git'
         self.assertEqual(self.version.get_bitbucket_url(docroot='/foo/bar/', filename='file'), 'https://bitbucket.org/user/repo.git/src/master/foo/bar/file.rst')
+
+        self.pip.repo = 'https://bitbucket.org/user/repo/'
+        self.assertEqual(
+            self.version.get_bitbucket_url(docroot='/foo/bar/', filename=''),
+            'https://bitbucket.org/user/repo/src/master/foo/bar/',
+        )
 
     def test_bitbucket_https(self):
         self.pip.repo = 'https://user@bitbucket.org/user/repo.git'

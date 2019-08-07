@@ -10,6 +10,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
+from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects import tasks
@@ -73,6 +74,47 @@ class Command(BaseCommand):
 
                         # pylint: disable=no-value-for-parameter
                         tasks.update_docs_task(
+                            version.pk,
+                            build_pk=build.pk,
+                        )
+                elif version == INTERNAL:
+                    log.info('Updating all internal versions for %s', slug)
+                    for version in Version.internal.filter(
+                            project__slug=slug,
+                            active=True,
+                            uploaded=False,
+                    ):
+
+                        build = Build.objects.create(
+                            project=version.project,
+                            version=version,
+                            type='html',
+                            state='triggered',
+                        )
+
+                        # pylint: disable=no-value-for-parameter
+                        tasks.update_docs_task(
+                            version.project_id,
+                            build_pk=build.pk,
+                            version_pk=version.pk,
+                        )
+                elif version == EXTERNAL:
+                    log.info('Updating all external versions for %s', slug)
+                    for version in Version.external.filter(
+                            project__slug=slug,
+                            active=True,
+                            uploaded=False,
+                    ):
+
+                        build = Build.objects.create(
+                            project=version.project,
+                            version=version,
+                            type='html',
+                            state='triggered',
+                        )
+
+                        # pylint: disable=no-value-for-parameter
+                        tasks.update_docs_task(
                             version.project_id,
                             build_pk=build.pk,
                             version_pk=version.pk,
@@ -90,15 +132,16 @@ class Command(BaseCommand):
                 ):
                     # pylint: disable=no-value-for-parameter
                     tasks.update_docs_task(
-                        version.project_id,
+                        version.pk,
                         force=force,
-                        version_pk=version.pk,
                     )
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
                     # pylint: disable=no-value-for-parameter
+                    default_version = project.get_default_version()
+                    version = project.versions.get(slug=default_version)
                     tasks.update_docs_task(
-                        project.pk,
+                        version.pk,
                         force=force,
                     )

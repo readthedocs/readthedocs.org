@@ -66,29 +66,22 @@
                       {% block project-name %}
                         {{ project.name }}
                       {% endblock %}
-                      {% with builds=project.builds.count %}
-                        {% if builds == 0 %}
-                          <span class="right quiet">
-                            {% trans "No builds yet" %}
-                          </span>
-                        {% else %}
-                          <span class="right quiet">
-                            <span class="build-count">
-                              {% blocktrans trimmed count counter=builds %}
-                                1 build
-                              {% plural %}
-                                {{ builds }} builds
-                              {% endblocktrans %}
-                            </span>
-                            {% with build=project.get_latest_build %}
-                              {% if build.success %}
-                                <span class="build-state build-state-passing">{% trans "passing" %}</span>
-                              {% else %}
-                                <span class="build-state build-state-failing">{% trans "failing" %}</span>
-                              {% endif %}
-                            {% endwith %}
-                          </span>
-                        {% endif %}
+                      {% with build=project.get_latest_build %}
+                        <span class="right quiet">
+
+                          {% if build %}
+                            <time class="build-count" datetime="{{ build.date|date:"c" }}" title="{{ build.date|date:"DATETIME_FORMAT" }}">
+                              <small>{% blocktrans with date=build.date|timesince %}{{ date }} ago{% endblocktrans %}</small>
+                            </time>
+                            {% if build.success %}
+                              <span class="build-state build-state-passing">{% trans "passing" %}</span>
+                            {% else %}
+                              <span class="build-state build-state-failing">{% trans "failing" %}</span>
+                            {% endif %}
+                          {% else %}
+                            <span>{% trans "No builds yet" %}</span>
+                          {% endif %}
+                        </span>
                       {% endwith %}
                     </a>
                   </li>
@@ -152,7 +145,7 @@
     <div class="module info info-docs">
       <h3>{% trans "Learn More" %}</h3>
       <p>
-        {% blocktrans trimmed with rtd_docs_url="http://docs.readthedocs.io/en/latest/index.html" %}
+        {% blocktrans trimmed with rtd_docs_url="https://docs.readthedocs.io/" %}
           Check out the <a href="{{ rtd_docs_url }}">documentation for Read the Docs</a>.
           It contains lots of information about how to get the most out of RTD.
         {% endblocktrans %}

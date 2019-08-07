@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """Import project command."""
 
 import json
+import os
 
-import slumber
+import requests
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from ...models import Project
 
@@ -32,25 +31,40 @@ class Command(BaseCommand):
         parser.add_argument('project_slug', nargs='+', type=str)
 
     def handle(self, *args, **options):
-        api = slumber.API(base_url='http://readthedocs.org/api/v1/')
+        auth = None
         user1 = User.objects.filter(pk__gt=0).order_by('pk').first()
+
+        if 'READTHEDOCS_USERNAME' in os.environ and 'READTHEDOCS_PASSWORD' in os.environ:
+            # Authenticating allows returning additional useful fields in the API
+            # See: `ProjectAdminSerializer`
+            username = os.environ['READTHEDOCS_USERNAME']
+            auth = (username, os.environ['READTHEDOCS_PASSWORD'])
+            self.stdout.write('Using basic auth for user {username}'.format(username=username))
 
         for slug in options['project_slug']:
             self.stdout.write('Importing {slug} ...'.format(slug=slug))
 
-            project_data = api.project.get(slug=slug)
-            try:
-                project_data = project_data['objects'][0]
-            except (KeyError, IndexError):
-                self.stderr.write(
+            resp = requests.get(
+                'https://readthedocs.org/api/v2/project/',
+                params={'slug': slug},
+                auth=auth,
+            )
+            resp.raise_for_status()  # This should only fail if RTD is having issues
+            response_data = resp.json()
+
+            if response_data['count'] == 1:
+                project_data = response_data['results'][0]
+            else:
+                raise CommandError(
                     'Cannot find {slug} in API. Response was:\n{response}'.format(
                         slug=slug,
-                        response=json.dumps(project_data),
+                        response=json.dumps(response_data),
                     ),
                 )
 
             try:
                 project = Project.objects.get(slug=slug)
+                self.stdout.write('Project {slug} already exists. Updating...'.format(slug=slug))
             except Project.DoesNotExist:
                 project = Project(slug=slug)
 
@@ -58,12 +72,21 @@ class Command(BaseCommand):
                 'absolute_url',
                 'analytics_code',
                 'canonical_url',
+                'show_advertising',
+
+                # These fields could be nice to add
                 'users',
+                'features',
+                'environment_variables',
             )
 
             for attribute in project_data:
                 if attribute not in exclude_attributes:
                     setattr(project, attribute, project_data[attribute])
+                    self.stdout.write(' - Setting {key} to {val}'.format(
+                        key=attribute,
+                        val=project_data[attribute]),
+                    )
             project.user = user1
             project.save()
             if user1:

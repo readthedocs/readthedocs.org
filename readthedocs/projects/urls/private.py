@@ -65,10 +65,6 @@ urlpatterns = [
         private.project_version_detail, name='project_version_detail',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/versions/$', private.project_versions,
-        name='projects_versions',
-    ),
-    url(
         r'^(?P<project_slug>[-\w]+)/delete/$', private.project_delete,
         name='projects_delete',
     ),
@@ -261,7 +257,7 @@ environmentvariable_urls = [
         name='projects_environmentvariables_detail',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',
+        r'^(?P<project_slug>[-\w]+)/environmentvariables/(?P<environmentvariable_pk>[-\w]+)/delete/$',  # noqa
         EnvironmentVariableDelete.as_view(),
         name='projects_environmentvariables_delete',
     ),
