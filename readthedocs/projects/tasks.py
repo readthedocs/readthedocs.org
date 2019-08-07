@@ -1627,11 +1627,11 @@ def send_notifications(version_pk, build_pk, email=False):
         webhook_notification(version, build, hook.url)
 
     if email:
-        for email in version.project.emailhook_notifications.all().values_list(
+        for email_address in version.project.emailhook_notifications.all().values_list(
             'email',
             flat=True,
         ):
-            email_notification(version, build, email)
+            email_notification(version, build, email_address)
 
 
 def email_notification(version, build, email):
