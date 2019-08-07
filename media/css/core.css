@@ -730,6 +730,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .empty { padding: 30px; background: #E6E6E6; background: rgba(0, 0, 0, 0.1); border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; margin-bottom: 60px; }
 .clearfix:after, .wrapper:after { content: "\0020"; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
 .clearfix, .wrapper { display: block; }
+.long-list-overflow { max-height: 500px; overflow-y: scroll}
 
 /* project detail */
 .project_detail .module {

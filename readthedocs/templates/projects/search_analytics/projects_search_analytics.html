@@ -18,14 +18,14 @@
 
     <form method="get">
       {{ form.as_p }}
-      <button type="submit">Get Analytics</button>
-      <button type="submit" name="download" value="true">Download all data for selected version</button>
+      <button type="submit">{% trans "Get Analytics" %}</button>
+      <button type="submit" name="download" value="true">{% trans "Download all data for selected version" %}</button>
     </form>
 
-    <h3>Results:</h3>
+    <h3>{{ result_heading }}</h3>
     <div class="module-list">
       <div class="module-list-wrapper">
-        <ul>
+        <ul class="long-list-overflow">
           {% for query in queries %}
             <li class="module-item">
                 {{ query }}
@@ -43,23 +43,25 @@
 
     <br/>
 
-    {% if doughnut_chart_data.labels and doughnut_chart_data.int_data %}
-      <h2>Distribution of top queries</h2>
+    {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data %}
+      <h2>{% trans "Distribution of top queries" %}</h2>
       <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
     {% endif %}
 
     <br/>
-    {% if chart_data.labels and chart_data.int_data %}
-      <h2>Overview of the past 30 days:</h2>
+    {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data %}
+      <h2>{% trans "Overview of the past 30 days:" %}</h2>
       <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
     {% endif %}
   {% else %}
     <p class="empty">
-      Hey there! This feature is currently in beta state and is available under a
-      <a href="https://docs.readthedocs.io/page/guides/feature-flags.html#available-flags">feature flag</a>
-      In case you want to test this feature and help giving us feedback,
-      please contact us via
-      <a href="https://github.com/readthedocs/readthedocs.org/issues/new?title=Request%20to%20enable%20SEARCH_ANALYTICS%20feature%20flag%20for%20project%20{{ project.slug }}">GitHub issues</a>.
+      {% blocktrans trimmed %}
+        Hey there! This feature is currently in beta state and is available under a
+        <a href='https://docs.readthedocs.io/page/guides/feature-flags.html#available-flags'>feature flag</a>.
+        In case you want to test this feature and help giving us feedback,
+        please contact us via
+        <a href='https://github.com/readthedocs/readthedocs.org/issues/new?title=Request%20to%20enable%20SEARCH_ANALYTICS%20feature%20flag%20for%20project%20{{ project }}'>GitHub issues</a>.
+      {% endblocktrans %}
     </p>
   {% endif %}
 {% endblock %}
@@ -76,11 +78,11 @@
 
 {% block footerjs %}
 
-  {% if chart_data.labels and chart_data.int_data and show_analytics %}
+  {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data and show_analytics %}
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
-    var line_chart_labels = {{ chart_data.labels|safe }};
-    var line_chart_data = {{ chart_data.int_data|safe }};
+    var line_chart_labels = {{ query_count_of_past_30_days.labels|safe }};
+    var line_chart_data = {{ query_count_of_past_30_days.int_data|safe }};
 
     var ticks_options = {
       precision: 0
@@ -114,11 +116,11 @@
     });
   {% endif %}
 
-  {% if doughnut_chart_data.labels and doughnut_chart_data.int_data and show_analytics %}
+  {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data and show_analytics %}
     // Doughnut chart
     var doughnut_chart = document.getElementById("analytics-doughnut-top-queries").getContext("2d");
-    var doughnut_labels = {{ doughnut_chart_data.labels|safe }};
-    var doughnut_data = {{ doughnut_chart_data.int_data|safe }};
+    var doughnut_labels = {{ distribution_of_top_queries.labels|safe }};
+    var doughnut_data = {{ distribution_of_top_queries.int_data|safe }};
     colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675",
                 "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ];
     var doughnut_chart = new Chart(doughnut_chart, {

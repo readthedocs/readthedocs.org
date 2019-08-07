@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.http import (
     Http404,
     HttpResponse,
@@ -34,6 +35,7 @@ from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects import tasks
+from readthedocs.projects.constants import SEARCH_ANALYTICS_PARAMS
 from readthedocs.projects.forms import (
     DomainForm,
     EmailHookForm,
@@ -63,7 +65,6 @@ from readthedocs.projects.models import (
 from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
-from readthedocs.projects.utils import _get_search_queries_from_queryset
 from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
@@ -928,8 +929,7 @@ def search_analytics_view(request, project_slug):
 
     download_data = request.GET.get('download', False)
     version_slug = request.GET.get('version', project.default_version)
-    period = request.GET.get('period', 'recent')
-    size = request.GET.get('size', 5)
+    period = request.GET.get('period', 'past-1-month')
 
     # if the user has requested to download all data
     # return csv file in response.
@@ -939,91 +939,72 @@ def search_analytics_view(request, project_slug):
     data = {
         'version': version_slug,
         'period': period,
-        'size': size,
     }
 
     form = SearchAnalyticsForm(data=data, project=project)
 
-    # template vars
-    chart_data = {}
-    doughnut_chart_data = {}
+    # template vars default values
+    query_count_of_past_30_days = {}
+    distribution_of_top_queries = {}
     queries = []
+    result_heading = dict(SEARCH_ANALYTICS_PARAMS['period']).get(period, 'Results')
 
     if form.is_valid():
 
-        size = int(size)
+        version_qs = Version.objects.filter(project=project, slug=version_slug)
 
-        if version_slug:
-            version_qs = Version.objects.filter(project=project, slug=version_slug)
+        # ``version``` is required to generate the analytics
+        if version_qs.exists():
+            version = version_qs.first()
+            search_queries_qs = SearchQuery.objects.filter(
+                project=project,
+                version=version,
+            )
 
-            # ``version``` is required to generate the analytics
-            if version_qs.exists():
-                version = version_qs.first()
-                search_queries_qs = SearchQuery.objects.filter(
-                    project=project,
-                    version=version,
+            # data for plotting the line-chart
+            query_count_of_past_30_days = SearchQuery.generate_queries_count_for_last_thirty_days(
+                project_slug,
+                version_slug
+            )
+            # data for plotting the doughnut-chart
+            distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
+                project_slug,
+                version_slug,
+                10,
+            )
+            now = timezone.now()
+
+            if period == 'past-1-month':
+                last_30_days = now - timezone.timedelta(days=30)
+                qs = search_queries_qs.filter(
+                    created__gte=last_30_days,
+                    created__lte=now,
                 )
 
-                # data for plotting the line-chart
-                chart_data = SearchQuery.generate_queries_count_for_last_thirty_days(
-                    project_slug,
-                    version_slug
+            elif period == 'past-2-months':
+                last_30_days = now - timezone.timedelta(days=30)
+                qs = search_queries_qs.filter(
+                    created__gte=last_30_days,
+                    created__lte=now,
                 )
-                # data for plotting the doughnut-chart
-                doughnut_chart_data = SearchQuery.generate_distribution_of_top_queries(
-                    project_slug,
-                    version_slug,
-                    10,
+
+            elif period == 'past-3-months':
+                last_3_months = now - timezone.timedelta(days=90)
+                qs = search_queries_qs.filter(
+                    created__gte=last_3_months,
+                    created__lte=now,
                 )
-                now = timezone.now()
 
-                if period == 'recent':
-                    qs = search_queries_qs.order_by('-created')
-                    # Don't sort the result because we want the most recent queries
-                    # which might not be the most searched queries.
-                    queries = _get_search_queries_from_queryset(qs, sort=False)
+            if qs.exists():
+                qs = (
+                    qs.values('query')
+                    .annotate(count=Count('id'))
+                    .order_by('-count', 'query')
+                    .values_list('query', flat=True)
+                )
 
-                elif period == 'last-24-hrs':
-                    last_24_hrs = now - timezone.timedelta(days=1)
-                    qs = search_queries_qs.filter(
-                        created__gte=last_24_hrs,
-                        created__lte=now,
-                    )
-                    queries = _get_search_queries_from_queryset(qs)
-
-                elif period == 'last-48-hrs':
-                    last_48_hrs = now - timezone.timedelta(days=2)
-                    qs = search_queries_qs.filter(
-                        created__gte=last_48_hrs,
-                        created__lte=now,
-                    )
-                    queries = _get_search_queries_from_queryset(qs)
-
-                elif period == 'last-7-days':
-                    last_7_days = now - timezone.timedelta(days=7)
-                    qs = search_queries_qs.filter(
-                        created__gte=last_7_days,
-                        created__lte=now,
-                    )
-                    queries = _get_search_queries_from_queryset(qs)
-
-                elif period == 'last-1-month':
-                    last_30_days = now - timezone.timedelta(days=30)
-                    qs = search_queries_qs.filter(
-                        created__gte=last_30_days,
-                        created__lte=now,
-                    )
-                    queries = _get_search_queries_from_queryset(qs)
-
-                elif period == 'last-3-months':
-                    last_3_months = now - timezone.timedelta(days=90)
-                    qs = search_queries_qs.filter(
-                        created__gte=last_3_months,
-                        created__lte=now,
-                    )
-                    queries = _get_search_queries_from_queryset(qs)
-
-        queries = queries[:size]
+                # only show top 100 queries
+                queries = qs[:100]
 
     return render(
         request,
@@ -1033,8 +1014,9 @@ def search_analytics_view(request, project_slug):
             'project': project,
             'queries': queries,
             'show_analytics': True,
-            'chart_data': chart_data,
-            'doughnut_chart_data': doughnut_chart_data,
+            'query_count_of_past_30_days': query_count_of_past_30_days,
+            'distribution_of_top_queries': distribution_of_top_queries,
+            'result_heading': result_heading,
         }
     )
 

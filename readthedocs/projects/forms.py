@@ -814,11 +814,6 @@ class SearchAnalyticsForm(forms.Form):
     period = forms.ChoiceField(
         choices=SEARCH_ANALYTICS_PARAMS['period'],
         required=False,
-        help_text=_('Choose the time-period for the results.')
-    )
-    size = forms.ChoiceField(
-        choices=SEARCH_ANALYTICS_PARAMS['size'],
-        required=False
     )
 
     def __init__(self, *args, **kwargs):

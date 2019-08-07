@@ -358,17 +358,8 @@ GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
 
 SEARCH_ANALYTICS_PARAMS = {
     'period': (
-        ('recent', 'Recent Queries'),
-        ('last-24-hrs', 'Top Queries of Past 24 Hrs'),
-        ('last-48-hrs', 'Top Queries of Past 48 Hrs'),
-        ('last-7-days', 'Top Queries of Past 7 Days'),
-        ('last-1-month', 'Top Queries of Past 1 Month'),
-        ('last-3-months', 'Top Queries of Past 3 Months'),
+        ('past-1-month', 'Top Queries of Past 1 Month'),
+        ('past-2-months', 'Top Queries of Past 2 Months'),
+        ('past-3-months', 'Top Queries of Past 3 Months'),
     ),
-    'size': (
-        (5, 5),
-        (10, 10),
-        (50, 50),
-        (100, 100),
-    )
 }
