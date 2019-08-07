@@ -1564,9 +1564,13 @@ def _create_imported_files(version, commit, build):
                 # For projects not behind a CDN, we don't care about non-HTML
                 continue
 
-            relpath = storage.join(root, filename)
+            full_path = storage.join(root, filename)
+
+            # Generate a relative path for storage similar to os.path.relpath
+            relpath = full_path.replace(storage_path, '', 1).lstrip('/')
+
             try:
-                md5 = hashlib.md5(storage.open(relpath, 'rb').read()).hexdigest()
+                md5 = hashlib.md5(storage.open(full_path, 'rb').read()).hexdigest()
             except Exception:
                 log.exception(
                     'Error while generating md5 for %s:%s:%s. Don\'t stop.',
