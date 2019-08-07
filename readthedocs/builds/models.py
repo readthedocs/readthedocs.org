@@ -340,6 +340,11 @@ class Version(models.Model):
     def is_editable(self):
         return self.type == BRANCH
 
+    @property
+    def supports_wipe(self):
+        """Return True if version is not external."""
+        return not self.type == EXTERNAL
+
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
         return self.project.get_docs_url(
