@@ -1271,26 +1271,36 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        fjson_paths = []
-        basename = os.path.splitext(self.path)[0]
-        fjson_paths.append(basename + '.fjson')
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(new_basename + '.fjson')
+        file_path = None
 
-        full_json_path = self.project.get_production_media_path(
-            type_='json', version_slug=self.version.slug, include_file=False
-        )
-        try:
-            for fjson_path in fjson_paths:
-                file_path = os.path.join(full_json_path, fjson_path)
-                if os.path.exists(file_path):
-                    return process_file(file_path)
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+            fjson_paths = []
+            basename = os.path.splitext(self.path)[0]
+            fjson_paths.append(basename + '.fjson')
+            if basename.endswith('/index'):
+                new_basename = re.sub(r'\/index$', '', basename)
+                fjson_paths.append(new_basename + '.fjson')
+
+            storage_path = self.project.get_storage_path(
+                type_='json', version_slug=self.version.slug, include_file=False
             )
+            try:
+                for fjson_path in fjson_paths:
+                    file_path = storage.join(storage_path, fjson_path)
+                    if storage.exists(file_path):
+                        return process_file(file_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    file_path,
+                )
+        else:
+            log.warning(
+                'Skipping HTMLFile processing because of no storage backend'
+            )
+
         return {
             'path': file_path,
             'title': '',
