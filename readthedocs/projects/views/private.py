@@ -1,5 +1,6 @@
 """Project views for authenticated users."""
 
+import csv
 import logging
 
 from allauth.socialaccount.models import SocialAccount
@@ -10,14 +11,13 @@ from django.contrib.auth.models import User
 from django.db.models import Count
 from django.http import (
     Http404,
-    HttpResponse,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
     HttpResponseRedirect,
+    StreamingHttpResponse,
 )
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
-from django.template import loader
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -61,7 +61,7 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
-from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
+from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin, Echo
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.search.models import SearchQuery
 
@@ -918,7 +918,7 @@ def search_analytics_view(request, project_slug):
     if not project.has_feature(Feature.SEARCH_ANALYTICS):
         return render(
             request,
-            'projects/search_analytics/projects_search_analytics.html',
+            'projects/projects_search_analytics.html',
             {
                 'project': project,
                 'show_analytics': False,
@@ -958,7 +958,7 @@ def search_analytics_view(request, project_slug):
 
     return render(
         request,
-        'projects/search_analytics/projects_search_analytics.html',
+        'projects/projects_search_analytics.html',
         {
             'project': project,
             'queries': queries,
@@ -998,13 +998,14 @@ def _search_analytics_csv_data(request, project_slug):
     file_name = '-'.join([text for text in file_name.split() if text])
 
     csv_data = (
-        (timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query)
+        [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
         for time, query in data
     )
-
-    response = HttpResponse(content_type='text/csv')
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in csv_data),
+        content_type="text/csv",
+    )
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
-    template = loader.get_template('projects/search_analytics/csv_data_template.txt')
-    ctx = {'data': csv_data}
-    response.write(template.render(ctx))
     return response

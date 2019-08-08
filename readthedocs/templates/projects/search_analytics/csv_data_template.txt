@@ -1,3 +1,0 @@
-serial_no,date_time,query
-{% for row in data %}{{ forloop.counter }},"{{ row.0|addslashes }}","{{ row.1|addslashes }}"
-{% endfor %}
