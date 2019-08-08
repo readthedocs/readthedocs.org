@@ -1,8 +1,10 @@
 """Functions related to converting content into dict/JSON structures."""
 
-import codecs
 import json
 import logging
+
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 
 from pyquery import PyQuery
 
@@ -52,13 +54,21 @@ def generate_sections_from_pyquery(body):
         }
 
 
-def process_file(fjson_filename):
+def process_file(fjson_storage_path):
     """Read the fjson file from disk and parse it into a structured dict."""
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+        raise RuntimeError('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+    log.debug('Processing JSON file for indexing: %s', fjson_storage_path)
+
     try:
-        with codecs.open(fjson_filename, encoding='utf-8', mode='r') as f:
+        with storage.open(fjson_storage_path, mode='r') as f:
             file_contents = f.read()
     except IOError:
-        log.info('Unable to read file: %s', fjson_filename)
+        log.info('Unable to read file: %s', fjson_storage_path)
         raise
     data = json.loads(file_contents)
     sections = []
@@ -68,19 +78,19 @@ def process_file(fjson_filename):
     if 'current_page_name' in data:
         path = data['current_page_name']
     else:
-        log.info('Unable to index file due to no name %s', fjson_filename)
+        log.info('Unable to index file due to no name %s', fjson_storage_path)
 
     if data.get('body'):
         body = PyQuery(data['body'])
         sections.extend(generate_sections_from_pyquery(body))
     else:
-        log.info('Unable to index content for: %s', fjson_filename)
+        log.info('Unable to index content for: %s', fjson_storage_path)
 
     if 'title' in data:
         title = data['title']
         title = PyQuery(data['title']).text().replace('¶', '').strip()
     else:
-        log.info('Unable to index title for: %s', fjson_filename)
+        log.info('Unable to index title for: %s', fjson_storage_path)
 
     return {
         'path': path,
