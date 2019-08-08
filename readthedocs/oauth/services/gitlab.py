@@ -291,13 +291,6 @@ class GitLabService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
-            print('{url}/api/v4/projects/{repo_id}/hooks'.format(
-                    url=self.adapter.provider_base_url,
-                    repo_id=repo_id,
-                ))
-            print(dir(resp), 'yesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
-            print(resp.status_code, 'yesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
-            print(resp.content, 'yesssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
                 integration.save()
