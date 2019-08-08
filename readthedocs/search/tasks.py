@@ -161,6 +161,7 @@ def record_search_query(project_slug, version_slug, query, total_results):
             'project_slug: %s' % (
                 project_slug
             )
+        )
         return
 
     project = project_qs.first()
