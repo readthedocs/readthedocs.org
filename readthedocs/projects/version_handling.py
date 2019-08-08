@@ -72,7 +72,7 @@ def comparable_version(version_string, repo_type=None):
     highest_versions = []
     if repo_type:
         backend = backend_cls.get(repo_type)
-        if backend.fallback_branch:
+        if backend and backend.fallback_branch:
             highest_versions.append(backend.fallback_branch)
     highest_versions.extend([LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME])
 
