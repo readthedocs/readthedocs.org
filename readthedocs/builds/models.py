@@ -278,12 +278,11 @@ class Version(models.Model):
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
         if self.type == EXTERNAL:
-            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
-                f'{self.project.slug}/{self.slug}/'
             # Django's static file serving doesn't automatically append index.html
-            if settings.DEBUG:
-                url += 'index.html'
+            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
+                f'{self.project.slug}/{self.slug}/index.html'
             return url
+
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
