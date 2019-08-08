@@ -94,6 +94,32 @@ class SortVersionsTest(TestCase):
             [v.slug for v in sort_version_aware(versions)],
         )
 
+    def test_sort_git_master_and_latest(self):
+        """
+        The branch named master should havea a higher priority
+        than latest, ideally users should only have one of the two activated.
+        """
+        identifiers = ['latest', 'master', '1.0', '2.0', '1.1', '1.9', '1.10']
+        self.project.repo_type = REPO_TYPE_GIT
+        self.project.save()
+        self.project.versions.get(slug=LATEST).delete()
+
+        for identifier in identifiers:
+            get(
+                Version,
+                project=self.project,
+                type=BRANCH,
+                identifier=identifier,
+                verbose_name=identifier,
+                slug=identifier,
+            )
+
+        versions = list(Version.objects.filter(project=self.project))
+        self.assertEqual(
+            ['master', 'latest', '2.0', '1.10', '1.9', '1.1', '1.0'],
+            [v.slug for v in sort_version_aware(versions)],
+        )
+
     def test_sort_hg_default(self):
         identifiers = ['default', '1.0', '2.0', '1.1', '1.9', '1.10']
         self.project.repo_type = REPO_TYPE_HG
