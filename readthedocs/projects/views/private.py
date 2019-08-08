@@ -61,7 +61,8 @@ from readthedocs.projects.models import (
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
-from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin, Echo
+from readthedocs.projects.utils import Echo
+from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.search.models import SearchQuery
 
