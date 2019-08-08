@@ -58,7 +58,7 @@ def comparable_version(version_string, repo_type=None):
 
     If `repo_type` is given, it adds the default "master" version
     from the VCS (master, default, trunk).
-    This version is highest than LATEST and STABLE.
+    This version is sorted higher than LATEST and STABLE.
 
     :param version_string: version as string object (e.g. '3.10.1' or 'latest')
     :type version_string: str or unicode
