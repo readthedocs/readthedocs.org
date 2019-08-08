@@ -13,13 +13,16 @@
 {% block project_edit_content %}
   {% if show_analytics %}
 
-    <h3>{% trans "Top Queries:" %}</h3>
+    <h3>{% trans "Top queries of all time" %}</h3>
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
-          {% for query in queries %}
+          {% for query, count in queries %}
             <li class="module-item">
-                {{ query }}
+              {{ query }}
+              <span class="right quiet">
+                {{ count }} search{{ count|pluralize:"es" }}
+              </span>
             </li>
           {% empty %}
             <li class="module-item">
@@ -35,13 +38,13 @@
     <br/>
 
     {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data %}
-      <h2>{% trans "Distribution of top queries" %}</h2>
+      <h2>{% trans "Distribution of top 10 queries" %}</h2>
       <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
     {% endif %}
 
     <br/>
-    {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data %}
-      <h2>{% trans "Overview of the past 30 days:" %}</h2>
+    {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
+      <h2>{% trans "Overview of the past 1 month:" %}</h2>
       <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
     {% endif %}
 
@@ -74,11 +77,11 @@
 
 {% block footerjs %}
 
-  {% if query_count_of_past_30_days.labels and query_count_of_past_30_days.int_data and show_analytics %}
+  {% if query_count_of_1_month.labels and query_count_of_1_month.int_data and show_analytics %}
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
-    var line_chart_labels = {{ query_count_of_past_30_days.labels|safe }};
-    var line_chart_data = {{ query_count_of_past_30_days.int_data|safe }};
+    var line_chart_labels = {{ query_count_of_1_month.labels|safe }};
+    var line_chart_data = {{ query_count_of_1_month.int_data|safe }};
 
     var ticks_options = {
       precision: 0

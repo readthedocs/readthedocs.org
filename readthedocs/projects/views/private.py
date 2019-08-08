@@ -933,7 +933,7 @@ def search_analytics_view(request, project_slug):
         return _search_analytics_csv_data(request, project_slug)
 
     # data for plotting the line-chart
-    query_count_of_past_30_days = SearchQuery.generate_queries_count_for_last_thirty_days(
+    query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
         project_slug
     )
     # data for plotting the doughnut-chart
@@ -950,7 +950,7 @@ def search_analytics_view(request, project_slug):
             qs.values('query')
             .annotate(count=Count('id'))
             .order_by('-count', 'query')
-            .values_list('query', flat=True)
+            .values_list('query', 'count')
         )
 
         # only show top 100 queries
@@ -963,7 +963,7 @@ def search_analytics_view(request, project_slug):
             'project': project,
             'queries': queries,
             'show_analytics': True,
-            'query_count_of_past_30_days': query_count_of_past_30_days,
+            'query_count_of_1_month': query_count_of_1_month,
             'distribution_of_top_queries': distribution_of_top_queries,
         }
     )
