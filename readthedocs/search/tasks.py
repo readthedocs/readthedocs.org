@@ -156,6 +156,11 @@ def record_search_query(project_slug, version_slug, query, total_results):
     project_qs = Project.objects.filter(slug=project_slug)
 
     if not project_qs.exists():
+        log.debug(
+            'Not recording the search query because project does not exist. '
+            'project_slug: %s' % (
+                project_slug
+            )
         return
 
     project = project_qs.first()
