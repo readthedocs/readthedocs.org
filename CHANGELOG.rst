@@ -1,3 +1,20 @@
+Version 3.7.2
+-------------
+
+:Date: August 08, 2019
+
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update feature flags docs (`#6053 <https://github.com/readthedocs/readthedocs.org/pull/6053>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add indelx.html filename to the external doc url (`#6051 <https://github.com/readthedocs/readthedocs.org/pull/6051>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search analytics improvements (`#6050 <https://github.com/readthedocs/readthedocs.org/pull/6050>`__)
+* `@stsewd <http://github.com/stsewd>`__: Sort versions taking into consideration the vcs type (`#6049 <https://github.com/readthedocs/readthedocs.org/pull/6049>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: When called via SyncRepositoryTaskStep this doesn't exist (`#6048 <https://github.com/readthedocs/readthedocs.org/pull/6048>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix around community ads with an explicit ad placement (`#6047 <https://github.com/readthedocs/readthedocs.org/pull/6047>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.7.1 (`#6045 <https://github.com/readthedocs/readthedocs.org/pull/6045>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Do not delete media storage files for external version (`#6035 <https://github.com/readthedocs/readthedocs.org/pull/6035>`__)
+* `@tapaswenipathak <http://github.com/tapaswenipathak>`__: Remove django-guardian model (`#6005 <https://github.com/readthedocs/readthedocs.org/pull/6005>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Cleanup project tags (`#5983 <https://github.com/readthedocs/readthedocs.org/pull/5983>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Search indexing with storage (`#5854 <https://github.com/readthedocs/readthedocs.org/pull/5854>`__)
+
 Version 3.7.1
 -------------
 
