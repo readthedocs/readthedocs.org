@@ -118,6 +118,7 @@ class ProjectSpamMixin:
 
 
 class Echo:
+
     """
     A class that implements just the write method of the file-like interface.
 
