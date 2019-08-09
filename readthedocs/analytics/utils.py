@@ -34,7 +34,7 @@ def get_client_ip(request):
         # Removing the port number (if present)
         # But be careful about IPv6 addresses
         if client_ip.count(':') == 1:
-            client_ip = client_ip.rsplit(':')[0]
+            client_ip = client_ip.rsplit(':', maxsplit=1)[0]
     else:
         client_ip = request.META.get('REMOTE_ADDR', None)
 
