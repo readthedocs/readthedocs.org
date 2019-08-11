@@ -42,6 +42,12 @@ GITHUB_PULL_REQUEST_REOPENED = 'reopened'
 GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
+GITLAB_MERGE_REQUEST = 'merge_request'
+GITLAB_MERGE_REQUEST_CLOSE = 'close'
+GITLAB_MERGE_REQUEST_MERGE = 'merge'
+GITLAB_MERGE_REQUEST_OPEN = 'open'
+GITLAB_MERGE_REQUEST_REOPEN = 'reopen'
+GITLAB_MERGE_REQUEST_UPDATE = 'update'
 GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
 GITLAB_PUSH = 'push'
 GITLAB_NULL_HASH = '0' * 40
@@ -413,10 +419,26 @@ class GitLabWebhookView(WebhookMixin, APIView):
             ...
         }
 
+    For merge_request events:
+
+        {
+            "object_kind": "merge_request",
+            "object_attributes": {
+                "iid": 2,
+                "last_commit": {
+                "id": "717abb9a6a0f3111dbd601ef6f58c70bdd165aef",
+                },
+                "action": "open"
+                ...
+            },
+            ...
+        }
+
     See full payload here:
 
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#tag-events
+    - https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#merge-request-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
@@ -441,6 +463,17 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return False
         return token == secret
 
+    def get_external_version_data(self):
+        """Get Commit Sha and merge request number from payload."""
+        try:
+            identifier = self.data['object_attributes']['last_commit']['id']
+            verbose_name = str(self.data['object_attributes']['iid'])
+
+            return identifier, verbose_name
+
+        except KeyError:
+            raise ParseError('Parameters "id" and "iid" are required')
+
     def handle_webhook(self):
         """
         Handle GitLab events for push and tag_push.
@@ -450,6 +483,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         0000000000000000000000000000000000000000 ('0' * 40)
         """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
+        action = self.data.get('object_attributes', {}).get('action', None)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -470,6 +504,25 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+
+        if (
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            event == GITLAB_MERGE_REQUEST and action
+        ):
+            if (
+                action in
+                [
+                    GITLAB_MERGE_REQUEST_OPEN,
+                    GITLAB_MERGE_REQUEST_REOPEN,
+                    GITLAB_MERGE_REQUEST_UPDATE
+                ]
+            ):
+                # Handle open, update, reopen merge_request event.
+                return self.get_external_version_response(self.project)
+
+            if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
+                # Handle merge and close merge_request event.
+                return self.get_delete_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):
