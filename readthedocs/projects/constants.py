@@ -354,7 +354,10 @@ GITLAB_COMMIT_URL = (
     'commit/{commit}'
 )
 
+# Patterns to pull merge/pull request from providers
 GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
+GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 
 # Git provider names
 GITHUB_BRAND = 'GitHub'
+GITLAB_BRAND = 'GitLab'

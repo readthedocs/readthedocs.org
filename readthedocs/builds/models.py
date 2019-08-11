@@ -27,6 +27,7 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
@@ -44,6 +45,7 @@ from readthedocs.builds.constants import (
     BUILD_TYPES,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
+    GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -845,7 +847,9 @@ class Build(models.Model):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
                 return GITHUB_EXTERNAL_VERSION_NAME
-            # TODO: Add External Version Name for other Git Providers
+
+            if self.project.git_provider_name == GITLAB_BRAND:
+                return GITLAB_EXTERNAL_VERSION_NAME
 
             return GENERIC_EXTERNAL_VERSION_NAME
         return None
