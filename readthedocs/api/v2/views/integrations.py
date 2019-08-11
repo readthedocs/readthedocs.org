@@ -407,7 +407,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
     Webhook consumer for GitLab.
 
-    Accepts webhook events from GitLab, 'push' events trigger builds.
+    Accepts webhook events from GitLab, 'push' and 'merge_request' events trigger builds.
 
     Expects the following JSON::
 
@@ -438,7 +438,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#tag-events
-    - https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#merge-request-events
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#merge-request-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
