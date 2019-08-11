@@ -873,7 +873,6 @@ class Build(models.Model):
                 return GITLAB_EXTERNAL_VERSION_NAME
 
             # TODO: Add External Version Name for BitBucket.
-
             return GENERIC_EXTERNAL_VERSION_NAME
         return None
 

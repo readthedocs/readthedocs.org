@@ -17,7 +17,6 @@ from readthedocs.projects.constants import (
     GITHUB_PR_PULL_PATTERN,
     GITLAB_BRAND,
     GITLAB_MR_PULL_PATTERN,
-
 )
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
