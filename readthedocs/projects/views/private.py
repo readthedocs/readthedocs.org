@@ -912,7 +912,6 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
         return self.http_method_not_allowed(request, *args, **kwargs)
 
 
-<<<<<<< HEAD
 class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
     model = VersionAutomationRule
