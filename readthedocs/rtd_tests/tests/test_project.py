@@ -17,6 +17,8 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.services import GitHubService, GitLabService
+from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import finish_inactive_builds
@@ -193,6 +195,21 @@ class TestProject(ProjectMixin, TestCase):
         # Test that External Version is not considered for get_latest_build.
         self.assertEqual(self.pip.get_latest_build(), None)
 
+    def test_git_provider_name_github(self):
+        self.assertEqual(self.pip.git_provider_name, GITHUB_BRAND)
+
+    def test_git_service_class_github(self):
+        self.assertEqual(self.pip.git_service_class(), GitHubService)
+
+    def test_git_provider_name_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_provider_name, GITLAB_BRAND)
+
+    def test_git_service_class_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_service_class(), GitLabService)
 
 class TestProjectTranslations(ProjectMixin, TestCase):
 
