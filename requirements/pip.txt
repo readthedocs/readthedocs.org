@@ -67,7 +67,7 @@ pyquery==1.4.0
 
 # lxml is used by pyquery
 # defusedxml is recommended when using lxml
-lxml==4.4.0
+lxml==4.4.1
 defusedxml==0.6.0
 
 # Utils
