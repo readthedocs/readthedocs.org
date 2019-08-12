@@ -36,3 +36,5 @@ e.g. python-reno release notes manager is known to do that
 ``USE_TESTING_BUILD_IMAGE``: :featureflags:`USE_TESTING_BUILD_IMAGE`
 
 ``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
+
+``SEARCH_ANALYTICS``: :featureflags:`SEARCH_ANALYTICS`

@@ -1,5 +1,6 @@
 """Project views for authenticated users."""
 
+import csv
 import logging
 
 from allauth.socialaccount.models import SocialAccount
@@ -7,15 +8,18 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.db.models import Count
 from django.http import (
     Http404,
     HttpResponseBadRequest,
     HttpResponseNotAllowed,
     HttpResponseRedirect,
+    StreamingHttpResponse,
 )
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
@@ -55,13 +59,16 @@ from readthedocs.projects.models import (
     Domain,
     EmailHook,
     EnvironmentVariable,
+    Feature,
     Project,
     ProjectRelationship,
     WebHook,
 )
 from readthedocs.projects.notifications import EmailConfirmNotification
+from readthedocs.projects.utils import Echo
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
 
@@ -905,6 +912,7 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
         return self.http_method_not_allowed(request, *args, **kwargs)
 
 
+<<<<<<< HEAD
 class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
     model = VersionAutomationRule
@@ -937,3 +945,107 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
 
 class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
     pass
+
+
+@login_required
+def search_analytics_view(request, project_slug):
+    """View for search analytics."""
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
+
+    if not project.has_feature(Feature.SEARCH_ANALYTICS):
+        return render(
+            request,
+            'projects/projects_search_analytics.html',
+            {
+                'project': project,
+                'show_analytics': False,
+            }
+        )
+
+    download_data = request.GET.get('download', False)
+
+    # if the user has requested to download all data
+    # return csv file in response.
+    if download_data:
+        return _search_analytics_csv_data(request, project_slug)
+
+    # data for plotting the line-chart
+    query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
+        project_slug
+    )
+    # data for plotting the doughnut-chart
+    distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
+        project_slug,
+        10,
+    )
+    now = timezone.now()
+
+    queries = []
+    qs = SearchQuery.objects.filter(project=project)
+    if qs.exists():
+        qs = (
+            qs.values('query')
+            .annotate(count=Count('id'))
+            .order_by('-count', 'query')
+            .values_list('query', 'count')
+        )
+
+        # only show top 100 queries
+        queries = qs[:100]
+
+    return render(
+        request,
+        'projects/projects_search_analytics.html',
+        {
+            'project': project,
+            'queries': queries,
+            'show_analytics': True,
+            'query_count_of_1_month': query_count_of_1_month,
+            'distribution_of_top_queries': distribution_of_top_queries,
+        }
+    )
+
+
+def _search_analytics_csv_data(request, project_slug):
+    """Generate raw csv data of search queries."""
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
+
+    now = timezone.now().date()
+    last_3_month = now - timezone.timedelta(days=90)
+
+    data = (
+        SearchQuery.objects.filter(
+            project=project,
+            created__date__gte=last_3_month,
+            created__date__lte=now,
+        )
+        .order_by('-created')
+        .values_list('created', 'query')
+    )
+
+    file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+        project_slug=project_slug,
+        start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
+        end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+    )
+    # remove any spaces in filename.
+    file_name = '-'.join([text for text in file_name.split() if text])
+
+    csv_data = (
+        [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
+        for time, query in data
+    )
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in csv_data),
+        content_type="text/csv",
+    )
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    return response

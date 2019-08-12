@@ -6,7 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search import utils
+from readthedocs.search import utils, tasks
 
 
 log = logging.getLogger(__name__)
@@ -152,3 +152,23 @@ class PageSearchAPIView(generics.ListAPIView):
         for project in all_projects:
             projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
         return projects_url
+
+    def list(self, request, *args, **kwargs):
+        """Overriding ``list`` method to record query in database."""
+
+        response = super().list(request, *args, **kwargs)
+
+        project_slug = self.request.query_params.get('project', None)
+        version_slug = self.request.query_params.get('version', None)
+        query = self.request.query_params.get('q', '')
+        total_results = response.data.get('count', 0)
+
+        # record the search query with a celery task
+        tasks.record_search_query.delay(
+            project_slug,
+            version_slug,
+            query,
+            total_results,
+        )
+
+        return response

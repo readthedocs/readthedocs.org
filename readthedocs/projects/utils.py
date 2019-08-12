@@ -42,3 +42,17 @@ def safe_write(filename, contents):
     with open(filename, 'w', encoding='utf-8', errors='ignore') as fh:
         fh.write(contents)
         fh.close()
+
+
+class Echo:
+
+    """
+    A class that implements just the write method of the file-like interface.
+
+    This class can be used for generating StreamingHttpResponse.
+    See: https://docs.djangoproject.com/en/2.2/howto/outputting-csv/#streaming-large-csv-files
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
