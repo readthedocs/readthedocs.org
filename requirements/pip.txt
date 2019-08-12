@@ -42,7 +42,7 @@ celery==4.1.1  # pyup: ignore
 
 django-allauth==0.39.1
 
-GitPython==2.1.13
+GitPython==3.0.0
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
