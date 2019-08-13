@@ -46,6 +46,9 @@ class VersionMixin:
 class TestVersionModel(VersionMixin, TestCase):
 
     def test_vcs_url_for_external_version_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
+
         expected_url = f'https://github.com/pypa/pip/pull/{self.external_version.verbose_name}'
         self.assertEqual(self.external_version.vcs_url, expected_url)
 

@@ -702,6 +702,8 @@ class BuildModelTests(TestCase):
         )
 
     def test_get_commit_url_external_version_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
 
         external_build = get(
             Build,
@@ -716,7 +718,6 @@ class BuildModelTests(TestCase):
         self.assertEqual(external_build.get_commit_url(), expected_url)
 
     def test_get_commit_url_external_version_gitlab(self):
-
         self.pip.repo = 'https://gitlab.com/pypa/pip'
         self.pip.save()
 

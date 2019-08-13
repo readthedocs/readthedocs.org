@@ -196,9 +196,13 @@ class TestProject(ProjectMixin, TestCase):
         self.assertEqual(self.pip.get_latest_build(), None)
 
     def test_git_provider_name_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
         self.assertEqual(self.pip.git_provider_name, GITHUB_BRAND)
 
     def test_git_service_class_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
         self.assertEqual(self.pip.git_service_class(), GitHubService)
 
     def test_git_provider_name_gitlab(self):
