@@ -14,6 +14,13 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#id_match_arg').parent().hide();
+
+      var value = $('#id_match_arg').val();
+      if (value !== '') {
+        $('#id_match_arg').parent().show();
+        $('#id_match').val('');
+      }
+
       $('#id_match').bind('change', function(ev) {
         if (this.value === '') {
           $('#id_match_arg').parent().show();
