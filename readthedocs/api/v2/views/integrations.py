@@ -464,7 +464,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         return token == secret
 
     def get_external_version_data(self):
-        """Get Commit Sha and merge request number from payload."""
+        """Get commit SHA and merge request number from payload."""
         try:
             identifier = self.data['object_attributes']['last_commit']['id']
             verbose_name = str(self.data['object_attributes']['iid'])
