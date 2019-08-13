@@ -45,14 +45,15 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
     ALL_VERSIONS_REGEX = r'.*'
     SEMVER_REGEX = r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$'
+    MATCH_CHOICES = (
+        (ALL_VERSIONS_REGEX, 'All versions'),
+        (SEMVER_REGEX, 'Semver versions'),
+        (None, 'Custom'),
+    )
 
     match = forms.ChoiceField(
         label='Rule',
-        choices=[
-            (ALL_VERSIONS_REGEX, 'All versions'),
-            (SEMVER_REGEX, 'Semver versions'),
-            (None, 'Custom'),
-        ],
+        choices=MATCH_CHOICES,
         initial=ALL_VERSIONS_REGEX,
         required=False,
     )
@@ -76,6 +77,14 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
         ]
+
+        match_options = set(v[0] for v in self.MATCH_CHOICES)
+        if self.instance.pk:
+            match_arg = self.instance.match_arg
+            if match_arg and match_arg in match_options:
+                self.initial['match'] = self.instance.match_arg
+            else:
+                self.initial['match'] = None
 
     def clean_match_arg(self):
         match_arg = self.cleaned_data['match_arg']

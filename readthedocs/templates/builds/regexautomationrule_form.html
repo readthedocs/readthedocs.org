@@ -13,11 +13,9 @@
 {% block extra_scripts %}
   <script type="text/javascript">
     $(document).ready(function() {
-      var value = $('#id_match_arg').val();
-      if (value === '') {
+      var value = $('#id_match').val();
+      if (value !== '') {
         $('#id_match_arg').parent().hide();
-      } else {
-        $('#id_match').val('');
       }
 
       $('#id_match').bind('change', function(ev) {
