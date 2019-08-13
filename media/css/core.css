@@ -1310,7 +1310,6 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
 li.automation-rule input[type="submit"] {
     font-family: FontAwesome;
     font-weight: normal;
-    content: "\f044";
 }
 
 
