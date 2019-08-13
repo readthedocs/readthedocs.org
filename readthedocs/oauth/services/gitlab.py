@@ -255,7 +255,7 @@ class GitLabService(Service):
 
             # Optional
             'issues_events': False,
-            'merge_requests_events': False,
+            'merge_requests_events': True,
             'note_events': False,
             'job_events': False,
             'pipeline_events': False,
