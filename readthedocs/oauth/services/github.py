@@ -190,7 +190,7 @@ class GitHubService(Service):
             'events': ['push', 'pull_request', 'create', 'delete'],
         })
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Set up GitHub project webhook for project.
 
@@ -201,10 +201,11 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-        )
+        if not integration:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.GITHUB_WEBHOOK,
+            )
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
@@ -271,9 +272,17 @@ class GitHubService(Service):
         session = self.get_session()
         integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
-        url = integration.provider_data.get('url')
+
+        try:
+            url = integration.provider_data.get('url')
+        except AttributeError:
+            url = None
+
         resp = None
         try:
+            if not url:
+                return self.setup_webhook(project, integration=integration)
+
             resp = session.patch(
                 url,
                 data=data,
@@ -293,7 +302,7 @@ class GitHubService(Service):
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration=integration)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
