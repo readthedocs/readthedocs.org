@@ -12,7 +12,7 @@ from pyquery import PyQuery
 log = logging.getLogger(__name__)
 
 
-def generate_sections_from_pyquery(body, fjson_filename):
+def generate_sections_from_pyquery(body, fjson_storage_path):
     """Given a pyquery object, generate section dicts for each section."""
 
     # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
@@ -21,13 +21,13 @@ def generate_sections_from_pyquery(body, fjson_filename):
         dt_tags = body('dt[id]')
         dt_tags.parents('dl').remove()
     except Exception:
-        log.exception('Error removing <dl> tags from file: %s', fjson_filename)
+        log.exception('Error removing <dl> tags from file: %s', fjson_storage_path)
 
     # remove toctree elements
     try:
         body('.toctree-wrapper').remove()
     except Exception:
-        log.exception('Error removing toctree elements from file: %s', fjson_filename)
+        log.exception('Error removing toctree elements from file: %s', fjson_storage_path)
 
     # Capture text inside h1 before the first h2
     h1_section = body('.section > h1')
@@ -103,8 +103,8 @@ def process_file(fjson_storage_path):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections.extend(generate_sections_from_pyquery(body.clone(), fjson_filename))
-        domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_filename)
+        sections.extend(generate_sections_from_pyquery(body.clone(), fjson_storage_path))
+        domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_storage_path)
     else:
         log.info('Unable to index content for: %s', fjson_storage_path)
 
@@ -150,7 +150,7 @@ def _get_text_for_domain_data(desc_contents):
     return docstrings
 
 
-def generate_domains_data_from_pyquery(body, fjson_filename):
+def generate_domains_data_from_pyquery(body, fjson_storage_path):
     """
     Given a pyquery object, generate sphinx domain objects' docstrings.
 
@@ -182,6 +182,6 @@ def generate_domains_data_from_pyquery(body, fjson_filename):
                     docstrings = _get_text_for_domain_data(PyQuery(desc).clone())
                     domain_data[id_] = docstrings
             except Exception:
-                log.exception('Error parsing docstrings for domains in file %s', fjson_filename)
+                log.exception('Error parsing docstrings for domains in file %s', fjson_storage_path)
 
     return domain_data
