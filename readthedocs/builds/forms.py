@@ -43,13 +43,17 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
 class RegexAutomationRuleForm(forms.ModelForm):
 
+    ALL_VERSIONS_REGEX = r'.*'
+    SEMVER_REGEX = r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$'
+
     match = forms.ChoiceField(
         label='Rule',
         choices=[
-            (r'.*', 'All versions'),
-            (r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$', 'Semver versions'),
+            (ALL_VERSIONS_REGEX, 'All versions'),
+            (SEMVER_REGEX, 'Semver versions'),
             (None, 'Custom'),
         ],
+        initial=ALL_VERSIONS_REGEX,
         required=False,
     )
 
@@ -76,7 +80,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
     def clean_match_arg(self):
         match_arg = self.cleaned_data['match_arg']
         match = self.cleaned_data['match']
-        if match is not None:
+        if match:
             match_arg = match
         if not match_arg:
             raise forms.ValidationError(

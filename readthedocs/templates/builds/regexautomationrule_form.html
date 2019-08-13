@@ -13,11 +13,10 @@
 {% block extra_scripts %}
   <script type="text/javascript">
     $(document).ready(function() {
-      $('#id_match_arg').parent().hide();
-
       var value = $('#id_match_arg').val();
-      if (value !== '') {
-        $('#id_match_arg').parent().show();
+      if (value === '') {
+        $('#id_match_arg').parent().hide();
+      } else {
         $('#id_match').val('');
       }
 
