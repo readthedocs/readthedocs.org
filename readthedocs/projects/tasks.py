@@ -63,8 +63,9 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.oauth.services import registry
+from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.projects.constants import GITHUB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -146,7 +147,7 @@ class SyncRepositoryMixin:
         version_repo = self.get_vcs_repo()
         version_repo.update()
         self.sync_versions(version_repo)
-        identifier = self.commit or self.version.identifier
+        identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
@@ -776,105 +777,117 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if settings.RTD_BUILD_MEDIA_STORAGE:
+        if not settings.RTD_BUILD_MEDIA_STORAGE:
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
+                        'RTD_BUILD_MEDIA_STORAGE is missing - '
+                        'Not writing build artifacts to media storage'
+                    ),
+                },
+            )
+            return
+
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.version.project.slug,
+                'version': self.version.slug,
+                'msg': 'Writing build artifacts to media storage',
+            },
+        )
+
+        types_to_copy = []
+        types_to_delete = []
+
+        # HTML media
+        if html:
+            types_to_copy.append(('html', self.config.doctype))
+
+        # Search media (JSON)
+        if search:
+            types_to_copy.append(('json', 'sphinx_search'))
+
+        if localmedia:
+            types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+        else:
+            types_to_delete.append('htmlzip')
+
+        if pdf:
+            types_to_copy.append(('pdf', 'sphinx_pdf'))
+        else:
+            types_to_delete.append('pdf')
+
+        if epub:
+            types_to_copy.append(('epub', 'sphinx_epub'))
+        else:
+            types_to_delete.append('epub')
+
+        for media_type, build_type in types_to_copy:
+            from_path = self.version.project.artifact_path(
+                version=self.version.slug,
+                type_=build_type,
+            )
+            to_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+                version_type=self.version.type,
+            )
             log.info(
                 LOG_TEMPLATE,
                 {
                     'project': self.version.project.slug,
                     'version': self.version.slug,
-                    'msg': 'Writing build artifacts to media storage',
+                    'msg': f'Writing {media_type} to media storage - {to_path}',
                 },
             )
-
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
-            types_to_copy = []
-            types_to_delete = []
-
-            # HTML media
-            if html:
-                types_to_copy.append(('html', self.config.doctype))
-
-            # Search media (JSON)
-            if search:
-                types_to_copy.append(('json', 'sphinx_search'))
-
-            if localmedia:
-                types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
-            else:
-                types_to_delete.append('htmlzip')
-
-            if pdf:
-                types_to_copy.append(('pdf', 'sphinx_pdf'))
-            else:
-                types_to_delete.append('pdf')
-
-            if epub:
-                types_to_copy.append(('epub', 'sphinx_epub'))
-            else:
-                types_to_delete.append('epub')
-
-            for media_type, build_type in types_to_copy:
-                from_path = self.version.project.artifact_path(
-                    version=self.version.slug,
-                    type_=build_type,
-                )
-                to_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                    version_type=self.version.type,
-                )
-                log.info(
+            try:
+                storage.copy_directory(from_path, to_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Writing {media_type} to media storage - {to_path}',
+                        'msg': f'Error copying {from_path} to storage (not failing build)',
                     },
                 )
-                try:
-                    storage.copy_directory(from_path, to_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error copying {from_path} to storage (not failing build)',
-                        },
-                    )
 
-            for media_type in types_to_delete:
-                media_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                    version_type=self.version.type,
-                )
-                log.info(
+        for media_type in types_to_delete:
+            media_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+                version_type=self.version.type,
+            )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': f'Deleting {media_type} from media storage - {media_path}',
+                },
+            )
+            try:
+                storage.delete_directory(media_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Deleting {media_type} from media storage - {media_path}',
+                        'msg': f'Error deleting {media_path} from storage (not failing build)',
                     },
                 )
-                try:
-                    storage.delete_directory(media_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error deleting {media_path} from storage (not failing build)',
-                        },
-                    )
 
     def update_app_instances(
             self,
@@ -1336,7 +1349,6 @@ def fileify(version_pk, commit, build):
         )
         return
 
-    path = project.rtd_build_path(version.slug)
     log.info(
         LOG_TEMPLATE,
         {
@@ -1346,13 +1358,13 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        changed_files = _create_imported_files(version, path, commit, build)
+        changed_files = _create_imported_files(version, commit, build)
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _create_intersphinx_data(version, path, commit, build)
+        _create_intersphinx_data(version, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
@@ -1362,30 +1374,38 @@ def fileify(version_pk, commit, build):
         log.exception('Failed during ImportedFile syncing')
 
 
-def _create_intersphinx_data(version, path, commit, build):
+def _create_intersphinx_data(version, commit, build):
     """
     Create intersphinx data for this version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+        return
 
-    object_file = os.path.join(path, 'objects.inv')
-    if not os.path.exists(object_file):
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+    html_storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    json_storage_path = version.project.get_storage_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+
+    object_file = storage.join(html_storage_path, 'objects.inv')
+    if not storage.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
-    full_json_path = version.project.get_production_media_path(
-        type_='json', version_slug=version.slug, include_file=False
-    )
-    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    type_file = storage.join(json_storage_path, 'readthedocs-sphinx-domain-names.json')
     types = {}
     titles = {}
-    if os.path.exists(type_file):
+    if storage.exists(type_file):
         try:
-            data = json.load(open(type_file))
+            data = json.load(storage.open(type_file))
             types = data['types']
             titles = data['titles']
         except Exception:
@@ -1405,7 +1425,13 @@ def _create_intersphinx_data(version, path, commit, build):
             log.warning('Sphinx MockApp: %s', msg)
 
     # Re-create all objects from the new build of the version
-    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
+    object_file_url = storage.url(object_file)
+    if object_file_url.startswith('/'):
+        # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
+        # This can cause an issue if MEDIA_URL is not fully qualified
+        object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
+
+    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
         for name, einfo in sorted(value.items()):
@@ -1504,31 +1530,47 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, path, commit, build):
+def _create_imported_files(version, commit, build):
     """
     Create imported files for version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     :returns: paths of changed files
     :rtype: set
     """
 
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
     changed_files = set()
+
     # Re-create all objects from the new build of the version
-    for root, __, filenames in os.walk(path):
+    storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    for root, __, filenames in storage.walk(storage_path):
         for filename in filenames:
             if filename.endswith('.html'):
                 model_class = HTMLFile
-            else:
+            elif version.project.cdn_enabled:
+                # We need to track all files for CDN enabled projects so the files can be purged
                 model_class = ImportedFile
+            else:
+                # For projects not behind a CDN, we don't care about non-HTML
+                continue
 
-            full_path = os.path.join(root, filename)
-            relpath = os.path.relpath(full_path, path)
+            full_path = storage.join(root, filename)
+
+            # Generate a relative path for storage similar to os.path.relpath
+            relpath = full_path.replace(storage_path, '', 1).lstrip('/')
+
             try:
-                md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                md5 = hashlib.md5(storage.open(full_path, 'rb').read()).hexdigest()
             except Exception:
                 log.exception(
                     'Error while generating md5 for %s:%s:%s. Don\'t stop.',
@@ -1798,11 +1840,14 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if settings.RTD_BUILD_MEDIA_STORAGE:
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        for storage_path in paths:
-            log.info('Removing %s from media storage', storage_path)
-            storage.delete_directory(storage_path)
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    for storage_path in paths:
+        log.info('Removing %s from media storage', storage_path)
+        storage.delete_directory(storage_path)
 
 
 @app.task(queue='web')
@@ -1889,47 +1934,55 @@ def send_build_status(build_pk, commit, status):
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
+    provider_name = build.project.git_provider_name
 
-    try:
-        if build.project.remote_repository.account.provider == 'github':
-            service = GitHubService(
+    if provider_name == GITHUB_BRAND:
+        # get the service class for the project e.g: GitHubService.
+        service_class = build.project.git_service_class()
+        try:
+            service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-
-            # send Status report using the API.
+            # Send status report using the API.
             service.send_build_status(build, commit, status)
 
-    except RemoteRepository.DoesNotExist:
-        # Get the service provider for the project
-        for service_cls in registry:
-            if service_cls.is_project_service(build.project):
-                service = service_cls
-                break
-        else:
-            log.warning('There are no registered services in the application.')
+        except RemoteRepository.DoesNotExist:
+            users = build.project.users.all()
+
+            # Try to loop through all project users to get their social accounts
+            for user in users:
+                user_accounts = service_class.for_user(user)
+                # Try to loop through users all social accounts to send a successful request
+                for account in user_accounts:
+                    # Currently we only support GitHub Status API
+                    if account.provider_name == provider_name:
+                        success = account.send_build_status(build, commit, status)
+                        if success:
+                            return True
+
+            for user in users:
+                # Send Site notification about Build status reporting failure
+                # to all the users of the project.
+                notification = GitBuildStatusFailureNotification(
+                    context_object=build.project,
+                    extra_context={'provider_name': provider_name},
+                    user=user,
+                    success=False,
+                )
+                notification.send()
+
+            log.info(
+                'No social account or repository permission available for %s',
+                build.project.slug
+            )
             return False
 
-        # Try to loop through all project users to get their social accounts
-        for user in build.project.users.all():
-            user_accounts = service.for_user(user)
-            # Try to loop through users all social accounts to send a successful request
-            for account in user_accounts:
-                # Currently we only support GitHub Status API
-                if account.provider_name == 'GitHub':
-                    success = account.send_build_status(build, commit, status)
-                    if success:
-                        return True
+        except Exception:
+            log.exception('Send build status task failed for %s', build.project.slug)
+            return False
 
-        log.info(
-            'No social account or repository permission available for %s',
-            build.project
-        )
-        return False
-
-    except Exception:
-        log.exception('Send build status task failed for %s', build.project)
-        return False
+    return False
 
     # TODO: Send build status for other providers.
 
