@@ -948,6 +948,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     action = models.CharField(
         _('Action'),
+        help_text=_('Action to apply to matching versions'),
         max_length=32,
         choices=ACTIONS,
     )
