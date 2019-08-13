@@ -9,6 +9,22 @@
 {% block project-automation-rules-active %}active{% endblock %}
 {% block project_edit_content_header %}{% trans "Automation Rule" %}{% endblock %}
 
+
+{% block extra_scripts %}
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#id_match_arg').parent().hide();
+      $('#id_match').bind('change', function(ev) {
+        if (this.value === '') {
+          $('#id_match_arg').parent().show();
+        } else {
+          $('#id_match_arg').parent().hide();
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
 {% block project_edit_content %}
   <form
       method="post"
