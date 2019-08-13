@@ -34,6 +34,23 @@
             <span class="quiet">
               ({{ rule.get_version_type_display }})
             </span>
+            <ul class="module-item-menu">
+              {% if not forloop.first %}
+                <li class="automation-rule">
+                  <form method="post" action="#">
+                    <input type="submit" value="&#xf062">
+                  </form>
+                </li>
+              {% endif %}
+
+              {% if not forloop.last %}
+                <li class="automation-rule">
+                  <form method="post" action="#">
+                    <input type="submit" value="&#xf063">
+                  </form>
+                </li>
+              {% endif %}
+            </ul>
           </li>
         {% empty %}
           <li class="module-item">
