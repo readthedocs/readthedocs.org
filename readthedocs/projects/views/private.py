@@ -929,7 +929,10 @@ class AutomationRuleList(AutomationRuleMixin, ListView):
 
 
 class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
-    pass
+
+    def get(self, request, *args, **kwargs):
+        # We only use the post method
+        return self.http_method_not_allowed(request, *args, **kwargs)
 
 
 class RegexAutomationRuleMixin(AutomationRuleMixin):

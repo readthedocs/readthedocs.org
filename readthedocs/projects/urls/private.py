@@ -280,7 +280,7 @@ automation_rule_urls = [
         name='projects_automation_rule_list',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>)[-\w]+/delete/$',
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/delete/$',
         AutomationRuleDelete.as_view(),
         name='projects_automation_rule_delete',
     ),

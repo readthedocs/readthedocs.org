@@ -8,13 +8,14 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.builds.models import RegexAutomationRule
+from readthedocs.builds.models import RegexAutomationRule, VersionAutomationRule
 
 
 class URLAccessMixin:
@@ -158,9 +159,12 @@ class ProjectMixin(URLAccessMixin):
         )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
-        self.automation_rule = get(
-            RegexAutomationRule,
+        self.automation_rule = RegexAutomationRule.objects.create(
             project=self.pip,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=BRANCH,
         )
         self.default_kwargs = {
             'project_slug': self.pip.slug,
@@ -258,12 +262,14 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
         }
 
     def login(self):
@@ -294,6 +300,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -303,6 +310,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
         }
 
     def login(self):
