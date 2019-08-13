@@ -61,7 +61,9 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
     match_arg = forms.CharField(
         label='Custom match',
-        help_text=_('A Python regular expression'),
+        help_text=_(
+            'A <a href="https://docs.python.org/3/library/re.html">Python regular expression</a>'
+        ),
         required=False,
     )
 
