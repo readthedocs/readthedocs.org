@@ -960,6 +960,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     version_type = models.CharField(
         _('Version type'),
+        help_text=_('Type of version the rule should be applied to'),
         max_length=32,
         choices=VERSION_TYPES,
     )
@@ -1014,8 +1015,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             return self.description
         return f'{self.get_action_display()}'
 
-    @property
-    def edit_url(self):
+    def get_edit_url(self):
         raise NotImplementedError
 
     def __str__(self):
@@ -1047,8 +1047,7 @@ class RegexAutomationRule(VersionAutomationRule):
             log.info('Error parsing regex: %s', e)
             return False, None
 
-    @property
-    def edit_url(self):
+    def get_edit_url(self):
         return reverse(
             'projects_automation_rule_regex_edit',
             args=[self.project.slug, self.pk],

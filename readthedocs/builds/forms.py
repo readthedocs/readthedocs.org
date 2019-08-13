@@ -47,37 +47,47 @@ class RegexAutomationRuleForm(forms.ModelForm):
     SEMVER_REGEX = r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$'
     MATCH_CHOICES = (
         (ALL_VERSIONS_REGEX, 'All versions'),
-        (SEMVER_REGEX, 'Semver versions'),
-        (None, 'Custom'),
+        (SEMVER_REGEX, 'SemVer versions'),
+        (None, 'Custom match'),
     )
 
-    match = forms.ChoiceField(
-        label='Rule',
+    predefined_match = forms.ChoiceField(
+        label='Match',
         choices=MATCH_CHOICES,
         initial=ALL_VERSIONS_REGEX,
         required=False,
+        help_text=_('Versions the rule should be applied to'),
     )
 
     match_arg = forms.CharField(
-        label='Custom rule',
+        label='Custom match',
         help_text=_('A Python regular expression'),
         required=False,
     )
 
     class Meta:
         model = RegexAutomationRule
-        fields = ['description', 'match', 'match_arg', 'version_type', 'action']
+        fields = [
+            'description',
+            'predefined_match',
+            'match_arg',
+            'version_type',
+            'action',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
+        # Only list supported types
         self.fields['version_type'].choices = [
             (None, '-' * 9),
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
         ]
 
+        # Set initial value of `predefined_match` if `match_arg`
+        # is one predefined match.
         match_options = set(v[0] for v in self.MATCH_CHOICES)
         if self.instance.pk:
             match_arg = self.instance.match_arg
@@ -87,8 +97,9 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 self.initial['match'] = None
 
     def clean_match_arg(self):
+        """Use value from predefined_match if a custom match isn't given."""
         match_arg = self.cleaned_data['match_arg']
-        match = self.cleaned_data['match']
+        match = self.cleaned_data['predefined_match']
         if match:
             match_arg = match
         if not match_arg:

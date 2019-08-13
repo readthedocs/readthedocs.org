@@ -13,12 +13,12 @@
 {% block extra_scripts %}
   <script type="text/javascript">
     $(document).ready(function() {
-      var value = $('#id_match').val();
+      var value = $('#id_predefined_match').val();
       if (value !== '') {
         $('#id_match_arg').parent().hide();
       }
 
-      $('#id_match').bind('change', function(ev) {
+      $('#id_predefined_match').bind('change', function(ev) {
         if (this.value === '') {
           $('#id_match_arg').parent().show();
         } else {

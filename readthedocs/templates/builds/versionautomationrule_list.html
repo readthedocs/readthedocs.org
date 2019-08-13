@@ -7,7 +7,7 @@
 {% block nav-dashboard %} class="active"{% endblock %}
 
 {% block project-automation-rules-active %}active{% endblock %}
-{% block project_edit_content_header %}{% trans "Automation Rule" %}{% endblock %}
+{% block project_edit_content_header %}{% trans "Automation Rules" %}{% endblock %}
 
 {% block project_edit_content %}
   <p>Run specific actions when a new version is added.</p>
@@ -28,7 +28,7 @@
       <ul>
         {% for rule in object_list %}
           <li class="module-item">
-            <a href="{{ rule.edit_url }}">
+            <a href="{{ rule.get_edit_url }}">
               {{ rule.get_description }}
             </a>
             <span class="quiet">
