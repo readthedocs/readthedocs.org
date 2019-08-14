@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Project URLs for authenticated users."""
 
 from django.conf.urls import url
@@ -10,6 +8,7 @@ from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
     AutomationRuleDelete,
     AutomationRuleList,
+    AutomationRuleMove,
     DomainCreate,
     DomainDelete,
     DomainList,
@@ -278,6 +277,11 @@ automation_rule_urls = [
         r'^(?P<project_slug>[-\w]+)/rules/$',
         AutomationRuleList.as_view(),
         name='projects_automation_rule_list',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)$',
+        AutomationRuleMove.as_view(),
+        name='projects_automation_rule_move',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/delete/$',

@@ -24,7 +24,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
-from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    GenericModelView,
+    GenericView,
+    UpdateView,
+)
 
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
@@ -926,6 +933,20 @@ class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class AutomationRuleList(AutomationRuleMixin, ListView):
     pass
+
+
+class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
+
+    def post(self, request, *args, **kwargs):
+        rule = self.get_object()
+        steps = int(self.kwargs.get('steps', 0))
+        rule.move(steps)
+        return HttpResponseRedirect(
+            reverse(
+                'projects_automation_rule_list',
+                args=[self.get_project().slug],
+            )
+        )
 
 
 class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
