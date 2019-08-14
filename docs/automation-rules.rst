@@ -59,8 +59,8 @@ Actions
 Actions are the task to be executed over the matching version.
 Currently, this actions are available:
 
-- **Activate and build version**: It activates and builds the version.
-- **Set as default version**: It sets the version as default,
+- **Activate and build version**: Activates and builds the version.
+- **Set as default version**: Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
   It also activates and builds the version.
