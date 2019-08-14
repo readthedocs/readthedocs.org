@@ -190,12 +190,13 @@ class VersionAutomationRuleManager(PolymorphicManager):
         """
         Append an automation rule to `project`.
 
-        The rule is created with a priority higher than the last rule
+        The rule is created with a priority lower than the last rule
         in `project`.
         """
         last_priority = (
             project.automation_rules
             .values_list('priority', flat=True)
+            .order_by('priority')
             .last()
         )
         if last_priority is None:

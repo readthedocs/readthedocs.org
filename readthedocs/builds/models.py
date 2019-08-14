@@ -56,7 +56,6 @@ from readthedocs.builds.utils import (
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
-from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -1072,10 +1071,6 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if self.description:
             return self.description
         return f'{self.get_action_display()}'
-
-    @property
-    def edit_url(self):
-        raise NotImplementedError
 
     def __str__(self):
         class_name = self.__class__.__name__
