@@ -23,11 +23,6 @@
         integration is not functioning correctly, try resyncing the webhook:
       {% endblocktrans %}
     </p>
-
-    <form method="post" action="{% url 'projects_integrations_webhooks_sync' project_slug=project.slug integration_pk=integration.pk %}">
-      {% csrf_token %}
-      <input type="submit" value="{% trans "Resync webhook" %}">
-    </form>
   {% else %}
     {% comment %}
       Display information for manual webhook set up if either case is true:
@@ -70,6 +65,13 @@
         </a>
       {% endblocktrans %}
     </p>
+  {% endif %}
+
+  {% if integration.has_sync %}
+    <form method="post" action="{% url 'projects_integrations_webhooks_sync' project_slug=project.slug integration_pk=integration.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Resync webhook" %}">
+    </form>
   {% endif %}
 
   <h3>{% trans "Recent Activity" %}</h3>

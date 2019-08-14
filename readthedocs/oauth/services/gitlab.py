@@ -324,6 +324,7 @@ class GitLabService(Service):
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'GitLab webhook creation failed for project: %s',

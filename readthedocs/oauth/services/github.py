@@ -279,9 +279,9 @@ class GitHubService(Service):
         session = self.get_session()
         integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
-        url = integration.provider_data.get('url')
         resp = None
         try:
+            url = integration.provider_data.get('url')
             resp = session.patch(
                 url,
                 data=data,
@@ -304,11 +304,12 @@ class GitHubService(Service):
                 return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except (AttributeError, RequestException, ValueError):
             log.exception(
                 'GitHub webhook update failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'GitHub webhook update failed for project: %s',

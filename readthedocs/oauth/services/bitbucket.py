@@ -276,6 +276,7 @@ class BitbucketService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
+
         :param project: project to set up webhook for
         :type project: Project
         :param integration: Webhook integration to update
@@ -315,6 +316,7 @@ class BitbucketService(Service):
                 'Bitbucket webhook update failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'Bitbucket webhook update failed for project: %s',
