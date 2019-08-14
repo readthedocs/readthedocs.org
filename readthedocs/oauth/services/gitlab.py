@@ -262,19 +262,22 @@ class GitLabService(Service):
             'wiki_events': False,
         })
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Set up GitLab project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for a project
+        :type integration: Integration
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
+        if not integration:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.GITLAB_WEBHOOK,
+            )
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             return (False, None)
@@ -343,7 +346,12 @@ class GitLabService(Service):
 
         integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
-        hook_id = integration.provider_data.get('id')
+
+        try:
+            hook_id = integration.provider_data.get('id')
+        except AttributeError:
+            return self.setup_webhook(project, integration=integration)
+
         resp = None
         try:
             resp = session.put(
@@ -368,7 +376,7 @@ class GitLabService(Service):
             # GitLab returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration=integration)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):

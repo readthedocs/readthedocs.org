@@ -196,6 +196,8 @@ class GitHubService(Service):
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
@@ -276,13 +278,10 @@ class GitHubService(Service):
         try:
             url = integration.provider_data.get('url')
         except AttributeError:
-            url = None
+            return self.setup_webhook(project, integration=integration)
 
         resp = None
         try:
-            if not url:
-                return self.setup_webhook(project, integration=integration)
-
             resp = session.patch(
                 url,
                 data=data,
