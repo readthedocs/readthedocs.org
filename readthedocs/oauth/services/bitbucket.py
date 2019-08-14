@@ -276,7 +276,6 @@ class BitbucketService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
-
         :param project: project to set up webhook for
         :type project: Project
         :param integration: Webhook integration to update
@@ -286,15 +285,10 @@ class BitbucketService(Service):
         """
         session = self.get_session()
         data = self.get_webhook_data(project, integration)
-
+        resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
             url = integration.provider_data['links']['self']['href']
-        except KeyError:
-            return self.setup_webhook(project, integration=integration)
-
-        resp = None
-        try:
             resp = session.put(
                 url,
                 data=data,
@@ -313,7 +307,7 @@ class BitbucketService(Service):
             # Bitbucket returns 404 when the webhook doesn't exist. In this
             # case, we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project, integration=integration)
+                return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
         except (KeyError, RequestException, ValueError):

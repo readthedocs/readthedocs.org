@@ -43,7 +43,7 @@ def sync_remote_repositories(user_id):
 
 
 @app.task(queue='web')
-def attach_webhook(project_pk, user_pk):
+def attach_webhook(project_pk, user_pk, integration=None):
     """
     Add post-commit hook on project import.
 
@@ -79,7 +79,7 @@ def attach_webhook(project_pk, user_pk):
 
     user_accounts = service.for_user(user)
     for account in user_accounts:
-        success, __ = account.setup_webhook(project)
+        success, __ = account.setup_webhook(project, integration=integration)
         if success:
             notification.success = True
             notification.send()

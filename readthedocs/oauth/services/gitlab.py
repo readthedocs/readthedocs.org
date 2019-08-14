@@ -273,7 +273,9 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        if not integration:
+        if integration:
+            integration.recreate_secret()
+        else:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
                 integration_type=Integration.GITLAB_WEBHOOK,
@@ -309,6 +311,9 @@ class GitLabService(Service):
                     'permissions: project=%s',
                     project,
                 )
+                # Set the secret to None so that the integration can be used manually.
+                integration.secret = None
+                integration.save()
                 return (False, resp)
 
         except (RequestException, ValueError):
@@ -326,16 +331,12 @@ class GitLabService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
-
         :param project: project to set up webhook for
         :type project: Project
-
         :param integration: Webhook integration to update
         :type integration: Integration
-
         :returns: boolean based on webhook update success, and requests Response
                   object
-
         :rtype: (Bool, Response)
         """
         session = self.get_session()
@@ -346,12 +347,7 @@ class GitLabService(Service):
 
         integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
-
-        try:
-            hook_id = integration.provider_data.get('id')
-        except AttributeError:
-            return self.setup_webhook(project, integration=integration)
-
+        hook_id = integration.provider_data.get('id')
         resp = None
         try:
             resp = session.put(
@@ -376,7 +372,7 @@ class GitLabService(Service):
             # GitLab returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project, integration=integration)
+                return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):

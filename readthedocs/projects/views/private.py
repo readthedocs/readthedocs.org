@@ -783,7 +783,11 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        update_webhook(self.get_project(), self.object, request=self.request)
+        attach_webhook(
+            project_pk=self.get_project().pk,
+            user_pk=self.request.user.pk,
+            integration=self.object
+        )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):

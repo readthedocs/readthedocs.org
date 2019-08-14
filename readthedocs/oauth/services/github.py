@@ -203,7 +203,9 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        if not integration:
+        if integration:
+            integration.recreate_secret()
+        else:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
                 integration_type=Integration.GITHUB_WEBHOOK,
@@ -236,6 +238,9 @@ class GitHubService(Service):
                     'permissions: project=%s',
                     project,
                 )
+                # Set the secret to None so that the integration can be used manually.
+                integration.secret = None
+                integration.save()
                 return (False, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -263,7 +268,6 @@ class GitHubService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
-
         :param project: project to set up webhook for
         :type project: Project
         :param integration: Webhook integration to update
@@ -274,12 +278,7 @@ class GitHubService(Service):
         session = self.get_session()
         integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
-
-        try:
-            url = integration.provider_data.get('url')
-        except AttributeError:
-            return self.setup_webhook(project, integration=integration)
-
+        url = integration.provider_data.get('url')
         resp = None
         try:
             resp = session.patch(
@@ -301,7 +300,7 @@ class GitHubService(Service):
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project, integration=integration)
+                return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
