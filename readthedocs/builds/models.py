@@ -922,8 +922,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     ACTIVATE_VERSION_ACTION = 'activate-version'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set as default version on match')),
+        (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
     project = models.ForeignKey(
