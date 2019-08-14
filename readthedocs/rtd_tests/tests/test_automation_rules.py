@@ -134,10 +134,10 @@ class TestAutomationRuleManager:
     def setup_method(self):
         self.project = get(Project)
 
-    def test_append_rule_regex(self):
+    def test_add_rule_regex(self):
         assert not self.project.automation_rules.all()
 
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='First rule',
             match_arg='.*',
@@ -150,7 +150,7 @@ class TestAutomationRuleManager:
         assert rule.priority == 0
 
         # Adding a second rule
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='Second rule',
             match_arg='.*',
@@ -174,7 +174,7 @@ class TestAutomationRuleManager:
         assert rule.priority == 9
 
         # Adding a new rule
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='Fourth rule',
             match_arg='.*',
@@ -191,16 +191,16 @@ class TestAutomationRuleMove:
     @pytest.fixture(autouse=True)
     def setup_method(self):
         self.project = get(Project)
-        self.rule_0 = self._append_rule('Zero')
-        self.rule_1 = self._append_rule('One')
-        self.rule_2 = self._append_rule('Two')
-        self.rule_3 = self._append_rule('Three')
-        self.rule_4 = self._append_rule('Four')
-        self.rule_5 = self._append_rule('Five')
+        self.rule_0 = self._add_rule('Zero')
+        self.rule_1 = self._add_rule('One')
+        self.rule_2 = self._add_rule('Two')
+        self.rule_3 = self._add_rule('Three')
+        self.rule_4 = self._add_rule('Four')
+        self.rule_5 = self._add_rule('Five')
         assert self.project.automation_rules.count() == 6
 
-    def _append_rule(self, description):
-        rule = RegexAutomationRule.objects.append_rule(
+    def _add_rule(self, description):
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description=description,
             match_arg='.*',

@@ -183,7 +183,7 @@ class ExternalBuildManager(SettingsOverrideObject):
 
 class VersionAutomationRuleManager(PolymorphicManager):
 
-    def append_rule(
+    def add_rule(
         self, *, project, description, match_arg, version_type,
         action, action_arg=None,
     ):
