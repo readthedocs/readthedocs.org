@@ -134,10 +134,10 @@ class TestAutomationRuleManager:
     def setup_method(self):
         self.project = get(Project)
 
-    def test_append_rule_regex(self):
+    def test_add_rule_regex(self):
         assert not self.project.automation_rules.all()
 
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='First rule',
             match_arg='.*',
@@ -150,7 +150,7 @@ class TestAutomationRuleManager:
         assert rule.priority == 0
 
         # Adding a second rule
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='Second rule',
             match_arg='.*',
@@ -174,7 +174,7 @@ class TestAutomationRuleManager:
         assert rule.priority == 9
 
         # Adding a new rule
-        rule = RegexAutomationRule.objects.append_rule(
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description='Fourth rule',
             match_arg='.*',
