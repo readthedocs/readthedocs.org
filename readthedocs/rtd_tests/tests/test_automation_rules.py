@@ -372,3 +372,70 @@ class TestAutomationRuleMove:
         for priority, rule in enumerate(self.project.automation_rules.all()):
             assert rule == new_order[priority]
             assert rule.priority == priority
+
+    def test_delete_fist_rule(self):
+        self.rule_0.delete()
+        assert self.project.automation_rules.all().count() == 5
+
+        new_order = [
+            self.rule_1,
+            self.rule_2,
+            self.rule_3,
+            self.rule_4,
+            self.rule_5,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_delete_last_rule(self):
+        self.rule_5.delete()
+        assert self.project.automation_rules.all().count() == 5
+
+        new_order = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_2,
+            self.rule_3,
+            self.rule_4,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_delete_some_rule(self):
+        self.rule_2.delete()
+        assert self.project.automation_rules.all().count() == 5
+
+        new_order = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_3,
+            self.rule_4,
+            self.rule_5,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority
+
+    def test_delete_some_rules(self):
+        self.rule_2.delete()
+        self.rule_0.refresh_from_db()
+        self.rule_0.delete()
+        self.rule_5.refresh_from_db()
+        self.rule_5.delete()
+
+        assert self.project.automation_rules.all().count() == 3
+
+        new_order = [
+            self.rule_1,
+            self.rule_3,
+            self.rule_4,
+        ]
+
+        for priority, rule in enumerate(self.project.automation_rules.all()):
+            assert rule == new_order[priority]
+            assert rule.priority == priority

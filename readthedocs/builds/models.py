@@ -1067,6 +1067,26 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
+    def delete(self, *args, **kwargs):
+        """Override method to update the other priorities after delete."""
+        current_priority = self.priority
+        project = self.project
+        super().delete(*args, **kwargs)
+
+        rules = (
+            project.automation_rules
+            .filter(priority__gte=current_priority)
+            # We sort the queryset in asc order
+            # to be updated in that order
+            # to avoid hitting the unique constraint (project, priority).
+            .order_by('priority')
+        )
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = F('priority') - 1
+            rule.save()
+
     def get_description(self):
         if self.description:
             return self.description
