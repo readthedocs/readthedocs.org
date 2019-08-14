@@ -191,16 +191,16 @@ class TestAutomationRuleMove:
     @pytest.fixture(autouse=True)
     def setup_method(self):
         self.project = get(Project)
-        self.rule_0 = self._append_rule('Zero')
-        self.rule_1 = self._append_rule('One')
-        self.rule_2 = self._append_rule('Two')
-        self.rule_3 = self._append_rule('Three')
-        self.rule_4 = self._append_rule('Four')
-        self.rule_5 = self._append_rule('Five')
+        self.rule_0 = self._add_rule('Zero')
+        self.rule_1 = self._add_rule('One')
+        self.rule_2 = self._add_rule('Two')
+        self.rule_3 = self._add_rule('Three')
+        self.rule_4 = self._add_rule('Four')
+        self.rule_5 = self._add_rule('Five')
         assert self.project.automation_rules.count() == 6
 
-    def _append_rule(self, description):
-        rule = RegexAutomationRule.objects.append_rule(
+    def _add_rule(self, description):
+        rule = RegexAutomationRule.objects.add_rule(
             project=self.project,
             description=description,
             match_arg='.*',
