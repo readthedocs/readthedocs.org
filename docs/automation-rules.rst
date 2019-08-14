@@ -1,13 +1,15 @@
 Automation Rules
 ================
 
+Automation rules allow you to execute some actions over new versions.
+
 By default when new versions are created,
 they are not activated.
-So, when a new tag or branch is pushed to your repository,
-you need to log in your Read the Docs account to activate it or
-do other type of actions over that version.
+If you want to activate it and do other type of actions,
+you need to log in your Read the Docs account first.
 
-To help to automate this tasks you can create an automation rule.
+Creating an automation rule
+---------------------------
 
 #. Go to your project :guilabel:`Admin` > :guilabel:`Automation Rules`
 #. Click on "Add Rule" button
@@ -16,42 +18,58 @@ To help to automate this tasks you can create an automation rule.
    - Description: A description of what the rule does
    - Match: What versions the rule should be applied to
    - Version type: What type of versions the rule should be applied to
-   - Action: What action should be applied to matching rules
+   - Action: What action should be applied to matching versions
 
 #. Click "Save"
 
-Match
------
+How do they work?
+-----------------
 
-New versions are matched against the type of match you chose:
+When a new tag or branch is pushed to your repository,
+Read the Docs creates a new version.
 
-- **All versions**: All new versions.
-- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__.
-- **Custom match**: If none of the above rules match your use case,
-  you can write a regular expression.
+All rules are run over this version in the order they are listed,
+if the version matches the version type and the pattern in the rule,
+an action is executed over that version.
 
-Custom match
-~~~~~~~~~~~~
+.. note::
+   
+   All actions of the rules that the version matches will be executed over that version.
+
+Predefined matches
+------------------
+
+There are some predefined matches:
+
+- **All versions**: All new versions are matched.
+- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ are matched.
+
+User defined matches
+--------------------
+
+If none of the above matches meet your use case,
+choose **Custom match**.
 
 The custom match should be a valid `Python regular expression <https://docs.python.org/3/library/re.html>`__.
-Each new version is going to be tested against this regular expression,
-if it matches the corresponding action is executed against that version.
+Each new version is going to be tested against this regular expression.
 
 Actions
 -------
 
-Currently we only support the following actions:
+Actions are the task to be executed over the matching version.
+Currently, this actions are available:
 
-- **Activate version on match**: It activates and builds the version.
-- **Set as default version on match**: It activates and builds the version too.
-  Additionally, it sets the version as default,
+- **Activate and build version**: It activates and builds the version.
+- **Set as default version**: It sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
+  It also activates and builds the version.
 
 .. note::
    
    If your versions follow :pep:`440`,
-   Read the Docs activates and builds the version if it's greater than the current stable version.
+   Read the Docs activates and builds the version if it's greater than the current stable version,
+   and updates the stable version.
    See more in :doc:`versions`.
 
 Order
@@ -64,8 +82,8 @@ so first rules have a higher priority.
 You can change the order using the up and down arrow buttons.
 
 .. note::
-   
-   All actions of the rules that the version matches will be executed over that version.
+
+   New rules are added at the end (lower priority).
 
 Examples
 --------
@@ -75,21 +93,21 @@ Activate all new tags
 
 - Match: ``All versions``
 - Version type: ``Tag``
-- Action: ``Activate version on match``
+- Action: ``Activate version``
 
 Activate only new branches that belong to the ``1.x`` release
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Custom match: ``^1\.\d+$``
 - Version type: ``Branch``
-- Action: ``Activate version on match``
+- Action: ``Activate version``
 
 Set as default new tags that have the ``-stable`` or ``-release`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Custom match: ``-(stable)|(release)$``
-- Version type: ``Branch``
-- Action: ``Set as default version on match``
+- Version type: ``Tag``
+- Action: ``Set as default version``
 
 .. note::
    
@@ -101,16 +119,16 @@ Activate all new tags and branches that start with ``v`` or ``V``
 
 - Custom match: ``^[vV]``
 - Version type: ``Tag``
-- Action: ``Activate version on match``
+- Action: ``Activate version``
 
 
 - Custom match: ``^[vV]``
 - Version type: ``Branch``
-- Action: ``Activate version on match``
+- Action: ``Activate version``
 
 Activate all new tags that don't contain the ``-nightly`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Custom match: ``.*(?<!-nightly)$``
 - Version type: ``Tag``
-- Action: ``Activate version on match``
+- Action: ``Activate version``
