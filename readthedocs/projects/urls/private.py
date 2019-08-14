@@ -279,7 +279,7 @@ automation_rule_urls = [
         name='projects_automation_rule_list',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)$',
+        r'^(?P<project_slug>[-\w]+)/rules/(?P<automation_rule_pk>[-\w]+)/move/(?P<steps>-?\d+)/$',
         AutomationRuleMove.as_view(),
         name='projects_automation_rule_move',
     ),

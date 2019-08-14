@@ -937,6 +937,8 @@ class AutomationRuleList(AutomationRuleMixin, ListView):
 
 class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
 
+    http_method_names = ['post']
+
     def post(self, request, *args, **kwargs):
         rule = self.get_object()
         steps = int(self.kwargs.get('steps', 0))
@@ -951,9 +953,7 @@ class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
 
 class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
 
-    def get(self, request, *args, **kwargs):
-        # We only use the post method
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 class RegexAutomationRuleMixin(AutomationRuleMixin):

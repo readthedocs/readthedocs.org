@@ -180,6 +180,7 @@ class ProjectMixin(URLAccessMixin):
             'exchange_pk': self.webhook_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
             'automation_rule_pk': self.automation_rule.pk,
+            'steps': 1,
             'invalid_project_slug': 'invalid_slug',
         }
 
@@ -263,6 +264,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
@@ -270,6 +272,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
@@ -301,6 +304,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
         '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -311,6 +315,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
             'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
