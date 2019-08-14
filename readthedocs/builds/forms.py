@@ -1,13 +1,12 @@
 """Django forms for the builds app."""
 
+import re
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.constants import BRANCH, BRANCH_TEXT, TAG, TAG_TEXT
-from readthedocs.builds.models import (
-    RegexAutomationRule,
-    Version,
-)
+from readthedocs.builds.models import RegexAutomationRule, Version
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
@@ -108,21 +107,27 @@ class RegexAutomationRuleForm(forms.ModelForm):
             raise forms.ValidationError(
                 _('Custom match should not be empty.'),
             )
-        return match_arg
 
-    def clean_description(self):
-        description = self.cleaned_data['description']
-        if not description:
-            description = self.instance.get_description()
-        return description
+        try:
+            re.compile(match_arg)
+        except Exception:
+            raise forms.ValidationError(
+                _('Invalid Python regular expression.'),
+            )
+        return match_arg
 
     def save(self, commit=True):
         if self.instance.pk:
-            return super().save(commit=commit)
-        return RegexAutomationRule.objects.add_rule(
-            project=self.project,
-            description=self.cleaned_data['description'],
-            match_arg=self.cleaned_data['match_arg'],
-            version_type=self.cleaned_data['version_type'],
-            action=self.cleaned_data['action'],
-        )
+            rule = super().save(commit=commit)
+        else:
+            rule = RegexAutomationRule.objects.add_rule(
+                project=self.project,
+                description=self.cleaned_data['description'],
+                match_arg=self.cleaned_data['match_arg'],
+                version_type=self.cleaned_data['version_type'],
+                action=self.cleaned_data['action'],
+            )
+        if not rule.description:
+            rule.description = rule.get_description()
+            rule.save()
+        return rule

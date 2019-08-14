@@ -962,11 +962,11 @@ class RegexAutomationRuleMixin(AutomationRuleMixin):
     form_class = RegexAutomationRuleForm
 
 
-class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
+class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
     pass
 
 
-class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
+class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
