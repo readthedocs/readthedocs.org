@@ -60,6 +60,7 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
     GITHUB_PULL_REQUEST_URL,
@@ -274,6 +275,15 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
+        # Hack external versions for now.
+        # TODO: We can integrate them into the resolver
+        # but this is much simpler to handle since we only link them a couple places for now
+        if self.type == EXTERNAL:
+            # Django's static file serving doesn't automatically append index.html
+            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
+                f'{self.project.slug}/{self.slug}/index.html'
+            return url
+
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -308,9 +318,10 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage
-        storage_paths = self.get_storage_paths()
-        tasks.remove_build_storage_paths.delay(storage_paths)
+        # Remove build artifacts from storage if the version is not external
+        if self.type != EXTERNAL:
+            storage_paths = self.get_storage_paths()
+            tasks.remove_build_storage_paths.delay(storage_paths)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
@@ -330,6 +341,11 @@ class Version(models.Model):
     @property
     def is_editable(self):
         return self.type == BRANCH
+
+    @property
+    def supports_wipe(self):
+        """Return True if version is not external."""
+        return not self.type == EXTERNAL
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
@@ -828,19 +844,11 @@ class Build(models.Model):
     @property
     def external_version_name(self):
         if self.is_external:
-            try:
-                if self.project.remote_repository.account.provider == 'github':
-                    return GITHUB_EXTERNAL_VERSION_NAME
-                # TODO: Add External Version Name for other Git Providers
-            except RemoteRepository.DoesNotExist:
-                log.info('Remote repository does not exist for %s', self.project)
-                return GENERIC_EXTERNAL_VERSION_NAME
-            except Exception:
-                log.exception(
-                    'Unhandled exception raised for %s while getting external_version_name',
-                    self.project
-                )
-                return GENERIC_EXTERNAL_VERSION_NAME
+            if self.project.git_provider_name == GITHUB_BRAND:
+                return GITHUB_EXTERNAL_VERSION_NAME
+            # TODO: Add External Version Name for other Git Providers
+
+            return GENERIC_EXTERNAL_VERSION_NAME
         return None
 
     def using_latest_config(self):

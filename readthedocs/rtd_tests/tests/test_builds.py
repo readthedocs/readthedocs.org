@@ -656,13 +656,8 @@ class BuildModelTests(TestCase):
         self.assertEqual(build.external_version_name, None)
 
     def test_external_version_name_github(self):
-        social_account = get(SocialAccount, provider='github')
-        remote_repo = get(
-            RemoteRepository,
-            account=social_account,
-            project=self.project
-        )
-        remote_repo.users.add(self.eric)
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(

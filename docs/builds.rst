@@ -14,6 +14,9 @@ Our current build limits are:
 
 We can increase build limits on a per-project basis,
 sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
+If your business is hitting build limits hosting documentation on Read the Docs,
+please consider :doc:`Read the Docs for Business </commercial/index>`
+which has much higher build resources.
 
 You can see the current Docker build images that we use in our `docker repository <https://github.com/readthedocs/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.

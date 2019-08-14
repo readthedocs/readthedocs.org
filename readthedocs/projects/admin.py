@@ -29,6 +29,7 @@ from .notifications import (
     ResourceUsageNotification,
 )
 from .tasks import remove_dirs
+from .tag_utils import import_tags
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -155,6 +156,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'build_default_version',
         'reindex_active_versions',
         'wipe_all_versions',
+        'import_tags_from_vcs',
     ]
 
     def feature_flags(self, obj):
@@ -293,6 +295,24 @@ class ProjectAdmin(admin.ModelAdmin):
                 )
 
     wipe_all_versions.short_description = 'Wipe all versions from ES'
+
+    def import_tags_from_vcs(self, request, queryset):
+        for project in queryset.iterator():
+            tags = import_tags(project)
+            if tags:
+                self.message_user(
+                    request,
+                    'Imported tags for {}: {}'.format(project, tags),
+                    messages.SUCCESS
+                )
+            else:
+                self.message_user(
+                    request,
+                    'No tags found for {}'.format(project),
+                    messages.WARNING
+                )
+
+    import_tags_from_vcs.short_description = 'Import tags from the version control API'
 
     def get_actions(self, request):
         actions = super().get_actions(request)

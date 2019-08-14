@@ -34,12 +34,18 @@ class UtilsTests(TestCase):
         )
 
     def test_get_client_ip_with_x_forwarded_for(self):
-        
         # only client's ip is present
         request = RequestFactory().get('/')
         request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195'
         client_ip = get_client_ip(request)
         self.assertEqual(client_ip, '203.0.113.195')
+
+        # only client's ip is present
+        request = RequestFactory().get('/')
+        ip = '2001:abc:def:012:345:6789:abcd:ef12'
+        request.META['HTTP_X_FORWARDED_FOR'] = ip
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, ip)
 
         # proxy1 and proxy2 are present along with client's ip
         request = RequestFactory().get('/')
@@ -52,6 +58,14 @@ class UtilsTests(TestCase):
         request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.195:8080, 70.41.3.18, 150.172.238.178'
         client_ip = get_client_ip(request)
         self.assertEqual(client_ip, '203.0.113.195')
+
+        # client ip (ipv6), other clients with port
+        request = RequestFactory().get('/')
+        ip = '2001:abc:def:012:345:6789:abcd:ef12'
+        x_forwarded_for = f'{ip}, 203.0.113.195:8080, 70.41.3.18'
+        request.META['HTTP_X_FORWARDED_FOR'] = x_forwarded_for
+        client_ip = get_client_ip(request)
+        self.assertEqual(client_ip, ip)
 
         # client ip with port but not proxy1 and proxy2
         request = RequestFactory().get('/')

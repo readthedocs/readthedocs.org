@@ -97,11 +97,11 @@ Whether to include `django.contrib.admin` in the URL's.
 RTD_BUILD_MEDIA_STORAGE
 -----------------------
 
-Default: ``None``
+Default: ``readthedocs.builds.storage.BuildMediaFileSystemStorage``
 
 Use this storage class to upload build artifacts to cloud storage (S3, Azure storage).
 This should be a dotted path to the relevant class (eg. ``'path.to.MyBuildMediaStorage'``).
-This class should mixin :class:`readthedocs.builds.storage.BuildMediaStorageMixin`.
+Your class should mixin :class:`readthedocs.builds.storage.BuildMediaStorageMixin`.
 
 
 ELASTICSEARCH_DSL
@@ -180,3 +180,13 @@ project and build documentations without having elasticsearch.
 
 
 .. _elasticsearch-dsl-py.connections.configure: https://elasticsearch-dsl.readthedocs.io/en/stable/configuration.html#multiple-clusters
+
+EXTERNAL_VERSION_URL
+--------------------
+
+Default: ``None``
+
+The URL where we host external version builds (Pull Requests).
+Set this to the URL where the static files are uploaded to,
+with a prefix of `/external/`,
+to make it work.

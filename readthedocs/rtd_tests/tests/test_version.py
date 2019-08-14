@@ -66,3 +66,9 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_commit_name_for_external_version(self):
         self.assertEqual(self.external_version.commit_name, self.external_version.identifier)
+
+    def test_version_does_not_support_wipe(self):
+        self.assertFalse(self.external_version.supports_wipe)
+
+    def test_version_supports_wipe(self):
+        self.assertTrue(self.branch_version.supports_wipe)

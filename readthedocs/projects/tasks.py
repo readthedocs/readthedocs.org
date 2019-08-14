@@ -63,7 +63,9 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
 from readthedocs.oauth.services.github import GitHubService
+from readthedocs.projects.constants import GITHUB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -130,26 +132,23 @@ class SyncRepositoryMixin:
             )
 
         # Get the actual code on disk
-        try:
-            before_vcs.send(sender=self.version)
-            msg = 'Checking out version {slug}: {identifier}'.format(
-                slug=self.version.slug,
-                identifier=self.version.identifier,
-            )
-            log.info(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
-            version_repo = self.get_vcs_repo()
-            version_repo.update()
-            self.sync_versions(version_repo)
-            version_repo.checkout(self.version.identifier)
-        finally:
-            after_vcs.send(sender=self.version)
+        msg = 'Checking out version {slug}: {identifier}'.format(
+            slug=self.version.slug,
+            identifier=self.version.identifier,
+        )
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        version_repo = self.get_vcs_repo()
+        version_repo.update()
+        self.sync_versions(version_repo)
+        identifier = getattr(self, 'commit', None) or self.version.identifier
+        version_repo.checkout(identifier)
 
     def sync_versions(self, version_repo):
         """
@@ -240,6 +239,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
+            before_vcs.send(sender=self.version)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo()
             return True
@@ -264,6 +264,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                     },
                 },
             )
+        finally:
+            after_vcs.send(sender=self.version)
+
+        # Always return False for any exceptions
         return False
 
 
@@ -321,6 +325,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=None,
             project=None,
             version=None,
+            commit=None,
             task=None,
     ):
         self.build_env = build_env
@@ -332,6 +337,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.version = {}
         if version is not None:
             self.version = version
+        self.commit = commit
         self.project = {}
         if project is not None:
             self.project = project
@@ -342,7 +348,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
             force=False, **__
     ):
         """
@@ -363,6 +369,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         :param version_pk int: Project Version id
         :param build_pk int: Build id (if None, commands are not recorded)
+        :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
             ``settings.DOCKER_ENABLE`` is used)
@@ -379,6 +386,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.project = self.version.project
             self.build = self.get_build(build_pk)
             self.build_force = force
+            self.commit = commit
             self.config = None
 
             # Build process starts here
@@ -440,25 +448,29 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         # Environment used for code checkout & initial configuration reading
         with self.setup_env:
-            if self.project.skip:
-                raise ProjectBuildsSkippedError
             try:
-                with self.project.repo_nonblockinglock(version=self.version):
-                    self.setup_vcs()
-            except vcs_support_utils.LockTimeout as e:
-                self.task.retry(exc=e, throw=False)
-                raise VersionLockedError
-            try:
-                self.config = load_yaml_config(version=self.version)
-            except ConfigError as e:
-                raise YAMLParseError(
-                    YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
-                        exception=str(e),
-                    ),
-                )
+                before_vcs.send(sender=self.version)
+                if self.project.skip:
+                    raise ProjectBuildsSkippedError
+                try:
+                    with self.project.repo_nonblockinglock(version=self.version):
+                        self.setup_vcs()
+                except vcs_support_utils.LockTimeout as e:
+                    self.task.retry(exc=e, throw=False)
+                    raise VersionLockedError
+                try:
+                    self.config = load_yaml_config(version=self.version)
+                except ConfigError as e:
+                    raise YAMLParseError(
+                        YAMLParseError.GENERIC_WITH_PARSE_EXCEPTION.format(
+                            exception=str(e),
+                        ),
+                    )
 
-            self.save_build_config()
-            self.additional_vcs_operations()
+                self.save_build_config()
+                self.additional_vcs_operations()
+            finally:
+                after_vcs.send(sender=self.version)
 
         if self.setup_env.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
@@ -581,27 +593,42 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
+            # TODO: Send RTD Webhook notification for build failure.
             self.send_notifications(self.version.pk, self.build['id'])
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
+
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
         elif self.build_env.successful:
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_SUCCESS
-            )
+            # TODO: Send RTD Webhook notification for build success.
+            if self.commit:
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_SUCCESS
+                )
         else:
-            msg = 'Unhandled Build Status'
-            send_external_build_status(
-                version=self.version, build_pk=self.build['id'], status=BUILD_STATUS_FAILURE
-            )
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
-                    'msg': msg,
-                }
-            )
+            if self.commit:
+                msg = 'Unhandled Build Status'
+                send_external_build_status(
+                    version_type=self.version.type,
+                    build_pk=self.build['id'],
+                    commit=self.commit,
+                    status=BUILD_STATUS_FAILURE
+                )
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': msg,
+                    }
+                )
 
         build_complete.send(sender=Build, build=self.build_env.build)
 
@@ -670,7 +697,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
 
@@ -750,105 +777,117 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if settings.RTD_BUILD_MEDIA_STORAGE:
+        if not settings.RTD_BUILD_MEDIA_STORAGE:
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
+                        'RTD_BUILD_MEDIA_STORAGE is missing - '
+                        'Not writing build artifacts to media storage'
+                    ),
+                },
+            )
+            return
+
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        log.info(
+            LOG_TEMPLATE,
+            {
+                'project': self.version.project.slug,
+                'version': self.version.slug,
+                'msg': 'Writing build artifacts to media storage',
+            },
+        )
+
+        types_to_copy = []
+        types_to_delete = []
+
+        # HTML media
+        if html:
+            types_to_copy.append(('html', self.config.doctype))
+
+        # Search media (JSON)
+        if search:
+            types_to_copy.append(('json', 'sphinx_search'))
+
+        if localmedia:
+            types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+        else:
+            types_to_delete.append('htmlzip')
+
+        if pdf:
+            types_to_copy.append(('pdf', 'sphinx_pdf'))
+        else:
+            types_to_delete.append('pdf')
+
+        if epub:
+            types_to_copy.append(('epub', 'sphinx_epub'))
+        else:
+            types_to_delete.append('epub')
+
+        for media_type, build_type in types_to_copy:
+            from_path = self.version.project.artifact_path(
+                version=self.version.slug,
+                type_=build_type,
+            )
+            to_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+                version_type=self.version.type,
+            )
             log.info(
                 LOG_TEMPLATE,
                 {
                     'project': self.version.project.slug,
                     'version': self.version.slug,
-                    'msg': 'Writing build artifacts to media storage',
+                    'msg': f'Writing {media_type} to media storage - {to_path}',
                 },
             )
-
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
-            types_to_copy = []
-            types_to_delete = []
-
-            # HTML media
-            if html:
-                types_to_copy.append(('html', self.config.doctype))
-
-            # Search media (JSON)
-            if search:
-                types_to_copy.append(('json', 'sphinx_search'))
-
-            if localmedia:
-                types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
-            else:
-                types_to_delete.append('htmlzip')
-
-            if pdf:
-                types_to_copy.append(('pdf', 'sphinx_pdf'))
-            else:
-                types_to_delete.append('pdf')
-
-            if epub:
-                types_to_copy.append(('epub', 'sphinx_epub'))
-            else:
-                types_to_delete.append('epub')
-
-            for media_type, build_type in types_to_copy:
-                from_path = self.version.project.artifact_path(
-                    version=self.version.slug,
-                    type_=build_type,
-                )
-                to_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                    version_type=self.version.type,
-                )
-                log.info(
+            try:
+                storage.copy_directory(from_path, to_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Writing {media_type} to media storage - {to_path}',
+                        'msg': f'Error copying {from_path} to storage (not failing build)',
                     },
                 )
-                try:
-                    storage.copy_directory(from_path, to_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error copying {from_path} to storage (not failing build)',
-                        },
-                    )
 
-            for media_type in types_to_delete:
-                media_path = self.version.project.get_storage_path(
-                    type_=media_type,
-                    version_slug=self.version.slug,
-                    include_file=False,
-                    version_type=self.version.type,
-                )
-                log.info(
+        for media_type in types_to_delete:
+            media_path = self.version.project.get_storage_path(
+                type_=media_type,
+                version_slug=self.version.slug,
+                include_file=False,
+                version_type=self.version.type,
+            )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': f'Deleting {media_type} from media storage - {media_path}',
+                },
+            )
+            try:
+                storage.delete_directory(media_path)
+            except Exception:
+                # Ideally this should just be an IOError
+                # but some storage backends unfortunately throw other errors
+                log.exception(
                     LOG_TEMPLATE,
                     {
                         'project': self.version.project.slug,
                         'version': self.version.slug,
-                        'msg': f'Deleting {media_type} from media storage - {media_path}',
+                        'msg': f'Error deleting {media_path} from storage (not failing build)',
                     },
                 )
-                try:
-                    storage.delete_directory(media_path)
-                except Exception:
-                    # Ideally this should just be an IOError
-                    # but some storage backends unfortunately throw other errors
-                    log.exception(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.version.project.slug,
-                            'version': self.version.slug,
-                            'msg': f'Error deleting {media_path} from storage (not failing build)',
-                        },
-                    )
 
     def update_app_instances(
             self,
@@ -1310,7 +1349,6 @@ def fileify(version_pk, commit, build):
         )
         return
 
-    path = project.rtd_build_path(version.slug)
     log.info(
         LOG_TEMPLATE,
         {
@@ -1320,13 +1358,13 @@ def fileify(version_pk, commit, build):
         }
     )
     try:
-        changed_files = _create_imported_files(version, path, commit, build)
+        changed_files = _create_imported_files(version, commit, build)
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
 
     try:
-        _create_intersphinx_data(version, path, commit, build)
+        _create_intersphinx_data(version, commit, build)
     except Exception:
         log.exception('Failed during SphinxDomain creation')
 
@@ -1336,30 +1374,38 @@ def fileify(version_pk, commit, build):
         log.exception('Failed during ImportedFile syncing')
 
 
-def _create_intersphinx_data(version, path, commit, build):
+def _create_intersphinx_data(version, commit, build):
     """
     Create intersphinx data for this version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
+        return
 
-    object_file = os.path.join(path, 'objects.inv')
-    if not os.path.exists(object_file):
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+    html_storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    json_storage_path = version.project.get_storage_path(
+        type_='json', version_slug=version.slug, include_file=False
+    )
+
+    object_file = storage.join(html_storage_path, 'objects.inv')
+    if not storage.exists(object_file):
         log.debug('No objects.inv, skipping intersphinx indexing.')
         return
 
-    full_json_path = version.project.get_production_media_path(
-        type_='json', version_slug=version.slug, include_file=False
-    )
-    type_file = os.path.join(full_json_path, 'readthedocs-sphinx-domain-names.json')
+    type_file = storage.join(json_storage_path, 'readthedocs-sphinx-domain-names.json')
     types = {}
     titles = {}
-    if os.path.exists(type_file):
+    if storage.exists(type_file):
         try:
-            data = json.load(open(type_file))
+            data = json.load(storage.open(type_file))
             types = data['types']
             titles = data['titles']
         except Exception:
@@ -1379,7 +1425,13 @@ def _create_intersphinx_data(version, path, commit, build):
             log.warning('Sphinx MockApp: %s', msg)
 
     # Re-create all objects from the new build of the version
-    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file)
+    object_file_url = storage.url(object_file)
+    if object_file_url.startswith('/'):
+        # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
+        # This can cause an issue if MEDIA_URL is not fully qualified
+        object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
+
+    invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
         domain, _type = key.split(':')
         for name, einfo in sorted(value.items()):
@@ -1478,31 +1530,47 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, path, commit, build):
+def _create_imported_files(version, commit, build):
     """
     Create imported files for version.
 
     :param version: Version instance
-    :param path: Path to search
     :param commit: Commit that updated path
     :param build: Build id
     :returns: paths of changed files
     :rtype: set
     """
 
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
     changed_files = set()
+
     # Re-create all objects from the new build of the version
-    for root, __, filenames in os.walk(path):
+    storage_path = version.project.get_storage_path(
+        type_='html', version_slug=version.slug, include_file=False
+    )
+    for root, __, filenames in storage.walk(storage_path):
         for filename in filenames:
             if filename.endswith('.html'):
                 model_class = HTMLFile
-            else:
+            elif version.project.cdn_enabled:
+                # We need to track all files for CDN enabled projects so the files can be purged
                 model_class = ImportedFile
+            else:
+                # For projects not behind a CDN, we don't care about non-HTML
+                continue
 
-            full_path = os.path.join(root, filename)
-            relpath = os.path.relpath(full_path, path)
+            full_path = storage.join(root, filename)
+
+            # Generate a relative path for storage similar to os.path.relpath
+            relpath = full_path.replace(storage_path, '', 1).lstrip('/')
+
             try:
-                md5 = hashlib.md5(open(full_path, 'rb').read()).hexdigest()
+                md5 = hashlib.md5(storage.open(full_path, 'rb').read()).hexdigest()
             except Exception:
                 log.exception(
                     'Error while generating md5 for %s:%s:%s. Don\'t stop.',
@@ -1772,11 +1840,14 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if settings.RTD_BUILD_MEDIA_STORAGE:
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        for storage_path in paths:
-            log.info('Removing %s from media storage', storage_path)
-            storage.delete_directory(storage_path)
+    if not settings.RTD_BUILD_MEDIA_STORAGE:
+        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
+        return
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    for storage_path in paths:
+        log.info('Removing %s from media storage', storage_path)
+        storage.delete_directory(storage_path)
 
 
 @app.task(queue='web')
@@ -1854,43 +1925,79 @@ def retry_domain_verification(domain_pk):
 
 
 @app.task(queue='web')
-def send_build_status(build_pk, status):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
     :param build_pk: Build primary key
+    :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
     build = Build.objects.get(pk=build_pk)
-    try:
-        if build.project.remote_repository.account.provider == 'github':
-            service = GitHubService(
+    provider_name = build.project.git_provider_name
+
+    if provider_name == GITHUB_BRAND:
+        # get the service class for the project e.g: GitHubService.
+        service_class = build.project.git_service_class()
+        try:
+            service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
+            # Send status report using the API.
+            service.send_build_status(build, commit, status)
 
-            # send Status report using the API.
-            service.send_build_status(build, status)
+        except RemoteRepository.DoesNotExist:
+            users = build.project.users.all()
 
-    except RemoteRepository.DoesNotExist:
-        log.info('Remote repository does not exist for %s', build.project)
+            # Try to loop through all project users to get their social accounts
+            for user in users:
+                user_accounts = service_class.for_user(user)
+                # Try to loop through users all social accounts to send a successful request
+                for account in user_accounts:
+                    # Currently we only support GitHub Status API
+                    if account.provider_name == provider_name:
+                        success = account.send_build_status(build, commit, status)
+                        if success:
+                            return True
 
-    except Exception:
-        log.exception('Send build status task failed for %s', build.project)
+            for user in users:
+                # Send Site notification about Build status reporting failure
+                # to all the users of the project.
+                notification = GitBuildStatusFailureNotification(
+                    context_object=build.project,
+                    extra_context={'provider_name': provider_name},
+                    user=user,
+                    success=False,
+                )
+                notification.send()
+
+            log.info(
+                'No social account or repository permission available for %s',
+                build.project.slug
+            )
+            return False
+
+        except Exception:
+            log.exception('Send build status task failed for %s', build.project.slug)
+            return False
+
+    return False
 
     # TODO: Send build status for other providers.
 
 
-def send_external_build_status(version, build_pk, status):
+def send_external_build_status(version_type, build_pk, commit, status):
     """
     Check if build is external and Send Build Status for project external versions.
 
-     :param version: Version instance
+     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
      :param build_pk: Build pk
+     :param commit: commit sha of the pull/merge request
      :param status: build status failed, pending, or success to be sent.
     """
 
     # Send status reports for only External (pull/merge request) Versions.
-    if version.type == EXTERNAL:
+    if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build_pk, status)
+        send_build_status.delay(build_pk, commit, status)
