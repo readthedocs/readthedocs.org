@@ -311,7 +311,7 @@ class BitbucketService(Service):
                 return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
-        except (KeyError, RequestException, ValueError):
+        except (KeyError, RequestException, TypeError, ValueError):
             log.exception(
                 'Bitbucket webhook update failed for project: %s',
                 project,
