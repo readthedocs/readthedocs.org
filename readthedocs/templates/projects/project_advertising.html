@@ -77,6 +77,14 @@
     </li>
 
     <li class="module-item">
+      {% url "gold_detail" as gold_detail %}
+      {% blocktrans trimmed %}
+        By becoming a <a href="{{ gold_detail }}">Gold Member</a> to Read the Docs,
+        you may remove advertising from your projects for all visitors.
+      {% endblocktrans %}
+    </li>
+
+    <li class="module-item">
       {% blocktrans trimmed %}
         Project owners can <a href="#removing-paid-advertising">opt out of paid advertisements</a>
         for their projects.
@@ -87,7 +95,7 @@
     <li class="module-item">
       {% blocktrans trimmed %}
         If you would like to completely remove advertising from your open source project,
-        but Read the Docs for Business doesn't seem like the right fit,
+        but both Read the Docs for Business and our Gold Memberships don't seem like the right fit,
         please <a href="mailto:ads@readthedocs.org?subject=Alternatives%20to%20advertising">get in touch</a>
         to discuss alternatives to advertising.
       {% endblocktrans %}
@@ -104,7 +112,8 @@
       <small>
       {% blocktrans trimmed %}
         If you are a company hosting commercial documentation on our community site,
-        we do not allow removing sponsor advertisements on your documentation.
+        we do not allow removing paid advertisements on your documentation.
+        Please consider Read the Docs for Business or a Gold Membership.
       {% endblocktrans %}
       </small>
     </p>
