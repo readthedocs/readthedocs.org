@@ -331,12 +331,16 @@ class GitLabService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
+
         :param project: project to set up webhook for
         :type project: Project
+
         :param integration: Webhook integration to update
         :type integration: Integration
+
         :returns: boolean based on webhook update success, and requests Response
                   object
+
         :rtype: (Bool, Response)
         """
         session = self.get_session()

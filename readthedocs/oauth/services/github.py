@@ -268,6 +268,7 @@ class GitHubService(Service):
     def update_webhook(self, project, integration):
         """
         Update webhook integration.
+
         :param project: project to set up webhook for
         :type project: Project
         :param integration: Webhook integration to update
