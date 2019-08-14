@@ -119,7 +119,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
     def save(self, commit=True):
         if self.instance.pk:
             return super().save(commit=commit)
-        return RegexAutomationRule.objects.append_rule(
+        return RegexAutomationRule.objects.add_rule(
             project=self.project,
             description=self.cleaned_data['description'],
             match_arg=self.cleaned_data['match_arg'],
