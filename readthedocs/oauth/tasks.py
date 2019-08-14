@@ -11,6 +11,7 @@ from readthedocs.oauth.notifications import (
     AttachWebhookNotification,
     InvalidProjectWebhookNotification,
 )
+from readthedocs.oauth.utils import SERVICE_MAP
 from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.projects.models import Project
 from readthedocs.worker import app
@@ -59,15 +60,22 @@ def attach_webhook(project_pk, user_pk, integration=None):
         user=user,
         success=False,
     )
+    if integration:
+        service = SERVICE_MAP.get(integration.integration_type)
 
-    for service_cls in registry:
-        if service_cls.is_project_service(project):
-            service = service_cls
-            break
+        if not service:
+            log.warning('There are no registered services in the application.')
+            project_notification.send()
+            return None
     else:
-        log.warning('There are no registered services in the application.')
-        project_notification.send()
-        return None
+        for service_cls in registry:
+            if service_cls.is_project_service(project):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            project_notification.send()
+            return None
 
     provider = allauth_registry.by_id(service.adapter.provider_id)
     notification = AttachWebhookNotification(

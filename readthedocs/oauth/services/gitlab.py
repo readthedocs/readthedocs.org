@@ -282,6 +282,9 @@ class GitLabService(Service):
             )
         repo_id = self._get_repo_id(project)
         if repo_id is None:
+            # Set the secret to None so that the integration can be used manually.
+            integration.secret = None
+            integration.save()
             return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
