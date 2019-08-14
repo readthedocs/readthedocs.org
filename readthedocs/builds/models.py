@@ -1067,7 +1067,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project
