@@ -19,8 +19,9 @@
   {% if integration.has_sync and integration.can_sync %}
     <p>
       {% blocktrans trimmed %}
-        This webhook was configured when this project was imported. If this
-        integration is not functioning correctly, try resyncing the webhook:
+        This webhook was configured when this project was imported
+          or it was manually created with correct configuration. If this
+        integration is not functioning correctly, try re-syncing the webhook:
       {% endblocktrans %}
     </p>
   {% else %}
@@ -36,9 +37,10 @@
       <p>
         {% blocktrans trimmed %}
           This integration was created automatically from an existing webhook
-          configured on your repository. To make any changes to this webhook,
-          you'll need to update the configuration there. You can use the
-          following address to manually configure this webhook.
+          configured on your repository. If this integration is not functioning correctly,
+          you can try re-syncing it. Otherwise you'll need to update
+          the configuration on your repository.
+          You can use the following address to manually configure this webhook.
         {% endblocktrans %}
       </p>
     {% else %}
