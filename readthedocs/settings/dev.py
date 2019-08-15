@@ -9,7 +9,8 @@ class CommunityDevSettings(CommunityBaseSettings):
 
     """Settings for local development"""
 
-    PRODUCTION_DOMAIN = 'localhost:8000'
+    USE_SUBDOMAIN = True
+    PUBLIC_DOMAIN = 'dev.readthedocs.io:8000'
     WEBSOCKET_HOST = 'localhost:8088'
 
     @property

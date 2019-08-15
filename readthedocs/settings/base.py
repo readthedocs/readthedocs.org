@@ -169,8 +169,7 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
-        'readthedocs.core.middleware.SubdomainMiddleware',
-        'readthedocs.core.middleware.SingleVersionMiddleware',
+        'readthedocs.proxito.middleware.ProxitoMiddleware',
         'corsheaders.middleware.CorsMiddleware',
     )
 
