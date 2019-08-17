@@ -491,6 +491,10 @@ class GitLabOAuthTests(TestCase):
         self.org = RemoteOrganization.objects.create(slug='testorga', json='')
         self.privacy = self.project.version_privacy_level
         self.service = GitLabService(user=self.user, account=None)
+        self.external_version = get(Version, project=self.project, type=EXTERNAL)
+        self.external_build = get(
+            Build, project=self.project, version=self.external_version
+        )
 
     def get_private_repo_data(self):
         """Manipulate repo response data to get private repo data."""
@@ -568,3 +572,60 @@ class GitLabOAuthTests(TestCase):
         success, response = self.service.setup_webhook(self.project)
         self.assertFalse(success)
         self.assertIsNone(response)
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_send_build_status_successful(self, repo_id, session, mock_logger):
+        session().post.return_value.status_code = 201
+        repo_id().return_value = '9999'
+
+        success = self.service.send_build_status(
+            self.external_build,
+            self.external_build.commit,
+            BUILD_STATUS_SUCCESS
+        )
+
+        self.assertTrue(success)
+        mock_logger.info.assert_called_with(
+            "GitLab commit status created for project: %s, commit status: %s",
+            self.project,
+            BUILD_STATUS_SUCCESS
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_send_build_status_404_error(self, repo_id, session, mock_logger):
+        session().post.return_value.status_code = 404
+        repo_id().return_value = '9999'
+
+        success = self.service.send_build_status(
+            self.external_build,
+            self.external_build.commit,
+            BUILD_STATUS_SUCCESS
+        )
+
+        self.assertFalse(success)
+        mock_logger.info.assert_called_with(
+            'GitLab project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_send_build_status_value_error(self, repo_id, session, mock_logger):
+        session().post.side_effect = ValueError
+        repo_id().return_value = '9999'
+
+        success = self.service.send_build_status(
+            self.external_build, self.external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        self.assertFalse(success)
+        mock_logger.exception.assert_called_with(
+            'GitLab commit status creation failed for project: %s',
+            self.project,
+        )

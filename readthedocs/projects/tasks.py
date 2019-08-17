@@ -64,7 +64,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.oauth.services.github import GitHubService
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
@@ -1984,7 +1983,7 @@ def send_build_status(build_pk, commit, status):
 
     return False
 
-    # TODO: Send build status for other providers.
+    # TODO: Send build status for BitBucket.
 
 
 def send_external_build_status(version_type, build_pk, commit, status):
