@@ -39,8 +39,11 @@ extensions = [
     'recommonmark',
     'notfound.extension',
     'sphinx_search.extension',
+    'hoverxref.extension',
 ]
 templates_path = ['_templates']
+
+hoverxref_auto_ref = True
 
 source_suffix = ['.rst', '.md']
 
