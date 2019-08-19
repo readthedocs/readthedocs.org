@@ -24,6 +24,10 @@
         integration is not functioning correctly, try re-syncing the webhook:
       {% endblocktrans %}
     </p>
+    <p>
+      {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
+      <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
+    </p>
   {% else %}
     {% comment %}
       Display information for manual webhook set up if either case is true:
@@ -36,7 +40,7 @@
     {% if integration.has_sync and not integration.can_sync %}
       <p>
         {% blocktrans trimmed %}
-          This integration was created automatically from an existing webhook
+          This webhook was created automatically from an existing webhook
           configured on your repository. If this integration is not functioning correctly,
           you can try re-syncing it. Otherwise you'll need to update
           the configuration on your repository.
