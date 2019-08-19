@@ -122,7 +122,9 @@ class PageDocument(RTDDocTypeMixin, DocType):
                     'role_name': domain.role_name,
                     'anchor': domain.anchor,
                     'type_display': domain.type_display,
-                    'docstrings': html_file.processed_json.get('domain_data', {}).get(domain.anchor, ''),
+                    'docstrings': html_file.processed_json.get(
+                        'domain_data', {}
+                    ).get(domain.anchor, ''),
                     'name': domain.name,
                 }
                 for domain in domains_qs
