@@ -12,7 +12,7 @@ pytest-django==3.4.6  # pyup: <3.4.7
 pytest-xdist==1.27.0  # pyup: ignore
 pytest-cov==2.7.1
 apipkg==1.5
-execnet==1.6.1
+execnet==1.7.0
 
 # Mercurial 4.3 and newer require Python 2.7
 # Mercurial is actively being ported to Python 3. As of Mercurial 4.3,
@@ -22,7 +22,7 @@ execnet==1.6.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==1.10.0
+yamale==1.10.1
 pytest-mock==1.10.4
 
 # local debugging tools
