@@ -27,6 +27,12 @@ documentation authoring tool on Read the Docs,
 as well as improvements provided by Read the Docs itself.
 
 
+.. contents:: Table of contents
+   :local:
+   :backlinks: none
+   :depth: 3
+
+
 SEO Basics
 ----------
 
