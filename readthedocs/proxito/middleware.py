@@ -13,36 +13,45 @@ def map_host_to_project(request):
     """
     Take the incoming host, and map it to the proper Project.
 
-    We check:
+    We check, in order:
 
     * The ``HTTP_X_RTD_SLUG`` host header for explicit Project mapping
     * The ``PUBLIC_DOMAIN`` where we can use the subdomain as the project name
     * The hostname without port information, which maps to ``Domain`` objects
     """
 
-    host_and_port = request.get_host().lower()
-    if ':' in host_and_port:
-        host = host_and_port.split(':')[0]
+    host = request.get_host().lower().split(':')[0]
+    public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
     host_parts = host.split('.')
-
-    public_domain = settings.PUBLIC_DOMAIN.split(':')[0]
+    public_domain_parts = public_domain.split('.')
 
     # Explicit Project slug being passed in
     if 'HTTP_X_RTD_SLUG' in request.META:
         project = request.META['HTTP_X_RTD_SLUG'].lower()
+        request.rtdheader = True
 
-    # Ensure we don't support `foo.bar.PUBLIC_DOMAIN`
-    elif public_domain in host and len(host_parts) == (len(public_domain.split('.')) + 1):
-        project = host_parts[0]
+    elif public_domain in host:
+        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
+        if public_domain_parts[1:] == host_parts[1:]:
+            project = host_parts[0]
+            request.subdomain = True
+        else:
+            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
+            # But these feel like they might be phishing, etc. so let's block them for now.
+            project = None
+            log.warning('Weird variation on our hostname: %s', host)
+            raise Http404(f'404: Invalid domain matching {public_domain}')
 
     # Serve CNAMEs
     else:
-        domain = Domain.objects.get(domain__iexact=host).prefetch_related('project')
-        if domain:
-            project = domain.project.slug
+        domain_qs = Domain.objects.filter(domain=host).prefetch_related('project')
+        if domain_qs.exists():
+            project = domain_qs.first().project.slug
+            request.cname = True
         else:
             # Some person is CNAMEing to us without configuring a domain - 404.
             project = None
+            log.debug('CNAME 404: %s', host)
             raise Http404('CNAME 404')
     return project
 
@@ -56,13 +65,15 @@ class ProxitoMiddleware:
 
     def __call__(self, request):
         # For local dev to hit the main site
-        if 'localhost' in request.get_host():
+        if 'localhost' in request.get_host() or 'testserver' in request.get_host():
             return self.get_response(request)
 
         # Code to be executed for each request before
         # the view (and later middleware) are called.
+
         host_project = map_host_to_project(request)
         request.host_project_slug = host_project
+        request.slug = host_project
         request.urlconf = 'readthedocs.proxito.urls'
 
         response = self.get_response(request)

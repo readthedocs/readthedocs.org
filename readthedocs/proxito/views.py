@@ -123,7 +123,7 @@ def serve_docs(
     current_project = subproject or project
 
     # Handle a / redirect when we aren't a single version
-    if lang_slug is None and version_slug is None and not current_project.single_version:
+    if lang_slug is None and version_slug is None and filename is '' and not current_project.single_version:
         urlparse_result = urlparse(request.get_full_path())
         _log(request, msg='Redirecting to default')
 
@@ -139,6 +139,11 @@ def serve_docs(
         final_project = get_object_or_404(current_project.translations.all(), language=lang_slug)
     else:
         final_project = current_project
+
+    # Handle redirects
+    # path, http_status = final_project.redirects.get_redirect_path_with_status(
+    #     language=lang_slug, version_slug=version_slug, path=filename
+    # )
 
     # final_project is now the actual project we want to serve docs on,
     # accounting for the main Project, Subproject, and Translations of such
@@ -167,8 +172,9 @@ def serve_docs(
     if path[-1] == '/':
         path += 'index.html'
 
-    # Serve from the filesystem if using DEBUG
-    if settings.DEBUG:
+    # Serve from the filesystem if using DEBUG or Testing
+    # Tests require this now since we don't want to check for the file existing in prod
+    if settings.DEBUG or settings.TEST:
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
         # Serve from Python

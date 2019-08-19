@@ -32,6 +32,7 @@ pip.rtfd.io/<lang>/
 from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
+from readthedocs.core.views import server_error_404, server_error_500
 
 from readthedocs.proxito.views import (
     robots_txt,
@@ -40,7 +41,19 @@ from readthedocs.proxito.views import (
     serve_docs
 )
 
+handler500 = server_error_500
+handler404 = server_error_404
+
+
 urlpatterns = [
+    # (Sub)project `page` redirect
+    url(
+        r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+        r'page/(?P<filename>.*)$'.format(**pattern_opts),
+        redirect_page_with_filename,
+        name='docs_detail',
+    ),
+
     # (Sub)project w/ translation and versions
     url(
         (
@@ -63,6 +76,7 @@ urlpatterns = [
     #     serve_docs,
     #     name='docs_detail',
     # ),
+
     # (Sub)project single version
     url(
         (
@@ -70,13 +84,6 @@ urlpatterns = [
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         serve_docs,
-        name='docs_detail',
-    ),
-    # (Sub)project `page` redirect
-    url(
-        r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-        r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
         name='docs_detail',
     ),
 
