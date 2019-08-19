@@ -44,6 +44,8 @@ extensions = [
 templates_path = ['_templates']
 
 hoverxref_auto_ref = True
+# hardcode version because external versions does not work properly
+hoverxref_version = 'latest'
 
 source_suffix = ['.rst', '.md']
 
