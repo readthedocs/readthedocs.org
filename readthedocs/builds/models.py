@@ -27,7 +27,10 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
+    GITLAB_MERGE_REQUEST_URL,
+    GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
     PRIVACY_CHOICES,
     PRIVATE,
@@ -44,6 +47,7 @@ from readthedocs.builds.constants import (
     BUILD_TYPES,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
+    GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -178,7 +182,14 @@ class Version(models.Model):
                     repo=repo,
                     number=self.verbose_name,
                 )
-            # TODO: Add VCS URL for other Git Providers
+            if 'gitlab' in self.project.repo:
+                user, repo = get_gitlab_username_repo(self.project.repo)
+                return GITLAB_MERGE_REQUEST_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.verbose_name,
+                )
+            # TODO: Add VCS URL for BitBucket.
             return ''
 
         url = ''
@@ -787,7 +798,19 @@ class Build(models.Model):
                     number=self.version.verbose_name,
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for other Git Providers
+            if 'gitlab' in repo_url:
+                user, repo = get_gitlab_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.version.verbose_name,
+                    commit=self.commit
+                )
+            # TODO: Add External Version Commit URL for BitBucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)
@@ -845,8 +868,11 @@ class Build(models.Model):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
                 return GITHUB_EXTERNAL_VERSION_NAME
-            # TODO: Add External Version Name for other Git Providers
 
+            if self.project.git_provider_name == GITLAB_BRAND:
+                return GITLAB_EXTERNAL_VERSION_NAME
+
+            # TODO: Add External Version Name for BitBucket.
             return GENERIC_EXTERNAL_VERSION_NAME
         return None
 

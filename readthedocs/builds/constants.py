@@ -91,4 +91,5 @@ SELECT_BUILD_STATUS = {
 RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
 
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
+GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
