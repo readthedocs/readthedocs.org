@@ -82,7 +82,9 @@ Optimizing your docs for search engine spiders
 Once a crawler or spider finds your site, it will follow links and redirects
 in an attempt to find any and all pages on your site.
 While there are a few ways to guide the search engine in its crawl
-for example by using a sitemap or a robots.txt file which we'll discuss shortly,
+for example by using a :ref:`sitemap <guides/technical-docs-seo-guide:Use a sitemap.xml file>`
+or a :ref:`robots.txt file <guides/technical-docs-seo-guide:Use a robots.txt file>`
+which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
 
@@ -124,11 +126,9 @@ For Sphinx, the image and figure directives support this:
 .. sourcecode:: rst
 
     .. image:: your-image.png
-        :align: right
         :alt: A description of this image
 
     .. figure:: your-image.png
-        :align: right
 
         A caption for this figure
 
@@ -170,12 +170,11 @@ A ``robots.txt`` file is readable by crawlers
 and lives at the root of your site (eg. https://docs.readthedocs.io/robots.txt).
 It tells search engines which pages to crawl or not to crawl
 and can allow you to control how a search engine crawls your site.
-For example, you may want to request that search engines not index
-unsupported versions of your documentation while keeping those docs online in case people need them.
+For example, you may want to request that search engines
+:ref:`ignore unsupported versions of your documentation <faq:How can I avoid search results having a deprecated version of my docs?>`
+while keeping those docs online in case people need them.
 
-By default, Read the Docs serves a ``robots.txt`` for you
-which points to a :ref:`sitemap <guides/technical-docs-seo-guide:Use a sitemap.xml file>`
-which Read the Docs also generates for you.
+By default, Read the Docs serves a ``robots.txt`` for you.
 To customize this file, you can create a ``robots.txt`` file
 that is written to your documentation root on your default branch/version.
 
@@ -194,7 +193,7 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on `sitemaps </guides/sitemaps>`_.
+We have a small separate guide on :doc:`sitemaps </guides/sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
@@ -212,7 +211,8 @@ In Sphinx, you can customize your meta description using the following Restructu
 
     .. meta::
         :description lang=en:
-            Your meta description here
+            Adding additional CSS or JavaScript files to your Sphinx documentation
+            can let you customize the look and feel of your docs or add additional functionality.
 
 
 .. figure:: ../_static/images/guides/google-search-engine-results.png
@@ -231,6 +231,8 @@ makes the following suggestions for meta descriptions:
   and it may be truncated down to around 150 characters in some situations.
 * Meta descriptions are used for display but not for ranking.
 
+Search engines don't always use your customized meta description
+if they think a snippet from the page is a better description.
 
 Measure, iterate, & improve
 ---------------------------
