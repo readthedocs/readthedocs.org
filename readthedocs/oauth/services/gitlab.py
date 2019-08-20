@@ -262,21 +262,29 @@ class GitLabService(Service):
             'wiki_events': False,
         })
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Set up GitLab project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for a project
+        :type integration: Integration
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
+        if integration:
+            integration.recreate_secret()
+        else:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.GITLAB_WEBHOOK,
+            )
         repo_id = self._get_repo_id(project)
         if repo_id is None:
+            # Set the secret to None so that the integration can be used manually.
+            integration.secret = None
+            integration.save()
             return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
@@ -306,6 +314,9 @@ class GitLabService(Service):
                     'permissions: project=%s',
                     project,
                 )
+                # Set the secret to None so that the integration can be used manually.
+                integration.secret = None
+                integration.save()
                 return (False, resp)
 
         except (RequestException, ValueError):
@@ -313,6 +324,7 @@ class GitLabService(Service):
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'GitLab webhook creation failed for project: %s',
