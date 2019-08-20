@@ -29,7 +29,7 @@
         <span>(<a href="{% url "gold_projects_remove" project.slug %}">{% trans "Remove Ad-Free Status" %}</a>)</span>
       </li>
     {% empty %}
-      <p>{% trans 'You have not adopted any projects.' %}</p>
+      <p>{% trans 'No projects are currently ad-free.' %}</p>
     {% endfor %}
   </ul>
 
