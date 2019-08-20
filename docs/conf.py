@@ -56,7 +56,7 @@ default_role = 'obj'
 intersphinx_mapping = {
     'python': ('https://python.readthedocs.io/en/latest/', None),
     'django': ('https://django.readthedocs.io/en/1.11.x/', None),
-    'sphinx': ('https://sphinx.readthedocs.io/en/latest/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
