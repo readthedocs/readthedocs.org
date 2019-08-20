@@ -783,7 +783,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        if self.object.integration_type != Integration.API_WEBHOOK:
+        if self.object.has_sync:
             attach_webhook(
                 project_pk=self.get_project().pk,
                 user_pk=self.request.user.pk,
