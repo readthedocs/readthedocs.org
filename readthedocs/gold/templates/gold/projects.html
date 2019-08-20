@@ -12,7 +12,7 @@
   <h3>{% trans "Gold Projects" %}</h3>
   <p>
     {% blocktrans trimmed %}
-      Gold Members may completely remove advertising for all visitors to their projects.
+      Gold members may completely remove advertising for all visitors to their projects.
     {% endblocktrans %}
   </p>
 
@@ -46,8 +46,9 @@
     </form>
   {% else %}
     <p>
-      {% blocktrans trimmed with gold_level=gold_user.get_level_display %}
-        You have already adopted all the projects you can with your current Gold Membership of {{ gold_level }}.
+      {% blocktrans trimmed with gold_level=gold_user.get_level_display gold_projects_count=gold_user.num_supported_projects %}
+        You can't make any more projects ad-free with your current Gold membership of {{ gold_level }}.
+        You can either increase the level of your membership or change which projects you make ad-free.
       {% endblocktrans %}
     </p>
   {% endif %}

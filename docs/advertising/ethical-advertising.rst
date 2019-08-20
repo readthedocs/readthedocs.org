@@ -156,9 +156,9 @@ Opting Out
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
 1. You can go completely ad-free
-   by becoming a `Gold Member <https://readthedocs.org/accounts/gold/>`_
+   by becoming a `Gold member <https://readthedocs.org/accounts/gold/>`_
    or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
-   Additionally, Gold Members may remove advertising from their projects for all visitors.
+   Additionally, Gold members may remove advertising from their projects for all visitors.
 
 2. You can opt out of seeing paid advertisements on documentation pages:
 

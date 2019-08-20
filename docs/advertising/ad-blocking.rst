@@ -53,7 +53,7 @@ Going ad-free
 -------------
 
 Users can go completely ad-free
-by becoming a `Gold Member <https://readthedocs.org/accounts/gold/>`_
+by becoming a `Gold member <https://readthedocs.org/accounts/gold/>`_
 or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
 Thank you for supporting Read the Docs.
 

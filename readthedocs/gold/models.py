@@ -1,4 +1,4 @@
-"""Django models for recurring donations aka Gold Membership."""
+"""Django models for recurring donations aka Gold membership."""
 import math
 from datetime import datetime
 
@@ -25,7 +25,7 @@ DOLLARS_PER_PROJECT = 5
 
 class GoldUser(models.Model):
 
-    """A user subscription for gold membership."""
+    """A user subscription for Gold membership."""
 
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)

@@ -34,7 +34,7 @@ $(document).ready(function () {
 
 {% block edit_content %}
   <div>
-    <h2>Read the Docs Gold</h2>
+    <h2>{% trans 'Read the Docs Gold Membership' %}</h2>
 
     <p>
       {% blocktrans trimmed %}
@@ -46,8 +46,8 @@ $(document).ready(function () {
 
     <p>
     {% blocktrans trimmed %}
-      Becoming a Gold Member makes Read the Docs ad-free when you are logged-in.
-      Gold Members may also completely remove advertising for all visitors to their projects.
+      Becoming a Gold member makes Read the Docs ad-free when you are logged-in.
+      Gold members may also completely remove advertising for all visitors to their projects.
     {% endblocktrans %}
     </p>
 
@@ -67,12 +67,12 @@ $(document).ready(function () {
 
     <p>
       {% blocktrans trimmed %}
-        For any questions about our Gold Membership program,
+        For any questions about our Gold membership program,
         please <a href="mailto:rev@readthedocs.org?subject=Gold%20membership%20questions">email us</a>.
       {% endblocktrans %}
     </p>
 
-    {% trans "Become a Gold Member" as subscription_title %}
+    {% trans "Become a Gold member" as subscription_title %}
     {% if golduser %}
       {% trans "Update Your Subscription" as subscription_title %}
     {% endif %}
