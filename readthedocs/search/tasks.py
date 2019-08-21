@@ -169,46 +169,46 @@ def record_search_query(project_slug, version_slug, query, total_results, time):
         obj.query = query
         obj.save()
         return
-    else:
-        # don't record query with zero results.
-        if not total_results:
-            log.debug(
-                'Not recording search query because of zero results. Passed arguments: '
-                'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                    project_slug, version_slug, query, total_results, time
-                )
+
+    # don't record query with zero results.
+    if not total_results:
+        log.debug(
+            'Not recording search query because of zero results. Passed arguments: '
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
+                project_slug, version_slug, query, total_results, time
             )
-            return
-        else:
-            project_qs = Project.objects.filter(slug=project_slug)
-            if not project_qs.exists():
-                log.debug(
-                    'Not recording the search query because project does not exist. '
-                    'project_slug: %s' % (
-                        project_slug
-                    )
-                )
-                return
+        )
+        return
 
-            project = project_qs.first()
-            version_qs = Version.objects.filter(project=project, slug=version_slug)
-
-            if not version_qs.exists():
-                log.debug(
-                    'Not recording the search query because version does not exist. '
-                    'project_slug: %s, version_slug: %s' % (
-                        project_slug, version_slug
-                    )
-                )
-                return
-
-            version = version_qs.first()
-
-            # make a new SearchQuery object.
-            obj = SearchQuery.objects.create(
-                project=project,
-                version=version,
-                query=query,
+    project_qs = Project.objects.filter(slug=project_slug)
+    if not project_qs.exists():
+        log.debug(
+            'Not recording the search query because project does not exist. '
+            'project_slug: %s' % (
+                project_slug
             )
-            obj.created = time
-            obj.save()
+        )
+        return
+
+    project = project_qs.first()
+    version_qs = Version.objects.filter(project=project, slug=version_slug)
+
+    if not version_qs.exists():
+        log.debug(
+            'Not recording the search query because version does not exist. '
+            'project_slug: %s, version_slug: %s' % (
+                project_slug, version_slug
+            )
+        )
+        return
+
+    version = version_qs.first()
+
+    # make a new SearchQuery object.
+    obj = SearchQuery.objects.create(
+        project=project,
+        version=version,
+        query=query,
+    )
+    obj.created = time
+    obj.save()
