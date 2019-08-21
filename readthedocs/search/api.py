@@ -165,7 +165,7 @@ class PageSearchAPIView(generics.ListAPIView):
         time = timezone.now()
 
         query = self.request.query_params.get('q', '')
-        query = query.lower()
+        query = query.lower().strip()
 
         # record the search query with a celery task
         tasks.record_search_query.delay(
