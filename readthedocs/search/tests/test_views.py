@@ -164,7 +164,7 @@ class TestPageSearch(object):
         assert len(results) >= 1
         role_name_facets = facets['role_name']
         role_name_facets_str = [facet[0] for facet in role_name_facets]
-        expected_role_names = ['py:attribute', 'py:class', 'py:function', 'py:method']
+        expected_role_names = ['py:class', 'py:function', 'py:method']
         assert sorted(expected_role_names) == sorted(role_name_facets_str)
         for facet in role_name_facets:
             assert facet[2] == False  # because none of the facets are applied
@@ -279,9 +279,9 @@ class TestPageSearch(object):
     def test_file_search_have_correct_project_facets(self, client, all_projects):
         """Test that file search have correct project facets in results"""
 
-        # `Sphinx` word is present both in `kuma` and `docs` files
+        # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase
-        query = 'Sphinx'
+        query = 'environment'
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
@@ -299,10 +299,10 @@ class TestPageSearch(object):
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 
-        # `Sphinx` word is present both in `kuma` and `docs` files
+        # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
         search_params = {
-            'q': 'Sphinx',
+            'q': 'environment',
             'type': 'file',
             'project': 'kuma'
         }
