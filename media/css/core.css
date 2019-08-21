@@ -872,9 +872,12 @@ div.donate-stats h2 {
     margin: .5em 0em 1.5em 0em;
 }
 
+#content ul.donate-about {
+    margin-bottom: 1em;
+}
 ul.donate-about li {
-    margin-left: 1em;
-    list-style: inside;
+    margin-left: 1.5em;
+    list-style: initial;
 }
 
 div.donate-stats-sm form {

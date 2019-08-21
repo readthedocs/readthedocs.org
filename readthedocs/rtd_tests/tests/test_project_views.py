@@ -13,6 +13,7 @@ from mock import patch
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.constants import PUBLIC
@@ -496,6 +497,44 @@ class TestPrivateViews(MockBuildTestCase):
                 task=tasks.symlink_subproject,
                 args=[project.pk],
             )
+
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GitHubWebhook.GITHUB_WEBHOOK
+            },
+        )
+        integration = GitHubWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_called_once_with(
+            project_pk=project.pk,
+            user_pk=self.user.pk,
+            integration=integration.first()
+        )
+
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create_generic_webhook(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GenericAPIWebhook.API_WEBHOOK
+            },
+        )
+        integration = GenericAPIWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_not_called()
 
 
 class TestPrivateMixins(MockBuildTestCase):
