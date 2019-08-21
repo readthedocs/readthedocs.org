@@ -25,13 +25,13 @@
     ],
     "domains": [
         {
-            "role_name": "py:attribute",
-            "anchor": "celery.utils.dispatch.signal.Signal.receivers",
-            "type_display": "attribute",
-            "name": "celery.utils.dispatch.signal.Signal.receivers"
+            "role_name": "py:method",
+            "anchor": "sphinx.domains.Domain.process_field_xref",
+            "type_display": "method",
+            "name": "sphinx.domains.Domain.process_field_xref"
         }
     ],
     "domain_data": {
-        "celery.utils.dispatch.signal.Signal.receivers": "Holds a dictionary of {receiverkey (id): weakref(receiver)} mappings"
+        "sphinx.domains.Domain.process_field_xref": "Process a pending xref."
     }
 }

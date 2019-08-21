@@ -5,7 +5,7 @@
         {
             "id": "usage-questions",
             "title": "Usage Questions",
-            "content": "Stack Overflow is place to ask if you have any questions regarding Read the Docs. Tag questions with read-the-docs so other folks can find them easily.. Good questions for Stack Overflow would be:. “What is the best way to structure the table of contents across a project?”. “How do I structure translations inside of my project for easiest contribution from users?”. “How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?”"
+            "content": "For help, Stack Overflow is the palce. Tag questions with read-the-docs so other folks can find them easily.. Good questions for Stack Overflow would be:. “What is the best way to structure the table of contents across a project?”. “How do I structure translations inside of my project for easiest contribution from users?”. “How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?”"
         },
         {
             "id": "community-support",
