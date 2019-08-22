@@ -781,6 +781,16 @@ class IntegrationList(IntegrationMixin, ListView):
 
 class IntegrationCreate(IntegrationMixin, CreateView):
 
+    def form_valid(self, form):
+        self.object = form.save()
+        if self.object.has_sync:
+            attach_webhook(
+                project_pk=self.get_project().pk,
+                user_pk=self.request.user.pk,
+                integration=self.object
+            )
+        return HttpResponseRedirect(self.get_success_url())
+
     def get_success_url(self):
         return reverse(
             'projects_integrations_detail',

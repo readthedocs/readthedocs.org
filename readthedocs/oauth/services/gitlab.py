@@ -9,6 +9,11 @@ from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.builds.constants import (
+    BUILD_STATUS_SUCCESS,
+    RTD_BUILD_STATUS_API_NAME,
+    SELECT_BUILD_STATUS,
+)
 from readthedocs.builds.utils import get_gitlab_username_repo
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
@@ -262,21 +267,29 @@ class GitLabService(Service):
             'wiki_events': False,
         })
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Set up GitLab project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for a project
+        :type integration: Integration
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
+        if integration:
+            integration.recreate_secret()
+        else:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.GITLAB_WEBHOOK,
+            )
         repo_id = self._get_repo_id(project)
         if repo_id is None:
+            # Set the secret to None so that the integration can be used manually.
+            integration.secret = None
+            integration.save()
             return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
@@ -306,6 +319,9 @@ class GitLabService(Service):
                     'permissions: project=%s',
                     project,
                 )
+                # Set the secret to None so that the integration can be used manually.
+                integration.secret = None
+                integration.save()
                 return (False, resp)
 
         except (RequestException, ValueError):
@@ -313,6 +329,7 @@ class GitLabService(Service):
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'GitLab webhook creation failed for project: %s',
@@ -387,3 +404,90 @@ class GitLabService(Service):
                 debug_data = resp.content
             log.debug('GitLab webhook update failure response: %s', debug_data)
             return (False, resp)
+
+    def send_build_status(self, build, commit, state):
+        """
+        Create GitLab commit status for project.
+
+        :param build: Build to set up commit status for
+        :type build: Build
+        :param state: build state failure, pending, or success.
+        :type state: str
+        :param commit: commit sha of the pull request
+        :type commit: str
+        :returns: boolean based on commit status creation was successful or not.
+        :rtype: Bool
+        """
+        session = self.get_session()
+        project = build.project
+
+        repo_id = self._get_repo_id(project)
+
+        if repo_id is None:
+            return (False, None)
+
+        # select the correct state and description.
+        gitlab_build_state = SELECT_BUILD_STATUS[state]['gitlab']
+        description = SELECT_BUILD_STATUS[state]['description']
+
+        target_url = build.get_full_url()
+
+        if state == BUILD_STATUS_SUCCESS:
+            target_url = build.version.get_absolute_url()
+
+        data = {
+            'state': gitlab_build_state,
+            'target_url': target_url,
+            'description': description,
+            'context': RTD_BUILD_STATUS_API_NAME
+        }
+        url = self.adapter.provider_base_url
+
+        resp = None
+
+        try:
+            resp = session.post(
+                f'{url}/api/v4/projects/{repo_id}/statuses/{commit}',
+                data=json.dumps(data),
+                headers={'content-type': 'application/json'},
+            )
+
+            if resp.status_code == 201:
+                log.info(
+                    "GitLab commit status created for project: %s, commit status: %s",
+                    project,
+                    gitlab_build_state,
+                )
+                return True
+
+            if resp.status_code in [401, 403, 404]:
+                log.info(
+                    'GitLab project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+                return False
+
+            return False
+
+        # Catch exceptions with request or deserializing JSON
+        except (RequestException, ValueError):
+            log.exception(
+                'GitLab commit status creation failed for project: %s',
+                project,
+            )
+            # Response data should always be JSON, still try to log if not
+            # though
+            if resp is not None:
+                try:
+                    debug_data = resp.json()
+                except ValueError:
+                    debug_data = resp.content
+            else:
+                debug_data = resp
+
+            log.debug(
+                'GitLab commit status creation failure response: %s',
+                debug_data,
+            )
+            return False

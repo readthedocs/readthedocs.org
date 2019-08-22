@@ -206,21 +206,24 @@ class BitbucketService(Service):
             'events': ['repo:push'],
         })
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Set up Bitbucket project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.BITBUCKET_WEBHOOK,
-        )
+        if not integration:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.BITBUCKET_WEBHOOK,
+            )
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
@@ -308,11 +311,12 @@ class BitbucketService(Service):
                 return self.setup_webhook(project)
 
         # Catch exceptions with request or deserializing JSON
-        except (KeyError, RequestException, ValueError):
+        except (KeyError, RequestException, TypeError, ValueError):
             log.exception(
                 'Bitbucket webhook update failed for project: %s',
                 project,
             )
+            return (False, resp)
         else:
             log.error(
                 'Bitbucket webhook update failed for project: %s',
