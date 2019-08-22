@@ -12,7 +12,7 @@ This guide will help you optimize your documentation for search engines
 with the goal of increasing traffic to your docs.
 While you optimize your docs to make them more crawler friendly for search engine spiders,
 it's important to keep in mind that your ultimate goal is to make your docs
-more discoverable for your users.
+more discoverable for your users.user defined redirects
 **You're trying to make sure that when a user types a question into a search engine
 that is answerable by your documentation, that your docs appear in the results.**
 
