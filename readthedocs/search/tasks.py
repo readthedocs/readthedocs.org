@@ -154,20 +154,19 @@ def record_search_query(project_slug, version_slug, query, total_results, time):
         return
 
     before_10_sec = time - timezone.timedelta(seconds=10)
-    partial_query_qs = SearchQuery.objects.filter(
+    partial_query_obj = SearchQuery.objects.filter(
         project__slug=project_slug,
         version__slug=version_slug,
         query__startswith=query,
         created__gte=before_10_sec,
-    ).order_by('-created')
+    ).order_by('-created').first()
 
     # if partial query exists,
     # just update it instead of creating new SearchQuery object.
-    if partial_query_qs.exists():
-        obj = partial_query_qs.first()
-        obj.created = time
-        obj.query = query
-        obj.save()
+    if partial_query_obj:
+        partial_query_obj.created = time
+        partial_query_obj.query = query
+        partial_query_obj.save()
         return
 
     # don't record query with zero results.
@@ -180,8 +179,8 @@ def record_search_query(project_slug, version_slug, query, total_results, time):
         )
         return
 
-    project_qs = Project.objects.filter(slug=project_slug)
-    if not project_qs.exists():
+    project = Project.objects.filter(slug=project_slug).first()
+    if not project:
         log.debug(
             'Not recording the search query because project does not exist. '
             'project_slug: %s' % (
@@ -190,7 +189,6 @@ def record_search_query(project_slug, version_slug, query, total_results, time):
         )
         return
 
-    project = project_qs.first()
     version_qs = Version.objects.filter(project=project, slug=version_slug)
 
     if not version_qs.exists():
