@@ -1,4 +1,4 @@
-How we use symlinks
+How We Use Symlinks
 ===================
 
 Read the Docs stays highly available by serving all documentation pages out of nginx.

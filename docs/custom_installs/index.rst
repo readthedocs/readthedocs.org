@@ -1,4 +1,4 @@
-Info about custom installs
+Info About Custom Installs
 ==========================
 
 Read the Docs is open source, which means you can run your own version of it.

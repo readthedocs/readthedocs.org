@@ -1,4 +1,4 @@
-Overview of issue labels
+Overview of Issue Labels
 ========================
 
 Here is a full list of labels that we use in the `GitHub issue tracker`_ and

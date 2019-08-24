@@ -1,4 +1,4 @@
-Customizing your install
+Customizing Your Install
 ========================
 
 Read the Docs has a lot of :doc:`/development/settings` that help customize your install.
