@@ -18,11 +18,8 @@ whether that is Sphinx or MkDocs.
     adding-custom-css
     custom-404-page
     manage-translations
-    mkdocs-old-versions
-    pdf-non-ascii-languages
     remove-edit-buttons
     vcs
-
 
 Read the Docs how-to guides
 ---------------------------
@@ -33,13 +30,8 @@ These guides will help you customize or tune aspects of the Read the Docs build 
     :maxdepth: 1
 
     build-notifications
-    build-using-too-many-resources
     technical-docs-seo-guide
-    canonical
-    conda
-    environment-variables
-    feature-flags
-    google-analytics
-    sitemaps
     specifying-dependencies
     wipe-environment
+    google-analytics
+    sitemaps
