@@ -188,7 +188,8 @@ class VersionAutomationRuleManager(PolymorphicManager):
 
     .. note::
 
-       This manager needs to inherit from PolymorphicManager.
+       This manager needs to inherit from PolymorphicManager,
+       since the model is a PolymorphicModel.
        See https://django-polymorphic.readthedocs.io/page/managers.html
     """
 
