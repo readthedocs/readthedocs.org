@@ -16,8 +16,8 @@ DEFAULT_PARAMETERS = {
     'tid': settings.GLOBAL_ANALYTICS_CODE,
 
     # User data
-    'uip': None,  # User IP address
-    'ua': None,  # User agent
+    'uip': '',  # User IP address
+    'ua': '',  # User agent
 
     # Application info
     'an': 'Read the Docs',
