@@ -183,6 +183,15 @@ class ExternalBuildManager(SettingsOverrideObject):
 
 class VersionAutomationRuleManager(PolymorphicManager):
 
+    """
+    Mananger for VersionAutomationRule.
+
+    .. note::
+
+       This manager needs to inherit from PolymorphicManager.
+       See https://django-polymorphic.readthedocs.io/page/managers.html
+    """
+
     def add_rule(
         self, *, project, description, match_arg, version_type,
         action, action_arg=None,
