@@ -226,12 +226,14 @@ class Service:
         """
         raise NotImplementedError
 
-    def setup_webhook(self, project):
+    def setup_webhook(self, project, integration=None):
         """
         Setup webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
