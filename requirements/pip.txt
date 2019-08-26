@@ -1,5 +1,5 @@
 # Base packages
-pip==19.2.1
+pip==19.2.2
 appdirs==1.4.3
 virtualenv==16.7.2
 
@@ -42,7 +42,7 @@ celery==4.1.1  # pyup: ignore
 
 django-allauth==0.39.1
 
-GitPython==2.1.13
+GitPython==3.0.1
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
@@ -67,7 +67,7 @@ pyquery==1.4.0
 
 # lxml is used by pyquery
 # defusedxml is recommended when using lxml
-lxml==4.4.0
+lxml==4.4.1
 defusedxml==0.6.0
 
 # Utils
@@ -76,7 +76,7 @@ pytz==2019.2
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.33.0
+stripe==2.34.0
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
