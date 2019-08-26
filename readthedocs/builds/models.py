@@ -1038,7 +1038,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     def move(self, steps):
         """
-        Move the rule n steps.
+        Change the priority of this Automation Rule
+        
+        This is done by moving it ``n`` steps, relative to the other priority rules.
 
         :param steps: Number of steps to be moved
                       (it can be negative)
