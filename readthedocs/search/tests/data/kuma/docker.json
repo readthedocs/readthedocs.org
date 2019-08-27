@@ -15,22 +15,20 @@
     ],
     "domains": [
         {
-            "role_name": "py:module",
-            "doc_name": "autoapi/notfound/utils/index.html",
-            "anchor": "module-notfound.utils",
-            "type_display": "module",
-            "doc_display": "notfound.utils",
-            "name": "notfound.utils",
-            "display_name": ""
+            "role_name": "py:function",
+            "anchor": "celery.utils.text.simple_format",
+            "type_display": "function",
+            "name": "celery.utils.text.simple_format"
         },
         {
             "role_name": "py:function",
-            "doc_name": "autoapi/notfound/utils/index.html",
-            "anchor": "notfound.utils.replace_uris",
+            "anchor": "celery.utils.text.pluralize",
             "type_display": "function",
-            "doc_display": "notfound.utils",
-            "name": "notfound.utils.replace_uris",
-            "display_name": ""
+            "name": "celery.utils.text.pluralize"
         }
-    ]
+    ],
+    "domain_data": {
+        "celery.utils.text.simple_format": "Format string, expanding abbreviations in keys'",
+        "celery.utils.text.pluralize": "Pluralize term when n is greater than one"
+    }
 }

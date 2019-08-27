@@ -1305,6 +1305,7 @@ class HTMLFile(ImportedFile):
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property
