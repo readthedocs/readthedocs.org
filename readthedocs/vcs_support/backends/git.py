@@ -149,7 +149,7 @@ class Backend(BaseVCS):
 
     def fetch(self):
         cmd = ['git', 'fetch', 'origin',
-               '--tags', '--prune', '--prune-tags']
+               '--force', '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
