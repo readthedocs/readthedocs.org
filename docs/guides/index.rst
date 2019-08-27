@@ -34,6 +34,7 @@ These guides will help you customize or tune aspects of the Read the Docs build 
 
     build-notifications
     build-using-too-many-resources
+    technical-docs-seo-guide
     canonical
     conda
     environment-variables

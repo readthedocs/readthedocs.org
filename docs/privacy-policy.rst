@@ -166,12 +166,12 @@ and we encourage you to check back periodically.
 Payment processing
 ++++++++++++++++++
 
-Should you choose to become a `Supporter`_, purchase a `Gold Membership`_,
+Should you choose to become a `Supporter`_, purchase a `Gold membership`_,
 or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
-.. _Gold Membership: https://readthedocs.org/accounts/gold/
+.. _Gold membership: https://readthedocs.org/accounts/gold/
 .. _Supporter: https://readthedocs.org/sustainability/
 
 Site monitoring

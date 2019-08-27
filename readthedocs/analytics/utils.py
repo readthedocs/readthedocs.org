@@ -70,11 +70,11 @@ def send_to_analytics(data):
     if data.get('uip') and data.get('ua'):
         data['cid'] = generate_client_id(data['uip'], data['ua'])
 
-    if 'uip' in data:
+    if data.get('uip'):
         # Anonymize IP address if applicable
         data['uip'] = anonymize_ip_address(data['uip'])
 
-    if 'ua' in data:
+    if data.get('ua'):
         # Anonymize user agent if it is rare
         data['ua'] = anonymize_user_agent(data['ua'])
 

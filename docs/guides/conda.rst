@@ -1,9 +1,6 @@
 Conda Support
 =============
 
-.. warning:: This feature is in a beta state.
-             Please file an `issue`_ if you find anything wrong.
-
 Read the Docs supports Conda as an environment management tool,
 along with Virtualenv.
 Conda support is useful for people who depend on C libraries,

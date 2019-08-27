@@ -103,10 +103,6 @@ def projects(request):
     gold_user = get_object_or_404(GoldUser, user=request.user)
     gold_projects = gold_user.projects.all()
 
-    if not gold_user.can_sponsor_projects():
-        messages.error(request, _('New gold users are no longer allowed to sponsor projects'))
-        return HttpResponseRedirect(reverse('gold_detail'))
-
     if request.method == 'POST':
         form = GoldProjectForm(
             active_user=request.user,

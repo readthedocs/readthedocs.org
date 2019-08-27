@@ -43,12 +43,6 @@ docs_urls = [
 core_urls = [
     # Random other stuff
     url(
-        r'^random/(?P<project_slug>{project_slug})'.format(**pattern_opts),
-        views.random_page,
-        name='random_page',
-    ),
-    url(r'^random/$', views.random_page, name='random_page'),
-    url(
         (
             r'^wipe/(?P<project_slug>{project_slug})/'
             r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
