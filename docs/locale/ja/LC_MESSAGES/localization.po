@@ -119,7 +119,7 @@ msgstr ""
 
 #: ../../localization.rst:60
 msgid ""
-"You can read :doc:`guides/manage-translations` to understand the whole "
+"You can read :doc:`guides/how-to/manage-translations` to understand the whole "
 "process for a documentation with multiples languages in the same repository "
 "and how to keep the translations updated on time."
 msgstr ""

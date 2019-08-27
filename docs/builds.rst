@@ -285,7 +285,4 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 
    In case extra environment variables are needed to the build process (like secrets, tokens, etc),
    you can add them going to :guilabel:`Admin` > :guilabel:`Environment Variables` in your project.
-   See :doc:`guides/environment-variables`.
-
-
-
+   See :doc:`guides/troubleshooting/environment-variables`.

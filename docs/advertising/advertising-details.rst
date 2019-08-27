@@ -113,7 +113,7 @@ our own goals.
 
 We have taken steps to address some of the privacy concerns surrounding GA.
 These steps apply both to analytics collected by Read the Docs and when
-:doc:`authors enable analytics on their docs </guides/google-analytics>`.
+:doc:`authors enable analytics on their docs </guides/how-to/google-analytics>`.
 
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
 * Read the Docs instructs Google to anonymize IP addresses sent to them.

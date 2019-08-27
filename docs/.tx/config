@@ -325,19 +325,19 @@ source_file = _build/locale/guides/index.pot
 source_lang = en
 type = PO
 
-[readthedocs-docs.guides--build-notifications]
+[readthedocs-docs.guides--how-to--build-notifications]
 file_filter = locale/<lang>/LC_MESSAGES/guides/build-notifications.po
 source_file = _build/locale/guides/build-notifications.pot
 source_lang = en
 type = PO
 
-[readthedocs-docs.guides--adding-custom-css]
+[readthedocs-docs.guides--how-to--adding-custom-css]
 file_filter = locale/<lang>/LC_MESSAGES/guides/adding-custom-css.po
 source_file = _build/locale/guides/adding-custom-css.pot
 source_lang = en
 type = PO
 
-[readthedocs-docs.guides--manage-translations]
+[readthedocs-docs.guides--how-to--manage-translations]
 file_filter = locale/<lang>/LC_MESSAGES/guides/manage-translations.po
 source_file = _build/locale/guides/manage-translations.pot
 source_lang = en
@@ -349,7 +349,7 @@ source_file = _build/locale/guides/wipe-environment.pot
 source_lang = en
 type = PO
 
-[readthedocs-docs.guides--remove-edit-buttons]
+[readthedocs-docs.guides--troubleshooting--remove-edit-buttons]
 file_filter = locale/<lang>/LC_MESSAGES/guides/remove-edit-buttons.po
 source_file = _build/locale/guides/remove-edit-buttons.pot
 source_lang = en

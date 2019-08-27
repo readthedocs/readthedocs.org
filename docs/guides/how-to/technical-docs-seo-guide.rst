@@ -19,7 +19,7 @@ that is answerable by your documentation, that your docs appear in the results.*
 This guide isn't meant to be your only resource on SEO,
 and there's a lot of SEO topics not covered here.
 For additional reading, please see the
-:ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
+:ref:`external resources <guides/how-to/technical-docs-seo-guide:External resources>` section.
 
 While many of the topics here apply to all forms of technical documentation,
 this guide will focus on Sphinx, which is the most common
@@ -86,8 +86,8 @@ Optimizing your docs for search engine spiders
 Once a crawler or spider finds your site, it will follow links and redirects
 in an attempt to find any and all pages on your site.
 While there are a few ways to guide the search engine in its crawl
-for example by using a :ref:`sitemap <guides/technical-docs-seo-guide:Use a sitemap.xml file>`
-or a :ref:`robots.txt file <guides/technical-docs-seo-guide:Use a robots.txt file>`
+for example by using a :ref:`sitemap <guides/how-to/technical-docs-seo-guide:Use a sitemap.xml file>`
+or a :ref:`robots.txt file <guides/how-to/technical-docs-seo-guide:Use a robots.txt file>`
 which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
@@ -197,7 +197,7 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on :doc:`sitemaps </guides/sitemaps>`.
+We have a small separate guide on :doc:`sitemaps </guides/how-to/sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
@@ -266,7 +266,7 @@ Some of the most valuable feedback these provide include:
 Analytics tools
 ~~~~~~~~~~~~~~~
 
-A tool like :doc:`Google Analytics </guides/google-analytics>`
+A tool like :doc:`Google Analytics </guides/how-to/google-analytics>`
 can give you feedback about the search terms people use to find your docs,
 your most popular pages, and lots of other useful data.
 

@@ -132,7 +132,7 @@ following settings::
 Deleting a stale or broken build environment
 --------------------------------------------
 
-See :doc:`guides/wipe-environment`.
+See :doc:`guides/how-to/wipe-environment`.
 
 How do I host multiple projects on one custom domain?
 -----------------------------------------------------
