@@ -154,20 +154,18 @@ def record_search_query(project_slug, version_slug, query, total_results, time):
         return
 
     before_10_sec = time - timezone.timedelta(seconds=10)
-    partial_query_obj = SearchQuery.objects.filter(
+    partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
         version__slug=version_slug,
-        query__startswith=query,
         created__gte=before_10_sec,
-    ).order_by('-created').first()
+    ).order_by('-created')
 
-    # if partial query exists,
-    # just update it instead of creating new SearchQuery object.
-    if partial_query_obj:
-        partial_query_obj.created = time
-        partial_query_obj.query = query
-        partial_query_obj.save()
-        return
+    for partial_query in partial_query_qs.iterator():
+        if query.startswith(partial_query.query):
+            partial_query.created = time
+            partial_query.query = query
+            partial_query.save()
+            return
 
     # don't record query with zero results.
     if not total_results:
