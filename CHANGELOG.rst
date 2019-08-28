@@ -1,3 +1,36 @@
+Version 3.7.3
+-------------
+
+:Date: August 27, 2019
+
+* `@pllim <http://github.com/pllim>`__: Use the force when fetching with Git (`#6109 <https://github.com/readthedocs/readthedocs.org/pull/6109>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Small improvements to the SEO guide (`#6105 <https://github.com/readthedocs/readthedocs.org/pull/6105>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update intersphinx mapping with canonical sources (`#6085 <https://github.com/readthedocs/readthedocs.org/pull/6085>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fix lingering 500 issues (`#6079 <https://github.com/readthedocs/readthedocs.org/pull/6079>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Technical docs SEO guide (`#6077 <https://github.com/readthedocs/readthedocs.org/pull/6077>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: GitLab Build Status Reporting for PR Builder (`#6076 <https://github.com/readthedocs/readthedocs.org/pull/6076>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update ad details docs (`#6074 <https://github.com/readthedocs/readthedocs.org/pull/6074>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Gold makes projects ad-free again (`#6073 <https://github.com/readthedocs/readthedocs.org/pull/6073>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Auto Sync and Re-Sync for Manually Created Integrations (`#6071 <https://github.com/readthedocs/readthedocs.org/pull/6071>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 32 (`#6067 <https://github.com/readthedocs/readthedocs.org/pull/6067>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: PR Builder GitLab Integration (`#6066 <https://github.com/readthedocs/readthedocs.org/pull/6066>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Send media downloads to analytics (`#6063 <https://github.com/readthedocs/readthedocs.org/pull/6063>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: IPv6 in X-Forwarded-For fix (`#6062 <https://github.com/readthedocs/readthedocs.org/pull/6062>`__)
+* `@humitos <http://github.com/humitos>`__: Remove warning about beta state of conda support (`#6056 <https://github.com/readthedocs/readthedocs.org/pull/6056>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Update GitLab Webhook creating to enable merge request events (`#6055 <https://github.com/readthedocs/readthedocs.org/pull/6055>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.7.2 (`#6054 <https://github.com/readthedocs/readthedocs.org/pull/6054>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Update feature flags docs (`#6053 <https://github.com/readthedocs/readthedocs.org/pull/6053>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add indelx.html filename to the external doc url (`#6051 <https://github.com/readthedocs/readthedocs.org/pull/6051>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search analytics improvements (`#6050 <https://github.com/readthedocs/readthedocs.org/pull/6050>`__)
+* `@stsewd <http://github.com/stsewd>`__: Sort versions taking into consideration the vcs type (`#6049 <https://github.com/readthedocs/readthedocs.org/pull/6049>`__)
+* `@humitos <http://github.com/humitos>`__: Avoid returning invalid domain when using USE_SUBDOMAIN=True in dev (`#6026 <https://github.com/readthedocs/readthedocs.org/pull/6026>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Search analytics (`#6019 <https://github.com/readthedocs/readthedocs.org/pull/6019>`__)
+* `@tapaswenipathak <http://github.com/tapaswenipathak>`__: Remove django-guardian model (`#6005 <https://github.com/readthedocs/readthedocs.org/pull/6005>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add manager and description field to AutomationRule model (`#5995 <https://github.com/readthedocs/readthedocs.org/pull/5995>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Cleanup project tags (`#5983 <https://github.com/readthedocs/readthedocs.org/pull/5983>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Search indexing with storage (`#5854 <https://github.com/readthedocs/readthedocs.org/pull/5854>`__)
+* `@wilvk <http://github.com/wilvk>`__: fix sphinx startup guide to not to fail on rtd build as per #2569 (`#5753 <https://github.com/readthedocs/readthedocs.org/pull/5753>`__)
+
 Version 3.7.2
 -------------
 

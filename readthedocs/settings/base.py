@@ -432,18 +432,29 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
 
+    # Info from Honza about this:
+    # The key to determine shard number is actually usually not the node count,
+    # but the size of your data.
+    # There are advantages to just having a single shard in an index since
+    # you don't have to do the distribute/collect steps when executing a search.
+    # If your data will allow it (not significantly larger than 40GB)
+    # I would recommend going to a single shard and one replica meaning
+    # any of the two nodes will be able to serve any search without talking to the other one.
+    # Scaling to more searches will then just mean adding a third node
+    # and a second replica resulting in immediate 50% bump in max search throughput.
+
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 2,
-                'number_of_replicas': 0,
+                'number_of_shards': 1,
+                'number_of_replicas': 1,
             }
         },
     }

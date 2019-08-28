@@ -148,8 +148,10 @@ class Backend(BaseVCS):
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def fetch(self):
+        # --force lets us checkout branches that are not fast-forwarded
+        # https://github.com/readthedocs/readthedocs.org/issues/6097
         cmd = ['git', 'fetch', 'origin',
-               '--tags', '--prune', '--prune-tags']
+               '--force', '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
