@@ -6,7 +6,7 @@ from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.search.models import SearchQuery
+from readthedocs.search.models import SearchQuery, PageView
 from readthedocs.worker import app
 from .utils import _get_index, _get_document
 
@@ -176,3 +176,26 @@ def record_search_query(project_slug, version_slug, query, total_results):
         version=version,
         query=query,
     )
+
+
+@app.task(queue='web')
+def increase_page_view_count(project_slug, version_slug, path):
+    today_date = timezone.now().date()
+    page_view_obj = PageView.objects.filter(
+        project__slug=project_slug,
+        version__slug=version_slug,
+        path=path,
+        created__date=today_date,
+    ).first()
+
+    if page_view_obj:
+        page_view_obj.view_count += 1
+        page_view_obj.save()
+    else:
+        project_obj = Project.objects.get(slug=project_slug)
+        version_obj = Version.objects.get(slug=version_slug, project=project_obj)
+        PageView.objects.create(
+            project=project_obj,
+            version=version_obj,
+            path=path,
+        )

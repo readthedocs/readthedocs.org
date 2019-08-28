@@ -137,3 +137,22 @@ class SearchQuery(TimeStampedModel):
             final_data['int_data'].append(count_of_other)
 
         return final_data
+
+
+class PageView(TimeStampedModel):
+    project = models.ForeignKey(
+        Project,
+        related_name='page_views',
+        on_delete=models.CASCADE,
+    )
+    version = models.ForeignKey(
+        Version,
+        verbose_name=_('Version'),
+        related_name='page_views',
+        on_delete=models.CASCADE,
+    )
+    path = models.CharField(max_length=4096)
+    view_count = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f'[{self.project.slug}:{self.version.slug}]: {self.path}'

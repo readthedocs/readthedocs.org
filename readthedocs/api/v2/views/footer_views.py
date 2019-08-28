@@ -16,6 +16,7 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
+from readthedocs.search.tasks import increase_page_view_count
 
 
 def get_version_compare_data(project, base_version=None):
@@ -162,6 +163,13 @@ def footer_html(request):
         'version_compare': version_compare_data,
         'version_supported': version.supported,
     }
+
+    # increase the page view count
+    increase_page_view_count.delay(
+        project=context['project'],
+        version=context['version'],
+        path=context['path'] if context['path'] else 'index.html'
+    )
 
     # Allow folks to hook onto the footer response for various information
     # collection, or to modify the resp_data.
