@@ -1,14 +1,12 @@
 Searching with Read the Docs
 ============================
 
-.. meta::
-    :description lang=en:
-        Guide to use the powerful documentation search by Read the Docs to its full extent.
+Read the Docs uses Elasticsearch to provide a better search experience.
+This guide is intended to show that how to add "search as you type" feature to your documentation,
+how to use advanced query syntax to get more accurate results and
+many other search features that Read the Docs supports with example searches.
 
-
-This guide is intended to show that how to use the powerful search provided by Read the Docs.
-It is being powered by `Elasticsearch`_.
-You can find more information on the search architecture and how we index document on our
+You can find information on the search architecture and how we index document on our
 :doc:`Search <../development/search>` docs.
 
 
@@ -18,35 +16,39 @@ You can find more information on the search architecture and how we index docume
    :depth: 3
 
 
-Why "Just" Sphinx Search Is Not Enough?
----------------------------------------
+Improvements over Sphinx search
+-------------------------------
 
-Sphinx already have built in search functionality,
-but it only supports a basic search across a single documentation.
-While Read the Docs supports a powerful documentation search.
+Sphinx is designed to create a self-contained webpage and
+all search indexing is done when the documentation is built.
+As a result, it would be impossible for Sphinx to add features like searching translations
+or subprojects or having analytics on common searches.
+Read the Docs supports a powerful documentation search unlike
+Sphinx which only have a basic search support.
 
 Features of Read the Docs documentation search are:
 
 - Search as you type feature supported.
+- Search analytics.
 - Search across multiple projects.
-- Advanced query syntax.
 - Search inside subprojects.
+- Advanced query syntax.
 - Improved search result order.
-- Public Search API (Documentation pending).
+- Public search API (documentation pending).
 - Case insensitive search.
 - Results from sections of the documentation.
 - Code search.
-- Search analytics.
 
 
-Search Features for Project Admins
+Search features for project admins
 ----------------------------------
 
-Enable "Search As You Type" In Your Documentation
+Enable "search as you type" in your documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`readthedocs-sphinx-search`_ can be used to add a clean and minimal full page search UI
-to your documentation which supports **search as you type** feature.
+`readthedocs-sphinx-search`_ is a Sphinx extension which integrates your
+documentation more closely with Read the Docs' search implementation.
+It adds a clean and minimal full page search UI which supports **search as you type** feature.
 
 To get a glimpse of it, you can press :guilabel:`/` (forward slash) and start typing
 or just visit these URLs:
@@ -55,7 +57,7 @@ or just visit these URLs:
 - https://docs.readthedocs.io/?rtd_search=api/v3/projects/
 
 
-Search Analytics
+Search analytics
 ~~~~~~~~~~~~~~~~
 
 Search queries are recorded and are stored in database to provide valuable analytics to the project admins.
@@ -78,15 +80,15 @@ You can see these analytics in your project admin dashboard.
     Search analytics demo
 
 
-Search Features For Readers
+Search features for readers
 ---------------------------
 
-Search Across All Projects
+Search across all projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our `main site search`_ supports searching for projects and
 searching across all projects.
-You can use it to select the specific project and version to narrow down the search results.
+You can also use it to select the specific project and version to narrow down the search results.
 
 Example queries:
 
@@ -96,7 +98,7 @@ Example queries:
 - https://readthedocs.org/search/?q=celery._state&type=file&project=celery&version=master
 
 
-Search Inside Subprojects
+Search inside subprojects
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We allow projects to configured as subprojects of another project.
@@ -110,13 +112,13 @@ so if you search in Celery docs, then the results from Kombu will also be there.
 Example: https://docs.celeryproject.org/en/master/search.html?q=utilities&check_keywords=yes&area=default
 
 
-Search Query Syntax
+Search query syntax
 ~~~~~~~~~~~~~~~~~~~
 
 Read the Docs uses `Simple Query String`_ feature of `Elasticsearch`_,
 hence the search query can be made complex to get more accurate results.
 
-Exact Phrase Search
+Exact phrase search
 +++++++++++++++++++
 
 If a query is wrapped in ``"``,
@@ -128,7 +130,7 @@ Example queries:
 - https://docs.readthedocs.io/?rtd_search=%22adding%20a%20subproject%22
 - https://docs.readthedocs.io/?rtd_search=%22when%20a%20404%20is%20returned%22
 
-Exact Phrase Search With Slop Value
+Exact phrase search with slop value
 +++++++++++++++++++++++++++++++++++
 
 ``~N`` after a phrase signifies slop amount.
@@ -140,7 +142,7 @@ Example queries:
 - https://docs.readthedocs.io/?rtd_search=%22single%20documentation%22~1
 - https://docs.readthedocs.io/?rtd_search=%22read%20the%20docs%20story%22~5
 
-Prefix Query
+Prefix query
 ++++++++++++
 
 ``*`` at the end of any term signifies a prefix query.
@@ -152,7 +154,7 @@ Example queries:
 - https://docs.readthedocs.io/?rtd_search=single%20v*%20doc*
 - https://docs.readthedocs.io/?rtd_search=build*%20and%20c*%20to%20doc*
 
-Fuzzy Query
+Fuzzy query
 +++++++++++
 
 ``~N`` after a word signifies edit distance (fuzziness).
@@ -167,7 +169,7 @@ Example queries:
 - https://docs.readthedocs.io/?rtd_search=configurtion~1
 
 
-Using The Search Query Syntax To Build Complex Queries
+Using the search query syntax to build complex queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The search query syntaxes described in the previous section
