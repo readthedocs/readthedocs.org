@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for VCS backends."""
 import logging
 import os
 import shutil
+
 from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
 from readthedocs.projects.exceptions import RepositoryError
 
