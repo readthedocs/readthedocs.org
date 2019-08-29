@@ -16,7 +16,7 @@ from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 
@@ -93,6 +93,10 @@ class SphinxBuilderTest(TestCase):
                 {
                     'slug': 'v2',
                     'privacy_level': PUBLIC,
+                },
+                {
+                    'slug': 'v3',
+                    'privacy_level': PROTECTED,
                 },
                 {
                     'slug': 'latest',
