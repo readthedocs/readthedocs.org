@@ -58,7 +58,11 @@ To summarize some of the most important aspects
 as they apply to technical documentation, your site should:
 
 * Use descriptive and accurate titles in the HTML ``<title>`` tag.
+  For Sphinx, the ``<title>`` comes from the first heading on the page.
 * Ensure your URLs are descriptive. They are displayed in search results.
+  Sphinx uses the source filename without the file extension as the URL.
+* Make sure the words your readers would search for to find your site
+  are actually included on your pages.
 * Avoid low content pages or pages with very little original content.
 * Avoid tactics that attempt to increase your search engine ranking
   without actually improving content.

@@ -179,61 +179,64 @@
                     {% endfor %}
 
                   {% elif 'page' in result.meta.index %}
-                    <a href="{% doc_url result.project|get_project result.version result.full_path %}">
-                      {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
-                    </a>
+                    {% with "100" as MAX_SUBSTRING_LIMIT %}
+                      <a href="{% doc_url result.project|get_project result.version result.full_path %}">
+                        {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                      </a>
 
-                    {% for inner_hit in result.meta.inner_hits %}
-                      {% if inner_hit.type == 'domains' %}
-                        <p>
-                          <a href="{% doc_url result.project|get_project result.version inner_hit.source.doc_name %}#{{ inner_hit.source.anchor }}">
-
-                            {% if inner_hit.source.display_name|length >= 1 %}
-                              ({{ inner_hit.source.role_name }}) {{ inner_hit.source.display_name}}
-                            {% else %}
-                              {{ inner_hit.source.role_name }}
-                            {% endif %}
-                          </a>
-                        </p>
-                        <p class="fragment">
-                          {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
-                            {% with domain_name=inner_hit.highlight|get_key_or_none:"domains.name" %}
-                              {{ inner_hit.source.type_display }} -- {{ domain_name.0|safe }} -- in {{ inner_hit.source.doc_display }}
-                            {% endwith %}
-                          {% else %}
-                            {{ inner_hit.source.type_display }} -- {{ inner_hit.source.name }} -- {{ inner_hit.source.doc_display }}
-                          {% endif %}
-                        </p>
-
-                      {% elif inner_hit.type == 'sections' %}
-                        <p>
-                          <a href="{% doc_url result.project|get_project result.version result.full_path %}#{{ inner_hit.source.id }}">
-                            {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
-                              {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
-                                {{ section_title.0|safe }}
+                      {% for inner_hit in result.meta.inner_hits %}
+                        {% if inner_hit.type == 'domains' %}
+                          <p>
+                            <a href="{% doc_url result.project|get_project result.version result.full_path %}#{{ inner_hit.source.anchor }}">
+                              {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
+                                {% with domain_name=inner_hit.highlight|get_key_or_none:"domains.name" %}
+                                  [{{ inner_hit.source.role_name }}]: {{ domain_name.0|safe }}
+                                {% endwith %}
+                              {% else %}
+                                [{{ inner_hit.source.role_name }}]: {{ inner_hit.source.name }}
+                              {% endif %}
+                            </a>
+                          </p>
+                          <p class="fragment">
+                            {% if inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
+                              {% with domain_docstrings=inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
+                                {{ domain_docstrings.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {{ inner_hit.source.title }}
+                              {% if inner_hit.source.docstrings %}
+                                {{ inner_hit.source.docstrings|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% endif %}
                             {% endif %}
-                          </a>
-                        </p>
-                        {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
-                          {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
-                            {% for content in section_content %}
-                              <p class="fragment">
-                                ... {{ content|safe }} ...
-                              </p>
-                            {% endfor %}
-                          {% endwith %}
-                        {% else %}
-                          <p class="fragment">
-                            {% with "100" as MAX_SUBSTRING_LIMIT %}
-                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
-                            {% endwith %}
                           </p>
+
+                        {% elif inner_hit.type == 'sections' %}
+                          <p>
+                            <a href="{% doc_url result.project|get_project result.version result.full_path %}#{{ inner_hit.source.id }}">
+                              {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
+                                {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
+                                  {{ section_title.0|safe }}
+                                {% endwith %}
+                              {% else %}
+                                {{ inner_hit.source.title }}
+                              {% endif %}
+                            </a>
+                          </p>
+                          {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
+                            {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
+                              {% for content in section_content %}
+                                <p class="fragment">
+                                  ... {{ content|safe }} ...
+                                </p>
+                              {% endfor %}
+                            {% endwith %}
+                          {% else %}
+                            <p class="fragment">
+                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                            </p>
+                          {% endif %}
                         {% endif %}
-                      {% endif %}
-                    {% endfor %}
+                      {% endfor %}
+                    {% endwith %}
                   {% endif %}
                 </p>
               </li>
