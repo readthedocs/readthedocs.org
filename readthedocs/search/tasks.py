@@ -179,11 +179,11 @@ def record_search_query(project_slug, version_slug, query, total_results):
 
 
 @app.task(queue='web')
-def increase_page_view_count(project_slug, version_slug, path):
+def increase_page_view_count(project, version, path):
     today_date = timezone.now().date()
     page_view_obj = PageView.objects.filter(
-        project__slug=project_slug,
-        version__slug=version_slug,
+        project=project,
+        version=version,
         path=path,
         created__date=today_date,
     ).first()
@@ -192,10 +192,8 @@ def increase_page_view_count(project_slug, version_slug, path):
         page_view_obj.view_count += 1
         page_view_obj.save()
     else:
-        project_obj = Project.objects.get(slug=project_slug)
-        version_obj = Version.objects.get(slug=version_slug, project=project_obj)
         PageView.objects.create(
-            project=project_obj,
-            version=version_obj,
+            project=project,
+            version=version,
             path=path,
         )
