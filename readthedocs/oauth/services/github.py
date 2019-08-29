@@ -221,6 +221,7 @@ class GitHubService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()
@@ -244,11 +245,17 @@ class GitHubService(Service):
                 return (False, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
+            integration.secret = None
+            integration.save()
+
             log.exception(
                 'GitHub webhook creation failed for project: %s',
                 project,
             )
         else:
+            integration.secret = None
+            integration.save()
+
             log.error(
                 'GitHub webhook creation failed for project: %s',
                 project,
@@ -287,6 +294,7 @@ class GitHubService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()
@@ -301,16 +309,25 @@ class GitHubService(Service):
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration)
 
+        except AttributeError:
+            # We get AttributeError when the provider_data does not have anything
+            # it only happens if the webhook attachment was not successful in the first place
+            return self.setup_webhook(project, integration)
         # Catch exceptions with request or deserializing JSON
-        except (AttributeError, RequestException, ValueError):
+        except (RequestException, ValueError):
             log.exception(
                 'GitHub webhook update failed for project: %s',
                 project,
             )
+            # Set the secret to None so that the integration can be used manually.
+            integration.secret = None
+            integration.save()
             return (False, resp)
         else:
+            integration.secret = None
+            integration.save()
             log.error(
                 'GitHub webhook update failed for project: %s',
                 project,

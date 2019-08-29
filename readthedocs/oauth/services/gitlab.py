@@ -304,6 +304,7 @@ class GitLabService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             if resp.status_code == 201:
                 integration.provider_data = resp.json()
                 integration.save()
@@ -325,12 +326,18 @@ class GitLabService(Service):
                 return (False, resp)
 
         except (RequestException, ValueError):
+            integration.secret = None
+            integration.save()
+
             log.exception(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
             return (False, resp)
         else:
+            integration.secret = None
+            integration.save()
+
             log.error(
                 'GitLab webhook creation failed for project: %s',
                 project,
@@ -360,9 +367,10 @@ class GitLabService(Service):
 
         integration.recreate_secret()
         data = self.get_webhook_data(repo_id, project, integration)
-        hook_id = integration.provider_data.get('id')
+
         resp = None
         try:
+            hook_id = integration.provider_data.get('id')
             resp = session.put(
                 '{url}/api/v4/projects/{repo_id}/hooks/{hook_id}'.format(
                     url=self.adapter.provider_base_url,
@@ -372,6 +380,7 @@ class GitLabService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             if resp.status_code == 200:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
@@ -385,15 +394,25 @@ class GitLabService(Service):
             # GitLab returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration)
 
+        except AttributeError:
+            # We get AttributeError when the provider_data does not have anything
+            # it only happens if the webhook attachment was not successful in the first place
+            return self.setup_webhook(project, integration)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
+            integration.secret = None
+            integration.save()
+
             log.exception(
                 'GitLab webhook update failed for project: %s',
                 project,
             )
         else:
+            integration.secret = None
+            integration.save()
+
             log.error(
                 'GitLab webhook update failed for project: %s',
                 project,
