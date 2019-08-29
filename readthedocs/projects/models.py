@@ -936,8 +936,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk
-                                        ).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
