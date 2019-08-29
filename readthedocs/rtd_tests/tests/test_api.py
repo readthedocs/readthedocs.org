@@ -2170,6 +2170,7 @@ class APIVersionTests(TestCase):
                 'use_system_packages': False,
                 'users': [1],
             },
+            'privacy_level': 'public',
             'downloads': {},
             'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
             'slug': '0.8',
