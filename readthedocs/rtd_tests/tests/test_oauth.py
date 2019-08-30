@@ -290,7 +290,7 @@ class GitHubOAuthTests(TestCase):
         self.assertTrue(success)
         self.assertTrue(self.integration.secret)
         mock_logger.info.assert_called_with(
-            "GitHub webhook creation successful for project: %s",
+            "GitHub webhook update successful for project: %s",
             self.project,
         )
 
@@ -310,7 +310,10 @@ class GitHubOAuthTests(TestCase):
 
     @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
     @mock.patch('readthedocs.oauth.services.github.GitHubService.setup_webhook')
-    def test_update_webhook_attribute_error(self, setup_webhook, session):
+    def test_update_webhook_no_provider_data(self, setup_webhook, session):
+        self.integration.provider_data = None
+        self.integration.save()
+
         session().patch.side_effect = AttributeError
         self.service.update_webhook(
             self.project,
@@ -842,7 +845,10 @@ class GitLabOAuthTests(TestCase):
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.setup_webhook')
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
-    def test_update_webhook_attribute_error(self, repo_id, setup_webhook, session):
+    def test_update_webhook_no_provider_data(self, repo_id, setup_webhook, session):
+        self.integration.provider_data = None
+        self.integration.save()
+
         repo_id.return_value = '9999'
         session().put.side_effect = AttributeError
         self.service.update_webhook(
