@@ -9,7 +9,11 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
 from readthedocs.builds.models import Version, Build
-from readthedocs.integrations.models import GitHubWebhook
+from readthedocs.integrations.models import (
+    GitHubWebhook,
+    GitLabWebhook,
+    BitbucketWebhook
+)
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -605,12 +609,21 @@ class GitLabOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
+        self.project.repo = 'https://gitlab.com/testorga/testrepo'
+        self.project.save()
         self.org = RemoteOrganization.objects.create(slug='testorga', json='')
         self.privacy = self.project.version_privacy_level
         self.service = GitLabService(user=self.user, account=None)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version
+        )
+        self.integration = get(
+            GitLabWebhook,
+            project=self.project,
+            provider_data={
+                'id': '999999999'
+            }
         )
 
     def get_private_repo_data(self):
@@ -685,11 +698,6 @@ class GitLabOAuthTests(TestCase):
             repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
-    def test_setup_webhook(self):
-        success, response = self.service.setup_webhook(self.project)
-        self.assertFalse(success)
-        self.assertIsNone(response)
-
     @mock.patch('readthedocs.oauth.services.gitlab.log')
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
     @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
@@ -744,5 +752,122 @@ class GitLabOAuthTests(TestCase):
         self.assertFalse(success)
         mock_logger.exception.assert_called_with(
             'GitLab commit status creation failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_setup_webhook_successful(self, session, mock_logger):
+        session().post.return_value.status_code = 201
+        session().post.return_value.json.return_value = {}
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        self.assertTrue(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            "GitLab webhook creation successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_setup_webhook_404_error(self, session, mock_logger):
+        session().post.return_value.status_code = 404
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(success)
+        self.assertFalse(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            'Gitlab project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_setup_webhook_value_error(self, session, mock_logger):
+        session().post.side_effect = ValueError
+        success = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(self.integration.secret)
+        mock_logger.exception.assert_called_with(
+            'GitLab webhook creation failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_update_webhook_successful(self, repo_id, session, mock_logger):
+        repo_id.return_value = '9999'
+        session().put.return_value.status_code = 200
+        session().put.return_value.json.return_value = {}
+        success, _ = self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        self.assertTrue(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            "GitLab webhook update successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.setup_webhook')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_update_webhook_404_error(self, repo_id, setup_webhook, session):
+        repo_id.return_value = '9999'
+        session().put.return_value.status_code = 404
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.setup_webhook')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_update_webhook_attribute_error(self, repo_id, setup_webhook, session):
+        repo_id.return_value = '9999'
+        session().put.side_effect = AttributeError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService._get_repo_id')
+    def test_update_webhook_value_error(self, repo_id, session, mock_logger):
+        repo_id.return_value = '9999'
+        session().put.side_effect = ValueError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(self.integration.secret)
+        mock_logger.exception.assert_called_with(
+            'GitLab webhook update failed for project: %s',
             self.project,
         )

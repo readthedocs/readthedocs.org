@@ -298,7 +298,7 @@ class GitHubService(Service):
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitHub webhook creation successful for project: %s',
+                    'GitHub webhook update successful for project: %s',
                     project,
                 )
                 return (True, resp)
@@ -332,7 +332,7 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'GitHub webhook creation failure response: %s',
+                'GitHub webhook update failure response: %s',
                 debug_data,
             )
             return (False, resp)
