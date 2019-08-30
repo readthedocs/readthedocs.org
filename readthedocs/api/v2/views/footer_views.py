@@ -66,7 +66,14 @@ def get_version_compare_data(project, base_version=None):
 
 class FooterHTML(APIView):
 
-    """Render and return footer markup."""
+    """
+    Render and return footer markup.
+
+    .. note::
+
+       The methods `_get_project` and `_get_version`
+       are called many times, so a basic cache is implemented.
+    """
 
     http_method_names = ['get']
     permission_classes = [AllowAny]
