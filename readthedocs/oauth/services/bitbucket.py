@@ -312,6 +312,11 @@ class BitbucketService(Service):
 
         # Catch exceptions with request or deserializing JSON
         except (KeyError, RequestException, TypeError, ValueError):
+            # We get TypeError when the provider_data is None
+            # it only happens if the webhook attachment was not successful in the first place
+            if not integration.provider_data:
+                return self.setup_webhook(project, integration)
+
             log.exception(
                 'Bitbucket webhook update failed for project: %s',
                 project,

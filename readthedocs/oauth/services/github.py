@@ -308,18 +308,20 @@ class GitHubService(Service):
             if resp.status_code == 404:
                 return self.setup_webhook(project, integration)
 
-        except AttributeError:
-            # We get AttributeError when the provider_data does not have anything
-            # it only happens if the webhook attachment was not successful in the first place
-            return self.setup_webhook(project, integration)
         # Catch exceptions with request or deserializing JSON
-        except (RequestException, ValueError):
+        except (AttributeError, RequestException, ValueError):
+            # We get AttributeError when the provider_data is None
+            # it only happens if the webhook attachment was not successful in the first place
+            if not integration.provider_data:
+                return self.setup_webhook(project, integration)
+
+            # Set the secret to None so that the integration can be used manually.
+            integration.remove_secret()
+
             log.exception(
                 'GitHub webhook update failed for project: %s',
                 project,
             )
-            # Set the secret to None so that the integration can be used manually.
-            integration.remove_secret()
             return (False, resp)
         else:
             integration.remove_secret()
