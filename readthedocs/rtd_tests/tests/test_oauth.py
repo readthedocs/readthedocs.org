@@ -444,9 +444,22 @@ class BitbucketOAuthTests(TestCase):
         self.client.login(username='eric', password='test')
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
+        self.project.repo = 'https://bitbucket.org/testuser/testrepo/'
+        self.project.save()
         self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
         self.privacy = self.project.version_privacy_level
         self.service = BitbucketService(user=self.user, account=None)
+        self.integration = get(
+            GitHubWebhook,
+            project=self.project,
+            provider_data={
+                'links': {
+                    'self': {
+                        'href': 'https://bitbucket.org/'
+                    }
+                }
+            }
+        )
 
     def test_make_project_pass(self):
         repo = self.service.create_repository(
@@ -513,6 +526,114 @@ class BitbucketOAuthTests(TestCase):
         """User without a Bitbucket SocialToken does not return a service."""
         services = BitbucketService.for_user(self.user)
         self.assertEqual(services, [])
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_setup_webhook_successful(self, session, mock_logger):
+        session().post.return_value.status_code = 201
+        session().post.return_value.json.return_value = {}
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        mock_logger.info.assert_called_with(
+            "Bitbucket webhook creation successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_setup_webhook_404_error(self, session, mock_logger):
+        session().post.return_value.status_code = 404
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(success)
+        mock_logger.info.assert_called_with(
+            'Bitbucket project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_setup_webhook_value_error(self, session, mock_logger):
+        session().post.side_effect = ValueError
+        success = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        mock_logger.exception.assert_called_with(
+            'Bitbucket webhook creation failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_update_webhook_successful(self, session, mock_logger):
+        session().put.return_value.status_code = 200
+        session().put.return_value.json.return_value = {}
+        success, _ = self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        self.assertTrue(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            "Bitbucket webhook update successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.setup_webhook')
+    def test_update_webhook_404_error(self, setup_webhook, session):
+        session().put.return_value.status_code = 404
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.setup_webhook')
+    def test_update_webhook_no_provider_data(self, setup_webhook, session):
+        self.integration.provider_data = None
+        self.integration.save()
+
+        session().put.side_effect = AttributeError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_update_webhook_value_error(self, session, mock_logger):
+        session().put.side_effect = ValueError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        mock_logger.exception.assert_called_with(
+            'Bitbucket webhook update failed for project: %s',
+            self.project,
+        )
 
 
 class GitLabOAuthTests(TestCase):
