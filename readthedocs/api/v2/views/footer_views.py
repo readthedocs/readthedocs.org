@@ -104,7 +104,7 @@ class FooterHTML(APIView):
 
             version = get_object_or_404(
                 Version.objects.public(
-                    self.request.user,
+                    user=self.request.user,
                     project=self._get_project(),
                     only_active=False,
                 ),
