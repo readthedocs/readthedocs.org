@@ -9,6 +9,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
 from readthedocs.builds.models import Version, Build
+from readthedocs.integrations.models import GitHubWebhook
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import (
     BitbucketService,
@@ -33,6 +34,13 @@ class GitHubOAuthTests(TestCase):
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
             Build, project=self.project, version=self.external_version
+        )
+        self.integration = get(
+            GitHubWebhook,
+            project=self.project,
+            provider_data={
+                'url': 'https://github.com/'
+            }
         )
 
     def test_make_project_pass(self):
@@ -215,6 +223,115 @@ class GitHubOAuthTests(TestCase):
         }
         repo = self.service.create_repository(repo_json, organization=self.org)
         self.assertIsNotNone(repo)
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_setup_webhook_successful(self, session, mock_logger):
+        session().post.return_value.status_code = 201
+        session().post.return_value.json.return_value = {}
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        self.assertTrue(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            "GitHub webhook creation successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_setup_webhook_404_error(self, session, mock_logger):
+        session().post.return_value.status_code = 404
+        success, _ = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(success)
+        self.assertFalse(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            'GitHub project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_setup_webhook_value_error(self, session, mock_logger):
+        session().post.side_effect = ValueError
+        success = self.service.setup_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(self.integration.secret)
+        mock_logger.exception.assert_called_with(
+            'GitHub webhook creation failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_update_webhook_successful(self, session, mock_logger):
+        session().patch.return_value.status_code = 201
+        session().patch.return_value.json.return_value = {}
+        success, _ = self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertTrue(success)
+        self.assertTrue(self.integration.secret)
+        mock_logger.info.assert_called_with(
+            "GitHub webhook creation successful for project: %s",
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.setup_webhook')
+    def test_update_webhook_404_error(self, setup_webhook, session):
+        session().patch.return_value.status_code = 404
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.setup_webhook')
+    def test_update_webhook_attribute_error(self, setup_webhook, session):
+        session().patch.side_effect = AttributeError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        setup_webhook.assert_called_once_with(
+            self.project,
+            self.integration
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_update_webhook_value_error(self, session, mock_logger):
+        session().patch.side_effect = ValueError
+        self.service.update_webhook(
+            self.project,
+            self.integration
+        )
+
+        self.assertFalse(self.integration.secret)
+        mock_logger.exception.assert_called_with(
+            'GitHub webhook update failed for project: %s',
+            self.project,
+        )
 
 
 class BitbucketOAuthTests(TestCase):
