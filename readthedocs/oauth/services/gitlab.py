@@ -288,8 +288,7 @@ class GitLabService(Service):
         repo_id = self._get_repo_id(project)
         if repo_id is None:
             # Set the secret to None so that the integration can be used manually.
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
             return (False, None)
 
         data = self.get_webhook_data(repo_id, project, integration)
@@ -321,13 +320,12 @@ class GitLabService(Service):
                     project,
                 )
                 # Set the secret to None so that the integration can be used manually.
-                integration.secret = None
-                integration.save()
+                integration.remove_secret()
+
                 return (False, resp)
 
         except (RequestException, ValueError):
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.exception(
                 'GitLab webhook creation failed for project: %s',
@@ -335,8 +333,7 @@ class GitLabService(Service):
             )
             return (False, resp)
         else:
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.error(
                 'GitLab webhook creation failed for project: %s',
@@ -402,16 +399,14 @@ class GitLabService(Service):
             return self.setup_webhook(project, integration)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.exception(
                 'GitLab webhook update failed for project: %s',
                 project,
             )
         else:
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.error(
                 'GitLab webhook update failed for project: %s',

@@ -240,21 +240,18 @@ class GitHubService(Service):
                     project,
                 )
                 # Set the secret to None so that the integration can be used manually.
-                integration.secret = None
-                integration.save()
+                integration.remove_secret()
                 return (False, resp)
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.exception(
                 'GitHub webhook creation failed for project: %s',
                 project,
             )
         else:
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
 
             log.error(
                 'GitHub webhook creation failed for project: %s',
@@ -322,12 +319,10 @@ class GitHubService(Service):
                 project,
             )
             # Set the secret to None so that the integration can be used manually.
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
             return (False, resp)
         else:
-            integration.secret = None
-            integration.save()
+            integration.remove_secret()
             log.error(
                 'GitHub webhook update failed for project: %s',
                 project,
