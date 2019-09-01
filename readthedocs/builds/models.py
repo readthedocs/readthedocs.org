@@ -1,6 +1,7 @@
 """Models for the builds app."""
 
 import datetime
+import json
 import logging
 import os.path
 import re
@@ -8,6 +9,7 @@ from shutil import rmtree
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
@@ -56,6 +58,7 @@ from readthedocs.builds.utils import (
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import broadcast
+from readthedocs.integrations.models import HttpExchange
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -877,6 +880,28 @@ class Build(models.Model):
 
     def using_latest_config(self):
         return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
+
+    @property
+    def external_build_title(self):
+        """Returns the title of the pull/merge request by parsing HttpExchange object."""
+        if self.is_external:
+            sha_str = f'"sha": "{self.commit}",'
+            number_str = f'"number": {self.version.verbose_name},'
+            integration_list = self.project.integrations.all().values_list('id', flat=True)
+            http_exchange = HttpExchange.objects.filter(
+                Q(object_id__in=integration_list) &
+                Q(request_body__contains=sha_str) &
+                Q(request_body__contains=number_str)
+            ).first()
+
+            if http_exchange:
+                try:
+                    return json.loads(
+                        http_exchange.request_body
+                    )['pull_request']['title']
+                except KeyError:
+                    return None
+        return None
 
 
 class BuildCommandResultMixin:
