@@ -87,7 +87,7 @@ $(document).ready(function () {
           {% endblocktrans %}
             #<a href="{{ build.version.vcs_url }}">{{ build.version.verbose_name }}</a>
             {% if build.external_build_title %}
-                <p>({{ build.external_build_title }})</p>
+                <div>({{ build.external_build_title }})</div>
             {% endif %}
         {% else %}
           {{ build.version.slug }}
