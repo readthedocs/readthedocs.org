@@ -35,20 +35,18 @@ Troubleshooting
 After the feature is enabled on your project if everything does not work as expected,
 some common causes might be:
 
-1. Project repository should be from GitHub or GitLab. This feature is only available for GitHub or GitLab.
-   So, if your projects provider is not GitHub or GitLab This feature will not work.
+#. Project repository should be from GitHub or GitLab. This feature is only available for GitHub or GitLab.
 
-2. Social Account (GitHub, Gitlab) is not connected with Read the Docs account.
-   if your project repository provider is GitHub or GitLab you need to make sure
+#. Social Account (GitHub, Gitlab) is not connected with Read the Docs account.
+   If your project repository provider is GitHub or GitLab you need to make sure
    that you Read the Docs account is connected with that providers social account.
-   you can check this by going to your `profile settings`_.
+   You can check this by going to your `profile settings`_.
 
-3. Webhook is not properly setup. You need to make sure your webhook is properly setup
-   to handle events. you can setup or ``re-sync`` the webhook from you projects admin dashboard.
+#. Webhook is not properly setup. You need to make sure your webhook is properly setup
+   to handle events. You can setup or ``re-sync`` the webhook from you projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
 If you have tried all the above troubleshooting and still getting issues,
-please let us know by opening an `issue`_ on our GitHub Repository.
+please let us know by sending us an `email <mailto:support@readthedocs.org>`_.
 
 .. _profile settings: https://readthedocs.org/accounts/social/connections/
-.. _issue: https://github.com/readthedocs/readthedocs.org/issues/new
