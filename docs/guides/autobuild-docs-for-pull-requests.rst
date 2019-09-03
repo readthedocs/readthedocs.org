@@ -10,7 +10,7 @@ Features
 
 - **Build on Pull/Merge Request Event:** We create an external version and trigger a build for that version
   when we receive pull/merge request open event from the webhook.
-  We also trigger a new build when a new commit has been added to the Pull/Merge Request.
+  We also trigger a new build when a new commit has been pushed to the Pull/Merge Request.
 
 - **Warning Banner for Pull/Merge Request Documentation:** While building documentation for pull/merge requests
   we add a warning banner at the top of those documentations to let the users know that
