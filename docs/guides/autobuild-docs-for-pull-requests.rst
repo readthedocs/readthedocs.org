@@ -8,7 +8,7 @@ So, you can enable this feature by sending us an `email <mailto:support@readthed
 Features
 ========
 
-- **Build on Pull/Merge Request Event:** We create a ecternal version and trigger a build for that version
+- **Build on Pull/Merge Request Event:** We create an external version and trigger a build for that version
   when we receive pull/merge request open event from the webhook.
   We also trigger a new build when a new commit has been added to the Pull/Merge Request.
 
