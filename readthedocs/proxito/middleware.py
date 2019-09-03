@@ -32,7 +32,7 @@ def map_host_to_project(request):
 
     elif public_domain in host:
         # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
-        if public_domain_parts[1:] == host_parts[1:]:
+        if public_domain_parts == host_parts[1:]:
             project = host_parts[0]
             request.subdomain = True
         else:

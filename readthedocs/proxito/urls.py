@@ -29,30 +29,24 @@ pip.rtfd.io/<lang>/
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
 """
 
-from django.conf.urls import url
+from django.conf.urls import url, include
+from django.conf import settings
 
 from readthedocs.constants import pattern_opts
-from readthedocs.core.views import server_error_404, server_error_500
 
 from readthedocs.proxito.views import (
-    robots_txt,
-    sitemap_xml,
-    redirect_page_with_filename,
     serve_docs
 )
 
-handler500 = server_error_500
-handler404 = server_error_404
-
-
 urlpatterns = [
+    # # TODO: Support this?
     # (Sub)project `page` redirect
-    url(
-        r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-        r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
-        name='docs_detail',
-    ),
+    # url(
+    #     r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+    #     r'page/(?P<filename>.*)$'.format(**pattern_opts),
+    #     redirect_page_with_filename,
+    #     name='docs_detail',
+    # ),
 
     # (Sub)project w/ translation and versions
     url(
@@ -65,6 +59,7 @@ urlpatterns = [
         serve_docs,
         name='docs_detail',
     ),
+
     # # TODO: Support this?
     # # (Sub)project translation and single version
     # url(
@@ -86,7 +81,10 @@ urlpatterns = [
         serve_docs,
         name='docs_detail',
     ),
-
-    url(r'robots\.txt$', robots_txt, name='robots_txt'),
-    url(r'sitemap\.xml$', sitemap_xml, name='sitemap_xml'),
 ]
+
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns += url(r'^__debug__/', include(debug_toolbar.urls)),
