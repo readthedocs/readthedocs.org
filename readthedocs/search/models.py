@@ -1,7 +1,7 @@
 """Search Queries."""
 
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -156,3 +156,41 @@ class PageView(TimeStampedModel):
 
     def __str__(self):
         return f'[{self.project.slug}:{self.version.slug}]: {self.path}'
+
+    @classmethod
+    def get_top_viewed_pages(cls, project):
+        """
+        Returns top 10 pages according to view counts.
+
+        Structure of returned data is compatible to make graphs.
+        Sample returned data::
+        {
+            'pages': ['index.html', 'contribute.html', 'sponsors.html'],
+            'view_counts': [150, 200, 143]
+        }
+        This data shows that `index.html` is the most viewed page having 150 total views,
+        followed by `contribute.html` and `sponsors.html` having 200 and
+        143 total page views respectively.
+        """
+        qs = (
+            cls.objects
+            .filter(project=project)
+            .values_list('path')
+            .annotate(total_views=Sum('view_count'))
+            .values_list('path', 'total_views')
+            .order_by('-total_views')[:10]
+        )
+
+        pages = []
+        view_counts = []
+
+        for data in qs.iterator():
+            pages.append(data[0])
+            view_counts.append(data[1])
+
+        final_data = {
+            'pages': pages,
+            'view_counts': view_counts,
+        }
+
+        return final_data

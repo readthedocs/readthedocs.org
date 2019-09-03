@@ -109,6 +109,10 @@ urlpatterns = [
         r'^(?P<project_slug>[-\w]+)/search-analytics/$',
         private.search_analytics_view, name='projects_search_analytics',
     ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/page-views/$',
+        private.page_views, name='projects_page_views',
+    ),
 ]
 
 domain_urls = [

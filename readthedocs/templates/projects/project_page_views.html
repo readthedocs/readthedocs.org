@@ -1,0 +1,52 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Page Views" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-page-views-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Page Views" %}{% endblock %}
+
+{% block project_edit_content %}
+	<h3>{% trans "Top Viewed Pages" %}</h3>
+		<div class="module-list">
+      <div class="module-list-wrapper">
+        <ul class="long-list-overflow">
+          {% for page, count in top_viewed_pages_iter %}
+            <li class="module-item">
+              {{ page }}
+              <span class="right quiet">
+                {{ count }} {{ view|pluralize:"s" }}
+              </span>
+            </li>
+          {% empty %}
+            <li class="module-item">
+              <p class="quiet">
+                {% trans 'No date available.' %}
+              </p>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+	<br/>
+
+	<h2>{% trans "Page Views Per Page" %}</h2>
+	<canvas id="page-views-per-page" width="400" height="150"></canvas>
+
+{% endblock %}
+
+{% block extra_scripts %}
+{% endblock %}
+
+{% block extra_links %}
+  <!-- Chart.js v2.8.0 -->
+  <link rel="stylesheet" href="{% static 'vendor/chartjs/chartjs.min.css' %}">
+{% endblock %}
+
+{% block footerjs %}
+{% endblock %}

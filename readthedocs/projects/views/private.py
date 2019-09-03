@@ -64,7 +64,7 @@ from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.utils import Echo
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
 from readthedocs.projects.views.mixins import ProjectImportMixin
-from readthedocs.search.models import SearchQuery
+from readthedocs.search.models import SearchQuery, PageView
 
 from ..tasks import retry_domain_verification
 
@@ -1020,3 +1020,27 @@ def _search_analytics_csv_data(request, project_slug):
     )
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
+
+
+def page_views(request, project_slug):
+    """View for page views."""
+
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
+
+    top_viewed_pages = PageView.get_top_viewed_pages(project)
+    top_viewed_pages_iter = zip(
+        top_viewed_pages['pages'],
+        top_viewed_pages['view_counts']
+    )
+
+    return render(
+        request,
+        'projects/project_page_views.html',
+        {
+            'project': project,
+            'top_viewed_pages_iter': top_viewed_pages_iter,
+        },
+    )
