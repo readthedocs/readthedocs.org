@@ -127,6 +127,7 @@ class BaseSphinx(BaseBuilder):
             'settings': settings,
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
+            'footer_api_host': settings.RTD_FOOTER_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,

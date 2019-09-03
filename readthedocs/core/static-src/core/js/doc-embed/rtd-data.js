@@ -57,6 +57,7 @@ function get() {
 
     var defaults = {
         api_host: 'https://readthedocs.org',
+        footer_api_host: 'https://readthedocs.org',
         ad_free: false,
     };
 
