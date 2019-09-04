@@ -111,7 +111,7 @@ class FooterHTML(APIView):
 
         return version
 
-    def _get_all_versions_sorted(self):
+    def _get_active_versions_sorted(self):
         """Get all versions that the user has access, sorted."""
         project = self._get_project()
         versions = project.ordered_active_versions(
@@ -147,7 +147,7 @@ class FooterHTML(APIView):
             'path': path,
             'downloads': version.get_downloads(pretty=True),
             'current_version': version.verbose_name,
-            'versions': self._get_all_versions_sorted(),
+            'versions': self._get_active_versions_sorted(),
             'main_project': main_project,
             'translations': main_project.translations.all(),
             'current_language': project.language,
