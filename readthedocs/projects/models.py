@@ -951,6 +951,12 @@ class Project(models.Model):
         )
 
     def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
         kwargs.update(
             {
@@ -959,8 +965,7 @@ class Project(models.Model):
             },
         )
         versions = (
-            Version.internal
-            .public(**kwargs)
+            Version.internal.public(**kwargs)
             .select_related(
                 'project',
                 'project__main_language_project',
