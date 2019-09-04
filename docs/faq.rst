@@ -276,7 +276,7 @@ Depending if you are using Sphinx or MkDocs, you will need a different configura
 Sphinx
 ~~~~~~
 
-Sphinx uses `html_extra`_ option to add static files to the output.
+Sphinx uses `html_extra_path`_ option to add static files to the output.
 You need to create a ``robots.txt`` file and put it under the path defined in ``html_extra``.
 
 
@@ -287,5 +287,5 @@ MkDocs needs the ``robots.txt`` to be at the directory defined at `docs_dir`_ co
 
 
 .. _Google's docs: https://support.google.com/webmasters/answer/6062608
-.. _html_extra: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
+.. _html_extra_path: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
 .. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir
