@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
-from readthedocs.api.v2.permissions import FooterHTMLRestrictedPermission
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
@@ -76,7 +76,7 @@ class FooterHTML(APIView):
     """
 
     http_method_names = ['get']
-    permission_classes = [FooterHTMLRestrictedPermission]
+    permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
 
     def _get_project(self):

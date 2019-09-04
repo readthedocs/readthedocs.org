@@ -86,13 +86,12 @@ class APIRestrictedPermission(permissions.BasePermission):
         )
 
 
-class FooterHTMLRestrictedPermission(permissions.BasePermission):
+class IsAuthorizedToViewVersion(permissions.BasePermission):
 
     """
-    Permission class used in the FooterHTML view.
+    Checks if the user from the request has permissions to see the version.
 
-    This checks if the user from the request has permissions
-    to see the version.
+    This permission class used in the FooterHTML view.
 
     .. note::
 
