@@ -8,6 +8,7 @@ from shutil import rmtree
 
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
@@ -1034,6 +1035,87 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
+
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        :returns: True if the priority was changed
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+
+        if current_priority == new_priority:
+            return False
+
+        # Move other's priority
+        if new_priority > current_priority:
+            # It was moved down
+            rules = (
+                self.project.automation_rules
+                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                # We sort the queryset in asc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('priority')
+            )
+            expression = F('priority') - 1
+        else:
+            # It was moved up
+            rules = (
+                self.project.automation_rules
+                .filter(priority__lt=current_priority, priority__gte=new_priority)
+                .exclude(pk=self.pk)
+                # We sort the queryset in desc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('-priority')
+            )
+            expression = F('priority') + 1
+
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.priority = total + 99
+        self.save()
+
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = expression
+            rule.save()
+
+        # Put back new priority
+        self.priority = new_priority
+        self.save()
+        return True
+
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Override method to update the other priorities after delete."""
+        current_priority = self.priority
+        project = self.project
+        super().delete(*args, **kwargs)
+
+        rules = (
+            project.automation_rules
+            .filter(priority__gte=current_priority)
+            # We sort the queryset in asc order
+            # to be updated in that order
+            # to avoid hitting the unique constraint (project, priority).
+            .order_by('priority')
+        )
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = F('priority') - 1
+            rule.save()
 
     def get_description(self):
         if self.description:
