@@ -106,7 +106,7 @@ class FooterHTMLRestrictedPermission(permissions.BasePermission):
         has_access = (
             Version.objects
             .public(
-                user=self.request.user,
+                user=request.user,
                 project=project,
                 only_active=False,
             )
