@@ -41,7 +41,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
-    RTD_FOOTER_API_URL = PUBLIC_API_URL
+    RTD_PROXIED_API_URL = PUBLIC_API_URL
     EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends

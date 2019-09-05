@@ -64,7 +64,7 @@ function init() {
 
     // Get footer HTML from API and inject it into the page.
     $.ajax({
-        url: rtd.footer_api_host + "/api/v2/footer_html/",
+        url: rtd.proxied_api_host + "/api/v2/footer_html/",
         crossDomain: true,
         xhrFields: {
             withCredentials: true,
