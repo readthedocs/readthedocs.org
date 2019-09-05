@@ -564,7 +564,6 @@ class BitbucketOAuthTests(TestCase):
                     }
                 },
                 'url': 'https://readthedocs.io/api/v2/webhook/test/99999999/',
-
             },]
     }
 
