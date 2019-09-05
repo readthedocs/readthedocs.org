@@ -203,7 +203,7 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        if integration:
+        if integration and not integration.secret:
             integration.recreate_secret()
         else:
             integration, _ = Integration.objects.get_or_create(
@@ -239,20 +239,16 @@ class GitHubService(Service):
                     'permissions: project=%s',
                     project,
                 )
-                # Set the secret to None so that the integration can be used manually.
-                integration.remove_secret()
-                return (False, resp)
+
+            # All other status codes will flow to the `else` clause below
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
-            integration.remove_secret()
-
             log.exception(
                 'GitHub webhook creation failed for project: %s',
                 project,
             )
         else:
-            integration.remove_secret()
-
             log.error(
                 'GitHub webhook creation failed for project: %s',
                 project,
@@ -267,7 +263,10 @@ class GitHubService(Service):
                 'GitHub webhook creation failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        # Always remove the secret and return False if we don't return True above
+        integration.remove_secret()
+        return (False, resp)
 
     def update_webhook(self, project, integration):
         """
@@ -281,9 +280,16 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        integration.recreate_secret()
+        if not integration.secret:
+            integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         resp = None
+
+        # Handle the case where we don't have a proper provider_data set
+        # This happens with a user-managed webhook previously
+        if not integration.provider_data:
+            return self.setup_webhook(project, integration)
+
         try:
             url = integration.provider_data.get('url')
             resp = session.patch(
@@ -310,21 +316,11 @@ class GitHubService(Service):
 
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
-            # We get AttributeError when the provider_data is None
-            # it only happens if the webhook attachment was not successful in the first place
-            if not integration.provider_data:
-                return self.setup_webhook(project, integration)
-
-            # Set the secret to None so that the integration can be used manually.
-            integration.remove_secret()
-
             log.exception(
                 'GitHub webhook update failed for project: %s',
                 project,
             )
-            return (False, resp)
         else:
-            integration.remove_secret()
             log.error(
                 'GitHub webhook update failed for project: %s',
                 project,
@@ -337,7 +333,9 @@ class GitHubService(Service):
                 'GitHub webhook update failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        integration.remove_secret()
+        return (False, resp)
 
     def send_build_status(self, build, commit, state):
         """

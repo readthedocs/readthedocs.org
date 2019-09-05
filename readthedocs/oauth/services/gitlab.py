@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     RTD_BUILD_STATUS_API_NAME,
     SELECT_BUILD_STATUS,
 )
-from readthedocs.builds.utils import get_gitlab_username_repo
+from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
@@ -52,11 +52,11 @@ class GitLabService(Service):
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
         try:
             repo_id = json.loads(project.remote_repository.json).get('id')
-        except Project.remote_repository.RelatedObjectDoesNotExist:
+        except Exception:
             # Handle "Manual Import" when there is no RemoteRepository
             # associated with the project. It only works with gitlab.com at the
             # moment (doesn't support custom gitlab installations)
-            username, repo = get_gitlab_username_repo(project.repo)
+            username, repo = build_utils.get_gitlab_username_repo(project.repo)
             if (username, repo) == (None, None):
                 return None
 
@@ -278,7 +278,8 @@ class GitLabService(Service):
         :returns: boolean based on webhook set up success
         :rtype: bool
         """
-        if integration:
+        resp = None
+        if integration and not integration.secret:
             integration.recreate_secret()
         else:
             integration, _ = Integration.objects.get_or_create(
@@ -286,14 +287,14 @@ class GitLabService(Service):
                 integration_type=Integration.GITLAB_WEBHOOK,
             )
         repo_id = self._get_repo_id(project)
+
         if repo_id is None:
             # Set the secret to None so that the integration can be used manually.
             integration.remove_secret()
-            return (False, None)
+            return (False, resp)
 
         data = self.get_webhook_data(repo_id, project, integration)
         session = self.get_session()
-        resp = None
         try:
             resp = session.post(
                 '{url}/api/v4/projects/{repo_id}/hooks'.format(
@@ -319,27 +320,21 @@ class GitLabService(Service):
                     'permissions: project=%s',
                     project,
                 )
-                # Set the secret to None so that the integration can be used manually.
-                integration.remove_secret()
-
-                return (False, resp)
 
         except (RequestException, ValueError):
-            integration.remove_secret()
-
             log.exception(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
-            return (False, resp)
         else:
-            integration.remove_secret()
-
             log.error(
                 'GitLab webhook creation failed for project: %s',
                 project,
             )
-            return (False, resp)
+
+        # Always remove secret and return False if we don't return True above
+        integration.remove_secret()
+        return (False, resp)
 
     def update_webhook(self, project, integration):
         """
@@ -356,16 +351,22 @@ class GitLabService(Service):
 
         :rtype: (Bool, Response)
         """
+        resp = None
         session = self.get_session()
-
         repo_id = self._get_repo_id(project)
-        if repo_id is None:
-            return (False, None)
 
-        integration.recreate_secret()
+        if repo_id is None:
+            return (False, resp)
+
+        # When we don't have provider_data, we aren't managing this webhook so setup a new one
+        if not integration.provider_data:
+            return self.setup_webhook(project, integration)
+
+        if not integration.secret:
+            integration.recreate_secret()
+
         data = self.get_webhook_data(repo_id, project, integration)
 
-        resp = None
         try:
             hook_id = integration.provider_data.get('id')
             resp = session.put(
@@ -395,20 +396,11 @@ class GitLabService(Service):
 
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
-            # We get AttributeError when the provider_data is None
-            # it only happens if the webhook attachment was not successful in the first place
-            if not integration.provider_data:
-                return self.setup_webhook(project, integration)
-
-            integration.remove_secret()
-
             log.exception(
                 'GitLab webhook update failed for project: %s',
                 project,
             )
         else:
-            integration.remove_secret()
-
             log.error(
                 'GitLab webhook update failed for project: %s',
                 project,
@@ -418,7 +410,9 @@ class GitLabService(Service):
             except ValueError:
                 debug_data = resp.content
             log.debug('GitLab webhook update failure response: %s', debug_data)
-            return (False, resp)
+
+        integration.remove_secret()
+        return (False, resp)
 
     def send_build_status(self, build, commit, state):
         """
@@ -433,13 +427,14 @@ class GitLabService(Service):
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
+        resp = None
         session = self.get_session()
         project = build.project
 
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
-            return (False, None)
+            return (False, resp)
 
         # select the correct state and description.
         gitlab_build_state = SELECT_BUILD_STATUS[state]['gitlab']
@@ -457,8 +452,6 @@ class GitLabService(Service):
             'context': RTD_BUILD_STATUS_API_NAME
         }
         url = self.adapter.provider_base_url
-
-        resp = None
 
         try:
             resp = session.post(

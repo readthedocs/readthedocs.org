@@ -251,7 +251,6 @@ class BitbucketService(Service):
                     'permissions: project=%s',
                     project,
                 )
-                return (False, resp)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -271,7 +270,8 @@ class BitbucketService(Service):
                 )
             except ValueError:
                 pass
-            return (False, resp)
+
+        return (False, resp)
 
     def update_webhook(self, project, integration):
         """
@@ -321,7 +321,6 @@ class BitbucketService(Service):
                 'Bitbucket webhook update failed for project: %s',
                 project,
             )
-            return (False, resp)
         else:
             log.error(
                 'Bitbucket webhook update failed for project: %s',
@@ -336,4 +335,5 @@ class BitbucketService(Service):
                 'Bitbucket webhook update failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        return (False, resp)
