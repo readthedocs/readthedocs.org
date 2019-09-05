@@ -13,7 +13,7 @@ It has those features and more!
 .. warning::
     These documents are maintained by the community, and might not be up to date.
     Read the Docs developers do not support custom installs of our software,
-    as mentioned in our :doc:`open-source-philosophy`.
+    as mentioned in our :doc:`/open-source-philosophy`.
 
 .. toctree::
     :maxdepth: 2
