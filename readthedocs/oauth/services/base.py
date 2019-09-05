@@ -226,6 +226,19 @@ class Service:
         """
         raise NotImplementedError
 
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from GitHub Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+        raise NotImplementedError
+
     def setup_webhook(self, project, integration=None):
         """
         Setup webhook for project.

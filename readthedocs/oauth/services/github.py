@@ -190,6 +190,71 @@ class GitHubService(Service):
             'events': ['push', 'pull_request', 'create', 'delete'],
         })
 
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from GitHub Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+
+        if integration.provider_data:
+            return integration.provider_data
+
+        session = self.get_session()
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            )
+        )
+
+        try:
+            resp = session.get(
+                (
+                    'https://api.github.com/repos/{owner}/{repo}/hooks'
+                        .format(owner=owner, repo=repo)
+                ),
+            )
+
+            if resp.status_code == 200:
+                recv_data = resp.json()
+
+                for webhook_data in recv_data:
+                    if webhook_data["config"]["url"] == rtd_webhook_url:
+                        integration.provider_data = webhook_data
+                        integration.save()
+
+                        log.info(
+                            'GitHub integration updated with provider data for project: %s',
+                            project,
+                        )
+                        break
+            else:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+
+        except Exception:
+            log.exception(
+                'GitHub webhook Listing failed for project: %s',
+                project,
+            )
+
+        return integration.provider_data
+
     def setup_webhook(self, project, integration=None):
         """
         Set up GitHub project webhook for project.
@@ -288,13 +353,16 @@ class GitHubService(Service):
         data = self.get_webhook_data(project, integration)
         resp = None
 
+        provider_data = self.get_provider_data(project, integration)
+
         # Handle the case where we don't have a proper provider_data set
         # This happens with a user-managed webhook previously
-        if not integration.provider_data:
+        if not provider_data:
             return self.setup_webhook(project, integration)
 
         try:
-            url = integration.provider_data.get('url')
+            url = provider_data.get('url')
+
             resp = session.patch(
                 url,
                 data=data,
