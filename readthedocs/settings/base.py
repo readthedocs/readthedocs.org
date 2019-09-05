@@ -80,6 +80,7 @@ class CommunityBaseSettings(Settings):
     RTD_LATEST_VERBOSE_NAME = 'latest'
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
+    RTD_CLEAN_AFTER_BUILD = False
 
     # Database and API hitting settings
     DONT_HIT_API = False

@@ -3,12 +3,12 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template import loader as template_loader
-from rest_framework.permissions import AllowAny
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
@@ -76,7 +76,7 @@ class FooterHTML(APIView):
     """
 
     http_method_names = ['get']
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, JSONPRenderer]
 
     def _get_project(self):
@@ -102,17 +102,22 @@ class FooterHTML(APIView):
             if version_slug == '':
                 version_slug = LATEST
 
+            project = self._get_project()
             version = get_object_or_404(
-                Version.objects.public(
-                    user=self.request.user,
-                    project=self._get_project(),
-                    only_active=False,
-                ),
+                project.versions.all(),
                 slug__iexact=version_slug,
             )
             setattr(self, cache_key, version)
 
         return version
+
+    def _get_active_versions_sorted(self):
+        """Get all versions that the user has access, sorted."""
+        project = self._get_project()
+        versions = project.ordered_active_versions(
+            user=self.request.user,
+        )
+        return versions
 
     def _get_context(self):
         theme = self.request.GET.get('theme', False)
@@ -142,9 +147,7 @@ class FooterHTML(APIView):
             'path': path,
             'downloads': version.get_downloads(pretty=True),
             'current_version': version.verbose_name,
-            'versions': project.ordered_active_versions(
-                user=self.request.user,
-            ),
+            'versions': self._get_active_versions_sorted(),
             'main_project': main_project,
             'translations': main_project.translations.all(),
             'current_language': project.language,

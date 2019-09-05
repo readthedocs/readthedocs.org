@@ -950,28 +950,38 @@ class Project(models.Model):
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.internal.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
