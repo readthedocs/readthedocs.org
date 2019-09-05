@@ -1,6 +1,7 @@
 import itertools
 import logging
 
+from django.utils import timezone
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
@@ -160,8 +161,11 @@ class PageSearchAPIView(generics.ListAPIView):
 
         project_slug = self.request.query_params.get('project', None)
         version_slug = self.request.query_params.get('version', None)
-        query = self.request.query_params.get('q', '')
         total_results = response.data.get('count', 0)
+        time = timezone.now()
+
+        query = self.request.query_params.get('q', '')
+        query = query.lower().strip()
 
         # record the search query with a celery task
         tasks.record_search_query.delay(
@@ -169,6 +173,7 @@ class PageSearchAPIView(generics.ListAPIView):
             version_slug,
             query,
             total_results,
+            time,
         )
 
         return response
