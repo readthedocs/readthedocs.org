@@ -50,7 +50,7 @@ class GitHubOAuthTests(TestCase):
         self.provider_data = [
             {
                 "config": {
-                "url": "https://example.com/webhook"
+                    "url": "https://example.com/webhook"
                 },
                 "url": "https://api.github.com/repos/test/Hello-World/hooks/12345678",
             }
@@ -850,7 +850,6 @@ class GitLabOAuthTests(TestCase):
                 'id': 1084320,
                 'url': 'https://readthedocs.io/api/v2/webhook/test/99999999/',
             }
-
         ]
 
     def get_private_repo_data(self):
