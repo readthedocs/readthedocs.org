@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from django_dynamic_fixture import get
 
@@ -46,6 +47,14 @@ class GitHubOAuthTests(TestCase):
                 'url': 'https://github.com/'
             }
         )
+        self.provider_data = [
+            {
+                "config": {
+                "url": "https://example.com/webhook"
+                },
+                "url": "https://api.github.com/repos/test/Hello-World/hooks/12345678",
+            }
+        ]
 
     def test_make_project_pass(self):
         repo_json = {
@@ -241,7 +250,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertTrue(success)
-        self.assertTrue(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             "GitHub webhook creation successful for project: %s",
             self.project,
@@ -295,7 +304,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertTrue(success)
-        self.assertTrue(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             "GitHub webhook update successful for project: %s",
             self.project,
@@ -346,6 +355,84 @@ class GitHubOAuthTests(TestCase):
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitHub webhook update failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_get_provider_data_successful(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        webhook_data = self.provider_data
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': self.integration.pk,
+                },
+            )
+        )
+        webhook_data[0]["config"]["url"] = rtd_webhook_url
+
+        session().get.return_value.status_code = 200
+        session().get.return_value.json.return_value = webhook_data
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, webhook_data[0])
+        mock_logger.info.assert_called_with(
+            'GitHub integration updated with provider data for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_get_provider_data_404_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.return_value.status_code = 404
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.info.assert_called_with(
+            'GitHub project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.github.log')
+    @mock.patch('readthedocs.oauth.services.github.GitHubService.get_session')
+    def test_get_provider_data_attribute_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.side_effect = AttributeError
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.exception.assert_called_with(
+            'GitHub webhook Listing failed for project: %s',
             self.project,
         )
 
@@ -593,7 +680,7 @@ class BitbucketOAuthTests(TestCase):
         )
 
         self.assertTrue(success)
-        self.assertTrue(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             "Bitbucket webhook update successful for project: %s",
             self.project,
@@ -901,7 +988,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertTrue(success)
-        self.assertTrue(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             "GitLab webhook creation successful for project: %s",
             self.project,
@@ -958,7 +1045,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertTrue(success)
-        self.assertTrue(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             "GitLab webhook update successful for project: %s",
             self.project,
