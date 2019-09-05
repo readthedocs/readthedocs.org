@@ -3,7 +3,7 @@ Autobuild Documentation for Pull Requests
 
 Read the Docs allows autobuilding documentation for pull/merge requests for GitHub or GitLab projects.
 This feature is currently available under a :doc:`Feature Flag </guides/feature-flags>`.
-So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`_ including your project URL.
+So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
 
 Features
 ========
@@ -47,6 +47,6 @@ some common causes might be:
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
 If you have tried all the above troubleshooting and still getting issues,
-please let us know by sending us an `email <mailto:support@readthedocs.org>`_.
+please let us know by sending us an `email <mailto:support@readthedocs.org>`__.
 
 .. _profile settings: https://readthedocs.org/accounts/social/connections/
