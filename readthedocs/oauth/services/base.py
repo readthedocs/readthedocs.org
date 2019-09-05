@@ -228,7 +228,7 @@ class Service:
 
     def get_provider_data(self, project, integration):
         """
-        Gets provider data from GitHub Webhooks API.
+        Gets provider data from Git Providers Webhooks API.
 
         :param project: project
         :type project: Project

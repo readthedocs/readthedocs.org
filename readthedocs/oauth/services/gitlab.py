@@ -267,6 +267,75 @@ class GitLabService(Service):
             'wiki_events': False,
         })
 
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from GitLab Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+
+        if integration.provider_data:
+            return integration.provider_data
+
+        repo_id = self._get_repo_id(project)
+
+        if repo_id is None:
+            return None
+
+        session = self.get_session()
+
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            )
+        )
+
+        try:
+            resp = session.get(
+                '{url}/api/v4/projects/{repo_id}/hooks'.format(
+                    url=self.adapter.provider_base_url,
+                    repo_id=repo_id,
+                ),
+            )
+
+            if resp.status_code == 200:
+                recv_data = resp.json()
+
+                for webhook_data in recv_data:
+                    if webhook_data["url"] == rtd_webhook_url:
+                        integration.provider_data = webhook_data
+                        integration.save()
+
+                        log.info(
+                            'GitLab integration updated with provider data for project: %s',
+                            project,
+                        )
+                        break
+            else:
+                log.info(
+                    'GitLab project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+
+        except Exception:
+            log.exception(
+                'GitLab webhook Listing failed for project: %s',
+                project,
+            )
+
+        return integration.provider_data
+
     def setup_webhook(self, project, integration=None):
         """
         Set up GitLab project webhook for project.
@@ -354,6 +423,13 @@ class GitLabService(Service):
 
         :rtype: (Bool, Response)
         """
+        provider_data = self.get_provider_data(project, integration)
+
+        # Handle the case where we don't have a proper provider_data set
+        # This happens with a user-managed webhook previously
+        if not provider_data:
+            return self.setup_webhook(project, integration)
+
         resp = None
         session = self.get_session()
         repo_id = self._get_repo_id(project)
@@ -361,17 +437,13 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, resp)
 
-        # When we don't have provider_data, we aren't managing this webhook so setup a new one
-        if not integration.provider_data:
-            return self.setup_webhook(project, integration)
-
         if not integration.secret:
             integration.recreate_secret()
 
         data = self.get_webhook_data(repo_id, project, integration)
 
         try:
-            hook_id = integration.provider_data.get('id')
+            hook_id = provider_data.get('id')
             resp = session.put(
                 '{url}/api/v4/projects/{repo_id}/hooks/{hook_id}'.format(
                     url=self.adapter.provider_base_url,
