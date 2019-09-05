@@ -238,6 +238,8 @@ class GitHubOAuthTests(TestCase):
             self.integration
         )
 
+        self.integration.refresh_from_db()
+
         self.assertTrue(success)
         self.assertTrue(self.integration.secret)
         mock_logger.info.assert_called_with(
@@ -253,9 +255,10 @@ class GitHubOAuthTests(TestCase):
             self.project,
             self.integration
         )
+        self.integration.refresh_from_db()
 
         self.assertFalse(success)
-        self.assertFalse(self.integration.secret)
+        self.assertIsNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             'GitHub project does not exist or user does not have '
             'permissions: project=%s',
@@ -271,7 +274,9 @@ class GitHubOAuthTests(TestCase):
             self.integration
         )
 
-        self.assertFalse(self.integration.secret)
+        self.integration.refresh_from_db()
+
+        self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitHub webhook creation failed for project: %s',
             self.project,
@@ -286,6 +291,8 @@ class GitHubOAuthTests(TestCase):
             self.project,
             self.integration
         )
+
+        self.integration.refresh_from_db()
 
         self.assertTrue(success)
         self.assertTrue(self.integration.secret)
@@ -334,7 +341,9 @@ class GitHubOAuthTests(TestCase):
             self.integration
         )
 
-        self.assertFalse(self.integration.secret)
+        self.integration.refresh_from_db()
+
+        self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitHub webhook update failed for project: %s',
             self.project,
@@ -889,6 +898,8 @@ class GitLabOAuthTests(TestCase):
             self.integration
         )
 
+        self.integration.refresh_from_db()
+
         self.assertTrue(success)
         self.assertTrue(self.integration.secret)
         mock_logger.info.assert_called_with(
@@ -905,8 +916,10 @@ class GitLabOAuthTests(TestCase):
             self.integration
         )
 
+        self.integration.refresh_from_db()
+
         self.assertFalse(success)
-        self.assertFalse(self.integration.secret)
+        self.assertIsNone(self.integration.secret)
         mock_logger.info.assert_called_with(
             'Gitlab project does not exist or user does not have '
             'permissions: project=%s',
@@ -922,7 +935,9 @@ class GitLabOAuthTests(TestCase):
             self.integration
         )
 
-        self.assertFalse(self.integration.secret)
+        self.integration.refresh_from_db()
+
+        self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitLab webhook creation failed for project: %s',
             self.project,
@@ -939,6 +954,8 @@ class GitLabOAuthTests(TestCase):
             self.project,
             self.integration
         )
+
+        self.integration.refresh_from_db()
 
         self.assertTrue(success)
         self.assertTrue(self.integration.secret)
@@ -993,7 +1010,9 @@ class GitLabOAuthTests(TestCase):
             self.integration
         )
 
-        self.assertFalse(self.integration.secret)
+        self.integration.refresh_from_db()
+
+        self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitLab webhook update failed for project: %s',
             self.project,
