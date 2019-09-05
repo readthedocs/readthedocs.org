@@ -369,7 +369,7 @@ class BitbucketService(Service):
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
-            url = integration.provider_data['links']['self']['href']
+            url = provider_data['links']['self']['href']
             resp = session.put(
                 url,
                 data=data,

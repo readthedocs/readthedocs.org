@@ -556,6 +556,17 @@ class BitbucketOAuthTests(TestCase):
                 }
             }
         )
+        self.provider_data = {
+            'values': [{
+                'links': {
+                    'self': {
+                        'href': 'https://bitbucket.org/'
+                    }
+                },
+                'url': 'https://readthedocs.io/api/v2/webhook/test/99999999/',
+
+            },]
+    }
 
     def test_make_project_pass(self):
         repo = self.service.create_repository(
@@ -728,6 +739,84 @@ class BitbucketOAuthTests(TestCase):
 
         mock_logger.exception.assert_called_with(
             'Bitbucket webhook update failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_get_provider_data_successful(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        webhook_data = self.provider_data
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': self.integration.pk,
+                },
+            )
+        )
+        webhook_data['values'][0]["url"] = rtd_webhook_url
+
+        session().get.return_value.status_code = 200
+        session().get.return_value.json.return_value = webhook_data
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, webhook_data['values'][0])
+        mock_logger.info.assert_called_with(
+            'Bitbucket integration updated with provider data for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_get_provider_data_404_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.return_value.status_code = 404
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.info.assert_called_with(
+            'Bitbucket project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.bitbucket.log')
+    @mock.patch('readthedocs.oauth.services.bitbucket.BitbucketService.get_session')
+    def test_get_provider_data_attribute_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.side_effect = AttributeError
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.exception.assert_called_with(
+            'Bitbucket webhook Listing failed for project: %s',
             self.project,
         )
 
