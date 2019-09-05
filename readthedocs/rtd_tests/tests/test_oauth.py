@@ -845,6 +845,13 @@ class GitLabOAuthTests(TestCase):
                 'id': '999999999'
             }
         )
+        self.provider_data = [
+            {
+                'id': 1084320,
+                'url': 'https://readthedocs.io/api/v2/webhook/test/99999999/',
+            }
+
+        ]
 
     def get_private_repo_data(self):
         """Manipulate repo response data to get private repo data."""
@@ -1102,5 +1109,83 @@ class GitLabOAuthTests(TestCase):
         self.assertIsNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             'GitLab webhook update failed for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_get_provider_data_successful(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        webhook_data = self.provider_data
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': self.integration.pk,
+                },
+            )
+        )
+        webhook_data[0]["url"] = rtd_webhook_url
+
+        session().get.return_value.status_code = 200
+        session().get.return_value.json.return_value = webhook_data
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, webhook_data[0])
+        mock_logger.info.assert_called_with(
+            'GitLab integration updated with provider data for project: %s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_get_provider_data_404_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.return_value.status_code = 404
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.info.assert_called_with(
+            'GitLab project does not exist or user does not have '
+            'permissions: project=%s',
+            self.project,
+        )
+
+    @mock.patch('readthedocs.oauth.services.gitlab.log')
+    @mock.patch('readthedocs.oauth.services.gitlab.GitLabService.get_session')
+    def test_get_provider_data_attribute_error(self, session, mock_logger):
+        self.integration.provider_data = {}
+        self.integration.save()
+
+        session().get.side_effect = AttributeError
+
+        self.service.get_provider_data(
+            self.project,
+            self.integration
+        )
+
+        self.integration.refresh_from_db()
+
+        self.assertEqual(self.integration.provider_data, {})
+        mock_logger.exception.assert_called_with(
+            'GitLab webhook Listing failed for project: %s',
             self.project,
         )
