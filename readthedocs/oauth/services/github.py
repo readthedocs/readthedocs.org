@@ -203,13 +203,16 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        if integration and not integration.secret:
-            integration.recreate_secret()
-        else:
+
+        if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
                 integration_type=Integration.GITHUB_WEBHOOK,
             )
+
+        if not integration.secret:
+            integration.recreate_secret()
+
         data = self.get_webhook_data(project, integration)
         resp = None
         try:

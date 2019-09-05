@@ -279,13 +279,16 @@ class GitLabService(Service):
         :rtype: bool
         """
         resp = None
-        if integration and not integration.secret:
-            integration.recreate_secret()
-        else:
+
+        if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
                 integration_type=Integration.GITLAB_WEBHOOK,
             )
+
+        if not integration.secret:
+            integration.recreate_secret()
+
         repo_id = self._get_repo_id(project)
 
         if repo_id is None:
