@@ -12,9 +12,8 @@ It has those features and more!
 
 .. warning::
     These documents are maintained by the community, and might not be up to date.
-    Read the Docs developers do not support custom installs of our software
-    in our public issue tracker. For additional support of a custom installation,
-    please see our `paid support plans <https://readthedocs.com/services/#open-source-support>`_.
+    Read the Docs developers do not support custom installs of our software,
+    as mentioned in our :doc:`open-source-philosophy`.
 
 .. toctree::
     :maxdepth: 2
