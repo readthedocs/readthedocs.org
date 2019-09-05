@@ -223,7 +223,7 @@ class GitHubService(Service):
             resp = session.get(
                 (
                     'https://api.github.com/repos/{owner}/{repo}/hooks'
-                        .format(owner=owner, repo=repo)
+                    .format(owner=owner, repo=repo)
                 ),
             )
 
