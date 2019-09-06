@@ -14,7 +14,9 @@
       {% block versions %}
       {% if translations %}
       <dl>
-        <dt>Languages</dt>
+        {% blocktrans %}
+          <dt>Languages</dt>
+        {% endblocktrans %}
 
         {# Output the main project language since it isn't included in translations list #}
         {% if main_project.language == current_language %} <strong> {% endif %}
@@ -37,7 +39,9 @@
       {% endif %}
       {% if not project.single_version and versions|length >= 1 %}
       <dl>
-        <dt>Versions</dt>
+        {% blocktrans %}
+          <dt>Versions</dt>
+        {% endblocktrans %}
         {% for version in versions %}
         {% if version.verbose_name == current_version %} <strong> {% endif %}
         <dd><a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.slug }}</a></dd>
@@ -50,7 +54,9 @@
       {% block downloads %}
       {% if downloads %}
       <dl>
-        <dt>Downloads</dt>
+        {% blocktrans %}
+          <dt>Downloads</dt>
+        {% endblocktrans %}
         {% for name, url in downloads.items %}
         <dd><a href="{{ url }}">{{ name }}</a></dd>
         {% endfor %}
@@ -61,7 +67,9 @@
       {% block readthedocs %}
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
-        <dt>On Read the Docs</dt>
+        {% blocktrans %}
+          <dt>On Read the Docs</dt>
+        {% endblocktrans %}
         <dd>
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">Project Home</a>
         </dd>
@@ -78,7 +86,9 @@
 
       {% if github_edit_url %}
       <dl>
-        <dt>On GitHub</dt>
+        {% blocktrans %}
+          <dt>On GitHub</dt>
+        {% endblocktrans %}
         <dd>
           <a href="{{ github_view_url }}">View</a>
         </dd>
@@ -130,7 +140,9 @@
         <small>
           <span>Hosted by <a href="https://readthedocs.org">Read the Docs</a></span>
           <span> &middot; </span>
-          <a href="https://docs.readthedocs.io/page/privacy-policy.html">Privacy Policy</a>
+          {% blocktrans %}
+            <a href="https://docs.readthedocs.io/page/privacy-policy.html">Privacy Policy</a>
+          {% endblocktrans %}
         </small>
       {% endblock %}
 
