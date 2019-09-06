@@ -153,7 +153,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         )
         return
 
-    time = timezone.datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S.%f+00:00")
+    time = timezone.make_aware(timezone.datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S.%f+00:00"))
     before_10_sec = time - timezone.timedelta(seconds=10)
     partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
