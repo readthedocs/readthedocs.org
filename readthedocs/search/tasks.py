@@ -149,7 +149,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         log.debug(
             'Not recording the search query. Passed arguments: '
             'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                project_slug, version_slug, query, total_results, time
+                project_slug, version_slug, query, total_results, time_string
             )
         )
         return
