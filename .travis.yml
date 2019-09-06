@@ -25,6 +25,7 @@ cache:
 install:
   - ./scripts/travis/install_elasticsearch.sh
   - pip install tox-travis
+  - pip install restructuredtext-lint
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
   - source ~/.nvm/nvm.sh
   - nvm install --lts
@@ -34,6 +35,7 @@ install:
   - bower install
 script:
   - ./scripts/travis/run_tests.sh
+  - rst-lint find $directory -type f -name "*.rst"
 notifications:
   slack:
     rooms:
