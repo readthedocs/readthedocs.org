@@ -35,7 +35,7 @@ install:
   - bower install
 script:
   - ./scripts/travis/run_tests.sh
-  - rst-lint find $directory -type f -name "*.rst"
+  - rst-lint doc/*.rst
 notifications:
   slack:
     rooms:
