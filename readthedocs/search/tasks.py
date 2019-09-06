@@ -1,5 +1,6 @@
 import logging
 
+from dateutil.parser import parse
 from django.apps import apps
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
@@ -153,7 +154,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         )
         return
 
-    time = timezone.make_aware(timezone.datetime.strptime(time_string, "%Y-%m-%dT%H:%M:%S.%f+00:00"))
+    time = parse(time_string)
     before_10_sec = time - timezone.timedelta(seconds=10)
     partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
