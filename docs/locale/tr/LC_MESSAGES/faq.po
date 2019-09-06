@@ -180,7 +180,7 @@ msgid "Deleting a stale or broken build environment"
 msgstr ""
 
 #: ../../faq.rst:113
-msgid "See :doc:`guides/how-to/wipe-environment`."
+msgid "See :doc:`guides/troubleshooting/wipe-environment`."
 msgstr ""
 
 #: ../../faq.rst:116

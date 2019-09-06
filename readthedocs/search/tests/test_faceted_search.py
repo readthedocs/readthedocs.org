@@ -42,9 +42,9 @@ class TestPageSearch(object):
         assert len(results) == 3
 
         result_paths = [r.path for r in results]
-        # ``guides/wipe-environment`` page has both ``Elasticsearch Query`` words
+        # ``guides/troubleshooting/wipe-environment`` page has both ``Elasticsearch Query`` words
         # ``docker`` page has ``Elasticsearch`` word
         # ``installation`` page has ``Query`` word.
-        expected_paths = ['guides/wipe-environment', 'docker', 'installation']
+        expected_paths = ['guides/troubleshooting/wipe-environment', 'docker', 'installation']
 
         assert result_paths == expected_paths
