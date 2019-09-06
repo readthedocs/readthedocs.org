@@ -1507,7 +1507,10 @@ def clean_build(version_pk):
     except Exception:
         log.exception('Error while fetching the version from the api')
         return False
-    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
+    if (
+        not settings.RTD_CLEAN_AFTER_BUILD and
+        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+    ):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
