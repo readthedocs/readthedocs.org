@@ -32,8 +32,10 @@ install:
   - npm install -g bower
   - npm install
   - bower install
+  - curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh -s vX.Y.Z
 script:
   - ./scripts/travis/run_tests.sh
+  - vale --glob='*.{md,rst}' directory
 notifications:
   slack:
     rooms:
