@@ -1,5 +1,6 @@
 import logging
 
+from dateutil.parser import parse
 from django.apps import apps
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
@@ -142,17 +143,18 @@ def delete_old_search_queries_from_db():
 
 
 @app.task(queue='web')
-def record_search_query(project_slug, version_slug, query, total_results, time):
+def record_search_query(project_slug, version_slug, query, total_results, time_string):
     """Record/update search query in database."""
     if not project_slug or not version_slug or not query:
         log.debug(
             'Not recording the search query. Passed arguments: '
             'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                project_slug, version_slug, query, total_results, time
+                project_slug, version_slug, query, total_results, time_string
             )
         )
         return
 
+    time = parse(time_string)
     before_10_sec = time - timezone.timedelta(seconds=10)
     partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
