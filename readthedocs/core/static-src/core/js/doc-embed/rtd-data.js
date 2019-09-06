@@ -22,10 +22,6 @@ var configMethods = {
         return constants.ALABASTER_LIKE_THEMES.indexOf(this.get_theme_name()) > -1;
     },
 
-    theme_supports_paid_promo: function () {
-        return this.is_rtd_like_theme() || this.is_alabaster_like_theme();
-    },
-
     is_sphinx_builder: function () {
         return (!('builder' in this) || this.builder !== 'mkdocs');
     },
