@@ -1,3 +1,23 @@
+Version 3.7.4
+-------------
+
+:Date: September 05, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Remove paid support callout (`#6140 <https://github.com/readthedocs/readthedocs.org/pull/6140>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix IntegrationAdmin with raw_id_fields for Projects (`#6136 <https://github.com/readthedocs/readthedocs.org/pull/6136>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix link to html_extra_path (`#6135 <https://github.com/readthedocs/readthedocs.org/pull/6135>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move out authorization from FooterHTML view (`#6133 <https://github.com/readthedocs/readthedocs.org/pull/6133>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add setting for always cleaning the build post-build (`#6132 <https://github.com/readthedocs/readthedocs.org/pull/6132>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#6129 <https://github.com/readthedocs/readthedocs.org/pull/6129>`__)
+* `@stsewd <http://github.com/stsewd>`__:  Refactor footer_html view to class (`#6125 <https://github.com/readthedocs/readthedocs.org/pull/6125>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Use raw_id_fields in the TokenAdmin (`#6116 <https://github.com/readthedocs/readthedocs.org/pull/6116>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fixed footer ads supported on all themes (`#6115 <https://github.com/readthedocs/readthedocs.org/pull/6115>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't log BuildEnvironmentWarning as error (`#6112 <https://github.com/readthedocs/readthedocs.org/pull/6112>`__)
+* `@pllim <http://github.com/pllim>`__: Use the force when fetching with Git (`#6109 <https://github.com/readthedocs/readthedocs.org/pull/6109>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Record search queries smartly (`#6088 <https://github.com/readthedocs/readthedocs.org/pull/6088>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add move method to automation rule (`#5998 <https://github.com/readthedocs/readthedocs.org/pull/5998>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Index more domain data into elasticsearch (`#5979 <https://github.com/readthedocs/readthedocs.org/pull/5979>`__)
+
 Version 3.7.3
 -------------
 
