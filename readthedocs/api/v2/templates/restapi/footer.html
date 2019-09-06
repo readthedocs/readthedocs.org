@@ -1,4 +1,5 @@
 <!-- Inserted RTD Footer -->
+{% load i18n %}
 <div class="injected">
 
   {% if not new_theme %}
@@ -14,9 +15,7 @@
       {% block versions %}
       {% if translations %}
       <dl>
-        {% blocktrans %}
-          <dt>Languages</dt>
-        {% endblocktrans %}
+        <dt>{% trans "Languages" %}</dt>
 
         {# Output the main project language since it isn't included in translations list #}
         {% if main_project.language == current_language %} <strong> {% endif %}
@@ -39,9 +38,7 @@
       {% endif %}
       {% if not project.single_version and versions|length >= 1 %}
       <dl>
-        {% blocktrans %}
-          <dt>Versions</dt>
-        {% endblocktrans %}
+        <dt>{% trans "Versions" %}</dt>
         {% for version in versions %}
         {% if version.verbose_name == current_version %} <strong> {% endif %}
         <dd><a href="{{ version.get_subdomain_url }}{{ path|default_if_none:"" }}">{{ version.slug }}</a></dd>
@@ -54,9 +51,7 @@
       {% block downloads %}
       {% if downloads %}
       <dl>
-        {% blocktrans %}
-          <dt>Downloads</dt>
-        {% endblocktrans %}
+        <dt>{% trans "Downloads" %}</dt>
         {% for name, url in downloads.items %}
         <dd><a href="{{ url }}">{{ name }}</a></dd>
         {% endfor %}
@@ -67,9 +62,7 @@
       {% block readthedocs %}
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
-        {% blocktrans %}
-          <dt>On Read the Docs</dt>
-        {% endblocktrans %}
+        <dt>{% trans "On Read the Docs" %}</dt>
         <dd>
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">Project Home</a>
         </dd>
@@ -86,9 +79,7 @@
 
       {% if github_edit_url %}
       <dl>
-        {% blocktrans %}
-          <dt>On GitHub</dt>
-        {% endblocktrans %}
+        <dt>{% trans "On GitHub" %}</dt>
         <dd>
           <a href="{{ github_view_url }}">View</a>
         </dd>
@@ -100,14 +91,14 @@
       </dl>
       {% elif bitbucket_url %}
       <dl>
-        <dt>On Bitbucket</dt>
+				<dt>{% trans "On Bitbucket" %}</dt>
         <dd>
           <a href="{{ bitbucket_url }}">Edit</a>
         </dd>
       </dl>
       {% elif gitlab_edit_url %}
       <dl>
-        <dt>On GitLab</dt>
+				<dt>{% trans "On GitLab" %}</dt>
         <dd>
           <a href="{{ gitlab_view_url }}">View</a>
         </dd>
@@ -122,7 +113,7 @@
 
       {% block search %}
       <dl>
-        <dt>Search</dt>
+				<dt>{% trans "Search" %}</dt>
         <dd>
           <div style="padding: 6px;">
             <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
@@ -140,9 +131,7 @@
         <small>
           <span>Hosted by <a href="https://readthedocs.org">Read the Docs</a></span>
           <span> &middot; </span>
-          {% blocktrans %}
             <a href="https://docs.readthedocs.io/page/privacy-policy.html">Privacy Policy</a>
-          {% endblocktrans %}
         </small>
       {% endblock %}
 
