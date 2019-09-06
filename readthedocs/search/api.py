@@ -173,7 +173,7 @@ class PageSearchAPIView(generics.ListAPIView):
             version_slug,
             query,
             total_results,
-            time,
+            time.isoformat(),
         )
 
         return response
