@@ -174,6 +174,7 @@ def server_error_404_subdomain(request, template_name='404.html'):
 
     project, full_path = project_and_path_from_request(request, request.get_full_path())
 
+
     if project:
         language = None
         version_slug = None

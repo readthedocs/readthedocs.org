@@ -52,7 +52,7 @@ def project_and_path_from_request(request, path):
         project = Project.objects.get(slug=project_slug)
     except Project.DoesNotExist:
         return None, path
-    return project, path
+    return project, path, project_slug
 
 
 def language_and_version_from_path(path):

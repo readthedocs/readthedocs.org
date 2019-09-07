@@ -22,7 +22,7 @@ class SubdomainMiddleware(MiddlewareMixin):
 
     """Middleware to display docs for non-dashboard domains."""
 
-    def process_request(self, request):
+    def process_request(self, request, subproject_slug=None):
         """
         Process requests for unhandled domains.
 
@@ -33,11 +33,21 @@ class SubdomainMiddleware(MiddlewareMixin):
         if not settings.USE_SUBDOMAIN:
             return None
 
+        if subproject is None and subproject_slug:
+            try:
+                rel = ProjectRelationship.objects.get(
+                    parent=kwargs['project'],
+                    alias=subproject_slug,
+                )
+                subproject = rel.child
+            except (ProjectRelationship.DoesNotExist, KeyError):
+                subproject = get_object_or_404(Project, slug=subproject_slug)
+
         full_host = host = request.get_host().lower()
         path = request.get_full_path()
         log_kwargs = dict(host=host, path=path)
         public_domain = settings.PUBLIC_DOMAIN
-
+        
         if public_domain is None:
             public_domain = settings.PRODUCTION_DOMAIN
         if ':' in host:
