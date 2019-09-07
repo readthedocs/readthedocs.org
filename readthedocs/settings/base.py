@@ -267,6 +267,10 @@ class CommunityBaseSettings(Settings):
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'PREFIX': 'docs',
+        },
+        'footer': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': os.path.join(SITE_ROOT, 'readthedocs', 'api/v2/templates/restapi/footer.html' )
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
