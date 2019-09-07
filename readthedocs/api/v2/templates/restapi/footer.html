@@ -1,4 +1,6 @@
 <!-- Inserted RTD Footer -->
+{% load cache %}
+{% cache 900 footer %}
 <div class="injected">
 
   {% if not new_theme %}
@@ -140,3 +142,4 @@
   {% endif %}
 
 </div>
+{% endcache %}
