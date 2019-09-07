@@ -18,6 +18,7 @@ from readthedocs.projects.version_handling import (
     parse_version_failsafe,
 )
 
+
 def get_version_compare_data(project, base_version=None):
     """
     Retrieve metadata about the highest version available for this project.
