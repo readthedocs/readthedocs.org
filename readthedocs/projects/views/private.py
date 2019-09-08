@@ -1036,11 +1036,26 @@ def page_views(request, project_slug):
         top_viewed_pages['view_counts']
     )
 
+    all_pages = PageView.objects.filter(project=project).values_list('path', flat=True)
+    if all_pages.exists():
+        all_pages = sorted(list(set(all_pages)))
+        page_path = request.GET.get('page', all_pages[0])
+    else:
+        all_pages = []
+        page_path = ''
+
+    page_data = PageView.get_page_view_count_of_one_month(
+        project_slug=project.slug,
+        page_path=page_path
+    )
     return render(
         request,
         'projects/project_page_views.html',
         {
             'project': project,
             'top_viewed_pages_iter': top_viewed_pages_iter,
+            'page_data': page_data,
+            'page_path': page_path,
+            'all_pages': all_pages,
         },
     )

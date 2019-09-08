@@ -36,11 +36,20 @@
 	<br/>
 
 	<h2>{% trans "Page Views Per Page" %}</h2>
+  <form method="GET">
+    <select name="page" onchange="this.form.submit()">
+      {% for option in all_pages %}
+        <option value="{{ option }}" {% if page_path == option %}selected{% endif %}>{{ option }}</option>
+      {% endfor %}
+    </select>
+  </form>
 	<canvas id="page-views-per-page" width="400" height="150"></canvas>
 
 {% endblock %}
 
 {% block extra_scripts %}
+  <!-- Chart.js v2.8.0 -->
+  <script src="{% static 'vendor/chartjs/chartjs.bundle.min.js' %}"></script>
 {% endblock %}
 
 {% block extra_links %}
@@ -49,4 +58,21 @@
 {% endblock %}
 
 {% block footerjs %}
+  var line_chart = document.getElementById("page-views-per-page").getContext("2d");
+  var line_chart_labels = {{ page_data.labels|safe }};
+  var line_chart_data = {{ page_data.int_data|safe }};
+
+  var line_chart = new Chart(line_chart, {
+    type: "line",
+    data: {
+      labels: line_chart_labels,
+      datasets: [{
+        label: "# of views for {{ page_path }}",
+        data: line_chart_data,
+        fill: false,
+        borderColor: "rgba(75, 192, 192, 1)",
+        pointBorderColor: "rgba(75, 192, 192, 1)",
+      }]
+    },
+  });
 {% endblock %}

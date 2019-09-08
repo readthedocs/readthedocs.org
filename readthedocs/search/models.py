@@ -11,6 +11,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
+from readthedocs.search.utils import _get_last_31_days_iter, _get_last_31_days_str
 
 
 class SearchQuery(TimeStampedModel):
@@ -59,7 +60,7 @@ class SearchQuery(TimeStampedModel):
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
 
         # this includes the current day also
-        last_31_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(31)]
+        last_31_days_iter = _get_last_31_days_iter()
 
         qs = cls.objects.filter(
             project__slug=project_slug,
@@ -81,10 +82,7 @@ class SearchQuery(TimeStampedModel):
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = [
-            timezone.datetime.strftime(date, '%d %b')
-            for date in last_31_days_iter
-        ]
+        last_31_days_str = _get_last_31_days_str()
 
         final_data = {
             'labels': last_31_days_str,
@@ -191,6 +189,39 @@ class PageView(TimeStampedModel):
         final_data = {
             'pages': pages,
             'view_counts': view_counts,
+        }
+
+        return final_data
+
+    @classmethod
+    def get_page_view_count_of_one_month(cls, project_slug, page_path):
+        today = timezone.now().date()
+        last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
+
+        # this includes the current day also
+        last_31_days_iter = _get_last_31_days_iter()
+
+        qs = cls.objects.filter(
+            project__slug=project_slug,
+            path=page_path,
+        ).order_by('-created')
+
+        count_dict = dict(
+            qs.annotate(created_date=TruncDate('created'))
+            .values('created_date')
+            .order_by('created_date')
+            .values_list('created_date', 'view_count')
+        )
+
+        count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]
+
+        # format the date value to a more readable form
+        # Eg. `16 Jul`
+        last_31_days_str = _get_last_31_days_str()
+
+        final_data = {
+            'labels': last_31_days_str,
+            'int_data': count_data,
         }
 
         return final_data

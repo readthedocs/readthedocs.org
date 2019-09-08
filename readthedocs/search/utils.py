@@ -3,13 +3,13 @@
 import logging
 from operator import attrgetter
 
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.search.documents import PageDocument
 
 
 log = logging.getLogger(__name__)
@@ -132,6 +132,7 @@ def _indexing_helper(html_objs_qs, wipe=False):
     If ``wipe`` is set to False, html_objs are deleted from the ES index,
     else, html_objs are indexed.
     """
+    from readthedocs.search.documents import PageDocument
     from readthedocs.search.tasks import index_objects_to_es, delete_objects_in_es
 
     if html_objs_qs:
@@ -168,3 +169,22 @@ def _get_sorted_results(results, source_key='_source'):
     ]
 
     return sorted_results
+
+
+def _get_last_31_days_iter():
+    today = timezone.now().date()
+    last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
+
+    # this includes the current day also
+    last_31_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(31)]
+    return last_31_days_iter
+
+
+def _get_last_31_days_str():
+    last_31_days_iter = _get_last_31_days_iter()
+    last_31_days_str = [
+        timezone.datetime.strftime(date, '%d %b')
+        for date in last_31_days_iter
+    ]
+    return last_31_days_str
+
