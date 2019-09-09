@@ -67,7 +67,7 @@
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">Project Home</a>
         </dd>
         <dd>
-				<a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
         </dd>
         <dd>
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
@@ -81,11 +81,11 @@
       <dl>
         <dt>{% trans "On GitHub" %}</dt>
         <dd>
-				<a href="{{ github_view_url }}">{% trans "View" }</a>
+          <a href="{{ github_view_url }}">{% trans "View" }</a>
         </dd>
         {% if version.is_editable %}
         <dd>
-				<a href="{{ github_edit_url }}">{% trans "Edit" %}</a>
+          <a href="{{ github_edit_url }}">{% trans "Edit" %}</a>
         </dd>
         {% endif %}
       </dl>
@@ -93,18 +93,18 @@
       <dl>
         <dt>{% trans "On Bitbucket" %}</dt>
         <dd>
-				<a href="{{ bitbucket_url }}">{% trans "Edit" %}</a>
+          <a href="{{ bitbucket_url }}">{% trans "Edit" %}</a>
         </dd>
       </dl>
       {% elif gitlab_edit_url %}
       <dl>
         <dt>{% trans "On GitLab" %}</dt>
         <dd>
-				<a href="{{ gitlab_view_url }}">{% trans "View" %}</a>
+          <a href="{{ gitlab_view_url }}">{% trans "View" %}</a>
         </dd>
         {% if version.is_editable %}
         <dd>
-				<a href="{{ gitlab_edit_url }}">{% trans "Edit" %}</a>
+          <a href="{{ gitlab_edit_url }}">{% trans "Edit" %}</a>
         </dd>
         {% endif %}
       </dl>
@@ -117,7 +117,7 @@
         <dd>
           <div style="padding: 6px;">
             <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
-							<input type="text" name="q" placeholder="{% trans "Search docs" %}>
+              <input type="text" name="q" placeholder="{% trans "Search docs" %}>
               </form>
           </div>
         </dd>
@@ -129,9 +129,9 @@
       <hr/>
       {% block footer %}
         <small>
-					<span>{% trans "Hosted by" %}<a href="https://readthedocs.org">{% trans "Read the Docs" %}</a></span>
+          <span>{% trans "Hosted by" %}<a href="https://readthedocs.org">{% trans "Read the Docs" %}</a></span>
           <span> &middot; </span>
-					<a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans "Privacy Policy" %}</a>
+            <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans "Privacy Policy" %}</a>
         </small>
       {% endblock %}
 
