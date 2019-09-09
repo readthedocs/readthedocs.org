@@ -91,14 +91,14 @@
       </dl>
       {% elif bitbucket_url %}
       <dl>
-				<dt>{% trans "On Bitbucket" %}</dt>
+        <dt>{% trans "On Bitbucket" %}</dt>
         <dd>
           <a href="{{ bitbucket_url }}">Edit</a>
         </dd>
       </dl>
       {% elif gitlab_edit_url %}
       <dl>
-				<dt>{% trans "On GitLab" %}</dt>
+        <dt>{% trans "On GitLab" %}</dt>
         <dd>
           <a href="{{ gitlab_view_url }}">View</a>
         </dd>
@@ -113,7 +113,7 @@
 
       {% block search %}
       <dl>
-				<dt>{% trans "Search" %}</dt>
+        <dt>{% trans "Search" %}</dt>
         <dd>
           <div style="padding: 6px;">
             <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
