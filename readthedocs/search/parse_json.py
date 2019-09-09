@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.storage import get_storage_class
 
 from pyquery import PyQuery
-import rapidjson
+import orjson
 
 log = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ def process_file(fjson_storage_path):
     except IOError:
         log.info('Unable to read file: %s', fjson_storage_path)
         raise
-    data = rapidjson.loads(file_contents)
+    data = orjson.loads(file_contents)
     sections = []
     path = ''
     title = ''
