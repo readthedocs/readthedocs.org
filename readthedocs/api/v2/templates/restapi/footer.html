@@ -6,7 +6,7 @@
   <div class="rst-versions rst-badge" data-toggle="rst-versions">
     <span class="rst-current-version" data-toggle="rst-current-version">
       <span class="fa fa-book">&nbsp;</span>
-         {{ current_version }}
+      v: {{ current_version }}
       <span class="fa fa-caret-down"></span>
     </span>
     <div class="rst-other-versions">
@@ -64,13 +64,13 @@
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>{% trans "On Read the Docs" %}</dt>
         <dd>
-				<a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
+        <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
         </dd>
         <dd>
         <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
         </dd>
         <dd>
-				<a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">{% trans "Downloads" %}</a>
+        <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">{% trans "Downloads" %}</a>
         </dd>
       </dl>
       {% endblock %}
@@ -129,7 +129,7 @@
       <hr/>
       {% block footer %}
         <small>
-        <span>{% trans "Hosted by" %}<a href="https://readthedocs.org">{% trans "Read the Docs" %}</a></span>
+        <span>{% trans "Hosted by" %}<a href="https://readthedocs.org">Read the Docs</a></span>
           <span> &middot; </span>
           <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans "Privacy Policy" %}</a>
         </small>
