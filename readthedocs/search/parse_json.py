@@ -1,7 +1,7 @@
 """Functions related to converting content into dict/JSON structures."""
 
-import json
 import logging
+import orjson
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -90,7 +90,7 @@ def process_file(fjson_storage_path):
     except IOError:
         log.info('Unable to read file: %s', fjson_storage_path)
         raise
-    data = json.loads(file_contents)
+    data = orjson.loads(file_contents)
     sections = []
     path = ''
     title = ''
@@ -103,8 +103,8 @@ def process_file(fjson_storage_path):
 
     if data.get('body'):
         body = PyQuery(data['body'])
-        sections.extend(generate_sections_from_pyquery(body.clone(), fjson_storage_path))
         domain_data = generate_domains_data_from_pyquery(body.clone(), fjson_storage_path)
+        sections.extend(generate_sections_from_pyquery(body, fjson_storage_path))
     else:
         log.info('Unable to index content for: %s', fjson_storage_path)
 
