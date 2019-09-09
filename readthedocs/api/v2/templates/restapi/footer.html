@@ -64,13 +64,13 @@
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>{% trans "On Read the Docs" %}</dt>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">Project Home</a>
+				<a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
         </dd>
         <dd>
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
         </dd>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">Downloads</a>
+				<a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">{% trans "Downloads" %}</a>
         </dd>
       </dl>
       {% endblock %}
@@ -117,7 +117,7 @@
         <dd>
           <div style="padding: 6px;">
             <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
-              <input type="text" name="q" placeholder="{% trans "Search docs" %}>
+              <input type="text" name="q" placeholder="{% trans "Search docs" %}">
               </form>
           </div>
         </dd>
@@ -131,7 +131,7 @@
         <small>
           <span>{% trans "Hosted by" %}<a href="https://readthedocs.org">{% trans "Read the Docs" %}</a></span>
           <span> &middot; </span>
-            <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans "Privacy Policy" %}</a>
+          <a href="https://docs.readthedocs.io/page/privacy-policy.html">{% trans "Privacy Policy" %}</a>
         </small>
       {% endblock %}
 
