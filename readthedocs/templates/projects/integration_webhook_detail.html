@@ -19,9 +19,8 @@
   {% if integration.has_sync and integration.can_sync %}
     <p>
       {% blocktrans trimmed %}
-        This webhook was configured when this project was imported
-          or it was automatically created with the correct configuration. If this
-        integration is not functioning correctly, try re-syncing the webhook:
+        This integration is being managed automatically by Read the Docs. If 
+        it isn't functioning correctly, try re-syncing the webhook:
       {% endblocktrans %}
     </p>
     <p>
@@ -40,8 +39,8 @@
     {% if integration.has_sync and not integration.can_sync %}
       <p>
         {% blocktrans trimmed %}
-          This webhook was created automatically from an existing webhook
-          configured on your repository. If this integration is not functioning correctly,
+          This integration is not managed by Read the Docs currently.
+          If this integration is not functioning correctly,
           you can try re-syncing it. Otherwise you'll need to update
           the configuration on your repository.
           You can use the following address to manually configure this webhook.
