@@ -21,7 +21,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
@@ -39,6 +39,9 @@ from .serializers import (
     ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
+    SubprojectCreateSerializer,
+    SubprojectSerializer,
+    SubprojectDestroySerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -231,11 +234,12 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
                                     ProjectQuerySetMixin, FlexFieldsMixin,
-                                    ListModelMixin, GenericViewSet):
+                                    CreateModelMixin, DestroyModelMixin,
+                                    ReadOnlyModelViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
 
-    """List subprojects of a ``Project``."""
+    """List subprojects (``ProjectRelationship``) of a ``Project``."""
 
     # Private/Internal docstring
 
@@ -244,11 +248,39 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
     ``parents_query_lookups`` defined when registering the urls.
     """  # noqa
 
-    model = Project
-    lookup_field = 'slug'
-    lookup_url_kwarg = 'project_slug'
-    serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    model = ProjectRelationship
+    lookup_field = 'alias'
+    lookup_url_kwarg = 'alias_slug'
+    queryset = ProjectRelationship.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Return correct serializer depending on the action.
+
+        For GET it returns a serializer with many fields and on POST,
+        it return a serializer to validate just a few fields.
+        """
+        if self.action == 'create':
+            return SubprojectCreateSerializer
+
+        if self.action == 'destroy':
+            return SubprojectDestroySerializer
+
+        return SubprojectSerializer
+
+    def create(self, request, *args, **kwargs):
+        """
+        Define a Project as subproject of another Project.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(parent=self._get_parent_project())
+        headers = self.get_success_headers(serializer.data)
+
+        # Use serializer that fully render a the subproject
+        serializer = SubprojectSerializer(instance=serializer.instance)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,

@@ -12,7 +12,7 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES, PRIVACY_CHOICES, PROTECTED
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
@@ -387,7 +387,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         path = reverse(
             'projects-subprojects-list',
             kwargs={
-                'parent_lookup_superprojects__parent__slug': obj.slug,
+                'parent_lookup_parent__slug': obj.slug,
             },
         )
         return self._absolute_url(path)
@@ -539,6 +539,98 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class SubprojectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to define a Project as subproject of another Project."""
+
+    class Meta:
+        model = ProjectRelationship
+        fields = [
+            'child',
+            'alias',
+        ]
+
+class SubprojectLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    # parent = serializers.SerializerMethodField()
+    # child = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-subprojects-detail',
+            kwargs={
+                'parent_lookup_parent__slug': obj.parent.slug,
+                'alias_slug': obj.alias,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_parent(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.parent.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_child(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.child.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class ChildProjectSerializer(ProjectSerializer):
+
+    """
+    Serializer to render a Project when listed under ProjectRelationship.
+
+    It's exactly the same as ``ProjectSerializer`` but without some fields.
+    """
+
+    class Meta(ProjectSerializer.Meta):
+        fields = [
+            field for field in ProjectSerializer.Meta.fields
+            if field not in [
+                    'subproject_of',
+            ]
+        ]
+
+class SubprojectSerializer(FlexFieldsModelSerializer):
+
+    """Serializer to render a subproject (``ProjectRelationship``)."""
+
+    # TODO: maybe we can create a ParentProjectSerialiser and
+    # ChildProjectSerializer to remove some unneeded fields (``subproject_of``)
+    parent = ProjectSerializer()
+    child = ChildProjectSerializer()
+    _links = SubprojectLinksSerializer(source='*')
+
+    class Meta:
+        model = ProjectRelationship
+        fields = [
+            'parent',
+            'child',
+            'alias',
+            '_links',
+        ]
+
+
+class SubprojectDestroySerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to remove a subproject relationship to a Project."""
+
+    class Meta:
+        model = ProjectRelationship
+        fields = (
+            'alias',
+        )
 
 
 class RedirectLinksSerializer(BaseLinksSerializer):
