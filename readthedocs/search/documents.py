@@ -92,7 +92,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(),
+            'docstrings': fields.TextField(analyzer='simple'),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
