@@ -224,13 +224,6 @@ class BitbucketService(Service):
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
 
-        if not integration:
-            integration, _ = Integration.objects.get_or_create(
-                project=project,
-                integration_type=Integration.BITBUCKET_WEBHOOK,
-            )
-        data = self.get_webhook_data(project, integration)
-
         rtd_webhook_url = 'https://{domain}{path}'.format(
             domain=settings.PRODUCTION_DOMAIN,
             path=reverse(
@@ -239,7 +232,7 @@ class BitbucketService(Service):
                     'project_slug': project.slug,
                     'integration_pk': integration.pk,
                 },
-            )
+            ),
         )
 
         try:
