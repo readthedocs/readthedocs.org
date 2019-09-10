@@ -1,0 +1,255 @@
+[
+    {
+        "model": "search.searchquery",
+        "pk": 5,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "search",
+            "created": "2019-08-02T00:00:00Z",
+            "modified": "2019-08-02T00:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 6,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "sphinx",
+            "created": "2019-08-02T00:20:00Z",
+            "modified": "2019-08-02T00:20:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 7,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "read the docs",
+            "created": "2019-08-02T01:30:00Z",
+            "modified": "2019-08-02T01:30:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 8,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "elasticsearch",
+            "created": "2019-08-02T02:00:00Z",
+            "modified": "2019-08-02T02:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 9,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello",
+            "created": "2019-08-02T03:00:00Z",
+            "modified": "2019-08-02T03:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 10,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "advertising",
+            "created": "2019-08-02T05:00:00Z",
+            "modified": "2019-08-02T05:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 11,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "github",
+            "created": "2019-08-02T04:00:00Z",
+            "modified": "2019-08-02T04:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 12,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "advertising",
+            "created": "2019-08-01T15:00:00Z",
+            "modified": "2019-08-01T15:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 13,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "advertising",
+            "created": "2019-08-01T15:15:00Z",
+            "modified": "2019-08-01T15:15:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 14,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "sphinx",
+            "created": "2019-08-01T16:00:00Z",
+            "modified": "2019-08-01T16:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 15,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "read the docs",
+            "created": "2019-07-31T20:00:00Z",
+            "modified": "2019-07-31T20:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 16,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "read the docs",
+            "created": "2019-07-31T20:20:00Z",
+            "modified": "2019-07-31T20:20:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 17,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "read the docs",
+            "created": "2019-07-31T20:30:00Z",
+            "modified": "2019-07-31T20:30:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 18,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "elasticsearch",
+            "created": "2019-07-31T21:00:00Z",
+            "modified": "2019-07-31T21:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 19,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "documentation",
+            "created": "2019-07-15T06:00:00Z",
+            "modified": "2019-07-15T06:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 20,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "documentation",
+            "created": "2019-07-16T12:00:00Z",
+            "modified": "2019-07-16T12:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 21,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "documentation",
+            "created": "2019-07-17T18:00:00Z",
+            "modified": "2019-07-17T18:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 22,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "documentation",
+            "created": "2019-07-17T12:00:00Z",
+            "modified": "2019-07-17T12:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 23,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello world",
+            "created": "2019-06-10T06:00:00Z",
+            "modified": "2019-06-10T06:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 24,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello world",
+            "created": "2019-06-11T18:00:00Z",
+            "modified": "2019-06-11T18:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 25,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello world",
+            "created": "2019-06-12T18:00:00Z",
+            "modified": "2019-06-12T18:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 26,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello world",
+            "created": "2019-07-02T18:00:00Z",
+            "modified": "2019-07-02T18:00:00Z"
+        }
+    },
+    {
+        "model": "search.searchquery",
+        "pk": 27,
+        "fields": {
+            "project": 6,
+            "version": 18,
+            "query": "hello world",
+            "created": "2019-06-25T18:00:00Z",
+            "modified": "2019-06-25T18:00:00Z"
+        }
+    }
+]

@@ -22,10 +22,6 @@ var configMethods = {
         return constants.ALABASTER_LIKE_THEMES.indexOf(this.get_theme_name()) > -1;
     },
 
-    theme_supports_promo: function () {
-        return this.is_rtd_like_theme() || this.is_alabaster_like_theme();
-    },
-
     is_sphinx_builder: function () {
         return (!('builder' in this) || this.builder !== 'mkdocs');
     },
@@ -40,8 +36,9 @@ var configMethods = {
 
     show_promo: function () {
         return (
-            this.api_host !== 'https://readthedocs.com' &&
-            this.theme_supports_promo());
+            this.api_host === 'https://readthedocs.org' ||
+            this.api_host === 'http://127.0.0.1:8000'
+        );
     }
 };
 

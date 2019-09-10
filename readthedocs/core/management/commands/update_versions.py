@@ -13,7 +13,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def handle(self, *args, **options):
-        for version in Version.objects.filter(active=True, built=False):
+        for version in Version.internal.filter(active=True, built=False):
             # pylint: disable=no-value-for-parameter
             update_docs_task(
                 version.pk,

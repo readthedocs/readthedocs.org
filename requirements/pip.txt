@@ -1,13 +1,13 @@
 # Base packages
-pip==19.1.1
+pip==19.2.3
 appdirs==1.4.3
-virtualenv==16.6.1
+virtualenv==16.7.5
 
-django==1.11.22  # pyup: <1.12
-django-extensions==2.1.9
-django_polymorphic==2.0.3
+django==1.11.24  # pyup: <1.12
+django-extensions==2.2.1
+django_polymorphic==2.1.2
 
-djangorestframework==3.9.4
+djangorestframework==3.10.3
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -15,9 +15,9 @@ djangorestframework==3.9.4
 Sphinx==1.8.5  # pyup: <2.0.0
 
 # Filtering for the REST API
-django-filter==2.1.0
+django-filter==2.2.0
 
-drf-flex-fields==0.5.0
+drf-flex-fields==0.6.1
 drf-extensions==0.5.0
 
 django-vanilla-views==1.0.6
@@ -26,7 +26,7 @@ jsonfield==2.0.2
 requests==2.22.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==5.1.1
+pyyaml==5.1.2
 Pygments==2.4.2
 
 # Basic tools
@@ -40,16 +40,9 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.39.1
+django-allauth==0.40.0
 
-# GitPython 2.1.11 makes TestGitBackend.test_git_tags to fail because
-# of an UnicodeError
-# This commit,
-# https://github.com/gitpython-developers/GitPython/commit/7f08b7730438bde34ae55bc3793fa524047bb804,
-# introduces the usage of ``str`` which behaves differently in Py2 and
-# Py3 We should check if all the tests pass again when we drop Py2
-# support and we should be able to upgrade
-GitPython==2.1.10  # pyup: ignore
+GitPython==3.0.2
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
@@ -59,24 +52,31 @@ elasticsearch==6.4.0  # pyup: <7.0.0
 #   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
 #     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
 # ImportError: cannot import name 'DocTypeMeta'
-# 
+#
 # Commit 97e3f75 adds the NestedFacet
 git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
-django-elasticsearch-dsl==0.5.1
+
+# django-elasticsearch-dsl==6.4.1 produces this error
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/__init__.py", line 3, in <module>
+#     from .documents import DocType  # noqa
+#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 7, in <module>
+#     from elasticsearch_dsl import Document as DSLDocument
+# ImportError: cannot import name 'Document'
+django-elasticsearch-dsl==0.5.1  # pyup: ignore
 pyquery==1.4.0
 
 # lxml is used by pyquery
 # defusedxml is recommended when using lxml
-lxml==4.3.4
+lxml==4.4.1
 defusedxml==0.6.0
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2019.1
+pytz==2019.2
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.32.0
+stripe==2.35.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -89,17 +89,17 @@ docker==4.0.2
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
 # if there is an update they could break our code
-nltk==3.4.3
+nltk==3.4.5
 textblob==0.15.3
 
-django-annoying==0.10.4
+django-annoying==0.10.5
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
 django-taggit==1.1.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==19.0
+packaging==19.1
 
 # Commenting stuff
 django-cors-middleware==1.4.0

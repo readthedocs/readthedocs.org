@@ -1,9 +1,10 @@
-Read the Docs Commercial Features
----------------------------------
+Read the Docs for Business
+--------------------------
 
-Read the Docs has a community solution for open source projects on `readthedocs.org`_
-and we offer commercial documentation building and hosting on `readthedocs.com`_.
-Features in this section are specific to our commercial offering.
+Read the Docs is our community solution for open source projects at `readthedocs.org`_
+and we offer Read the Docs for Business
+for building and hosting commercial documentation at `readthedocs.com`_.
+Features in this section are specific to Read the Docs for Business.
 
 Private repositories and private documentation
     The largest difference between the community solution and our commercial offering

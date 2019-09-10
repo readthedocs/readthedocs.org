@@ -6,6 +6,7 @@ import os
 import re
 from urllib.parse import urlparse
 
+from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
@@ -19,7 +20,7 @@ from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.projects import constants
@@ -30,6 +31,7 @@ from readthedocs.projects.querysets import (
     FeatureQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
+    HTMLFileQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
@@ -532,18 +534,30 @@ class Project(models.Model):
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
 
-    def get_storage_path(self, type_, version_slug=LATEST, include_file=True):
+    def get_storage_path(
+            self,
+            type_,
+            version_slug=LATEST,
+            include_file=True,
+            version_type=None
+    ):
         """
         Get a path to a build artifact for use with Django's storage system.
 
         :param type_: Media content type, ie - 'pdf', 'htmlzip'
         :param version_slug: Project version slug for lookup
         :param include_file: Include file name in return
+        :param version_type: Project version type
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
+        type_dir = type_
+        # Add `external/` prefix for external versions
+        if version_type == EXTERNAL:
+            type_dir = f'{EXTERNAL}/{type_}'
+
         folder_path = '{}/{}/{}'.format(
-            type_,
+            type_dir,
             self.slug,
             version_slug,
         )
@@ -760,9 +774,9 @@ class Project(models.Model):
         # Used for Database optimization.
         if hasattr(self, '_good_build'):
             return self._good_build
-        return self.builds.filter(success=True).exists()
+        return self.builds(manager=INTERNAL).filter(success=True).exists()
 
-    def has_media(self, type_, version_slug=LATEST):
+    def has_media(self, type_, version_slug=LATEST, version_type=None):
         path = self.get_production_media_path(
             type_=type_, version_slug=version_slug
         )
@@ -772,22 +786,38 @@ class Project(models.Model):
         if settings.RTD_BUILD_MEDIA_STORAGE:
             storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
             storage_path = self.get_storage_path(
-                type_=type_, version_slug=version_slug
+                type_=type_, version_slug=version_slug,
+                version_type=version_type
             )
             return storage.exists(storage_path)
 
         return False
 
-    def has_pdf(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_PDF, version_slug=version_slug)
+    def has_pdf(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_PDF,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
-    def has_epub(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_EPUB, version_slug=version_slug)
+    def has_epub(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_EPUB,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
-    def has_htmlzip(self, version_slug=LATEST):
-        return self.has_media(MEDIA_TYPE_HTMLZIP, version_slug=version_slug)
+    def has_htmlzip(self, version_slug=LATEST, version_type=None):
+        return self.has_media(
+            MEDIA_TYPE_HTMLZIP,
+            version_slug=version_slug,
+            version_type=version_type
+        )
 
-    def vcs_repo(self, version=LATEST, environment=None):
+    def vcs_repo(
+            self, version=LATEST, environment=None,
+            verbose_name=None, version_type=None
+    ):
         """
         Return a Backend object for this project able to handle VCS commands.
 
@@ -804,8 +834,34 @@ class Project(models.Model):
         if not backend:
             repo = None
         else:
-            repo = backend(self, version, environment)
+            repo = backend(
+                self, version, environment=environment,
+                verbose_name=verbose_name, version_type=version_type
+            )
         return repo
+
+    def git_service_class(self):
+        """Get the service class for project. e.g: GitHubService, GitLabService."""
+        from readthedocs.oauth.services import registry
+
+        for service_cls in registry:
+            if service_cls.is_project_service(self):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            service = None
+
+        return service
+
+    @property
+    def git_provider_name(self):
+        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        service = self.git_service_class()
+        if service:
+            provider = allauth_registry.by_id(service.adapter.provider_id)
+            return provider.name
+        return None
 
     def repo_nonblockinglock(self, version, max_lock_age=None):
         """
@@ -875,7 +931,7 @@ class Project(models.Model):
         kwargs = {'type': 'html'}
         if finished:
             kwargs['state'] = 'finished'
-        return self.builds.filter(**kwargs).first()
+        return self.builds(manager=INTERNAL).filter(**kwargs).first()
 
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
@@ -888,34 +944,44 @@ class Project(models.Model):
 
     def active_versions(self):
         from readthedocs.builds.models import Version
-        versions = Version.objects.public(project=self, only_active=True)
+        versions = Version.internal.public(project=self, only_active=True)
         return (
             versions.filter(built=True, active=True) |
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.objects.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
@@ -929,7 +995,7 @@ class Project(models.Model):
 
         :returns: :py:class:`Version` queryset
         """
-        return self.versions.filter(active=True)
+        return self.versions(manager=INTERNAL).filter(active=True)
 
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
@@ -941,7 +1007,7 @@ class Project(models.Model):
         Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
-        versions = self.versions.all()
+        versions = self.versions(manager=INTERNAL).all()
         new_stable = determine_stable_version(versions)
         if new_stable:
             current_stable = self.get_stable_version()
@@ -1200,7 +1266,7 @@ class HTMLFile(ImportedFile):
     class Meta:
         proxy = True
 
-    objects = HTMLFileManager()
+    objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
     def get_processed_json(self):
         """
@@ -1215,30 +1281,41 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        fjson_paths = []
-        basename = os.path.splitext(self.path)[0]
-        fjson_paths.append(basename + '.fjson')
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(new_basename + '.fjson')
+        file_path = None
 
-        full_json_path = self.project.get_production_media_path(
-            type_='json', version_slug=self.version.slug, include_file=False
-        )
-        try:
-            for fjson_path in fjson_paths:
-                file_path = os.path.join(full_json_path, fjson_path)
-                if os.path.exists(file_path):
-                    return process_file(file_path)
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+            fjson_paths = []
+            basename = os.path.splitext(self.path)[0]
+            fjson_paths.append(basename + '.fjson')
+            if basename.endswith('/index'):
+                new_basename = re.sub(r'\/index$', '', basename)
+                fjson_paths.append(new_basename + '.fjson')
+
+            storage_path = self.project.get_storage_path(
+                type_='json', version_slug=self.version.slug, include_file=False
             )
+            try:
+                for fjson_path in fjson_paths:
+                    file_path = storage.join(storage_path, fjson_path)
+                    if storage.exists(file_path):
+                        return process_file(file_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    file_path,
+                )
+        else:
+            log.warning(
+                'Skipping HTMLFile processing because of no storage backend'
+            )
+
         return {
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property
@@ -1364,7 +1441,6 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
-    SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
@@ -1373,13 +1449,15 @@ class Feature(models.Model):
     SHARE_SPHINX_DOCTREE = 'share_sphinx_doctree'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     CLEAN_AFTER_BUILD = 'clean_after_build'
+    EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
+    CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    SEARCH_ANALYTICS = 'search_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1415,9 +1493,21 @@ class Feature(models.Model):
             _('Clean all files used in the build process'),
         ),
         (
+            EXTERNAL_VERSION_BUILD,
+            _('Enable project to build on pull/merge requests'),
+        ),
+        (
             UPDATE_CONDA_STARTUP,
             _('Upgrade conda before creating the environment'),
         ),
+        (
+            CONDA_APPEND_CORE_REQUIREMENTS,
+            _('Append Read the Docs core requirements to environment.yml file'),
+        ),
+        (
+            SEARCH_ANALYTICS,
+            _('Enable search analytics'),
+        )
     )
 
     projects = models.ManyToManyField(

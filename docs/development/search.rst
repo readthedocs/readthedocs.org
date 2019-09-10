@@ -39,7 +39,7 @@ the search index will update automatically.
 
 Architecture
 ------------
-The search architecture is devided into 2 parts.
+The search architecture is divided into 2 parts.
 
 * One part is responsible for **indexing** the documents and projects (``documents.py``)
 * The other part is responsible for **querying** the Index to show the proper results to users (``faceted_search.py``)

@@ -3,19 +3,19 @@
 
 {% block profile-admin-gold-edit %}active{% endblock %}
 
-{% block title %}Cancel Gold{% endblock %}
+{% block title %}Cancel Gold membership{% endblock %}
 
 {% block edit_content %}
-  <h2>Cancel Gold Subscription</h2>
+  <h2>Cancel Gold membership</h2>
 
   <p>
     {% blocktrans trimmed %}
-      Are you sure you want to cancel your subscription?
+      Are you sure you want to cancel your Gold membership?
     {% endblocktrans %}
   </p>
 
   <form  method="post" action="{% url "gold_cancel" %}">
     {% csrf_token %}
-    <input type="submit" value="{% trans "Cancel Subscription" %}">
+    <input type="submit" value="{% trans "Cancel Gold membership" %}">
   </form>
 {% endblock %}

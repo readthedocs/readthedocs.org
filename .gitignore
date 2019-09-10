@@ -28,6 +28,7 @@ logs/*
 media/dash
 media/epub
 media/export
+media/external
 media/html
 media/htmlzip
 media/json

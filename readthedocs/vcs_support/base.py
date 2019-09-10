@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for VCS backends."""
 import logging
 import os
 import shutil
+
+from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
+from readthedocs.projects.exceptions import RepositoryError
 
 
 log = logging.getLogger(__name__)
@@ -50,12 +51,18 @@ class BaseVCS:
 
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
-    def __init__(self, project, version_slug, environment=None, **kwargs):
+    def __init__(
+            self, project, version_slug, environment=None,
+            verbose_name=None, version_type=None, **kwargs
+    ):
         self.default_branch = project.default_branch
         self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
+        # required for External versions
+        self.verbose_name = verbose_name
+        self.version_type = version_type
 
         from readthedocs.doc_builder.environments import LocalEnvironment
         self.environment = environment or LocalEnvironment(project)
@@ -96,7 +103,13 @@ class BaseVCS:
             'shell': False,
         })
 
-        build_cmd = self.environment.run(*cmd, **kwargs)
+        try:
+            build_cmd = self.environment.run(*cmd, **kwargs)
+        except BuildEnvironmentWarning as e:
+            # Re raise as RepositoryError,
+            # so isn't logged as ERROR.
+            raise RepositoryError(str(e))
+
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
 

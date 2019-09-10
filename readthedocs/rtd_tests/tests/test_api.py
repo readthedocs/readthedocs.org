@@ -18,6 +18,17 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_EVENT_HEADER,
     GITHUB_PUSH,
     GITHUB_SIGNATURE_HEADER,
+    GITHUB_PULL_REQUEST,
+    GITHUB_PULL_REQUEST_OPENED,
+    GITHUB_PULL_REQUEST_REOPENED,
+    GITHUB_PULL_REQUEST_CLOSED,
+    GITHUB_PULL_REQUEST_SYNC,
+    GITLAB_MERGE_REQUEST,
+    GITLAB_MERGE_REQUEST_CLOSE,
+    GITLAB_MERGE_REQUEST_MERGE,
+    GITLAB_MERGE_REQUEST_OPEN,
+    GITLAB_MERGE_REQUEST_REOPEN,
+    GITLAB_MERGE_REQUEST_UPDATE,
     GITLAB_NULL_HASH,
     GITLAB_PUSH,
     GITLAB_TAG_PUSH,
@@ -26,7 +37,7 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import LATEST, EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -763,6 +774,11 @@ class IntegrationsTests(TestCase):
 
     def setUp(self):
         self.project = get(Project)
+        self.feature_flag = get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.EXTERNAL_VERSION_BUILD,
+        )
         self.version = get(
             Version, slug='master', verbose_name='master',
             active=True, project=self.project,
@@ -773,6 +789,26 @@ class IntegrationsTests(TestCase):
         )
         self.github_payload = {
             'ref': 'master',
+        }
+        self.commit = "ec26de721c3235aad62de7213c562f8c821"
+        self.github_pull_request_payload = {
+            "action": "opened",
+            "number": 2,
+            "pull_request": {
+                "head": {
+                    "sha": self.commit
+                }
+            }
+        }
+        self.gitlab_merge_request_payload = {
+            "object_kind": GITLAB_MERGE_REQUEST,
+            "object_attributes": {
+                "iid": '2',
+                "last_commit": {
+                    "id": self.commit
+                },
+                "action": "open"
+            },
         }
         self.gitlab_payload = {
             'object_kind': GITLAB_PUSH,
@@ -892,6 +928,232 @@ class IntegrationsTests(TestCase):
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.delay.assert_called_with(latest_version.pk)
 
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_pull_request_payload,
+            format='json',
+            **headers
+        )
+        # get the created external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name='2')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        self.assertTrue(external_version)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_reopened_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        # Update the payload for `reopened` webhook event
+        pull_request_number = '5'
+        payload = self.github_pull_request_payload
+        payload["action"] = GITHUB_PULL_REQUEST_REOPENED
+        payload["number"] = pull_request_number
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+        # get the created external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name=pull_request_number)
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        self.assertTrue(external_version)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_synchronize_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        pull_request_number = '6'
+        prev_identifier = '95790bf891e76fee5e1747ab589903a6a1f80f23'
+        # create an existing external version for pull request
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            built=True,
+            uploaded=True,
+            active=True,
+            verbose_name=pull_request_number,
+            identifier=prev_identifier
+        )
+
+        # Update the payload for `synchronize` webhook event
+        payload = self.github_pull_request_payload
+        payload["action"] = GITHUB_PULL_REQUEST_SYNC
+        payload["number"] = pull_request_number
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+        # get updated external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name=pull_request_number)
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        # `synchronize` webhook event updated the identifier (commit hash)
+        self.assertNotEqual(prev_identifier, external_version.identifier)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_closed_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        pull_request_number = '7'
+        identifier = '95790bf891e76fee5e1747ab589903a6a1f80f23'
+        # create an existing external version for pull request
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            built=True,
+            uploaded=True,
+            active=True,
+            verbose_name=pull_request_number,
+            identifier=identifier
+        )
+
+        # Update the payload for `closed` webhook event
+        payload = self.github_pull_request_payload
+        payload["action"] = GITHUB_PULL_REQUEST_CLOSED
+        payload["number"] = pull_request_number
+        payload["pull_request"]["head"]["sha"] = identifier
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).filter(verbose_name=pull_request_number)
+
+        # external version should be deleted
+        self.assertFalse(external_version.exists())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['version_deleted'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        core_trigger_build.assert_not_called()
+
+    def test_github_pull_request_no_action(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "number": 2,
+            "pull_request": {
+                "head": {
+                    "sha": "ec26de721c3235aad62de7213c562f8c821"
+                }
+            }
+        }
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_github_pull_request_opened_event_invalid_payload(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "action": GITHUB_PULL_REQUEST_OPENED,
+            "number": 2,
+        }
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+
+        self.assertEqual(resp.status_code, 400)
+
+    def test_github_pull_request_closed_event_invalid_payload(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "action": GITHUB_PULL_REQUEST_CLOSED,
+            "number": 2,
+        }
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+
+        self.assertEqual(resp.status_code, 400)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_github_pull_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
+        # delete feature flag
+        self.feature_flag.delete()
+
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_pull_request_payload,
+            format='json',
+            **headers
+        )
+        # get external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).filter(verbose_name='2').first()
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+        core_trigger_build.assert_not_called()
+        self.assertFalse(external_version)
+
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_delete_event(self, sync_repository_task, trigger_build):
         client = APIClient()
@@ -928,7 +1190,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'foo': 'bar'},
             format='json',
-            HTTP_X_GITHUB_EVENT='pull_request',
+            HTTP_X_GITHUB_EVENT='issues',
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
@@ -1289,6 +1551,291 @@ class IntegrationsTests(TestCase):
             **headers
         )
         self.assertEqual(resp.status_code, 200)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_open_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            self.gitlab_merge_request_payload,
+            format='json',
+        )
+        # get the created external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name='2')
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        self.assertTrue(external_version)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_reopen_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        # Update the payload for `reopen` webhook event
+        merge_request_number = '5'
+        payload = self.gitlab_merge_request_payload
+        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_REOPEN
+        payload["object_attributes"]["iid"] = merge_request_number
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+        # get the created external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name=merge_request_number)
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        self.assertTrue(external_version)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_update_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        merge_request_number = '6'
+        prev_identifier = '95790bf891e76fee5e1747ab589903a6a1f80f23'
+        # create an existing external version for merge request
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            built=True,
+            uploaded=True,
+            active=True,
+            verbose_name=merge_request_number,
+            identifier=prev_identifier
+        )
+
+        # Update the payload for merge request `update` webhook event
+        payload = self.gitlab_merge_request_payload
+        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_UPDATE
+        payload["object_attributes"]["iid"] = merge_request_number
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+        # get updated external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).get(verbose_name=merge_request_number)
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [external_version.verbose_name])
+        core_trigger_build.assert_called_once_with(
+            force=True, project=self.project,
+            version=external_version, commit=self.commit
+        )
+        # `update` webhook event updated the identifier (commit hash)
+        self.assertNotEqual(prev_identifier, external_version.identifier)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_close_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        merge_request_number = '7'
+        identifier = '95790bf891e76fee5e1747ab589903a6a1f80f23'
+        # create an existing external version for merge request
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            built=True,
+            uploaded=True,
+            active=True,
+            verbose_name=merge_request_number,
+            identifier=identifier
+        )
+
+        # Update the payload for `closed` webhook event
+        payload = self.gitlab_merge_request_payload
+        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_CLOSE
+        payload["object_attributes"]["iid"] = merge_request_number
+        payload["object_attributes"]["last_commit"]["id"] = identifier
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).filter(verbose_name=merge_request_number)
+
+        # external version should be deleted
+        self.assertFalse(external_version.exists())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['version_deleted'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        core_trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_merge_event(self, trigger_build, core_trigger_build):
+        client = APIClient()
+
+        merge_request_number = '8'
+        identifier = '95790bf891e76fee5e1747ab589903a6a1f80f23'
+        # create an existing external version for merge request
+        version = get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            built=True,
+            uploaded=True,
+            active=True,
+            verbose_name=merge_request_number,
+            identifier=identifier
+        )
+
+        # Update the payload for `merge` webhook event
+        payload = self.gitlab_merge_request_payload
+        payload["object_attributes"]["action"] = GITLAB_MERGE_REQUEST_MERGE
+        payload["object_attributes"]["iid"] = merge_request_number
+        payload["object_attributes"]["last_commit"]["id"] = identifier
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).filter(verbose_name=merge_request_number)
+
+        # external version should be deleted
+        self.assertFalse(external_version.exists())
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertTrue(resp.data['version_deleted'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        core_trigger_build.assert_not_called()
+
+    def test_gitlab_merge_request_no_action(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "object_kind": GITLAB_MERGE_REQUEST,
+            "object_attributes": {
+                "iid": 2,
+                "last_commit": {
+                    "id": self.commit
+                },
+            },
+        }
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+
+    def test_gitlab_merge_request_open_event_invalid_payload(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "object_kind": GITLAB_MERGE_REQUEST,
+            "object_attributes": {
+                "action": GITLAB_MERGE_REQUEST_CLOSE
+            },
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+
+        self.assertEqual(resp.status_code, 400)
+
+    def test_gitlab_merge_request_close_event_invalid_payload(self, trigger_build):
+        client = APIClient()
+
+        payload = {
+            "object_kind": GITLAB_MERGE_REQUEST,
+            "object_attributes": {
+                "action": GITLAB_MERGE_REQUEST_CLOSE
+            },
+        }
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+        )
+
+        self.assertEqual(resp.status_code, 400)
+
+    @mock.patch('readthedocs.core.utils.trigger_build')
+    def test_gitlab_merge_request_event_no_feature_flag(self, trigger_build, core_trigger_build):
+        # delete feature flag
+        self.feature_flag.delete()
+
+        client = APIClient()
+
+        resp = client.post(
+            reverse(
+                'api_webhook_gitlab',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            self.gitlab_merge_request_payload,
+            format='json',
+        )
+        # get external version
+        external_version = self.project.versions(
+            manager=EXTERNAL
+        ).filter(verbose_name='2').first()
+
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
+        core_trigger_build.assert_not_called()
+        self.assertFalse(external_version)
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""

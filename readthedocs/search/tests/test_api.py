@@ -102,7 +102,7 @@ class TestDocumentSearch:
 
         # checking highlighting of results
         highlighted_words = re.findall(  # this gets all words inside <em> tag
-            '<em>(.*?)</em>',
+            '<span>(.*?)</span>',
             highlight[0]
         )
         assert len(highlighted_words) > 0

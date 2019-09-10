@@ -88,17 +88,15 @@ class PageDocument(RTDDocTypeMixin, DocType):
             'role_name': fields.KeywordField(),
 
             # For linking to the URL
-            'doc_name': fields.KeywordField(),
             'anchor': fields.KeywordField(),
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'doc_display': fields.TextField(),
+            'docstrings': fields.TextField(),
 
             # Simple analyzer breaks on `.`,
             # otherwise search results are too strict for this use case
             'name': fields.TextField(analyzer='simple'),
-            'display_name': fields.TextField(analyzer='simple'),
         }
     )
 
@@ -111,23 +109,40 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
-        domains_qs = html_file.sphinx_domains.exclude(
-            domain='std',
-            type__in=['doc', 'label']
-        ).iterator()
+        all_domains = []
 
-        all_domains = [
-            {
-                'role_name': domain.role_name,
-                'doc_name': domain.doc_name,
-                'anchor': domain.anchor,
-                'type_display': domain.type_display,
-                'doc_display': domain.doc_display,
-                'name': domain.name,
-                'display_name': domain.display_name if domain.display_name != '-' else '',
-            }
-            for domain in domains_qs
-        ]
+        try:
+            domains_qs = html_file.sphinx_domains.exclude(
+                domain='std',
+                type__in=['doc', 'label']
+            ).iterator()
+
+            all_domains = [
+                {
+                    'role_name': domain.role_name,
+                    'anchor': domain.anchor,
+                    'type_display': domain.type_display,
+                    'docstrings': html_file.processed_json.get(
+                        'domain_data', {}
+                    ).get(domain.anchor, ''),
+                    'name': domain.name,
+                }
+                for domain in domains_qs
+            ]
+
+            log.debug("[%s] [%s] Total domains for file %s are: %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+                len(all_domains),
+            ))
+
+        except Exception:
+            log.exception("[%s] [%s] Error preparing domain data for file %s" % (
+                html_file.project.slug,
+                html_file.version.slug,
+                html_file.path,
+            ))
 
         return all_domains
 
@@ -159,7 +174,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         # Do not index files that belong to non sphinx project
         # Also do not index certain files
-        queryset = queryset.filter(
+        queryset = queryset.internal().filter(
             project__documentation_type__contains='sphinx'
         )
 

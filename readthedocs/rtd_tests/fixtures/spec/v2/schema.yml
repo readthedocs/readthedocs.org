@@ -45,7 +45,7 @@ conda:
 build:
   # The build docker image to be used
   # Default: 'latest'
-  # Note: it can be overriden by a project
+  # Note: it can be overridden by a project
   image: enum('stable', 'latest', required=False)
 
 python:

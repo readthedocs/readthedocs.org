@@ -19,9 +19,15 @@ from readthedocs.core.signals import (
     webhook_github,
     webhook_gitlab,
 )
-from readthedocs.core.views.hooks import build_branches, sync_versions
+from readthedocs.core.views.hooks import (
+    build_branches,
+    sync_versions,
+    get_or_create_external_version,
+    delete_external_version,
+    build_external_version,
+)
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 
 log = logging.getLogger(__name__)
@@ -29,8 +35,19 @@ log = logging.getLogger(__name__)
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
 GITHUB_PUSH = 'push'
+GITHUB_PULL_REQUEST = 'pull_request'
+GITHUB_PULL_REQUEST_OPENED = 'opened'
+GITHUB_PULL_REQUEST_CLOSED = 'closed'
+GITHUB_PULL_REQUEST_REOPENED = 'reopened'
+GITHUB_PULL_REQUEST_SYNC = 'synchronize'
 GITHUB_CREATE = 'create'
 GITHUB_DELETE = 'delete'
+GITLAB_MERGE_REQUEST = 'merge_request'
+GITLAB_MERGE_REQUEST_CLOSE = 'close'
+GITLAB_MERGE_REQUEST_MERGE = 'merge'
+GITLAB_MERGE_REQUEST_OPEN = 'open'
+GITLAB_MERGE_REQUEST_REOPEN = 'reopen'
+GITLAB_MERGE_REQUEST_UPDATE = 'update'
 GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
 GITLAB_PUSH = 'push'
 GITLAB_NULL_HASH = '0' * 40
@@ -102,12 +119,16 @@ class WebhookMixin:
         """
         Normalize posted data.
 
-        This can be overriden to support multiples content types.
+        This can be overridden to support multiples content types.
         """
         return self.request.data
 
     def handle_webhook(self):
         """Handle webhook payload."""
+        raise NotImplementedError
+
+    def get_external_version_data(self):
+        """Get External Version data from payload."""
         raise NotImplementedError
 
     def is_payload_valid(self):
@@ -183,28 +204,98 @@ class WebhookMixin:
             'versions': [version],
         }
 
+    def get_external_version_response(self, project):
+        """
+        Trigger builds for External versions on pull/merge request events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "build_triggered": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: readthedocs.projects.models.Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
+        # create or get external version object using `verbose_name`.
+        external_version = get_or_create_external_version(
+            project, identifier, verbose_name
+        )
+        # returns external version verbose_name (pull/merge request number)
+        to_build = build_external_version(
+            project=project, version=external_version, commit=identifier
+        )
+
+        return {
+            'build_triggered': True,
+            'project': project.slug,
+            'versions': [to_build],
+        }
+
+    def get_delete_external_version_response(self, project):
+        """
+        Delete External version on pull/merge request `closed` events and return API response.
+
+        Return a JSON response with the following::
+
+            {
+                "version_deleted": true,
+                "project": "project_name",
+                "versions": [verbose_name]
+            }
+
+        :param project: Project instance
+        :type project: Project
+        """
+        identifier, verbose_name = self.get_external_version_data()
+        # Delete external version
+        deleted_version = delete_external_version(
+            project, identifier, verbose_name
+        )
+        return {
+            'version_deleted': deleted_version is not None,
+            'project': project.slug,
+            'versions': [deleted_version],
+        }
+
 
 class GitHubWebhookView(WebhookMixin, APIView):
 
     """
     Webhook consumer for GitHub.
 
-    Accepts webhook events from GitHub, 'push' events trigger builds. Expects the
-    webhook event type will be included in HTTP header ``X-GitHub-Event``, and
-    we will have a JSON payload.
+    Accepts webhook events from GitHub, 'push' and 'pull_request' events trigger builds.
+    Expects the webhook event type will be included in HTTP header ``X-GitHub-Event``,
+    and we will have a JSON payload.
 
     Expects the following JSON::
 
-        {
-            "ref": "branch-name",
-            ...
-        }
+        For push, create, delete Events:
+            {
+                "ref": "branch-name",
+                ...
+            }
+
+        For pull_request Events:
+            {
+                "action": "opened",
+                "number": 2,
+                "pull_request": {
+                    "head": {
+                        "sha": "ec26de721c3235aad62de7213c562f8c821"
+                    }
+                }
+            }
 
     See full payload here:
 
     - https://developer.github.com/v3/activity/events/types/#pushevent
     - https://developer.github.com/v3/activity/events/types/#createevent
     - https://developer.github.com/v3/activity/events/types/#deleteevent
+    - https://developer.github.com/v3/activity/events/types/#pullrequestevent
     """
 
     integration_type = Integration.GITHUB_WEBHOOK
@@ -217,6 +308,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
             except (ValueError, KeyError):
                 pass
         return super().get_data()
+
+    def get_external_version_data(self):
+        """Get Commit Sha and pull request number from payload."""
+        try:
+            identifier = self.data['pull_request']['head']['sha']
+            verbose_name = str(self.data['number'])
+
+            return identifier, verbose_name
+
+        except KeyError:
+            raise ParseError('Parameters "sha" and "number" are required')
 
     def is_payload_valid(self):
         """
@@ -256,6 +358,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         # Get event and trigger other webhook events
+        action = self.data.get('action', None)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -272,6 +375,26 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
+
+        if (
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            event == GITHUB_PULL_REQUEST and action
+        ):
+            if (
+                action in
+                [
+                    GITHUB_PULL_REQUEST_OPENED,
+                    GITHUB_PULL_REQUEST_REOPENED,
+                    GITHUB_PULL_REQUEST_SYNC
+                ]
+            ):
+                # Handle opened, synchronize, reopened pull_request event.
+                return self.get_external_version_response(self.project)
+
+            if action == GITHUB_PULL_REQUEST_CLOSED:
+                # Handle closed pull_request event.
+                return self.get_delete_external_version_response(self.project)
+
         return None
 
     def _normalize_ref(self, ref):
@@ -284,7 +407,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
     """
     Webhook consumer for GitLab.
 
-    Accepts webhook events from GitLab, 'push' events trigger builds.
+    Accepts webhook events from GitLab, 'push' and 'merge_request' events trigger builds.
 
     Expects the following JSON::
 
@@ -296,10 +419,26 @@ class GitLabWebhookView(WebhookMixin, APIView):
             ...
         }
 
+    For merge_request events:
+
+        {
+            "object_kind": "merge_request",
+            "object_attributes": {
+                "iid": 2,
+                "last_commit": {
+                "id": "717abb9a6a0f3111dbd601ef6f58c70bdd165aef",
+                },
+                "action": "open"
+                ...
+            },
+            ...
+        }
+
     See full payload here:
 
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#push-events
     - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#tag-events
+    - https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#merge-request-events
     """
 
     integration_type = Integration.GITLAB_WEBHOOK
@@ -324,6 +463,17 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return False
         return token == secret
 
+    def get_external_version_data(self):
+        """Get commit SHA and merge request number from payload."""
+        try:
+            identifier = self.data['object_attributes']['last_commit']['id']
+            verbose_name = str(self.data['object_attributes']['iid'])
+
+            return identifier, verbose_name
+
+        except KeyError:
+            raise ParseError('Parameters "id" and "iid" are required')
+
     def handle_webhook(self):
         """
         Handle GitLab events for push and tag_push.
@@ -333,6 +483,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         0000000000000000000000000000000000000000 ('0' * 40)
         """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
+        action = self.data.get('object_attributes', {}).get('action', None)
         webhook_gitlab.send(
             Project,
             project=self.project,
@@ -353,6 +504,25 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+
+        if (
+            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            event == GITLAB_MERGE_REQUEST and action
+        ):
+            if (
+                action in
+                [
+                    GITLAB_MERGE_REQUEST_OPEN,
+                    GITLAB_MERGE_REQUEST_REOPEN,
+                    GITLAB_MERGE_REQUEST_UPDATE
+                ]
+            ):
+                # Handle open, update, reopen merge_request event.
+                return self.get_external_version_response(self.project)
+
+            if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
+                # Handle merge and close merge_request event.
+                return self.get_delete_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):

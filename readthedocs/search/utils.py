@@ -1,6 +1,7 @@
 """Utilities related to reading and generating indexable search content."""
 
 import logging
+from operator import attrgetter
 
 from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.apps import DEDConfig
@@ -88,7 +89,9 @@ def get_project_list_or_404(project_slug, user, version_slug=None):
     main_project = get_object_or_404(Project, slug=project_slug)
     subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
     for project in list(subprojects) + [main_project]:
-        version = Version.objects.public(user).filter(project__slug=project.slug, slug=version_slug)
+        version = Version.internal.public(user).filter(
+            project__slug=project.slug, slug=version_slug
+        )
         if version.exists():
             project_list.append(version.first().project)
     return project_list
@@ -153,24 +156,15 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 delete_objects_in_es.delay(**kwargs)
 
 
-def _remove_newlines_from_dict(highlight):
-    """
-    Recursively change results to turn newlines into periods.
+def _get_sorted_results(results, source_key='_source'):
+    """Sort results according to their score and returns results as list."""
+    sorted_results = [
+        {
+            'type': hit._nested.field,
+            source_key: hit._source.to_dict(),
+            'highlight': hit.highlight.to_dict() if hasattr(hit, 'highlight') else {}
+        }
+        for hit in sorted(results, key=attrgetter('_score'), reverse=True)
+    ]
 
-    See: https://github.com/rtfd/readthedocs.org/issues/5168
-    :param highlight: highlight dict whose contents are to be edited.
-    :type highlight: dict
-    :returns: dict with all the newlines changed to periods.
-    :rtype: dict
-    """
-    for k, v in highlight.items():
-        if isinstance(v, dict):
-            highlight[k] = _remove_newlines_from_dict(v)
-        else:
-            # elastic returns the contents of the
-            # highlighted field in a list.
-            if isinstance(v, list):
-                v_new_list = [res.replace('\n', '. ') for res in v]
-                highlight[k] = v_new_list
-
-    return highlight
+    return sorted_results

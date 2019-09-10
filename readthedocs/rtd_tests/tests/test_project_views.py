@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 
 from allauth.account.models import EmailAddress
@@ -12,10 +11,12 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 from mock import patch
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
@@ -390,12 +391,40 @@ class TestImportDemoView(MockBuildTestCase):
 
 class TestPublicViews(MockBuildTestCase):
     def setUp(self):
-        self.pip = get(Project, slug='pip')
+        self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
+        self.external_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
 
     def test_project_download_media(self):
         url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 302)
+
+    def test_project_detail_view_only_shows_internal_versons(self):
+        url = reverse('projects_detail', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_downloads_only_shows_internal_versons(self):
+        url = reverse('project_downloads', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_versions_only_shows_internal_versons(self):
+        url = reverse('project_version_list', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['active_versions'])
+        self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
 class TestPrivateViews(MockBuildTestCase):
@@ -468,6 +497,44 @@ class TestPrivateViews(MockBuildTestCase):
                 task=tasks.symlink_subproject,
                 args=[project.pk],
             )
+
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GitHubWebhook.GITHUB_WEBHOOK
+            },
+        )
+        integration = GitHubWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_called_once_with(
+            project_pk=project.pk,
+            user_pk=self.user.pk,
+            integration=integration.first()
+        )
+
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create_generic_webhook(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GenericAPIWebhook.API_WEBHOOK
+            },
+        )
+        integration = GenericAPIWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_not_called()
 
 
 class TestPrivateMixins(MockBuildTestCase):

@@ -10,7 +10,14 @@ import git
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
+from readthedocs.projects.constants import (
+    GITHUB_BRAND,
+    GITHUB_PR_PULL_PATTERN,
+    GITLAB_BRAND,
+    GITLAB_MR_PULL_PATTERN,
+)
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -57,6 +64,10 @@ class Backend(BaseVCS):
             self.set_remote_url(self.repo_url)
             return self.fetch()
         self.make_clean_working_dir()
+        # A fetch is always required to get external versions properly
+        if self.version_type == EXTERNAL:
+            self.clone()
+            return self.fetch()
         return self.clone()
 
     def repo_exists(self):
@@ -68,15 +79,10 @@ class Backend(BaseVCS):
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
-        # TODO remove this after users migrate to a config file
-        from readthedocs.projects.models import Feature
         submodules_in_config = (
             config.submodules.exclude != ALL or config.submodules.include
         )
-        if (
-            self.project.has_feature(Feature.SKIP_SUBMODULES) or
-            not submodules_in_config
-        ):
+        if not submodules_in_config:
             return False
 
         # Keep compatibility with previous projects
@@ -94,10 +100,10 @@ class Backend(BaseVCS):
 
         Returns `True` if all required submodules URLs are valid.
         Returns a list of all required submodules:
-        - Include is `ALL`, returns all submodules avaliable.
+        - Include is `ALL`, returns all submodules available.
         - Include is a list, returns just those.
         - Exclude is `ALL` - this should never happen.
-        - Exlude is a list, returns all avaliable submodules
+        - Exlude is a list, returns all available submodules
           but those from the list.
 
         Returns `False` if at least one submodule is invalid.
@@ -142,10 +148,25 @@ class Backend(BaseVCS):
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def fetch(self):
-        cmd = ['git', 'fetch', '--tags', '--prune', '--prune-tags']
+        # --force lets us checkout branches that are not fast-forwarded
+        # https://github.com/readthedocs/readthedocs.org/issues/6097
+        cmd = ['git', 'fetch', 'origin',
+               '--force', '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
+
+        if self.verbose_name and self.version_type == EXTERNAL:
+
+            if self.project.git_provider_name == GITHUB_BRAND:
+                cmd.append(
+                    GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
+                )
+
+            if self.project.git_provider_name == GITLAB_BRAND:
+                cmd.append(
+                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
+                )
 
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
@@ -222,13 +243,8 @@ class Backend(BaseVCS):
 
     @property
     def submodules(self):
-        try:
-            repo = git.Repo(self.working_dir)
-            return list(repo.submodules)
-        except InvalidGitRepositoryError:
-            raise RepositoryError(
-                RepositoryError.INVALID_SUBMODULES_PATH,
-            )
+        repo = git.Repo(self.working_dir)
+        return list(repo.submodules)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""

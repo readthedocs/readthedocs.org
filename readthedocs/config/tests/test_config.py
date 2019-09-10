@@ -1798,7 +1798,7 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'submodules.recursive'
 
-    def test_submodules_recursive_explict_default(self):
+    def test_submodules_recursive_explicit_default(self):
         build = self.get_build_config({
             'submodules': {
                 'include': [],

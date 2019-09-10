@@ -120,7 +120,7 @@ class TestPageSearch(object):
 
     def _get_highlighted_words(self, string):
         highlighted_words = re.findall(
-            '<em>(.*?)</em>',
+            '<span>(.*?)</span>',
             string
         )
         return highlighted_words
@@ -154,17 +154,17 @@ class TestPageSearch(object):
     def test_file_search_have_correct_role_name_facets(self, client):
         """Test that searching files should result all role_names."""
 
-        # searching for '/api/v3/' to test that
+        # searching for 'celery' to test that
         # correct role_names are displayed
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': '/api/v3/', 'type': 'file' }
+            search_params={ 'q': 'celery', 'type': 'file' }
         )
         assert len(results) >= 1
         role_name_facets = facets['role_name']
         role_name_facets_str = [facet[0] for facet in role_name_facets]
-        expected_role_names = ['http:get', 'http:patch', 'http:post']
+        expected_role_names = ['py:class', 'py:function', 'py:method']
         assert sorted(expected_role_names) == sorted(role_name_facets_str)
         for facet in role_name_facets:
             assert facet[2] == False  # because none of the facets are applied
@@ -172,7 +172,7 @@ class TestPageSearch(object):
     def test_file_search_filter_role_name(self, client):
         """Test that searching files filtered according to role_names."""
 
-        search_params = { 'q': 'notfound', 'type': 'file' }
+        search_params = { 'q': 'celery', 'type': 'file' }
         # searching without the filter
         results, facets = self._get_search_result(
             url=self.url,
@@ -184,11 +184,11 @@ class TestPageSearch(object):
         for facet in role_name_facets:
             assert facet[2] == False  # because none of the facets are applied
 
-        confval_facet = 'std:confval'
-        # checking if 'std:confval' facet is present in results
+        confval_facet = 'py:class'
+        # checking if 'py:class' facet is present in results
         assert confval_facet in [facet[0] for facet in role_name_facets]
 
-        # filtering with role_name=std:confval
+        # filtering with role_name=py:class
         search_params['role_name'] = confval_facet
         new_results, new_facets = self._get_search_result(
             url=self.url,
@@ -196,8 +196,8 @@ class TestPageSearch(object):
             search_params=search_params
         )
         new_role_names_facets = new_facets['role_name']
-        # there is only one result with role_name='std:confval'
-        # in `installation` page
+        # there is only one result with role_name='py:class'
+        # in `signals` page
         assert len(new_results) == 1
         first_result = new_results[0]  # first result
         inner_hits = first_result.meta.inner_hits  # inner_hits of first results
@@ -238,6 +238,7 @@ class TestPageSearch(object):
         highlight = self._get_highlight(first_result, data_type)
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
         for word in highlighted_words:
             assert word.lower() in query.lower()
 
@@ -271,15 +272,16 @@ class TestPageSearch(object):
         highlight = self._get_highlight(results[0], 'sections.content')
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
         for word in highlighted_words:
             assert word.lower() in query.lower()
 
     def test_file_search_have_correct_project_facets(self, client, all_projects):
         """Test that file search have correct project facets in results"""
 
-        # `Sphinx` word is present both in `kuma` and `docs` files
+        # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase
-        query = 'Sphinx'
+        query = 'environment'
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
@@ -297,10 +299,10 @@ class TestPageSearch(object):
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 
-        # `Sphinx` word is present both in `kuma` and `docs` files
+        # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
         search_params = {
-            'q': 'Sphinx',
+            'q': 'environment',
             'type': 'file',
             'project': 'kuma'
         }

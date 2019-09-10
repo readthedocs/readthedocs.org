@@ -184,12 +184,28 @@ class Service:
             return []
 
     def sync(self):
+        """Sync repositories and organizations."""
         raise NotImplementedError
 
     def create_repository(self, fields, privacy=None, organization=None):
+        """
+        Update or create a repository from API response.
+
+        :param fields: dictionary of response data from API
+        :param privacy: privacy level to support
+        :param organization: remote organization to associate with
+        :type organization: RemoteOrganization
+        :rtype: RemoteRepository
+        """
         raise NotImplementedError
 
     def create_organization(self, fields):
+        """
+        Update or create remote organization from API response.
+
+        :param fields: dictionary response of data from API
+        :rtype: RemoteOrganization
+        """
         raise NotImplementedError
 
     def get_next_url_to_paginate(self, response):
@@ -210,10 +226,58 @@ class Service:
         """
         raise NotImplementedError
 
-    def setup_webhook(self, project):
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from Git Providers Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+        raise NotImplementedError
+
+    def setup_webhook(self, project, integration=None):
+        """
+        Setup webhook for project.
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: boolean based on webhook set up success, and requests Response object
+        :rtype: (Bool, Response)
+        """
         raise NotImplementedError
 
     def update_webhook(self, project, integration):
+        """
+        Update webhook integration.
+
+        :param project: project to set up webhook for
+        :type project: Project
+        :param integration: Webhook integration to update
+        :type integration: Integration
+        :returns: boolean based on webhook update success, and requests Response object
+        :rtype: (Bool, Response)
+        """
+        raise NotImplementedError
+
+    def send_build_status(self, build, commit, state):
+        """
+        Create commit status for project.
+
+        :param build: Build to set up commit status for
+        :type build: Build
+        :param commit: commit sha of the pull/merge request
+        :type commit: str
+        :param state: build state failure, pending, or success.
+        :type state: str
+        :returns: boolean based on commit status creation was successful or not.
+        :rtype: Bool
+        """
         raise NotImplementedError
 
     @classmethod

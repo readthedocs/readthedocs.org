@@ -21,6 +21,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
+from readthedocs.analytics.tasks import analytics_event
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
@@ -98,7 +100,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = self.get_object()
-        context['versions'] = Version.objects.public(
+        context['versions'] = Version.internal.public(
             user=self.request.user,
             project=project,
         )
@@ -184,7 +186,7 @@ def project_downloads(request, project_slug):
         Project.objects.protected(request.user),
         slug=project_slug,
     )
-    versions = Version.objects.public(user=request.user, project=project)
+    versions = Version.internal.public(user=request.user, project=project)
     versions = sort_version_aware(versions)
     version_data = OrderedDict()
     for version in versions:
@@ -220,12 +222,22 @@ def project_download_media(request, project_slug, type_, version_slug):
         slug=version_slug,
     )
 
+    # Send media download to analytics - sensitive data is anonymized
+    analytics_event.delay(
+        event_category='Build Media',
+        event_action=f'Download {type_}',
+        event_label=str(version),
+        ua=request.META.get('HTTP_USER_AGENT'),
+        uip=get_client_ip(request),
+    )
+
     if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
 
         if settings.RTD_BUILD_MEDIA_STORAGE:
             storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
             storage_path = version.project.get_storage_path(
-                type_=type_, version_slug=version_slug
+                type_=type_, version_slug=version_slug,
+                version_type=version.type,
             )
             if storage.exists(storage_path):
                 return HttpResponseRedirect(storage.url(storage_path))
@@ -273,7 +285,7 @@ def project_versions(request, project_slug):
         slug=project_slug,
     )
 
-    versions = Version.objects.public(
+    versions = Version.internal.public(
         user=request.user,
         project=project,
         only_active=False,

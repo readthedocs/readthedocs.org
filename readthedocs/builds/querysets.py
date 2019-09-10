@@ -116,7 +116,6 @@ class BuildQuerySetBase(models.QuerySet):
 
 class BuildQuerySet(SettingsOverrideObject):
     _default_class = BuildQuerySetBase
-    _override_setting = 'BUILD_MANAGER'
 
 
 class RelatedBuildQuerySetBase(models.QuerySet):

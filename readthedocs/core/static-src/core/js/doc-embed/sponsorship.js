@@ -285,6 +285,7 @@ function init() {
     ];
     var params;
     var placement;
+    var explicit_placement = false;
 
     rtd = rtddata.get();
 
@@ -292,9 +293,11 @@ function init() {
     placement = create_explicit_placement();
 
     if (placement) {
+        // Explicit placement
         div_ids.push(placement.div_id);
         display_types.push(placement.display_type);
         priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
+        explicit_placement = true;
     } else {
         // Standard placements
         if (!rtd.show_promo()) {
@@ -315,6 +318,7 @@ function init() {
     request_data.display_types = display_types.join('|');
     request_data.priorities = priorities.join('|');
     request_data.project = rtd.project;
+    request_data.theme = rtd.get_theme_name();
 
     if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
         // Force a specific promo to be displayed

@@ -1,14 +1,13 @@
 import itertools
 import logging
-from operator import attrgetter
-from pprint import pformat
 
+from django.utils import timezone
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search import utils
+from readthedocs.search import utils, tasks
 
 
 log = logging.getLogger(__name__)
@@ -38,8 +37,8 @@ class PageSearchSerializer(serializers.Serializer):
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
         if highlight:
-            ret = utils._remove_newlines_from_dict(highlight.to_dict())
-            log.debug('API Search highlight [Page title]: %s', pformat(ret))
+            ret = highlight.to_dict()
+            log.debug('API Search highlight [Page title]: %s', ret)
             return ret
 
     def get_inner_hits(self, obj):
@@ -49,25 +48,13 @@ class PageSearchSerializer(serializers.Serializer):
             domains = inner_hits.domains or []
             all_results = itertools.chain(sections, domains)
 
-            sorted_results = [
-                {
-                    'type': hit._nested.field,
-                    '_source': hit._source.to_dict(),
-                    'highlight': self._get_inner_hits_highlights(hit),
-                }
-                for hit in sorted(all_results, key=attrgetter('_score'), reverse=True)
-            ]
+            sorted_results = utils._get_sorted_results(
+                results=all_results,
+                source_key='_source',
+            )
 
+            log.debug('[API] Sorted Results: %s', sorted_results)
             return sorted_results
-
-    def _get_inner_hits_highlights(self, hit):
-        """Removes new lines from highlight and log it."""
-        highlight_dict = utils._remove_newlines_from_dict(
-            hit.highlight.to_dict()
-        )
-
-        log.debug('API Search highlight: %s', pformat(highlight_dict))
-        return highlight_dict
 
 
 class PageSearchAPIView(generics.ListAPIView):
@@ -166,3 +153,27 @@ class PageSearchAPIView(generics.ListAPIView):
         for project in all_projects:
             projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
         return projects_url
+
+    def list(self, request, *args, **kwargs):
+        """Overriding ``list`` method to record query in database."""
+
+        response = super().list(request, *args, **kwargs)
+
+        project_slug = self.request.query_params.get('project', None)
+        version_slug = self.request.query_params.get('version', None)
+        total_results = response.data.get('count', 0)
+        time = timezone.now()
+
+        query = self.request.query_params.get('q', '')
+        query = query.lower().strip()
+
+        # record the search query with a celery task
+        tasks.record_search_query.delay(
+            project_slug,
+            version_slug,
+            query,
+            total_results,
+            time.isoformat(),
+        )
+
+        return response
