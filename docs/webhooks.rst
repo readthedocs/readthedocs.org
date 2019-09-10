@@ -167,8 +167,6 @@ we create a secret for every integration that offers a way to verify that a webh
 Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
 offer a way to check this.
 
-When :ref:`resyncing the webhook <webhooks:Resyncing webhooks>`, the secret is changed too.
-
 Troubleshooting
 ---------------
 
