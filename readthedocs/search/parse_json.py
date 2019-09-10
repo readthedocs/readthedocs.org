@@ -6,7 +6,6 @@ import orjson
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 
-from pyquery import PyQuery
 from selectolax.parser import HTMLParser
 
 
