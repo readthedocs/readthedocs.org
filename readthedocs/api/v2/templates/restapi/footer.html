@@ -64,7 +64,7 @@
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>{% trans "On Read the Docs" %}</dt>
         <dd>
-         <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
         </dd>
         <dd>
          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
