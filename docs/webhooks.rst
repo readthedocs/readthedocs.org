@@ -36,7 +36,13 @@ After you have added the integration, you'll see a link to information about the
 
 As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
 
-Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider:
+Use this URL when setting up a new webhook with your provider -- these steps vary depending on the provider.
+
+.. note::
+
+   If your account is connected to the provider,
+   we'll try to setup the webhook automatically.
+   If something fails, you can still setup the webhook manually.
 
 .. _webhook-integration-github:
 
