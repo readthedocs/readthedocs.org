@@ -30,6 +30,12 @@ class NestedParentObjectMixin:
 
     def _get_parent_project(self):
         slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+
+        # when hitting ``/projects/<slug>/`` we don't have a "parent" project
+        # because this endpoint is the base one, so we just get the project from
+        # ``project_slug`` kwargs
+        slug = slug or self.kwargs.get('project_slug')
+
         return get_object_or_404(Project, slug=slug)
 
     def _get_parent_version(self):
