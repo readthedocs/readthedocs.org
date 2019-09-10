@@ -22,7 +22,9 @@ class PublicDetailPrivateListing(IsAuthenticated):
                 # hitting ``/projects/``, allowing
                 return True
 
-            if view.detail:
+            # detail view is only allowed on list/retrieve actions (not
+            # ``update`` or ``partial_update``)
+            if view.detail and view.action in ('list', 'retrieve', 'superproject'):
                 return True
 
             project = view._get_parent_project()
