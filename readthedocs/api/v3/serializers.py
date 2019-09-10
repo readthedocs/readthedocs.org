@@ -12,7 +12,7 @@ from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES, PRIVACY_CHOICES, PROTECTED
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
@@ -539,6 +539,43 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class SubprojectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to define a Project as subproject of another Project."""
+
+    class Meta:
+        model = ProjectRelationship
+        fields = (
+            'child',
+            'alias',
+        )
+
+
+class SubprojectDetailSerializer(FlexFieldsModelSerializer):
+
+    parent = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+    child = serializers.SlugRelatedField(slug_field='slug', read_only=True)
+
+    class Meta:
+        model = ProjectRelationship
+        fields = (
+            'parent',
+            'child',
+            'alias',
+        )
+
+
+class SubprojectDestroySerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to remove a subproject relationship to a Project."""
+
+    class Meta:
+        model = ProjectRelationship
+        fields = (
+            'alias',
+        )
 
 
 class RedirectLinksSerializer(BaseLinksSerializer):
