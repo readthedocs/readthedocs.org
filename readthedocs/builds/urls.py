@@ -6,7 +6,7 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = [
     url(
-        r'^(?P<project_slug>[-\w]+)/(?P<pk>\d+)/$',
+        r'^(?P<project_slug>[-\w]+)/(?P<build_pk>\d+)/$',
         RedirectView.as_view(pattern_name='builds_detail', permanent=True),
         name='old_builds_detail',
     ),
