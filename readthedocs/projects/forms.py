@@ -407,62 +407,6 @@ class ProjectRelationshipForm(SettingsOverrideObject):
     _default_class = ProjectRelationshipBaseForm
 
 
-class DualCheckboxWidget(forms.CheckboxInput):
-
-    """Checkbox with link to the version's built documentation."""
-
-    def __init__(self, version, attrs=None, check_test=bool):
-        super().__init__(attrs, check_test)
-        self.version = version
-
-    def render(self, name, value, attrs=None, renderer=None):
-        checkbox = super().render(name, value, attrs, renderer)
-        icon = self.render_icon()
-        return mark_safe('{}{}'.format(checkbox, icon))
-
-    def render_icon(self):
-        context = {
-            'MEDIA_URL': settings.MEDIA_URL,
-            'built': self.version.built,
-            'uploaded': self.version.uploaded,
-            'url': self.version.get_absolute_url(),
-        }
-        return render_to_string('projects/includes/icon_built.html', context)
-
-
-class BaseVersionsForm(forms.Form):
-
-    """Form for versions page."""
-
-    def save(self):
-        versions = self.project.versions.all()
-        for version in versions:
-            self.save_version(version)
-        default_version = self.cleaned_data.get('default-version', None)
-        if default_version:
-            self.project.default_version = default_version
-            self.project.save()
-
-    def save_version(self, version):
-        """Save version if there has been a change, trigger a rebuild."""
-        new_value = self.cleaned_data.get(
-            'version-{}'.format(version.slug),
-            None,
-        )
-        privacy_level = self.cleaned_data.get(
-            'privacy-{}'.format(version.slug),
-            None,
-        )
-        if ((new_value is None or new_value == version.active) and
-                (privacy_level is None or privacy_level == version.privacy_level)):  # yapf: disable  # noqa
-            return
-        version.active = new_value
-        version.privacy_level = privacy_level
-        version.save()
-        if version.active and not version.built and not version.uploaded:
-            trigger_build(project=self.project, version=version)
-
-
 class UserForm(forms.Form):
 
     """Project user association form."""
