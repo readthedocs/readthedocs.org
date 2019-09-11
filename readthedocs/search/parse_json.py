@@ -1,7 +1,7 @@
 """Functions related to converting content into dict/JSON structures."""
 
 import logging
-import orjson
+import orjson as json
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -103,7 +103,7 @@ def process_file(fjson_storage_path):
         log.info('Unable to read file: %s', fjson_storage_path)
         raise
 
-    data = orjson.loads(file_contents)
+    data = json.loads(file_contents)
     sections = []
     path = ''
     title = ''
