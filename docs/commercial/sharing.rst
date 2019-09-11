@@ -13,7 +13,7 @@ You can share your project with users outside of your company:
 These methods will allow them to view a specific project inside your company.
 
 Additionally, you can use a HTTP Authorization Header.
-This is handy to have access from a script.
+This is useful to have access from a script.
 
 Enabling
 ~~~~~~~~
@@ -59,7 +59,7 @@ view your project.
 HTTP Authorization Header
 *************************
 
-You need to pass the ``Authorization`` header with the token on each HTTP request.
+You need to send the ``Authorization`` header with the token on each HTTP request.
 The header has the form ``Authorization: Token <ACCESS_TOKEN>``.
 For example:
 
