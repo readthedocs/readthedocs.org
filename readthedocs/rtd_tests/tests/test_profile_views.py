@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import get
+from rest_framework.authtoken.models import Token
 
 
 class ProfileViewsTest(TestCase):
@@ -106,3 +107,31 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(resp['Location'], reverse('account_advertising'))
         self.user.profile.refresh_from_db()
         self.assertFalse(self.user.profile.allow_ads)
+
+    def test_list_api_tokens(self):
+        resp = self.client.get(reverse('profiles_tokens'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, 'No API Tokens currently configured.')
+
+        Token.objects.create(user=self.user)
+        resp = self.client.get(reverse('profiles_tokens'))
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, f'Token: {self.user.auth_token.key}')
+
+    def test_create_api_token(self):
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
+
+        resp = self.client.get(reverse('profiles_tokens_create'))
+        self.assertEqual(resp.status_code, 405)  # GET not allowed
+
+        resp = self.client.post(reverse('profiles_tokens_create'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 1)
+
+    def test_delete_api_token(self):
+        Token.objects.create(user=self.user)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 1)
+
+        resp = self.client.post(reverse('profiles_tokens_delete'))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 0)
