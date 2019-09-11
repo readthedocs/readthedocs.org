@@ -403,16 +403,19 @@ class CommunityBaseSettings(Settings):
         r'^http://(.+)\.readthedocs\.io$',
         r'^https://(.+)\.readthedocs\.io$',
     )
-    # So people can post to their accounts
+
+    # We need to allow credentials (cookies) to identify the user and remove ads
+    # if it's Gold member. Note: in Django 2.1 the ``SESSION_COOKIE_SAMESITE``
+    # setting was added, set to 'Lax' by default, which will prevent Django's
+    # session cookie being sent cross-domain. Change it to None to bypass this
+    # security restriction.
     CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOW_HEADERS = (
-        'x-requested-with',
-        'content-type',
-        'accept',
-        'origin',
-        'authorization',
-        'x-csrftoken'
-    )
+
+    CORS_ALLOW_METHODS = [
+        'GET',
+        'OPTIONS',
+        'HEAD',
+    ]
 
     # RTD Settings
     REPO_LOCK_SECONDS = 30

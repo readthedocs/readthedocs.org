@@ -18,13 +18,6 @@ from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)
 
-WHITELIST_URLS = [
-    '/api/v2/footer_html',
-    '/api/v2/search',
-    '/api/v2/docsearch',
-    '/api/v2/sustainability',
-]
-
 webhook_github = Signal(providing_args=['project', 'data', 'event'])
 webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
 webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
@@ -34,52 +27,14 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     """
     Decide whether a request should be given CORS access.
 
-    This checks that:
-    * The URL is whitelisted against our CORS-allowed domains
-    * The Domain exists in our database, and belongs to the project being queried.
+    This checks that the URL is under ``/api/`` and it's a safe method.
 
-    Returns True when a request should be given CORS access.
+    Returns ``True`` when a request should be given CORS access.
     """
-    if 'HTTP_ORIGIN' not in request.META:
-        return False
-    host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
-
-    # Don't do domain checking for this API for now
-    if request.path_info.startswith('/api/v2/sustainability'):
-        return True
-
-    # Don't do domain checking for APIv2 when the Domain is known
-    if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
-        domain = Domain.objects.filter(domain__icontains=host)
-        if domain.exists():
-            return True
-
-    valid_url = False
-    for url in WHITELIST_URLS:
-        if request.path_info.startswith(url):
-            valid_url = True
-            break
-
-    if valid_url:
-        project_slug = request.GET.get('project', None)
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            log.warning(
-                'Invalid project passed to domain. [%s:%s]',
-                project_slug,
-                host,
-            )
-            return False
-
-        domain = Domain.objects.filter(
-            Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project),
-        )
-        if domain.exists():
-            return True
-
-    return False
+    return all([
+        request.method in SAFE_METHODS,
+        request.path_info.startswith('/api/'),
+    ])
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)

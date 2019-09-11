@@ -185,7 +185,7 @@ class TestCORSMiddleware(TestCase):
         )
         self.domain = get(Domain, domain='my.valid.domain', project=self.project)
 
-    def test_proper_domain(self):
+    def test_known_domain(self):
         request = self.factory.get(
             self.url,
             {'project': self.project.slug},
@@ -194,11 +194,24 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
 
-    def test_invalid_domain(self):
+    def test_unknown_domain(self):
+        """
+        Test accessing the API from a domain that it's not registered in our DB.
+
+        Only the endpoints under ``/api/`` should work.
+        """
         request = self.factory.get(
             self.url,
             {'project': self.project.slug},
-            HTTP_ORIGIN='http://invalid.domain',
+            HTTP_ORIGIN='http://unknown.domain',
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn('Access-Control-Allow-Origin', resp)
+
+        request = self.factory.get(
+            '/dashboard/',
+            {'project': self.project.slug},
+            HTTP_ORIGIN='http://unknown.domain',
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
@@ -227,15 +240,15 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertIn('Access-Control-Allow-Origin', resp)
 
-    def test_apiv2_endpoint_not_allowed(self):
         request = self.factory.get(
             '/api/v2/version/',
             {'project__slug': self.project.slug, 'active': True},
             HTTP_ORIGIN='http://invalid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertIn('Access-Control-Allow-Origin', resp)
 
+    def test_apiv2_method_not_allowed(self):
         # POST is not allowed
         request = self.factory.post(
             '/api/v2/version/',
