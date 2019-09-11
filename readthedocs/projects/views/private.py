@@ -111,36 +111,51 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         return context
 
 
-class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectMixin(PrivateViewMixin):
+
+    model = Project
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    context_object_name = 'project'
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+
+class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_edit.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_advanced.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class ProjectDelete(ProjectMixin, DeleteView):
+
+    success_message = _('Project deleted')
+    template_name = 'projects/project_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_superproject'] = (
+            self.object.subprojects.all().exists()
+        )
+        return context
+
+    def get_success_url(self):
+        return reverse('projects_dashboard')
 
 
 @login_required
@@ -181,29 +196,6 @@ def project_version_detail(request, project_slug, version_slug):
         'projects/project_version_detail.html',
         {'form': form, 'project': project, 'version': version},
     )
-
-
-class ProjectDelete(ProjectAdminMixin, PrivateViewMixin, DeleteView):
-
-    model = Project
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-    success_message = _('Project deleted')
-    template_name = 'projects/project_delete.html'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        project = self.get_object()
-        context['is_superproject'] = project.subprojects.all().exists()
-
-        return context
-
-    def get_success_url(self):
-        return reverse('projects_dashboard')
 
 
 class ImportWizardView(
