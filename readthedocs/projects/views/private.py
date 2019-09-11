@@ -183,32 +183,27 @@ def project_version_detail(request, project_slug, version_slug):
     )
 
 
-@login_required
-def project_delete(request, project_slug):
-    """
-    Project delete confirmation view.
+class ProjectDelete(ProjectAdminMixin, PrivateViewMixin, DeleteView):
 
-    Make a project as deleted on POST, otherwise show a form asking for
-    confirmation of delete.
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
+    model = Project
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    success_message = _('Project deleted')
+    template_name = 'projects/project_delete.html'
 
-    context = {
-        'project': project,
-        'is_superproject': project.subprojects.all().exists()
-    }
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
-    if request.method == 'POST':
-        # Delete the project and all related files
-        project.delete()
-        messages.success(request, _('Project deleted'))
-        project_dashboard = reverse('projects_dashboard')
-        return HttpResponseRedirect(project_dashboard)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-    return render(request, 'projects/project_delete.html', context)
+        project = self.get_object()
+        context['is_superproject'] = project.subprojects.all().exists()
+
+        return context
+
+    def get_success_url(self):
+        return reverse('projects_dashboard')
 
 
 class ImportWizardView(
