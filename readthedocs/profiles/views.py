@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView
+from django.views.generic import ListView, DeleteView, View
 from rest_framework.authtoken.models import Token
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
@@ -213,22 +213,42 @@ def account_advertising(request):
 
 class TokenMixin:
 
-    """Environment Variables to be added when building the Project."""
+    """Mixin class to handle API Tokens."""
 
     model = Token
-    lookup_url_kwarg = 'token_pk'
+
+    def get_success_url(self):
+        return reverse('profiles_tokens')
+
+
+class TokenListView(TokenMixin, ListView):
+
+    """View to list all the Tokens that belong to a User."""
+
     template_name = 'profiles/private/token_list.html'
 
     def get_queryset(self):
-        # Token has a OneToOneField relation with User
+        # NOTE: we are currently showing just one token since the DRF model has
+        # a OneToOneField relation with User. Although, we plan to have multiple
+        # scope-based tokens.
         return Token.objects.filter(user__in=[self.request.user])
 
-    def get_success_url(self):
-        return reverse(
-            'projects_token',
-            args=[self.get_project().slug],
-        )
 
+class TokenCreateView(TokenMixin, View):
 
-class TokenList(TokenMixin, ListView):
-    pass
+    """Simple view to generate a Token object for the logged in User."""
+
+    http_method_names= ['post']
+
+    def post(self, request, *args, **kwargs):
+        _, created = Token.objects.get_or_create(user=self.request.user)
+        if created:
+            messages.info(request, 'API Token created successfully.')
+        return HttpResponseRedirect(self.get_success_url())
+
+class TokenDeleteView(TokenMixin, DeleteView):
+
+    """View to delete/revoke the current Token of the logged in User."""
+
+    def get_object(self):
+        return self.request.user.auth_token

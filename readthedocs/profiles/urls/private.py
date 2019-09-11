@@ -35,8 +35,18 @@ urlpatterns += account_urls
 tokens_urls = [
     url(
         r'^tokens/$',
-        views.TokenList.as_view(),
+        views.TokenListView.as_view(),
         name='profiles_tokens',
+    ),
+    url(
+        r'^tokens/create/$',
+        views.TokenCreateView.as_view(),
+        name='profiles_tokens_create',
+    ),
+    url(
+        r'^tokens/delete/$',
+        views.TokenDeleteView.as_view(),
+        name='profiles_tokens_delete',
     ),
 ]
 
