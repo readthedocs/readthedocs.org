@@ -58,7 +58,7 @@ view your project.
 HTTP Authorization Header
 *************************
 
-You need to pass the ``Authorization`` header with the token on each HTTP request.
+You need to send the ``Authorization`` header with the token on each HTTP request.
 The header has the form ``Authorization: Token <ACCESS_TOKEN>``.
 For example:
 
