@@ -1,22 +1,9 @@
-:orphan:
-
 API v3
 ======
 
 The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
 and HTTP response status codes are to designate success and failure.
-
-.. warning::
-
-   APIv3 is currently under development and it's not ready to use yet.
-
-
-.. note::
-
-   If you want to beta test it, please `get in touch`_ with us so we can give you early access.
-
-.. _get in touch: mailto:support@readthedocs.org?subject=APIv3%20beta%20test
 
 .. contents:: Table of contents
    :local:
@@ -36,6 +23,11 @@ Token
 
 The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
 to authenticate as a user and have the same permissions that the user itself.
+
+.. note::
+
+   You will find your access Token under
+   `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
 
 
 Session
