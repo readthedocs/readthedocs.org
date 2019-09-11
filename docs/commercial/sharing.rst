@@ -13,7 +13,7 @@ You can share your project with users outside of your company:
 These methods will allow them to view a specific project inside your company.
 
 Additionally, you can use a HTTP Authorization Header.
-This is handy to have access from a script.
+This is useful to have access from a script.
 
 Enabling
 ~~~~~~~~
