@@ -1,9 +1,7 @@
 import csv
-import io
 from urllib.parse import urlsplit
 
 import mock
-import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -12,12 +10,10 @@ from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import Feature, HTMLFile, Project
-from readthedocs.search.models import SearchQuery
+from readthedocs.projects.models import Feature, Project
 
 
 class Testmaker(TestCase):
