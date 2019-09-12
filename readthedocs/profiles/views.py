@@ -238,7 +238,7 @@ class TokenCreateView(TokenMixin, View):
 
     """Simple view to generate a Token object for the logged in User."""
 
-    http_method_names= ['post']
+    http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         _, created = Token.objects.get_or_create(user=self.request.user)
@@ -246,9 +246,10 @@ class TokenCreateView(TokenMixin, View):
             messages.info(request, 'API Token created successfully.')
         return HttpResponseRedirect(self.get_success_url())
 
+
 class TokenDeleteView(TokenMixin, DeleteView):
 
     """View to delete/revoke the current Token of the logged in User."""
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         return self.request.user.auth_token
