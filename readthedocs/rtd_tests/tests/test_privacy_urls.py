@@ -311,11 +311,6 @@ class PrivateProjectUnauthAccessTest(PrivateProjectMixin, TestCase):
     # Auth protected
     default_status_code = 302
 
-    response_data = {
-        # Old url, it redirects to a view that doesn't requires login.
-        '/dashboard/pip/': {'status_code': 301},
-    }
-
     def login(self):
         pass
 
