@@ -24,7 +24,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
-from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    GenericModelView,
+    GenericView,
+    UpdateView,
+)
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -143,25 +150,36 @@ class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-@login_required
-def project_version_detail(request, project_slug, version_slug):
-    """Project version detail page."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    version = get_object_or_404(
-        Version.internal.public(
-            user=request.user,
-            project=project,
+class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = Version
+    context_object_name = 'version'
+    form_class = VersionForm
+    lookup_url_kwarg = 'version_slug'
+    lookup_field = 'slug'
+
+    def get_success_url(self):
+        return reverse(
+            'project_version_list',
+            kwargs={'project_slug': self.get_project().slug},
+        )
+
+
+class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+    def get_queryset(self):
+        return Version.internal.public(
+            user=self.request.user,
+            project=self.get_project(),
             only_active=False,
-        ),
-        slug=version_slug,
-    )
+        )
 
-    form = VersionForm(request.POST or None, instance=version)
+    def get_form(self, data=None, files=None, **kwargs):
+        return self.get_form_class()(data, files, **kwargs)
 
-    if request.method == 'POST' and form.is_valid():
+    def form_valid(self, form):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
@@ -173,14 +191,28 @@ def project_version_detail(request, project_slug, version_slug):
                 )
                 version.built = False
                 version.save()
-        url = reverse('project_version_list', args=[project.slug])
-        return HttpResponseRedirect(url)
+        return HttpResponseRedirect(self.get_success_url())
 
-    return render(
-        request,
-        'projects/project_version_detail.html',
-        {'form': form, 'project': project, 'version': version},
-    )
+
+class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
+
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        version = self.get_object()
+        if not version.active:
+            version.built = False
+            version.save()
+            broadcast(
+                type='app',
+                task=tasks.remove_dirs,
+                args=[version.get_artifact_paths()],
+            )
+        else:
+            return HttpResponseBadRequest(
+                "Can't delete HTML for an active version.",
+            )
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @login_required
@@ -651,43 +683,6 @@ def project_redirects_delete(request, project_slug):
         raise Http404
     return HttpResponseRedirect(
         reverse('projects_redirects', args=[project.slug]),
-    )
-
-
-@login_required
-def project_version_delete_html(request, project_slug, version_slug):
-    """
-    Project version 'delete' HTML.
-
-    This marks a version as not built
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    version = get_object_or_404(
-        Version.internal.public(
-            user=request.user,
-            project=project,
-            only_active=False,
-        ),
-        slug=version_slug,
-    )
-
-    if not version.active:
-        version.built = False
-        version.save()
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[version.get_artifact_paths()],
-        )
-    else:
-        return HttpResponseBadRequest(
-            "Can't delete HTML for an active version.",
-        )
-    return HttpResponseRedirect(
-        reverse('project_version_list', kwargs={'project_slug': project_slug}),
     )
 
 
