@@ -545,6 +545,20 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     """Serializer used to define a Project as subproject of another Project."""
 
+    child = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Project.objects.all(),
+    )
+
+    def validate_child(self, value):
+        # Check the user is maintainer of the child project
+        user = self.context['request'].user
+        if user not in value.users.all():
+            raise serializers.ValidationError(
+                'You do not have permissions on the child project',
+            )
+        return value
+
     class Meta:
         model = ProjectRelationship
         fields = [
