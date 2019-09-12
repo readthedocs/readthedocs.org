@@ -652,4 +652,5 @@ including any confidentiality or nondisclosure agreements.
 
 Questions
 ~~~~~~~~~
-Questions about the Terms of Service? `Contact us <mailto:support@readthedocs.org>`_.
+
+Questions about the Terms of Service? `Get in touch <mailto:support@readthedocs.org>`_.
