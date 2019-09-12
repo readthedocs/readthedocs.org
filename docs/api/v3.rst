@@ -532,6 +532,41 @@ This allows for documentation projects to share a search index and a namespace o
 but still be maintained independently.
 See :doc:`/subprojects` for more information.
 
+
+Subproject details
+++++++++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Retrieve details of a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "alias": "subproject-alias",
+            "child": ["PROJECT"],
+            "_links": {
+                "parent": "/api/v3/projects/pip/"
+            }
+        }
+
+    :>json integer count: total number of projects.
+    :>json string next: URI for next set of projects.
+    :>json string previous: URI for previous set of projects.
+    :>json array results: array of ``project relationship`` objects.
+
+    :requestheader Authorization: token to authenticate.
+
+
 Subprojects listing
 +++++++++++++++++++
 
@@ -554,15 +589,75 @@ Subprojects listing
             "count": 25,
             "next": "/api/v3/projects/pip/subprojects/?limit=10&offset=10",
             "previous": null,
-            "results": ["PROJECT"]
+            "results": ["SUBPROJECT RELATIONSHIP"]
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
+    :>json integer count: total number of sub-projects.
+    :>json string next: URI for next set of sub-projects.
+    :>json string previous: URI for previous set of sub-projects.
+    :>json array results: array of ``subproject relationship`` objects.
 
     :requestheader Authorization: token to authenticate.
+
+
+Subproject create
++++++++++++++++++
+
+
+.. http:post:: /api/v3/projects/(str:project_slug)/subprojects/
+
+    Create a subproject relationship between two projects.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "child": "subproject-child-slug",
+            "alias": "subproject-alias"
+        }
+
+    **Example response**:
+
+    `See Subproject details <#subproject-details>`_
+
+    :>json string child: slug of the child project in the relationship.
+    :>json string alias: optional slug alias to be used in the URL.
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 201: Created
+    :statuscode 400: Some field is invalid
+
+
+Subproject delete
++++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Delete a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X DELETE \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    :requestheader Authorization: token to authenticate.
+
+    :statuscode 204: Deleted successfully
 
 
 Translations
