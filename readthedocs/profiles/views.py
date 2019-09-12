@@ -251,5 +251,7 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     """View to delete/revoke the current Token of the logged in User."""
 
+    http_method_names = ['post']
+
     def get_object(self, queryset=None):
         return self.request.user.auth_token
