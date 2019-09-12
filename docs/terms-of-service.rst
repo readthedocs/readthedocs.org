@@ -348,12 +348,12 @@ and may not be appropriate for some high-bandwidth uses or other prohibited uses
 Read the Docs reserves the right at all times to reclaim any Read the Docs subdomain without liability.
 
 
-Third Party Applications
+Third party applications
 ---------------------------
 
 **Short version:** *You need to follow certain rules if you create an application for other Users.*
 
-Creating Applications
+Creating applications
 ~~~~~~~~~~~~~~~~~~~~~
 
 If you create a third-party application or other developer product that collects User Personal Information
@@ -497,7 +497,7 @@ Communications with Read the Docs
 
 **Short version:** *We use email and other electronic means to stay in touch with our users.*
 
-Electronic Communication Required
+Electronic communication required
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For contractual purposes, you:
