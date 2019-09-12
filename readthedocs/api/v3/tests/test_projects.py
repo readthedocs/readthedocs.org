@@ -57,22 +57,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
             self._get_response_dict('projects-superproject'),
         )
 
-    def test_projects_subprojects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-subprojects-list',
-                kwargs={
-                    'parent_lookup_superprojects__parent__slug': self.project.slug,
-                },
-            ),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict('projects-subprojects-list'),
-        )
-
     def test_others_projects_builds_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(

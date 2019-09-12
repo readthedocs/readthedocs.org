@@ -74,7 +74,7 @@ class APIEndpointMixin(TestCase):
             users=[],
             versions=[],
         )
-        self.project.add_subproject(self.subproject)
+        self.project_relationship = self.project.add_subproject(self.subproject)
 
         self.version = fixture.get(
             Version,
