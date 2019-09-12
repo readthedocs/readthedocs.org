@@ -243,7 +243,7 @@ class TokenCreateView(TokenMixin, View):
     def post(self, request, *args, **kwargs):
         _, created = Token.objects.get_or_create(user=self.request.user)
         if created:
-            messages.info(request, 'API Token created successfully.')
+            messages.info(request, 'API Token created successfully')
         return HttpResponseRedirect(self.get_success_url())
 
 
