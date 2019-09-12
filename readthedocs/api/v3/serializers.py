@@ -568,8 +568,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
 class SubprojectLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
-    # parent = serializers.SerializerMethodField()
-    # child = serializers.SerializerMethodField()
+    parent = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -586,15 +585,6 @@ class SubprojectLinksSerializer(BaseLinksSerializer):
             'projects-detail',
             kwargs={
                 'project_slug': obj.parent.slug,
-            },
-        )
-        return self._absolute_url(path)
-
-    def get_child(self, obj):
-        path = reverse(
-            'projects-detail',
-            kwargs={
-                'project_slug': obj.child.slug,
             },
         )
         return self._absolute_url(path)
