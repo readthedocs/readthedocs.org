@@ -86,6 +86,7 @@ def wipe_version(request, project_slug, version_slug):
             include_file=False,
         )
         storage.delete_directory(storage_path)
+        log.info('Deleted cloud storage: %s' % storage_path)
 
         return redirect('project_version_list', project_slug)
     return render(
