@@ -619,9 +619,6 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
 
     """Project redirects view and form view."""
 
-    model = EnvironmentVariable
-    form_class = RedirectForm
-
     def get_success_url(self):
         return reverse(
             'projects_redirects',
@@ -631,6 +628,7 @@ class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
 
 class ProjectRedirects(ProjectRedirectsMixin, FormView):
 
+    form_class = RedirectForm
     template_name = 'projects/project_redirects.html'
 
     def form_valid(self, form):
