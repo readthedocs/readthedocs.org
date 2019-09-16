@@ -57,7 +57,7 @@ Our services
 Read the Docs is made up of the following Websites:
 
 readthedocs.org ("Read the Docs Community")
-    This is a website aimed at documentation authors and project maintainers
+    This Website is used by documentation authors and project maintainers for
     writing and distributing technical documentation.
 
 readthedocs.com ("Read the Docs for Business")
