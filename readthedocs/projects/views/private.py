@@ -498,65 +498,84 @@ def project_users_delete(request, project_slug):
     return HttpResponseRedirect(project_dashboard)
 
 
-@login_required
-def project_notifications(request, project_slug):
+class ProjecNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    def get_success_url(self):
+        return reverse(
+            'projects_notifications',
+            args=[self.get_project().slug],
+        )
+
+
+class ProjectNotications(ProjecNotificationsMixin, TemplateView):
+
     """Project notification view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
 
-    email_form = EmailHookForm(data=None, project=project)
-    webhook_form = WebHookForm(data=None, project=project)
+    template_name = 'projects/project_notifications.html'
+    email_form = EmailHookForm
+    webhook_form = WebHookForm
 
-    if request.method == 'POST':
-        if 'email' in request.POST.keys():
-            email_form = EmailHookForm(data=request.POST, project=project)
+    def get_email_form(self):
+        project = self.get_project()
+        return self.email_form(
+            self.request.POST or None,
+            project=project,
+        )
+
+    def get_webhook_form(self):
+        project = self.get_project()
+        return self.webhook_form(
+            self.request.POST or None,
+            project=project,
+        )
+
+    def post(self, request, *args, **kwargs):
+        if 'email' in request.POST:
+            email_form = self.get_email_form()
             if email_form.is_valid():
                 email_form.save()
-        elif 'url' in request.POST.keys():
-            webhook_form = WebHookForm(data=request.POST, project=project)
+        elif 'url' in request.POST:
+            webhook_form = self.get_webhook_form()
             if webhook_form.is_valid():
                 webhook_form.save()
+        return HttpResponseRedirect(self.get_success_url())
 
-    emails = project.emailhook_notifications.all()
-    urls = project.webhook_notifications.all()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
 
-    return render(
-        request,
-        'projects/project_notifications.html',
-        {
-            'email_form': email_form,
-            'webhook_form': webhook_form,
-            'project': project,
-            'emails': emails,
-            'urls': urls,
-        },
-    )
+        project = self.get_project()
+        emails = project.emailhook_notifications.all()
+        urls = project.webhook_notifications.all()
+
+        context.update(
+            {
+                'email_form': self.get_email_form(),
+                'webhook_form': self.get_webhook_form(),
+                'emails': emails,
+                'urls': urls,
+            },
+        )
+        return context
 
 
-@login_required
-def project_notifications_delete(request, project_slug):
-    """Project notifications delete confirmation view."""
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('Only POST is allowed')
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    try:
-        project.emailhook_notifications.get(
-            email=request.POST.get('email'),
-        ).delete()
-    except EmailHook.DoesNotExist:
+class ProjectNoticationsDelete(ProjecNotificationsMixin, GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
         try:
-            project.webhook_notifications.get(
-                url=request.POST.get('email'),
+            project.emailhook_notifications.get(
+                email=request.POST.get('email'),
             ).delete()
-        except WebHook.DoesNotExist:
-            raise Http404
-    project_dashboard = reverse('projects_notifications', args=[project.slug])
-    return HttpResponseRedirect(project_dashboard)
+        except EmailHook.DoesNotExist:
+            try:
+                project.webhook_notifications.get(
+                    url=request.POST.get('email'),
+                ).delete()
+            except WebHook.DoesNotExist:
+                raise Http404
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @login_required
