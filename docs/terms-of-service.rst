@@ -289,7 +289,7 @@ Intellectual property notice
 
 **Short version:** *We own the Service and all of our Content.
 In order for you to use our Content, we give you certain rights to it,
-but you may only use our content in the way we have allowed.*
+but you may only use our Content in the way we have allowed.*
 
 Read the Docs' rights to content
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
