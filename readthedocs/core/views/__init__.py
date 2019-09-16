@@ -10,6 +10,7 @@ import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
@@ -76,6 +77,16 @@ def wipe_version(request, project_slug, version_slug):
             version_slug=version_slug,
             project_slug=project_slug,
         )
+
+        # clear cloud storage
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = version.project.get_storage_path(
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+        )
+        storage.delete_directory(storage_path)
+
         return redirect('project_version_list', project_slug)
     return render(
         request,
