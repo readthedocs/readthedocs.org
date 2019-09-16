@@ -65,7 +65,7 @@ readthedocs.com ("Read the Docs for Business")
     documentation for corporate clients.
 
 readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
-    These websites are where Read the Docs hosts documentation (":ref:`User-Generated Content <terms-of-service:User-Generated Content>`")
+    These Websites are where Read the Docs hosts :ref:`terms-of-service:User-Generated Content`
     on behalf of documentation authors.
 
 
