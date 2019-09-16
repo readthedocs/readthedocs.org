@@ -24,7 +24,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
-from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    GenericView,
+    UpdateView,
+)
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -559,53 +566,58 @@ def project_notifications_delete(request, project_slug):
     return HttpResponseRedirect(project_dashboard)
 
 
-@login_required
-def project_translations(request, project_slug):
-    """Project translations view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    form = TranslationForm(
-        data=request.POST or None,
-        parent=project,
-        user=request.user,
-    )
+class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        project_dashboard = reverse(
+    def get_success_url(self):
+        return reverse(
             'projects_translations',
-            args=[project.slug],
+            args=[self.get_project().slug],
         )
-        return HttpResponseRedirect(project_dashboard)
-
-    lang_projects = project.translations.all()
-
-    return render(
-        request,
-        'projects/project_translations.html',
-        {
-            'form': form,
-            'project': project,
-            'lang_projects': lang_projects,
-        },
-    )
 
 
-@login_required
-def project_translations_delete(request, project_slug, child_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    subproj = get_object_or_404(
-        project.translations,
-        slug=child_slug,
-    )
-    project.translations.remove(subproj)
-    project_dashboard = reverse('projects_translations', args=[project.slug])
-    return HttpResponseRedirect(project_dashboard)
+class ProjectTranslations(ProjectTranslationsMixin, FormView):
+
+    """Project translations view and form view."""
+
+    form_class = TranslationForm
+    template_name = 'projects/project_translations.html'
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['parent'] = self.get_project()
+        kwargs['user'] = self.request.user
+        return self.form_class(data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['lang_projects'] = project.translations.all()
+        return context
+
+
+class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request, *args, **kwargs):
+        project = self.get_project()
+        translation = self.get_translation()
+        project.translations.remove(translation)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_translation(self):
+        project = self.get_project()
+        translation = get_object_or_404(
+            project.translations,
+            slug=self.kwargs['child_slug'],
+        )
+        return translation
 
 
 @login_required
