@@ -54,7 +54,7 @@ There's not going to be a test on it, but it's still useful information.*
 Our services
 ~~~~~~~~~~~~
 
-Read the Docs is made up of:
+Read the Docs is made up of the following Websites:
 
 readthedocs.org ("Read the Docs Community")
     This is a website aimed at documentation authors and project maintainers
