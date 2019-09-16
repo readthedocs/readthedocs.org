@@ -26,6 +26,8 @@ from readthedocs.projects.views.private import (
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
+    ProjectRedirects,
+    ProjectRedirectsDelete,
     ProjectUpdate,
 )
 
@@ -97,12 +99,14 @@ urlpatterns = [
         name='projects_translations_delete',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/redirects/$', private.project_redirects,
+        r'^(?P<project_slug>[-\w]+)/redirects/$',
+        ProjectRedirects.as_view(),
         name='projects_redirects',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
-        private.project_redirects_delete, name='projects_redirects_delete',
+        ProjectRedirectsDelete.as_view(),
+        name='projects_redirects_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/advertising/$',
