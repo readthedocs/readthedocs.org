@@ -287,7 +287,7 @@ We will terminate the Accounts of repeat infringers of this policy.
 Intellectual property notice
 ----------------------------
 
-**Short version:** *We own the service and all of our content.
+**Short version:** *We own the Service and all of our Content.
 In order for you to use our content, we give you certain rights to it,
 but you may only use our content in the way we have allowed.*
 
