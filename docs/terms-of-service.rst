@@ -61,7 +61,7 @@ readthedocs.org ("Read the Docs Community")
     writing and distributing technical documentation.
 
 readthedocs.com ("Read the Docs for Business")
-    This website is a commercial hosted offering for hosting private
+    This Website is a commercial hosted offering for hosting private
     documentation for corporate clients.
 
 readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
