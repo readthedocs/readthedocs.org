@@ -49,6 +49,12 @@ There's not going to be a test on it, but it's still useful information.*
    A "User Account" represents an individual User's authorization to log in to and use the Service and serves as a User's identity on Read the Docs.
    "Organizations" are shared workspaces that may be associated with a single entity or with one or more Users where multiple Users can collaborate across many projects at once.
    A User Account can be a member of any number of Organizations.
+8. "User Personal Information" is any information about one of our users which could,
+   alone or together with other information, personally identify him or her.
+   Information such as a user name and password, an email address,
+   a real name, and a photograph are examples of User Personal Information.
+   Our :doc:`privacy-policy` goes into more details on User Personal Information,
+   what data Read the Docs collects, and why we collect it.
 
 
 Our services
@@ -345,7 +351,6 @@ Each Read the Docs Account comes with the ability to host Documentation Sites.
 This hosting service is intended to host static web pages for All Users.
 Documentation Sites are subject to some specific bandwidth and usage limits,
 and may not be appropriate for some high-bandwidth uses or other prohibited uses.
-Read the Docs reserves the right at all times to reclaim any Read the Docs subdomain without liability.
 
 
 Third party applications
