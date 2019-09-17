@@ -776,20 +776,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if not settings.RTD_BUILD_MEDIA_STORAGE:
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.version.project.slug,
-                    'version': self.version.slug,
-                    'msg': (
-                        'RTD_BUILD_MEDIA_STORAGE is missing - '
-                        'Not writing build artifacts to media storage'
-                    ),
-                },
-            )
-            return
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
@@ -1381,10 +1367,6 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1542,11 +1524,6 @@ def _create_imported_files(version, commit, build):
     :returns: paths of changed files
     :rtype: set
     """
-
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     changed_files = set()
@@ -1842,10 +1819,6 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
     for storage_path in paths:
         log.info('Removing %s from media storage', storage_path)
