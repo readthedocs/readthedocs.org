@@ -776,6 +776,21 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
+        if not settings.RTD_BUILD_MEDIA_STORAGE:
+            # Note: this check can be removed once corporate build servers use storage
+            log.warning(
+                LOG_TEMPLATE,
+                {
+                    'project': self.version.project.slug,
+                    'version': self.version.slug,
+                    'msg': (
+                        'RTD_BUILD_MEDIA_STORAGE is missing - '
+                        'Not writing build artifacts to media storage'
+                    ),
+                },
+            )
+            return
+
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
