@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """Project URLs for authenticated users."""
 
 from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
+from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.backends.views import ImportDemoView, ImportWizardView
@@ -45,7 +45,10 @@ urlpatterns = [
         name='projects_import_demo',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/$', private.project_manage,
+        r'^(?P<project_slug>[-\w]+)/$',
+        login_required(
+            RedirectView.as_view(pattern_name='projects_detail', permanent=True),
+        ),
         name='projects_manage',
     ),
     url(
