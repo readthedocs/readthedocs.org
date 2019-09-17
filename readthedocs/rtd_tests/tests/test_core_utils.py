@@ -226,7 +226,7 @@ class CoreUtilTests(TestCase):
         mock_remove_build_storage_paths.delay.assert_called_once_with(['test/path/'])
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_via_slugs_wrong_param(self, mock_broadcast):
+    def test_wipe_version_via_slug_wrong_param(self, mock_broadcast):
         self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
         with self.assertRaises(Http404):
             wipe_version_via_slugs(
