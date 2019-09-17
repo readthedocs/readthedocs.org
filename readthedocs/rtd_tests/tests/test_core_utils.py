@@ -11,7 +11,7 @@ from mock import call
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import slugify, trigger_build
-from readthedocs.core.utils.general import _wipe_version_helper
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import remove_dirs
 
@@ -200,8 +200,12 @@ class CoreUtilTests(TestCase):
         )
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_helper(self, mock_broadcast):
-        _wipe_version_helper(
+    @mock.patch('readthedocs.core.utils.general.remove_build_storage_paths')
+    @mock.patch.object(Project, 'get_storage_path')
+    def test_wipe_version_via_slugs(self, mock_get_storage_path, mock_remove_build_storage_paths, mock_broadcast):
+        mock_get_storage_path.return_value = 'test/path/'
+
+        wipe_version_via_slugs(
             version_slug=self.version.slug,
             project_slug=self.version.project.slug
         )
@@ -219,22 +223,23 @@ class CoreUtilTests(TestCase):
             ],
             any_order=False
         )
+        mock_remove_build_storage_paths.delay.assert_called_once_with(['test/path/'])
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_helper_wrong_param(self, mock_broadcast):
+    def test_wipe_version_via_slugs_wrong_param(self, mock_broadcast):
         self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
         with self.assertRaises(Http404):
-            _wipe_version_helper(
+            wipe_version_via_slugs(
                 version_slug='wrong-slug',
                 project_slug=self.version.project.slug
             )
         mock_broadcast.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_helper_same_version_slug_with_diff_proj(self, mock_broadcast):
+    def test_wipe_version_via_slugs_same_version_slug_with_diff_proj(self, mock_broadcast):
         project_2 = get(Project)
         version_2 = get(Version, project=project_2, slug=self.version.slug)
-        _wipe_version_helper(
+        wipe_version_via_slugs(
             version_slug=version_2.slug,
             project_slug=project_2.slug,
         )

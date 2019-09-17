@@ -9,9 +9,10 @@ from django.shortcuts import get_object_or_404
 from readthedocs.core.utils import broadcast
 from readthedocs.projects.tasks import remove_dirs
 from readthedocs.builds.models import Version
+from readthedocs.projects.tasks import remove_build_storage_paths
 
 
-def _wipe_version_helper(version_slug, project_slug):
+def wipe_version_via_slugs(version_slug, project_slug):
     """
     Wipes the given version of a project.
 
@@ -36,12 +37,11 @@ def _wipe_version_helper(version_slug, project_slug):
 
 
 def _clear_html_files_from_cloud_storage(version):
-    """Removes html files from cloud storage for a given version of a project."""
+    """Removes html files from media storage (cloud or local) for a given version of a project."""
 
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
     storage_path = version.project.get_storage_path(
         type_='html',
         version_slug=version.slug,
         include_file=False,
     )
-    storage.delete_directory(storage_path)
+    remove_build_storage_paths.delay([storage_path])
