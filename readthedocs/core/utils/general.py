@@ -2,6 +2,8 @@
 
 import os
 
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.shortcuts import get_object_or_404
 
 from readthedocs.core.utils import broadcast
@@ -9,8 +11,14 @@ from readthedocs.projects.tasks import remove_dirs
 from readthedocs.builds.models import Version
 
 
-def wipe_version_via_slugs(version_slug, project_slug):
-    """Wipes the given version of a given project."""
+def _wipe_version_helper(version_slug, project_slug):
+    """
+    Wipes the given version of a project.
+
+    It does two things:
+    * Clears the `checkouts`, `envs`, and `conda` direcories (if exist).
+    * Removes the html files from cloud storage.
+    """
     version = get_object_or_404(
         Version,
         slug=version_slug,
@@ -23,3 +31,17 @@ def wipe_version_via_slugs(version_slug, project_slug):
     ]
     for del_dir in del_dirs:
         broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
+
+    _clear_html_files_from_cloud_storage(version)
+
+
+def _clear_html_files_from_cloud_storage(version):
+    """Removes html files from cloud storage for a given version of a project."""
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    storage_path = version.project.get_storage_path(
+        type_='html',
+        version_slug=version.slug,
+        include_file=False,
+    )
+    storage.delete_directory(storage_path)

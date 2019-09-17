@@ -10,14 +10,13 @@ import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.http import HttpResponseRedirect, Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.views.static import serve as static_serve
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.utils.general import _wipe_version_helper
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.projects.constants import PRIVATE
@@ -73,21 +72,10 @@ def wipe_version(request, project_slug, version_slug):
         raise Http404('You must own this project to wipe it.')
 
     if request.method == 'POST':
-        wipe_version_via_slugs(
+        _wipe_version_helper(
             version_slug=version_slug,
             project_slug=project_slug,
         )
-
-        # clear cloud storage
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = version.project.get_storage_path(
-            type_='html',
-            version_slug=version_slug,
-            include_file=False,
-        )
-        storage.delete_directory(storage_path)
-        log.info('Deleted cloud storage: %s' % storage_path)
-
         return redirect('project_version_list', project_slug)
     return render(
         request,

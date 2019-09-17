@@ -20,7 +20,7 @@ from readthedocs.builds.models import (
     VersionAutomationRule,
 )
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.utils.general import _wipe_version_helper
 from readthedocs.projects.models import HTMLFile
 from readthedocs.search.utils import _indexing_helper
 
@@ -114,7 +114,7 @@ class VersionAdmin(admin.ModelAdmin):
     def wipe_selected_versions(self, request, queryset):
         """Wipes the selected versions."""
         for version in queryset:
-            wipe_version_via_slugs(
+            _wipe_version_helper(
                 version_slug=version.slug,
                 project_slug=version.project.slug
             )
