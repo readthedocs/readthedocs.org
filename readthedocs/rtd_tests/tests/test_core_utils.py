@@ -11,7 +11,7 @@ from mock import call
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.utils import slugify, trigger_build
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.utils.general import _wipe_version_helper
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import remove_dirs
 
@@ -200,8 +200,8 @@ class CoreUtilTests(TestCase):
         )
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_via_slug(self, mock_broadcast):
-        wipe_version_via_slugs(
+    def test_wipe_version_helper(self, mock_broadcast):
+        _wipe_version_helper(
             version_slug=self.version.slug,
             project_slug=self.version.project.slug
         )
@@ -221,20 +221,20 @@ class CoreUtilTests(TestCase):
         )
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_via_slug_wrong_param(self, mock_broadcast):
+    def test_wipe_version_helper_wrong_param(self, mock_broadcast):
         self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
         with self.assertRaises(Http404):
-            wipe_version_via_slugs(
+            _wipe_version_helper(
                 version_slug='wrong-slug',
                 project_slug=self.version.project.slug
             )
         mock_broadcast.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.general.broadcast')
-    def test_wipe_version_via_slugs_same_version_slug_with_diff_proj(self, mock_broadcast):
+    def test_wipe_version_helper_same_version_slug_with_diff_proj(self, mock_broadcast):
         project_2 = get(Project)
         version_2 = get(Version, project=project_2, slug=self.version.slug)
-        wipe_version_via_slugs(
+        _wipe_version_helper(
             version_slug=version_2.slug,
             project_slug=project_2.slug,
         )
