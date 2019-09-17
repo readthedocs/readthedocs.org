@@ -940,12 +940,6 @@ def search_analytics_view(request, project_slug):
     query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
         project_slug
     )
-    # data for plotting the doughnut-chart
-    distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
-        project_slug,
-        10,
-    )
-    now = timezone.now()
 
     queries = []
     qs = SearchQuery.objects.filter(project=project)
@@ -968,7 +962,6 @@ def search_analytics_view(request, project_slug):
             'queries': queries,
             'show_analytics': True,
             'query_count_of_1_month': query_count_of_1_month,
-            'distribution_of_top_queries': distribution_of_top_queries,
         }
     )
 
