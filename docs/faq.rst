@@ -245,6 +245,13 @@ What commit of Read the Docs is in production?
 We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 
+How can I remove stale results from the search?
+-----------------------------------------------
+
+If the search results contains stale/outdated results,
+you can update the search index by :doc:`wiping the build environment <guides/wipe-environment>` and then rebuilding your docs.
+
+
 How can I avoid search results having a deprecated version of my docs?
 ----------------------------------------------------------------------
 
