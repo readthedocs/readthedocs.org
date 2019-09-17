@@ -27,6 +27,7 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectUpdate,
+    SearchAnalytics,
 )
 
 
@@ -110,7 +111,8 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/search-analytics/$',
-        private.search_analytics_view, name='projects_search_analytics',
+        SearchAnalytics.as_view(),
+        name='projects_search_analytics',
     ),
 ]
 
