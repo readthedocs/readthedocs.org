@@ -18,7 +18,7 @@ class PageViewAdmin(admin.ModelAdmin):
     raw_id_fields = ('project', 'version')
     list_display = ('__str__', 'view_count')
     search_fields = ('project__slug', 'version__slug', 'path')
-    readonly_fields = ('created', 'modified')
+    readonly_fields = ('date',)
     list_select_related = ('project', 'version', 'version__project')
 
 

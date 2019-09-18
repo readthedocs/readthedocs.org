@@ -137,7 +137,7 @@ class SearchQuery(TimeStampedModel):
         return final_data
 
 
-class PageView(TimeStampedModel):
+class PageView(models.Model):
     project = models.ForeignKey(
         Project,
         related_name='page_views',
@@ -151,6 +151,7 @@ class PageView(TimeStampedModel):
     )
     path = models.CharField(max_length=4096)
     view_count = models.PositiveIntegerField(default=1)
+    date = models.DateField()
 
     def __str__(self):
         return f'[{self.project.slug}:{self.version.slug}]: {self.path}'
@@ -195,6 +196,18 @@ class PageView(TimeStampedModel):
 
     @classmethod
     def get_page_view_count_of_one_month(cls, project_slug, page_path):
+        """
+        Returns the total page views count for last 30 days (including today) for a particular `page_path`.
+
+        Structure of returned data is compatible to make graphs.
+        Sample returned data::
+            {
+                'labels': ['01 Jul', '02 Jul', '03 Jul'],
+                'int_data': [150, 200, 143]
+            }
+        This data shows that there were 150 page views on 01 July,
+        200 page views on 02 July and 143 page views on 03 July for a particular `page_path`.
+        """
         today = timezone.now().date()
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
 
@@ -204,13 +217,12 @@ class PageView(TimeStampedModel):
         qs = cls.objects.filter(
             project__slug=project_slug,
             path=page_path,
-        ).order_by('-created')
+        ).order_by('-date')
 
         count_dict = dict(
-            qs.annotate(created_date=TruncDate('created'))
-            .values('created_date')
-            .order_by('created_date')
-            .values_list('created_date', 'view_count')
+            qs.values('date')
+            .order_by('date')
+            .values_list('date', 'view_count')
         )
 
         count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]

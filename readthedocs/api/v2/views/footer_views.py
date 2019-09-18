@@ -213,8 +213,8 @@ class FooterHTML(APIView):
 
         # increase the page view count
         increase_page_view_count.delay(
-            project=context['project'],
-            version=context['version'],
+            project_slug=context['project'].slug,
+            version_slug=context['version'].slug,
             path=context['path'] if context['path'] else 'index.html'
         )
 
