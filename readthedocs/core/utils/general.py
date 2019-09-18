@@ -33,7 +33,7 @@ def wipe_version_via_slugs(version_slug, project_slug):
     for del_dir in del_dirs:
         broadcast(type='build', task=remove_dirs, args=[(del_dir,)])
 
-    _clear_html_files_from_cloud_storage(version)
+    _clear_html_files_from_media_storage(version)
 
 
 def _clear_html_files_from_media_storage(version):
