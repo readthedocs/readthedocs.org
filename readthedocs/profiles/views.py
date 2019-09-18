@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Views for creating, editing and viewing site-specific user profiles."""
 
 from django.contrib import messages
