@@ -5,27 +5,28 @@ Including the main homepage, documentation and header rendering,
 and server errors.
 """
 
-import os
 import logging
+import os
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import TemplateView
 from django.views.static import serve as static_serve
 
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
+from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Project
 from readthedocs.redirects.utils import (
     get_redirect_response,
+    language_and_version_from_path,
     project_and_path_from_request,
-    language_and_version_from_path
 )
+
 
 log = logging.getLogger(__name__)
 
@@ -154,17 +155,11 @@ def server_error_404_subdomain(request, template_name='404.html'):
         if filename[0] == '/':
             filename = filename[1:]
 
-        version = None
-        if version_slug:
-            version_qs = project.versions.filter(slug=version_slug)
-            if version_qs.exists():
-                version = version_qs.first()
+        if not version_slug:
+            version_slug = project.get_default_version()
+        version = project.versions.filter(slug=version_slug).first()
 
-        private = any([
-            version and version.privacy_level == PRIVATE,
-            not version and project.privacy_level == PRIVATE,
-        ])
-        if private:
+        if not version or (version and version.privacy_level == PRIVATE):
             symlink = PrivateSymlink(project)
         else:
             symlink = PublicSymlink(project)

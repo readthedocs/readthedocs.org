@@ -299,9 +299,7 @@ def robots_txt(request, project):
     version = project.versions.get(slug=version_slug)
 
     no_serve_robots_txt = any([
-        # If project is private or,
-        project.privacy_level == constants.PRIVATE,
-        # default version is private or,
+        # If default version is private or,
         version.privacy_level == constants.PRIVATE,
         # default version is not active or,
         not version.active,
@@ -400,7 +398,16 @@ def sitemap_xml(request, project):
         changefreqs = ['weekly', 'daily']
         yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
-    if project.privacy_level == constants.PRIVATE:
+    default_version = (
+        project.versions
+        .filter(slug=project.get_default_version())
+        .first()
+    )
+
+    if (
+        not default_version or
+        (default_version and default_version.privacy_level == constants.PRIVATE)
+    ):
         raise Http404
 
     sorted_versions = sort_version_aware(

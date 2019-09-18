@@ -1,5 +1,3 @@
-import os
-
 import django_dynamic_fixture as fixture
 import mock
 from django.conf import settings
@@ -10,7 +8,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from mock import mock_open, patch
 
-from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.core.views import server_error_404_subdomain
@@ -30,10 +28,22 @@ class BaseDocServing(RequestFactoryTestMixin, TestCase):
         self.eric.set_password('eric')
         self.eric.save()
         self.public = fixture.get(Project, slug='public', main_language_project=None)
+        self.default_public_version = self.public.versions.get(
+            slug=self.public.get_default_version(),
+        )
+        self.default_public_version.privacy_level = constants.PUBLIC
+        self.default_public_version.save()
+
         self.private = fixture.get(
             Project, slug='private', privacy_level='private',
             version_privacy_level='private', users=[self.eric],
         )
+        self.default_private_version = self.private.versions.get(
+            slug=self.private.get_default_version(),
+        )
+        self.default_private_version.privacy_level = constants.PRIVATE
+        self.default_private_version.save()
+
         self.private_url = '/docs/private/en/latest/usage.html'
         self.public_url = '/docs/public/en/latest/usage.html'
 
@@ -120,7 +130,7 @@ class TestPrivateDocs(BaseDocServing):
             reverse('sitemap_xml'),
             HTTP_HOST='private.readthedocs.io',
         )
-        # Private projects/versions always return 404 for sitemap.xml
+        # Private versions always return 404 for sitemap.xml
         self.assertEqual(response.status_code, 404)
 
 
