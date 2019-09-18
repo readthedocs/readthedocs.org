@@ -74,6 +74,8 @@ Migration
 
 For the community and commercial site, we need to:
 
+- Remove/change code that depend on the project's privacy level.
+  Use the default version's privacy level instead.
 - Remove the project privacy level.
 - Migrate all protected versions to have the attribute ``hidden = True``.
 - Set the privacy level of the version to public for the community site and private for the commercial site.
