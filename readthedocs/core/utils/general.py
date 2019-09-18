@@ -17,7 +17,7 @@ def wipe_version_via_slugs(version_slug, project_slug):
     Wipes the given version of a project.
 
     It does two things:
-    * Clears the `checkouts`, `envs`, and `conda` direcories (if exist).
+    * Clears the `checkouts`, `envs`, and `conda` directories (if exist).
     * Removes the html files from cloud storage.
     """
     version = get_object_or_404(
@@ -36,7 +36,7 @@ def wipe_version_via_slugs(version_slug, project_slug):
     _clear_html_files_from_cloud_storage(version)
 
 
-def _clear_html_files_from_cloud_storage(version):
+def _clear_html_files_from_media_storage(version):
     """Removes html files from media storage (cloud or local) for a given version of a project."""
 
     storage_path = version.project.get_storage_path(
