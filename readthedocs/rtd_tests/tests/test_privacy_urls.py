@@ -385,3 +385,90 @@ class APIUnauthAccessTest(APIMixin, TestCase):
 
     def is_admin(self):
         return False
+
+
+class PublicUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_public_urls(self):
+        from readthedocs.profiles.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PublicUserProfileAdminAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PublicUserProfileUserAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PublicUserProfileUnauthAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_public_urls(self):
+        from readthedocs.profiles.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
+
+    # Auth protected
+    default_status_code = 302
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
