@@ -74,6 +74,7 @@ log = logging.getLogger(__name__)
 
 
 class PrivateViewMixin(LoginRequiredMixin):
+
     pass
 
 
@@ -109,19 +110,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         context = super().get_context_data(**kwargs)
 
         return context
-
-
-@login_required
-def project_manage(__, project_slug):
-    """
-    Project management view.
-
-    Where you will have links to edit the projects' configuration, edit the
-    files associated with that project, etc.
-
-    Now redirects to the normal /projects/<slug> view.
-    """
-    return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
 
 
 class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
@@ -454,17 +442,18 @@ class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
+
     pass
 
 
 class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
+
     pass
 
 
 class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
 
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 @login_required
@@ -744,6 +733,7 @@ class DomainUpdate(SettingsOverrideObject):
 
 
 class DomainDelete(DomainMixin, DeleteView):
+
     pass
 
 
@@ -785,6 +775,7 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class IntegrationList(IntegrationMixin, ListView):
+
     pass
 
 
@@ -833,8 +824,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
 
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 class IntegrationExchangeDetail(IntegrationMixin, DetailView):
@@ -909,22 +899,23 @@ class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
+
     pass
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
+
     pass
 
 
 class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
+
     pass
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
 
-    # This removes the delete confirmation
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 @login_required
