@@ -735,8 +735,12 @@ class DomainCreate(SettingsOverrideObject):
     _default_class = DomainCreateBase
 
 
-class DomainUpdate(DomainMixin, UpdateView):
+class DomainUpdateBase(DomainMixin, UpdateView):
     pass
+
+
+class DomainUpdate(SettingsOverrideObject):
+    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
