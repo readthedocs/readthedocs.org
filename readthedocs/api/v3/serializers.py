@@ -115,14 +115,9 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
 
-    expandable_fields = dict(
-        config=(
-            BuildConfigSerializer,
-            dict(
-                source='config',
-            ),
-        ),
-    )
+    expandable_fields = {
+        'config': (BuildConfigSerializer, {'source': 'config'})
+    }
 
     class Meta:
         model = Build
@@ -215,14 +210,9 @@ class VersionSerializer(FlexFieldsModelSerializer):
     urls = VersionURLsSerializer(source='*')
     _links = VersionLinksSerializer(source='*')
 
-    expandable_fields = dict(
-        last_build=(
-            BuildSerializer,
-            dict(
-                source='last_build',
-            ),
-        ),
-    )
+    expandable_fields = {
+        'last_build': (BuildSerializer, {'source': 'last_build'})
+    }
 
     class Meta:
         model = Version
@@ -448,17 +438,17 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
 
-    expandable_fields = dict(
-        active_versions=(
+    expandable_fields = {
+        'active_versions': (
             VersionSerializer,
-            dict(
+            {
                 # NOTE: this has to be a Model method, can't be a
                 # ``SerializerMethodField`` as far as I know
-                source='active_versions',
-                many=True,
-            ),
-        ),
-    )
+                'source': 'active_versions',
+                'many': True,
+            }
+        )
+    }
 
     class Meta:
         model = Project
