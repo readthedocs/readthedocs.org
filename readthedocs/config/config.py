@@ -110,7 +110,11 @@ class InvalidConfig(ConfigError):
     message_template = 'Invalid "{key}": {error}'
 
     def __init__(self, key, code, error_message, source_file=None):
-        self.key = key
+        # Checks for patterns similar to `python.install.0.requirements`
+        # if matched change to `python.install[0].requirements` using backreference.
+        self.key = re.sub(
+                r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', key
+            )
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
