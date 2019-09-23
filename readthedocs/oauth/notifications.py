@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
 from readthedocs.notifications import SiteNotification
+from readthedocs.notifications.constants import ERROR_NON_PERSISTENT
 
 
 class AttachWebhookNotification(SiteNotification):
@@ -53,5 +54,24 @@ class InvalidProjectWebhookNotification(SiteNotification):
                 'projects_integrations',
                 args=[self.object.slug],
             ),
+        })
+        return context
+
+
+class GitBuildStatusFailureNotification(SiteNotification):
+
+    context_object_name = 'project'
+    failure_level = ERROR_NON_PERSISTENT
+    failure_message = _(
+        'Could not send {{ provider_name }} build status report for {{ project.name }}. '
+        'Make sure you have the correct {{ provider_name }} repository permissions</a> and '
+        'your <a href="{{ url_connect_account }}">{{ provider_name }} account</a> '
+        'is connected to ReadtheDocs.'
+    )  # noqa
+
+    def get_context_data(self):
+        context = super().get_context_data()
+        context.update({
+            'url_connect_account': reverse('socialaccount_connections'),
         })
         return context

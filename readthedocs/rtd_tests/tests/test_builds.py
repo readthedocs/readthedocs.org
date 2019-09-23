@@ -14,6 +14,7 @@ from readthedocs.builds.constants import (
     BRANCH,
     EXTERNAL,
     GITHUB_EXTERNAL_VERSION_NAME,
+    GITLAB_EXTERNAL_VERSION_NAME,
     GENERIC_EXTERNAL_VERSION_NAME
 )
 from readthedocs.builds.models import Build, Version
@@ -656,13 +657,8 @@ class BuildModelTests(TestCase):
         self.assertEqual(build.external_version_name, None)
 
     def test_external_version_name_github(self):
-        social_account = get(SocialAccount, provider='github')
-        remote_repo = get(
-            RemoteRepository,
-            account=social_account,
-            project=self.project
-        )
-        remote_repo.users.add(self.eric)
+        self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
 
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(
@@ -672,6 +668,20 @@ class BuildModelTests(TestCase):
         self.assertEqual(
             external_build.external_version_name,
             GITHUB_EXTERNAL_VERSION_NAME
+        )
+
+    def test_external_version_name_gitlab(self):
+        self.project.repo = 'https://gitlab.com/test/test/'
+        self.project.save()
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+
+        self.assertEqual(
+            external_build.external_version_name,
+            GITLAB_EXTERNAL_VERSION_NAME
         )
 
     def test_external_version_name_generic(self):
@@ -692,6 +702,8 @@ class BuildModelTests(TestCase):
         )
 
     def test_get_commit_url_external_version_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
 
         external_build = get(
             Build,
@@ -702,6 +714,25 @@ class BuildModelTests(TestCase):
         expected_url = 'https://github.com/pypa/pip/pull/{number}/commits/{sha}'.format(
             number=self.external_version.verbose_name,
             sha=external_build.commit
+        )
+        self.assertEqual(external_build.get_commit_url(), expected_url)
+
+    def test_get_commit_url_external_version_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+
+        external_build = get(
+            Build,
+            project=self.pip,
+            version=self.external_version,
+            config={'version': 1},
+        )
+        expected_url = (
+            'https://gitlab.com/pypa/pip/commit/'
+            '{commit}?merge_request_iid={number}'
+        ).format(
+            number=self.external_version.verbose_name,
+            commit=external_build.commit
         )
         self.assertEqual(external_build.get_commit_url(), expected_url)
 

@@ -79,6 +79,7 @@ class CommunityBaseSettings(Settings):
     RTD_LATEST_VERBOSE_NAME = 'latest'
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
+    RTD_CLEAN_AFTER_BUILD = False
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -233,9 +234,9 @@ class CommunityBaseSettings(Settings):
     ]
     PYTHON_MEDIA = False
 
-    # Optional Django Storage subclass used to write build artifacts to cloud or local storage
-    # https://docs.readthedocs.io/en/stable/settings.html#build-media-storage
-    RTD_BUILD_MEDIA_STORAGE = None
+    # Django Storage subclass used to write build artifacts to cloud or local storage
+    # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
@@ -327,6 +328,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-search-queries': {
+            'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
+            'schedule': crontab(minute=0, hour=0),
+            'options': {'queue': 'web'},
+        }
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -427,18 +433,29 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
 
+    # Info from Honza about this:
+    # The key to determine shard number is actually usually not the node count,
+    # but the size of your data.
+    # There are advantages to just having a single shard in an index since
+    # you don't have to do the distribute/collect steps when executing a search.
+    # If your data will allow it (not significantly larger than 40GB)
+    # I would recommend going to a single shard and one replica meaning
+    # any of the two nodes will be able to serve any search without talking to the other one.
+    # Scaling to more searches will then just mean adding a third node
+    # and a second replica resulting in immediate 50% bump in max search throughput.
+
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 2,
-                'number_of_replicas': 0,
+                'number_of_shards': 1,
+                'number_of_replicas': 1,
             }
         },
     }
@@ -463,6 +480,10 @@ class CommunityBaseSettings(Settings):
     }
 
     INTERNAL_IPS = ('127.0.0.1',)
+
+    # Taggit
+    # https://django-taggit.readthedocs.io
+    TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
     STRIPE_SECRET = None

@@ -45,8 +45,18 @@ class VersionMixin:
 
 class TestVersionModel(VersionMixin, TestCase):
 
-    def test_vcs_url_for_external_version(self):
+    def test_vcs_url_for_external_version_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
+
         expected_url = f'https://github.com/pypa/pip/pull/{self.external_version.verbose_name}'
+        self.assertEqual(self.external_version.vcs_url, expected_url)
+
+    def test_vcs_url_for_external_version_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+
+        expected_url = f'https://gitlab.com/pypa/pip/merge_requests/{self.external_version.verbose_name}'
         self.assertEqual(self.external_version.vcs_url, expected_url)
 
     def test_vcs_url_for_latest_version(self):
@@ -66,3 +76,9 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_commit_name_for_external_version(self):
         self.assertEqual(self.external_version.commit_name, self.external_version.identifier)
+
+    def test_version_does_not_support_wipe(self):
+        self.assertFalse(self.external_version.supports_wipe)
+
+    def test_version_supports_wipe(self):
+        self.assertTrue(self.branch_version.supports_wipe)

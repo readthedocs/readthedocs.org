@@ -6,6 +6,7 @@ import os
 import re
 from urllib.parse import urlparse
 
+from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
@@ -839,6 +840,29 @@ class Project(models.Model):
             )
         return repo
 
+    def git_service_class(self):
+        """Get the service class for project. e.g: GitHubService, GitLabService."""
+        from readthedocs.oauth.services import registry
+
+        for service_cls in registry:
+            if service_cls.is_project_service(self):
+                service = service_cls
+                break
+        else:
+            log.warning('There are no registered services in the application.')
+            service = None
+
+        return service
+
+    @property
+    def git_provider_name(self):
+        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        service = self.git_service_class()
+        if service:
+            provider = allauth_registry.by_id(service.adapter.provider_id)
+            return provider.name
+        return None
+
     def repo_nonblockinglock(self, version, max_lock_age=None):
         """
         Return a ``NonBlockingLock`` to acquire the lock via context manager.
@@ -926,28 +950,38 @@ class Project(models.Model):
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.internal.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
@@ -1247,30 +1281,41 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        fjson_paths = []
-        basename = os.path.splitext(self.path)[0]
-        fjson_paths.append(basename + '.fjson')
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(new_basename + '.fjson')
+        file_path = None
 
-        full_json_path = self.project.get_production_media_path(
-            type_='json', version_slug=self.version.slug, include_file=False
-        )
-        try:
-            for fjson_path in fjson_paths:
-                file_path = os.path.join(full_json_path, fjson_path)
-                if os.path.exists(file_path):
-                    return process_file(file_path)
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
+        if settings.RTD_BUILD_MEDIA_STORAGE:
+            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+            fjson_paths = []
+            basename = os.path.splitext(self.path)[0]
+            fjson_paths.append(basename + '.fjson')
+            if basename.endswith('/index'):
+                new_basename = re.sub(r'\/index$', '', basename)
+                fjson_paths.append(new_basename + '.fjson')
+
+            storage_path = self.project.get_storage_path(
+                type_='json', version_slug=self.version.slug, include_file=False
             )
+            try:
+                for fjson_path in fjson_paths:
+                    file_path = storage.join(storage_path, fjson_path)
+                    if storage.exists(file_path):
+                        return process_file(file_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    file_path,
+                )
+        else:
+            log.warning(
+                'Skipping HTMLFile processing because of no storage backend'
+            )
+
         return {
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property
@@ -1396,7 +1441,6 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
-    SKIP_SUBMODULES = 'skip_submodules'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
     MKDOCS_THEME_RTD = 'mkdocs_theme_rtd'
     API_LARGE_DATA = 'api_large_data'
@@ -1408,12 +1452,12 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    SEARCH_ANALYTICS = 'search_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
-        (SKIP_SUBMODULES, _('Skip git submodule checkout')),
         (
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
@@ -1460,6 +1504,10 @@ class Feature(models.Model):
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
+        (
+            SEARCH_ANALYTICS,
+            _('Enable search analytics'),
+        )
     )
 
     projects = models.ManyToManyField(
