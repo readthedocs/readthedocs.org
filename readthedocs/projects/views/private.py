@@ -30,6 +30,7 @@ from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -715,14 +716,20 @@ class DomainList(DomainMixin, ListViewWithForm):
         return ctx
 
 
-class DomainCreate(DomainMixin, CreateView):
-
+class DomainCreateBase(DomainMixin, CreateView):
     pass
 
 
-class DomainUpdate(DomainMixin, UpdateView):
+class DomainCreate(SettingsOverrideObject):
+    _default_class = DomainCreateBase
 
+
+class DomainUpdateBase(DomainMixin, UpdateView):
     pass
+
+
+class DomainUpdate(SettingsOverrideObject):
+    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
