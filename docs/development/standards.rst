@@ -58,18 +58,29 @@ Postgres as a database (optional for now)
     easy to get started with.
 
 Celery is isolated from database
-    Currently, it's really easy to forget that the Celery workers on our build
-    servers do not have database access and need to be written to use API access
-    instead. We don't yet have a pattern for this, but we should find a way to
-    put up a similar barrier in development, so that logic errors aren't
-    uncovered after we release.
+    It's really easy to forget that the Celery workers on our build servers do
+    not have database access, and instead proxy read/write operations through
+    our API. In order to catch problems early, we have separate settings files
+    for our build and web workers which mimic our production configuration.
 
-    You can use the ``readthedocs.settings.dev.celery.*`` settings for this in development::
+    You can use the ``readthedocs.settings.dev.celery.*`` settings for this in
+    development. The Supervisord configuration file for local development,
+    covered in `Using Supervisord`_, contains examples of the commands and
+    environment variables that you should use:
 
-        # Run builds without DB
-        DJANGO_SETTINGS_MODULE=readthedocs.settings.dev.celery.builds celery worker -A readthedocs.worker -l DEBUG -Ofair -Q celery
-        # Run webs with DB
-        DJANGO_SETTINGS_MODULE=readthedocs.settings.dev.celery.webs celery worker -A readthedocs.worker -l DEBUG -Ofair -Q web
+        .. literalinclude:: ../../contrib/supervisord.conf
+            :caption: Build worker configuration
+            :start-at: [program:build]
+            :lines: 1-4
+            :linenos:
+            :lineno-match:
+
+        .. literalinclude:: ../../contrib/supervisord.conf
+            :caption: Web worker configuration
+            :start-at: [program:web]
+            :lines: 1-4
+            :linenos:
+            :lineno-match:
 
 Debugging Celery
 ~~~~~~~~~~~~~~~~
