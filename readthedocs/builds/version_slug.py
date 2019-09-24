@@ -122,7 +122,7 @@ class VersionSlugField(models.CharField):
 
     ok_chars = VERSION_OK_CHARS
     test_pattern = VERSION_TEST_PATTERN
-    fallback_slug = VERSION_OK_CHARS
+    fallback_slug = VERSION_FALLBACK_SLUG
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
