@@ -77,6 +77,28 @@ links to the project's dashboard: downloads, project home, and builds.
 Given that the project privacy level would be removed (and the dashboard is always under login),
 those links would never be shown (except for admin users).
 
+Overview
+--------
+
+For the community site:
+
+- The project's dashboard is visible to all users.
+- All versions are always public.
+- The footer shows links to the project's dashboard (build, downloads, home) to all users.
+- Only versions with ``hidden = False`` are listed on the footer and appear on search results.
+- If a project has a `404.html` file on the default version, it's served.
+- If a project has a ``robots.txt`` file on the default version, it's served.
+- A ``sitemap.xml`` file is always served.
+
+For the commercial site:
+
+- The project's dashboard is visible to only users that have read permission over the project.
+- The footer shows links to the project's dashboard (build, downloads, home) to only admin users.
+- Only versions with ``hidden = False`` are listed on the footer and appear on search results.
+- If a project has a `404.html` file on the default version, it's served if the user has permission over that version.
+- If a project has a ``robots.txt`` file on the default version, it's served if the user has permission over that version.
+- A ``sitemap.xml`` file is served if the user has permissions over the default version.
+
 Migration
 ---------
 
