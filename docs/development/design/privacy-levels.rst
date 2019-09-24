@@ -34,7 +34,7 @@ We should remove all the project privacy levels.
 For the community site the dashboard would be always visible,
 and for the commercial site, the dashboard would be always hidden.
 
-The project privacy level is also used to serve the 404.html page,
+The project privacy level is also used to serve the ``404.html`` page,
 show ``robots.txt``, and show  ``sitemap.xml``.
 The privacy level of the default version should be used instead.
 
