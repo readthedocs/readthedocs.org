@@ -12,7 +12,7 @@ def create_application():
     """Create a Celery application using Django settings."""
     os.environ.setdefault(
         'DJANGO_SETTINGS_MODULE',
-        'readthedocs.settings.dev',
+        'readthedocs.settings.main.dev',
     )
 
     application = Celery(settings.CELERY_APP_NAME)

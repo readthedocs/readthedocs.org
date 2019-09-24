@@ -63,21 +63,14 @@ Celery is isolated from database
     our API. In order to catch problems early, we have separate settings files
     for our build and web workers which mimic our production configuration.
 
-    You can use the ``readthedocs.settings.dev.celery.*`` settings for this in
-    development. The Supervisord configuration file for local development,
-    covered in `Using Supervisord`_, contains examples of the commands and
-    environment variables that you should use:
+    You can use the ``readthedocs.settings.build.dev`` settings module for a
+    build worker instance in development. The Supervisord configuration file for
+    local development, covered in `Using Supervisord`_, contains examples of the
+    commands and environment variables that you should use:
 
         .. literalinclude:: ../../contrib/supervisord.conf
             :caption: Build worker configuration
             :start-at: [program:build]
-            :lines: 1-4
-            :linenos:
-            :lineno-match:
-
-        .. literalinclude:: ../../contrib/supervisord.conf
-            :caption: Web worker configuration
-            :start-at: [program:web]
             :lines: 1-4
             :linenos:
             :lineno-match:
