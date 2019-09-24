@@ -144,12 +144,15 @@ class VersionSlugField(models.CharField):
     def uniquifying_suffix(self, iteration):
         """
         Create a unique suffix.
+
         This creates a suffix based on the number given as ``iteration``. It
         will return a value encoded as lowercase ascii letter. So we have an
         alphabet of 26 letters. The returned suffix will be for example ``_yh``
         where ``yh`` is the encoding of ``iteration``. The length of it will be
         ``math.log(iteration, 26)``.
+
         Examples::
+
             uniquifying_suffix(0) == '_a'
             uniquifying_suffix(25) == '_z'
             uniquifying_suffix(26) == '_ba'

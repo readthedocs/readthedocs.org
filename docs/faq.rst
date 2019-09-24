@@ -24,14 +24,17 @@ as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 If that isn't enough,
 you can request the change sending an email to support@readthedocs.org.
 
-
 How do I change the version slug of my project?
 -----------------------------------------------
 
-We don't support allowing folks to change the slug for their versions.
-But you can rename the branch/tag to achieve this.
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
+One way is renaming the branch/tag of your version.
+But if that isn't possible,
+you can rename the slug from the :guilabel:`Versions` tab.
+
+.. warning::
+
+   Be careful, changing the slug will break existing URLs.
+
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
