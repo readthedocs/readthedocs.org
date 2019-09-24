@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import os
 
-from .dev.base import CommunityDevSettings
+from .dev import CommunityDevSettings
 
 
 class CommunityTestSettings(CommunityDevSettings):
