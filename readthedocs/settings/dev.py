@@ -2,12 +2,12 @@
 from __future__ import absolute_import
 import os
 
-from ..base import CommunityBaseSettings
+from .base import CommunityBaseSettings
 
 
 class CommunityDevSettings(CommunityBaseSettings):
 
-    """Settings for local development"""
+    """Common settings for local development"""
 
     PRODUCTION_DOMAIN = 'localhost:8000'
     WEBSOCKET_HOST = 'localhost:8088'
@@ -77,22 +77,8 @@ class CommunityDevSettings(CommunityBaseSettings):
         return middlewares
 
 
-CommunityDevSettings.load_settings(__name__)
-
-if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
-    try:
-        # pylint: disable=unused-wildcard-import
-        from .local_settings import *  # noqa
-    except ImportError:
-        pass
-
-# Allow for local settings override to trigger images name change
-try:
-    if DOCKER_USE_DEV_IMAGES:
-        DOCKER_IMAGE_SETTINGS = {
-            key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
-            for (key, settings)
-            in DOCKER_IMAGE_SETTINGS.items()
-        }
-except NameError:
-    pass
+if os.environ.get("DJANGO_SETTINGS_MODULE") == 'readthedocs.settings.dev':
+    raise DeprecationWarning(
+        "The settings module `readthedocs.settings.dev` was moved. "
+        "Please use `readthedocs.settings.main.dev` instead."
+    )
