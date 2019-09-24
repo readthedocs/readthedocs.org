@@ -34,9 +34,14 @@ We should remove all the project privacy levels.
 For the community site the dashboard would be always visible,
 and for the commercial site, the dashboard would be always hidden.
 
+The project privacy level is also used to serve the 404.html page,
+show ``robots.txt``, and show  ``sitemap.xml``.
+The privacy level of the default version should be used instead.
+
 Some other ideas about keeping the privacy level is to dictate the default version level of new versions,
 but removing all other logic related to this privacy level.
-This can be (or is going to be) possible with automation rules.
+This can be (or is going to be) possible with automation rules,
+so we can just remove the field.
 
 Version level privacy
 ---------------------
