@@ -1098,6 +1098,23 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.install[0].requirements'
 
+    def test_python_install_requirements_error_msg(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'requirements': None,
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+
+        assert str(excinfo.value) == 'Invalid "python.install[0].requirements": expected string'
+
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = self.get_build_config(
             {
