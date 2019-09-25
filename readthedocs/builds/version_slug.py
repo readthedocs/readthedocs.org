@@ -116,9 +116,7 @@ class VersionSlugify:
 
 class VersionSlugField(models.CharField):
 
-    """
-    Inspired by ``django_extensions.db.fields.AutoSlugField``.
-    """
+    """Inspired by ``django_extensions.db.fields.AutoSlugField``."""
 
     ok_chars = VERSION_OK_CHARS
     test_pattern = VERSION_TEST_PATTERN
