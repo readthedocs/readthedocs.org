@@ -58,6 +58,7 @@ class BuildTriggerMixin:
             Version.internal.all(),
             project=project,
             slug=version_slug,
+            active=True,
         )
 
         update_docs_task, build = trigger_build(
