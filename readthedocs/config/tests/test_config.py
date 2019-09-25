@@ -1062,7 +1062,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].method'
+        assert excinfo.value.key == 'python.install.0.method'
 
     def test_python_install_requirements_check_valid(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
@@ -1096,7 +1096,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].requirements'
+        assert excinfo.value.key == 'python.install.0.requirements'
 
     def test_python_install_requirements_error_msg(self, tmpdir):
         build = self.get_build_config(
@@ -1129,7 +1129,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].requirements'
+        assert excinfo.value.key == 'python.install.0.requirements'
 
     def test_python_install_requirements_ignores_default(self, tmpdir):
         apply_fs(tmpdir, {'requirements.txt': ''})
@@ -1174,7 +1174,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].requirements'
+        assert excinfo.value.key == 'python.install.0.requirements'
 
     def test_python_install_path_is_required(self, tmpdir):
         build = self.get_build_config(
@@ -1324,7 +1324,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].extra_requirements'
+        assert excinfo.value.key == 'python.install.0.extra_requirements'
 
     @pytest.mark.parametrize('value', [2, 'invalid', {}, '', None])
     def test_python_install_extra_requirements_check_type(self, value, tmpdir):
@@ -1342,7 +1342,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install[0].extra_requirements'
+        assert excinfo.value.key == 'python.install.0.extra_requirements'
 
     def test_python_install_extra_requirements_allow_empty(self, tmpdir):
         build = self.get_build_config(
@@ -1869,7 +1869,7 @@ class TestBuildConfigV2:
                     }]
                 }
             },
-            'python.install[1].invalid'
+            'python.install.1.invalid'
         )
     ])
     def test_strict_validation(self, value, key):

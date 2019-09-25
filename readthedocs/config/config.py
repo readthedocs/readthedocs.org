@@ -110,11 +110,11 @@ class InvalidConfig(ConfigError):
     message_template = 'Invalid "{key}": {error}'
 
     def __init__(self, key, code, error_message, source_file=None):
-        self.key = self._get_display_key(key)
+        self.key = key
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
-            key=self.key,
+            key=self._get_display_key(key),
             code=code,
             error=error_message,
         )
