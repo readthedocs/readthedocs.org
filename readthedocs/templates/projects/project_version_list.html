@@ -22,18 +22,24 @@ Versions
     <div class="module project-versions-active">
       <div class="module-wrapper">
 
+        {% block resync_versions %}
+          {% if request.user|is_admin:project %}
+          <div class="button-bar">
+            <ul>
+              <li>
+                <form method="post" action="{% url 'project_repository_resync' project_slug=project.slug %}">
+                  {% csrf_token %}
+                  <input type="submit" value="{% trans 'Re-sync Versions' %}">
+                </form>
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+        {% endblock %}
+
         <div class="module-header">
           <h1>{% trans "Active Versions" %}</h1>
         </div>
-
-        {% block resync_project %}
-          {% if request.user|is_admin:project %}
-            <form method="post" action="{% url 'project_repository_resync' project_slug=project.slug %}">
-              {% csrf_token %}
-              <input type="submit" value="{% trans "Re-sync Project" %}">
-            </form>
-          {% endif %}
-        {% endblock %}
 
         <div class="module-list">
           <div class="module-list-wrapper">
