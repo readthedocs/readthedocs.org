@@ -23,7 +23,8 @@ that allows us to read information about and clone your repositories.
 Permissions for connected accounts
 ----------------------------------
 
-Read the Docs does **not** ask for write permission to your repositories' code
+Read the Docs does not generally ask for write permission to your repositories' code
+(with one exception detailed below)
 and since we only connect to public repositories we don't need special permissions to read them.
 However, we do need permissions for authorizing your account
 so that you can login to Read the Docs with your connected account credentials
@@ -61,6 +62,10 @@ Repository status (``repo:status``)
     :doc:`Read the Docs for Business </commercial/index>`
     asks for one additional permission (``repo``) to allow access to private repositories
     and to allow us to setup SSH keys to clone your private repositories.
+    Unfortunately, this is the permission for read/write control of the repository
+    but there isn't a more granular permission
+    that only allows setting up SSH keys for read access.
+
 
 Bitbucket
 ~~~~~~~~~
