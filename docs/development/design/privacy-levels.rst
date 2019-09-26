@@ -130,3 +130,77 @@ For the commercial site:
 
 - Always hide the dashboard
 - Show links to the dashboard (downloads, builds, project home) on the footer only to admin users.
+
+Upgrade path overview
+---------------------
+
+Community site
+##############
+
+The default privacy level for the community site is public for project and versions.
+
+Public project
+~~~~~~~~~~~~~~
+
+- Public version:
+  Normal usa case, not changes required.
+- Protected version:
+  Users didn't want to list this version on the footer,
+  but also not deactivate it. This can be solved by using the new ``hidden`` setting.
+- Private version:
+  Users didn't want to show this version to their users yet or they were testing something.
+  This can be solved with the pull request builder feature and the ``hidden`` setting.
+
+Protected project
+~~~~~~~~~~~~~~~~~
+
+Protected projects are not listed publicly.
+Probably users were hosting a WIP project,
+or personal public project.
+A public project with public versions should work for them,
+as we are removing listing all projects publicly (except for search).
+
+Private project
+~~~~~~~~~~~~~~~
+
+Probably these users want to use our enterprise solution instead.
+Or they were hosting a personal project.
+
+Commercial site
+###############
+
+The default privacy level for the commercial site is private for project and versions.
+
+Private project
+~~~~~~~~~~~~~~~
+
+- Private version:
+  Normal usa case, not changes required.
+- Protected version:
+  Users didn't want to list this version on the footer,
+  but also not deactivate it. This can be solved by using the new ``hidden`` setting.
+- Public version:
+  User has private code, but want to make public their docs.
+
+Protected project
+~~~~~~~~~~~~~~~~~
+
+I can't think of a use case for protected projects,
+since they aren't listed publicly on the commercial site.
+
+Public project
+~~~~~~~~~~~~~~
+
+Currently we show links back to project dashboard if the project is public,
+which probably users shouldn't see.
+With the implementation of this design doc,
+public versions don't have links to the project dashboard and the dashboard is always under login.
+
+- Private versions:
+  Users under the organization can see links to the dashboard.
+- Protected versions:
+  Users under the organization can see links to the dashboard.
+- Public versions:
+  All users can see links to the dashboard.
+  Probably they have an open source project,
+  but they still want to manage access using the same teams of the organization.
