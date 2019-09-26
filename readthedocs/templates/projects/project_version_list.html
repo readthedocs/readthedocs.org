@@ -26,6 +26,15 @@ Versions
           <h1>{% trans "Active Versions" %}</h1>
         </div>
 
+        {% block resync_project %}
+          {% if request.user|is_admin:project %}
+            <form method="post" action="{% url 'project_repository_resync' project_slug=project.slug %}">
+              {% csrf_token %}
+              <input type="submit" value="{% trans "Re-sync Project" %}">
+            </form>
+          {% endif %}
+        {% endblock %}
+
         <div class="module-list">
           <div class="module-list-wrapper">
             <ul>

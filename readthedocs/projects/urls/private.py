@@ -26,6 +26,7 @@ from readthedocs.projects.views.private import (
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
+    ProjectRepositoryReSync,
     ProjectUpdate,
 )
 
@@ -58,6 +59,10 @@ urlpatterns = [
     url(
         r'^(?P<project_slug>[-\w]+)/advanced/$',
         ProjectAdvancedUpdate.as_view(), name='projects_advanced',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/resync/$',
+        ProjectRepositoryReSync.as_view(), name='project_repository_resync',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',

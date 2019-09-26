@@ -31,6 +31,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.views.hooks import sync_versions
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -182,6 +183,39 @@ def project_version_detail(request, project_slug, version_slug):
         'projects/project_version_detail.html',
         {'form': form, 'project': project, 'version': version},
     )
+
+
+class ProjectRepositoryReSync(ProjectAdminMixin, PrivateViewMixin, GenericView):
+
+    """
+    Re-sync a project repository.
+
+    The signal will add a success/failure message on the request.
+    """
+
+    def post(self, request, *args, **kwargs):
+        # pylint: disable=unused-argument
+        project = self.get_project()
+        sync = sync_versions(project)
+
+        if sync:
+            messages.success(
+                request,
+                _('Project repository re-sync triggered!'),
+            )
+        else:
+            messages.error(
+                request,
+                _('Unable to re-sync project repository!'),
+            )
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse(
+            'project_version_list',
+            kwargs={'project_slug': self.get_project().slug},
+        )
 
 
 @login_required
