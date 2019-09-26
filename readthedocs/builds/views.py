@@ -55,10 +55,8 @@ class BuildTriggerMixin:
 
         version_slug = request.POST.get('version_slug')
         version = get_object_or_404(
-            Version.internal.all(),
-            project=project,
+            self._get_versions(project),
             slug=version_slug,
-            active=True,
         )
 
         update_docs_task, build = trigger_build(
@@ -80,6 +78,12 @@ class BuildTriggerMixin:
             reverse('builds_detail', args=[project.slug, build.pk]),
         )
 
+    def _get_versions(self, project):
+        return Version.internal.public(
+            user=self.request.user,
+            project=project,
+        )
+
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
@@ -92,10 +96,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.internal.public(
-            user=self.request.user,
-            project=self.project,
-        )
+        context['versions'] = self._get_versions(self.project)
         context['build_qs'] = self.get_queryset()
 
         return context
