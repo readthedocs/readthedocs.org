@@ -279,7 +279,7 @@ class BuildConfigBase:
         The Docker image (``build_image``) has to be its complete name, already
         validated: ``readthedocs/build:4.0``, not just ``4.0``.
 
-        Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
+        Returns supported versions for the ``RTD_DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
         if build_image not in settings.RTD_DOCKER_IMAGE_SETTINGS:

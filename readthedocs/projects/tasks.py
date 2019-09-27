@@ -371,7 +371,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
-            ``settings.DOCKER_ENABLE`` is used)
+            ``settings.RTD_DOCKER_ENABLE`` is used)
         :param force bool: force Sphinx build
 
         :returns: whether build was successful or not
