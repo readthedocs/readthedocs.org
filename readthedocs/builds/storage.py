@@ -114,13 +114,11 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         location = kwargs.pop('location', None)
 
         if not location:
-            # If no location was passed:
-            # - Use PRODUCTION_MEDIA_ARTIFACTS if it exists
-            # - Fallback to MEDIA_ROOT
-            if Path(settings.PRODUCTION_MEDIA_ARTIFACTS).exists():
-                location = settings.PRODUCTION_MEDIA_ARTIFACTS
-            else:
+            # Mirrors the logic of getting the production media path
+            if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
                 location = settings.MEDIA_ROOT
+            else:
+                location = settings.PRODUCTION_MEDIA_ARTIFACTS
 
         super().__init__(location)
 
