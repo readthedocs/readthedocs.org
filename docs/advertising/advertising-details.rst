@@ -15,7 +15,7 @@ from questions about our practices to requests to partner.
 The goal of this document is to shed light on the advertising industry,
 exactly what we do for advertising, and how what we do is different.
 If you have questions or comments,
-`send us an email <mailto:rev@readthedocs.org>`_
+`send us an email <mailto:ads@readthedocs.org>`_
 or `open an issue on GitHub <https://github.com/readthedocs/readthedocs.org/issues>`_.
 
 
@@ -82,28 +82,11 @@ We can place ads in:
 * the sidebar navigation
 * the footer of the page
 * on search result pages
-* a small footer fixed to the bottom of the viewport (mobile-only)
+* a small footer fixed to the bottom of the viewport
 * on 404 pages (rare)
 
 We show no more than one ad per page so you will never see both
 a sidebar ad and a footer ad on the same page.
-
-
-Themes
-~~~~~~
-
-Currently we show ads on:
-
-* Sphinx theme provided by Read the Docs
-* MkDocs theme provided by Read the Docs (beginning in May 2018)
-* Alabaster Sphinx theme
-* `Pylons Sphinx Themes <https://github.com/Pylons/pylons-sphinx-themes>`_,
-  including pyramid, pylons, and pylonsfw.
-
-This list will expand as we strive to put advertising on a
-larger percentage of the documentation served by us.
-However, we always give advance notice in our issue tracker
-and via email about showing ads where none were shown before.
 
 
 Do Not Track Policy

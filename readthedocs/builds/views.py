@@ -1,15 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Views for builds app."""
 
 import logging
 import textwrap
+from urllib.parse import urlparse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponseForbidden,
-    HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
 from django.shortcuts import get_object_or_404
@@ -17,12 +15,11 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
-from urllib.parse import urlparse
 
-from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
+from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import Project
 
 
@@ -30,6 +27,7 @@ log = logging.getLogger(__name__)
 
 
 class BuildBase:
+
     model = Build
 
     def get_queryset(self):
@@ -103,6 +101,7 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
 
 class BuildDetail(BuildBase, DetailView):
+
     pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
@@ -152,18 +151,3 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = urlparse(issue_url).geturl()
         context['issue_url'] = issue_url
         return context
-
-
-# Old build view redirects
-
-
-def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(
-        reverse('builds_project_list', args=[project_slug]),
-    )
-
-
-def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(
-        reverse('builds_detail', args=[project_slug, pk]),
-    )

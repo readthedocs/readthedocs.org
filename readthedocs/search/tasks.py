@@ -1,8 +1,13 @@
 import logging
 
+from dateutil.parser import parse
 from django.apps import apps
+from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
+from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 from .utils import _get_index, _get_document
 
@@ -118,3 +123,92 @@ def index_missing_objects(app_label, model_name, document_class, index_generatio
     log.info("Indexed %s missing objects from model: %s'", queryset.count(), model.__name__)
 
     # TODO: Figure out how to remove the objects from ES index that has been deleted
+
+
+@app.task(queue='web')
+def delete_old_search_queries_from_db():
+    """
+    Delete old SearchQuery objects.
+
+    This is run by celery beat every day.
+    """
+    last_3_months = timezone.now().date() - timezone.timedelta(days=90)
+    search_queries_qs = SearchQuery.objects.filter(
+        created__date__lte=last_3_months,
+    )
+
+    if search_queries_qs.exists():
+        log.info('Deleting search queries for last 3 months. Total: %s', search_queries_qs.count())
+        search_queries_qs.delete()
+
+
+@app.task(queue='web')
+def record_search_query(project_slug, version_slug, query, total_results, time_string):
+    """Record/update search query in database."""
+    if not project_slug or not version_slug or not query:
+        log.debug(
+            'Not recording the search query. Passed arguments: '
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
+                project_slug, version_slug, query, total_results, time_string
+            )
+        )
+        return
+
+    time = parse(time_string)
+    before_10_sec = time - timezone.timedelta(seconds=10)
+    partial_query_qs = SearchQuery.objects.filter(
+        project__slug=project_slug,
+        version__slug=version_slug,
+        created__gte=before_10_sec,
+    ).order_by('-created')
+
+    # check if partial query exists,
+    # if yes, then just update the object.
+    for partial_query in partial_query_qs.iterator():
+        if query.startswith(partial_query.query):
+            partial_query.created = time
+            partial_query.query = query
+            partial_query.save()
+            return
+
+    # don't record query with zero results.
+    if not total_results:
+        log.debug(
+            'Not recording search query because of zero results. Passed arguments: '
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
+                project_slug, version_slug, query, total_results, time
+            )
+        )
+        return
+
+    project = Project.objects.filter(slug=project_slug).first()
+    if not project:
+        log.debug(
+            'Not recording the search query because project does not exist. '
+            'project_slug: %s' % (
+                project_slug
+            )
+        )
+        return
+
+    version_qs = Version.objects.filter(project=project, slug=version_slug)
+
+    if not version_qs.exists():
+        log.debug(
+            'Not recording the search query because version does not exist. '
+            'project_slug: %s, version_slug: %s' % (
+                project_slug, version_slug
+            )
+        )
+        return
+
+    version = version_qs.first()
+
+    # make a new SearchQuery object.
+    obj = SearchQuery.objects.create(
+        project=project,
+        version=version,
+        query=query,
+    )
+    obj.created = time
+    obj.save()

@@ -64,10 +64,10 @@ class BuildMediaStorageMixin:
         for folder_name in folders:
             if folder_name:
                 # Recursively delete the subdirectory
-                self.delete_directory(safe_join(path, folder_name))
+                self.delete_directory(self.join(path, folder_name))
         for filename in files:
             if filename:
-                self.delete(safe_join(path, filename))
+                self.delete(self.join(path, filename))
 
     def copy_directory(self, source, destination):
         """
@@ -79,13 +79,30 @@ class BuildMediaStorageMixin:
         log.debug('Copying source directory %s to media storage at %s', source, destination)
         source = Path(source)
         for filepath in source.iterdir():
-            sub_destination = safe_join(destination, filepath.name)
+            sub_destination = self.join(destination, filepath.name)
             if filepath.is_dir():
                 # Recursively copy the subdirectory
                 self.copy_directory(filepath, sub_destination)
             elif filepath.is_file():
                 with filepath.open('rb') as fd:
                     self.save(sub_destination, fd)
+
+    def join(self, directory, filepath):
+        return safe_join(directory, filepath)
+
+    def walk(self, top):
+        if top in ('', '/'):
+            raise SuspiciousFileOperation('Iterating all storage cannot be right')
+
+        log.debug('Walking %s in media storage', top)
+        folders, files = self.listdir(self._dirpath(top))
+
+        yield top, folders, files
+
+        for folder_name in folders:
+            if folder_name:
+                # Recursively walk the subdirectory
+                yield from self.walk(self.join(top, folder_name))
 
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):

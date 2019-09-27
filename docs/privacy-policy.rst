@@ -4,7 +4,7 @@
 Privacy Policy
 ==============
 
-Effective date: **May 30, 2018**
+Effective date: **August 1, 2019**
 
 Welcome to Read the Docs.
 At Read the Docs, we believe in protecting the privacy of our
@@ -29,12 +29,12 @@ Our services
 
 Read the Docs is made up of:
 
-readthedocs.org
+readthedocs.org ("Read the Docs Community")
     This is a website aimed at documentation authors writing and building
     software documentation. This Privacy Policy applies to this site
     in full without reservation.
 
-readthedocs.com
+readthedocs.com ("Read the Docs for Business")
     This website is a commercial hosted offering for hosting private
     documentation for corporate clients.
     It is governed by this privacy policy but also separate
@@ -166,12 +166,12 @@ and we encourage you to check back periodically.
 Payment processing
 ++++++++++++++++++
 
-Should you choose to become a `Supporter`_, purchase a `Gold Membership`_,
+Should you choose to become a `Supporter`_, purchase a `Gold membership`_,
 or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
-.. _Gold Membership: https://readthedocs.org/accounts/gold/
+.. _Gold membership: https://readthedocs.org/accounts/gold/
 .. _Supporter: https://readthedocs.org/sustainability/
 
 Site monitoring
@@ -193,7 +193,7 @@ Support Desk
 ++++++++++++
 
 Read the Docs uses Intercom to manage support requests
-for documentation hosted through our commercial hosting on readthedocs.com.
+for documentation hosted through Read the Docs for Business.
 If you request support -- typically via email -- Intercom may process
 your contact information.
 
@@ -241,7 +241,8 @@ For Read the Docs, this means:
   and user agent strings are deleted after 10 days unless a DNT exception applies.
 * Our full DNT policy is `available here`_.
 
-Our DNT policy applies without reservation to readthedocs.org and readthedocs.com.
+Our DNT policy applies without reservation
+to Read the Docs Community and Read the Docs for Business.
 A best effort is made to apply this to Documentation Sites,
 but we do not have complete control over the contents of these sites.
 
@@ -389,7 +390,8 @@ We will retain and use your information as necessary to comply with
 our legal obligations, resolve disputes, and enforce our agreements,
 but barring legal requirements, we will delete your full profile.
 
-Our web server logs for readthedocs.org, readthedocs.com, and Documentation Sites
+Our web server logs for Read the Docs Community,
+Read the Docs for Business, and Documentation Sites
 are deleted after 10 days barring legal obligations.
 
 
