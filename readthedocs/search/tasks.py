@@ -1,5 +1,6 @@
 import logging
 
+from dateutil.parser import parse
 from django.apps import apps
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
@@ -142,31 +143,72 @@ def delete_old_search_queries_from_db():
 
 
 @app.task(queue='web')
-def record_search_query(project_slug, version_slug, query, total_results):
-    """Record search query in database."""
-    if not project_slug or not version_slug or not query or not total_results:
+def record_search_query(project_slug, version_slug, query, total_results, time_string):
+    """Record/update search query in database."""
+    if not project_slug or not version_slug or not query:
         log.debug(
             'Not recording the search query. Passed arguments: '
-            'project_slug: %s, version_slug: %s, query: %s, total_results: %s' % (
-                project_slug, version_slug, query, total_results
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
+                project_slug, version_slug, query, total_results, time_string
             )
         )
         return
 
-    project_qs = Project.objects.filter(slug=project_slug)
+    time = parse(time_string)
+    before_10_sec = time - timezone.timedelta(seconds=10)
+    partial_query_qs = SearchQuery.objects.filter(
+        project__slug=project_slug,
+        version__slug=version_slug,
+        created__gte=before_10_sec,
+    ).order_by('-created')
 
-    if not project_qs.exists():
+    # check if partial query exists,
+    # if yes, then just update the object.
+    for partial_query in partial_query_qs.iterator():
+        if query.startswith(partial_query.query):
+            partial_query.created = time
+            partial_query.query = query
+            partial_query.save()
+            return
+
+    # don't record query with zero results.
+    if not total_results:
+        log.debug(
+            'Not recording search query because of zero results. Passed arguments: '
+            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
+                project_slug, version_slug, query, total_results, time
+            )
+        )
         return
 
-    project = project_qs.first()
+    project = Project.objects.filter(slug=project_slug).first()
+    if not project:
+        log.debug(
+            'Not recording the search query because project does not exist. '
+            'project_slug: %s' % (
+                project_slug
+            )
+        )
+        return
+
     version_qs = Version.objects.filter(project=project, slug=version_slug)
 
     if not version_qs.exists():
+        log.debug(
+            'Not recording the search query because version does not exist. '
+            'project_slug: %s, version_slug: %s' % (
+                project_slug, version_slug
+            )
+        )
         return
 
     version = version_qs.first()
-    SearchQuery.objects.create(
+
+    # make a new SearchQuery object.
+    obj = SearchQuery.objects.create(
         project=project,
         version=version,
         query=query,
     )
+    obj.created = time
+    obj.save()

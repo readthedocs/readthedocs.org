@@ -42,9 +42,9 @@ class SearchQuery(TimeStampedModel):
         return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
 
     @classmethod
-    def generate_queries_count_for_last_thirty_days(cls, project_slug):
+    def generate_queries_count_of_one_month(cls, project_slug):
         """
-        Returns the total queries performed each day of the last 30 days.
+        Returns the total queries performed each day of the last 30 days (including today).
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
@@ -55,13 +55,15 @@ class SearchQuery(TimeStampedModel):
         This data shows that there were 150 searches were made on 01 July,
         200 searches on 02 July and 143 searches on 03 July.
         """
-        yesterday = timezone.now().date() - timezone.timedelta(days=1)
+        today = timezone.now().date()
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
-        last_30_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(30)]
+
+        # this includes the current day also
+        last_31_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(31)]
 
         qs = cls.objects.filter(
             project__slug=project_slug,
-            created__date__lte=yesterday,
+            created__date__lte=today,
             created__date__gte=last_30th_day,
         ).order_by('-created')
 
@@ -75,17 +77,17 @@ class SearchQuery(TimeStampedModel):
             .values_list('created_date', 'count')
         )
 
-        count_data = [count_dict.get(date) or 0 for date in last_30_days_iter]
+        count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_30_days_str = [
+        last_31_days_str = [
             timezone.datetime.strftime(date, '%d %b')
-            for date in last_30_days_iter
+            for date in last_31_days_iter
         ]
 
         final_data = {
-            'labels': last_30_days_str,
+            'labels': last_31_days_str,
             'int_data': count_data,
         }
 

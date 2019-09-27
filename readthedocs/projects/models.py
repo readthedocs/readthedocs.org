@@ -783,15 +783,12 @@ class Project(models.Model):
         if os.path.exists(path):
             return True
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = self.get_storage_path(
-                type_=type_, version_slug=version_slug,
-                version_type=version_type
-            )
-            return storage.exists(storage_path)
-
-        return False
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.get_storage_path(
+            type_=type_, version_slug=version_slug,
+            version_type=version_type
+        )
+        return storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -950,28 +947,38 @@ class Project(models.Model):
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.internal.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
@@ -1271,6 +1278,9 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
+        file_path = None
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
         fjson_paths = []
         basename = os.path.splitext(self.path)[0]
         fjson_paths.append(basename + '.fjson')
@@ -1278,23 +1288,25 @@ class HTMLFile(ImportedFile):
             new_basename = re.sub(r'\/index$', '', basename)
             fjson_paths.append(new_basename + '.fjson')
 
-        full_json_path = self.project.get_production_media_path(
+        storage_path = self.project.get_storage_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
         try:
             for fjson_path in fjson_paths:
-                file_path = os.path.join(full_json_path, fjson_path)
-                if os.path.exists(file_path):
+                file_path = storage.join(storage_path, fjson_path)
+                if storage.exists(file_path):
                     return process_file(file_path)
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',
                 file_path,
             )
+
         return {
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property

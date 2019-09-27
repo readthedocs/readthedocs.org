@@ -1,9 +1,7 @@
 import csv
-import io
 from urllib.parse import urlsplit
 
 import mock
-import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -12,12 +10,10 @@ from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import Feature, HTMLFile, Project
-from readthedocs.search.models import SearchQuery
+from readthedocs.projects.models import Feature, Project
 
 
 class Testmaker(TestCase):
@@ -89,10 +85,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/manual/demo/')
         self.assertRedirectToLogin(response)
 
-    def test_projects_manage(self):
-        response = self.client.get('/dashboard/pip/')
-        self.assertRedirectToLogin(response)
-
     def test_edit(self):
         response = self.client.get('/dashboard/pip/edit/')
         self.assertRedirectToLogin(response)
@@ -162,41 +154,6 @@ class PrivateViewsAreProtectedTests(TestCase):
     def test_project_redirects_delete(self):
         response = self.client.get('/dashboard/pip/redirects/delete/')
         self.assertRedirectToLogin(response)
-
-
-class RandomPageTests(TestCase):
-    fixtures = ['eric', 'test_data']
-
-    def setUp(self):
-        self.pip = Project.objects.get(slug='pip')
-        self.pip_version = self.pip.versions.all()[0]
-        HTMLFile.objects.create(
-            project=self.pip,
-            version=self.pip_version,
-            name='file.html',
-            slug='file',
-            path='file.html',
-            md5='abcdef',
-            commit='1234567890abcdef',
-        )
-
-    def test_random_page_view_redirects(self):
-        response = self.client.get('/random/')
-        self.assertEqual(response.status_code, 302)
-
-    def test_takes_project_slug(self):
-        response = self.client.get('/random/pip/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue('pip' in response['Location'])
-
-    def test_404_for_unknown_project(self):
-        response = self.client.get('/random/not-existent/')
-        self.assertEqual(response.status_code, 404)
-
-    def test_404_for_with_no_html_files(self):
-        HTMLFile.objects.all().delete()
-        response = self.client.get('/random/pip/')
-        self.assertEqual(response.status_code, 404)
 
 
 class SubprojectViewTests(TestCase):
@@ -327,8 +284,17 @@ class TestSearchAnalyticsView(TestCase):
         with mock.patch('django.utils.timezone.now') as test_time:
             test_time.return_value = self.test_time
 
-            expected_result = ['hello world', 'documentation', 'read the docs','advertising',
-                                'elasticsearch', 'sphinx', 'github', 'hello', 'search']
+            expected_result = [
+                ('hello world', 5),
+                ('documentation', 4),
+                ('read the docs', 4),
+                ('advertising', 3),
+                ('elasticsearch', 2),
+                ('sphinx', 2),
+                ('github', 1),
+                ('hello', 1),
+                ('search', 1),
+            ]
 
             resp = self.client.get(self.analyics_page)
 
@@ -355,7 +321,7 @@ class TestSearchAnalyticsView(TestCase):
                 resp.context['distribution_of_top_queries'],
             )
 
-    def test_count_of_queries_for_last_30_days(self):
+    def test_query_count_of_1_month(self):
         with mock.patch('django.utils.timezone.now') as test_time:
             test_time.return_value = self.test_time
 
@@ -363,22 +329,30 @@ class TestSearchAnalyticsView(TestCase):
                 [0] * 12 +
                 [1, 1, 2] +
                 [0] * 13 +
-                [4, 3]
+                [4, 3, 7]
             )
             resp = self.client.get(self.analyics_page, {'version': self.version.slug})
 
             self.assertEqual(resp.status_code, 200)
             self.assertListEqual(
                 expected_result_data,
-                resp.context['query_count_of_past_30_days']['int_data'],
+                resp.context['query_count_of_1_month']['int_data'],
             )
             self.assertEqual(
                 '03 Jul',
-                resp.context['query_count_of_past_30_days']['labels'][0],
+                resp.context['query_count_of_1_month']['labels'][0],
             )
             self.assertEqual(
-                '01 Aug',
-                resp.context['query_count_of_past_30_days']['labels'][-1],
+                '02 Aug',
+                resp.context['query_count_of_1_month']['labels'][-1],
+            )
+            self.assertEqual(
+                len(resp.context['query_count_of_1_month']['labels']),
+                31,
+            )
+            self.assertEqual(
+                len(resp.context['query_count_of_1_month']['int_data']),
+                31,
             )
 
     def test_generated_csv_data(self):
@@ -391,16 +365,14 @@ class TestSearchAnalyticsView(TestCase):
             )
 
             self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp['Content-Type'], 'text/csv')
 
-            content = resp.content.decode('utf-8')
-            cvs_reader = csv.reader(io.StringIO(content))
-            body = list(cvs_reader)
-            headers = body.pop(0)
+            # convert streaming data to csv format
+            content = b''.join(resp.streaming_content).splitlines()
+            content = [line.decode('utf-8') for line in content]
+            csv_data = csv.reader(content)
+            body = list(csv_data)
 
-            self.assertEqual(
-                headers,
-                ['serial_no', 'date_time', 'query'],
-            )
             self.assertEqual(len(body), 23)
-            self.assertEqual(body[0][2], 'advertising')
-            self.assertEqual(body[-1][2], 'hello world')
+            self.assertEqual(body[0][1], 'advertising')
+            self.assertEqual(body[-1][1], 'hello world')

@@ -414,60 +414,6 @@
         }
     },
     {
-        "pk": 13,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "add_groupobjectpermission",
-            "name": "Can add group object permission",
-            "content_type": 5
-        }
-    },
-    {
-        "pk": 14,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "change_groupobjectpermission",
-            "name": "Can change group object permission",
-            "content_type": 5
-        }
-    },
-    {
-        "pk": 15,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "delete_groupobjectpermission",
-            "name": "Can delete group object permission",
-            "content_type": 5
-        }
-    },
-    {
-        "pk": 10,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "add_userobjectpermission",
-            "name": "Can add user object permission",
-            "content_type": 4
-        }
-    },
-    {
-        "pk": 11,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "change_userobjectpermission",
-            "name": "Can change user object permission",
-            "content_type": 4
-        }
-    },
-    {
-        "pk": 12,
-        "model": "auth.permission",
-        "fields": {
-            "codename": "delete_userobjectpermission",
-            "name": "Can delete user object permission",
-            "content_type": 4
-        }
-    },
-    {
         "pk": 56,
         "model": "auth.permission",
         "fields": {

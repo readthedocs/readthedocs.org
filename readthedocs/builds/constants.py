@@ -72,18 +72,26 @@ GITHUB_BUILD_STATUS_FAILURE = 'failure'
 GITHUB_BUILD_STATUS_PENDING = 'pending'
 GITHUB_BUILD_STATUS_SUCCESS = 'success'
 
+# GitLab Build Statuses
+GITLAB_BUILD_STATUS_FAILURE = 'failed'
+GITLAB_BUILD_STATUS_PENDING = 'pending'
+GITLAB_BUILD_STATUS_SUCCESS = 'success'
+
 # Used to select correct Build status and description to be sent to each service API
 SELECT_BUILD_STATUS = {
     BUILD_STATUS_FAILURE: {
         'github': GITHUB_BUILD_STATUS_FAILURE,
+        'gitlab': GITLAB_BUILD_STATUS_FAILURE,
         'description': 'Read the Docs build failed!',
     },
     BUILD_STATUS_PENDING: {
         'github': GITHUB_BUILD_STATUS_PENDING,
+        'gitlab': GITLAB_BUILD_STATUS_PENDING,
         'description': 'Read the Docs build is in progress!',
     },
     BUILD_STATUS_SUCCESS: {
         'github': GITHUB_BUILD_STATUS_SUCCESS,
+        'gitlab': GITLAB_BUILD_STATUS_SUCCESS,
         'description': 'Read the Docs build succeeded!',
     },
 }
@@ -91,4 +99,5 @@ SELECT_BUILD_STATUS = {
 RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
 
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
+GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'

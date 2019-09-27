@@ -21,6 +21,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
+from readthedocs.analytics.tasks import analytics_event
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
@@ -220,16 +222,24 @@ def project_download_media(request, project_slug, type_, version_slug):
         slug=version_slug,
     )
 
+    # Send media download to analytics - sensitive data is anonymized
+    analytics_event.delay(
+        event_category='Build Media',
+        event_action=f'Download {type_}',
+        event_label=str(version),
+        ua=request.META.get('HTTP_USER_AGENT'),
+        uip=get_client_ip(request),
+    )
+
     if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = version.project.get_storage_path(
-                type_=type_, version_slug=version_slug,
-                version_type=version.type,
-            )
-            if storage.exists(storage_path):
-                return HttpResponseRedirect(storage.url(storage_path))
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = version.project.get_storage_path(
+            type_=type_, version_slug=version_slug,
+            version_type=version.type,
+        )
+        if storage.exists(storage_path):
+            return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
             settings.MEDIA_URL,

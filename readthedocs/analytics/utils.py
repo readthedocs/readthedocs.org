@@ -32,7 +32,9 @@ def get_client_ip(request):
         client_ip = x_forwarded_for.split(',')[0].strip()
 
         # Removing the port number (if present)
-        client_ip = client_ip.rsplit(':')[0]
+        # But be careful about IPv6 addresses
+        if client_ip.count(':') == 1:
+            client_ip = client_ip.rsplit(':', maxsplit=1)[0]
     else:
         client_ip = request.META.get('REMOTE_ADDR', None)
 
@@ -68,11 +70,11 @@ def send_to_analytics(data):
     if data.get('uip') and data.get('ua'):
         data['cid'] = generate_client_id(data['uip'], data['ua'])
 
-    if 'uip' in data:
+    if data.get('uip'):
         # Anonymize IP address if applicable
         data['uip'] = anonymize_ip_address(data['uip'])
 
-    if 'ua' in data:
+    if data.get('ua'):
         # Anonymize user agent if it is rare
         data['ua'] = anonymize_user_agent(data['ua'])
 
