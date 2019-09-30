@@ -18,26 +18,46 @@
     {% endblocktrans %}
   </p>
 
-  {% if object_list %}
-  <h3> {% trans "Existing Domains" %} </h3>
-  <p>
+  <div class="button-bar">
     <ul>
-    {% for domain in object_list %}
-        <li class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}" >
-        {{ domain.domain }}
-        (<a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Details" %}</a>)
-        (<a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a>)
-        </li>
-    {% endfor %}
+      <li>
+        <a class="button"
+           href="{% url 'projects_domains_create' project.slug %}">
+          {% trans "Add Domain" %}
+        </a>
+      </li>
     </ul>
-  </p>
-  {% endif %}
+  </div>
 
-  <h3> {% trans "Add new Domain" %} </h3>
-  <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
-    {{ form.as_p }}
-    <p>
-      <input style="display: inline;" type="submit" value="{% trans "Add" %}">
-    </p>
-  </form>
+  <div class="module">
+    <div class="module-wrapper">
+      <div class="module-header">
+        <h3>{% trans "Existing Domains" %}</h3>
+      </div>
+      <div class="module-list">
+        <div class="module-list-wrapper">
+          <ul>
+            {% for domain in object_list %}
+              <li class="module-item">
+                <span class="{% if domain.machine %}domain-machine{% endif %} {% if domain.canonical %}domain-canonical{% endif %}">
+                  {{ domain.domain }}
+                </span>
+                <ul class="module-item-menu">
+                  <li><a href="{% url 'projects_domains_edit' project.slug domain.pk %}">{% trans "Details" %}</a></li>
+                  <li><a href="{% url 'projects_domains_delete' project.slug domain.pk %}">{% trans "Remove" %}</a></li>
+                </ul>
+              </li>
+            {% empty %}
+              <li class="module-item">
+                <p class="quiet">
+                  {% trans 'No domains are currently configured.' %}
+                </p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}

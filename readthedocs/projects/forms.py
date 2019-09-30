@@ -610,6 +610,14 @@ class DomainBaseForm(forms.ModelForm):
     class Meta:
         model = Domain
         exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
+        error_messages = {
+            'domain':  {
+                'unique': (
+                    'This domain is already configured. '
+                    'Please choose another.'
+                ),
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -629,6 +637,7 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.netloc
         else:
             domain_string = parsed.path
+
         return domain_string
 
     def clean_canonical(self):

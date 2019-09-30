@@ -28,7 +28,7 @@ from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
+from readthedocs.core.mixins import LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -701,7 +701,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse('projects_domains', args=[self.get_project().slug])
 
 
-class DomainList(DomainMixin, ListViewWithForm):
+class DomainList(DomainMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

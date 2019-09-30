@@ -114,6 +114,28 @@ class FormTests(TestCase):
         self.assertEqual(domain.domain, 'example.com')
         self.assertFalse(domain.canonical)
 
+    def test_adding_duplicate_domain(self):
+        form = DomainForm({'domain': 'example.com'}, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        # with same project
+        form = DomainForm({'domain': 'example.com',}, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'domain': ['This domain is already configured. Please choose another.']}
+        )
+
+        # with different project
+        project_1 = get(Project)
+        form = DomainForm({'domain': 'example.com',}, project=project_1)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(
+            form.errors,
+            {'domain': ['This domain is already configured. Please choose another.']}
+        )
+
 
 class TestAPI(TestCase):
 
