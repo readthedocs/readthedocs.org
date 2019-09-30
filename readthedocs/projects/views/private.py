@@ -112,36 +112,53 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         return context
 
 
-class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectMixin(PrivateViewMixin):
+
+    """Common pieces for model views of Project."""
+
+    model = Project
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    context_object_name = 'project'
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+
+class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_edit.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_advanced.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class ProjectDelete(ProjectMixin, DeleteView):
+
+    success_message = _('Project deleted')
+    template_name = 'projects/project_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_superproject'] = (
+            self.object.subprojects.all().exists()
+        )
+        return context
+
+    def get_success_url(self):
+        return reverse('projects_dashboard')
 
 
 @login_required
@@ -182,34 +199,6 @@ def project_version_detail(request, project_slug, version_slug):
         'projects/project_version_detail.html',
         {'form': form, 'project': project, 'version': version},
     )
-
-
-@login_required
-def project_delete(request, project_slug):
-    """
-    Project delete confirmation view.
-
-    Make a project as deleted on POST, otherwise show a form asking for
-    confirmation of delete.
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-    context = {
-        'project': project,
-        'is_superproject': project.subprojects.all().exists()
-    }
-
-    if request.method == 'POST':
-        # Delete the project and all related files
-        project.delete()
-        messages.success(request, _('Project deleted'))
-        project_dashboard = reverse('projects_dashboard')
-        return HttpResponseRedirect(project_dashboard)
-
-    return render(request, 'projects/project_delete.html', context)
 
 
 class ImportWizardView(
