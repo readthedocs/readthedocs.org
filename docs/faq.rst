@@ -81,30 +81,14 @@ I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
 
 .. note::
-    Another use case for this is when you have a module with a C extension.
 
-This happens because our build system doesn't have the dependencies for building your project. This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries. We can't support installing random C binaries on our system, so there is another way to fix these imports.
+   Another use case for this is when you have a module with a C extension.
 
-With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. Alternatively you can use the mock library by putting the following snippet in your ``conf.py``::
+This happens because our build system doesn't have the dependencies for building your project.
+This happens with things like ``libevent``, ``mysql``, and other python packages that depend on C libraries.
+We can't support installing random C binaries on our system, so there is another way to fix these imports.
 
-    import sys
-    from unittest.mock import MagicMock
-
-    class Mock(MagicMock):
-        @classmethod
-        def __getattr__(cls, name):
-            return MagicMock()
-
-    MOCK_MODULES = ['pygtk', 'gtk', 'gobject', 'argparse', 'numpy', 'pandas']
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
-You need to replace ``MOCK_MODULES`` with the modules that you want to mock out.
-
-.. Tip:: The library ``unittest.mock`` was introduced on python 3.3. On earlier versions install the ``mock`` library
-    from PyPI with (ie ``pip install mock``) and replace the above import::
-
-        from mock import Mock as MagicMock
-
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking.
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
