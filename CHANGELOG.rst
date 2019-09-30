@@ -1,3 +1,27 @@
+Version 3.7.5
+-------------
+
+:Date: September 26, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Remove if storage blocks (`#6191 <https://github.com/readthedocs/readthedocs.org/pull/6191>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update security docs (`#6179 <https://github.com/readthedocs/readthedocs.org/pull/6179>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add the private spamfighting module to INSTALLED_APPS (`#6177 <https://github.com/readthedocs/readthedocs.org/pull/6177>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Document connected account permissions (`#6172 <https://github.com/readthedocs/readthedocs.org/pull/6172>`__)
+* `@stsewd <http://github.com/stsewd>`__: Require login for old redirect (`#6170 <https://github.com/readthedocs/readthedocs.org/pull/6170>`__)
+* `@humitos <http://github.com/humitos>`__: Remove old and unused code (`#6167 <https://github.com/readthedocs/readthedocs.org/pull/6167>`__)
+* `@stsewd <http://github.com/stsewd>`__: Clean up views (`#6166 <https://github.com/readthedocs/readthedocs.org/pull/6166>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs for sharing (`#6164 <https://github.com/readthedocs/readthedocs.org/pull/6164>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#6158 <https://github.com/readthedocs/readthedocs.org/pull/6158>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Remove PR Builder Project Idea from RTD GSoC Docs (`#6147 <https://github.com/readthedocs/readthedocs.org/pull/6147>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Serialize time in search queries properly (`#6142 <https://github.com/readthedocs/readthedocs.org/pull/6142>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend DomainCreate view (`#6139 <https://github.com/readthedocs/readthedocs.org/pull/6139>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Integration Re-sync Bug Fix (`#6124 <https://github.com/readthedocs/readthedocs.org/pull/6124>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't log BuildEnvironmentWarning as error (`#6112 <https://github.com/readthedocs/readthedocs.org/pull/6112>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add Search Guide (`#6101 <https://github.com/readthedocs/readthedocs.org/pull/6101>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add PR Builder guide to docs (`#6093 <https://github.com/readthedocs/readthedocs.org/pull/6093>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Record search queries smartly (`#6088 <https://github.com/readthedocs/readthedocs.org/pull/6088>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'highlight' URL param from search results (`#6087 <https://github.com/readthedocs/readthedocs.org/pull/6087>`__)
+
 Version 3.7.4
 -------------
 
