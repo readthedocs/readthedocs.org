@@ -113,6 +113,8 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
 class ProjectMixin(PrivateViewMixin):
 
+    """Common pieces for model views of Project."""
+
     model = Project
     lookup_url_kwarg = 'project_slug'
     lookup_field = 'slug'
