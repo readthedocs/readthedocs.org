@@ -1,6 +1,7 @@
 """Project URLs for authenticated users."""
 
 from django.conf.urls import url
+from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
@@ -46,7 +47,9 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/$',
-        RedirectView.as_view(pattern_name='projects_detail', permanent=True),
+        login_required(
+            RedirectView.as_view(pattern_name='projects_detail', permanent=True),
+        ),
         name='projects_manage',
     ),
     url(

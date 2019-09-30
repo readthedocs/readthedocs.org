@@ -30,6 +30,7 @@ from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -704,14 +705,20 @@ class DomainList(DomainMixin, ListViewWithForm):
         return ctx
 
 
-class DomainCreate(DomainMixin, CreateView):
-
+class DomainCreateBase(DomainMixin, CreateView):
     pass
 
 
-class DomainUpdate(DomainMixin, UpdateView):
+class DomainCreate(SettingsOverrideObject):
+    _default_class = DomainCreateBase
 
+
+class DomainUpdateBase(DomainMixin, UpdateView):
     pass
+
+
+class DomainUpdate(SettingsOverrideObject):
+    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
@@ -929,12 +936,6 @@ def search_analytics_view(request, project_slug):
     query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
         project_slug
     )
-    # data for plotting the doughnut-chart
-    distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
-        project_slug,
-        10,
-    )
-    now = timezone.now()
 
     queries = []
     qs = SearchQuery.objects.filter(project=project)
@@ -957,7 +958,6 @@ def search_analytics_view(request, project_slug):
             'queries': queries,
             'show_analytics': True,
             'query_count_of_1_month': query_count_of_1_month,
-            'distribution_of_top_queries': distribution_of_top_queries,
         }
     )
 
