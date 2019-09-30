@@ -100,10 +100,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = self.get_object()
-        context['versions'] = Version.internal.public(
-            user=self.request.user,
-            project=project,
-        )
+        context['versions'] = self._get_versions(project)
 
         protocol = 'http'
         if self.request.is_secure():
