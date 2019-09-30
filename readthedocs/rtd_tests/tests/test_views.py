@@ -304,23 +304,6 @@ class TestSearchAnalyticsView(TestCase):
                 list(resp.context['queries']),
             )
 
-    def test_distribution_of_top_queries(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = {
-                'labels': ['hello world', 'documentation', 'read the docs', 'advertising',
-                            'elasticsearch', 'sphinx', 'github', 'hello', 'search'],
-                'int_data': [5, 4, 4, 3, 2, 2, 1, 1, 1],
-            }
-            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertDictEqual(
-                expected_result,
-                resp.context['distribution_of_top_queries'],
-            )
-
     def test_query_count_of_1_month(self):
         with mock.patch('django.utils.timezone.now') as test_time:
             test_time.return_value = self.test_time
