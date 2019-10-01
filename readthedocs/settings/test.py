@@ -11,7 +11,6 @@ class CommunityTestSettings(CommunityDevSettings):
     SLUMBER_API_HOST = 'http://localhost:8000'
 
     # A bunch of our tests check this value in a returned URL/Domain
-    USE_SUBDOMAIN = False
     PRODUCTION_DOMAIN = 'readthedocs.org'
     GROK_API_HOST = 'http://localhost:8888'
 
@@ -19,8 +18,6 @@ class CommunityTestSettings(CommunityDevSettings):
     TEMPLATE_DEBUG = False
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
-
-    TEST = True
 
     @property
     def ES_INDEXES(self):  # noqa - avoid pep8 N802

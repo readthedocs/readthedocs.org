@@ -13,7 +13,6 @@ class ProxitoDevSettings(base.CommunityBaseSettings):
     USE_SUBDOMAIN = True
 
     PUBLIC_DOMAIN = 'dev.readthedocs.io'
-    PRODUCTION_DOMAIN = 'localhost:8000'
     PUBLIC_DOMAIN_USES_HTTPS = False
 
     @property

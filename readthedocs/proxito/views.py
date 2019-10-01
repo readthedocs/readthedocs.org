@@ -28,6 +28,7 @@ def _serve_401(request, project):
 
 
 def _fallback():
+    # TODO: This currently isn't used. It might be though, so keeping it for now.
     res = HttpResponse('Internal fallback to RTD app')
     res.status_code = 420
     log.debug('Falling back to RTD app')
