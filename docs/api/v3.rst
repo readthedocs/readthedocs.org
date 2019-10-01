@@ -232,7 +232,7 @@ Project update
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/
 
-    Edit an existent project.
+    Edit an existing project.
 
     **Example request**:
 
