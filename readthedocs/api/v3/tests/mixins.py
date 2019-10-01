@@ -60,22 +60,6 @@ class APIEndpointMixin(TestCase):
             project=self.project,
         )
 
-        self.subproject = fixture.get(
-            Project,
-            pub_date=self.created,
-            modified_date=self.modified,
-            description='SubProject description',
-            repo='https://github.com/rtfd/subproject',
-            project_url='http://subproject.com',
-            name='subproject',
-            slug='subproject',
-            related_projects=[],
-            main_language_project=None,
-            users=[self.me],
-            versions=[],
-        )
-        self.project_relationship = self.project.add_subproject(self.subproject)
-
         self.version = fixture.get(
             Version,
             slug='v1.0',
@@ -118,6 +102,41 @@ class APIEndpointMixin(TestCase):
     def tearDown(self):
         # Cleanup cache to avoid throttling on tests
         cache.clear()
+
+    def _create_new_project(self):
+        """Helper to create a project with all the fields set."""
+        return fixture.get(
+            Project,
+            pub_date=self.created,
+            modified_date=self.modified,
+            description='Project description',
+            repo='https://github.com/rtfd/project',
+            project_url='http://project.com',
+            name='new-project',
+            slug='new-project',
+            related_projects=[],
+            main_language_project=None,
+            users=[self.me],
+            versions=[],
+        )
+
+    def _create_subproject(self):
+        """Helper to create a sub-project with all the fields set."""
+        self.subproject = fixture.get(
+            Project,
+            pub_date=self.created,
+            modified_date=self.modified,
+            description='SubProject description',
+            repo='https://github.com/rtfd/subproject',
+            project_url='http://subproject.com',
+            name='subproject',
+            slug='subproject',
+            related_projects=[],
+            main_language_project=None,
+            users=[self.me],
+            versions=[],
+        )
+        self.project_relationship = self.project.add_subproject(self.subproject)
 
     def _get_response_dict(self, view_name):
         filename = Path(__file__).absolute().parent / 'responses' / f'{view_name}.json'

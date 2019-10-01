@@ -7,22 +7,9 @@ from readthedocs.projects.models import Project
 
 class SubprojectsEndpointTests(APIEndpointMixin):
 
-    def _create_project(self):
-        """Helper to create a project with all the fields set."""
-        return fixture.get(
-            Project,
-            pub_date=self.created,
-            modified_date=self.modified,
-            description='Project description',
-            repo='https://github.com/rtfd/project',
-            project_url='http://project.com',
-            name='new-project',
-            slug='new-project',
-            related_projects=[],
-            main_language_project=None,
-            users=[self.me],
-            versions=[],
-        )
+    def setUp(self):
+        super().setUp()
+        self._create_subproject()
 
     def test_projects_subprojects_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -57,7 +44,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_subprojects_list_post(self):
-        newproject = self._create_project()
+        newproject = self._create_new_project()
         self.assertEqual(self.project.subprojects.count(), 1)
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         data = {
@@ -125,7 +112,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.subprojects.count(), 1)
 
     def test_projects_subprojects_list_post_nested_subproject(self):
-        newproject = self._create_project()
+        newproject = self._create_new_project()
         self.assertEqual(self.project.subprojects.count(), 1)
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         data = {
@@ -149,7 +136,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.subprojects.count(), 1)
 
     def test_projects_subprojects_list_post_unique_alias(self):
-        newproject = self._create_project()
+        newproject = self._create_new_project()
         self.assertEqual(self.project.subprojects.count(), 1)
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         data = {
@@ -207,7 +194,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.subprojects.count(), 0)
 
     def test_projects_subprojects_detail_delete_others_project(self):
-        newproject =  self._create_project()
+        newproject =  self._create_new_project()
         project_relationship = self.others_project.add_subproject(newproject)
         self.assertEqual(self.others_project.subprojects.count(), 1)
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

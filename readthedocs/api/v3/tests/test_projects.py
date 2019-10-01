@@ -41,6 +41,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_superproject(self):
+        self._create_subproject()
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
