@@ -63,6 +63,11 @@ There are some URL attributes that applies to all of these resources:
    Some resources allow to expand/add extra fields on their responses (see _`Project details` for example).
 
 
+.. tip::
+
+   You can browse the full API by accessing its root URL: https://readthedocs.org/api/v3/
+
+
 Projects
 ~~~~~~~~
 
