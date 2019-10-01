@@ -47,6 +47,22 @@ When a user is trying to authenticate via session,
 Resources
 ---------
 
+This section shows all the resources that are currently available in APIv3.
+There are some URL attributes that applies to all of these resources:
+
+:?fields=:
+
+   Specify which fields are going to be returned in the response.
+
+:?omit=:
+
+   Specify which fields are going to be omitted from the response.
+
+:?expand=:
+
+   Some resources allow to expand/add extra fields on their responses (see _`Project details` for example).
+
+
 Projects
 ~~~~~~~~
 
@@ -74,21 +90,8 @@ Projects list
             "results": ["PROJECT"]
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
-
-    :query string name: name of the project.
-    :query string name__contains: part of the name of the project.
-    :query string slug: slug of the project.
-    :query string slug__contains: part of the slug of the project.
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
-    :query string privacy_level: one of ``public``, ``private``, ``protected``.
     :query string programming_language: programming language code as ``py``, ``js``, etc.
-    :query string repository_type: one of ``git``, ``hg``, ``bzr``, ``svn``.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Project details
@@ -166,15 +169,9 @@ Project details
             }
         }
 
-    :>json string name: The name of the project.
-    :>json string slug: The project slug (used in the URL).
-
-    .. TODO: complete the returned data docs once agreed on this.
-
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Project`` with this slug
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
+                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
 
 Project create
@@ -182,7 +179,7 @@ Project create
 
 .. http:post:: /api/v3/projects/
 
-    Import a project into Read the Docs.
+    Import a project under authenticated user.
 
     **Example request**:
 
@@ -212,11 +209,6 @@ Project create
     **Example response**:
 
     `See Project details <#project-details>`_
-
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
 
 
 Versions
@@ -255,17 +247,8 @@ Versions listing
             "results": ["VERSION"]
         }
 
-    :>json integer count: Total number of Projects.
-    :>json string next: URI for next set of Projects.
-    :>json string previous: URI for previous set of Projects.
-    :>json array results: Array of ``Version`` objects.
-
-    :query integer limit: limit number of object returned
-    :query integer offset: offset from the whole list returned
-    :query boolean active: whether return active versions only
-    :query boolean built: whether return only built version
-
-    :requestheader Authorization: token to authenticate.
+    :query boolean active: return active versions only
+    :query boolean built: return only built version
 
 
 Version detail
@@ -312,21 +295,16 @@ Version detail
             }
         }
 
-    :>json integer id: ID for this version on the database
-    :>json string slug: The slug for this version
-    :>json string verbose_name: The name of the version
-    :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
-    :>json string ref: tag or branch pointed by this version (available only when version is ``stable`` or ``latest``)
-    :>json string built: Whether this version has been built
-    :>json string active: Whether this version is active
-    :>json string type: The type of this version (typically "tag" or "branch")
-    :>json string last_build: Build object representing the last build of this version
-    :>json array downloads: URLs to downloads of this version's documentation
 
-    :requestheader Authorization: token to authenticate.
+    :>json string ref: the version slug where the ``stable`` version points to.
+                       ``null`` when it's not the stable version.
+    :>json string build: the version has at least one successful build.
+    :>json string uploaded: the version was uploaded manually.
 
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Version`` with this slug for this project
+
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``last_build`` and ``last_build.config``.
+                          Multiple fields can be passed separated by commas.
 
 
 Version update
@@ -347,10 +325,7 @@ Version update
 
     :requestheader Authorization: token to authenticate.
 
-    :statuscode 204: Edited successfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-    :statuscode 404: There is no ``Version`` with this slug for this project
+    :statuscode 204: Updated successfully
 
 
 Builds
@@ -440,22 +415,14 @@ Build details
             }
         }
 
-    :>json integer id: The ID of the build
-    :>json string date: The ISO-8601 datetime of the build.
+    :>json string created: The ISO-8601 datetime when the build was created.
+    :>json string finished: The ISO-8601 datetime when the build has finished.
     :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, or ``finished``)
-    :>json boolean success: Whether the build was successful
     :>json string error: An error message if the build was unsuccessful
-    :>json string commit: A version control identifier for this build (eg. the commit hash)
-    :>json string builder: The hostname server that built the docs
-    :>json string cold_storage: Whether the build was removed from database and stored externally
 
-    :query boolean include_config: whether or not include the configs used for this build. Default is ``false``
-
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Build`` with this ID
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed value is ``config``.
 
 
 Builds listing
@@ -483,9 +450,7 @@ Builds listing
         }
 
     :query string commit: commit hash to filter the builds returned by commit
-    :query boolean running: whether or not to filter the builds returned by currently building
-
-    :requestheader Authorization: token to authenticate.
+    :query boolean running: filter the builds that are currently building/running
 
 
 Build triggering
@@ -508,11 +473,7 @@ Build triggering
 
     `See Build details <#build-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 202: Accepted
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
+    :statuscode 202: the build was triggered
 
 
 Subprojects
@@ -549,13 +510,6 @@ Subprojects listing
             "results": ["PROJECT"]
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
-
-    :requestheader Authorization: token to authenticate.
-
 
 Translations
 ~~~~~~~~~~~~
@@ -587,13 +541,6 @@ Translations listing
             "previous": null,
             "results": ["PROJECT"]
         }
-
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Redirects
@@ -690,10 +637,7 @@ Redirect create
 
     `See Redirect details <#redirect-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+    :statuscode 201: redirect created successfully
 
 
 Redirect update
@@ -727,12 +671,6 @@ Redirect update
 
     `See Redirect details <#redirect-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 400: Some field is invalid
-
-
 Redirect delete
 ++++++++++++++++
 
@@ -748,9 +686,7 @@ Redirect delete
           -X DELETE \
           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 204: Deleted successfully
+    :statuscode 204: Redirect deleted successfully
 
 
 Environment Variables
@@ -845,10 +781,7 @@ Environment Variable create
 
     `See Environment Variable details <#environmentvariable-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+    :statuscode 201: Environment variable created successfully
 
 
 Environment Variable delete
@@ -868,4 +801,4 @@ Environment Variable delete
 
     :requestheader Authorization: token to authenticate.
 
-    :statuscode 204: Deleted successfully
+    :statuscode 204: Environment variable deleted successfully
