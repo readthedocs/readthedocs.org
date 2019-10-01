@@ -386,10 +386,11 @@ class Symlink:
 
 
 class PublicSymlinkBase(Symlink):
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'public_cname_root')
-    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'public_web_root')
+    public_base = getattr(settings, 'PUBLIC_BASE', None) or settings.SITE_ROOT
+    CNAME_ROOT = os.path.join(public_base, 'public_cname_root')
+    WEB_ROOT = os.path.join(public_base, 'public_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT,
+        public_base,
         'public_cname_project',
     )
 
@@ -409,10 +410,11 @@ class PublicSymlinkBase(Symlink):
 
 
 class PrivateSymlinkBase(Symlink):
-    CNAME_ROOT = os.path.join(settings.SITE_ROOT, 'private_cname_root')
-    WEB_ROOT = os.path.join(settings.SITE_ROOT, 'private_web_root')
+    public_base = getattr(settings, 'PUBLIC_BASE', None) or settings.SITE_ROOT
+    CNAME_ROOT = os.path.join(public_base, 'private_cname_root')
+    WEB_ROOT = os.path.join(public_base, 'private_web_root')
     PROJECT_CNAME_ROOT = os.path.join(
-        settings.SITE_ROOT,
+        public_base,
         'private_cname_project',
     )
 
