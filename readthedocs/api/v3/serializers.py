@@ -550,6 +550,12 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         queryset=Project.objects.all(),
     )
 
+    def __init__(self, *args, **kwargs):
+        # Initialize the instance with the parent Project to be used in the
+        # serializer validation.
+        self.parent_project = kwargs.pop('parent')
+        super().__init__(*args, **kwargs)
+
     def validate_child(self, value):
         # Check the user is maintainer of the child project
         user = self.context['request'].user
@@ -558,6 +564,29 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
                 'You do not have permissions on the child project',
             )
         return value
+
+    def validate_alias(self, value):
+        # Check there is not a subproject with this alias already
+        subproject = self.parent_project.subprojects.filter(alias=value)
+        if subproject.exists():
+            raise serializers.ValidationError(
+                'A subproject with this alias already exists',
+            )
+        return value
+
+    def validate(self, data):
+        # Check the parent and child are not the same project
+        if data['child'].slug == self.parent_project.slug:
+            raise serializers.ValidationError(
+                'Project can not be subproject of itself',
+            )
+
+        # Check the parent project is not a subproject already
+        if self.parent_project.superprojects.exists():
+            raise serializers.ValidationError(
+                'Subproject nesting is not supported',
+            )
+        return data
 
     class Meta:
         model = ProjectRelationship

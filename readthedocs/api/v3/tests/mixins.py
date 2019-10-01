@@ -71,7 +71,7 @@ class APIEndpointMixin(TestCase):
             slug='subproject',
             related_projects=[],
             main_language_project=None,
-            users=[],
+            users=[self.me],
             versions=[],
         )
         self.project_relationship = self.project.add_subproject(self.subproject)

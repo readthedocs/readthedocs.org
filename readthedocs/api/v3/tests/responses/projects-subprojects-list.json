@@ -52,7 +52,11 @@
                     "home": "https://readthedocs.org/projects/subproject/",
                     "versions": "https://readthedocs.org/projects/subproject/versions/"
                 },
-                "users": []
+                "users": [
+                    {
+                        "username": "testuser"
+                    }
+                ]
             }
         }
     ]
