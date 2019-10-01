@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
+from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project, ProjectRelationship
 
 log = logging.getLogger(__name__)
@@ -122,10 +123,15 @@ def serve_docs(
     current_project = subproject or project
 
     # Handle a / redirect when we aren't a single version
-    if lang_slug is None and version_slug is None and filename is '' and not current_project.single_version:
+    if all([
+        lang_slug is None,
+        version_slug is None,
+        filename is '',
+        not current_project.single_version
+    ]):
+        # Fall back to main RTD application for redirects for now
         _log(request, msg='Redirecting to default')
         return _fallback()
-
 
     # Check to see if we need to serve a translation
     if lang_slug and lang_slug == current_project.language:
@@ -145,7 +151,8 @@ def serve_docs(
     #     language=lang_slug, version_slug=version_slug, path=filename
     # )
 
-    if not version_slug:
+    # Handle single version by grabbing the default version
+    if final_project.single_version and not version_slug:
         version_slug = final_project.get_default_version()
 
     # Don't do auth checks
@@ -161,8 +168,13 @@ def serve_docs(
     storage_path = final_project.get_storage_path(
         type_='html', version_slug=version_slug, include_file=False
     )
-
     path = f'{storage_path}/{filename}'
+
+    # Handle out backend storage not supporting directory indexes,
+    # so we need to append index.html when appropriate.
+    # TODO: We don't currently support `docs.example.com/en/latest/install`
+    # where the user actually wants `docs.example.com/en/latest/install/index.html`
+    # We would need to emulate nginx's try_files in order to handle this.
     if path[-1] == '/':
         path += 'index.html'
 
@@ -192,16 +204,13 @@ def _serve_docs_nginx(request, final_project, path):
     response = HttpResponse(f'Serving internal path: {path}', content_type=content_type)
     if encoding:
         response['Content-Encoding'] = encoding
-    try:
-        # NGINX does not support non-ASCII characters in the header, so we
-        # convert the IRI path to URI so it's compatible with what NGINX expects
-        # as the header value.
-        # https://github.com/benoitc/gunicorn/issues/1448
-        # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
-        x_accel_redirect = iri_to_uri(path)
-        response['X-Accel-Redirect'] = x_accel_redirect
-    except UnicodeEncodeError:
-        log.exception('Unicode Error in serve_docs function')
-        raise Http404
+
+    # NGINX does not support non-ASCII characters in the header, so we
+    # convert the IRI path to URI so it's compatible with what NGINX expects
+    # as the header value.
+    # https://github.com/benoitc/gunicorn/issues/1448
+    # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
+    x_accel_redirect = iri_to_uri(path)
+    response['X-Accel-Redirect'] = x_accel_redirect
 
     return response

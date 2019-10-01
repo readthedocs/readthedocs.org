@@ -35,6 +35,7 @@ def map_host_to_project(request):
         if public_domain_parts == host_parts[1:]:
             project = host_parts[0]
             request.subdomain = True
+            log.debug('Proxito Public Domain: %s', host)
         else:
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
             # But these feel like they might be phishing, etc. so let's block them for now.
@@ -48,11 +49,13 @@ def map_host_to_project(request):
         if domain_qs.exists():
             project = domain_qs.first().project.slug
             request.cname = True
+            log.debug('Proxito CNAME: %s', host)
         else:
             # Some person is CNAMEing to us without configuring a domain - 404.
             project = None
             log.debug('CNAME 404: %s', host)
             raise Http404('CNAME 404')
+    log.debug('Proxito Project: %s', project)
     return project
 
 

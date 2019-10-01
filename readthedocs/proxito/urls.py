@@ -35,18 +35,19 @@ from django.conf import settings
 from readthedocs.constants import pattern_opts
 
 from readthedocs.proxito.views import (
-    serve_docs
+    serve_docs,
+    redirect_page_with_filename,
 )
 
 urlpatterns = [
     # # TODO: Support this?
     # (Sub)project `page` redirect
-    # url(
-    #     r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-    #     r'page/(?P<filename>.*)$'.format(**pattern_opts),
-    #     redirect_page_with_filename,
-    #     name='docs_detail',
-    # ),
+    url(
+        r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+        r'page/(?P<filename>.*)$'.format(**pattern_opts),
+        redirect_page_with_filename,
+        name='docs_detail',
+    ),
 
     # (Sub)project w/ translation and versions
     url(
