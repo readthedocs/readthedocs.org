@@ -379,12 +379,11 @@ a.cta-btn:hover, a.cta-btn:active {
 
 /* search */
 
-.search {
-    border-bottom: solid 1px #bfbfbf;
-    margin-bottom: 24px;
-}
+.search { border-bottom: solid 1px #bfbfbf; margin-bottom: 24px; }
 .search input[type=text] { float: left; margin-right: 10px; padding: 8px 10px; }
 .search input[type=submit] { margin-top: 0; }
+/* this is same as the css class ".highlighted" */
+.search-result-item span { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 
 .filter { margin-bottom: 1em; }
 .filter dd { display: inline-block; margin-right: 0.75em; }
@@ -873,9 +872,12 @@ div.donate-stats h2 {
     margin: .5em 0em 1.5em 0em;
 }
 
+#content ul.donate-about {
+    margin-bottom: 1em;
+}
 ul.donate-about li {
-    margin-left: 1em;
-    list-style: inside;
+    margin-left: 1.5em;
+    list-style: initial;
 }
 
 div.donate-stats-sm form {

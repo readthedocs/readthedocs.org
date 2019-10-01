@@ -25,13 +25,13 @@
     ],
     "domains": [
         {
-            "role_name": "std:confval",
-            "doc_name": "configuration.html",
-            "anchor": "confval-notfound_default_language",
-            "type_display": "confval",
-            "doc_display": "Configuration",
-            "name": "notfound_default_language",
-            "display_name": ""
+            "role_name": "py:method",
+            "anchor": "sphinx.domains.Domain.process_field_xref",
+            "type_display": "method",
+            "name": "sphinx.domains.Domain.process_field_xref"
         }
-    ]
+    ],
+    "domain_data": {
+        "sphinx.domains.Domain.process_field_xref": "Process a pending xref."
+    }
 }

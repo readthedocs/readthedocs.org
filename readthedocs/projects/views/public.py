@@ -21,6 +21,8 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
+from readthedocs.analytics.tasks import analytics_event
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
@@ -218,6 +220,15 @@ def project_download_media(request, project_slug, type_, version_slug):
         Version.objects.public(user=request.user),
         project__slug=project_slug,
         slug=version_slug,
+    )
+
+    # Send media download to analytics - sensitive data is anonymized
+    analytics_event.delay(
+        event_category='Build Media',
+        event_action=f'Download {type_}',
+        event_label=str(version),
+        ua=request.META.get('HTTP_USER_AGENT'),
+        uip=get_client_ip(request),
     )
 
     if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:

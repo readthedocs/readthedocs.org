@@ -96,7 +96,7 @@ def map_project_slug(view_func):
     ):
         if project is None:
             if not project_slug:
-                project_slug = request.slug
+                project_slug = getattr(request, 'slug', None)
             try:
                 project = Project.objects.get(slug=project_slug)
             except Project.DoesNotExist:

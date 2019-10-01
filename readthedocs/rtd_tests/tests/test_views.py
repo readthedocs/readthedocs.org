@@ -164,41 +164,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
 
-class RandomPageTests(TestCase):
-    fixtures = ['eric', 'test_data']
-
-    def setUp(self):
-        self.pip = Project.objects.get(slug='pip')
-        self.pip_version = self.pip.versions.all()[0]
-        HTMLFile.objects.create(
-            project=self.pip,
-            version=self.pip_version,
-            name='file.html',
-            slug='file',
-            path='file.html',
-            md5='abcdef',
-            commit='1234567890abcdef',
-        )
-
-    def test_random_page_view_redirects(self):
-        response = self.client.get('/random/')
-        self.assertEqual(response.status_code, 302)
-
-    def test_takes_project_slug(self):
-        response = self.client.get('/random/pip/')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue('pip' in response['Location'])
-
-    def test_404_for_unknown_project(self):
-        response = self.client.get('/random/not-existent/')
-        self.assertEqual(response.status_code, 404)
-
-    def test_404_for_with_no_html_files(self):
-        HTMLFile.objects.all().delete()
-        response = self.client.get('/random/pip/')
-        self.assertEqual(response.status_code, 404)
-
-
 class SubprojectViewTests(TestCase):
 
     def setUp(self):

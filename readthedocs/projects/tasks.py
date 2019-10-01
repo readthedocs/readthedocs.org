@@ -64,8 +64,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.oauth.services.github import GitHubService
-from readthedocs.projects.constants import GITHUB_BRAND
+from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -1508,7 +1507,10 @@ def clean_build(version_pk):
     except Exception:
         log.exception('Error while fetching the version from the api')
         return False
-    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
+    if (
+        not settings.RTD_CLEAN_AFTER_BUILD and
+        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+    ):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
@@ -1936,7 +1938,7 @@ def send_build_status(build_pk, commit, status):
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
-    if provider_name == GITHUB_BRAND:
+    if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
         try:
@@ -1984,7 +1986,7 @@ def send_build_status(build_pk, commit, status):
 
     return False
 
-    # TODO: Send build status for other providers.
+    # TODO: Send build status for BitBucket.
 
 
 def send_external_build_status(version_type, build_pk, commit, status):
