@@ -30,6 +30,7 @@ from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
 from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
@@ -73,6 +74,7 @@ log = logging.getLogger(__name__)
 
 
 class PrivateViewMixin(LoginRequiredMixin):
+
     pass
 
 
@@ -110,49 +112,53 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         return context
 
 
-@login_required
-def project_manage(__, project_slug):
-    """
-    Project management view.
+class ProjectMixin(PrivateViewMixin):
 
-    Where you will have links to edit the projects' configuration, edit the
-    files associated with that project, etc.
+    """Common pieces for model views of Project."""
 
-    Now redirects to the normal /projects/<slug> view.
-    """
-    return HttpResponseRedirect(reverse('projects_detail', args=[project_slug]))
+    model = Project
+    lookup_url_kwarg = 'project_slug'
+    lookup_field = 'slug'
+    context_object_name = 'project'
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
 
 
-class ProjectUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = UpdateProjectForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_edit.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
 
 
-class ProjectAdvancedUpdate(ProjectSpamMixin, PrivateViewMixin, UpdateView):
+class ProjectAdvancedUpdate(ProjectSpamMixin, ProjectMixin, UpdateView):
 
     form_class = ProjectAdvancedForm
-    model = Project
     success_message = _('Project settings updated')
     template_name = 'projects/project_advanced.html'
-    lookup_url_kwarg = 'project_slug'
-    lookup_field = 'slug'
-
-    def get_queryset(self):
-        return self.model.objects.for_admin_user(self.request.user)
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class ProjectDelete(ProjectMixin, DeleteView):
+
+    success_message = _('Project deleted')
+    template_name = 'projects/project_delete.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_superproject'] = (
+            self.object.subprojects.all().exists()
+        )
+        return context
+
+    def get_success_url(self):
+        return reverse('projects_dashboard')
 
 
 @login_required
@@ -193,34 +199,6 @@ def project_version_detail(request, project_slug, version_slug):
         'projects/project_version_detail.html',
         {'form': form, 'project': project, 'version': version},
     )
-
-
-@login_required
-def project_delete(request, project_slug):
-    """
-    Project delete confirmation view.
-
-    Make a project as deleted on POST, otherwise show a form asking for
-    confirmation of delete.
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-    context = {
-        'project': project,
-        'is_superproject': project.subprojects.all().exists()
-    }
-
-    if request.method == 'POST':
-        # Delete the project and all related files
-        project.delete()
-        messages.success(request, _('Project deleted'))
-        project_dashboard = reverse('projects_dashboard')
-        return HttpResponseRedirect(project_dashboard)
-
-    return render(request, 'projects/project_delete.html', context)
 
 
 class ImportWizardView(
@@ -453,17 +431,18 @@ class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
 
 
 class ProjectRelationshipCreate(ProjectRelationshipMixin, CreateView):
+
     pass
 
 
 class ProjectRelationshipUpdate(ProjectRelationshipMixin, UpdateView):
+
     pass
 
 
 class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
 
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 @login_required
@@ -726,15 +705,24 @@ class DomainList(DomainMixin, ListViewWithForm):
         return ctx
 
 
-class DomainCreate(DomainMixin, CreateView):
+class DomainCreateBase(DomainMixin, CreateView):
     pass
 
 
-class DomainUpdate(DomainMixin, UpdateView):
+class DomainCreate(SettingsOverrideObject):
+    _default_class = DomainCreateBase
+
+
+class DomainUpdateBase(DomainMixin, UpdateView):
     pass
+
+
+class DomainUpdate(SettingsOverrideObject):
+    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
+
     pass
 
 
@@ -776,6 +764,7 @@ class IntegrationMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class IntegrationList(IntegrationMixin, ListView):
+
     pass
 
 
@@ -824,8 +813,7 @@ class IntegrationDetail(IntegrationMixin, DetailView):
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
 
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 class IntegrationExchangeDetail(IntegrationMixin, DetailView):
@@ -900,22 +888,23 @@ class EnvironmentVariableMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class EnvironmentVariableList(EnvironmentVariableMixin, ListView):
+
     pass
 
 
 class EnvironmentVariableCreate(EnvironmentVariableMixin, CreateView):
+
     pass
 
 
 class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
+
     pass
 
 
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
 
-    # This removes the delete confirmation
-    def get(self, request, *args, **kwargs):
-        return self.http_method_not_allowed(request, *args, **kwargs)
+    http_method_names = ['post']
 
 
 @login_required
@@ -947,12 +936,6 @@ def search_analytics_view(request, project_slug):
     query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
         project_slug
     )
-    # data for plotting the doughnut-chart
-    distribution_of_top_queries = SearchQuery.generate_distribution_of_top_queries(
-        project_slug,
-        10,
-    )
-    now = timezone.now()
 
     queries = []
     qs = SearchQuery.objects.filter(project=project)
@@ -975,7 +958,6 @@ def search_analytics_view(request, project_slug):
             'queries': queries,
             'show_analytics': True,
             'query_count_of_1_month': query_count_of_1_month,
-            'distribution_of_top_queries': distribution_of_top_queries,
         }
     )
 
