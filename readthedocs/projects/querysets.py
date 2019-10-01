@@ -47,7 +47,7 @@ class ProjectQuerySetBase(models.QuerySet):
     def protected(self, user=None):
         queryset = self.filter(
             privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
-            users__profile__banned = False
+            users__profile__banned=False
         )
         if user:
             queryset = self._add_user_repos(queryset, user)
