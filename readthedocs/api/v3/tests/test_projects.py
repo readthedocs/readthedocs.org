@@ -153,11 +153,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
         response_json['created'] = '2019-04-29T10:00:00Z'
         response_json['modified'] = '2019-04-29T12:00:00Z'
 
-        self.assertDictEqual(
-            response_json,
-            self._get_response_dict('projects-list_POST'),
-        )
-
     def test_import_project_with_extra_fields(self):
         data = {
             'name': 'Test Project',
