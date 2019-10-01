@@ -60,7 +60,7 @@ There are some URL attributes that applies to all of these resources:
 
 :?expand=:
 
-   Some resources allow to expand/add extra fields on their responses (see _`Project details` for example).
+   Some resources allow to expand/add extra fields on their responses (see `Project details <#project-details>`_ for example).
 
 
 .. tip::
