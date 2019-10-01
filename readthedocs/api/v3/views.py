@@ -147,7 +147,6 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
     @action(detail=True, methods=['get'])
     def superproject(self, request, project_slug):
-        """Return the superproject of a ``Project``."""
         project = self.get_object()
         try:
             superproject = project.superprojects.first().parent
@@ -161,16 +160,8 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
                                     ProjectQuerySetMixin, FlexFieldsMixin,
                                     ListModelMixin, GenericViewSet):
 
-    # Markdown docstring exposed at BrowsableAPIRenderer.
-
-    """List subprojects of a ``Project``."""
-
-    # Private/Internal docstring
-
-    """
-    The main query is done via the ``NestedViewSetMixin`` using the
-    ``parents_query_lookups`` defined when registering the urls.
-    """  # noqa
+    # The main query is done via the ``NestedViewSetMixin`` using the
+    # ``parents_query_lookups`` defined when registering the urls.
 
     model = Project
     lookup_field = 'slug'
@@ -183,15 +174,8 @@ class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
                                      ProjectQuerySetMixin, FlexFieldsMixin,
                                      ListModelMixin, GenericViewSet):
 
-    # Markdown docstring exposed at BrowsableAPIRenderer.
-
-    """List translations of a ``Project``."""
-
-    # Private/Internal docstring
-    """
-    The main query is done via the ``NestedViewSetMixin`` using the
-    ``parents_query_lookups`` defined when registering the urls.
-    """  # noqa
+    # The main query is done via the ``NestedViewSetMixin`` using the
+    # ``parents_query_lookups`` defined when registering the urls.
 
     model = Project
     lookup_field = 'slug'
@@ -248,6 +232,7 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                     FlexFieldsMixin, ReadOnlyModelViewSet):
+
     model = Build
     lookup_field = 'pk'
     lookup_url_kwarg = 'build_pk'
