@@ -36,7 +36,10 @@ class ProjectQuerySetBase(models.QuerySet):
         return self.none()
 
     def public(self, user=None):
-        queryset = self.filter(privacy_level=constants.PUBLIC)
+        queryset = self.filter(
+            privacy_level=constants.PUBLIC,
+            users__profile__banned=False
+        )
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
@@ -44,13 +47,17 @@ class ProjectQuerySetBase(models.QuerySet):
     def protected(self, user=None):
         queryset = self.filter(
             privacy_level__in=[constants.PUBLIC, constants.PROTECTED],
+            users__profile__banned = False
         )
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
 
     def private(self, user=None):
-        queryset = self.filter(privacy_level=constants.PRIVATE)
+        queryset = self.filter(
+            privacy_level=constants.PRIVATE,
+            users__profile__banned=False
+        )
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()

@@ -45,7 +45,6 @@ class ProjectIndex(ListView):
 
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
-        queryset = queryset.exclude(users__profile__banned=True)
 
         if self.kwargs.get('tag'):
             self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
