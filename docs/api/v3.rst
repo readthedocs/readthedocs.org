@@ -232,7 +232,7 @@ Project update
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/
 
-    Edit an existing project.
+    Update an existing project.
 
     **Example request**:
 
@@ -371,7 +371,7 @@ Version update
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
-    Edit a version.
+    Update a version.
 
     **Example request**:
 
@@ -384,7 +384,7 @@ Version update
 
     :requestheader Authorization: token to authenticate.
 
-    :statuscode 204: Edited successfully
+    :statuscode 204: Updated successfully
     :statuscode 400: Some field is invalid
     :statuscode 401: Not valid permissions
     :statuscode 404: There is no ``Version`` with this slug for this project
