@@ -321,14 +321,22 @@ Version update
 
     **Example request**:
 
+    .. sourcecode:: bash
+
+        $ curl \
+          -X PATCH \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/version/0.23/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
     .. sourcecode:: json
 
         {
             "active": true,
             "privacy_level": "public"
         }
-
-    :requestheader Authorization: token to authenticate.
 
     :statuscode 204: Updated successfully
 
