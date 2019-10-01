@@ -476,7 +476,13 @@ Build triggering
 
     **Example response**:
 
-    `See Build details <#build-details>`_
+    .. sourcecode:: json
+
+        {
+            "build": "{BUILD}",
+            "project": "{PROJECT}",
+            "version": "{VERSION}"
+        }
 
     :statuscode 202: the build was triggered
 
