@@ -104,6 +104,7 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
 
 class UpdatePartialUpdateMixin:
+
     """
     Make PUT/PATCH behaves in the same way.
 

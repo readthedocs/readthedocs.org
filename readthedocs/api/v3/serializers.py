@@ -11,7 +11,13 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES, PRIVACY_CHOICES, PROTECTED
+from readthedocs.projects.constants import (
+    LANGUAGES,
+    PROGRAMMING_LANGUAGES,
+    REPO_CHOICES,
+    PRIVACY_CHOICES,
+    PROTECTED,
+)
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
