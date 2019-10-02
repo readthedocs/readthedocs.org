@@ -21,7 +21,7 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['slug'].help_text = 'Warning: changing the slug will break existing URLs'
+        self.fields['slug'].help_text = _('Warning: changing the slug will break existing URLs')
 
         if self.instance.pk and self.instance.machine:
             self.fields['slug'].disabled = True
