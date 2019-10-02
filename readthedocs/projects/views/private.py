@@ -24,7 +24,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, TemplateView, View
 from formtools.wizard.views import SessionWizardView
-from vanilla import CreateView, DeleteView, DetailView, GenericView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    GenericView,
+    UpdateView,
+)
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
@@ -598,50 +605,48 @@ def project_translations_delete(request, project_slug, child_slug):
     return HttpResponseRedirect(project_dashboard)
 
 
-@login_required
-def project_redirects(request, project_slug):
+class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
+
     """Project redirects view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
 
-    form = RedirectForm(data=request.POST or None, project=project)
+    def get_success_url(self):
+        return reverse(
+            'projects_redirects',
+            args=[self.get_project().slug],
+        )
 
-    if request.method == 'POST' and form.is_valid():
+
+class ProjectRedirects(ProjectRedirectsMixin, FormView):
+
+    form_class = RedirectForm
+    template_name = 'projects/project_redirects.html'
+
+    def form_valid(self, form):
         form.save()
-        project_dashboard = reverse('projects_redirects', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+        return HttpResponseRedirect(self.get_success_url())
 
-    redirects = project.redirects.all()
-
-    return render(
-        request,
-        'projects/project_redirects.html',
-        {'form': form, 'project': project, 'redirects': redirects},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['redirects'] = project.redirects.all()
+        return context
 
 
-@login_required
-def project_redirects_delete(request, project_slug):
-    """Project redirect delete view."""
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('Only POST is allowed')
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    redirect = get_object_or_404(
-        project.redirects,
-        pk=request.POST.get('id_pk'),
-    )
-    if redirect.project == project:
-        redirect.delete()
-    else:
-        raise Http404
-    return HttpResponseRedirect(
-        reverse('projects_redirects', args=[project.slug]),
-    )
+class ProjectRedirectsDelete(ProjectRedirectsMixin, GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        redirect = get_object_or_404(
+            project.redirects,
+            pk=request.POST.get('id_pk'),
+        )
+        if redirect.project == project:
+            redirect.delete()
+        else:
+            raise Http404
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @login_required
