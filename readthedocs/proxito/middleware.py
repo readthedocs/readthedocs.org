@@ -2,9 +2,13 @@ import logging
 
 from django.conf import settings
 from django.core.exceptions import MiddlewareNotUsed
-from django.http import Http404
+from django.http import HttpResponseBadRequest
+from django.shortcuts import render
+from django.utils.deprecation import MiddlewareMixin
+from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Domain
+
 
 log = logging.getLogger(__name__)
 
@@ -41,11 +45,12 @@ def map_host_to_project(request):
             # But these feel like they might be phishing, etc. so let's block them for now.
             project = None
             log.warning('Weird variation on our hostname: %s', host)
-            raise Http404(f'404: Invalid domain matching {public_domain}')
+            return HttpResponseBadRequest(_('Invalid hostname'))
 
     # Serve CNAMEs
     else:
-        domain_qs = Domain.objects.filter(domain=host).prefetch_related('project')
+        domain_qs = Domain.objects.filter(domain=host
+                                          ).prefetch_related('project')
         if domain_qs.exists():
             project = domain_qs.first().project.slug
             request.cname = True
@@ -54,12 +59,35 @@ def map_host_to_project(request):
             # Some person is CNAMEing to us without configuring a domain - 404.
             project = None
             log.debug('CNAME 404: %s', host)
-            raise Http404('CNAME 404')
+            return render(
+                request, 'core/dns-404.html', context={'host': host}, status=404
+            )
     log.debug('Proxito Project: %s', project)
     return project
 
 
-class ProxitoMiddleware:
+class ProxitoMiddleware(MiddlewareMixin):
+
+    def process_request(self, request):
+        if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
+                'testserver' in request.get_host()]):
+            log.debug('Not processing Proxito middleware')
+            return None
+
+        ret = map_host_to_project(request)
+
+        # Handle returning a response
+        if hasattr(ret, 'status_code'):
+            return ret
+
+        # Otherwise set the slug on the request
+        request.host_project_slug = request.slug = ret
+
+        return None
+
+
+class NewStyleProxitoMiddleware:
+    # This is the new style middleware, I can't figure out how to test it.
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -77,7 +105,7 @@ class ProxitoMiddleware:
         host_project = map_host_to_project(request)
         request.host_project_slug = host_project
         request.slug = host_project
-        request.urlconf = 'readthedocs.proxito.urls'
+        # request.urlconf = 'readthedocs.proxito.urls'
 
         response = self.get_response(request)
 

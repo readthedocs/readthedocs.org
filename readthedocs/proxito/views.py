@@ -3,8 +3,8 @@ import mimetypes
 from functools import wraps
 from urllib.parse import urlparse
 
-from django.core.files.storage import get_storage_class
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
@@ -13,11 +13,8 @@ from django.views.static import serve
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project, ProjectRelationship
 
+
 log = logging.getLogger(__name__)
-
-
-def _log(request, msg):
-    log.info(f'(Proxito) {msg} [{request.get_host()}{request.get_full_path()}')
 
 
 def _serve_401(request, project):
@@ -82,7 +79,9 @@ def map_project_slug(view_func):
             # Get a slug from the request if it can't be found in the URL
             if not project_slug:
                 project_slug = request.host_project_slug
-                log.debug(f'Inserting project slug from request [{project_slug}]')
+                log.debug(
+                    f'Inserting project slug from request [{project_slug}]'
+                )
             try:
                 project = Project.objects.get(slug=project_slug)
             except Project.DoesNotExist:
@@ -108,6 +107,20 @@ def redirect_page_with_filename(request, project, subproject, filename):  # pyli
 
 @map_project_slug
 @map_subproject_slug
+def redirect_project_slug(request, project, subproject):  # pylint: disable=unused-argument
+    """Handle / -> /en/latest/ directs on subdomains."""
+    urlparse_result = urlparse(request.get_full_path())
+
+    return HttpResponseRedirect(
+        resolve(
+            subproject or project,
+            query_params=urlparse_result.query,
+        ),
+    )
+
+
+@map_project_slug
+@map_subproject_slug
 def serve_docs(
         request,
         project,
@@ -116,29 +129,32 @@ def serve_docs(
         version_slug=None,
         filename='',
 ):
-    """
-    Take the incoming parsed URL's and figure out what file to serve.
+    """Take the incoming parsed URL's and figure out what file to serve."""
 
-    """
+    log.debug(
+        'project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
+        project, subproject, lang_slug, version_slug, filename
+    )
+
     # Take the most relevant project so far
     current_project = subproject or project
 
     # Handle a / redirect when we aren't a single version
-    if all([
-        lang_slug is None,
-        version_slug is None,
-        filename is '',
-        not current_project.single_version
-    ]):
+    if all([lang_slug is None, version_slug is None, filename is '',
+            not current_project.single_version]):
         # Fall back to main RTD application for redirects for now
-        _log(request, msg='Redirecting to default')
-        return _fallback()
+        log.info('Proxito redirect for %s', current_project.slug)
+        return redirect_project_slug(
+            request, project=current_project, subproject=None
+        )
 
     # Check to see if we need to serve a translation
-    if lang_slug and lang_slug == current_project.language:
+    if not lang_slug or lang_slug == current_project.language:
         final_project = current_project
     else:
-        final_project = get_object_or_404(current_project.translations.all(), language=lang_slug)
+        final_project = get_object_or_404(
+            current_project.translations.all(), language=lang_slug
+        )
 
     # final_project is now the actual project we want to serve docs on,
     # accounting for:
@@ -181,7 +197,7 @@ def serve_docs(
 
     # Serve from the filesystem if using DEBUG or Testing
     # Tests require this now since we don't want to check for the file existing in prod
-    if settings.DEBUG:
+    if settings.DEBUG or settings.PYTHON_MEDIA:
         log.info('[Django serve] %s for %s', path, final_project)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
@@ -191,9 +207,7 @@ def serve_docs(
     # Serve via nginx
     log.info('[Nginx serve] %s for %s', path, final_project)
     return _serve_docs_nginx(
-        request,
-        final_project=final_project,
-        path=f'/proxito/{path}'
+        request, final_project=final_project, path=f'/proxito/{path}'
     )
 
 
@@ -202,7 +216,9 @@ def _serve_docs_nginx(request, final_project, path):
     # Serve from Nginx
     content_type, encoding = mimetypes.guess_type(path)
     content_type = content_type or 'application/octet-stream'
-    response = HttpResponse(f'Serving internal path: {path}', content_type=content_type)
+    response = HttpResponse(
+        f'Serving internal path: {path}', content_type=content_type
+    )
     if encoding:
         response['Content-Encoding'] = encoding
 

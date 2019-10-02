@@ -29,30 +29,27 @@ pip.rtfd.io/<lang>/
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
 """
 
-from django.conf.urls import url, include
 from django.conf import settings
+from django.conf.urls import include, url
 
 from readthedocs.constants import pattern_opts
+from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
 
-from readthedocs.proxito.views import (
-    serve_docs,
-    redirect_page_with_filename,
-)
 
 urlpatterns = [
     # # TODO: Support this?
     # (Sub)project `page` redirect
     url(
-        r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+        r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
         redirect_page_with_filename,
-        name='docs_detail',
+        name='redirect_page_with_filename',
     ),
 
     # (Sub)project w/ translation and versions
     url(
         (
-            r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<lang_slug>{lang_slug})/'
             r'(?P<version_slug>{version_slug})/'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
@@ -76,16 +73,15 @@ urlpatterns = [
     # (Sub)project single version
     url(
         (
-            r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         serve_docs,
-        name='docs_detail',
+        name='docs_detail_singleversion_subproject',
     ),
 ]
-
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns += url(r'^__debug__/', include(debug_toolbar.urls)),
+    urlpatterns += url(r'^__debug__/', include(debug_toolbar.urls))
