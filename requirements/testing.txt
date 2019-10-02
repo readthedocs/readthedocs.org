@@ -2,9 +2,9 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-pytest==5.2.0  # pyup: <4.2
-pytest-django==3.5.1  # pyup: <3.4.7
-pytest-xdist==1.30.0  # pyup: ignore
+pytest==5.2.0
+pytest-django==3.5.1
+pytest-xdist==1.30.0
 pytest-cov==2.7.1
 apipkg==1.5
 execnet==1.7.1
