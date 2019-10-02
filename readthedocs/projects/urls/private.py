@@ -31,6 +31,8 @@ from readthedocs.projects.views.private import (
     ProjectNoticationsDelete,
     ProjectRedirects,
     ProjectRedirectsDelete,
+    ProjectTranslationsDelete,
+    ProjectTranslationsListAndCreate,
     ProjectUpdate,
     ProjectUsersCreateList,
     ProjectUsersDelete,
@@ -101,11 +103,12 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/$',
-        private.project_translations, name='projects_translations',
+        ProjectTranslationsListAndCreate.as_view(),
+        name='projects_translations',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_translations_delete,
+        ProjectTranslationsDelete.as_view(),
         name='projects_translations_delete',
     ),
     url(
