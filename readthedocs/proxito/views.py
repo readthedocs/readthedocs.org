@@ -1,3 +1,4 @@
+import os
 import logging
 import mimetypes
 from functools import wraps
@@ -147,6 +148,12 @@ def serve_docs(
         return redirect_project_slug(
             request, project=current_project, subproject=None
         )
+
+    # Handle single-version projects that have URLs like a real project
+    if current_project.single_version:
+        if lang_slug and version_slug:
+            filename = os.path.join(lang_slug, version_slug, filename)
+            lang_slug = version_slug = None
 
     # Check to see if we need to serve a translation
     if not lang_slug or lang_slug == current_project.language:
