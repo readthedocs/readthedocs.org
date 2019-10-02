@@ -588,13 +588,6 @@ Subproject details
             }
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project relationship`` objects.
-
-    :requestheader Authorization: token to authenticate.
-
 
 Subprojects listing
 +++++++++++++++++++
@@ -620,13 +613,6 @@ Subprojects listing
             "previous": null,
             "results": ["SUBPROJECT RELATIONSHIP"]
         }
-
-    :>json integer count: total number of sub-projects.
-    :>json string next: URI for next set of sub-projects.
-    :>json string previous: URI for previous set of sub-projects.
-    :>json array results: array of ``subproject relationship`` objects.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Subproject create
@@ -663,10 +649,7 @@ Subproject create
     :>json string child: slug of the child project in the relationship.
     :>json string alias: optional slug alias to be used in the URL.
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+    :statuscode 201: Subproject created sucessfully
 
 
 Subproject delete
@@ -684,9 +667,7 @@ Subproject delete
           -X DELETE \
           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 204: Deleted successfully
+    :statuscode 204: Subproject deleted successfully
 
 
 Translations
