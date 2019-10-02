@@ -205,7 +205,7 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     version = version_qs.first()
 
     # make a new SearchQuery object.
-    obj = SearchQuery.objects.create(
+    SearchQuery.objects.create(
         project=project,
         version=version,
         query=query,
