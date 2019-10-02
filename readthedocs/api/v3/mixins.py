@@ -103,13 +103,9 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
         return self.listing_objects(queryset, self.request.user)
 
 
-class UpdatePartialUpdateMixin:
+class UpdateMixin:
 
-    """
-    Make PUT/PATCH behaves in the same way.
-
-    Force to return 204 if the update was good.
-    """
+    """Make PUT to return 204 on success like PATCH does."""
 
     def update(self, request, *args, **kwargs):
         # NOTE: ``Authorization:`` header is mandatory to use this method from

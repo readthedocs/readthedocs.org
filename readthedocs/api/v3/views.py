@@ -27,7 +27,7 @@ from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import ProjectQuerySetMixin, UpdatePartialUpdateMixin
+from .mixins import ProjectQuerySetMixin, UpdateMixin
 from .permissions import PublicDetailPrivateListing, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -77,7 +77,7 @@ class APIv3Settings:
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                       FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
-                      UpdatePartialUpdateMixin, UpdateModelMixin,
+                      UpdateMixin, UpdateModelMixin,
                       ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
@@ -309,7 +309,7 @@ class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
 # of ``ProjectQuerySetMixin`` to make calling ``super().get_queryset()`` work
 # properly and filter nested dependencies
 class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, UpdatePartialUpdateMixin,
+                      FlexFieldsMixin, UpdateMixin,
                       UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
