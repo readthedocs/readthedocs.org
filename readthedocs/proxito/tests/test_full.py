@@ -76,6 +76,26 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/html/private/latest/en/stable/awesome.html',
         )
 
+        # Invalid tests
+
+    def test_invalid_url_for_project_with_versions(self):
+        url = '/cn/latest/awesome.html'
+        host = 'private.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_invalid_translation(self):
+        url = '/cs/latest/awesome.html'
+        host = 'private.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_invalid_subproject(self):
+        url = '/projects/doesnt-exist/foo.html'
+        host = 'private.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
 
 class TestDocServingBackends(BaseDocServing):
     # Test that nginx and python backends both work

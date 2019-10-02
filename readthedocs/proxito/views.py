@@ -149,6 +149,11 @@ def serve_docs(
             request, project=current_project, subproject=None
         )
 
+    if lang_slug is None and not current_project.single_version:
+        # Fall back to main RTD application for redirects for now
+        log.info('Invalid URL for project with versions. url=%s', filename)
+        raise Http404('Invalid URL for project with versions')
+
     # Handle single-version projects that have URLs like a real project
     if current_project.single_version:
         if lang_slug and version_slug:
@@ -176,7 +181,7 @@ def serve_docs(
     # )
 
     # Handle single version by grabbing the default version
-    if final_project.single_version and not version_slug:
+    if final_project.single_version:
         version_slug = final_project.get_default_version()
 
     # Don't do auth checks
