@@ -35,11 +35,15 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
         slug = slugifier.slugify(original_slug)
         if not slug:
+            ok_chars = ', '.join(VERSION_OK_CHARS)
             msg = _(
-                'The slug "{original_slug}" is not valid. '
-                'It should only contain letters, numbers or "-", ".", "_".'
+                'The slug "{slug}" is not valid. '
+                'It should only contain letters, numbers or {ok_chars}. '
+                'And can not start with {ok_chars}.'
             )
-            raise forms.ValidationError(msg.format(slug=original_slug))
+            raise forms.ValidationError(
+                msg.format(slug=original_slug, ok_chars=ok_chars)
+            )
 
         duplicated = (
             Version.objects

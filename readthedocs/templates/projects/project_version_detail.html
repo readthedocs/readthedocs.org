@@ -15,7 +15,7 @@
 {% block content-header %}<h1>{% blocktrans with version.name as version_name %}{{ version_name }}{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
-    <h2> Editing {{ version.slug }} </h2>
+    <h2> Editing {{ version.verbose_name }} </h2>
 
     {% if request.user|is_admin:project %}
       {% if not version.active and version.built %}
