@@ -29,9 +29,12 @@ from readthedocs.projects.views.private import (
     ProjectDelete,
     ProjectNotications,
     ProjectNoticationsDelete,
+    ProjectRedirects,
+    ProjectRedirectsDelete,
     ProjectUpdate,
+    ProjectUsersCreateList,
+    ProjectUsersDelete,
 )
-
 
 urlpatterns = [
     url(r'^$', ProjectDashboard.as_view(), name='projects_dashboard'),
@@ -76,12 +79,14 @@ urlpatterns = [
         name='projects_delete',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/users/$', private.project_users,
+        r'^(?P<project_slug>[-\w]+)/users/$',
+        ProjectUsersCreateList.as_view(),
         name='projects_users',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/users/delete/$',
-        private.project_users_delete, name='projects_users_delete',
+        ProjectUsersDelete.as_view(),
+        name='projects_users_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/$',
@@ -103,12 +108,14 @@ urlpatterns = [
         name='projects_translations_delete',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/redirects/$', private.project_redirects,
+        r'^(?P<project_slug>[-\w]+)/redirects/$',
+        ProjectRedirects.as_view(),
         name='projects_redirects',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
-        private.project_redirects_delete, name='projects_redirects_delete',
+        ProjectRedirectsDelete.as_view(),
+        name='projects_redirects_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/advertising/$',
