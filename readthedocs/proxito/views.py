@@ -95,7 +95,7 @@ def map_project_slug(view_func):
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
-    """Redirect /page/file.html to /en/latest/file.html."""
+    """Redirect /page/file.html to /<default-lang>/<default-version>/file.html."""
     urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
         resolve(
