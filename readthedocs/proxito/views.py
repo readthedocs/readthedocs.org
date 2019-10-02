@@ -141,16 +141,18 @@ def serve_docs(
     current_project = subproject or project
 
     # Handle a / redirect when we aren't a single version
-    if all([lang_slug is None, version_slug is None, filename is '',
-            not current_project.single_version]):
-        # Fall back to main RTD application for redirects for now
-        log.info('Proxito redirect for %s', current_project.slug)
+    if all([
+        lang_slug is None,
+        version_slug is None,
+        filename is '',
+        not current_project.single_version
+    ]):
+        log.info('Proxito redirect: slug=%s', current_project.slug)
         return redirect_project_slug(
             request, project=current_project, subproject=None
         )
 
-    if lang_slug is None and not current_project.single_version:
-        # Fall back to main RTD application for redirects for now
+    if (lang_slug is None or version_slug is None) and not current_project.single_version:
         log.info('Invalid URL for project with versions. url=%s', filename)
         raise Http404('Invalid URL for project with versions')
 
@@ -168,7 +170,7 @@ def serve_docs(
             current_project.translations.all(), language=lang_slug
         )
 
-    # final_project is now the actual project we want to serve docs on,
+    # ``final_project`` is now the actual project we want to serve docs on,
     # accounting for:
     # * Project
     # * Subproject
