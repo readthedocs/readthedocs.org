@@ -36,13 +36,6 @@
     </div>
 
     <br/>
-
-    {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data %}
-      <h2>{% trans "Distribution of top 10 queries" %}</h2>
-      <canvas id="analytics-doughnut-top-queries" width="400" height="150"></canvas>
-    {% endif %}
-
-    <br/>
     {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
       <h2>{% trans "Overview of the past 1 month:" %}</h2>
       <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
@@ -83,16 +76,6 @@
     var line_chart_labels = {{ query_count_of_1_month.labels|safe }};
     var line_chart_data = {{ query_count_of_1_month.int_data|safe }};
 
-    var ticks_options = {
-      precision: 0
-    }
-
-    // checks if line_chart_data only contains zero.
-    // if yes, set the minimum value to zero
-    if(!(/[^0]/).exec(line_chart_data.join(""))){
-      ticks_options.min = 0;
-    }
-
     var line_chart = new Chart(line_chart, {
       type: "line",
       data: {
@@ -104,56 +87,7 @@
           borderColor: "rgba(75, 192, 192, 1)",
           pointBorderColor: "rgba(75, 192, 192, 1)",
         }]
-      },
-      options: {
-        scales: {
-          yAxes: [{
-            ticks: ticks_options
-          }]
-        }
       }
     });
   {% endif %}
-
-  {% if distribution_of_top_queries.labels and distribution_of_top_queries.int_data and show_analytics %}
-    // Doughnut chart
-    var doughnut_chart = document.getElementById("analytics-doughnut-top-queries").getContext("2d");
-    var doughnut_labels = {{ distribution_of_top_queries.labels|safe }};
-    var doughnut_data = {{ distribution_of_top_queries.int_data|safe }};
-    colors = [ "#81ecec", "#74b9ff", "#a29bfe", "#ffeaa7", "#ff7675",
-                "#fdcb6e", "#636e72", "#e17055", "#e84393", "#00cec9" ];
-    var doughnut_chart = new Chart(doughnut_chart, {
-      type: "doughnut",
-      data: {
-        labels: doughnut_labels,
-        datasets: [{
-          data: doughnut_data,
-          backgroundColor: colors,
-        }],
-        borderAlign: "center",
-      },
-      options: {
-        responsive: true,
-        legend: {
-          position: "right",
-        },
-        tooltips: {
-          callbacks: {
-            label: function(tooltipItem, data) {
-              var dataset = data.datasets[tooltipItem.datasetIndex];
-              var meta = dataset._meta[Object.keys(dataset._meta)[0]];
-              var total = meta.total;
-              var currentValue = dataset.data[tooltipItem.index];
-              var percentage = parseFloat((currentValue/total*100).toFixed(1));
-              return percentage + '%';
-            },
-            title: function(tooltipItem, data) {
-              return data.labels[tooltipItem[0].index];
-            }
-          }
-        }
-      }
-    });
-  {% endif %}
-
 {% endblock %}

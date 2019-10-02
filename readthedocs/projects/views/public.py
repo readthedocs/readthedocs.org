@@ -100,10 +100,7 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         context = super().get_context_data(**kwargs)
 
         project = self.get_object()
-        context['versions'] = Version.internal.public(
-            user=self.request.user,
-            project=project,
-        )
+        context['versions'] = self._get_versions(project)
 
         protocol = 'http'
         if self.request.is_secure():
@@ -233,14 +230,13 @@ def project_download_media(request, project_slug, type_, version_slug):
 
     if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = version.project.get_storage_path(
-                type_=type_, version_slug=version_slug,
-                version_type=version.type,
-            )
-            if storage.exists(storage_path):
-                return HttpResponseRedirect(storage.url(storage_path))
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = version.project.get_storage_path(
+            type_=type_, version_slug=version_slug,
+            version_type=version.type,
+        )
+        if storage.exists(storage_path):
+            return HttpResponseRedirect(storage.url(storage_path))
 
         media_path = os.path.join(
             settings.MEDIA_URL,
