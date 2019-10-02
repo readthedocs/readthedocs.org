@@ -23,6 +23,7 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
+    PageViewAdmin,
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
@@ -116,7 +117,7 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/page-views/$',
-        private.page_views, name='projects_page_views',
+        PageViewAdmin.as_view(), name='projects_page_views',
     ),
 ]
 

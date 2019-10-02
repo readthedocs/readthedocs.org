@@ -1004,40 +1004,39 @@ def _search_analytics_csv_data(request, project_slug):
     return response
 
 
-def page_views(request, project_slug):
-    """View for page views."""
+class PageViewAdmin(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
+    template_name = 'projects/project_page_views.html'
+    http_method_names = ['get']
 
-    top_viewed_pages = PageView.get_top_viewed_pages(project)
-    top_viewed_pages_iter = zip(
-        top_viewed_pages['pages'],
-        top_viewed_pages['view_counts']
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
 
-    all_pages = PageView.objects.filter(project=project).values_list('path', flat=True)
-    if all_pages.exists():
-        all_pages = sorted(list(set(all_pages)))
-        page_path = request.GET.get('page', all_pages[0])
-    else:
-        all_pages = []
-        page_path = ''
+        top_viewed_pages = PageView.get_top_viewed_pages(project)
+        top_viewed_pages_iter = zip(
+            top_viewed_pages['pages'],
+            top_viewed_pages['view_counts']
+        )
 
-    page_data = PageView.get_page_view_count_of_one_month(
-        project_slug=project.slug,
-        page_path=page_path
-    )
-    return render(
-        request,
-        'projects/project_page_views.html',
-        {
-            'project': project,
+        all_pages = PageView.objects.filter(project=project).values_list('path', flat=True)
+        if all_pages.exists():
+            all_pages = sorted(list(set(all_pages)))
+            page_path = self.request.GET.get('page', all_pages[0])
+        else:
+            all_pages = []
+            page_path = ''
+
+        page_data = PageView.get_page_view_count_of_one_month(
+            project_slug=project.slug,
+            page_path=page_path
+        )
+
+        context.update({
             'top_viewed_pages_iter': top_viewed_pages_iter,
             'page_data': page_data,
             'page_path': page_path,
             'all_pages': all_pages,
-        },
-    )
+        })
+
+        return context
