@@ -18,7 +18,12 @@ class ProjectQuerySetTests(TestCase):
 
     def setUp(self):
         self.user = get(User)
+        self.user.profile.banned = False
+        self.user.profile.save()
+
         self.another_user = get(User)
+        self.another_user.profile.banned = False
+        self.another_user.profile.save()
 
         self.project = get(
             Project,
@@ -145,6 +150,19 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_private_excludes_banned_projects(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.private()
+
+        projects = {
+            self.another_project_private,
+            self.shared_project_private,
+        }
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
     def test_private_user(self):
         query = Project.objects.private(user=self.user)
         projects = (
@@ -162,10 +180,41 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_private_with_banned_user(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.private(user=self.user)
+        projects = (
+            self.user_projects |
+            {self.another_project_private}
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        query = Project.objects.private(user=self.another_user)
+        projects = (
+            self.another_user_projects
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
     def test_public(self):
         query = Project.objects.public()
         projects = {
             self.project,
+            self.another_project,
+            self.shared_project,
+        }
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_public_excludes_banned_projects(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.public()
+        projects = {
             self.another_project,
             self.shared_project,
         }
@@ -189,12 +238,45 @@ class ProjectQuerySetTests(TestCase):
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
 
+    def test_public_with_banned_user(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.public(user=self.user)
+        projects = (
+            self.user_projects |
+            {self.another_project}
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        query = Project.objects.public(user=self.another_user)
+        projects = (
+            self.another_user_projects
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
 
     def test_protected(self):
         query = Project.objects.protected()
         projects = {
             self.project,
             self.project_protected,
+            self.another_project,
+            self.another_project_protected,
+            self.shared_project,
+            self.shared_project_protected,
+        }
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_protected_excludes_banned_projects(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.protected()
+        projects = {
             self.another_project,
             self.another_project_protected,
             self.shared_project,
@@ -216,6 +298,25 @@ class ProjectQuerySetTests(TestCase):
         projects = (
             self.another_user_projects |
             {self.project, self.project_protected}
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+    def test_protected_with_banned_user(self):
+        self.user.profile.banned = True
+        self.user.profile.save()
+
+        query = Project.objects.protected(user=self.user)
+        projects = (
+            self.user_projects |
+            {self.another_project, self.another_project_protected}
+        )
+        self.assertEqual(query.count(), len(projects))
+        self.assertEqual(set(query), projects)
+
+        query = Project.objects.protected(user=self.another_user)
+        projects = (
+            self.another_user_projects
         )
         self.assertEqual(query.count(), len(projects))
         self.assertEqual(set(query), projects)
