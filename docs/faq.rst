@@ -27,7 +27,7 @@ you can request the change sending an email to support@readthedocs.org.
 How do I change the version slug of my project?
 -----------------------------------------------
 
-One way is renaming the branch/tag of your version.
+You can achieve this by renaming the branch/tag of your version.
 But if that isn't possible,
 you can rename the slug from the :guilabel:`Versions` tab.
 
