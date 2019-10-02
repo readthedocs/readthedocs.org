@@ -195,6 +195,8 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
         )
 
     def get_form(self, data=None, files=None, **kwargs):
+        # This overrides the method from `ProjectAdminMixin`,
+        # since we don't have a project.
         return self.get_form_class()(data, files, **kwargs)
 
     def form_valid(self, form):
@@ -214,7 +216,7 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
-    http_method_names = ['get']
+    http_method_names = ['get', 'post']
 
     def get(self, request, *args, **kwargs):
         version = self.get_object()
@@ -231,6 +233,9 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
                 "Can't delete HTML for an active version.",
             )
         return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
 
 
 class ImportWizardView(
