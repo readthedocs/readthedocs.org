@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from django.conf import settings
 from rest_framework.test import APIClient
