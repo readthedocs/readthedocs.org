@@ -17,7 +17,6 @@ from .views.model_views import (
     BuildCommandViewSet,
     BuildViewSet,
     DomainViewSet,
-    NotificationViewSet,
     ProjectViewSet,
     RemoteOrganizationViewSet,
     RemoteRepositoryViewSet,
@@ -31,7 +30,6 @@ router.register(r'build', BuildViewSet, basename='build')
 router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
 router.register(r'version', VersionViewSet, basename='version')
 router.register(r'project', ProjectViewSet, basename='project')
-router.register(r'notification', NotificationViewSet, basename='emailhook')
 router.register(r'domain', DomainViewSet, basename='domain')
 router.register(r'sphinx_domain', SphinxDomainAPIView, basename='sphinxdomain')
 router.register(
