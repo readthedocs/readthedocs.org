@@ -31,6 +31,14 @@
 
 
     <form method="post" action=".">
+      <p class="empty">
+        {% url 'projects_redirects' project.slug as redirects_url %}
+        {% blocktrans with redirects_url=redirects_url %}
+          <strong>Warning!</strong> Changing the slug will break existing URLs.
+          If you change it,
+          you may want to <a href="{{ redirects_url }}">create an exact redirect</a> from <span>/en/latest/old-slug/$rest</span> to <span>/en/latest/new-slug</span>.
+      {% endblocktrans %}
+      </p>
       {% csrf_token %}
       {{ form.as_p }}
       <p>
