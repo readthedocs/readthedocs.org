@@ -91,51 +91,6 @@ class SearchQuery(TimeStampedModel):
 
         return final_data
 
-    @classmethod
-    def generate_distribution_of_top_queries(cls, project_slug, n):
-        """
-        Returns top `n` most searched queries with their count.
-
-        Structure of returned data is compatible to make graphs.
-        Sample returned data::
-            {
-                'labels': ['read the docs', 'documentation', 'sphinx'],
-                'int_data': [150, 200, 143]
-            }
-        This data shows that `read the docs` was searched 150 times,
-        `documentation` was searched 200 times and `sphinx` was searched 143 times.
-        """
-        qs = cls.objects.filter(project__slug=project_slug)
-
-        # total searches ever made
-        total_count = len(qs)
-
-        # search queries with their count
-        # Eg. [('read the docs', 150), ('documentation', 200), ('sphinx', 143')]
-        count_of_each_query = (
-            qs.values('query')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-            .values_list('query', 'count')
-        )
-
-        # total number of searches made for top `n` queries
-        count_of_top_n = sum([value[1] for value in count_of_each_query][:n])
-
-        # total number of remaining searches
-        count_of_other = total_count - count_of_top_n
-
-        final_data = {
-            'labels': [value[0] for value in count_of_each_query][:n],
-            'int_data': [value[1] for value in count_of_each_query][:n],
-        }
-
-        if count_of_other:
-            final_data['labels'].append('Other queries')
-            final_data['int_data'].append(count_of_other)
-
-        return final_data
-
 
 class PageView(models.Model):
     project = models.ForeignKey(
