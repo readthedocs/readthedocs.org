@@ -42,7 +42,7 @@ def map_host_to_project_slug(request):
         if public_domain_parts == host_parts[1:]:
             project_slug = host_parts[0]
             request.subdomain = True
-            log.debug('Proxito Public Domain: %s', host)
+            log.debug('Proxito Public Domain: host=%s', host)
         else:
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
             # But these feel like they might be phishing, etc. so let's block them for now.
