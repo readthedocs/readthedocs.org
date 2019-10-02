@@ -7,7 +7,6 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.db.models import Count
 from django.http import (
     Http404,
@@ -452,47 +451,49 @@ class ProjectRelationshipDelete(ProjectRelationshipMixin, DeleteView):
     http_method_names = ['post']
 
 
-@login_required
-def project_users(request, project_slug):
-    """Project users view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
+class ProjectUsersMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    form = UserForm(data=request.POST or None, project=project)
+    form_class = UserForm
 
-    if request.method == 'POST' and form.is_valid():
+    def get_queryset(self):
+        project = self.get_project()
+        return project.users.all()
+
+    def get_success_url(self):
+        return reverse('projects_users', args=[self.get_project().slug])
+
+
+class ProjectUsersCreateList(ProjectUsersMixin, FormView):
+
+    template_name = 'projects/project_users.html'
+
+    def form_valid(self, form):
         form.save()
-        project_dashboard = reverse('projects_users', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+        return HttpResponseRedirect(self.get_success_url())
 
-    users = project.users.all()
-
-    return render(
-        request,
-        'projects/project_users.html',
-        {'form': form, 'project': project, 'users': users},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['users'] = self.get_queryset()
+        return context
 
 
-@login_required
-def project_users_delete(request, project_slug):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('Only POST is allowed')
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    user = get_object_or_404(
-        User.objects.all(),
-        username=request.POST.get('username'),
-    )
-    if user == request.user:
-        raise Http404
-    project.users.remove(user)
-    project_dashboard = reverse('projects_users', args=[project.slug])
-    return HttpResponseRedirect(project_dashboard)
+class ProjectUsersDelete(ProjectUsersMixin, GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        username = self.request.POST.get('username')
+        user = get_object_or_404(
+            self.get_queryset(),
+            username=username,
+        )
+        if user == request.user:
+            raise Http404
+
+        project = self.get_project()
+        project.users.remove(user)
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @login_required
@@ -565,7 +566,7 @@ class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectTranslations(ProjectTranslationsMixin, FormView):
+class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
 
     """Project translations view and form view."""
 
@@ -594,66 +595,64 @@ class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
     def get(self, request, *args, **kwargs):
         project = self.get_project()
-        translation = self.get_translation()
+        translation = self.get_translation(kwargs['child_slug'])
         project.translations.remove(translation)
         return HttpResponseRedirect(self.get_success_url())
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
-    def get_translation(self):
+    def get_translation(self, slug):
         project = self.get_project()
         translation = get_object_or_404(
             project.translations,
-            slug=self.kwargs['child_slug'],
+            slug=slug,
         )
         return translation
 
 
-@login_required
-def project_redirects(request, project_slug):
+class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
+
     """Project redirects view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
 
-    form = RedirectForm(data=request.POST or None, project=project)
+    def get_success_url(self):
+        return reverse(
+            'projects_redirects',
+            args=[self.get_project().slug],
+        )
 
-    if request.method == 'POST' and form.is_valid():
+
+class ProjectRedirects(ProjectRedirectsMixin, FormView):
+
+    form_class = RedirectForm
+    template_name = 'projects/project_redirects.html'
+
+    def form_valid(self, form):
         form.save()
-        project_dashboard = reverse('projects_redirects', args=[project.slug])
-        return HttpResponseRedirect(project_dashboard)
+        return HttpResponseRedirect(self.get_success_url())
 
-    redirects = project.redirects.all()
-
-    return render(
-        request,
-        'projects/project_redirects.html',
-        {'form': form, 'project': project, 'redirects': redirects},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['redirects'] = project.redirects.all()
+        return context
 
 
-@login_required
-def project_redirects_delete(request, project_slug):
-    """Project redirect delete view."""
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('Only POST is allowed')
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    redirect = get_object_or_404(
-        project.redirects,
-        pk=request.POST.get('id_pk'),
-    )
-    if redirect.project == project:
-        redirect.delete()
-    else:
-        raise Http404
-    return HttpResponseRedirect(
-        reverse('projects_redirects', args=[project.slug]),
-    )
+class ProjectRedirectsDelete(ProjectRedirectsMixin, GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_project()
+        redirect = get_object_or_404(
+            project.redirects,
+            pk=request.POST.get('id_pk'),
+        )
+        if redirect.project == project:
+            redirect.delete()
+        else:
+            raise Http404
+        return HttpResponseRedirect(self.get_success_url())
 
 
 @login_required
