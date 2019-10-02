@@ -82,17 +82,17 @@ class VersionSlugify:
     def is_valid(self, content):
         return self.test_pattern.match(content)
 
-    def slugify(self, content, check_pattern=True):
+    def slugify(self, content):
         """
         Make ``content`` a valid slug.
 
         It uses ``unicode-slugify`` behind the scenes which works properly with
         Unicode characters.
 
-        If `check_pattern` is `True`, it checks that the final slug is valid.
+        :returns: `None` if isn't possible to generate a valid slug.
         """
         if not content:
-            return ''
+            return None
 
         normalized = self._normalize(content)
         slug = unicode_slugify(
@@ -109,8 +109,8 @@ class VersionSlugify:
         slug = slug.lstrip(self.ok_chars)
         slug = slug or self.fallback_slug
 
-        if check_pattern and not self.is_valid(slug):
-            raise Exception(f'Invalid generated slug: {slug}')
+        if not self.is_valid(slug):
+            return None
         return slug
 
 
@@ -183,11 +183,12 @@ class VersionSlugField(models.CharField):
         # get fields to populate from and slug field to set
         slug_field = model_instance._meta.get_field(self.attname)
 
-        slug = slugifier.slugify(
-            content=getattr(model_instance, self._populate_from),
-            check_pattern=False,
-        )
-        count = 0
+        content = getattr(model_instance, self._populate_from)
+        slug = slugifier.slugify(content=content)
+        if slug is None:
+            # If we weren't able to generate a valid slug based on the name
+            # we can still generate one with a suffix.
+            slug = ''
 
         # strip slug depending on max_length attribute of the slug field
         # and clean-up
@@ -212,6 +213,7 @@ class VersionSlugField(models.CharField):
 
         # increases the number while searching for the next valid slug
         # depending on the given slug, clean-up
+        count = 0
         while not slug or queryset.filter(**kwargs).exists():
             slug = original_slug
             end = self.uniquifying_suffix(count)

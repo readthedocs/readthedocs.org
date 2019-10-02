@@ -33,9 +33,12 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
         )
         original_slug = self.cleaned_data.get('slug')
 
-        slug = slugifier.slugify(original_slug, check_pattern=False)
-        if not slugifier.is_valid(slug):
-            msg = _('The slug "{slug}" is not valid.')
+        slug = slugifier.slugify(original_slug)
+        if not slug:
+            msg = _(
+                'The slug "{original_slug}" is not valid. '
+                'It should only contain letters, numbers or "-", ".", "_".'
+            )
             raise forms.ValidationError(msg.format(slug=original_slug))
 
         duplicated = (
