@@ -36,7 +36,7 @@
         {% blocktrans with redirects_url=redirects_url current_slug=version.slug %}
           <strong>Warning!</strong> Changing the slug will break existing URLs.
           If you change it, you may want to <a href="{{ redirects_url }}">create an exact redirect</a>
-          from <span>/en/{{ current_slug }}/$rest</span> to <span>/en/new-slug</span>.
+          from <span>/en/{{ current_slug }}/$rest</span> to <span>/en/new-slug/</span>.
       {% endblocktrans %}
       </p>
       {% csrf_token %}
