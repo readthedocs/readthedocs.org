@@ -212,7 +212,7 @@ def account_advertising(request):
 
 class TokenMixin(PrivateViewMixin):
 
-    """Environment Variables to be added when building the Project."""
+     """User token to access APIv3."""
 
     model = Token
     lookup_url_kwarg = 'token_pk'
