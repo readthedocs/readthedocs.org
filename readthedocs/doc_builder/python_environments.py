@@ -132,18 +132,16 @@ class PythonEnvironment:
         need to cache anything.
         """
         if (
-            not settings.RTD_CLEAN_AFTER_BUILD and
-            not self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+            settings.RTD_CLEAN_AFTER_BUILD or
+            self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
         ):
             return [
-                '--cache-dir',
-                self.project.pip_cache_path,
+                '--no-cache-dir',
             ]
-
         return [
-            '--no-cache-dir',
+            '--cache-dir',
+            self.project.pip_cache_path,
         ]
-
 
     def venv_bin(self, filename=None):
         """
