@@ -187,4 +187,3 @@ def _get_last_31_days_str():
         for date in last_31_days_iter
     ]
     return last_31_days_str
-
