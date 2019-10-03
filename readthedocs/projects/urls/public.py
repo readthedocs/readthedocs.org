@@ -11,11 +11,6 @@ from readthedocs.search import views as search_views
 
 urlpatterns = [
     url(
-        r'^$',
-        ProjectIndex.as_view(),
-        name='projects_list',
-    ),
-    url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
         public.project_redirect,
         name='project_redirect',
