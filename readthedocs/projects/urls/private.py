@@ -31,9 +31,13 @@ from readthedocs.projects.views.private import (
     ProjectNoticationsDelete,
     ProjectRedirects,
     ProjectRedirectsDelete,
+    ProjectTranslationsDelete,
+    ProjectTranslationsListAndCreate,
     ProjectUpdate,
     ProjectUsersCreateList,
     ProjectUsersDelete,
+    ProjectVersionDeleteHTML,
+    ProjectVersionDetail,
     SearchAnalytics,
 )
 
@@ -68,11 +72,13 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
-        private.project_version_delete_html, name='project_version_delete_html',
+        ProjectVersionDeleteHTML.as_view(),
+        name='project_version_delete_html',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
-        private.project_version_detail, name='project_version_detail',
+        ProjectVersionDetail.as_view(),
+        name='project_version_detail',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/delete/$',
@@ -101,11 +107,12 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/$',
-        private.project_translations, name='projects_translations',
+        ProjectTranslationsListAndCreate.as_view(),
+        name='projects_translations',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_translations_delete,
+        ProjectTranslationsDelete.as_view(),
         name='projects_translations_delete',
     ),
     url(

@@ -28,6 +28,7 @@ from vanilla import (
     DeleteView,
     DetailView,
     FormView,
+    GenericModelView,
     GenericView,
     UpdateView,
 )
@@ -74,7 +75,6 @@ from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
-
 
 log = logging.getLogger(__name__)
 
@@ -167,25 +167,38 @@ class ProjectDelete(ProjectMixin, DeleteView):
         return reverse('projects_dashboard')
 
 
-@login_required
-def project_version_detail(request, project_slug, version_slug):
-    """Project version detail page."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    version = get_object_or_404(
-        Version.internal.public(
-            user=request.user,
-            project=project,
+class ProjectVersionMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = Version
+    context_object_name = 'version'
+    form_class = VersionForm
+    lookup_url_kwarg = 'version_slug'
+    lookup_field = 'slug'
+
+    def get_success_url(self):
+        return reverse(
+            'project_version_list',
+            kwargs={'project_slug': self.get_project().slug},
+        )
+
+
+class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
+
+    template_name = 'projects/project_version_detail.html'
+
+    def get_queryset(self):
+        return Version.internal.public(
+            user=self.request.user,
+            project=self.get_project(),
             only_active=False,
-        ),
-        slug=version_slug,
-    )
+        )
 
-    form = VersionForm(request.POST or None, instance=version)
+    def get_form(self, data=None, files=None, **kwargs):
+        # This overrides the method from `ProjectAdminMixin`,
+        # since we don't have a project.
+        return self.get_form_class()(data, files, **kwargs)
 
-    if request.method == 'POST' and form.is_valid():
+    def form_valid(self, form):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
@@ -197,14 +210,31 @@ def project_version_detail(request, project_slug, version_slug):
                 )
                 version.built = False
                 version.save()
-        url = reverse('project_version_list', args=[project.slug])
-        return HttpResponseRedirect(url)
+        return HttpResponseRedirect(self.get_success_url())
 
-    return render(
-        request,
-        'projects/project_version_detail.html',
-        {'form': form, 'project': project, 'version': version},
-    )
+
+class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request, *args, **kwargs):
+        version = self.get_object()
+        if not version.active:
+            version.built = False
+            version.save()
+            broadcast(
+                type='app',
+                task=tasks.remove_dirs,
+                args=[version.get_artifact_paths()],
+            )
+        else:
+            return HttpResponseBadRequest(
+                "Can't delete HTML for an active version.",
+            )
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
 
 
 class ImportWizardView(
@@ -576,53 +606,58 @@ class ProjectNoticationsDelete(ProjecNotificationsMixin, GenericView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-@login_required
-def project_translations(request, project_slug):
-    """Project translations view and form view."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    form = TranslationForm(
-        data=request.POST or None,
-        parent=project,
-        user=request.user,
-    )
+class ProjectTranslationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        project_dashboard = reverse(
+    def get_success_url(self):
+        return reverse(
             'projects_translations',
-            args=[project.slug],
+            args=[self.get_project().slug],
         )
-        return HttpResponseRedirect(project_dashboard)
-
-    lang_projects = project.translations.all()
-
-    return render(
-        request,
-        'projects/project_translations.html',
-        {
-            'form': form,
-            'project': project,
-            'lang_projects': lang_projects,
-        },
-    )
 
 
-@login_required
-def project_translations_delete(request, project_slug, child_slug):
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    subproj = get_object_or_404(
-        project.translations,
-        slug=child_slug,
-    )
-    project.translations.remove(subproj)
-    project_dashboard = reverse('projects_translations', args=[project.slug])
-    return HttpResponseRedirect(project_dashboard)
+class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
+
+    """Project translations view and form view."""
+
+    form_class = TranslationForm
+    template_name = 'projects/project_translations.html'
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['parent'] = self.get_project()
+        kwargs['user'] = self.request.user
+        return self.form_class(data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+        context['lang_projects'] = project.translations.all()
+        return context
+
+
+class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
+
+    http_method_names = ['get', 'post']
+
+    def get(self, request, *args, **kwargs):
+        project = self.get_project()
+        translation = self.get_translation(kwargs['child_slug'])
+        project.translations.remove(translation)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
+
+    def get_translation(self, slug):
+        project = self.get_project()
+        translation = get_object_or_404(
+            project.translations,
+            slug=slug,
+        )
+        return translation
 
 
 class ProjectRedirectsMixin(ProjectAdminMixin, PrivateViewMixin):
@@ -667,43 +702,6 @@ class ProjectRedirectsDelete(ProjectRedirectsMixin, GenericView):
         else:
             raise Http404
         return HttpResponseRedirect(self.get_success_url())
-
-
-@login_required
-def project_version_delete_html(request, project_slug, version_slug):
-    """
-    Project version 'delete' HTML.
-
-    This marks a version as not built
-    """
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-    version = get_object_or_404(
-        Version.internal.public(
-            user=request.user,
-            project=project,
-            only_active=False,
-        ),
-        slug=version_slug,
-    )
-
-    if not version.active:
-        version.built = False
-        version.save()
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[version.get_artifact_paths()],
-        )
-    else:
-        return HttpResponseBadRequest(
-            "Can't delete HTML for an active version.",
-        )
-    return HttpResponseRedirect(
-        reverse('project_version_list', kwargs={'project_slug': project_slug}),
-    )
 
 
 class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
