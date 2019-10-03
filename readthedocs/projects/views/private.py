@@ -215,9 +215,9 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         version = self.get_object()
         if not version.active:
             version.built = False
@@ -232,9 +232,6 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
                 "Can't delete HTML for an active version.",
             )
         return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
 
 
 class ImportWizardView(
@@ -640,16 +637,13 @@ class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
 
 class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         project = self.get_project()
         translation = self.get_translation(kwargs['child_slug'])
         project.translations.remove(translation)
         return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
 
     def get_translation(self, slug):
         project = self.get_project()
