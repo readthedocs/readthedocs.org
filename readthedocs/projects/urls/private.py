@@ -28,9 +28,19 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
+    ProjectNotications,
+    ProjectNoticationsDelete,
+    ProjectRedirects,
+    ProjectRedirectsDelete,
+    ProjectTranslationsDelete,
+    ProjectTranslationsListAndCreate,
     ProjectUpdate,
+    ProjectUsersCreateList,
+    ProjectUsersDelete,
+    ProjectVersionDeleteHTML,
+    ProjectVersionDetail,
+    SearchAnalytics,
 )
-
 
 urlpatterns = [
     url(r'^$', ProjectDashboard.as_view(), name='projects_dashboard'),
@@ -63,11 +73,13 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
-        private.project_version_delete_html, name='project_version_delete_html',
+        ProjectVersionDeleteHTML.as_view(),
+        name='project_version_delete_html',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
-        private.project_version_detail, name='project_version_detail',
+        ProjectVersionDetail.as_view(),
+        name='project_version_detail',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/delete/$',
@@ -75,37 +87,44 @@ urlpatterns = [
         name='projects_delete',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/users/$', private.project_users,
+        r'^(?P<project_slug>[-\w]+)/users/$',
+        ProjectUsersCreateList.as_view(),
         name='projects_users',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/users/delete/$',
-        private.project_users_delete, name='projects_users_delete',
+        ProjectUsersDelete.as_view(),
+        name='projects_users_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/$',
-        private.project_notifications, name='projects_notifications',
+        ProjectNotications.as_view(),
+        name='projects_notifications',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
-        private.project_notifications_delete, name='projects_notification_delete',
+        ProjectNoticationsDelete.as_view(),
+        name='projects_notification_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/$',
-        private.project_translations, name='projects_translations',
+        ProjectTranslationsListAndCreate.as_view(),
+        name='projects_translations',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/translations/delete/(?P<child_slug>[-\w]+)/$',  # noqa
-        private.project_translations_delete,
+        ProjectTranslationsDelete.as_view(),
         name='projects_translations_delete',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/redirects/$', private.project_redirects,
+        r'^(?P<project_slug>[-\w]+)/redirects/$',
+        ProjectRedirects.as_view(),
         name='projects_redirects',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/redirects/delete/$',
-        private.project_redirects_delete, name='projects_redirects_delete',
+        ProjectRedirectsDelete.as_view(),
+        name='projects_redirects_delete',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/advertising/$',
@@ -113,7 +132,8 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/search-analytics/$',
-        private.search_analytics_view, name='projects_search_analytics',
+        SearchAnalytics.as_view(),
+        name='projects_search_analytics',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/page-views/$',
