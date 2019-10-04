@@ -137,7 +137,7 @@ class RelatedProjectQuerySetBase(models.QuerySet):
             return self.all()
         if user.is_authenticated:
             projects_pk = user.projects.all().values_list('pk', flat=True)
-            kwargs = {'%s__in' % self.project_field: projects_pk}
+            kwargs = {f'{self.project_field}__in': projects_pk}
             user_queryset = self.filter(**kwargs)
             queryset = user_queryset | queryset
         return queryset
