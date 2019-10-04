@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import safe_join, get_available_overwrite_name
@@ -107,7 +108,19 @@ class BuildMediaStorageMixin:
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
 
-    """Storage subclass that writes build artifacts under MEDIA_ROOT."""
+    """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
+
+    def __init__(self, **kwargs):
+        location = kwargs.pop('location', None)
+
+        if not location:
+            # Mirrors the logic of getting the production media path
+            if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+                location = settings.MEDIA_ROOT
+            else:
+                location = settings.PRODUCTION_MEDIA_ARTIFACTS
+
+        super().__init__(location)
 
     def get_available_name(self, name, max_length=None):
         """
