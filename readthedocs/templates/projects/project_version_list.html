@@ -119,7 +119,7 @@ Versions
 
                       {% if request.user|is_admin:project %}
                         <ul class="module-item-menu">
-                          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit & Activate" %}</a></li>
+                          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Activate" %}</a></li>
                         </ul>
                       {% endif %}
 
