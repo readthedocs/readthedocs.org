@@ -556,6 +556,13 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         queryset=Project.objects.all(),
     )
 
+    class Meta:
+        model = ProjectRelationship
+        fields = [
+            'child',
+            'alias',
+        ]
+
     def __init__(self, *args, **kwargs):
         # Initialize the instance with the parent Project to be used in the
         # serializer validation.
@@ -594,12 +601,6 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             )
         return data
 
-    class Meta:
-        model = ProjectRelationship
-        fields = [
-            'child',
-            'alias',
-        ]
 
 class SubprojectLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
