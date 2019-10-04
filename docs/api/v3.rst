@@ -647,7 +647,8 @@ Subproject create
     `See Subproject details <#subproject-details>`_
 
     :>json string child: slug of the child project in the relationship.
-    :>json string alias: optional slug alias to be used in the URL.
+    :>json string alias: optional slug alias to be used in the URL (e.g ``/projects/<alias>/en/latest/``).
+    If not provided, child project's slug is used as alias.
 
     :statuscode 201: Subproject created sucessfully
 
