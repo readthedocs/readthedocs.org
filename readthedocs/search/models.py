@@ -152,7 +152,7 @@ class PageView(models.Model):
     @classmethod
     def get_page_view_count_of_one_month(cls, project_slug, page_path):
         """
-        Returns the total page views count for last 30 days (including today) for a particular `page_path`.
+        Returns the total page views count for last 30 days for a particular `page_path`.
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
