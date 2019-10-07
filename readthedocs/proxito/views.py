@@ -1,6 +1,8 @@
-import os
+"""Views for doc serving."""
+
 import logging
 import mimetypes
+import os
 from functools import wraps
 from urllib.parse import urlparse
 
@@ -15,7 +17,7 @@ from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project, ProjectRelationship
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)  # noqa
 
 
 def _serve_401(request, project):
@@ -81,7 +83,8 @@ def map_project_slug(view_func):
             if not project_slug:
                 project_slug = request.host_project_slug
                 log.debug(
-                    f'Inserting project slug from request [{project_slug}]'
+                    'Inserting project slug from request slug=[%s]',
+                    project_slug
                 )
             try:
                 project = Project.objects.get(slug=project_slug)
@@ -96,6 +99,7 @@ def map_project_slug(view_func):
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
     """Redirect /page/file.html to /<default-lang>/<default-version>/file.html."""
+
     urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
         resolve(
@@ -141,12 +145,8 @@ def serve_docs(
     current_project = subproject or project
 
     # Handle a / redirect when we aren't a single version
-    if all([
-        lang_slug is None,
-        version_slug is None,
-        filename is '',
-        not current_project.single_version
-    ]):
+    if all([lang_slug is None, version_slug is None, filename == '',
+            not current_project.single_version]):
         log.info('Proxito redirect: slug=%s', current_project.slug)
         return redirect_project_slug(
             request, project=current_project, subproject=None

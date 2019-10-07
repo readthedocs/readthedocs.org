@@ -1,3 +1,10 @@
+"""
+Middleware for Proxito.
+
+This is used to take the request and map the host to the proper project slug.
+
+Additional processing is done to get the project from the URL in the ``views.py`` as well.
+"""
 import logging
 
 from django.conf import settings
@@ -10,7 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 from readthedocs.projects.models import Domain
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)  # noqa
 
 
 def map_host_to_project_slug(request):
@@ -52,7 +59,8 @@ def map_host_to_project_slug(request):
 
     # Serve CNAMEs
     else:
-        domain_qs = Domain.objects.filter(domain=host).prefetch_related('project')
+        domain_qs = Domain.objects.filter(domain=host
+                                          ).prefetch_related('project')
         if domain_qs.exists():
             project_slug = domain_qs.first().project.slug
             request.cname = True
@@ -70,7 +78,9 @@ def map_host_to_project_slug(request):
 
 class ProxitoMiddleware(MiddlewareMixin):
 
-    def process_request(self, request):
+    """The actual middleware we'll be using in prod."""
+
+    def process_request(self, request):  # noqa
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
             log.debug('Not processing Proxito middleware')
@@ -89,7 +99,8 @@ class ProxitoMiddleware(MiddlewareMixin):
 
 
 class NewStyleProxitoMiddleware:
-    # This is the new style middleware, I can't figure out how to test it.
+
+    """The new style middleware, I can't figure out how to test it."""
 
     def __init__(self, get_response):
         self.get_response = get_response
