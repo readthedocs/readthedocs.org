@@ -52,14 +52,14 @@ For private level, only users that are maintainers or that belong to a team with
 (for the commercial site)
 can access to the documentation.
 
-The protected privacy level was meant to hid versions from listings and search.
+The protected privacy level was meant to hide versions from listings and search.
 For the community site these versions are treated like public versions,
 and on the commercial site they are treated like private.
 
 The protected privacy level is currently hidden.
-To keep the behavior of hid the versions from listings and search,
+To keep the behavior of hiding versions from listings and search,
 a new field should be added to the Version model: ``hidden``.
-The privacy level (public or private) would be respected to determinate access to the documentation.
+The privacy level (public or private) would be respected to determine access to the documentation.
 
 For the community site, the privacy level would be public and can't be changed.
 
@@ -70,7 +70,7 @@ Footer
 
 The footer is used to display not hidden versions that the current user has access to.
 
-For the community site not changes are required on the footer.
+For the community site no changes are required on the footer.
 
 For the commercial site we use the project level privacy to decide if show or not
 links to the project's dashboard: downloads, project home, and builds.
@@ -115,7 +115,7 @@ For the community and commercial site, we need to:
   - Display sitemap.xml
   - Querysets
 
-- Remove the project privacy level.
+- Remove `Project.privacy_level` field
 - Migrate all protected versions to have the attribute ``hidden = True``,
   and set their privacy level to public for the community site and private for the commercial site.
 - Change all querysets used to list versions on the footer and on search to use the ``hidden`` attribute.
@@ -143,7 +143,7 @@ Public project
 ~~~~~~~~~~~~~~
 
 - Public version:
-  Normal usa case, not changes required.
+  Normal use case, no changes required.
 - Protected version:
   Users didn't want to list this version on the footer,
   but also not deactivate it. This can be solved by using the new ``hidden`` setting.
