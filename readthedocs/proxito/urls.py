@@ -1,5 +1,5 @@
 """
-# Different types of Versions:
+A quick rundown of all the URL's we are hoping to parse
 
 ## Projects
 
@@ -29,8 +29,7 @@ pip.rtfd.io/<lang>/
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
 """
 
-from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import url
 
 from readthedocs.constants import pattern_opts
 from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
