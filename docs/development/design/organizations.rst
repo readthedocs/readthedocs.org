@@ -71,7 +71,7 @@ How to migrate the organizations app
 
 The migration can be split in:
 
-#. Remove/simplify code from the migrations app on the corporate site.
+#. Remove/simplify code from the organizations app on the corporate site.
 #. Isolate/separate models and code that isn't going to be moved.
 #. Start by moving the models, managers, and figure out how to handle migrations.
 #. Move the rest of the code as needed.
@@ -126,13 +126,13 @@ Namespace
 ---------
 
 Currently we use the project's slug as namespace,
-in the commercial site we use the combination of `organization.slug` + `project.slug` as namespace.
+in the commercial site we use the combination of ``organization.slug`` + ``project.slug`` as namespace.
 
 For the community site probably this approach isn't the best,
-since we always serve docs publicly from `slug.readthedocs.io`.
+since we always serve docs publicly from ``slug.readthedocs.io``.
 And most of the users don't have a custom domain.
 
-We could keep the current behavior for the community site and use `organization.slug` + `project.slug` for the corporate site,
+We could keep the current behavior for the community site and use ``organization.slug`` + ``project.slug`` for the corporate site,
 since in the corporate site we don't care so much about a unique namespace between all users, but a unique namespace per organization.
 We can refactor the way we get the namespace to be more easy to manage in both sites.
 
