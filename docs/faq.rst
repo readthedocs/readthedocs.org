@@ -193,8 +193,8 @@ and as a result, it tends to look a bit better with the default theme.
 
 .. note::
 
-   To use these extensions you need to :doc:`specify the dependencies <guides/specifying-dependencies>`
-   using a requirements file.
+   To use these extensions you can specify the dependencies on your project
+   by following this :doc:`guide <guides/specifying-dependencies>`.
 
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
