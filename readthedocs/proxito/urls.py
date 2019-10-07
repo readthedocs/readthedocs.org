@@ -1,5 +1,5 @@
 """
-A quick rundown of all the URL's we are hoping to parse
+A quick rundown of all the URL's we are hoping to parse.
 
 ## Projects
 
