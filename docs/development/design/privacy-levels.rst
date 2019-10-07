@@ -58,12 +58,13 @@ and on the commercial site they are treated like private.
 
 The protected privacy level is currently hidden.
 To keep the behavior of hiding versions from listings and search,
-a new field should be added to the Version model: ``hidden``.
+a new field should be added to the Version model and forms: ``hidden`` (`#5321 <https://github.com/readthedocs/readthedocs.org/issues/5321>`__).
 The privacy level (public or private) would be respected to determine access to the documentation.
 
 For the community site, the privacy level would be public and can't be changed.
 
-The default privacy level of new versions for the commercial site would be ``private``.
+The default privacy level of new versions for the commercial site would be ``private``
+(this is the ``DEFAULT_PRIVACY_LEVEL`` setting).
 
 Footer
 ------
@@ -75,7 +76,8 @@ For the community site no changes are required on the footer.
 For the commercial site we use the project level privacy to decide if show or not
 links to the project's dashboard: downloads, project home, and builds.
 Given that the project privacy level would be removed (and the dashboard is always under login),
-those links would never be shown (except for admin users).
+those links would never be shown, except for admin users (owners or from a team with admin access)
+since they are the only ones allowed to make changes on the project.
 
 Overview
 --------
@@ -103,7 +105,7 @@ Migration
 ---------
 
 To differentiate between allowing or not privacy levels,
-we need to add a setting ``RTD_ALLOW_PRIVACY_LEVELS``.
+we need to add a setting ``RTD_ALLOW_PRIVACY_LEVELS`` (``False`` by default).
 
 For the community and commercial site, we need to:
 
@@ -124,6 +126,7 @@ For the community and commercial site, we need to:
 For the community site:
 
 - Hide all privacy level related settings from the version form.
+- Don't expose privacy levels on API v3.
 - Mark all versions as public.
 
 For the commercial site:
@@ -137,10 +140,10 @@ Upgrade path overview
 Community site
 ##############
 
-The default privacy level for the community site is public for project and versions.
+The default privacy level for the community site is public for versions and the dashboard is always public.
 
-Public project
-~~~~~~~~~~~~~~
+Public project (community)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Public version:
   Normal use case, no changes required.
@@ -151,8 +154,8 @@ Public project
   Users didn't want to show this version to their users yet or they were testing something.
   This can be solved with the pull request builder feature and the ``hidden`` setting.
 
-Protected project
-~~~~~~~~~~~~~~~~~
+Protected project (community)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Protected projects are not listed publicly.
 Probably users were hosting a WIP project,
@@ -160,8 +163,8 @@ or personal public project.
 A public project with public versions should work for them,
 as we are removing listing all projects publicly (except for search).
 
-Private project
-~~~~~~~~~~~~~~~
+Private project (community)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Probably these users want to use our enterprise solution instead.
 Or they were hosting a personal project.
@@ -169,10 +172,10 @@ Or they were hosting a personal project.
 Commercial site
 ###############
 
-The default privacy level for the commercial site is private for project and versions.
+The default privacy level for the commercial site is private for versions and the dashboard is show only to admin users.
 
-Private project
-~~~~~~~~~~~~~~~
+Private project (commercial)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Private version:
   Normal usa case, not changes required.
@@ -182,19 +185,19 @@ Private project
 - Public version:
   User has private code, but want to make public their docs.
 
-Protected project
-~~~~~~~~~~~~~~~~~
+Protected project (commercial)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 I can't think of a use case for protected projects,
 since they aren't listed publicly on the commercial site.
 
-Public project
-~~~~~~~~~~~~~~
+Public project (commercial)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Currently we show links back to project dashboard if the project is public,
 which probably users shouldn't see.
 With the implementation of this design doc,
-public versions don't have links to the project dashboard and the dashboard is always under login.
+public versions don't have links to the project dashboard (except for admin users) and the dashboard is always under login.
 
 - Private versions:
   Users under the organization can see links to the dashboard.
