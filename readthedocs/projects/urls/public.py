@@ -5,16 +5,11 @@ from django.conf.urls import url
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
-from readthedocs.projects.views.public import ProjectDetailView, ProjectIndex
+from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
 from readthedocs.search import views as search_views
 
 
 urlpatterns = [
-    url(
-        r'^$',
-        ProjectIndex.as_view(),
-        name='projects_list',
-    ),
     url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
         public.project_redirect,
@@ -78,7 +73,7 @@ urlpatterns = [
     ),
     url(
         r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectIndex.as_view(),
+        ProjectTagIndex.as_view(),
         name='projects_tag_detail',
     ),
 ]
