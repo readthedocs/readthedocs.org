@@ -5,14 +5,14 @@ Currently we don't support organizations in the community site
 (a way to group different projects),
 we only support individual accounts.
 
-Several integrations that we support have organizations,
-where users group their repositories.
+Several integrations that we support like GitHub and Bitbucket have organizations,
+where users group their repositories and manage them in groups rather than individually.
 
 Why move organizations in the community site?
 ---------------------------------------------
 
 We support organizations in the commercial site,
-having no organizations in the community site makes the code maintenance difficult.
+having no organizations in the community site makes the code maintenance difficult for Read the Docs developers.
 Having organizations in the community site will make the differences between both more easy to manage.
 
 Users from the community site can have organizations in external sites from where we import their projects
@@ -40,7 +40,7 @@ Or just organizations?
 What features of organizations are we going to support?
 -------------------------------------------------------
 
-We have this features present in the commercial site:
+We have the following features in the commercial site that we don't have on the community site:
 
 - Owners
 - Teams
@@ -94,8 +94,8 @@ and doing a fake migration.
 Following suggestions in https://stackoverflow.com/questions/48860227/moving-multiple-models-from-one-django-app-to-another.
 Code related to subscriptions should be moved out from the organizations app.
 
-After that, it should be more easy to move the organizations *app* (or part of it)
-to the community site (and not changes in table names would be required).
+After that, it should be easier to move the organizations *app* (or part of it)
+to the community site (and no changes to table names would be required).
 
 We start by moving the models.
 
@@ -129,7 +129,7 @@ Currently we use the project's slug as namespace,
 in the commercial site we use the combination of `organization.slug` + `project.slug` as namespace.
 
 For the community site probably this approach isn't the best,
-since we alway serve docs publicly from `slug.readthedocs.io`.
+since we always serve docs publicly from `slug.readthedocs.io`.
 And most of the users don't have a custom domain.
 
 We could keep the current behavior for the community site and use `organization.slug` + `project.slug` for the corporate site,
