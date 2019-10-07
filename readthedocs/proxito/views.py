@@ -211,7 +211,7 @@ def serve_docs(
 
     # Serve from the filesystem if using DEBUG or Testing
     # Tests require this now since we don't want to check for the file existing in prod
-    if settings.DEBUG or settings.PYTHON_MEDIA:
+    if settings.PYTHON_MEDIA:
         log.info('[Django serve] %s for %s', path, final_project)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
