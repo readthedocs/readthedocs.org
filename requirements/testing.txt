@@ -17,7 +17,7 @@ execnet==1.7.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==2.0
+yamale==2.0.1
 pytest-mock==1.10.4
 
 # local debugging tools
