@@ -59,10 +59,9 @@ def map_host_to_project_slug(request):
 
     # Serve CNAMEs
     else:
-        domain_qs = Domain.objects.filter(domain=host
-                                          ).prefetch_related('project')
-        if domain_qs.exists():
-            project_slug = domain_qs.first().project.slug
+        domain = Domain.objects.filter(domain=host).first()
+        if domain:
+            project_slug = domain.project.slug
             request.cname = True
             log.debug('Proxito CNAME: %s', host)
         else:
