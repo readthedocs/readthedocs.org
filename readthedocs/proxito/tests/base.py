@@ -21,9 +21,9 @@ class BaseDocServing(TestCase):
         self.eric = fixture.get(User, username='eric')
         self.eric.set_password('eric')
         self.eric.save()
-        self.private = fixture.get(
-            Project, slug='private', privacy_level='private',
-            version_privacy_level='private', users=[self.eric],
+        self.project = fixture.get(
+            Project, slug='project', privacy_level='project',
+            version_privacy_level='project', users=[self.eric],
             main_language_project=None,
         )
         self.subproject = fixture.get(
@@ -32,13 +32,13 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=None,
         )
-        self.private.add_subproject(self.subproject)
+        self.project.add_subproject(self.subproject)
         self.translation = fixture.get(
             Project,
             language='es',
             slug='translation',
             users=[self.eric],
-            main_language_project=self.private,
+            main_language_project=self.project,
         )
         self.subproject_translation = fixture.get(
             Project,
