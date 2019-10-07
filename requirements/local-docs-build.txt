@@ -29,5 +29,5 @@ Markdown==3.1.1
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
 sphinx-notfound-page==0.4
-commonmark==0.9.0
+commonmark==0.9.1
 recommonmark==0.6.0
