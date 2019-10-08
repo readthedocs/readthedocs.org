@@ -47,3 +47,10 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=self.subproject,
         )
+        self.subproject_alias = fixture.get(
+            Project,
+            language='en',
+            slug='subproject-alias',
+            users=[self.eric],
+        )
+        self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')

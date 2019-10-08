@@ -40,6 +40,14 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/html/subproject-translation/latest/awesome.html',
         )
 
+    def test_subproject_alias_serving(self):
+        url = '/projects/this-is-an-alias/en/latest/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/html/subproject-alias/latest/awesome.html',
+        )
+
     def test_translation_serving(self):
         url = '/es/latest/awesome.html'
         host = 'project.dev.readthedocs.io'

@@ -36,28 +36,27 @@ class MiddlewareTests(TestCase):
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertEqual(request.cname, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')
         request = self.factory.get(self.url, HTTP_HOST='docs.RANDOM.COM')
         self.run_middleware(request)
         self.assertEqual(request.cname, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_invalid_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
         request = self.factory.get(self.url, HTTP_HOST='my.host.com')
         r = self.run_middleware(request)
-        self.assertEqual(r.status_code, 404)
         # We show the 404 error page
-        self.assertTrue(b'my.host.com' in r.content)
+        self.assertContains(r, 'my.host.com', status_code=404)
 
     def test_proper_subdomain(self):
         request = self.factory.get(self.url, HTTP_HOST='pip.dev.readthedocs.io')
         self.run_middleware(request)
         self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     @override_settings(PUBLIC_DOMAIN='foo.bar.readthedocs.io')
     def test_subdomain_different_length(self):
@@ -66,7 +65,7 @@ class MiddlewareTests(TestCase):
         )
         self.run_middleware(request)
         self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_request_header(self):
         request = self.factory.get(
@@ -74,7 +73,7 @@ class MiddlewareTests(TestCase):
         )
         self.run_middleware(request)
         self.assertEqual(request.rtdheader, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_request_header_uppercase(self):
         request = self.factory.get(
@@ -83,7 +82,7 @@ class MiddlewareTests(TestCase):
         self.run_middleware(request)
 
         self.assertEqual(request.rtdheader, True)
-        self.assertEqual(request.slug, 'pip')
+        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_long_bad_subdomain(self):
         domain = 'www.pip.dev.readthedocs.io'
