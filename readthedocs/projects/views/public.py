@@ -37,7 +37,7 @@ search_log = logging.getLogger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
-class ProjectIndex(ListView):
+class ProjectTagIndex(ListView):
 
     """List view of public :py:class:`Project` instances."""
 
@@ -47,11 +47,8 @@ class ProjectIndex(ListView):
         queryset = Project.objects.public(self.request.user)
         queryset = queryset.exclude(users__profile__banned=True)
 
-        if self.kwargs.get('tag'):
-            self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
-            queryset = queryset.filter(tags__slug__in=[self.tag.slug])
-        else:
-            self.tag = None
+        self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
+        queryset = queryset.filter(tags__slug__in=[self.tag.slug])
 
         if self.kwargs.get('username'):
             self.user = get_object_or_404(

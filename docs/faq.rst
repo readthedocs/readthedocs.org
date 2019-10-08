@@ -191,6 +191,11 @@ are `numpydoc <https://github.com/numpy/numpydoc>`_ and
 output more closely matches the format of standard Sphinx annotations,
 and as a result, it tends to look a bit better with the default theme.
 
+.. note::
+
+   To use these extensions you need to specify the dependencies on your project
+   by following this :doc:`guide <guides/specifying-dependencies>`.
+
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
 
