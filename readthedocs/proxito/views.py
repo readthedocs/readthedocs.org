@@ -149,7 +149,7 @@ def serve_docs(
             not current_project.single_version]):
         log.info('Proxito redirect: slug=%s', current_project.slug)
         return redirect_project_slug(
-            request, project=current_project, subproject=None
+            request, project=current_project, subproject=None,
         )
 
     if (lang_slug is None or version_slug is None) and not current_project.single_version:
@@ -209,17 +209,18 @@ def serve_docs(
     if path[-1] == '/':
         path += 'index.html'
 
-    # Serve from the filesystem if using DEBUG or Testing
-    # Tests require this now since we don't want to check for the file existing in prod
+    # Serve from the filesystem if using PYTHON_MEDIA
+    # We definitely shouldn't do this in production,
+    # but I don't want to force a check for DEBUG.
     if settings.PYTHON_MEDIA:
-        log.info('[Django serve] %s for %s', path, final_project)
+        log.info('[Django serve] path=%s, project=%s', path, final_project)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
         # Serve from Python
         return serve(request, path, root_path)
 
     # Serve via nginx
-    log.info('[Nginx serve] %s for %s', path, final_project)
+    log.info('[Nginx serve] path=%s, project=%s', path, final_project)
     return _serve_docs_nginx(
         request, final_project=final_project, path=f'/proxito/{path}'
     )
