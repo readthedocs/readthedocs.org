@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+from textwrap import dedent
 
 import git
 from git.exc import InvalidGitRepositoryError
@@ -28,9 +29,34 @@ def main():
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description=(
-            'Print to stdout information about a git repository '
-            'in json format.'
+        description=dedent(
+            """
+            Print to stdout information about a git repository in json format.
+
+            The following scheme is returned:
+
+            {
+                "commit": "",
+                "branches": [
+                    {
+                        "name": "",
+                        "identifier": ""
+                    }
+                ],
+                "tags": [
+                    {
+                        "name": "",
+                        "identifier": ""
+                    }
+                ],
+                "submodules": [
+                    {
+                        "path": "",
+                        "url": "",
+                    }
+                ]
+            }
+            """
         )
     )
     parser.add_argument(
@@ -76,7 +102,7 @@ def get_branches(repo):
         branches.append(
             {
                 'name': name,
-                'indentifier': str(branch),
+                'identifier': str(branch),
             },
         )
     return branches

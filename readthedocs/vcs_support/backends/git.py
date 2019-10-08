@@ -62,7 +62,7 @@ class Backend(BaseVCS):
 
     def _get_repo_info(self):
         cache_key = '__repo_info'
-        repo_info = getattr(self, cache_key)
+        repo_info = getattr(self, cache_key, None)
         if repo_info:
             return repo_info
 
@@ -110,11 +110,12 @@ class Backend(BaseVCS):
         return self.clone()
 
     def repo_exists(self):
-        try:
-            self._get_repo_info()
-        except RepositoryError:
-            return False
-        return True
+        return os.path.exists(
+            os.path.join(
+                self.working_dir,
+                '.git',
+            )
+        )
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -148,7 +149,7 @@ class Backend(BaseVCS):
         Returns `False` if at least one submodule is invalid.
         Returns the list of invalid submodules.
         """
-        submodules = {sub.path: sub for sub in self.submodules}
+        submodules = {sub['path']: sub for sub in self.submodules}
 
         for sub_path in config.submodules.exclude:
             path = sub_path.rstrip('/')
@@ -165,7 +166,7 @@ class Backend(BaseVCS):
         invalid_submodules = []
         for path, submodule in submodules.items():
             try:
-                validate_submodule_url(submodule.url)
+                validate_submodule_url(submodule['url'])
             except ValidationError:
                 invalid_submodules.append(path)
 
@@ -243,27 +244,18 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        versions = []
         repo = self._get_repo_info()
-        for tag in repo.tags:
-            try:
-                versions.append(
-                    VCSVersion(self, str(tag['identifier']), tag['name']),
-                )
-            except ValueError:
-                # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                # blob object - use the `.object` property instead to access it
-                # This is not a real tag for us, so we skip it
-                # https://github.com/rtfd/readthedocs.org/issues/4440
-                log.warning('Git tag skipped: %s', tag, exc_info=True)
-                continue
+        versions = [
+            VCSVersion(self, tag['identifier'], tag['name'])
+            for tag in repo.tags
+        ]
         return versions
 
     @property
     def branches(self):
         repo = self._get_repo_info()
         versions = [
-            VCSVersion(self, branch['name'], branch['identifier'])
+            VCSVersion(self, branch['identifier'], branch['name'])
             for branch in repo.branches
         ]
         return versions
@@ -282,8 +274,6 @@ class Backend(BaseVCS):
         # Find proper identifier
         if not identifier:
             identifier = self.default_branch or self.fallback_branch
-
-        identifier = self.find_ref(identifier)
 
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
