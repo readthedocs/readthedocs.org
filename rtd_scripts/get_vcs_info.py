@@ -54,7 +54,7 @@ def get_repo_info(repo_path):
         }
         return info
     except InvalidGitRepositoryError:
-        raise Exception('Not repo found')
+        raise Exception('Repo not found')
 
 
 def get_commit(repo):
@@ -62,7 +62,7 @@ def get_commit(repo):
 
 
 def get_branches(repo):
-    """Get branches from the origin remote."""
+    """Get branches from the remote ``origin``."""
 
     if not repo.remotes:
         return []
@@ -89,7 +89,7 @@ def get_tags(repo):
             tags.append(
                 {
                     'name': str(tag),
-                    'identifier': str(tag.commit), 
+                    'identifier': str(tag.commit),
                 },
             )
         except ValueError:

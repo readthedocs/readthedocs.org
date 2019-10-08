@@ -23,9 +23,13 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
+from collections import namedtuple
 
 
 log = logging.getLogger(__name__)
+
+
+RepoInformation = namedtuple('RepoInformation', 'commit branches tags submodules')
 
 
 class Backend(BaseVCS):
@@ -57,15 +61,22 @@ class Backend(BaseVCS):
         return self.repo_url
 
     def _get_repo_info(self):
+        cache_key = '__repo_info'
+        repo_info = getattr(self, cache_key)
+        if repo_info:
+            return repo_info
+
         cmd = [
             'python3',
             '-m',
             'pip',
             'install',
             '--user',
-            'GitPython==2.1.10',
+            'GitPython==3.0.3',
         ]
-        code, stdout, stderr = self.run(*cmd)
+        code, *_ = self.run(*cmd)
+        if code != 0:
+            raise RepositoryError
 
         cmd = [
             'python3',
@@ -76,8 +87,11 @@ class Backend(BaseVCS):
             self.working_dir,
         ]
         code, stdout, stderr = self.run(*cmd)
-        __import__('pdb').set_trace()
-        self._repo_info = json.loads(stdout)
+        if code != 0:
+            raise RepositoryError(stderr)
+        repo_info = RepoInformation(**json.loads(stdout))
+        setattr(self, cache_key, repo_info)
+        return repo_info
 
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
@@ -97,8 +111,8 @@ class Backend(BaseVCS):
 
     def repo_exists(self):
         try:
-            git.Repo(self.working_dir)
-        except InvalidGitRepositoryError:
+            self._get_repo_info()
+        except RepositoryError:
             return False
         return True
 
@@ -111,7 +125,7 @@ class Backend(BaseVCS):
             return False
 
         # Keep compatibility with previous projects
-        return bool(self.submodules)
+        return bool(self._get_repo_info().submodules)
 
     def validate_submodules(self, config):
         """
@@ -197,7 +211,6 @@ class Backend(BaseVCS):
         if code != 0:
             raise RepositoryError
 
-        self._get_repo_info()
         return code, stdout, stderr
 
     def checkout_revision(self, revision=None):
@@ -231,10 +244,12 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         versions = []
-        repo = git.Repo(self.working_dir)
+        repo = self._get_repo_info()
         for tag in repo.tags:
             try:
-                versions.append(VCSVersion(self, str(tag.commit), str(tag)))
+                versions.append(
+                    VCSVersion(self, str(tag['identifier']), tag['name']),
+                )
             except ValueError:
                 # ValueError: Cannot resolve commit as tag TAGNAME points to a
                 # blob object - use the `.object` property instead to access it
@@ -246,34 +261,20 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        repo = git.Repo(self.working_dir)
-        versions = []
-        branches = []
-
-        # ``repo.remotes.origin.refs`` returns remote branches
-        if repo.remotes:
-            branches += repo.remotes.origin.refs
-
-        for branch in branches:
-            verbose_name = branch.name
-            if verbose_name.startswith('origin/'):
-                verbose_name = verbose_name.replace('origin/', '')
-            if verbose_name == 'HEAD':
-                continue
-            versions.append(VCSVersion(self, str(branch), verbose_name))
+        repo = self._get_repo_info()
+        versions = [
+            VCSVersion(self, branch['name'], branch['identifier'])
+            for branch in repo.branches
+        ]
         return versions
 
     @property
     def commit(self):
-        if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
-            return stdout.strip()
-        return None
+        return self._get_repo_info().commit
 
     @property
     def submodules(self):
-        repo = git.Repo(self.working_dir)
-        return list(repo.submodules)
+        return self._get_repo_info().submodules
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -317,26 +318,6 @@ class Backend(BaseVCS):
             cmd.append('--recursive')
         cmd += submodules
         self.run(*cmd)
-
-    def find_ref(self, ref):
-        # Check if ref starts with 'origin/'
-        if ref.startswith('origin/'):
-            return ref
-
-        # Check if ref is a branch of the origin remote
-        if self.ref_exists('remotes/origin/' + ref):
-            return 'origin/' + ref
-
-        return ref
-
-    def ref_exists(self, ref):
-        try:
-            r = git.Repo(self.working_dir)
-            if r.commit(ref):
-                return True
-        except (BadName, ValueError):
-            return False
-        return False
 
     @property
     def env(self):
