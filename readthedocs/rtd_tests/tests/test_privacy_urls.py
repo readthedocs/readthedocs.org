@@ -177,12 +177,14 @@ class ProjectMixin(URLAccessMixin):
 class PublicProjectMixin(ProjectMixin):
 
     request_data = {
+        '/projects/': {},
         '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
         '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
         '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
     }
     response_data = {
         # Public
+        '/projects/': {'status_code': 301},
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
         '/projects/pip/badge/': {'status_code': 200},
         '/projects/invalid_slug/': {'status_code': 302},
