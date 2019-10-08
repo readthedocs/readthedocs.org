@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.response import Response
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
@@ -28,6 +30,12 @@ class NestedParentObjectMixin:
 
     def _get_parent_project(self):
         slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)
+
+        # when hitting ``/projects/<slug>/`` we don't have a "parent" project
+        # because this endpoint is the base one, so we just get the project from
+        # ``project_slug`` kwargs
+        slug = slug or self.kwargs.get('project_slug')
+
         return get_object_or_404(Project, slug=slug)
 
     def _get_parent_version(self):
@@ -92,3 +100,16 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
         # List view are only allowed if user is owner of parent project
         return self.listing_objects(queryset, self.request.user)
+
+
+class UpdateMixin:
+
+    """Make PUT to return 204 on success like PATCH does."""
+
+    def update(self, request, *args, **kwargs):
+        # NOTE: ``Authorization:`` header is mandatory to use this method from
+        # Browsable API since SessionAuthentication can't be used because we set
+        # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
+        # via Javascript
+        super().update(request, *args, **kwargs)
+        return Response(status=status.HTTP_204_NO_CONTENT)

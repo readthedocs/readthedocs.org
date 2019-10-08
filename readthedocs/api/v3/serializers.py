@@ -4,12 +4,20 @@ import urllib
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
+from readthedocs.projects.constants import (
+    LANGUAGES,
+    PROGRAMMING_LANGUAGES,
+    REPO_CHOICES,
+    PRIVACY_CHOICES,
+    PROTECTED,
+)
 from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
@@ -115,15 +123,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
 
-    expandable_fields = dict(
-        config=(
-            BuildConfigSerializer,
-            dict(
-                source='config',
-            ),
-        ),
-    )
-
     class Meta:
         model = Build
         fields = [
@@ -139,6 +138,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'commit',
             '_links',
         ]
+
+        expandable_fields = {
+            'config': (BuildConfigSerializer, {'source': 'config'})
+        }
 
     def get_finished(self, obj):
         if obj.date and obj.length:
@@ -215,15 +218,6 @@ class VersionSerializer(FlexFieldsModelSerializer):
     urls = VersionURLsSerializer(source='*')
     _links = VersionLinksSerializer(source='*')
 
-    expandable_fields = dict(
-        last_build=(
-            BuildSerializer,
-            dict(
-                source='last_build',
-            ),
-        ),
-    )
-
     class Meta:
         model = Version
         fields = [
@@ -240,6 +234,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'urls',
             '_links',
         ]
+
+        expandable_fields = {
+            'last_build': (
+                BuildSerializer, {'source': 'last_build'}
+            )
+        }
 
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
@@ -427,6 +427,41 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
         )
 
 
+class ProjectUpdateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to modify a Project once imported."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url')
+
+    # Exclude ``Protected`` as a possible value for Privacy Level
+    privacy_level_choices = list(PRIVACY_CHOICES)
+    privacy_level_choices.remove((PROTECTED, _('Protected')))
+    privacy_level = serializers.ChoiceField(choices=privacy_level_choices)
+
+    class Meta:
+        model = Project
+        fields = (
+            # Settings
+            'name',
+            'repository',
+            'language',
+            'programming_language',
+            'homepage',
+
+            # Advanced Settings -> General Settings
+            'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
+            'show_version_warning',
+            'single_version',
+
+            # NOTE: we do not allow to change any setting that can be set via
+            # the YAML config file.
+        )
+
+
 class ProjectSerializer(FlexFieldsModelSerializer):
 
     homepage = serializers.SerializerMethodField()
@@ -447,18 +482,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     # them from here
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
-
-    expandable_fields = dict(
-        active_versions=(
-            VersionSerializer,
-            dict(
-                # NOTE: this has to be a Model method, can't be a
-                # ``SerializerMethodField`` as far as I know
-                source='active_versions',
-                many=True,
-            ),
-        ),
-    )
 
     class Meta:
         model = Project
@@ -488,6 +511,18 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
             '_links',
         ]
+
+        expandable_fields = {
+            'active_versions': (
+                VersionSerializer,
+                {
+                    # NOTE: this has to be a Model method, can't be a
+                    # ``SerializerMethodField`` as far as I know
+                    'source': 'active_versions',
+                    'many': True,
+                }
+            )
+        }
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

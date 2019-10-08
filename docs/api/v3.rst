@@ -317,7 +317,7 @@ Version update
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
-    Edit a version.
+    Update a version.
 
     **Example request**:
 

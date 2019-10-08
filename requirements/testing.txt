@@ -2,15 +2,10 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-# pytest 4.2 is incompatible with pytest-django 3.4.6
-pytest==4.1.1  # pyup: <4.2
-# pytest-django 3.4.7 break our tests from corporate site
-# probably a bug related to overriding django settings in
-# previous tests
-pytest-django==3.4.6  # pyup: <3.4.7
-# pytest-xdist >1.27 requires pytest >4.1
-pytest-xdist==1.27.0  # pyup: ignore
-pytest-cov==2.7.1
+pytest==5.2.1
+pytest-django==3.5.1
+pytest-xdist==1.30.0
+pytest-cov==2.8.1
 apipkg==1.5
 execnet==1.7.1
 
@@ -22,8 +17,8 @@ execnet==1.7.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==2.0
-pytest-mock==1.10.4
+yamale==2.0.1
+pytest-mock==1.11.1
 
 # local debugging tools
 datadiff==2.0.0

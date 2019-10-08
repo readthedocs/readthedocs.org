@@ -27,7 +27,7 @@ from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import ProjectQuerySetMixin
+from .mixins import ProjectQuerySetMixin, UpdateMixin
 from .permissions import PublicDetailPrivateListing, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -36,6 +36,7 @@ from .serializers import (
     EnvironmentVariableSerializer,
     ProjectSerializer,
     ProjectCreateSerializer,
+    ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
     VersionSerializer,
@@ -73,6 +74,7 @@ class APIv3Settings:
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                       FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
+                      UpdateMixin, UpdateModelMixin,
                       ReadOnlyModelViewSet):
 
     model = Project
@@ -100,6 +102,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
         if self.action == 'create':
             return ProjectCreateSerializer
+
+        if self.action in ('update', 'partial_update'):
+            return ProjectUpdateSerializer
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
@@ -188,7 +193,8 @@ class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
 # of ``ProjectQuerySetMixin`` to make calling ``super().get_queryset()`` work
 # properly and filter nested dependencies
 class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, UpdateModelMixin, ReadOnlyModelViewSet):
+                      FlexFieldsMixin, UpdateMixin,
+                      UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -214,20 +220,6 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action in ('list', 'retrieve'):
             return VersionSerializer
         return VersionUpdateSerializer
-
-    def update(self, request, *args, **kwargs):
-        """
-        Make PUT/PATCH behaves in the same way.
-
-        Force to return 204 is the update was good.
-        """
-
-        # NOTE: ``Authorization:`` header is mandatory to use this method from
-        # Browsable API since SessionAuthentication can't be used because we set
-        # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
-        # via Javascript
-        super().update(request, *args, **kwargs)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
