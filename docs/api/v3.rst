@@ -330,7 +330,6 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
-            "uploaded": true,
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -349,21 +348,13 @@ Version detail
             }
         }
 
-    :>json integer id: ID for this version on the database
-    :>json string slug: The slug for this version
-    :>json string verbose_name: The name of the version
-    :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
-    :>json string ref: tag or branch pointed by this version (available only when version is ``stable`` or ``latest``)
-    :>json string built: Whether this version has been built
-    :>json string active: Whether this version is active
-    :>json string type: The type of this version (typically "tag" or "branch")
-    :>json string last_build: Build object representing the last build of this version
-    :>json array downloads: URLs to downloads of this version's documentation
+    :>json string ref: the version slug where the ``stable`` version points to.
+                       ``null`` when it's not the stable version.
+    :>json boolean built: the version has at least one successful build.
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Version`` with this slug for this project
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``last_build`` and ``last_build.config``.
+                          Multiple fields can be passed separated by commas.
 
 
 Version update
