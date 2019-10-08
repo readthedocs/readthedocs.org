@@ -104,6 +104,13 @@ class TestFullDocServing(BaseDocServing):
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
 
+    # https://github.com/readthedocs/readthedocs.org/pull/6226/files/596aa85a4886407f0eb65233ebf9c38ee3e8d485#r332445803
+    def test_valid_project_as_invalid_subproject(self):
+        url = '/projects/translation/es/latest/foo.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
 
 class TestDocServingBackends(BaseDocServing):
     # Test that nginx and python backends both work
