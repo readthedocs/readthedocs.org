@@ -4,12 +4,20 @@ import urllib
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
+from readthedocs.projects.constants import (
+    LANGUAGES,
+    PROGRAMMING_LANGUAGES,
+    REPO_CHOICES,
+    PRIVACY_CHOICES,
+    PROTECTED,
+)
 from readthedocs.projects.models import Project, EnvironmentVariable
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
@@ -416,6 +424,41 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
             'programming_language',
             'repository',
             'homepage',
+        )
+
+
+class ProjectUpdateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to modify a Project once imported."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url')
+
+    # Exclude ``Protected`` as a possible value for Privacy Level
+    privacy_level_choices = list(PRIVACY_CHOICES)
+    privacy_level_choices.remove((PROTECTED, _('Protected')))
+    privacy_level = serializers.ChoiceField(choices=privacy_level_choices)
+
+    class Meta:
+        model = Project
+        fields = (
+            # Settings
+            'name',
+            'repository',
+            'language',
+            'programming_language',
+            'homepage',
+
+            # Advanced Settings -> General Settings
+            'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
+            'show_version_warning',
+            'single_version',
+
+            # NOTE: we do not allow to change any setting that can be set via
+            # the YAML config file.
         )
 
 
