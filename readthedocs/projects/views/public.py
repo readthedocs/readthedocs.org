@@ -284,7 +284,14 @@ def project_versions(request, project_slug):
         only_active=False,
     )
     active_versions = versions.filter(active=True)
+
+    # Limit inactive versions in case a project has a large number of branches or tags
+    # Filter inactive versions based on the query string
     inactive_versions = versions.filter(active=False)
+    version_filter = request.GET.get('version_filter', '')
+    if version_filter:
+        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
+    inactive_versions = inactive_versions[:100]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
