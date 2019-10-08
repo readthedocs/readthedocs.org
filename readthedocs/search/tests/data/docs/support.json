@@ -5,7 +5,7 @@
         {
             "id": "usage-questions",
             "title": "Usage Questions",
-            "content": "If you have questions about how to use Read the Docs, or have an issue that isn’t related to a bug, Stack Overflow is the best place to ask. Tag questions with read-the-docs so other folks can find them easily.. Good questions for Stack Overflow would be:. “What is the best way to structure the table of contents across a project?”. “How do I structure translations inside of my project for easiest contribution from users?”. “How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?”"
+            "content": "For help, Stack Overflow is the palce. Tag questions with read-the-docs so other folks can find them easily.. Good questions for Stack Overflow would be:. “What is the best way to structure the table of contents across a project?”. “How do I structure translations inside of my project for easiest contribution from users?”. “How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?”"
         },
         {
             "id": "community-support",
@@ -20,22 +20,20 @@
     ],
     "domains": [
         {
-            "role_name": "http:post",
-            "doc_name": "api/v3.html",
-            "anchor": "post--api-v3-projects-(string-project_slug)-versions-(string-version_slug)-builds-",
-            "type_display": "post",
-            "doc_display": "API v3",
-            "name": "/api/v3/projects/(string:project_slug)/versions/(string:version_slug)/builds/",
-            "display_name": ""
+            "role_name": "py:function",
+            "anchor": "celery.utils.deprecated.warn",
+            "type_display": "function",
+            "name": "celery.utils.deprecated.warn"
         },
         {
-            "role_name": "http:patch",
-            "doc_name": "api/v3.html",
-            "anchor": "patch--api-v3-projects-(string-project_slug)-version-(string-version_slug)-",
-            "type_display": "patch",
-            "doc_display": "API v3",
-            "name": "/api/v3/projects/(string:project_slug)/version/(string:version_slug)/",
-            "display_name": ""
+            "role_name": "py:function",
+            "anchor": "celery.utils.deprecated.Property",
+            "type_display": "function",
+            "name": "celery.utils.deprecated.Property"
         }
-    ]
+    ],
+    "domain_data": {
+        "celery.utils.deprecated.warn": "Warn of (pending) deprecation",
+        "celery.utils.deprecated.Property": "Decorator for deprecated properties"
+    }
 }

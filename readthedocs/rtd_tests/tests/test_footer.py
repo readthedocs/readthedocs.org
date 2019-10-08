@@ -4,7 +4,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.api.v2.views.footer_views import (
-    footer_html,
+    FooterHTML,
     get_version_compare_data,
 )
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
@@ -26,7 +26,7 @@ class Testmaker(APITestCase):
 
     def render(self):
         request = self.factory.get(self.url)
-        response = footer_html(request)
+        response = FooterHTML.as_view()(request)
         response.render()
         return response
 
@@ -243,7 +243,7 @@ class TestFooterPerformance(APITestCase):
 
     def render(self):
         request = self.factory.get(self.url)
-        response = footer_html(request)
+        response = FooterHTML.as_view()(request)
         response.render()
         return response
 

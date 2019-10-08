@@ -2,6 +2,7 @@
 
 from rest_framework import permissions
 
+from readthedocs.builds.models import Version
 from readthedocs.core.permissions import AdminPermission
 
 
@@ -83,3 +84,32 @@ class APIRestrictedPermission(permissions.BasePermission):
             request.method in permissions.SAFE_METHODS or
             (request.user and request.user.is_staff)
         )
+
+
+class IsAuthorizedToViewVersion(permissions.BasePermission):
+
+    """
+    Checks if the user from the request has permissions to see the version.
+
+    This permission class used in the FooterHTML view.
+
+    .. note::
+
+       Views using this permissions should implement the
+       `_get_version` and `_get_project` methods.
+    """
+
+    def has_permission(self, request, view):
+        project = view._get_project()
+        version = view._get_version()
+        has_access = (
+            Version.objects
+            .public(
+                user=request.user,
+                project=project,
+                only_active=False,
+            )
+            .filter(pk=version.pk)
+            .exists()
+        )
+        return has_access
