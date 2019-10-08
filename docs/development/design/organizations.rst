@@ -114,7 +114,7 @@ For managers and querysets that depend on subscriptions,
 we can use our pattern to make overridable classes (inheriting from ``SettingsOverrideObject``).
 
 Templates, urls, views, forms, notifications, signals, tasks can be moved later
-(we just need to make use from the models from the `readthedocs.organizations` module).
+(we just need to make use of the models from the `readthedocs.organizations` module).
 
 If we decide to integrate organizations in the community site,
 we can enable the app.
