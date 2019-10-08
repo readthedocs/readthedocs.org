@@ -136,10 +136,6 @@ Project details
             },
             "default_version": "stable",
             "default_branch": "master",
-            "privacy_level": {
-                "code": "public",
-                "name": "Public",
-            },
             "subproject_of": null,
             "translation_of": null,
             "urls": {
@@ -335,7 +331,6 @@ Version update
 
         {
             "active": true,
-            "privacy_level": "public"
         }
 
     :statuscode 204: Updated successfully

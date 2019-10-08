@@ -222,7 +222,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.project_url, 'https://updated-homepage.org')
         self.assertEqual(self.project.default_version, 'stable')
         self.assertEqual(self.project.default_branch, 'updated-default-branch')
-        self.assertEqual(self.project.privacy_level, 'private')
+        self.assertEqual(self.project.privacy_level, 'public')
         self.assertEqual(self.project.analytics_code, 'UA-XXXXXX')
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.single_version, True)
