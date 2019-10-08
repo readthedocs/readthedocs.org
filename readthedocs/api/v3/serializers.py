@@ -579,6 +579,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             )
         return value
 
+    # pylint: disable=arguments-differ
     def validate(self, data):
         # Check the parent and child are not the same project
         if data['child'].slug == self.parent_project.slug:
@@ -629,10 +630,9 @@ class ChildProjectSerializer(ProjectSerializer):
     class Meta(ProjectSerializer.Meta):
         fields = [
             field for field in ProjectSerializer.Meta.fields
-            if field not in [
-                    'subproject_of',
-            ]
+            if field not in ['subproject_of']
         ]
+
 
 class SubprojectSerializer(FlexFieldsModelSerializer):
 

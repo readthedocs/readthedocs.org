@@ -269,9 +269,7 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
         return SubprojectSerializer
 
     def create(self, request, *args, **kwargs):
-        """
-        Define a Project as subproject of another Project.
-        """
+        """Define a Project as subproject of another Project."""
         parent = self._get_parent_project()
         serializer = self.get_serializer(parent=parent, data=request.data)
         serializer.is_valid(raise_exception=True)
