@@ -214,7 +214,7 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ProjectRepositoryReSync(ProjectAdminMixin, PrivateViewMixin, GenericView):
+class ProjectVersionsSync(ProjectVersionMixin, GenericView):
 
     """
     Re-sync a project repository.
@@ -230,21 +230,15 @@ class ProjectRepositoryReSync(ProjectAdminMixin, PrivateViewMixin, GenericView):
         if sync:
             messages.success(
                 request,
-                _('Project repository re-sync triggered!'),
+                _('Project version sync triggered'),
             )
         else:
             messages.error(
                 request,
-                _('There was an error when syncing project's versions'),
+                _("There was an error when syncing project's versions"),
             )
 
         return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        return reverse(
-            'project_version_list',
-            kwargs={'project_slug': self.get_project().slug},
-        )
 
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):

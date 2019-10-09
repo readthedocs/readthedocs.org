@@ -31,7 +31,7 @@ from readthedocs.projects.views.private import (
     ProjectNoticationsDelete,
     ProjectRedirects,
     ProjectRedirectsDelete,
-    ProjectRepositoryReSync,
+    ProjectVersionsSync,
     ProjectTranslationsDelete,
     ProjectTranslationsListAndCreate,
     ProjectUpdate,
@@ -73,7 +73,7 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/resync/$',
-        ProjectRepositoryReSync.as_view(), name='project_repository_resync',
+        ProjectVersionsSync.as_view(), name='project_version_sync',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/delete_html/$',
