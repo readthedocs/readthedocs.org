@@ -215,6 +215,34 @@ Project create
 
     `See Project details <#project-details>`__
 
+Project update
+++++++++++++++
+
+.. http:patch:: /api/v3/projects/(string:project_slug)/
+
+    Update an existing project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X PATCH \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "name": "New name for the project",
+            "default_version": "v0.27.0"
+        }
+
+    :statuscode 204: Updated successfully
+
 
 Versions
 ~~~~~~~~
@@ -281,7 +309,6 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
-            "uploaded": true,
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -300,12 +327,9 @@ Version detail
             }
         }
 
-
     :>json string ref: the version slug where the ``stable`` version points to.
                        ``null`` when it's not the stable version.
-    :>json string build: the version has at least one successful build.
-    :>json string uploaded: the version was uploaded manually.
-
+    :>json boolean built: the version has at least one successful build.
 
     :query string expand: allows to add/expand some extra fields in the response.
                           Allowed values are ``last_build`` and ``last_build.config``.

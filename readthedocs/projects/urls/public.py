@@ -1,6 +1,7 @@
 """Project URLS for public users."""
 
 from django.conf.urls import url
+from django.views.generic.base import RedirectView
 
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
@@ -10,6 +11,11 @@ from readthedocs.search import views as search_views
 
 
 urlpatterns = [
+    url(
+        r'^$',
+        RedirectView.as_view(pattern_name='projects_dashboard', permanent=True),
+        name='projects_dashboard_redirect',
+    ),
     url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
         public.project_redirect,
