@@ -23,7 +23,7 @@ account_urls = [
     ),
     url(
         r'^advertising/$',
-        views.account_advertising,
+        views.AccountAdvertisingEdit.as_view(),
         name='account_advertising',
     ),
 ]

@@ -74,36 +74,20 @@ class ProfileDetail(DetailView):
         return context
 
 
-class AccountAdvertising(PrivateViewMixin):
+class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
 
-    pass
+    model = UserProfile
+    form_class = UserAdvertisingForm
+    context_object_name = 'profile'
+    template_name = 'profiles/private/advertising_profile.html'
+    success_message = _('Updated your advertising preferences')
 
+    def get_object(self):
+        return self.request.user.profile
 
-@login_required
-def account_advertising(request):
-    success_url = reverse(account_advertising)
-    profile_obj = request.user.profile
-    if request.method == 'POST':
-        form = UserAdvertisingForm(
-            data=request.POST,
-            instance=profile_obj,
-        )
-        if form.is_valid():
-            form.save()
-            messages.info(request, _('Updated your advertising preferences'))
-            return HttpResponseRedirect(success_url)
-    else:
-        form = UserAdvertisingForm(instance=profile_obj)
-
-    return render(
-        request,
-        'profiles/private/advertising_profile.html',
-        context={
-            'form': form,
-            'profile': profile_obj,
-            'user': profile_obj.user,
-        },
-    )
+    def get_success_url(self):
+        # Redirect to same view
+        return ''
 
 
 class TokenMixin(PrivateViewMixin):
