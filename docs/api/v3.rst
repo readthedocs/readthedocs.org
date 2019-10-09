@@ -652,6 +652,16 @@ Redirect create
             "type": "page"
         }
 
+    .. note::
+
+       ``type`` can be one of ``prefix``, ``page``, ``exact``, ``sphinx_html`` and ``sphinx_htmldir``.
+
+       Depending on the ``type`` of the redirect, some fields may not be needed:
+
+       * ``prefix`` type does not require ``to_url``.
+       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``
+       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``
+
     **Example response**:
 
     `See Redirect details <#redirect-details>`_
