@@ -177,12 +177,14 @@ class ProjectMixin(URLAccessMixin):
 class PublicProjectMixin(ProjectMixin):
 
     request_data = {
+        '/projects/': {},
         '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
         '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
         '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
     }
     response_data = {
         # Public
+        '/projects/': {'status_code': 301},
         '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
         '/projects/pip/badge/': {'status_code': 200},
         '/projects/invalid_slug/': {'status_code': 302},
@@ -238,10 +240,6 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 301},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-
-        # This depends on an inactive project
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
 
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
@@ -252,6 +250,8 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
@@ -288,6 +288,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -379,6 +381,93 @@ class APIUnauthAccessTest(APIMixin, TestCase):
         from readthedocs.api.v2.urls import urlpatterns
         get_public_task_data.side_effect = TaskNoPermission('Nope')
         self._test_url(urlpatterns)
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class PublicUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_public_urls(self):
+        from readthedocs.profiles.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PublicUserProfileAdminAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PublicUserProfileUserAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PublicUserProfileUnauthAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_public_urls(self):
+        from readthedocs.profiles.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
+
+    # Auth protected
+    default_status_code = 302
 
     def login(self):
         pass

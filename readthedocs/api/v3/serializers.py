@@ -4,13 +4,21 @@ import urllib
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext as _
+
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import LANGUAGES, PROGRAMMING_LANGUAGES, REPO_CHOICES
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.constants import (
+    LANGUAGES,
+    PROGRAMMING_LANGUAGES,
+    REPO_CHOICES,
+    PRIVACY_CHOICES,
+    PROTECTED,
+)
+from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 
 
@@ -377,7 +385,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         path = reverse(
             'projects-subprojects-list',
             kwargs={
-                'parent_lookup_superprojects__parent__slug': obj.slug,
+                'parent_lookup_parent__slug': obj.slug,
             },
         )
         return self._absolute_url(path)
@@ -416,6 +424,41 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
             'programming_language',
             'repository',
             'homepage',
+        )
+
+
+class ProjectUpdateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to modify a Project once imported."""
+
+    repository = RepositorySerializer(source='*')
+    homepage = serializers.URLField(source='project_url')
+
+    # Exclude ``Protected`` as a possible value for Privacy Level
+    privacy_level_choices = list(PRIVACY_CHOICES)
+    privacy_level_choices.remove((PROTECTED, _('Protected')))
+    privacy_level = serializers.ChoiceField(choices=privacy_level_choices)
+
+    class Meta:
+        model = Project
+        fields = (
+            # Settings
+            'name',
+            'repository',
+            'language',
+            'programming_language',
+            'homepage',
+
+            # Advanced Settings -> General Settings
+            'default_version',
+            'default_branch',
+            'privacy_level',
+            'analytics_code',
+            'show_version_warning',
+            'single_version',
+
+            # NOTE: we do not allow to change any setting that can be set via
+            # the YAML config file.
         )
 
 
@@ -494,6 +537,128 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class SubprojectCreateSerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to define a Project as subproject of another Project."""
+
+    child = serializers.SlugRelatedField(
+        slug_field='slug',
+        queryset=Project.objects.all(),
+    )
+
+    class Meta:
+        model = ProjectRelationship
+        fields = [
+            'child',
+            'alias',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        # Initialize the instance with the parent Project to be used in the
+        # serializer validation.
+        self.parent_project = kwargs.pop('parent')
+        super().__init__(*args, **kwargs)
+
+    def validate_child(self, value):
+        # Check the user is maintainer of the child project
+        user = self.context['request'].user
+        if user not in value.users.all():
+            raise serializers.ValidationError(
+                'You do not have permissions on the child project',
+            )
+        return value
+
+    def validate_alias(self, value):
+        # Check there is not a subproject with this alias already
+        subproject = self.parent_project.subprojects.filter(alias=value)
+        if subproject.exists():
+            raise serializers.ValidationError(
+                'A subproject with this alias already exists',
+            )
+        return value
+
+    # pylint: disable=arguments-differ
+    def validate(self, data):
+        # Check the parent and child are not the same project
+        if data['child'].slug == self.parent_project.slug:
+            raise serializers.ValidationError(
+                'Project can not be subproject of itself',
+            )
+
+        # Check the parent project is not a subproject already
+        if self.parent_project.superprojects.exists():
+            raise serializers.ValidationError(
+                'Subproject nesting is not supported',
+            )
+        return data
+
+
+class SubprojectLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    parent = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'projects-subprojects-detail',
+            kwargs={
+                'parent_lookup_parent__slug': obj.parent.slug,
+                'alias_slug': obj.alias,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_parent(self, obj):
+        path = reverse(
+            'projects-detail',
+            kwargs={
+                'project_slug': obj.parent.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class ChildProjectSerializer(ProjectSerializer):
+
+    """
+    Serializer to render a Project when listed under ProjectRelationship.
+
+    It's exactly the same as ``ProjectSerializer`` but without some fields.
+    """
+
+    class Meta(ProjectSerializer.Meta):
+        fields = [
+            field for field in ProjectSerializer.Meta.fields
+            if field not in ['subproject_of']
+        ]
+
+
+class SubprojectSerializer(FlexFieldsModelSerializer):
+
+    """Serializer to render a subproject (``ProjectRelationship``)."""
+
+    child = ChildProjectSerializer()
+    _links = SubprojectLinksSerializer(source='*')
+
+    class Meta:
+        model = ProjectRelationship
+        fields = [
+            'child',
+            'alias',
+            '_links',
+        ]
+
+
+class SubprojectDestroySerializer(FlexFieldsModelSerializer):
+
+    """Serializer used to remove a subproject relationship to a Project."""
+
+    class Meta:
+        model = ProjectRelationship
+        fields = (
+            'alias',
+        )
 
 
 class RedirectLinksSerializer(BaseLinksSerializer):
