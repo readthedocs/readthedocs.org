@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import FormView, ListView, UpdateView
+from vanilla import DetailView, FormView, ListView, UpdateView
 
 from readthedocs.core.forms import (
     UserAdvertisingForm,
@@ -21,7 +21,7 @@ from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 
 
-class EditProfile(PrivateViewMixin, UpdateView):
+class ProfileEdit(PrivateViewMixin, UpdateView):
 
     """Edit the current user's profile."""
 
@@ -40,7 +40,7 @@ class EditProfile(PrivateViewMixin, UpdateView):
         )
 
 
-class DeleteAccount(PrivateViewMixin, SuccessMessageMixin, FormView):
+class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
 
     form_class = UserDeleteForm
     template_name = 'profiles/private/delete_account.html'
@@ -62,71 +62,21 @@ class DeleteAccount(PrivateViewMixin, SuccessMessageMixin, FormView):
         return reverse('homepage')
 
 
-def profile_detail(
-        request,
-        username,
-        public_profile_field=None,
-        template_name='profiles/public/profile_detail.html',
-        extra_context=None,
-):
-    """
-    Detail view of a user's profile.
+class ProfileDetail(DetailView):
 
-    If the user does not exists, ``Http404`` will be raised.
+    model = User
+    template_name = 'profiles/public/profile_detail.html'
+    lookup_field = 'username'
 
-    **Required arguments:**
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.get_object().profile
+        return context
 
-    ``username``
-        The username of the user whose profile is being displayed.
 
-    **Optional arguments:**
+class AccountAdvertising(PrivateViewMixin):
 
-    ``extra_context``
-        A dictionary of variables to add to the template context. Any
-        callable object in this dictionary will be called to produce
-        the end result which appears in the context.
-
-    ``public_profile_field``
-        The name of a ``BooleanField`` on the profile model; if the
-        value of that field on the user's profile is ``False``, the
-        ``profile`` variable in the template will be ``None``. Use
-        this feature to allow users to mark their profiles as not
-        being publicly viewable.
-
-        If this argument is not specified, it will be assumed that all
-        users' profiles are publicly viewable.
-
-    ``template_name``
-        The name of the template to use for displaying the profile. If
-        not specified, this will default to
-        :template:`profiles/profile_detail.html`.
-
-    **Context:**
-
-    ``profile``
-        The user's profile, or ``None`` if the user's profile is not
-        publicly viewable (see the description of
-        ``public_profile_field`` above).
-
-    **Template:**
-
-    ``template_name`` keyword argument or
-    :template:`profiles/profile_detail.html`.
-    """
-    user = get_object_or_404(User, username=username)
-    profile_obj = user.profile
-    if (public_profile_field is not None and
-            not getattr(profile_obj, public_profile_field)):
-        profile_obj = None
-
-    if extra_context is None:
-        extra_context = {}
-    context = {
-        key: value() if callable(value) else value
-        for key, value in extra_context.items()
-    }
-    context.update({'profile': profile_obj})
-    return render(request, template_name, context=context)
+    pass
 
 
 @login_required

@@ -13,12 +13,12 @@ urlpatterns = []
 account_urls = [
     url(
         r'^edit/',
-        views.EditProfile.as_view(),
+        views.ProfileEdit.as_view(),
         name='profiles_profile_edit',
     ),
     url(
         r'^delete/',
-        views.DeleteAccount.as_view(),
+        views.AccountDelete.as_view(),
         name='delete_account',
     ),
     url(
