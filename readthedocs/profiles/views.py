@@ -8,93 +8,35 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView
 from rest_framework.authtoken.models import Token
 
-from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
+from readthedocs.core.forms import (
+    UserAdvertisingForm,
+    UserDeleteForm,
+    UserProfileForm,
+)
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.models import UserProfile
 
 
-@login_required
-def edit_profile(
-        request,
-        form_class,
-        success_url=None,
-        template_name='profiles/private/edit_profile.html',
-        extra_context=None,
-):
-    """
-    Edit the current user's profile.
+class EditProfile(PrivateViewMixin, UpdateView):
 
-    **Optional arguments:**
+    """Edit the current user's profile."""
 
-    ``extra_context``
-        A dictionary of variables to add to the template context. Any
-        callable object in this dictionary will be called to produce
-        the end result which appears in the context.
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'profiles/private/edit_profile.html'
+    context_object_name = 'profile'
 
-    ``form_class``
-        The form class to use for validating and editing the user
-        profile. This form class must operate similarly to a standard
-        Django ``ModelForm`` in that it must accept an instance of the
-        object to be edited as the keyword argument ``instance`` to
-        its constructor, and it must implement a method named
-        ``save()`` which will save the updates to the object.
+    def get_object(self):
+        return self.request.user.profile
 
-    ``success_url``
-        The URL to redirect to following a successful edit. If not
-        specified, this will default to the URL of
-        :view:`profiles.views.profile_detail` for the profile object
-        being edited.
-
-    ``template_name``
-        The template to use when displaying the profile-editing
-        form. If not specified, this will default to
-        :template:`profiles/edit_profile.html`.
-
-    **Context:**
-
-    ``form``
-        The form for editing the profile.
-
-    ``profile``
-         The user's current profile.
-
-    **Template:**
-
-    ``template_name`` keyword argument or
-    :template:`profiles/edit_profile.html`.
-    """
-    profile_obj = request.user.profile
-    if success_url is None:
-        success_url = reverse(
+    def get_success_url(self):
+        return reverse(
             'profiles_profile_detail',
-            kwargs={'username': request.user.username},
+            kwargs={'username': self.request.user.username},
         )
-    if request.method == 'POST':
-        form = form_class(
-            data=request.POST,
-            files=request.FILES,
-            instance=profile_obj,
-        )
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(success_url)
-    else:
-        form = form_class(instance=profile_obj)
-
-    if extra_context is None:
-        extra_context = {}
-    context = {
-        key: value() if callable(value) else value
-        for key, value in extra_context.items()
-    }
-    context.update({
-        'form': form,
-        'profile': profile_obj,
-        'user': profile_obj.user,
-    })
-    return render(request, template_name, context=context)
 
 
 @login_required()

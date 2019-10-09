@@ -13,11 +13,7 @@ urlpatterns = []
 account_urls = [
     url(
         r'^edit/',
-        views.edit_profile,
-        {
-            'form_class': UserProfileForm,
-            'template_name': 'profiles/private/edit_profile.html',
-        },
+        views.EditProfile.as_view(),
         name='profiles_profile_edit',
     ),
     url(r'^delete/', views.delete_account, name='delete_account'),
