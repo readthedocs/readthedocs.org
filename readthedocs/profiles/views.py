@@ -82,8 +82,7 @@ class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
         return self.request.user.profile
 
     def get_success_url(self):
-        # Redirect to same view
-        return ''
+        return reverse('account_advertising')
 
 
 class TokenMixin(PrivateViewMixin):
