@@ -235,7 +235,7 @@ class ProjectRepositoryReSync(ProjectAdminMixin, PrivateViewMixin, GenericView):
         else:
             messages.error(
                 request,
-                _('Unable to re-sync project repository!'),
+                _('There was an error when syncing project's versions'),
             )
 
         return HttpResponseRedirect(self.get_success_url())
