@@ -66,7 +66,10 @@ def map_subproject_slug(view_func):
                 if rel:
                     subproject = rel.child
                 else:
-                    log.warning('The slug is not subproject of project. subproject_slug=%s project_slug=%s', subproject_slug, kwargs['project'].slug)
+                    log.warning(
+                        'The slug is not subproject of project. subproject_slug=%s project_slug=%s',
+                        subproject_slug, kwargs['project'].slug
+                    )
                     raise Http404('Invalid subproject slug')
         return view_func(request, subproject=subproject, *args, **kwargs)
 
@@ -157,7 +160,9 @@ def serve_docs(
             not current_project.single_version]):
         log.info('Proxito redirect: slug=%s', current_project.slug)
         return redirect_project_slug(
-            request, project=current_project, subproject=None,
+            request,
+            project=current_project,
+            subproject=None,
         )
 
     if (lang_slug is None or version_slug is None) and not current_project.single_version:
