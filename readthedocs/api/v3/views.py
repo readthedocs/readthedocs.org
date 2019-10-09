@@ -21,13 +21,13 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project, EnvironmentVariable
+from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import ProjectQuerySetMixin
+from .mixins import ProjectQuerySetMixin, UpdateMixin
 from .permissions import PublicDetailPrivateListing, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -36,8 +36,12 @@ from .serializers import (
     EnvironmentVariableSerializer,
     ProjectSerializer,
     ProjectCreateSerializer,
+    ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
+    SubprojectCreateSerializer,
+    SubprojectSerializer,
+    SubprojectDestroySerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -73,6 +77,7 @@ class APIv3Settings:
 
 class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                       FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
+                      UpdateMixin, UpdateModelMixin,
                       ReadOnlyModelViewSet):
 
     # Markdown docstring is automatically rendered by BrowsableAPIRenderer.
@@ -151,6 +156,9 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action == 'create':
             return ProjectCreateSerializer
 
+        if self.action in ('update', 'partial_update'):
+            return ProjectUpdateSerializer
+
     def get_queryset(self):
         # Allow hitting ``/api/v3/projects/`` to list their own projects
         if self.basename == 'projects' and self.action == 'list':
@@ -226,11 +234,12 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
                                     ProjectQuerySetMixin, FlexFieldsMixin,
-                                    ListModelMixin, GenericViewSet):
+                                    CreateModelMixin, DestroyModelMixin,
+                                    ReadOnlyModelViewSet):
 
     # Markdown docstring exposed at BrowsableAPIRenderer.
 
-    """List subprojects of a ``Project``."""
+    """List subprojects (``ProjectRelationship``) of a ``Project``."""
 
     # Private/Internal docstring
 
@@ -239,11 +248,38 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
     ``parents_query_lookups`` defined when registering the urls.
     """  # noqa
 
-    model = Project
-    lookup_field = 'slug'
-    lookup_url_kwarg = 'project_slug'
-    serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+    model = ProjectRelationship
+    lookup_field = 'alias'
+    lookup_url_kwarg = 'alias_slug'
+    queryset = ProjectRelationship.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Return correct serializer depending on the action.
+
+        For GET it returns a serializer with many fields and on POST,
+        it return a serializer to validate just a few fields.
+        """
+        if self.action == 'create':
+            return SubprojectCreateSerializer
+
+        if self.action == 'destroy':
+            return SubprojectDestroySerializer
+
+        return SubprojectSerializer
+
+    def create(self, request, *args, **kwargs):
+        """Define a Project as subproject of another Project."""
+        parent = self._get_parent_project()
+        serializer = self.get_serializer(parent=parent, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(parent=parent)
+        headers = self.get_success_headers(serializer.data)
+
+        # Use serializer that fully render a the subproject
+        serializer = SubprojectSerializer(instance=serializer.instance)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
@@ -271,7 +307,8 @@ class TranslationRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
 # of ``ProjectQuerySetMixin`` to make calling ``super().get_queryset()`` work
 # properly and filter nested dependencies
 class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, UpdateModelMixin, ReadOnlyModelViewSet):
+                      FlexFieldsMixin, UpdateMixin,
+                      UpdateModelMixin, ReadOnlyModelViewSet):
 
     model = Version
     lookup_field = 'slug'
@@ -297,20 +334,6 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action in ('list', 'retrieve'):
             return VersionSerializer
         return VersionUpdateSerializer
-
-    def update(self, request, *args, **kwargs):
-        """
-        Make PUT/PATCH behaves in the same way.
-
-        Force to return 204 is the update was good.
-        """
-
-        # NOTE: ``Authorization:`` header is mandatory to use this method from
-        # Browsable API since SessionAuthentication can't be used because we set
-        # ``httpOnly`` on our cookies and the ``PUT/PATCH`` method are triggered
-        # via Javascript
-        super().update(request, *args, **kwargs)
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,

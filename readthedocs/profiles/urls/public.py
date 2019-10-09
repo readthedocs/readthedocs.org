@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """URL patterns to view user profiles."""
 
 from django.conf.urls import url
