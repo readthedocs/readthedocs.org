@@ -16,7 +16,11 @@ account_urls = [
         views.EditProfile.as_view(),
         name='profiles_profile_edit',
     ),
-    url(r'^delete/', views.delete_account, name='delete_account'),
+    url(
+        r'^delete/',
+        views.DeleteAccount.as_view(),
+        name='delete_account',
+    ),
     url(
         r'^advertising/$',
         views.account_advertising,

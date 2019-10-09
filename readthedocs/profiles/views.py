@@ -4,12 +4,13 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, UpdateView
 from rest_framework.authtoken.models import Token
+from vanilla import FormView, ListView, UpdateView
 
 from readthedocs.core.forms import (
     UserAdvertisingForm,
@@ -39,23 +40,26 @@ class EditProfile(PrivateViewMixin, UpdateView):
         )
 
 
-@login_required()
-def delete_account(request):
-    form = UserDeleteForm()
+class DeleteAccount(PrivateViewMixin, SuccessMessageMixin, FormView):
+
+    form_class = UserDeleteForm
     template_name = 'profiles/private/delete_account.html'
+    success_message = _('You have successfully deleted your account')
 
-    if request.method == 'POST':
-        form = UserDeleteForm(instance=request.user, data=request.POST)
-        if form.is_valid():
-            # Delete the user permanently
-            # It will also delete some projects where the user is the only owner
-            request.user.delete()
-            logout(request)
-            messages.info(request, 'You have successfully deleted your account')
+    def get_object(self):
+        return self.request.user
 
-            return redirect('homepage')
+    def form_valid(self, form):
+        self.request.user.delete()
+        logout(self.request)
+        return super().form_valid(form)
 
-    return render(request, template_name, {'form': form})
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['instance'] = self.get_object()
+        return super().get_form(data, files, **kwargs)
+
+    def get_success_url(self):
+        return reverse('homepage')
 
 
 def profile_detail(
@@ -172,4 +176,5 @@ class TokenMixin(PrivateViewMixin):
 
 
 class TokenList(TokenMixin, ListView):
+
     pass
