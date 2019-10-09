@@ -1,5 +1,6 @@
 """Public project views."""
 
+import hashlib
 import json
 import logging
 import mimetypes
@@ -17,8 +18,11 @@ from django.db.models import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
+from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
+from django.utils.crypto import constant_time_compare
+from django.utils.encoding import force_bytes
 from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
@@ -30,6 +34,7 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
 from .base import ProjectOnboardMixin
+from ..constants import PRIVATE
 
 
 log = logging.getLogger(__name__)
@@ -105,11 +110,10 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
         version_slug = project.get_default_version()
 
-        context['badge_url'] = '{}://{}{}?version={}'.format(
-            protocol,
-            settings.PRODUCTION_DOMAIN,
-            reverse('project_badge', args=[project.slug]),
-            project.get_default_version(),
+        context['badge_url'] = ProjectBadgeView.get_badge_url(
+            project.slug,
+            version_slug,
+            protocol=protocol,
         )
         context['site_url'] = '{url}?badge={version}'.format(
             url=project.get_docs_url(version_slug),
@@ -119,59 +123,131 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
         return context
 
 
-@never_cache
-def project_badge(request, project_slug):
-    """Return a sweet badge for the project."""
-    style = request.GET.get('style', 'flat')
-    if style not in (
+class ProjectBadgeView(View):
+
+    """
+    Return a sweet badge for the project.
+
+    Query parameters:
+
+    * ``version`` the version for the project (latest [default], stable, etc.)
+    * ``style`` the style of the badge (flat [default], plastic, etc.)
+    * ``token`` a project-specific token needed to access private versions
+    """
+
+    http_method_names = ['get', 'head', 'options']
+    STATUS_UNKNOWN = 'unknown'
+    STATUS_PASSING = 'passing'
+    STATUS_FAILING = 'failing'
+    STATUSES = (STATUS_FAILING, STATUS_PASSING, STATUS_UNKNOWN)
+
+    def get(self, request, project_slug, *args, **kwargs):
+        status = self.STATUS_UNKNOWN
+        token = request.GET.get('token')
+        version_slug = request.GET.get('version', LATEST)
+        version = None
+
+        if token:
+            version_to_check = Version.objects.filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            ).first()
+            if version_to_check and self.verify_project_token(token, project_slug):
+                version = version_to_check
+        else:
+            version = Version.objects.public(request.user).filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            ).first()
+
+        if version:
+            last_build = version.builds.filter(
+                type='html',
+                state='finished',
+            ).order_by('-date').first()
+            if last_build:
+                if last_build.success:
+                    status = self.STATUS_PASSING
+                else:
+                    status = self.STATUS_FAILING
+
+        return self.serve_badge(request, status)
+
+    def get_style(self, request):
+        style = request.GET.get('style', 'flat')
+        if style not in (
             'flat',
             'plastic',
             'flat-square',
             'for-the-badge',
             'social',
-    ):
-        style = 'flat'
+        ):
+            style = 'flat'
 
-    # Get the local path to the badge files
-    badge_path = os.path.join(
-        os.path.dirname(__file__),
-        '..',
-        'static',
-        'projects',
-        'badges',
-        '%s-' + style + '.svg',
-    )
+        return style
 
-    version_slug = request.GET.get('version', LATEST)
-    file_path = badge_path % 'unknown'
+    def serve_badge(self, request, status):
+        style = self.get_style(request)
+        if status not in self.STATUSES:
+            status = self.STATUS_UNKNOWN
 
-    version = Version.objects.public(request.user).filter(
-        project__slug=project_slug,
-        slug=version_slug,
-    ).first()
-
-    if version:
-        last_build = version.builds.filter(
-            type='html',
-            state='finished',
-        ).order_by('-date').first()
-        if last_build:
-            if last_build.success:
-                file_path = badge_path % 'passing'
-            else:
-                file_path = badge_path % 'failing'
-
-    try:
-        with open(file_path) as fd:
-            return HttpResponse(
-                fd.read(),
-                content_type='image/svg+xml',
-            )
-    except (IOError, OSError):
-        log.exception(
-            'Failed to read local filesystem while serving a docs badge',
+        badge_path = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            'static',
+            'projects',
+            'badges',
+            f'{status}-{style}.svg',
         )
-        return HttpResponse(status=503)
+
+        try:
+            with open(badge_path) as fd:
+                return HttpResponse(
+                    fd.read(),
+                    content_type='image/svg+xml',
+                )
+        except (IOError, OSError):
+            log.exception(
+                'Failed to read local filesystem while serving a docs badge',
+            )
+            return HttpResponse(status=503)
+
+    @classmethod
+    def get_badge_url(cls, project_slug, version_slug, protocol='https'):
+        url = '{}://{}{}?version={}'.format(
+            protocol,
+            settings.PRODUCTION_DOMAIN,
+            reverse('project_badge', args=[project_slug]),
+            version_slug,
+        )
+
+        # Append a token for private versions
+        version = Version.objects.filter(
+            project__slug=project_slug,
+            slug=version_slug,
+        ).first()
+        if version and version.privacy_level == PRIVATE:
+            token = cls.get_project_token(project_slug)
+            url += f'&token={token}'
+
+        return url
+
+    @classmethod
+    def get_project_token(cls, project_slug):
+        salt = b"readthedocs.projects.views.public.ProjectBadgeView"
+        hash_id = hashlib.sha256()
+        hash_id.update(force_bytes(settings.SECRET_KEY))
+        hash_id.update(salt)
+        hash_id.update(force_bytes(project_slug))
+        return hash_id.hexdigest()
+
+    @classmethod
+    def verify_project_token(cls, token, project_slug):
+        expected_token = cls.get_project_token(project_slug)
+        return constant_time_compare(token, expected_token)
+
+
+project_badge = never_cache(ProjectBadgeView.as_view())
 
 
 def project_downloads(request, project_slug):
@@ -284,7 +360,14 @@ def project_versions(request, project_slug):
         only_active=False,
     )
     active_versions = versions.filter(active=True)
+
+    # Limit inactive versions in case a project has a large number of branches or tags
+    # Filter inactive versions based on the query string
     inactive_versions = versions.filter(active=False)
+    version_filter = request.GET.get('version_filter', '')
+    if version_filter:
+        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
+    inactive_versions = inactive_versions[:100]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how

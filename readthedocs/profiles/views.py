@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Views for creating, editing and viewing site-specific user profiles."""
 
 from django.contrib import messages
@@ -14,6 +12,7 @@ from django.views.generic import ListView, DeleteView, View
 from rest_framework.authtoken.models import Token
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
+from readthedocs.core.mixins import PrivateViewMixin
 
 
 @login_required
@@ -211,20 +210,12 @@ def account_advertising(request):
     )
 
 
-class TokenMixin:
+class TokenMixin(PrivateViewMixin):
 
-    """Mixin class to handle API Tokens."""
+    """User token to access APIv3."""
 
     model = Token
-
-    def get_success_url(self):
-        return reverse('profiles_tokens')
-
-
-class TokenListView(TokenMixin, ListView):
-
-    """View to list all the Tokens that belong to a User."""
-
+    lookup_url_kwarg = 'token_pk'
     template_name = 'profiles/private/token_list.html'
 
     def get_queryset(self):
@@ -232,6 +223,13 @@ class TokenListView(TokenMixin, ListView):
         # a OneToOneField relation with User. Although, we plan to have multiple
         # scope-based tokens.
         return Token.objects.filter(user__in=[self.request.user])
+
+    def get_success_url(self):
+        return reverse('profiles_tokens')
+
+
+class TokenListView(TokenMixin, ListView):
+    pass
 
 
 class TokenCreateView(TokenMixin, View):

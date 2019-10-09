@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from vanilla import DeleteView, DetailView, UpdateView
 
-from readthedocs.core.mixins import LoginRequiredMixin
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Domain, Project
 
@@ -23,7 +23,7 @@ from .models import GoldUser
 class GoldSubscriptionMixin(
         SuccessMessageMixin,
         StripeMixin,
-        LoginRequiredMixin,
+        PrivateViewMixin,
 ):
 
     """Gold subscription mixin for view classes."""

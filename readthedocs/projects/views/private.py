@@ -35,7 +35,7 @@ from vanilla import (
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
+from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
@@ -77,11 +77,6 @@ from readthedocs.search.models import SearchQuery
 from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
-
-
-class PrivateViewMixin(LoginRequiredMixin):
-
-    pass
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
