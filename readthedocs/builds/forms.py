@@ -38,8 +38,8 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
             ok_chars = ', '.join(VERSION_OK_CHARS)
             msg = _(
                 'The slug "{slug}" is not valid. '
-                'It should only contain letters, numbers or {ok_chars}. '
-                'And can not start with {ok_chars}.'
+                'It should only contain letters, numbers and {ok_chars}. '
+                'It can not start with {ok_chars}.'
             )
             raise forms.ValidationError(
                 msg.format(slug=original_slug, ok_chars=ok_chars)
