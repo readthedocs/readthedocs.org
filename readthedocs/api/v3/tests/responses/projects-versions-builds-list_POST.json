@@ -78,7 +78,7 @@
         "active": true,
         "built": true,
         "downloads": {},
-        "id": 3,
+        "id": 2,
         "identifier": "a1b2c3",
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/",

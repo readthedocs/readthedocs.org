@@ -550,8 +550,64 @@ Subprojects listing
             "count": 25,
             "next": "/api/v3/projects/pip/subprojects/?limit=10&offset=10",
             "previous": null,
-            "results": ["PROJECT"]
+            "results": ["SUBPROJECT RELATIONSHIP"]
         }
+
+
+Subproject create
++++++++++++++++++
+
+
+.. http:post:: /api/v3/projects/(str:project_slug)/subprojects/
+
+    Create a subproject relationship between two projects.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "child": "subproject-child-slug",
+            "alias": "subproject-alias"
+        }
+
+    **Example response**:
+
+    `See Subproject details <#subproject-details>`_
+
+    :>json string child: slug of the child project in the relationship.
+    :>json string alias: optional slug alias to be used in the URL (e.g ``/projects/<alias>/en/latest/``).
+                         If not provided, child project's slug is used as alias.
+
+    :statuscode 201: Subproject created sucessfully
+
+
+Subproject delete
++++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Delete a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X DELETE \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    :statuscode 204: Subproject deleted successfully
 
 
 Translations

@@ -13,6 +13,7 @@ class NestedParentObjectMixin:
     PROJECT_LOOKUP_NAMES = [
         'project__slug',
         'projects__slug',
+        'parent__slug',
         'superprojects__parent__slug',
         'main_language_project__slug',
     ]
