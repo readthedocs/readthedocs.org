@@ -23,6 +23,7 @@
           {% csrf_token %}
         </form>
         <p class="empty">
+          {# We are submitting the form using javascript because it breaks the UI design if we use buttons #}
           {% blocktrans trimmed %}
             This version is inactive but its documentation is still available online.
             You can <a href="#" onclick="document.forms['version_delete_html'].submit();">delete this version's documentation</a> if you want to remove it completely.
