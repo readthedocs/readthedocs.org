@@ -126,6 +126,8 @@ Versions
                     </li>
                   {% endblock inactive-versions %}
 
+                {% empty %}
+                <li class="module-item quiet">{% trans "No versions found" %}</li>
                 {% endfor %}
               </ul>
             </div>
