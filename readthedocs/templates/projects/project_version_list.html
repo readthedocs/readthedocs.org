@@ -76,7 +76,7 @@ Versions
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
-        {% if inactive_versions %}
+        {% if inactive_versions or request.GET.version_filter %}
           <div class="module-header">
             <h1>{% trans "Activate a version" %}</h1>
             <p>{% trans "Active versions are built whenever new code is pushed to that branch or tag." %}</p>
