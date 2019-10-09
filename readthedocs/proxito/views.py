@@ -66,7 +66,7 @@ def map_subproject_slug(view_func):
                 if rel:
                     subproject = rel.child
                 else:
-                    log.error('Invalid subproject slug. subproject_slug=%s', subproject_slug)
+                    log.warning('The slug is not subproject of project. subproject_slug=%s project_slug=%s', subproject_slug, kwargs['project'].slug)
                     raise Http404('Invalid subproject slug')
         return view_func(request, subproject=subproject, *args, **kwargs)
 
