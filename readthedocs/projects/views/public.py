@@ -349,6 +349,8 @@ def project_versions(request, project_slug):
 
     Shows the available versions and lets the user choose which ones to build.
     """
+    max_inactive_versions = 100
+
     project = get_object_or_404(
         Project.objects.protected(request.user),
         slug=project_slug,
@@ -367,7 +369,7 @@ def project_versions(request, project_slug):
     version_filter = request.GET.get('version_filter', '')
     if version_filter:
         inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
-    inactive_versions = inactive_versions[:100]
+    inactive_versions = inactive_versions[:max_inactive_versions]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
@@ -387,6 +389,7 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'max_inactive_versions': max_inactive_versions,
         },
     )
 

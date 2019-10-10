@@ -83,6 +83,7 @@ Versions
           </div>
 
           {# Version search #}
+          <a name="version-filter"></a>
           <div class="wide-search-bar">
             <div class="wide-search-bar-wrapper clearfix">
               <form action="." method="GET">
@@ -134,8 +135,19 @@ Versions
           </div>
         {% endif %}
 
+
+
       </div>
     </div>
+
+    {% if inactive_versions|length >= max_inactive_versions %}
+      <p>
+        {% blocktrans trimmed %}
+          Only the first {{ max_inactive_versions }} inactive versions were shown. Please <a href="#version-filter">filter the list</a>.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
     {% endif %}
 
   </div>
