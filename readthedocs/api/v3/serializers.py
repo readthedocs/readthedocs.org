@@ -571,6 +571,18 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             raise serializers.ValidationError(
                 'You do not have permissions on the child project',
             )
+
+        # Check the child project is not a subproject already
+        if value.superprojects.exists():
+            raise serializers.ValidationError(
+                'Child is already a subproject of another project',
+            )
+
+        # Check the child project is already a superproject
+        if value.subprojects.exists():
+            raise serializers.ValidationError(
+                'Child is already a superproject',
+            )
         return value
 
     def validate_alias(self, value):
