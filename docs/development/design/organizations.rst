@@ -80,6 +80,9 @@ The migration can be split in:
 
 We should start by removing unused features and dead code from the organizations in the corporate site,
 and simplify existing code if possible (some of this was already done).
+Another simplification that can be done is:
+make the relationship between the models ``Organization`` and ``Project`` one to many
+(currently many to many).
 
 Isolate/separate the models to be moved from the ones that aren't going to be moved.
 We should move the models that aren't going to me moved to another app.
@@ -89,7 +92,7 @@ We should move the models that aren't going to me moved to another app.
 - Subscription
 
 This app can be named *subscriptions*.
-We can get around the table names and migrations by setting the explicitly the table name to `organizations_<model>`,
+We can get around the table names and migrations by setting the explicitly the table name to ``organizations_<model>``,
 and doing a fake migration.
 Following suggestions in https://stackoverflow.com/questions/48860227/moving-multiple-models-from-one-django-app-to-another.
 Code related to subscriptions should be moved out from the organizations app.
@@ -114,7 +117,7 @@ For managers and querysets that depend on subscriptions,
 we can use our pattern to make overridable classes (inheriting from ``SettingsOverrideObject``).
 
 Templates, urls, views, forms, notifications, signals, tasks can be moved later
-(we just need to make use of the models from the `readthedocs.organizations` module).
+(we just need to make use of the models from the ``readthedocs.organizations`` module).
 
 If we decide to integrate organizations in the community site,
 we can enable the app.
