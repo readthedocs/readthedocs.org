@@ -114,11 +114,18 @@ class InvalidConfig(ConfigError):
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
-            key=key,
+            key=self._get_display_key(),
             code=code,
             error=error_message,
         )
         super().__init__(message, code=code)
+
+    def _get_display_key(self):
+        # Checks for patterns similar to `python.install.0.requirements`
+        # if matched change to `python.install[0].requirements` using backreference.
+        return re.sub(
+            r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', self.key
+        )
 
 
 class BuildConfigBase:
@@ -151,7 +158,7 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    default_build_image = settings.DOCKER_DEFAULT_VERSION
+    default_build_image = settings.RTD_DOCKER_DEFAULT_VERSION
 
     version = None
 
@@ -266,7 +273,7 @@ class BuildConfigBase:
         ``readthedocs/build`` part) plus ``stable`` and ``latest``.
         """
         images = {'stable', 'latest'}
-        for k in settings.DOCKER_IMAGE_SETTINGS:
+        for k in settings.RTD_DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
@@ -279,15 +286,15 @@ class BuildConfigBase:
         The Docker image (``build_image``) has to be its complete name, already
         validated: ``readthedocs/build:4.0``, not just ``4.0``.
 
-        Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
+        Returns supported versions for the ``RTD_DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+        if build_image not in settings.RTD_DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                settings.RTD_DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+        return settings.RTD_DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
     def as_dict(self):
         config = {}
@@ -324,7 +331,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for _, options in settings.DOCKER_IMAGE_SETTINGS.items():
+            for _, options in settings.RTD_DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(
                     options['python']['supported_versions']
                 )
@@ -379,7 +386,7 @@ class BuildConfigV1(BuildConfigBase):
         if 'build' in self.env_config:
             build = self.env_config['build'].copy()
         else:
-            build = {'image': settings.DOCKER_IMAGE}
+            build = {'image': settings.RTD_DOCKER_IMAGE}
 
         # User specified
         if 'build' in self._raw_config:
@@ -393,12 +400,12 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    settings.DOCKER_DEFAULT_IMAGE,
+                    settings.RTD_DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
-        if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
+        if build['image'] in settings.RTD_DOCKER_IMAGE_SETTINGS:
+            self.env_config.update(settings.RTD_DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -700,7 +707,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                settings.RTD_DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,

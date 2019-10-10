@@ -29,8 +29,8 @@ def django_setting_role(typ, rawtext, text, lineno, inliner, options=None,
 def python_supported_versions_role(typ, rawtext, text, lineno, inliner,
                                    options=None, content=None):
     """Up to date supported python versions for each build image."""
-    image = '{}:{}'.format(settings.DOCKER_DEFAULT_IMAGE, text)
-    image_settings = settings.DOCKER_IMAGE_SETTINGS[image]
+    image = '{}:{}'.format(settings.RTD_DOCKER_DEFAULT_IMAGE, text)
+    image_settings = settings.RTD_DOCKER_IMAGE_SETTINGS[image]
     python_versions = image_settings['python']['supported_versions']
     node_list = []
     separator = ', '

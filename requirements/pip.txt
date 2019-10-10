@@ -63,12 +63,8 @@ git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17
 #     from elasticsearch_dsl import Document as DSLDocument
 # ImportError: cannot import name 'Document'
 django-elasticsearch-dsl==0.5.1  # pyup: ignore
-pyquery==1.4.0
-
-# lxml is used by pyquery
-# defusedxml is recommended when using lxml
-lxml==4.4.1
-defusedxml==0.6.0
+selectolax==0.2.1
+orjson==2.0.7
 
 # Utils
 django-gravatar2==1.4.2
@@ -108,7 +104,8 @@ django-cors-middleware==1.4.0
 user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
-django-storages==1.7.2  # pyup: <1.8
+# 1.7.2 blows up on our servers because of azure changes
+django-storages==1.7.1  # pyup: <1.7.2
 
 # Required only in development and linting
 django-debug-toolbar==2.0
