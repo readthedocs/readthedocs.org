@@ -2173,6 +2173,9 @@ class APIVersionTests(TestCase):
             'downloads': {},
             'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
             'slug': '0.8',
+            'has_epub': False,
+            'has_htmlzip': False,
+            'has_pdf': False,
         }
 
         self.assertDictEqual(
@@ -2212,6 +2215,23 @@ class APIVersionTests(TestCase):
         resp = self.client.get(url, content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
+
+    def test_modify_version(self):
+        pip = Project.objects.get(slug='pip')
+        version = pip.versions.get(slug='0.8')
+
+        data = {
+            'pk': version.pk,
+        }
+        resp = self.client.patch(
+            reverse('version-detail', kwargs=data),
+            data=json.dumps({'built': False, 'has_pdf': True}),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Basic {}'.format(eric_auth),  # Eric is staff
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['built'], False)
+        self.assertEqual(resp.data['has_pdf'], True)
 
 
 class TaskViewsTests(TestCase):
