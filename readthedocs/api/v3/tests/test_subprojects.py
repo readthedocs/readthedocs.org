@@ -115,6 +115,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
     def test_projects_subprojects_list_post_with_child_already_superproject(self):
         newproject = self._create_new_project()
         self.assertEqual(newproject.subprojects.count(), 0)
+        self.assertTrue(self.project.subprojects.exists())
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         data = {
             'child': self.project.slug,
