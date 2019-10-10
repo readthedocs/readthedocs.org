@@ -15,6 +15,15 @@ class ProjectQuerySetBase(models.QuerySet):
 
     use_for_related_fields = True
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.users_not_banned = (
+            Q(users__profile__banned=False) |
+            Q(users__profile__isnull=True) |
+            Q(users__isnull=True)
+        )
+
     def _add_user_repos(self, queryset, user):
         if user.has_perm('projects.view_project'):
             return self.all()
@@ -37,9 +46,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def public(self, user=None):
         queryset = self.filter(
-            Q(users__profile__banned=False) |
-            Q(users__profile__isnull=True) |
-            Q(users__isnull=True),
+            self.users_not_banned,
             privacy_level=constants.PUBLIC
         )
         if user:
@@ -48,9 +55,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def protected(self, user=None):
         queryset = self.filter(
-            Q(users__profile__banned=False) |
-            Q(users__profile__isnull=True) |
-            Q(users__isnull=True),
+            self.users_not_banned,
             privacy_level__in=[constants.PUBLIC, constants.PROTECTED]
         )
         if user:
@@ -59,9 +64,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
     def private(self, user=None):
         queryset = self.filter(
-            Q(users__profile__banned=False) |
-            Q(users__profile__isnull=True) |
-            Q(users__isnull=True),
+            self.users_not_banned,
             privacy_level=constants.PRIVATE
         )
         if user:
