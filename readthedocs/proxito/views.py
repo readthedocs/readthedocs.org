@@ -166,7 +166,8 @@ def serve_docs(
         )
 
     if (lang_slug is None or version_slug is None) and not current_project.single_version:
-        log.info('Invalid URL for project with versions. url=%s', filename)
+        log.info('Invalid URL for project with versions. url=%s, project=%s',
+                 filename, current_project.slug)
         raise Http404('Invalid URL for project with versions')
 
     # Handle single-version projects that have URLs like a real project
