@@ -435,13 +435,19 @@ class PrivateUserProfileMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 405},
+            '/accounts/tokens/delete/': {'status_code': 405},
+        })
+
         self.default_kwargs.update(
             {
                 'username': self.tester.username,
             }
         )
 
-    def test_public_urls(self):
+    def test_private_urls(self):
         from readthedocs.profiles.urls.private import urlpatterns
         self._test_url(urlpatterns)
 
@@ -468,6 +474,14 @@ class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
 
     # Auth protected
     default_status_code = 302
+
+    def setUp(self):
+        super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 302},
+            '/accounts/tokens/delete/': {'status_code': 302},
+        })
 
     def login(self):
         pass
