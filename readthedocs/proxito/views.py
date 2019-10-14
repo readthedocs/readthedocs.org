@@ -158,12 +158,14 @@ def serve_docs(
     # Handle a / redirect when we aren't a single version
     if all([lang_slug is None, version_slug is None, filename == '',
             not current_project.single_version]):
-        log.info('Proxito redirect: slug=%s', current_project.slug)
-        return redirect_project_slug(
+        redirect_to = redirect_project_slug(
             request,
             project=current_project,
             subproject=None,
         )
+        log.info('Proxito redirect: from=%s, to=%s, project=%s',
+                 filename, redirect_to, current_project.slug)
+        return redirect_to
 
     if (lang_slug is None or version_slug is None) and not current_project.single_version:
         log.info('Invalid URL for project with versions. url=%s, project=%s',
