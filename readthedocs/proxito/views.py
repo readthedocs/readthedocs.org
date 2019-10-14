@@ -226,14 +226,14 @@ def serve_docs(
     # We definitely shouldn't do this in production,
     # but I don't want to force a check for DEBUG.
     if settings.PYTHON_MEDIA:
-        log.info('[Django serve] path=%s, project=%s', path, final_project)
+        log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
         # Serve from Python
         return serve(request, path, root_path)
 
     # Serve via nginx
-    log.info('[Nginx serve] path=%s, project=%s', path, final_project)
+    log.info('[Nginx serve] path=%s, project=%s', path, final_project.slug)
     return _serve_docs_nginx(
         request, final_project=final_project, path=f'/proxito/{path}'
     )
