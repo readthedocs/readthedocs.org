@@ -1193,7 +1193,6 @@ class Project(models.Model):
             )
 
 
-
 class APIProject(Project):
 
     """
