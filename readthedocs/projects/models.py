@@ -1154,6 +1154,45 @@ class Project(models.Model):
             for variable in self.environmentvariable_set.all()
         }
 
+    def is_valid_as_superproject(self, error_class):
+        """
+        Checks if the project can be a superproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the parent project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Subproject nesting is not supported'),
+            )
+
+    def is_valid_as_subproject(self, parent, error_class):
+        """
+        Checks if the project can be a subproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the child project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if self.subprojects.exists():
+            raise error_class(
+                _('Child is already a superproject'),
+            )
+
+        # Check the parent and child are not the same project
+        if parent.slug == self.slug:
+            raise error_class(
+                _('Project can not be subproject of itself'),
+            )
+
+
 
 class APIProject(Project):
 
