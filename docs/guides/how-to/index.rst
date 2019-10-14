@@ -29,9 +29,13 @@ These guides will help you customize or tune aspects of the Read the Docs build 
 .. toctree::
     :maxdepth: 1
 
+    autobuild-docs-for-pull-requests
     build-notifications
     technical-docs-seo-guide
-    specifying-dependencies
-    wipe-environment
+    canonical
+    conda
+    environment-variables
+    feature-flags
     google-analytics
+    searching-with-readthedocs
     sitemaps

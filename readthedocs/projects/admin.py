@@ -28,8 +28,8 @@ from .notifications import (
     DeprecatedGitHubWebhookNotification,
     ResourceUsageNotification,
 )
-from .tasks import remove_dirs
 from .tag_utils import import_tags
+from .tasks import remove_dirs
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -148,7 +148,7 @@ class ProjectAdmin(admin.ModelAdmin):
         VersionInline,
         DomainInline,
     ]
-    readonly_fields = ('feature_flags',)
+    readonly_fields = ('pub_date', 'feature_flags',)
     raw_id_fields = ('users', 'main_language_project')
     actions = [
         'send_owner_email',

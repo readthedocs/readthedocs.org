@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Views for creating, editing and viewing site-specific user profiles."""
 
 from django.contrib import messages
@@ -14,6 +12,7 @@ from django.views.generic import ListView
 from rest_framework.authtoken.models import Token
 
 from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
+from readthedocs.core.mixins import PrivateViewMixin
 
 
 @login_required
@@ -211,9 +210,9 @@ def account_advertising(request):
     )
 
 
-class TokenMixin:
+class TokenMixin(PrivateViewMixin):
 
-    """Environment Variables to be added when building the Project."""
+    """User token to access APIv3."""
 
     model = Token
     lookup_url_kwarg = 'token_pk'
