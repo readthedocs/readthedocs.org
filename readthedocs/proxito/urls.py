@@ -30,6 +30,7 @@ pip.rtfd.io/<lang>/
 """
 
 from django.conf.urls import url
+from django.views import defaults
 
 from readthedocs.constants import pattern_opts
 from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
@@ -79,3 +80,7 @@ urlpatterns = [
         name='docs_detail_singleversion_subproject',
     ),
 ]
+
+# Use Django default error handlers to make things simpler
+handler404 = defaults.page_not_found
+handler500 = defaults.server_error
