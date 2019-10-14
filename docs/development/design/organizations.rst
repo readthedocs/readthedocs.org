@@ -80,9 +80,6 @@ The migration can be split in:
 
 We should start by removing unused features and dead code from the organizations in the corporate site,
 and simplify existing code if possible (some of this was already done).
-Another simplification that can be done is:
-make the relationship between the models ``Organization`` and ``Project`` one to many
-(currently many to many).
 
 Isolate/separate the models to be moved from the ones that aren't going to be moved.
 We should move the models that aren't going to me moved to another app.
@@ -158,4 +155,6 @@ Future Changes
 Changes that aren't needed immediately after the migration,
 but that should be done:
 
-Add new endpoints to the API (v3 only).
+- Add new endpoints to the API (v3 only).
+- Make the relationship between the models ``Organization`` and ``Project`` one to many
+  (currently many to many).
