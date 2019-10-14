@@ -2232,6 +2232,8 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['built'], False)
         self.assertEqual(resp.data['has_pdf'], True)
+        self.assertEqual(resp.data['has_epub'], False)
+        self.assertEqual(resp.data['has_htmlzip'], False)
 
 
 class TaskViewsTests(TestCase):
