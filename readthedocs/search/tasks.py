@@ -166,7 +166,6 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     # if yes, then just update the object.
     for partial_query in partial_query_qs.iterator():
         if query.startswith(partial_query.query):
-            partial_query.created = time
             partial_query.query = query
             partial_query.save()
             return
