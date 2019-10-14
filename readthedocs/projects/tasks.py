@@ -904,11 +904,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         downloads, and search. Tasks are broadcast to all web servers from here.
         """
         # Update version if we have successfully built HTML output
+        # And store whether the build had other media types
         try:
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
                 })
         except HttpClientError:
             log.exception(
