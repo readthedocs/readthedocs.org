@@ -120,10 +120,23 @@ Templates, urls, views, forms, notifications, signals, tasks can be moved later
 (we just need to make use of the models from the ``readthedocs.organizations`` module).
 
 If we decide to integrate organizations in the community site,
-we can enable the app.
+we can add/move the UI elements and enable the app.
 
 After the app is moved,
 we can move more code that depends on organizations to the community site.
+
+User interface
+--------------
+
+Import page
+~~~~~~~~~~~
+
+Project's list
+~~~~~~~~~~~~~~
+
+Organization's list
+~~~~~~~~~~~~~~~~~~~
+
 
 Namespace
 ---------
@@ -145,4 +158,4 @@ Future Changes
 Changes that aren't needed immediately after the migration,
 but that should be done:
 
-Edit the current querysets, modify/add UI elements, and add new endpoints to the API (v3 only).
+Add new endpoints to the API (v3 only).
