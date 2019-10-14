@@ -45,6 +45,13 @@ Although, users can create an exact redirect to fix this::
 
    /en/{ current_slug }/$rest -> /en/{ new-slug }/
 
+Current online docs would be inaccessible for a time.
+Old docs need to be removed,
+that can cause the docs to be down for a short time (till the new build finish)
+or for a long time (if the new build fails and the user needs to investigate the cause).
+This is only relevant for versions that were created a time ago (new versions wouldn't have many readers yet).
+This can be fixed by first building the new docs and removing the old docs only if the new build is successful.
+
 Using another field as alias
 ----------------------------
 
