@@ -20,6 +20,16 @@ from readthedocs.projects.models import Project, ProjectRelationship
 log = logging.getLogger(__name__)  # noqa
 
 
+def fast_404(request):
+    """
+    A fast error page handler
+
+    This stops us from running RTD logic in our error handling.
+    We already do this in RTD prod when we fallback to it.
+    """
+    return HttpResponse('Not Found.', status_code=404)
+
+
 def _serve_401(request, project):
     res = render(request, '401.html')
     res.status_code = 401
