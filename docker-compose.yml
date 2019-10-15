@@ -1,11 +1,18 @@
+# GITHUB_TOKEN environment variable is required to build the images
+
 version: '3'
 
 volumes:
-  web-static:
-  web-public-web-root:
-  web-user-builds:
+  build-user-builds:
 
 services:
+  server:
+    # Image used for all the other services (proxito, web, celery, build)
+    build:
+      context: .
+      dockerfile: ${PWD}/docker/Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN}
 
   nginx:
     image: nginx
@@ -13,73 +20,96 @@ services:
       - "80:80"
     links:
       - web
+      - proxito
+      - storage
     volumes:
       - ${PWD}/docker/nginx:/etc/nginx/conf.d
-      - web-static:/usr/src/app/checkouts/readthedocs.org/static
-      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
-      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
 
-  web:
-    build:
-      context: .
-      dockerfile: ${PWD}/docker/Dockerfile
+  proxito:
+    image: readthedocsorg_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
-      - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
-      - web-static:/usr/src/app/checkouts/readthedocs.org/static
-      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
-      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
+      - ${PWD}/docker/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
     links:
+      - storage
       - database
       - cache
     environment:
-      - DJANGO_SETTINGS_SKIP_LOCAL=t
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito 
+    command: ["gunicorn", "readthedocs.wsgi:application", "-w", "3", "-b", ":8000"]
 
-  # TODO: how do we configure this `celery` container to sync the files into `web`?
-  # There is a FILE_SYNCER setting that uses readthedocs.builder.syncers classes
-  # This needs ``rsync`` and ``openssh`` to be installed in celery image,
-  # and ``openssh`` server configured and running on build
-  celery:
-    build:
-      context: .
-      dockerfile: ${PWD}/docker/Dockerfile
+  web:
+    image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/web.sh:/usr/src/app/docker/web.sh
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
-      - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
-      - web-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
-      - web-public-web-root:/usr/src/app/checkouts/readthedocs.org/public_web_root
+      - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
     links:
+      - storage
+      - database
+      - cache
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+    command: ["../../docker/web.sh"]
+
+  celery:
+    image: readthedocsorg_server:latest
+    volumes:
+      - ${PWD}/docker/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
+    links:
+      - storage
       - database
       - cache
       - search
     environment:
-      - DJANGO_SETTINGS_SKIP_LOCAL=t
-    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "web,web01,reindex", "-l", "DEBUG"]
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+    command: ["../../docker/celery.sh"]
 
+  # celery-beat:
+    
   build:
-    build:
-      context: .
-      dockerfile: ${PWD}/docker/Dockerfile
+    image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/build.sh:/usr/src/app/docker/build.sh
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
-      - ${PWD}/docker/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/dev.py
+      - ${PWD}/docker/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
 
       # The python code at readthedocs/doc_builder/environments.py
       # mounts `self.project.doc_path`. We need to share this path
       # between our host, the build container, and the container that
       # is created inside the build container. Because of this, we
       # need the path in the main host.
-      - /usr/src/app/checkouts/readthedocs.org/user_builds:/usr/src/app/checkouts/readthedocs.org/user_builds
-
+      - build-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
+      
+      # Docker in Docker
       - /var/run/docker.sock:/var/run/docker.sock
     links:
+      - web
+      - storage
       - cache
     environment:
-      - DJANGO_SETTINGS_SKIP_LOCAL=t
-    command: ["python3", "-m", "celery", "worker", "-A", "readthedocs.worker", "-Ofair", "-c", "1", "-Q", "builder,celery,default,build01", "-l", "DEBUG"]
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+    command: ["../../docker/build.sh"]
+
+  # Containers MUST be created first
+  # https://docs.microsoft.com/es-es/cli/azure/run-azure-cli-docker?view=azure-cli-latest
+  # $ yay -S nodejs-azure-cli
+  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "builds"
+  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "static"
+  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "media"
+  storage:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    volumes:
+      - ${PWD}/docker/azurite:/data
+    ports:
+      - "10000:10000"
+      - "10001:10001"
 
   cache:
     image: redis:3.2.7

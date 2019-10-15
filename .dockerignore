@@ -5,13 +5,19 @@ bower_components
 .git
 *.db*
 *.sql
+.tox
+.cache
+.pytest_cache
 celerybeat*
 debug.log
 
 **/__pycache__
 
+bower_components
 contrib
 datasets
+docs
+docker/azurite
 media/epub
 media/htmlzip
 media/json
@@ -25,4 +31,6 @@ public_cname_root
 public_cnames
 public_symlinks
 public_web_root
+static
+spam-data
 user_builds
