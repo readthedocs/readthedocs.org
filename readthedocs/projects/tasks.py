@@ -1422,10 +1422,12 @@ def _create_intersphinx_data(version, commit, build):
 
     # Re-create all objects from the new build of the version
     object_file_url = storage.url(object_file)
-    if object_file_url.startswith('/'):
-        # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
-        # This can cause an issue if MEDIA_URL is not fully qualified
-        object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
+    log.warning('OBJECT_FILE_URL: %s', object_file_url)
+    # FIXME: this is causing a problem on seach with docker-compose
+    # if object_file_url.startswith('/'):
+    #     # Filesystem backed storage simply prepends MEDIA_URL to the path to get the URL
+    #     # This can cause an issue if MEDIA_URL is not fully qualified
+    #     object_file_url = 'http://' + settings.PRODUCTION_DOMAIN + object_file_url
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):

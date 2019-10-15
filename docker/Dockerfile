@@ -26,6 +26,8 @@ RUN git clone https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext
 RUN pip install --no-cache-dir -e readthedocs-ext
 
 # We need the latest version to use Azurite
+# 1.7.2 introduced AZURE_EMULATED_MODE and AZURE_CUSTOM_DOMAIN
+# https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst#172-2019-09-10
 RUN pip install -U django-storages[azure]
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
