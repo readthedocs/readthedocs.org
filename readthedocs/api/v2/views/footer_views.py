@@ -212,10 +212,11 @@ class FooterHTML(APIView):
         }
 
         # increase the page view count
+        page_slug = request.GET.get('page', 'index')
         increase_page_view_count.delay(
             project_slug=context['project'].slug,
             version_slug=context['version'].slug,
-            path=context['path'] if context['path'] else 'index.html'
+            path=page_slug
         )
 
         # Allow folks to hook onto the footer response for various information
