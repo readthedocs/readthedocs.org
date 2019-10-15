@@ -773,7 +773,7 @@ class DockerBuildEnvironment(BuildEnvironment):
     """
     Docker build environment, uses docker to contain builds.
 
-    If :py:data:`settings.DOCKER_ENABLE` is true, build documentation inside a
+    If :py:data:`settings.RTD_DOCKER_ENABLE` is true, build documentation inside a
     docker container, instead of the host system, using this build environment
     class.  The build command creates a docker container from a pre-built image,
     defined by :py:data:`settings.DOCKER_IMAGE`.  This container is started with

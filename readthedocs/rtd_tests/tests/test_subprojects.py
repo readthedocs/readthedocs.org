@@ -150,6 +150,57 @@ class SubprojectFormTests(TestCase):
             [''],
         )
 
+    def test_subproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+    def test_superproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': project.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
     def test_exclude_self_project_as_subproject(self):
         user = fixture.get(User)
         project = fixture.get(Project, users=[user])
