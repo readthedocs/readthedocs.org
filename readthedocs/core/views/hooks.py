@@ -3,7 +3,6 @@
 import logging
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.tasks import sync_repository_task
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """URL patterns for views to modify user profiles."""
 
 from django.conf.urls import url
@@ -15,17 +13,17 @@ urlpatterns = []
 account_urls = [
     url(
         r'^edit/',
-        views.edit_profile,
-        {
-            'form_class': UserProfileForm,
-            'template_name': 'profiles/private/edit_profile.html',
-        },
+        views.ProfileEdit.as_view(),
         name='profiles_profile_edit',
     ),
-    url(r'^delete/', views.delete_account, name='delete_account'),
+    url(
+        r'^delete/',
+        views.AccountDelete.as_view(),
+        name='delete_account',
+    ),
     url(
         r'^advertising/$',
-        views.account_advertising,
+        views.AccountAdvertisingEdit.as_view(),
         name='account_advertising',
     ),
 ]

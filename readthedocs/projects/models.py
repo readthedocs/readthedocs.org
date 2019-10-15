@@ -783,15 +783,12 @@ class Project(models.Model):
         if os.path.exists(path):
             return True
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = self.get_storage_path(
-                type_=type_, version_slug=version_slug,
-                version_type=version_type
-            )
-            return storage.exists(storage_path)
-
-        return False
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.get_storage_path(
+            type_=type_, version_slug=version_slug,
+            version_type=version_type
+        )
+        return storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -876,7 +873,7 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                settings.DOCKER_LIMITS.get('time') or
+                settings.RTD_DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
@@ -950,28 +947,38 @@ class Project(models.Model):
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.internal.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
@@ -1272,39 +1279,34 @@ class HTMLFile(ImportedFile):
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
         file_path = None
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        fjson_paths = []
+        basename = os.path.splitext(self.path)[0]
+        fjson_paths.append(basename + '.fjson')
+        if basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            fjson_paths.append(new_basename + '.fjson')
 
-            fjson_paths = []
-            basename = os.path.splitext(self.path)[0]
-            fjson_paths.append(basename + '.fjson')
-            if basename.endswith('/index'):
-                new_basename = re.sub(r'\/index$', '', basename)
-                fjson_paths.append(new_basename + '.fjson')
-
-            storage_path = self.project.get_storage_path(
-                type_='json', version_slug=self.version.slug, include_file=False
-            )
-            try:
-                for fjson_path in fjson_paths:
-                    file_path = storage.join(storage_path, fjson_path)
-                    if storage.exists(file_path):
-                        return process_file(file_path)
-            except Exception:
-                log.warning(
-                    'Unhandled exception during search processing file: %s',
-                    file_path,
-                )
-        else:
+        storage_path = self.project.get_storage_path(
+            type_='json', version_slug=self.version.slug, include_file=False
+        )
+        try:
+            for fjson_path in fjson_paths:
+                file_path = storage.join(storage_path, fjson_path)
+                if storage.exists(file_path):
+                    return process_file(file_path)
+        except Exception:
             log.warning(
-                'Skipping HTMLFile processing because of no storage backend'
+                'Unhandled exception during search processing file: %s',
+                file_path,
             )
 
         return {
             'path': file_path,
             'title': '',
             'sections': [],
+            'domain_data': {},
         }
 
     @cached_property

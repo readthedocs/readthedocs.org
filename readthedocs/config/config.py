@@ -114,11 +114,18 @@ class InvalidConfig(ConfigError):
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
-            key=key,
+            key=self._get_display_key(),
             code=code,
             error=error_message,
         )
         super().__init__(message, code=code)
+
+    def _get_display_key(self):
+        # Checks for patterns similar to `python.install.0.requirements`
+        # if matched change to `python.install[0].requirements` using backreference.
+        return re.sub(
+            r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', self.key
+        )
 
 
 class BuildConfigBase:
@@ -151,13 +158,13 @@ class BuildConfigBase:
         'submodules',
     ]
 
-    default_build_image = settings.DOCKER_DEFAULT_VERSION
+    default_build_image = settings.RTD_DOCKER_DEFAULT_VERSION
 
     version = None
 
     def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
-        self.raw_config = copy.deepcopy(raw_config)
+        self._raw_config = copy.deepcopy(raw_config)
         self.source_file = source_file
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file
@@ -224,13 +231,13 @@ class BuildConfigBase:
 
     def pop_config(self, key, default=None, raise_ex=False):
         """
-        Search and pop a key (recursively) from `self.raw_config`.
+        Search and pop a key (recursively) from `self._raw_config`.
 
         :param key: the key name in a dotted form (``key.innerkey``)
         :param default: Optionally, it can receive a default value
         :param raise_ex: If True, raises an exception when the key is not found
         """
-        return self.pop(key.split('.'), self.raw_config, default, raise_ex)
+        return self.pop(key.split('.'), self._raw_config, default, raise_ex)
 
     def validate(self):
         raise NotImplementedError()
@@ -266,7 +273,7 @@ class BuildConfigBase:
         ``readthedocs/build`` part) plus ``stable`` and ``latest``.
         """
         images = {'stable', 'latest'}
-        for k in settings.DOCKER_IMAGE_SETTINGS:
+        for k in settings.RTD_DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
@@ -279,15 +286,15 @@ class BuildConfigBase:
         The Docker image (``build_image``) has to be its complete name, already
         validated: ``readthedocs/build:4.0``, not just ``4.0``.
 
-        Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
+        Returns supported versions for the ``RTD_DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+        if build_image not in settings.RTD_DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                settings.RTD_DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+        return settings.RTD_DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
     def as_dict(self):
         config = {}
@@ -324,7 +331,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for _, options in settings.DOCKER_IMAGE_SETTINGS.items():
+            for _, options in settings.RTD_DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(
                     options['python']['supported_versions']
                 )
@@ -379,11 +386,11 @@ class BuildConfigV1(BuildConfigBase):
         if 'build' in self.env_config:
             build = self.env_config['build'].copy()
         else:
-            build = {'image': settings.DOCKER_IMAGE}
+            build = {'image': settings.RTD_DOCKER_IMAGE}
 
         # User specified
-        if 'build' in self.raw_config:
-            _build = self.raw_config['build']
+        if 'build' in self._raw_config:
+            _build = self._raw_config['build']
             if 'image' in _build:
                 with self.catch_validation_error('build'):
                     build['image'] = validate_choice(
@@ -393,12 +400,12 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    settings.DOCKER_DEFAULT_IMAGE,
+                    settings.RTD_DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
-        if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
+        if build['image'] in settings.RTD_DOCKER_IMAGE_SETTINGS:
+            self.env_config.update(settings.RTD_DOCKER_IMAGE_SETTINGS[build['image']])
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -419,8 +426,8 @@ class BuildConfigV1(BuildConfigBase):
             'version': version,
         }
 
-        if 'python' in self.raw_config:
-            raw_python = self.raw_config['python']
+        if 'python' in self._raw_config:
+            raw_python = self._raw_config['python']
             if not isinstance(raw_python, dict):
                 self.error(
                     'python',
@@ -491,8 +498,8 @@ class BuildConfigV1(BuildConfigBase):
         """Validates the ``conda`` key."""
         conda = {}
 
-        if 'conda' in self.raw_config:
-            raw_conda = self.raw_config['conda']
+        if 'conda' in self._raw_config:
+            raw_conda = self._raw_config['conda']
             with self.catch_validation_error('conda'):
                 validate_dict(raw_conda)
             with self.catch_validation_error('conda.file'):
@@ -508,10 +515,10 @@ class BuildConfigV1(BuildConfigBase):
 
     def validate_requirements_file(self):
         """Validates that the requirements file exists."""
-        if 'requirements_file' not in self.raw_config:
+        if 'requirements_file' not in self._raw_config:
             requirements_file = self.defaults.get('requirements_file')
         else:
-            requirements_file = self.raw_config['requirements_file']
+            requirements_file = self._raw_config['requirements_file']
         if not requirements_file:
             return None
         with self.catch_validation_error('requirements_file'):
@@ -523,7 +530,7 @@ class BuildConfigV1(BuildConfigBase):
 
     def validate_formats(self):
         """Validates that formats contains only valid formats."""
-        formats = self.raw_config.get('formats')
+        formats = self._raw_config.get('formats')
         if formats is None:
             return self.defaults.get('formats', [])
         if formats == ['none']:
@@ -674,7 +681,7 @@ class BuildConfigV2(BuildConfigBase):
 
     def validate_conda(self):
         """Validates the conda key."""
-        raw_conda = self.raw_config.get('conda')
+        raw_conda = self._raw_config.get('conda')
         if raw_conda is None:
             return None
 
@@ -693,14 +700,14 @@ class BuildConfigV2(BuildConfigBase):
 
         It prioritizes the value from the default image if exists.
         """
-        raw_build = self.raw_config.get('build', {})
+        raw_build = self._raw_config.get('build', {})
         with self.catch_validation_error('build'):
             validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                settings.RTD_DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,
@@ -729,7 +736,7 @@ class BuildConfigV2(BuildConfigBase):
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
         """
-        raw_python = self.raw_config.get('python', {})
+        raw_python = self._raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
 
@@ -750,17 +757,17 @@ class BuildConfigV2(BuildConfigBase):
             )
 
         with self.catch_validation_error('python.install'):
-            raw_install = self.raw_config.get('python', {}).get('install', [])
+            raw_install = self._raw_config.get('python', {}).get('install', [])
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self.raw_config.setdefault('python', {})['install'] = (
+                self._raw_config.setdefault('python', {})['install'] = (
                     list_to_dict(raw_install)
                 )
             else:
                 self.pop_config('python.install')
 
-        raw_install = self.raw_config.get('python', {}).get('install', [])
+        raw_install = self._raw_config.get('python', {}).get('install', [])
         python['install'] = [
             self.validate_python_install(index)
             for index in range(len(raw_install))
@@ -783,7 +790,7 @@ class BuildConfigV2(BuildConfigBase):
         """Validates the python.install.{index} key."""
         python_install = {}
         key = 'python.install.{}'.format(index)
-        raw_install = self.raw_config['python']['install'][str(index)]
+        raw_install = self._raw_config['python']['install'][str(index)]
         with self.catch_validation_error(key):
             validate_dict(raw_install)
 
@@ -850,7 +857,7 @@ class BuildConfigV2(BuildConfigBase):
         avoid innecessary validations.
         """
         with self.catch_validation_error('.'):
-            if 'sphinx' in self.raw_config and 'mkdocs' in self.raw_config:
+            if 'sphinx' in self._raw_config and 'mkdocs' in self._raw_config:
                 self.error(
                     '.',
                     'You can not have the ``sphinx`` and ``mkdocs`` '
@@ -864,7 +871,7 @@ class BuildConfigV2(BuildConfigBase):
 
         It makes sure we are using an existing configuration file.
         """
-        raw_mkdocs = self.raw_config.get('mkdocs')
+        raw_mkdocs = self._raw_config.get('mkdocs')
         if raw_mkdocs is None:
             return None
 
@@ -894,7 +901,7 @@ class BuildConfigV2(BuildConfigBase):
            It should be called after ``validate_mkdocs``. That way
            we can default to sphinx if ``mkdocs`` is not given.
         """
-        raw_sphinx = self.raw_config.get('sphinx')
+        raw_sphinx = self._raw_config.get('sphinx')
         if raw_sphinx is None:
             if self.mkdocs is None:
                 raw_sphinx = {}
@@ -961,7 +968,7 @@ class BuildConfigV2(BuildConfigBase):
         - We can use the ``ALL`` keyword in include or exlude.
         - We can't exlude and include submodules at the same time.
         """
-        raw_submodules = self.raw_config.get('submodules', {})
+        raw_submodules = self._raw_config.get('submodules', {})
         with self.catch_validation_error('submodules'):
             validate_dict(raw_submodules)
 
@@ -1009,7 +1016,7 @@ class BuildConfigV2(BuildConfigBase):
         Checks that we don't have extra keys (invalid ones).
 
         This should be called after all the validations are done and all keys
-        are popped from `self.raw_config`.
+        are popped from `self._raw_config`.
         """
         msg = (
             'Invalid configuration option: {}. '
@@ -1018,7 +1025,7 @@ class BuildConfigV2(BuildConfigBase):
         # The version key isn't popped, but it's
         # validated in `load`.
         self.pop_config('version', None)
-        wrong_key = '.'.join(self._get_extra_key(self.raw_config))
+        wrong_key = '.'.join(self._get_extra_key(self._raw_config))
         if wrong_key:
             self.error(
                 wrong_key,

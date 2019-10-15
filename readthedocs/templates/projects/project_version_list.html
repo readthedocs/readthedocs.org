@@ -76,9 +76,24 @@ Versions
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
-        {% if inactive_versions %}
+        {% if inactive_versions or request.GET.version_filter %}
           <div class="module-header">
-            <h1>{% trans "Inactive Versions" %}</h1>
+            <h1>{% trans "Activate a version" %}</h1>
+            <p>{% trans "Active versions are built whenever new code is pushed to that branch or tag." %}</p>
+          </div>
+
+          {# Version search #}
+          <div class="wide-search-bar">
+            <div class="wide-search-bar-wrapper clearfix">
+              <form action="." method="GET">
+                <div class="text-input-wrapper">
+                  <input type="text" name="version_filter" value="{{ request.GET.version_filter }}" placeholder="1.0, 2.0, devel">
+                </div>
+                <div class="submit-input-wrapper">
+                  <input type="submit" value="{% trans 'Filter Inactive Versions' %}">
+                </div>
+              </form>
+            </div>
           </div>
 
           <div class="module-list">
@@ -104,13 +119,15 @@ Versions
 
                       {% if request.user|is_admin:project %}
                         <ul class="module-item-menu">
-                          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
+                          <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Activate" %}</a></li>
                         </ul>
                       {% endif %}
 
                     </li>
                   {% endblock inactive-versions %}
 
+                {% empty %}
+                <li class="module-item quiet">{% trans "No versions found" %}</li>
                 {% endfor %}
               </ul>
             </div>

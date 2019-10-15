@@ -79,6 +79,7 @@ class CommunityBaseSettings(Settings):
     RTD_LATEST_VERBOSE_NAME = 'latest'
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
+    RTD_CLEAN_AFTER_BUILD = False
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -153,6 +154,7 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
+            apps.append('readthedocsext.spamfighting')
         return apps
 
     @property
@@ -340,16 +342,16 @@ class CommunityBaseSettings(Settings):
     SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
-    DOCKER_ENABLE = False
-    DOCKER_SOCKET = 'unix:///var/run/docker.sock'
+    RTD_DOCKER_ENABLE = False
+    RTD_DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
-    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
-    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
-    DOCKER_VERSION = 'auto'
-    DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-    DOCKER_IMAGE_SETTINGS = {
+    RTD_DOCKER_BUILD_IMAGES = None
+    RTD_DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+    RTD_DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
+    RTD_DOCKER_VERSION = 'auto'
+    RTD_DOCKER_DEFAULT_VERSION = 'latest'
+    RTD_DOCKER_IMAGE = '{}:{}'.format(RTD_DOCKER_DEFAULT_IMAGE, RTD_DOCKER_DEFAULT_VERSION)
+    RTD_DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.4]},
         },
@@ -368,9 +370,9 @@ class CommunityBaseSettings(Settings):
     }
 
     # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+    RTD_DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth
@@ -432,18 +434,29 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
 
+    # Info from Honza about this:
+    # The key to determine shard number is actually usually not the node count,
+    # but the size of your data.
+    # There are advantages to just having a single shard in an index since
+    # you don't have to do the distribute/collect steps when executing a search.
+    # If your data will allow it (not significantly larger than 40GB)
+    # I would recommend going to a single shard and one replica meaning
+    # any of the two nodes will be able to serve any search without talking to the other one.
+    # Scaling to more searches will then just mean adding a third node
+    # and a second replica resulting in immediate 50% bump in max search throughput.
+
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 2,
-                'number_of_replicas': 0,
+                'number_of_shards': 1,
+                'number_of_replicas': 1,
             }
         },
     }
