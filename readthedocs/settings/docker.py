@@ -69,6 +69,9 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
     AZURE_MEDIA_STORAGE_HOSTNAME = 'storage:10000'
 
+    # We want to replace files for the same version built
+    AZURE_OVERWRITE_FILES = True
+
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
     AZURE_STATIC_STORAGE_HOSTNAME = 'dev.readthedocs.io'
