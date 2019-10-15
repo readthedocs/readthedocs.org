@@ -82,7 +82,7 @@ class SearchQuery(TimeStampedModel):
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = _get_last_31_days_str()
+        last_31_days_str = _get_last_31_days_str(date_format='%d %b')
 
         final_data = {
             'labels': last_31_days_str,
@@ -119,12 +119,12 @@ class PageView(models.Model):
         Structure of returned data is compatible to make graphs.
         Sample returned data::
         {
-            'pages': ['index.html', 'contribute.html', 'sponsors.html'],
-            'view_counts': [150, 200, 143]
+            'pages': ['index', 'config-file/v1', 'intro/import-guide'],
+            'view_counts': [150, 120, 100]
         }
-        This data shows that `index.html` is the most viewed page having 150 total views,
-        followed by `contribute.html` and `sponsors.html` having 200 and
-        143 total page views respectively.
+        This data shows that `index` is the most viewed page having 150 total views,
+        followed by `config-file/v1` and `intro/import-guide` having 120 and
+        100 total page views respectively.
         """
         qs = (
             cls.objects
@@ -184,7 +184,7 @@ class PageView(models.Model):
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = _get_last_31_days_str()
+        last_31_days_str = _get_last_31_days_str(date_format='%d %b')
 
         final_data = {
             'labels': last_31_days_str,
