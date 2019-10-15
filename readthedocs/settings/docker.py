@@ -29,6 +29,8 @@ class DockerBaseSettings(CommunityDevSettings):
         },
     }
 
+    RTD_CLEAN_AFTER_BUILD = True
+
     @property
     def DATABASES(self):  # noqa
         return {
