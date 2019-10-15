@@ -1,7 +1,11 @@
 """Functions related to converting content into dict/JSON structures."""
 
 import logging
-import orjson as json
+try:
+    import orjson as json
+except ImportError:
+    # Fallback to standard json module of orjson does not load
+    import json
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
