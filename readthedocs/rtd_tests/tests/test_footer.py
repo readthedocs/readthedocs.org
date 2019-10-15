@@ -233,9 +233,11 @@ class TestFooterPerformance(APITestCase):
     url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
     factory = APIRequestFactory()
 
-    # The expected number of queries for generating the footer
-    # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 9
+    # The expected number of queries for generating the footer.
+    # This shouldn't increase unless we modify the footer API.
+    # Here 9 queries are for serving footer views and 4 queries
+    # are for storing page views in the db.
+    EXPECTED_QUERIES = 9 + 4
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
