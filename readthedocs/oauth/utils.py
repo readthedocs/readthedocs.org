@@ -49,6 +49,7 @@ def update_webhook(project, integration, request=None):
         project.has_valid_webhook = True
         project.save()
         return True
+
     messages.error(
         request,
         _(

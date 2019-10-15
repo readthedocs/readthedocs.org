@@ -5,7 +5,6 @@ import re
 import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
-from pyquery import PyQuery as pq
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version

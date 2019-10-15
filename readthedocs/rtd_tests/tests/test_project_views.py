@@ -20,6 +20,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.rtd_tests.base import (
     MockBuildTestCase,
@@ -578,6 +579,15 @@ class TestBadges(TestCase):
         res = self.client.get(unknown_project_url, {'version': 'latest'})
         self.assertContains(res, 'unknown')
 
+        # Unknown version
+        res = self.client.get(self.badge_url, {'version': 'fake-version'})
+        self.assertContains(res, 'unknown')
+
+    def test_badge_caching(self):
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertTrue('must-revalidate' in res['Cache-Control'])
+        self.assertTrue('no-cache' in res['Cache-Control'])
+
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
@@ -611,6 +621,36 @@ class TestBadges(TestCase):
         resp = self.client.get(badge_url, {'version': 'latest'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue('project-slug' in resp['location'])
+
+    def test_private_version(self):
+        # Set version to private
+        self.version.privacy_level = 'private'
+        self.version.save()
+
+        # Without a token, badge is unknown
+        get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertContains(res, 'unknown')
+
+        # With an invalid token, the badge is unknown
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token('invalid-project'),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'unknown')
+
+        # With a valid token, the badge should work correctly
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token(self.project.slug),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'passing')
 
 
 class TestTags(TestCase):

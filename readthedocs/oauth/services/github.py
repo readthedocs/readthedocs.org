@@ -190,6 +190,71 @@ class GitHubService(Service):
             'events': ['push', 'pull_request', 'create', 'delete'],
         })
 
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from GitHub Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+
+        if integration.provider_data:
+            return integration.provider_data
+
+        session = self.get_session()
+        owner, repo = build_utils.get_github_username_repo(url=project.repo)
+
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            )
+        )
+
+        try:
+            resp = session.get(
+                (
+                    'https://api.github.com/repos/{owner}/{repo}/hooks'
+                    .format(owner=owner, repo=repo)
+                ),
+            )
+
+            if resp.status_code == 200:
+                recv_data = resp.json()
+
+                for webhook_data in recv_data:
+                    if webhook_data["config"]["url"] == rtd_webhook_url:
+                        integration.provider_data = webhook_data
+                        integration.save()
+
+                        log.info(
+                            'GitHub integration updated with provider data for project: %s',
+                            project,
+                        )
+                        break
+            else:
+                log.info(
+                    'GitHub project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+
+        except Exception:
+            log.exception(
+                'GitHub webhook Listing failed for project: %s',
+                project,
+            )
+
+        return integration.provider_data
+
     def setup_webhook(self, project, integration=None):
         """
         Set up GitHub project webhook for project.
@@ -203,13 +268,16 @@ class GitHubService(Service):
         """
         session = self.get_session()
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
-        if integration:
-            integration.recreate_secret()
-        else:
+
+        if not integration:
             integration, _ = Integration.objects.get_or_create(
                 project=project,
                 integration_type=Integration.GITHUB_WEBHOOK,
             )
+
+        if not integration.secret:
+            integration.recreate_secret()
+
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
@@ -221,6 +289,7 @@ class GitHubService(Service):
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()
@@ -238,10 +307,9 @@ class GitHubService(Service):
                     'permissions: project=%s',
                     project,
                 )
-                # Set the secret to None so that the integration can be used manually.
-                integration.secret = None
-                integration.save()
-                return (False, resp)
+
+            # All other status codes will flow to the `else` clause below
+
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception(
@@ -263,7 +331,10 @@ class GitHubService(Service):
                 'GitHub webhook creation failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        # Always remove the secret and return False if we don't return True above
+        integration.remove_secret()
+        return (False, resp)
 
     def update_webhook(self, project, integration):
         """
@@ -277,23 +348,34 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        integration.recreate_secret()
+        if not integration.secret:
+            integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         resp = None
+
+        provider_data = self.get_provider_data(project, integration)
+
+        # Handle the case where we don't have a proper provider_data set
+        # This happens with a user-managed webhook previously
+        if not provider_data:
+            return self.setup_webhook(project, integration)
+
         try:
-            url = integration.provider_data.get('url')
+            url = provider_data.get('url')
+
             resp = session.patch(
                 url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             # GitHub will return 200 if already synced
             if resp.status_code in [200, 201]:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
                 integration.save()
                 log.info(
-                    'GitHub webhook creation successful for project: %s',
+                    'GitHub webhook update successful for project: %s',
                     project,
                 )
                 return (True, resp)
@@ -301,7 +383,7 @@ class GitHubService(Service):
             # GitHub returns 404 when the webhook doesn't exist. In this case,
             # we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration)
 
         # Catch exceptions with request or deserializing JSON
         except (AttributeError, RequestException, ValueError):
@@ -309,7 +391,6 @@ class GitHubService(Service):
                 'GitHub webhook update failed for project: %s',
                 project,
             )
-            return (False, resp)
         else:
             log.error(
                 'GitHub webhook update failed for project: %s',
@@ -320,10 +401,12 @@ class GitHubService(Service):
             except ValueError:
                 debug_data = resp.content
             log.debug(
-                'GitHub webhook creation failure response: %s',
+                'GitHub webhook update failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        integration.remove_secret()
+        return (False, resp)
 
     def send_build_status(self, build, commit, state):
         """
