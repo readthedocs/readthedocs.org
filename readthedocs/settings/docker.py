@@ -11,7 +11,7 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     RTD_DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
-    STATIC_URL = '/devstoreaccount1/static/'
+    STATIC_URL = 'http://dev.readthedocs.io/devstoreaccount1/static/'
 
     PRODUCTION_DOMAIN = 'dev.readthedocs.io'
     PUBLIC_DOMAIN = 'dev.readthedocs.io'
@@ -20,6 +20,14 @@ class DockerBaseSettings(CommunityDevSettings):
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
+
+    # Enable auto syncing elasticsearch documents
+    ELASTICSEARCH_DSL_AUTOSYNC = True
+    ELASTICSEARCH_DSL = {
+        'default': {
+            'hosts': 'search:9200',
+        },
+    }
 
     @property
     def DATABASES(self):  # noqa
