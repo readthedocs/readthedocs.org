@@ -48,17 +48,6 @@
       {% endif %}
       {% endblock %}
 
-      {% block downloads %}
-      {% if downloads %}
-      <dl>
-        <dt>{% trans "Downloads" %}</dt>
-        {% for name, url in downloads.items %}
-        <dd><a href="{{ url }}">{{ name }}</a></dd>
-        {% endfor %}
-      </dl>
-      {% endif %}
-      {% endblock %}
-
       {% block readthedocs %}
       <dl>
         <!-- These are kept as relative links for internal installs that are http -->
