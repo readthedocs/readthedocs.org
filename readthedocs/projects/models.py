@@ -248,10 +248,10 @@ class Project(models.Model):
         default=False,
         help_text='If checked, do not show advertising for this project',
     )
-    show_version_warning = models.BooleanField(
+    show_version_warning = models.URLField(
         _('Show version warning'),
-        default=False,
-        help_text=_('Show warning banner in non-stable nor stable latest versions.'),
+        blank=True,
+        help_text=_('You are seeing unstable version of the documentation, see the stable versions.'),
     )
 
     # Sphinx specific build options.

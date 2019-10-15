@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='show_version_warning',
-            field=models.BooleanField(default=False, help_text='Show warning banner in non-stable nor latest versions.', verbose_name='Show version warning'),
+            field=models.URLField(blank=True, help_text='You are seeing unstable version of the documentation, see the stable versions.', verbose_name='Show version warning'),
         ),
         migrations.AlterField(
             model_name='domain',
