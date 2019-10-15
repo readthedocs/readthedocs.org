@@ -235,9 +235,7 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer.
     # This shouldn't increase unless we modify the footer API.
-    # Here 9 queries are for serving footer views and 4 queries
-    # are for storing page views in the db.
-    EXPECTED_QUERIES = 9 + 4
+    EXPECTED_QUERIES = 9
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
@@ -251,30 +249,36 @@ class TestFooterPerformance(APITestCase):
 
     def test_version_queries(self):
         # The number of Versions shouldn't impact the number of queries
-        with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.render()
-            self.assertContains(response, '0.8.1')
+        with mock.patch('readthedocs.api.v2.views.footer_views.increase_page_view_count') as mocked:
+            mocked.side_effect = None
 
-        for patch in range(3):
-            identifier = '0.99.{}'.format(patch)
-            self.pip.versions.create(
-                verbose_name=identifier,
-                identifier=identifier,
-                type=TAG,
-                active=True,
-            )
+            with self.assertNumQueries(self.EXPECTED_QUERIES):
+                response = self.render()
+                self.assertContains(response, '0.8.1')
 
-        with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.render()
-            self.assertContains(response, '0.99.0')
+            for patch in range(3):
+                identifier = '0.99.{}'.format(patch)
+                self.pip.versions.create(
+                    verbose_name=identifier,
+                    identifier=identifier,
+                    type=TAG,
+                    active=True,
+                )
+
+            with self.assertNumQueries(self.EXPECTED_QUERIES):
+                response = self.render()
+                self.assertContains(response, '0.99.0')
 
     def test_domain_queries(self):
         # Setting up a custom domain shouldn't impact the number of queries
-        self.pip.domains.create(
-            domain='http://docs.foobar.com',
-            canonical=True,
-        )
+        with mock.patch('readthedocs.api.v2.views.footer_views.increase_page_view_count') as mocked:
+            mocked.side_effect = None
 
-        with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.render()
-            self.assertContains(response, 'docs.foobar.com')
+            self.pip.domains.create(
+                domain='http://docs.foobar.com',
+                canonical=True,
+            )
+
+            with self.assertNumQueries(self.EXPECTED_QUERIES):
+                response = self.render()
+                self.assertContains(response, 'docs.foobar.com')
