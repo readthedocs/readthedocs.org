@@ -1,213 +1,88 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.messages.views import SuccessMessageMixin
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView
 from rest_framework.authtoken.models import Token
+from vanilla import DetailView, FormView, ListView, UpdateView
 
-from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm
+from readthedocs.core.forms import (
+    UserAdvertisingForm,
+    UserDeleteForm,
+    UserProfileForm,
+)
 from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.models import UserProfile
 
 
-@login_required
-def edit_profile(
-        request,
-        form_class,
-        success_url=None,
-        template_name='profiles/private/edit_profile.html',
-        extra_context=None,
-):
-    """
-    Edit the current user's profile.
+class ProfileEdit(PrivateViewMixin, UpdateView):
 
-    **Optional arguments:**
+    """Edit the current user's profile."""
 
-    ``extra_context``
-        A dictionary of variables to add to the template context. Any
-        callable object in this dictionary will be called to produce
-        the end result which appears in the context.
+    model = UserProfile
+    form_class = UserProfileForm
+    template_name = 'profiles/private/edit_profile.html'
+    context_object_name = 'profile'
 
-    ``form_class``
-        The form class to use for validating and editing the user
-        profile. This form class must operate similarly to a standard
-        Django ``ModelForm`` in that it must accept an instance of the
-        object to be edited as the keyword argument ``instance`` to
-        its constructor, and it must implement a method named
-        ``save()`` which will save the updates to the object.
+    def get_object(self):
+        return self.request.user.profile
 
-    ``success_url``
-        The URL to redirect to following a successful edit. If not
-        specified, this will default to the URL of
-        :view:`profiles.views.profile_detail` for the profile object
-        being edited.
-
-    ``template_name``
-        The template to use when displaying the profile-editing
-        form. If not specified, this will default to
-        :template:`profiles/edit_profile.html`.
-
-    **Context:**
-
-    ``form``
-        The form for editing the profile.
-
-    ``profile``
-         The user's current profile.
-
-    **Template:**
-
-    ``template_name`` keyword argument or
-    :template:`profiles/edit_profile.html`.
-    """
-    profile_obj = request.user.profile
-    if success_url is None:
-        success_url = reverse(
+    def get_success_url(self):
+        return reverse(
             'profiles_profile_detail',
-            kwargs={'username': request.user.username},
+            kwargs={'username': self.request.user.username},
         )
-    if request.method == 'POST':
-        form = form_class(
-            data=request.POST,
-            files=request.FILES,
-            instance=profile_obj,
-        )
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(success_url)
-    else:
-        form = form_class(instance=profile_obj)
-
-    if extra_context is None:
-        extra_context = {}
-    context = {
-        key: value() if callable(value) else value
-        for key, value in extra_context.items()
-    }
-    context.update({
-        'form': form,
-        'profile': profile_obj,
-        'user': profile_obj.user,
-    })
-    return render(request, template_name, context=context)
 
 
-@login_required()
-def delete_account(request):
-    form = UserDeleteForm()
+class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
+
+    form_class = UserDeleteForm
     template_name = 'profiles/private/delete_account.html'
+    success_message = _('You have successfully deleted your account')
 
-    if request.method == 'POST':
-        form = UserDeleteForm(instance=request.user, data=request.POST)
-        if form.is_valid():
-            # Delete the user permanently
-            # It will also delete some projects where the user is the only owner
-            request.user.delete()
-            logout(request)
-            messages.info(request, 'You have successfully deleted your account')
+    def get_object(self):
+        return self.request.user
 
-            return redirect('homepage')
+    def form_valid(self, form):
+        self.request.user.delete()
+        logout(self.request)
+        return super().form_valid(form)
 
-    return render(request, template_name, {'form': form})
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['instance'] = self.get_object()
+        return super().get_form(data, files, **kwargs)
 
-
-def profile_detail(
-        request,
-        username,
-        public_profile_field=None,
-        template_name='profiles/public/profile_detail.html',
-        extra_context=None,
-):
-    """
-    Detail view of a user's profile.
-
-    If the user does not exists, ``Http404`` will be raised.
-
-    **Required arguments:**
-
-    ``username``
-        The username of the user whose profile is being displayed.
-
-    **Optional arguments:**
-
-    ``extra_context``
-        A dictionary of variables to add to the template context. Any
-        callable object in this dictionary will be called to produce
-        the end result which appears in the context.
-
-    ``public_profile_field``
-        The name of a ``BooleanField`` on the profile model; if the
-        value of that field on the user's profile is ``False``, the
-        ``profile`` variable in the template will be ``None``. Use
-        this feature to allow users to mark their profiles as not
-        being publicly viewable.
-
-        If this argument is not specified, it will be assumed that all
-        users' profiles are publicly viewable.
-
-    ``template_name``
-        The name of the template to use for displaying the profile. If
-        not specified, this will default to
-        :template:`profiles/profile_detail.html`.
-
-    **Context:**
-
-    ``profile``
-        The user's profile, or ``None`` if the user's profile is not
-        publicly viewable (see the description of
-        ``public_profile_field`` above).
-
-    **Template:**
-
-    ``template_name`` keyword argument or
-    :template:`profiles/profile_detail.html`.
-    """
-    user = get_object_or_404(User, username=username)
-    profile_obj = user.profile
-    if (public_profile_field is not None and
-            not getattr(profile_obj, public_profile_field)):
-        profile_obj = None
-
-    if extra_context is None:
-        extra_context = {}
-    context = {
-        key: value() if callable(value) else value
-        for key, value in extra_context.items()
-    }
-    context.update({'profile': profile_obj})
-    return render(request, template_name, context=context)
+    def get_success_url(self):
+        return reverse('homepage')
 
 
-@login_required
-def account_advertising(request):
-    success_url = reverse(account_advertising)
-    profile_obj = request.user.profile
-    if request.method == 'POST':
-        form = UserAdvertisingForm(
-            data=request.POST,
-            instance=profile_obj,
-        )
-        if form.is_valid():
-            form.save()
-            messages.info(request, _('Updated your advertising preferences'))
-            return HttpResponseRedirect(success_url)
-    else:
-        form = UserAdvertisingForm(instance=profile_obj)
+class ProfileDetail(DetailView):
 
-    return render(
-        request,
-        'profiles/private/advertising_profile.html',
-        context={
-            'form': form,
-            'profile': profile_obj,
-            'user': profile_obj.user,
-        },
-    )
+    model = User
+    template_name = 'profiles/public/profile_detail.html'
+    lookup_field = 'username'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = self.get_object().profile
+        return context
+
+
+class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
+
+    model = UserProfile
+    form_class = UserAdvertisingForm
+    context_object_name = 'profile'
+    template_name = 'profiles/private/advertising_profile.html'
+    success_message = _('Updated your advertising preferences')
+
+    def get_object(self):
+        return self.request.user.profile
+
+    def get_success_url(self):
+        return reverse('account_advertising')
 
 
 class TokenMixin(PrivateViewMixin):
@@ -230,4 +105,5 @@ class TokenMixin(PrivateViewMixin):
 
 
 class TokenList(TokenMixin, ListView):
+
     pass
