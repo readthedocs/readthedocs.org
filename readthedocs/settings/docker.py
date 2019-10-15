@@ -65,7 +65,7 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = 'dev.readthedocs.io:10000'
+    AZURE_MEDIA_STORAGE_HOSTNAME = 'storage:10000'
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
