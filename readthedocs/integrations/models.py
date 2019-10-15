@@ -274,6 +274,10 @@ class Integration(models.Model):
         self.secret = get_secret()
         self.save(update_fields=['secret'])
 
+    def remove_secret(self):
+        self.secret = None
+        self.save(update_fields=['secret'])
+
     def __str__(self):
         return (
             _('{0} for {1}')
