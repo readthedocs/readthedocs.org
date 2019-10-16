@@ -99,18 +99,17 @@ services:
     command: ["../../docker/build.sh"]
 
   # Containers MUST be created first
-  # https://docs.microsoft.com/es-es/cli/azure/run-azure-cli-docker?view=azure-cli-latest
-  # $ yay -S nodejs-azure-cli
-  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "builds"
-  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "static"
-  # $ azure storage container create --connection-string "UseDevelopmentStorage=true" --container "media"
+  # pip install azure-cli
+  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "builds"
+  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "media"
+  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "static"
   storage:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     volumes:
       - ${PWD}/docker/azurite:/data
     ports:
       - "10000:10000"
-      - "10001:10001"
+    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0"]
 
   cache:
     image: redis:3.2.7
