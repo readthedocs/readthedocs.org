@@ -441,7 +441,7 @@ class PrivateUserProfileMixin(URLAccessMixin):
             }
         )
 
-    def test_public_urls(self):
+    def test_private_urls(self):
         from readthedocs.profiles.urls.private import urlpatterns
         self._test_url(urlpatterns)
 
