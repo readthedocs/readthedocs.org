@@ -847,7 +847,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 },
             )
             try:
-                storage.copy_directory(from_path, to_path)
+                storage.sync_directory(from_path, to_path)
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
