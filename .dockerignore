@@ -18,6 +18,7 @@ contrib
 datasets
 docs
 docker/azurite
+docker/search
 media/epub
 media/htmlzip
 media/json
