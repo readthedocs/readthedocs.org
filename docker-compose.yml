@@ -83,9 +83,9 @@ services:
 
       # The python code at readthedocs/doc_builder/environments.py
       # mounts `self.project.doc_path`. We need to share this path
-      # between our host, the build container, and the container that
-      # is created inside the build container. Because of this, we
-      # need the path in the main host.
+      # between the build container (git commands), and the container that
+      # is created inside the build container (sphinx commands).
+      # Because of this, we need to use a shared volume between them
       - build-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
       
       # Docker in Docker
