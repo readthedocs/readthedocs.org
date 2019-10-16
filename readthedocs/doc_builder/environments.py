@@ -1052,7 +1052,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
-                user=settings.DOCKER_USER,
+                user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)
         except ConnectionError:
