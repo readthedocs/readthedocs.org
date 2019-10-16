@@ -60,6 +60,8 @@ class DockerBaseSettings(CommunityDevSettings):
     CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+    # Avoid syncing to the web servers
     FILE_SYNCER = "readthedocs.builds.syncers.NullSyncer"
 
     # https://github.com/Azure/Azurite/blob/master/README.md#default-storage-account
