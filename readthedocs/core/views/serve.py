@@ -175,7 +175,7 @@ def _serve_file(request, filename, basepath):
     :raises: ``Http404`` on ``UnicodeEncodeError``
     """
     # Serve the file from the proper location
-    if settings.PYTHON_MEDIA:
+    if (settings.DEBUG or settings.PYTHON_MEDIA) and not settings.RTD_DOCKER_COMPOSE:
         # Serve from Python
         return serve(request, filename, basepath)
 
