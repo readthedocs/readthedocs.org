@@ -20,22 +20,20 @@ Users from the community site can have organizations in external sites from wher
 Currently users have all projects from different organizations in their account.
 Having not a clear way to group/separate those.
 
-There is also a product decision.
-Supporting organizations only on code,
-but enable the feature only on the commercial site.
+We are going to first move the code,
+and after that enable the feature on the community site.
 
 How are we going to support organizations?
 ------------------------------------------
 
-Currently only users can own projects.
+Currently only users can own projects in the community site.
 With organizations this is going to change to: 
 Users and organizations can own projects.
 
 With this, the migration process would be straightforward for the community site.
 
-For the commercial site we still have a decision.
-Are we going to support users and organizations to own projects?
-Or just organizations?
+For the commercial site we are only to allow organizations to own projects for now
+(since the we have only subscriptions per organizations).
 
 What features of organizations are we going to support?
 -------------------------------------------------------
@@ -77,6 +75,7 @@ The migration can be split in:
 #. Move the rest of the code as needed.
 #. Activate organizations app on the community site.
 #. Integrate the code from the community site to the new code.
+#. UI changes
 
 We should start by removing unused features and dead code from the organizations in the corporate site,
 and simplify existing code if possible (some of this was already done).
@@ -91,7 +90,9 @@ We should move the models that aren't going to me moved to another app.
 This app can be named *subscriptions*.
 We can get around the table names and migrations by setting the explicitly the table name to ``organizations_<model>``,
 and doing a fake migration.
-Following suggestions in https://stackoverflow.com/questions/48860227/moving-multiple-models-from-one-django-app-to-another.
+Following suggestions in https://stackoverflow.com/questions/48860227/moving-multiple-models-from-one-django-app-to-another,
+that way we avoid having downtime during the migration and any inconvenient caused from renaming the tables manually.
+
 Code related to subscriptions should be moved out from the organizations app.
 
 After that, it should be easier to move the organizations *app* (or part of it)
@@ -109,6 +110,7 @@ Migrations aren't moved, since all current migrations depend on other models tha
 going to be moved.
 In the community site we run an initial migration,
 for the corporate site we run a fake migration.
+The migrations left from the commercial site can be removed after that.
 
 For managers and querysets that depend on subscriptions,
 we can use our pattern to make overridable classes (inheriting from ``SettingsOverrideObject``).
@@ -122,32 +124,22 @@ we can add/move the UI elements and enable the app.
 After the app is moved,
 we can move more code that depends on organizations to the community site.
 
-User interface
---------------
-
-Import page
-~~~~~~~~~~~
-
-Project's list
-~~~~~~~~~~~~~~
-
-Organization's list
-~~~~~~~~~~~~~~~~~~~
-
-
 Namespace
 ---------
 
 Currently we use the project's slug as namespace,
-in the commercial site we use the combination of ``organization.slug`` + ``project.slug`` as namespace.
+in the commercial site we use the combination of ``organization.slug`` + ``project.slug`` as namespace,
+since in the corporate site we don't care so much about a unique namespace between all users,
+but a unique namespace per organization.
 
 For the community site probably this approach isn't the best,
 since we always serve docs publicly from ``slug.readthedocs.io``.
 And most of the users don't have a custom domain.
 
-We could keep the current behavior for the community site and use ``organization.slug`` + ``project.slug`` for the corporate site,
-since in the corporate site we don't care so much about a unique namespace between all users, but a unique namespace per organization.
-We can refactor the way we get the namespace to be more easy to manage in both sites.
+The corporate site will use ``organization.slug`` + ``project.slug`` as slug,
+And the community site will always use ``project.slug`` as slug, even if the project belongs to an organization.
+
+We need to refactor the way we get the namespace to be more easy to manage in both sites.
 
 Future Changes
 --------------
@@ -155,6 +147,7 @@ Future Changes
 Changes that aren't needed immediately after the migration,
 but that should be done:
 
+- UI for organizations in the community site.
 - Add new endpoints to the API (v3 only).
 - Make the relationship between the models ``Organization`` and ``Project`` one to many
   (currently many to many).
