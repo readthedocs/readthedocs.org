@@ -91,12 +91,14 @@ class BuildMediaStorageMixin:
         """
         Sync a directory recursively to storage.
 
-        Overwrites files in remote storage where a file in ``source`` exists (no timstamp checking done).
+        Overwrites files in remote storage with files from ``source`` (no timstamp/hash checking).
         Removes files and folders in remote storage that are not present in ``source``.
 
         :param source: the source path on the local disk
         :param destination: the destination path in storage
         """
+        if destination in ('', '/'):
+            raise SuspiciousFileOperation('Syncing all storage cannot be right')
 
         log.debug(
             'Syncing to media storage. source=%s destination=%s',
@@ -123,7 +125,9 @@ class BuildMediaStorageMixin:
                 self.delete_directory(self.join(destination, folder))
         for filename in dest_files:
             if filename not in copied_files:
-                self.delete(self.join(destination, filename))
+                filepath = self.join(destination, filename)
+                log.debug('Deleting file from media storage. file=%s', filepath)
+                self.delete(filepath)
 
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
