@@ -251,7 +251,7 @@ class Project(models.Model):
     show_version_warning = models.URLField(
         _('Show version warning'),
         blank=True,
-        help_text=_('You are seeing unstable version of the documentation, see the stable versions.'),
+        help_text=_('Show warning banner having stable documentation for non stable versions'),
     )
 
     # Sphinx specific build options.
