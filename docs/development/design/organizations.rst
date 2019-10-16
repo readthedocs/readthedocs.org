@@ -91,7 +91,7 @@ This app can be named *subscriptions*.
 We can get around the table names and migrations by setting the explicitly the table name to ``organizations_<model>``,
 and doing a fake migration.
 Following suggestions in https://stackoverflow.com/questions/48860227/moving-multiple-models-from-one-django-app-to-another,
-that way we avoid having downtime during the migration and any inconvenient caused from renaming the tables manually.
+that way we avoid having any downtime during the migration and any inconvenient caused from renaming the tables manually.
 
 Code related to subscriptions should be moved out from the organizations app.
 
