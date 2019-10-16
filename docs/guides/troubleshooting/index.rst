@@ -15,10 +15,13 @@ whether that is Sphinx or MkDocs.
 .. toctree::
     :maxdepth: 1
 
+    custom-404-page
     mkdocs-old-versions
     pdf-non-ascii-languages
-    remove-edit-buttons
-
+    vcs
+    feature-flags
+    sitemaps
+    wipe-environment
 
 Read the Docs troubleshooting guides
 -------------------------------------
@@ -32,3 +35,4 @@ These troubleshooting guides are for the Read the Docs build environment.
     conda
     environment-variables
     specifying-dependencies
+    searching-with-readthedocs

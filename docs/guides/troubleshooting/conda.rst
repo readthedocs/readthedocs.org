@@ -11,7 +11,7 @@ This work was funded by `Clinical Graphics`_ -- many thanks for their support of
 Activating Conda
 ----------------
 
-Conda support is available using a :doc:`../config-file/index`, see :ref:`config-file/v2:conda`.
+Conda support is available using a :doc:`../../config-file/index`, see :ref:`config-file/v2:conda`.
 
 This Conda environment will also have Sphinx and other build time dependencies installed.
 It will use the same order of operations that we support currently:

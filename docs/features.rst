@@ -8,7 +8,7 @@ GitHub, Bitbucket and GitLab Integration
 
 We now support linking by default in the sidebar. It links to the page on your host, which should help people quickly update typos and send pull requests to contribute to project documentation.
 
-More information can be found in :doc:`guides/vcs`.
+More information can be found in :doc:`guides/troubleshooting/vcs`.
 
 Auto-updating
 -------------
@@ -26,7 +26,7 @@ Canonical URLs
 
 Canonical URLs give your docs better search performance, by pointing all URLs to one version. This also helps to solve the issues around users landing on outdated versions of documentation.
 
-More information can be found in the :doc:`guides/canonical` page.
+More information can be found in the :doc:`guides/troubleshooting/canonical` page.
 
 Versions
 --------

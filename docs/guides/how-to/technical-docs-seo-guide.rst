@@ -141,7 +141,7 @@ Redirects
 ~~~~~~~~~
 
 Redirects tell search engines when content has moved.
-For example, if this guide moved from ``guides/technical-docs-seo-guide.html`` to ``guides/sphinx-seo-guide.html``,
+For example, if this guide moved from ``guides/how-to/technical-docs-seo-guide.html`` to ``guides/sphinx-seo-guide.html``,
 there will be a time period where search engines will still have the old URL in their index
 and will still be showing it to users.
 This is why it is important to update your own links within your docs as well as redirecting.
@@ -161,7 +161,7 @@ The canonical URL tells search engines where the original version
 your documentation is even if you have multiple versions on the internet
 (for example, incomplete translations or deprecated versions).
 
-Read the Docs supports :doc:`setting the canonical URL </guides/canonical>`
+Read the Docs supports :doc:`setting the canonical URL </guides/troubleshooting/canonical>`
 if you are using a :doc:`custom domain </custom_domains>`
 under :guilabel:`Admin` > :guilabel:`Domains`
 in the Read the Docs dashboard.
@@ -197,7 +197,7 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on :doc:`sitemaps </guides/how-to/sitemaps>`.
+We have a small separate guide on :doc:`sitemaps </guides/troubleshooting/sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
@@ -219,10 +219,10 @@ In Sphinx, you can customize your meta description using the following Restructu
             can let you customize the look and feel of your docs or add additional functionality.
 
 
-.. figure:: ../_static/images/guides/google-search-engine-results.png
+.. figure:: ../../_static/images/guides/how-to/google-search-engine-results.png
     :align: center
     :figwidth: 80%
-    :target: ../_static/images/guides/google-search-engine-results.png
+    :target: ../../_static/images/guides/how-to/google-search-engine-results.png
 
     Google search engine results showing a customized meta description
 
@@ -257,7 +257,7 @@ Some of the most valuable feedback these provide include:
 * Google and Bing will show pages that were previously indexed that now give a 404
   (or more rarely a 500 or other status code).
   These will remain in the index for some time but will eventually be removed.
-  This is a good opportunity to create a :ref:`redirect <guides/technical-docs-seo-guide:Redirects>`.
+  This is a good opportunity to create a :ref:`redirect <guides/how-to/technical-docs-seo-guide:Redirects>`.
 * These tools will show any crawl issues with your documentation.
 * Search Console and Webmaster Tools will highlight security issues found
   or if Google or Bing took action against your site because they believe it is spammy.

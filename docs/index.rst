@@ -122,7 +122,8 @@ out of your documentation and Read the Docs.
   :doc:`Automatic redirects <automatic-redirects>`
 
 * **Topic specific guides**:
-  :doc:`How-to guides <guides/index>`
+  :doc:`How-to guides <guides/how-to/index>`
+  :doc:`Troubleshooting guides <guides/troubleshooting/index>`
 
 * **Extending Read the Docs**:
   :doc:`REST API <api/index>`
@@ -142,7 +143,8 @@ out of your documentation and Read the Docs.
    user-defined-redirects
    automatic-redirects
 
-   guides/index
+   guides/how-to/index
+   guides/troubleshooting/index
 
    api/index
 

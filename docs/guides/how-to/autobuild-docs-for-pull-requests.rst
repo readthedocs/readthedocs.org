@@ -2,7 +2,7 @@ Autobuild Documentation for Pull Requests
 =========================================
 
 Read the Docs allows autobuilding documentation for pull/merge requests for GitHub or GitLab projects.
-This feature is currently available under a :doc:`Feature Flag </guides/feature-flags>`.
+This feature is currently available under a :doc:`Feature Flag </guides/troubleshooting/feature-flags>`.
 So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
 
 Features
@@ -21,11 +21,11 @@ Features
   and after the build has finished we send success notification if the build succeeded without any error
   or failure notification if the build failed.
 
-.. figure:: ../_static/images/guides/github-build-status-reporting.gif
+.. figure:: ../../_static/images/guides/how-to/github-build-status-reporting.gif
     :align: center
     :alt: GitHub Build Status Reporting for Pull Requests.
     :figwidth: 80%
-    :target: ../_static/images/guides/github-build-status-reporting.gif
+    :target: ../../_static/images/guides/how-to/github-build-status-reporting.gif
 
     GitHub Build Status Reporting for Pull Requests
 

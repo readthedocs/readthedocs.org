@@ -16,10 +16,11 @@ whether that is Sphinx or MkDocs.
     :maxdepth: 1
 
     adding-custom-css
-    custom-404-page
     manage-translations
     remove-edit-buttons
-    vcs
+    build-notifications
+    build-using-too-many-resources
+    technical-docs-seo-guide
 
 Read the Docs how-to guides
 ---------------------------
@@ -32,10 +33,4 @@ These guides will help you customize or tune aspects of the Read the Docs build 
     autobuild-docs-for-pull-requests
     build-notifications
     technical-docs-seo-guide
-    canonical
-    conda
-    environment-variables
-    feature-flags
     google-analytics
-    searching-with-readthedocs
-    sitemaps

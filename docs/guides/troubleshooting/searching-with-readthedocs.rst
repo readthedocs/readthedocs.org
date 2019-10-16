@@ -7,7 +7,7 @@ how to use advanced query syntax to get more accurate results and
 many other search features that Read the Docs supports with example searches.
 
 You can find information on the search architecture and how we index document on our
-:doc:`Search <../development/search>` docs.
+:doc:`Search <../../development/search>` docs.
 
 
 .. contents:: Table of contents
@@ -67,7 +67,7 @@ You can see these analytics in your project admin dashboard.
 .. note::
 
     Currently, this feature is in beta state and is available under a
-    :ref:`feature flag <guides/feature-flags:Available Flags>`.
+    :ref:`feature flag <guides/troubleshooting/feature-flags:Available Flags>`.
     We plan to make this available for everyone soon.
     If you want to test this feature out and help giving us feedback,
     please contact us via `GitHub issues`_.
@@ -102,7 +102,7 @@ Search inside subprojects
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We allow projects to configured as subprojects of another project.
-You can read more about this in our :doc:`Subprojects <../subprojects>` documentation.
+You can read more about this in our :doc:`Subprojects <../../subprojects>` documentation.
 
 If a search is made in a project which have one or more subprojects under it,
 the search results then also includes the results from subprojects because

@@ -61,7 +61,7 @@ Read the Docs cannot create a PDF version of your documentation with the *Mkdocs
 
 .. warning::
 
-   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   We strongly recommend to :ref:`pin the MkDocs version <guides/troubleshooting/specifying-dependencies:Specifying Dependencies>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
 
@@ -109,7 +109,7 @@ An example in code:
     Regardless of whether you build your docs with Sphinx or MkDocs,
     we recommend you pin the version of Sphinx or Mkdocs you want us to use.
     You can do this the same way other
-    :doc:`dependencies are specified <guides/specifying-dependencies>`.
+    :doc:`dependencies are specified <guides/troubleshooting/specifying-dependencies>`.
     Some examples of pinning versions might be ``sphinx<2.0`` or ``mkdocs>=1.0``.
 
 Builder responsibility

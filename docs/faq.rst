@@ -75,7 +75,7 @@ My project requires different settings than those available under Admin
 Read the Docs offers some settings which can be used for a variety of purposes,
 such as to use the latest version of sphinx or pip. To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
-Read more about these settings :doc:`here <guides/feature-flags>`.
+Read more about these settings :doc:`here <guides/troubleshooting/feature-flags>`.
 
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
@@ -194,7 +194,7 @@ and as a result, it tends to look a bit better with the default theme.
 .. note::
 
    To use these extensions you need to specify the dependencies on your project
-   by following this :doc:`guide <guides/specifying-dependencies>`.
+   by following this :doc:`guide <guides/troubleshooting/specifying-dependencies>`.
 
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
