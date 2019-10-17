@@ -199,15 +199,40 @@ def serve_docs(
     if final_project.single_version:
         version_slug = final_project.get_default_version()
 
-    # Don't do auth checks
-    # try:
-    #     Version.objects.public(user=request.user, project=final_project).get(slug=version_slug)
-    # except Version.DoesNotExist:
-    #     # Properly raise a 404 if the version doesn't exist (or is inactive) and
-    #     # a 401 if it does
-    #     if final_project.versions.filter(slug=version_slug, active=True).exists():
-    #         return _serve_401(request, final_project)
-    #     raise Http404('Version does not exist.')
+    from readthedocs.builds.models import Version
+    version = (
+        Version.objects.for_project(final_project).filter(slug=version_slug)
+    ).first()
+
+    from readthedocsinc.acl.constants import VIEW_DOCS_PERMISSION
+
+    # Check authorization of user for a version.
+    # This method needs the `request` object in `user._request`.
+    request.user._request = request
+    if not request.user.has_perm(VIEW_DOCS_PERMISSION, version):
+        if not request.user.is_authenticated:
+            # Redirect to the CAS login page
+            from cas.views import login as cas_login
+
+            # HACK: since we are hitting the web server from inside the Python
+            # code, we need to hit ``web`` host (because ``proxito`` host does
+            # not known dev.readthedocs.io). On the other hand, when the user's
+            # browser is requesting the CAS server login page, we need to
+            # generate the URL for the final user using the host
+            # dev.readthedocs.io
+            if 'ticket=' in request.build_absolute_uri():
+                settings.CAS_SERVER_URL = 'http://web:8000/cas/'
+                response = cas_login(
+                    request, next_page=request.build_absolute_uri()
+                )
+            else:
+                settings.CAS_SERVER_URL = 'http://dev.readthedocs.io/cas/'
+                response = cas_login(
+                    request, next_page=request.build_absolute_uri()
+                )
+
+            return response
+
 
     storage_path = final_project.get_storage_path(
         type_='html', version_slug=version_slug, include_file=False
