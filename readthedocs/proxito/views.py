@@ -1,20 +1,21 @@
 """Views for doc serving."""
 
+import itertools
 import logging
 import mimetypes
 import os
 from functools import wraps
 from urllib.parse import urlparse
-import itertools
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.views.decorators.cache import cache_page
 from django.utils.encoding import iri_to_uri
+from django.views.decorators.cache import cache_page
 from django.views.static import serve
 
+from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolve
 from readthedocs.projects import constants
@@ -123,8 +124,11 @@ def map_project_slug(view_func):
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
-    """Redirect /page/file.html ->
-     /<default-lang>/<default-version>/file.html."""
+    """
+    Redirect /page/file.html ->
+
+    /<default-lang>/<default-version>/file.html.
+    """
 
     urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
@@ -244,18 +248,15 @@ def serve_docs(
     if path[-1] == '/':
         path += 'index.html'
 
-    return _serve_docs(
-        request, final_project=final_project, path=path
-    )
+    return _serve_docs(request, final_project=final_project, path=path)
 
 
 def _serve_docs(request, final_project, path):
     """
     Serve documentation in the way specified by settings.
 
-    Serve from the filesystem if using PYTHON_MEDIA
-    We definitely shouldn't do this in production,
-    but I don't want to force a check for DEBUG.
+    Serve from the filesystem if using PYTHON_MEDIA We definitely shouldn't do
+    this in production, but I don't want to force a check for DEBUG.
     """
 
     if not path.startswith('/proxito/'):
@@ -267,9 +268,7 @@ def _serve_docs(request, final_project, path):
         return _serve_docs_nginx(
             request, final_project=final_project, path=path
         )
-    return _serve_docs_nginx(
-        request, final_project=final_project, path=path
-    )
+    return _serve_docs_nginx(request, final_project=final_project, path=path)
 
 
 def _serve_docs_python(request, final_project, path):
@@ -279,7 +278,7 @@ def _serve_docs_python(request, final_project, path):
     .. warning:: Don't do this in production!
     """
     log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
-    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
     root_path = storage.path('')
     # Serve from Python
     return serve(request, path, root_path)
@@ -289,8 +288,8 @@ def _serve_docs_nginx(request, final_project, path):
     """
     Serve docs from nginx.
 
-    Returns a response with ``X-Accel-Redirect``,
-    which will cause nginx to serve it directly as an internal redirect.
+    Returns a response with ``X-Accel-Redirect``, which will cause nginx to
+    serve it directly as an internal redirect.
     """
     log.info('[Nginx serve] path=%s, project=%s', path, final_project.slug)
     content_type, encoding = mimetypes.guess_type(path)
@@ -401,7 +400,7 @@ def sitemap_xml(request, project):
         ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
         """
         if '_' in lang:
-            return lang.replace("_", "-")
+            return lang.replace('_', '-')
         return lang
 
     def changefreqs_generator():
@@ -433,11 +432,8 @@ def sitemap_xml(request, project):
     # We want stable with priority=1 and changefreq='weekly' and
     # latest with priority=0.9 and changefreq='daily'
     # More details on this: https://github.com/rtfd/readthedocs.org/issues/5447
-    if (
-        len(sorted_versions) >= 2 and
-        sorted_versions[0].slug == constants.LATEST and
-        sorted_versions[1].slug == constants.STABLE
-    ):
+    if (len(sorted_versions) >= 2 and sorted_versions[0].slug == LATEST and
+            sorted_versions[1].slug == STABLE):
         sorted_versions[0], sorted_versions[1] = sorted_versions[1], sorted_versions[0]
 
     versions = []
@@ -462,8 +458,8 @@ def sitemap_xml(request, project):
         if project.translations.exists():
             for translation in project.translations.all():
                 translation_versions = (
-                    Version.internal.public(project=translation)
-                    .values_list('slug', flat=True)
+                    Version.internal.public(project=translation
+                                            ).values_list('slug', flat=True)
                 )
                 if version.slug in translation_versions:
                     href = project.get_docs_url(
