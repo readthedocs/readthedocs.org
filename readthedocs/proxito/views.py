@@ -16,16 +16,15 @@ from django.views.static import serve
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project, ProjectRelationship
 
-
 log = logging.getLogger(__name__)  # noqa
 
 
-def fast_404(request):
+def fast_404(request, *args, **kwargs):
     """
-    A fast error page handler
+    A fast error page handler.
 
-    This stops us from running RTD logic in our error handling.
-    We already do this in RTD prod when we fallback to it.
+    This stops us from running RTD logic in our error handling. We already do
+    this in RTD prod when we fallback to it.
     """
     return HttpResponse('Not Found.', status_code=404)
 
@@ -119,7 +118,8 @@ def map_project_slug(view_func):
 @map_project_slug
 @map_subproject_slug
 def redirect_page_with_filename(request, project, subproject, filename):  # pylint: disable=unused-argument  # noqa
-    """Redirect /page/file.html to /<default-lang>/<default-version>/file.html."""
+    """Redirect /page/file.html ->
+     /<default-lang>/<default-version>/file.html."""
 
     urlparse_result = urlparse(request.get_full_path())
     return HttpResponseRedirect(
@@ -173,13 +173,17 @@ def serve_docs(
             project=current_project,
             subproject=None,
         )
-        log.info('Proxito redirect: from=%s, to=%s, project=%s',
-                 filename, redirect_to, current_project.slug)
+        log.info(
+            'Proxito redirect: from=%s, to=%s, project=%s', filename,
+            redirect_to, current_project.slug
+        )
         return redirect_to
 
     if (lang_slug is None or version_slug is None) and not current_project.single_version:
-        log.info('Invalid URL for project with versions. url=%s, project=%s',
-                 filename, current_project.slug)
+        log.info(
+            'Invalid URL for project with versions. url=%s, project=%s',
+            filename, current_project.slug
+        )
         raise Http404('Invalid URL for project with versions')
 
     # Handle single-version projects that have URLs like a real project
