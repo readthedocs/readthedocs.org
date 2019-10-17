@@ -4,37 +4,13 @@
 {% load pagination_tags %}
 
 {% block title %}
-{% if person %}
-    {% if tag %}
-        {% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}
-    {% else %}
-        {% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}
-    {% endif %}
-{% else %}
-    {% if tag %}
-        {% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}
-    {% else %}
-        {% trans "Projects" %}
-    {% endif %}
-{% endif %}
+{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}
 {% endblock %}
 
 {% block nav-browse %}class="active"{% endblock %}
 
 {% block content-header %}
-{% if person %}
-    {% if tag %}
-        <h1>{% blocktrans with person.username as username and tag.name as tag %}Projects by {{ username }} tagged with {{ tag }}{% endblocktrans %}</h1>
-    {% else %}
-        <h1>{% blocktrans with person.username as username %}Projects by {{ username }}{% endblocktrans %}</h1>
-    {% endif %}
-{% else %}
-    {% if tag %}
-        <h1>{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}</h1>
-    {% else %}
-        <h1>{% trans "Projects" %}</h1>
-    {% endif %}
-{% endif %}
+<h1>{% blocktrans with tag.name as tag %}Projects tagged with {{ tag }}{% endblocktrans %}</h1>
 {% endblock %}
 
 {% block content %}
