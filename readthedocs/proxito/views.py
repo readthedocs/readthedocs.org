@@ -333,6 +333,7 @@ def robots_txt(request, project):
         # default version is not built
         not version.built,
     ])
+    import ipdb; ipdb.set_trace()
     if no_serve_robots_txt:
         # ... we do return a 404
         raise Http404()

@@ -173,17 +173,17 @@ class TestAdditionalDocViews(BaseDocServing):
             b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
         )
 
-    def test_custom_robots_txt(self):
-        self.storage_mock = mock.MagicMock(spec=Storage, name='StorageMock')
-        self.storage_mock.exists.return_value = True
-        with mock.patch('django.core.files.storage.default_storage._wrapped', self.storage_mock):
-            response = self.client.get(
-                reverse('robots_txt'),
-                HTTP_HOST='project.readthedocs.io',
-            )
-            self.assertEqual(
-                response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
-            )
+    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    def test_custom_robots_txt(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        storage_mock().exists.return_value = True
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(
+            response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
+        )
 
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
