@@ -948,19 +948,20 @@ class DockerBuildEnvironment(BuildEnvironment):
         """
         if getattr(settings, 'RTD_DOCKER_COMPOSE', False):
             from pathlib import Path
-            return {
-                'readthedocsorg_build-user-builds': {
+            binds = {
+                settings.RTD_DOCKER_COMPOSE_VOLUME: {
                     'bind': str(Path(self.project.doc_path).parent),
-                'mode': 'rw',
+                    'mode': 'rw',
                 },
             }
-
-        return {
-            self.project.doc_path: {
-                'bind': self.project.doc_path,
-                'mode': 'rw',
-            },
-        }
+        else:
+            binds = {
+                self.project.doc_path: {
+                    'bind': self.project.doc_path,
+                    'mode': 'rw',
+                },
+            }
+        return binds
 
     def get_container_host_config(self):
         """

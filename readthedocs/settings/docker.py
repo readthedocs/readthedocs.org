@@ -8,6 +8,7 @@ class DockerBaseSettings(CommunityDevSettings):
 
     RTD_DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
+    RTD_DOCKER_COMPOSE_VOLUME = 'readthedocsorg_build-user-builds'
     RTD_DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     RTD_DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
