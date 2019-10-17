@@ -55,7 +55,9 @@ def map_host_to_project_slug(request):
             # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
             # But these feel like they might be phishing, etc. so let's block them for now.
             log.warning('Weird variation on our hostname: host=%s', host)
-            return HttpResponseBadRequest(_('Invalid hostname'))
+            return render(
+                request, 'core/dns-404.html', context={'host': host}, status=400
+            )
 
     # Serve CNAMEs
     else:
