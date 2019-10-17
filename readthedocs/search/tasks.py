@@ -2,6 +2,7 @@ import logging
 
 from dateutil.parser import parse
 from django.apps import apps
+from django.db.models import F
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
@@ -225,7 +226,7 @@ def increase_page_view_count(project_slug, version_slug, path):
     ).first()
 
     if page_view_obj:
-        page_view_obj.view_count += 1
+        page_view_obj.view_count = F('view_count') + 1
         page_view_obj.save()
     else:
         project = Project.objects.get(slug=project_slug)
