@@ -33,16 +33,19 @@ from django.conf.urls import url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.proxito.views import redirect_page_with_filename, serve_docs, fast_404
+from readthedocs.proxito import views
 
 
 urlpatterns = [
+    url(r'robots\.txt$', views.robots_txt, name='robots_txt'),
+    url(r'sitemap\.xml$', views.sitemap_xml, name='sitemap_xml'),
+
     # # TODO: Support this?
     # (Sub)project `page` redirect
     url(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
+        views.redirect_page_with_filename,
         name='redirect_page_with_filename',
     ),
 
@@ -54,7 +57,7 @@ urlpatterns = [
             r'(?P<version_slug>{version_slug})/'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        views.serve_docs,
         name='docs_detail',
     ),
 
@@ -76,11 +79,11 @@ urlpatterns = [
             r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        views.serve_docs,
         name='docs_detail_singleversion_subproject',
     ),
 ]
 
 # Use Django default error handlers to make things simpler
-handler404 = fast_404
+handler404 = views.fast_404
 handler500 = defaults.server_error

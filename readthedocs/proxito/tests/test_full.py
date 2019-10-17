@@ -6,6 +6,13 @@ import mock
 from django.conf import settings
 from django.http import HttpResponse
 from django.test.utils import override_settings
+from django.urls import reverse
+import django_dynamic_fixture as fixture
+from django.core.files.storage import Storage
+
+
+from readthedocs.projects import constants
+from readthedocs.builds.models import Version
 
 from .base import BaseDocServing
 
@@ -144,3 +151,34 @@ class TestDocServingBackends(BaseDocServing):
             resp['x-accel-redirect'],
             '/proxito/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
         )
+
+
+@override_settings(
+    PYTHON_MEDIA=False,
+    PUBLIC_DOMAIN='readthedocs.io',
+)
+class TestAdditionalDocViews(BaseDocServing):
+    # Test that robots.txt and sitemap.xml work
+
+    def test_default_robots_txt(self):
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content,
+            b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
+        )
+
+    def test_custom_robots_txt(self):
+        self.storage_mock = mock.MagicMock(spec=Storage, name='StorageMock')
+        self.storage_mock.exists.return_value = True
+        with mock.patch('django.core.files.storage.default_storage._wrapped', self.storage_mock):
+            response = self.client.get(
+                reverse('robots_txt'),
+                HTTP_HOST='project.readthedocs.io',
+            )
+            self.assertEqual(
+                response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
+            )
