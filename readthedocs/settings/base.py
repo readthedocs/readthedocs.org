@@ -346,6 +346,7 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     RTD_DOCKER_BUILD_IMAGES = None
+    RTD_DOCKER_COMPOSE = False
     RTD_DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 
     # User used to create the container.
