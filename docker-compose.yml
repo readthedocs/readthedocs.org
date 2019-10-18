@@ -4,6 +4,9 @@ version: '3'
 
 volumes:
   build-user-builds:
+  azurite_data:
+  postgres_data:
+  postgres_backups_data:
 
 services:
   server:
@@ -37,19 +40,22 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
-    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
 
   web:
     image: readthedocsorg_server:latest
     volumes:
       - ${PWD}/docker/entrypoints/web.sh:/usr/src/app/docker/web.sh
-      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
-    links: &web-links
+    links:
       - storage
       - database
       - cache
+    depends_on:
+      - storage
+      - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     command: ["../../docker/web.sh"]
@@ -58,25 +64,26 @@ services:
     image: readthedocsorg_server:latest
     volumes:
       - ${PWD}/docker/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
-      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
-    links: &celery-links
+    links:
       - storage
       - database
       - cache
+    depends_on:
+      - storage
+      - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
     command: ["../../docker/celery.sh"]
-
-  # celery-beat:
 
   build:
     image: readthedocsorg_server:latest
     volumes:
       - ${PWD}/docker/entrypoints/build.sh:/usr/src/app/docker/build.sh
-      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/docker/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
 
       # The python code at readthedocs/doc_builder/environments.py
@@ -96,18 +103,23 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
     command: ["../../docker/build.sh"]
 
-  # Containers MUST be created first
-  # pip install azure-cli
-  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "builds"
-  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "media"
-  # az storage container create --connection-string "UseDevelopmentStorage=true" --public-access "blob" --name "static"
   storage:
     image: mcr.microsoft.com/azure-storage/azurite:latest
     volumes:
-      - ${PWD}/docker/azurite:/data
+      - azurite_data:/data
     ports:
       - "10000:10000"
     command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0"]
+
+  azure-cli:
+    image: microsoft/azure-cli
+    volumes:
+      - ${PWD}/docker/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
+    links:
+      - storage
+    depends_on:
+      - storage
+    command: ["/usr/local/bin/create-containers.sh"]
 
   cache:
     image: redis:3.2.7
@@ -118,3 +130,6 @@ services:
       - POSTGRES_USER=docs_user
       - POSTGRES_PASSWORD=docs_pwd
       - POSTGRES_DB=docs_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_backups_data:/backups
