@@ -10,10 +10,11 @@ import logging
 from urllib.parse import urlparse
 
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404, JsonResponse
+from django.core.files.storage import get_storage_class
+from django.http import HttpResponseRedirect, Http404, JsonResponse, FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
-from django.views.static import serve as static_serve
+from django.http import FileResponse
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
@@ -132,46 +133,6 @@ def server_error_404_subdomain(request, template_name='404.html'):
     the Docs default page (Maze Found) is rendered by Django and served.
     """
 
-    def resolve_404_path(project, version_slug=None, language=None, filename='404.html'):
-        """
-        Helper to resolve the path of ``404.html`` for project.
-
-        The resolution is based on ``project`` object, version slug and
-        language.
-
-        :returns: tuple containing the (basepath, filename)
-        :rtype: tuple
-        """
-        filename = resolve_path(
-            project,
-            version_slug=version_slug,
-            language=language,
-            filename=filename,
-            subdomain=True,  # subdomain will make it a "full" path without a URL prefix
-        )
-
-        # This breaks path joining, by ignoring the root when given an "absolute" path
-        if filename[0] == '/':
-            filename = filename[1:]
-
-        version = None
-        if version_slug:
-            version_qs = project.versions.filter(slug=version_slug)
-            if version_qs.exists():
-                version = version_qs.first()
-
-        private = any([
-            version and version.privacy_level == PRIVATE,
-            not version and project.privacy_level == PRIVATE,
-        ])
-        if private:
-            symlink = PrivateSymlink(project)
-        else:
-            symlink = PublicSymlink(project)
-        basepath = symlink.project_root
-        fullpath = os.path.join(basepath, filename)
-        return (basepath, filename, fullpath)
-
     project, full_path = project_and_path_from_request(request, request.get_full_path())
 
     if project:
@@ -186,14 +147,20 @@ def server_error_404_subdomain(request, template_name='404.html'):
         # (project.get_default_version())
         for slug in (version_slug, project.get_default_version()):
             for tryfile in ('404.html', '404/index.html'):
-                basepath, filename, fullpath = resolve_404_path(project, slug, language, tryfile)
-                if os.path.exists(fullpath):
+                storage_root_path = project.get_storage_path(
+                    type_='html',
+                    version_slug=slug,
+                    include_file=False,
+                )
+                storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+                storage_filename_path = f'{storage_root_path}/{tryfile}'
+                if storage.exists(storage_filename_path):
                     log.debug(
                         'serving 404.html page current version: [project: %s] [version: %s]',
                         project.slug,
                         slug,
                     )
-                    r = static_serve(request, filename, basepath)
+                    r = FileResponse(storage.open(storage_filename_path))
                     r.status_code = 404
                     return r
 
