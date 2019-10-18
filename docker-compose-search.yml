@@ -2,6 +2,9 @@
 # services to link them so they can use the "search" as well.
 version: '3'
 
+volumes:
+  search_data:
+
 services:
 
   web:
@@ -25,4 +28,4 @@ services:
     environment:
       - discovery.type=single-node
     volumes:
-      - ${PWD}/docker/search:/usr/share/elasticsearch/data
+      - search_data:/usr/share/elasticsearch/data
