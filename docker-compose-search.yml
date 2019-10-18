@@ -20,6 +20,10 @@ services:
       - database
       - cache
       - search
+    depends_on:
+      - storage
+      - azure-cli
+      - search
 
   # You may need to increase the memory for vm
   # sudo sysctl -w vm.max_map_count=262144
