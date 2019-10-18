@@ -36,7 +36,7 @@ services:
       - database
       - cache
     environment:
-      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito 
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
   web:
@@ -46,9 +46,8 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
-    links:
+    links: &web-links
       - storage
-      - search
       - database
       - cache
     environment:
@@ -62,17 +61,16 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
-    links:
+    links: &celery-links
       - storage
       - database
       - cache
-      - search
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
     command: ["../../docker/celery.sh"]
 
   # celery-beat:
-    
+
   build:
     image: readthedocsorg_server:latest
     volumes:
@@ -87,7 +85,7 @@ services:
       # is created inside the build container (sphinx commands).
       # Because of this, we need to use a shared volume between them
       - build-user-builds:/usr/src/app/checkouts/readthedocs.org/user_builds
-      
+
       # Docker in Docker
       - /var/run/docker.sock:/var/run/docker.sock
     links:
@@ -113,15 +111,6 @@ services:
 
   cache:
     image: redis:3.2.7
-
-  # You may need to increase the memory for vm
-  # sudo sysctl -w vm.max_map_count=262144
-  search:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
-    environment:
-      - discovery.type=single-node
-    volumes:
-      - ${PWD}/docker/search:/usr/share/elasticsearch/data
 
   database:
     image: postgres:11.1
