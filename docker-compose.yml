@@ -37,7 +37,7 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito 
-    command: ["gunicorn", "readthedocs.wsgi:application", "-w", "3", "-b", ":8000"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
   web:
     image: readthedocsorg_server:latest
