@@ -84,7 +84,7 @@ class RTDFacetedSearch(FacetedSearch):
 class ProjectSearchBase(RTDFacetedSearch):
     facets = {'language': TermsFacet(field='language')}
     doc_types = [ProjectDocument]
-    index = ProjectDocument._doc_type.index
+    index = ProjectDocument._index._name
     fields = ('name^10', 'slug^5', 'description')
     operators = ['and', 'or']
 
@@ -99,7 +99,7 @@ class PageSearchBase(RTDFacetedSearch):
         ),
     }
     doc_types = [PageDocument]
-    index = PageDocument._doc_type.index
+    index = PageDocument._index._name
 
     _outer_fields = ['title^4']
     _section_fields = ['sections.title^3', 'sections.content']

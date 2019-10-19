@@ -64,7 +64,7 @@ class Command(BaseCommand):
             app_label = queryset.model._meta.app_label
             model_name = queryset.model.__name__
 
-            index_name = doc._doc_type.index
+            index_name = doc._index._name
             new_index_name = "{}_{}".format(index_name, timestamp)
             # Set index temporarily for indexing,
             # this will only get set during the running of this command

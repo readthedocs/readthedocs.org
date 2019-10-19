@@ -106,7 +106,7 @@ def _get_index(indices, index_name):
     :return: DED Index
     """
     for index in indices:
-        if str(index) == index_name:
+        if index._name == index_name:
             return index
 
 
@@ -156,15 +156,23 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 delete_objects_in_es.delay(**kwargs)
 
 
-def _get_sorted_results(results, source_key='_source'):
+def _get_sorted_results(results):
     """Sort results according to their score and returns results as list."""
-    sorted_results = [
-        {
-            'type': hit._nested.field,
-            source_key: hit._source.to_dict(),
-            'highlight': hit.highlight.to_dict() if hasattr(hit, 'highlight') else {}
-        }
-        for hit in sorted(results, key=attrgetter('_score'), reverse=True)
-    ]
+    sorted_results = []
+
+    for hit in sorted(results, key=attrgetter('meta.score'), reverse=True):
+        try:
+            highlight = hit.meta.highlight.to_dict()
+        except:
+            highlight = {}
+        
+        try:
+            sorted_results.append({
+                'type': hit.meta.nested.field,
+                'source': hit.to_dict(),
+                'highlight': highlight,
+            })
+        except:
+            return []
 
     return sorted_results

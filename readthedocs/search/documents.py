@@ -1,9 +1,11 @@
 import logging
 
 from django.conf import settings
-from django_elasticsearch_dsl import DocType, Index, fields
+from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl.registries import registry
 
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Index
 
 from readthedocs.projects.models import HTMLFile, Project
 
@@ -30,8 +32,9 @@ class RTDDocTypeMixin:
         super().update(*args, **kwargs)
 
 
-@project_index.doc_type
-class ProjectDocument(RTDDocTypeMixin, DocType):
+@registry.register_document
+@project_index.document
+class ProjectDocument(RTDDocTypeMixin, Document):
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
@@ -45,7 +48,7 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
@@ -64,8 +67,9 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
         return ProjectSearch(**kwargs)
 
 
-@page_index.doc_type
-class PageDocument(RTDDocTypeMixin, DocType):
+@registry.register_document
+@page_index.document
+class PageDocument(RTDDocTypeMixin, Document):
 
     # Metadata
     project = fields.KeywordField(attr='project.slug')
@@ -102,7 +106,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True

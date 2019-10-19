@@ -5,7 +5,7 @@ dist: xenial
 matrix:
   include:
     - python: 3.6
-      env: TOXENV=py36,codecov ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+      env: TOXENV=py36,codecov ES_VERSION=6.8.3 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
     - python: 3.6
       env: TOXENV=docs
     - python: 3.6

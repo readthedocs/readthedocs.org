@@ -4,21 +4,21 @@ Search
 Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
 All the Search Code is open source and lives in the `GitHub Repository`_.
-Currently we are using the `Elasticsearch 6.3`_ version.
+Currently we are using the `Elasticsearch 6.8.3`_ version.
 
 Local Development Configuration
 -------------------------------
 
 Installing and running Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You need to install and run Elasticsearch_ version 6.3 on your local development machine.
+You need to install and run Elasticsearch_ version 6.8.3 on your local development machine.
 You can get the installation instructions
-`here <https://www.elastic.co/guide/en/elasticsearch/reference/6.3/install-elasticsearch.html>`_.
+`here <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/install-elasticsearch.html>`_.
 Otherwise, you can also start an Elasticsearch Docker container by running the following command::
 
     docker run -p 9200:9200 -p 9300:9300 \
            -e "discovery.type=single-node" \
-           docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+           docker.elastic.co/elasticsearch/elasticsearch:6.8.3
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

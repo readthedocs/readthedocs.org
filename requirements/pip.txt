@@ -45,24 +45,9 @@ django-allauth==0.40.0
 GitPython==3.0.3
 
 # Search
-elasticsearch==6.4.0  # pyup: <7.0.0
-
-
-# elasticsearch-dsl==6.3.1 produces this error
-#   File "/home/travis/build/rtfd/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 8, in <module>
-#     from elasticsearch_dsl.document import DocTypeMeta as DSLDocTypeMeta
-# ImportError: cannot import name 'DocTypeMeta'
-#
-# Commit 97e3f75 adds the NestedFacet
-git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17abcafbb0f85e#egg=elasticsearch-dsl==6.1.1
-
-# django-elasticsearch-dsl==6.4.1 produces this error
-#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/__init__.py", line 3, in <module>
-#     from .documents import DocType  # noqa
-#   File "/home/travis/build/readthedocs/readthedocs.org/.tox/py36/lib/python3.6/site-packages/django_elasticsearch_dsl/documents.py", line 7, in <module>
-#     from elasticsearch_dsl import Document as DSLDocument
-# ImportError: cannot import name 'Document'
-django-elasticsearch-dsl==0.5.1  # pyup: ignore
+elasticsearch>=6.0.0,<7.0.0  # pyup: ignore
+elasticsearch-dsl>=6.0.0,<7.0.0  # pyup: ignore
+django-elasticsearch-dsl>=6.0.0,<7.0.0  # pyup: ignore
 selectolax==0.2.1
 orjson==2.0.7
 
