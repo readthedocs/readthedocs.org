@@ -136,9 +136,9 @@ function attach_elastic_search_query(data) {
                             if(inner_hits[j].type === "sections") {
 
                                 section = inner_hits[j];
-                                section_subtitle = section._source.title;
-                                section_subtitle_link = link + "#" + section._source.id;
-                                section_content = [section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ..."];
+                                section_subtitle = section.source.title;
+                                section_subtitle_link = link + "#" + section.source.id;
+                                section_content = [section.source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
@@ -173,15 +173,15 @@ function attach_elastic_search_query(data) {
                             if (inner_hits[j].type === "domains") {
 
                                 domain = inner_hits[j];
-                                domain_role_name = domain._source.role_name;
-                                domain_subtitle_link = link + "#" + domain._source.anchor;
-                                domain_name = domain._source.name;
+                                domain_role_name = domain.source.role_name;
+                                domain_subtitle_link = link + "#" + domain.source.anchor;
+                                domain_name = domain.source.name;
                                 domain_subtitle = "";
                                 domain_content = "";
                                 domain_docstrings = "";
 
-                                if (domain._source.docstrings !== "") {
-                                    domain_docstrings = domain._source.docstrings.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+                                if (domain.source.docstrings !== "") {
+                                    domain_docstrings = domain.source.docstrings.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
                                 }
 
                                 if (domain.highlight) {
