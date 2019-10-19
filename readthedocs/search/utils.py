@@ -163,16 +163,16 @@ def _get_sorted_results(results):
     for hit in sorted(results, key=attrgetter('meta.score'), reverse=True):
         try:
             highlight = hit.meta.highlight.to_dict()
-        except:
+        except Exception:
             highlight = {}
-        
+
         try:
             sorted_results.append({
                 'type': hit.meta.nested.field,
                 'source': hit.to_dict(),
                 'highlight': highlight,
             })
-        except:
+        except Exception:
             return []
 
     return sorted_results
