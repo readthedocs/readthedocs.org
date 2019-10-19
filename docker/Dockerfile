@@ -35,7 +35,12 @@ RUN pip install --no-cache-dir -e readthedocs-ext
 # We need the latest version to use Azurite
 # 1.7.2 introduced AZURE_EMULATED_MODE and AZURE_CUSTOM_DOMAIN
 # https://github.com/jschneier/django-storages/blob/master/CHANGELOG.rst#172-2019-09-10
-RUN pip install --no-cache-dir -U django-storages[azure]
-RUN pip install --no-cache-dir -U azure-storage-blob
+RUN pip install --no-cache-dir -U django-storages[azure]==1.7.2
+
+# Avoid incompatibility about
+# TypeError: __init__() got an unexpected keyword argument 'token_credential'
+RUN pip install --no-cache-dir -U azure-storage-blob==1.5.0
+RUN pip install --no-cache-dir -U azure-storage-common==1.4.2
+
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
