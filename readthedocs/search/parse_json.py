@@ -4,7 +4,7 @@ import logging
 try:
     import orjson as json
 except ImportError:
-    # Fallback to standard json module of orjson does not load
+    # Fallback to standard json module if orjson does not load
     import json
 
 from django.conf import settings
