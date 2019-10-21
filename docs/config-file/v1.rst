@@ -107,7 +107,7 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: :djangosetting:`RTD_DOCKER_DEFAULT_VERSION`
+* Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
 * Options: ``stable``, ``latest``
 
 The build image to use for specific builds.
