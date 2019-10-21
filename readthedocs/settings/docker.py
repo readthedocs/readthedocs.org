@@ -33,6 +33,18 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_CLEAN_AFTER_BUILD = True
 
     @property
+    def LOGGING(self):
+        logging = super().LOGGING
+        logging['loggers'].update({
+            # Disable azurite logging
+            'azure.storage.common.storageclient': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+        })
+        return logging
+
+    @property
     def DATABASES(self):  # noqa
         return {
             "default": {
