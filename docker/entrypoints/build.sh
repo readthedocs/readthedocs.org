@@ -1,5 +1,7 @@
 #! /bin/sh
 
+../../docker/common.sh
+
 watchmedo auto-restart \
   --patterns="*.py" \
   --ignore-patterns="*.#*.py;./user_builds/*;./public_*;./private_*;*.pyo;*.pyc;*flycheck*.py;./media/*;./.tox/*" \
