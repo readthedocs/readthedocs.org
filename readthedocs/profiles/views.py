@@ -4,11 +4,18 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.views.generic import ListView, DeleteView, View
 from rest_framework.authtoken.models import Token
-from vanilla import DetailView, FormView, ListView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    ListView,
+    UpdateView
+)
 
 from readthedocs.core.forms import (
     UserAdvertisingForm,
@@ -109,7 +116,7 @@ class TokenListView(TokenMixin, ListView):
     pass
 
 
-class TokenCreateView(TokenMixin, View):
+class TokenCreateView(TokenMixin, CreateView):
 
     """Simple view to generate a Token object for the logged in User."""
 
