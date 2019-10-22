@@ -523,6 +523,34 @@ This allows for documentation projects to share a search index and a namespace o
 but still be maintained independently.
 See :doc:`/subprojects` for more information.
 
+
+Subproject details
+++++++++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Retrieve details of a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "alias": "subproject-alias",
+            "child": ["PROJECT"],
+            "_links": {
+                "parent": "/api/v3/projects/pip/"
+            }
+        }
+
+
 Subprojects listing
 +++++++++++++++++++
 
