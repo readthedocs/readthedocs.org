@@ -322,11 +322,6 @@ class Version(models.Model):
             task=tasks.symlink_project,
             args=[self.project.pk],
         )
-
-        # These resources are not used when a version is inactive
-        if not self.active:
-            tasks.clean_project_resources(self.project, self)
-
         return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
