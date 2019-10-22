@@ -67,6 +67,31 @@ class DockerBaseSettings(CommunityDevSettings):
         }
     }
 
+    CACHEOPS_REDIS = 'redis://cacheops:6379/0'
+    CACHEOPS_TIMEOUT = 60 * 60
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': (),
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': (),
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': (),
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': (),
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+
     BROKER_URL = "redis://cache:6379/0"
     CELERY_RESULT_BACKEND = "redis://cache:6379/0"
     CELERY_RESULT_SERIALIZER = "json"

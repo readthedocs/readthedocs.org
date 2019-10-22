@@ -4,6 +4,30 @@ from .docker_compose import DockerBaseSettings
 class ProxitoDevSettings(DockerBaseSettings):
     ROOT_URLCONF = 'readthedocs.proxito.urls'
 
+    CACHEOPS_TIMEOUT = 60 * 60
+    CACHEOPS_OPS = {'get', 'fetch'}
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }
+
     @property
     def MIDDLEWARE(self):  # noqa
         classes = list(super().MIDDLEWARE)

@@ -144,6 +144,9 @@ services:
       - storage
     command: ["/usr/local/bin/create-containers.sh"]
 
+  cacheops:
+    image: redis:3.2.7
+
   cache:
     image: redis:3.2.7
 

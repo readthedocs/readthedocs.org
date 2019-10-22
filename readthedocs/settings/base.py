@@ -124,6 +124,7 @@ class CommunityBaseSettings(Settings):
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
+            'cacheops',
 
             # our apps
             'readthedocs.projects',

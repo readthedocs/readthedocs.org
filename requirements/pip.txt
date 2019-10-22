@@ -111,3 +111,5 @@ django-storages==1.7.2
 
 # Required only in development and linting
 django-debug-toolbar==2.0
+
+django-cacheops==4.2
