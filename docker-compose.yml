@@ -31,6 +31,7 @@ services:
   proxito:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/docker/entrypoints/proxito.sh:/usr/src/app/docker/proxito.sh
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
@@ -46,6 +47,7 @@ services:
   web:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/docker/entrypoints/web.sh:/usr/src/app/docker/web.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
@@ -64,6 +66,7 @@ services:
   celery:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/docker/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
@@ -82,6 +85,7 @@ services:
   build:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/docker/entrypoints/build.sh:/usr/src/app/docker/build.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org

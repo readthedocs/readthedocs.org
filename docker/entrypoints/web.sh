@@ -1,5 +1,6 @@
 #! /bin/sh
 
+../../docker/common.sh
 
 python3 manage.py migrate
 cat ../../docker/scripts/createsuperuser.py | python3 manage.py shell
