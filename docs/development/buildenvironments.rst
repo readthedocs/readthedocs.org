@@ -47,7 +47,7 @@ There are several settings used to configure usage of virtual machines:
 DOCKER_ENABLE
     True/False value used to enable the Docker build environment.
 
-    Default: :djangosetting:`RTD_DOCKER_ENABLE`
+    Default: :djangosetting:`DOCKER_ENABLE`
 
 DOCKER_LIMITS
     A dictionary of limits to virtual machines. These limits include:
@@ -65,23 +65,23 @@ DOCKER_LIMITS
             Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
             total memory.
 
-    Default: :djangosetting:`RTD_DOCKER_LIMITS`
+    Default: :djangosetting:`DOCKER_LIMITS`
 
 DOCKER_IMAGE
     Tag of a Docker image to use as a base image.
 
-    Default: :djangosetting:`RTD_DOCKER_IMAGE`
+    Default: :djangosetting:`DOCKER_IMAGE`
 
 DOCKER_SOCKET
     URI of the socket to connect to the Docker daemon. Examples include:
     ``unix:///var/run/docker.sock`` and ``tcp://127.0.0.1:2375``.
 
-    Default: :djangosetting:`RTD_DOCKER_SOCKET`
+    Default: :djangosetting:`DOCKER_SOCKET`
 
 DOCKER_VERSION
     Version of the API to use for the Docker API client.
 
-    Default: :djangosetting:`RTD_DOCKER_VERSION`
+    Default: :djangosetting:`DOCKER_VERSION`
 
 
 Local development

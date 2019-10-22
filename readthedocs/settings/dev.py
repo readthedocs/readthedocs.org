@@ -92,7 +92,7 @@ try:
         DOCKER_IMAGE_SETTINGS = {
             key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
             for (key, settings)
-            in RTD_DOCKER_IMAGE_SETTINGS.items()
+            in DOCKER_IMAGE_SETTINGS.items()
         }
 except NameError:
     pass
