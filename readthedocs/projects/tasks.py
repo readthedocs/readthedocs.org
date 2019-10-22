@@ -1844,6 +1844,26 @@ def remove_build_storage_paths(paths):
         storage.delete_directory(storage_path)
 
 
+def clean_project_resources(project, version=None):
+    """
+    Delete all extra resources used by `version` of `project`.
+
+    It removes:
+
+    - Artifacts from storage.
+    - Search indexes from ES.
+
+    :param version: Version instance. if isn't given,
+                    all resources of `project` will be deleted.
+    """
+    storage_paths = []
+    if version:
+        version.get_storage_paths()
+    else:
+        storage_paths = project.get_storage_paths()
+    remove_build_storage_paths.delay(storage_paths)
+
+
 @app.task(queue='web')
 def sync_callback(_, version_pk, commit, build, *args, **kwargs):
     """
