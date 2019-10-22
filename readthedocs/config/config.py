@@ -114,11 +114,18 @@ class InvalidConfig(ConfigError):
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
-            key=key,
+            key=self._get_display_key(),
             code=code,
             error=error_message,
         )
         super().__init__(message, code=code)
+
+    def _get_display_key(self):
+        # Checks for patterns similar to `python.install.0.requirements`
+        # if matched change to `python.install[0].requirements` using backreference.
+        return re.sub(
+            r'^(python\.install)(\.)(\d+)(\.\w+)$', r'\1[\3]\4', self.key
+        )
 
 
 class BuildConfigBase:

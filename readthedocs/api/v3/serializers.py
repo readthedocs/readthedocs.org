@@ -538,8 +538,11 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     def __init__(self, *args, **kwargs):
         # Initialize the instance with the parent Project to be used in the
-        # serializer validation.
-        self.parent_project = kwargs.pop('parent')
+        # serializer validation. When this Serializer is rendered as a Form in
+        # BrowsableAPIRenderer, it's not initialized with the ``parent``, so we
+        # default to ``None`` because we don't need it at that point.
+        self.parent_project = kwargs.pop('parent', None)
+
         super().__init__(*args, **kwargs)
 
     def validate_child(self, value):
@@ -547,7 +550,19 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         user = self.context['request'].user
         if user not in value.users.all():
             raise serializers.ValidationError(
-                'You do not have permissions on the child project',
+                _('You do not have permissions on the child project'),
+            )
+
+        # Check the child project is not a subproject already
+        if value.superprojects.exists():
+            raise serializers.ValidationError(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if value.subprojects.exists():
+            raise serializers.ValidationError(
+                _('Child is already a superproject'),
             )
         return value
 
@@ -556,7 +571,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         subproject = self.parent_project.subprojects.filter(alias=value)
         if subproject.exists():
             raise serializers.ValidationError(
-                'A subproject with this alias already exists',
+                _('A subproject with this alias already exists'),
             )
         return value
 
@@ -565,13 +580,13 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         # Check the parent and child are not the same project
         if data['child'].slug == self.parent_project.slug:
             raise serializers.ValidationError(
-                'Project can not be subproject of itself',
+                _('Project can not be subproject of itself'),
             )
 
         # Check the parent project is not a subproject already
         if self.parent_project.superprojects.exists():
             raise serializers.ValidationError(
-                'Subproject nesting is not supported',
+                _('Subproject nesting is not supported'),
             )
         return data
 
