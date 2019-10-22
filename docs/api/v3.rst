@@ -276,8 +276,8 @@ Versions listing
             "results": ["VERSION"]
         }
 
-    :query boolean active: return active versions only
-    :query boolean built: return only built version
+    :query boolean active: return only active versions
+    :query boolean built: return only built versions
 
 
 Version detail
@@ -734,8 +734,8 @@ Redirect create
        Depending on the ``type`` of the redirect, some fields may not be needed:
 
        * ``prefix`` type does not require ``to_url``.
-       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``
-       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``
+       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
+       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``.
 
     **Example response**:
 
