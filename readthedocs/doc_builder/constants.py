@@ -13,12 +13,12 @@ log = logging.getLogger(__name__)
 PDF_RE = re.compile('Output written on (.*?)')
 
 # Docker
-DOCKER_SOCKET = settings.RTD_DOCKER_SOCKET
-DOCKER_VERSION = settings.RTD_DOCKER_VERSION
-DOCKER_IMAGE = settings.RTD_DOCKER_IMAGE
-DOCKER_IMAGE_SETTINGS = settings.RTD_DOCKER_IMAGE_SETTINGS
+DOCKER_SOCKET = settings.DOCKER_SOCKET
+DOCKER_VERSION = settings.DOCKER_VERSION
+DOCKER_IMAGE = settings.DOCKER_IMAGE
+DOCKER_IMAGE_SETTINGS = settings.DOCKER_IMAGE_SETTINGS
 
-old_config = settings.RTD_DOCKER_BUILD_IMAGES
+old_config = settings.DOCKER_BUILD_IMAGES
 if old_config:
     log.warning(
         'Old config detected, DOCKER_BUILD_IMAGES->DOCKER_IMAGE_SETTINGS',
@@ -26,7 +26,7 @@ if old_config:
     DOCKER_IMAGE_SETTINGS.update(old_config)
 
 DOCKER_LIMITS = {'memory': '200m', 'time': 600}
-DOCKER_LIMITS.update(settings.RTD_DOCKER_LIMITS)
+DOCKER_LIMITS.update(settings.DOCKER_LIMITS)
 
 DOCKER_TIMEOUT_EXIT_CODE = 42
 DOCKER_OOM_EXIT_CODE = 137

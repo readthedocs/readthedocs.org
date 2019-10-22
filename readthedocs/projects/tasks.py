@@ -371,7 +371,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
         :param docker bool: use docker to build the project (if ``None``,
-            ``settings.RTD_DOCKER_ENABLE`` is used)
+            ``settings.DOCKER_ENABLE`` is used)
         :param force bool: force Sphinx build
 
         :returns: whether build was successful or not
@@ -380,7 +380,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         """
         try:
             if docker is None:
-                docker = settings.RTD_DOCKER_ENABLE
+                docker = settings.DOCKER_ENABLE
             self.version = self.get_version(version_pk)
             self.project = self.version.project
             self.build = self.get_build(build_pk)
@@ -847,7 +847,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 },
             )
             try:
-                storage.copy_directory(from_path, to_path)
+                storage.sync_directory(from_path, to_path)
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
@@ -904,11 +904,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         downloads, and search. Tasks are broadcast to all web servers from here.
         """
         # Update version if we have successfully built HTML output
+        # And store whether the build had other media types
         try:
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
                 })
         except HttpClientError:
             log.exception(
