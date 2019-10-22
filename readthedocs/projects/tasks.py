@@ -1847,8 +1847,7 @@ def remove_build_storage_paths(paths):
 
 @app.task(queue='web')
 def remove_search_indexes(project_slug, version_slug=None):
-    """Wrapper around `remove_indexed_files to make it a task."""
-    # Remove ES indexes
+    """Wrapper around ``remove_indexed_files`` to make it a task."""
     remove_indexed_files(
         model=HTMLFile,
         project_slug=project_slug,
@@ -1875,7 +1874,7 @@ def clean_project_resources(project, version=None):
     # Remove storage paths
     storage_paths = []
     if version:
-        version.get_storage_paths()
+        storage_paths = version.get_storage_paths()
     else:
         storage_paths = project.get_storage_paths()
     remove_build_storage_paths.delay(storage_paths)
