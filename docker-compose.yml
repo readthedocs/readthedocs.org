@@ -31,6 +31,7 @@ services:
   proxito:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/entrypoints/proxito.sh:/usr/src/app/docker/proxito.sh
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/docker/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
@@ -40,7 +41,7 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
-    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    command: ["../../docker/proxito.sh"]
 
   web:
     image: readthedocsorg_server:latest
