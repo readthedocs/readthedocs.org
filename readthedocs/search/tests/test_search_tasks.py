@@ -135,7 +135,7 @@ class TestSearchTasks:
         ), 'There\'s no PageView object created yet.'
 
         # testing for yesterday
-        with mock.patch('readthedocs.search.tasks.timezone') as mocked_timezone:
+        with mock.patch('readthedocs.search.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = yesterday
 
             tasks.increase_page_view_count(
@@ -145,7 +145,7 @@ class TestSearchTasks:
             )
 
             assert (
-                PageView.objects.all().count() == 1,
+                PageView.objects.all().count() == 1
             ), 'PageView object for path \'index\' is created'
             assert (
                 PageView.objects.all().first().view_count == 1
@@ -158,14 +158,14 @@ class TestSearchTasks:
             )
 
             assert (
-                PageView.objects.all().count() == 1,
+                PageView.objects.all().count() == 1
             ), 'PageView object for path \'index\' is already created'
             assert (
                 PageView.objects.all().first().view_count == 2
             ), '\'index\' has 2 views now'
 
         # testing for today
-        with mock.patch('readthedocs.search.tasks.timezone') as mocked_timezone:
+        with mock.patch('readthedocs.search.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = today
             tasks.increase_page_view_count(
                 project_slug=project.slug,
@@ -174,14 +174,14 @@ class TestSearchTasks:
             )
 
             assert (
-                PageView.objects.all().count() == 2,
+                PageView.objects.all().count() == 2
             ), 'PageView object for path \'index\' is created for two days (yesterday and today)'
             assert (
-                PageView.objects.all().order_by('-created').first().view_count == 1
+                PageView.objects.all().order_by('-date').first().view_count == 1
             ), '\'index\' has 1 view today'
 
         # testing for tomorrow
-        with mock.patch('readthedocs.search.tasks.timezone') as mocked_timezone:
+        with mock.patch('readthedocs.search.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = tomorrow
             tasks.increase_page_view_count(
                 project_slug=project.slug,
@@ -190,8 +190,8 @@ class TestSearchTasks:
             )
 
             assert (
-                PageView.objects.all().count() == 3,
+                PageView.objects.all().count() == 3
             ), 'PageView object for path \'index\' is created for three days (yesterday, today & tomorrow)'
             assert (
-                PageView.objects.all().order_by('-created').first().view_count == 1
+                PageView.objects.all().order_by('-date').first().view_count == 1
             ), '\'index\' has 1 view tomorrow'
