@@ -30,12 +30,19 @@ pip.rtfd.io/<lang>/
 """
 
 from django.conf.urls import url
+from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
+from readthedocs.proxito.views import redirect_page_with_filename, serve_docs, serve_error_404
 
 
 urlpatterns = [
+    # Serve custom 404 pages
+    url(
+        r'^404/.*$',
+        serve_error_404,
+        name='serve_error_404',
+    ),
     # # TODO: Support this?
     # (Sub)project `page` redirect
     url(
@@ -79,3 +86,8 @@ urlpatterns = [
         name='docs_detail_singleversion_subproject',
     ),
 ]
+
+
+# Use Django default error handlers to make things simpler
+handler404 = serve_error_404
+handler500 = defaults.server_error
