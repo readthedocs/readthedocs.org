@@ -480,6 +480,7 @@ class Project(models.Model):
             args=[(self.doc_path,)],
         )
 
+        # Remove extra resources
         tasks.clean_project_resources(self)
 
         super().delete(*args, **kwargs)

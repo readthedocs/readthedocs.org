@@ -1621,8 +1621,9 @@ def _sync_imported_files(version, build, changed_files):
     # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
         model=HTMLFile,
-        version=version,
-        build=build,
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+        build_id=build,
     )
 
     # Delete SphinxDomain objects from previous versions
@@ -1844,6 +1845,17 @@ def remove_build_storage_paths(paths):
         storage.delete_directory(storage_path)
 
 
+@app.task(queue='web')
+def remove_search_indexes(project_slug, version_slug=None):
+    """Wrapper around `remove_indexed_files to make it a task."""
+    # Remove ES indexes
+    remove_indexed_files(
+        model=HTMLFile,
+        project_slug=project_slug,
+        version_slug=version_slug,
+    )
+
+
 def clean_project_resources(project, version=None):
     """
     Delete all extra resources used by `version` of `project`.
@@ -1853,15 +1865,26 @@ def clean_project_resources(project, version=None):
     - Artifacts from storage.
     - Search indexes from ES.
 
-    :param version: Version instance. if isn't given,
+    :param version: Version instance. If isn't given,
                     all resources of `project` will be deleted.
+
+    .. note::
+       This function is usually called just before deleting project.
+       Make sure to not depend on the project object inside the tasks.
     """
+    # Remove storage paths
     storage_paths = []
     if version:
         version.get_storage_paths()
     else:
         storage_paths = project.get_storage_paths()
     remove_build_storage_paths.delay(storage_paths)
+
+    # Remove indexes
+    remove_search_indexes.delay(
+        project_slug=project.slug,
+        version_slug=version.slug if version else None,
+    )
 
 
 @app.task(queue='web')
