@@ -6,6 +6,8 @@ from .dev import CommunityDevSettings
 
 class CommunityTestSettings(CommunityDevSettings):
 
+    read_only_settings = ['CACHES']
+
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'
     SLUMBER_API_HOST = 'http://localhost:8000'
@@ -34,16 +36,3 @@ class CommunityTestSettings(CommunityDevSettings):
 
 
 CommunityTestSettings.load_settings(__name__)
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'PREFIX': 'docs',
-    }
-}
-
-if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
-    try:
-        from .local_settings import *  # noqa
-    except ImportError:
-        pass

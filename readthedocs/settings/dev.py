@@ -76,6 +76,28 @@ class CommunityDevSettings(CommunityBaseSettings):
         middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
         return middlewares
 
+    @property
+    def DOCKER_IMAGE(self):
+        docker_image = super().DOCKER_IMAGE
+        if getattr(self, 'DOCKER_USE_DEV_IMAGES', False):
+            docker_image = docker_image.replace(
+                'readthedocs/build:',
+                'readthedocs/build-dev:',
+            )
+        return docker_image
+
+    @property
+    def DOCKER_IMAGE_SETTINGS(self):
+        docker_image_settings = super().DOCKER_IMAGE_SETTINGS
+        if getattr(self, 'DOCKER_USE_DEV_IMAGES', False):
+            # Remap docker image setting keys
+            docker_image_settings = {
+                key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
+                for (key, settings)
+                in docker_image_settings.items()
+            }
+        return docker_image_settings
+
 
 if os.environ.get("DJANGO_SETTINGS_MODULE") == 'readthedocs.settings.dev':
     raise DeprecationWarning(

@@ -6,14 +6,12 @@ but currently we have them to be able to run the site with the old middleware fo
 a staged rollout of the proxito code.
 """
 
-# pylint: disable=missing-docstring
-
 import os
 
-from readthedocs.settings import base
+from readthedocs.settings.base import CommunityBaseSettings
 
 
-class ProxitoDevSettings(base.CommunityBaseSettings):
+class CommunityProxitoDevSettings(CommunityBaseSettings):
 
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
@@ -33,11 +31,4 @@ class ProxitoDevSettings(base.CommunityBaseSettings):
         return classes
 
 
-ProxitoDevSettings.load_settings(__name__)
-
-if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
-    try:
-        # pylint: disable=unused-wildcard-import
-        from .local_settings import *  # noqa
-    except ImportError:
-        pass
+CommunityProxitoDevSettings.load_settings(__name__)
