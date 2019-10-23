@@ -930,3 +930,84 @@ class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
     http_method_names = ['post']
 
 
+class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+
+    template_name = 'projects/projects_search_analytics.html'
+    http_method_names = ['get']
+
+    def get(self, request, *args, **kwargs):
+        download_data = request.GET.get('download', False)
+        if download_data:
+            return self._search_analytics_csv_data()
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+
+
+        if not context['show_analytics']:
+            return context
+
+        # data for plotting the line-chart
+        query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
+            project.slug,
+        )
+
+        queries = []
+        qs = SearchQuery.objects.filter(project=project)
+        if qs.exists():
+            qs = (
+                qs.values('query')
+                .annotate(count=Count('id'))
+                .order_by('-count', 'query')
+                .values_list('query', 'count')
+            )
+
+            # only show top 100 queries
+            queries = qs[:100]
+
+        context.update(
+            {
+                'queries': queries,
+                'query_count_of_1_month': query_count_of_1_month,
+            },
+        )
+        return context
+
+    def _search_analytics_csv_data(self):
+        """Generate raw csv data of search queries."""
+        project = self.get_project()
+        now = timezone.now().date()
+        last_3_month = now - timezone.timedelta(days=90)
+
+        data = (
+            SearchQuery.objects.filter(
+                project=project,
+                created__date__gte=last_3_month,
+                created__date__lte=now,
+            )
+            .order_by('-created')
+            .values_list('created', 'query')
+        )
+
+        file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
+            project_slug=project.slug,
+            start=timezone.datetime.strftime(last_3_month, '%Y-%m-%d'),
+            end=timezone.datetime.strftime(now, '%Y-%m-%d'),
+        )
+        # remove any spaces in filename.
+        file_name = '-'.join([text for text in file_name.split() if text])
+
+        csv_data = (
+            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
+            for time, query in data
+        )
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in csv_data),
+            content_type="text/csv",
+        )
+        response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+        return response
