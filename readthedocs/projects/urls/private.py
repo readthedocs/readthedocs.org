@@ -38,7 +38,6 @@ from readthedocs.projects.views.private import (
     ProjectUsersDelete,
     ProjectVersionDeleteHTML,
     ProjectVersionDetail,
-    SearchAnalytics,
 )
 
 urlpatterns = [
@@ -128,11 +127,6 @@ urlpatterns = [
     url(
         r'^(?P<project_slug>[-\w]+)/advertising/$',
         ProjectAdvertisingUpdate.as_view(), name='projects_advertising',
-    ),
-    url(
-        r'^(?P<project_slug>[-\w]+)/search-analytics/$',
-        SearchAnalytics.as_view(),
-        name='projects_search_analytics',
     ),
 ]
 

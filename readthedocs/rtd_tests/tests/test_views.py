@@ -273,12 +273,11 @@ class TestSearchAnalyticsView(TestCase):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
         self.version = self.pip.versions.order_by('id').first()
-        self.analyics_page = reverse('projects_search_analytics', args=[self.pip.slug])
 
         test_time = timezone.datetime(2019, 8, 2, 12, 0)
         self.test_time = timezone.make_aware(test_time)
 
-        get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
+        get(Feature, projects=[self.pip])
 
     def test_top_queries(self):
         with mock.patch('django.utils.timezone.now') as test_time:
