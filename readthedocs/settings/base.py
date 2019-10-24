@@ -367,6 +367,9 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:5.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
         },
+        'readthedocs/build:6.0rc1': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+        },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
