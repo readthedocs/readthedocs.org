@@ -55,7 +55,7 @@ in.
 Getting Started
 ---------------
 
-You will need a working version of Node (tested with ``v10.16.0``) and NPM to get started.
+You will need a working version of Node (tested with ``v10.17.0``) and NPM to get started.
 We won't cover that here, as it varies from platform to platform.
 
 To install these tools and dependencies::
