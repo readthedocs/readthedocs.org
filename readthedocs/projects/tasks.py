@@ -919,8 +919,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
-        hostname = socket.gethostname()
 
+        hostname = socket.gethostname()
         delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
@@ -935,10 +935,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             kwargs=dict(
                 hostname=hostname,
                 html=html,
-                localmedia=localmedia,
-                search=search,
-                pdf=pdf,
                 epub=epub,
+                pdf=pdf,
+                localmedia=localmedia,
                 delete_unsynced_media=delete_unsynced_media,
             ),
             callback=sync_callback.s(
@@ -1100,10 +1099,9 @@ def sync_files(
         doctype,
         hostname=None,
         html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
         epub=False,
+        pdf=False,
+        localmedia=False,
         delete_unsynced_media=False,
 ):
     """
@@ -1112,7 +1110,6 @@ def sync_files(
     This task broadcasts from a build instance on build completion and performs
     synchronization of build artifacts on each application instance.
     """
-    # Clean up unused artifacts
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
@@ -1124,7 +1121,6 @@ def sync_files(
         doctype,
         html=html,
         localmedia=localmedia,
-        search=search,
         pdf=pdf,
         epub=epub,
         delete_unsynced_media=delete_unsynced_media,
@@ -1144,7 +1140,6 @@ def move_files(
         doctype,
         html=False,
         localmedia=False,
-        search=False,
         pdf=False,
         epub=False,
         delete_unsynced_media=False,
@@ -1158,8 +1153,6 @@ def move_files(
     :type html: bool
     :param localmedia: Sync local media files
     :type localmedia: bool
-    :param search: Sync search files
-    :type search: bool
     :param pdf: Sync PDF files
     :type pdf: bool
     :param epub: Sync ePub files
@@ -1206,61 +1199,6 @@ def move_files(
         )
         target = version.project.rtd_build_path(version.slug)
         Syncer.copy(from_path, target, host=hostname)
-
-    if search:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_search',
-        )
-        to_path = version.project.get_production_media_path(
-            type_='json',
-            version_slug=version.slug,
-            include_file=False,
-        )
-        Syncer.copy(from_path, to_path, host=hostname)
-
-    if localmedia:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            ),
-            '{}.zip'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='htmlzip',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if pdf:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            ),
-            '{}.pdf'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='pdf',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if epub:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            ),
-            '{}.epub'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='epub',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
 
 
 @app.task(queue='web')
