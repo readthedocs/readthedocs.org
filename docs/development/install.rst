@@ -183,4 +183,4 @@ see :doc:`buildenvironments`.
 For building this documentation,
 see :doc:`docs`.
 
-And for setting up for the front end development, see :doc:`standards`.
+And for setting up for the front end development, see :doc:`front-end`.
