@@ -281,7 +281,7 @@ Behind the scene the following Pip command will be run:
 
 .. prompt:: bash $
 
-    $ pip install -e .[tests,docs]
+    pip install -e .[tests,docs]
 
 
 .. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
