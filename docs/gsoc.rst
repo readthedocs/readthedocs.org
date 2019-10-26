@@ -184,6 +184,15 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 .. _these issues: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
 
+Some previous year project selected in Google Summer Of Code  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Search Improvement (2018) (https://summerofcode.withgoogle.com/archive/2018/projects/4656335308193792/)
+* Improved Search And Search As You Type (2019) (https://summerofcode.withgoogle.com/archive/2019/projects/6376055881859072/)
+
+* Building Docs For Pull Requests(2019) (https://summerofcode.withgoogle.com/archive/2019/projects/6239099793440768/)
+
+
 Thanks
 ------
 
