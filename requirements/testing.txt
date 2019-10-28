@@ -3,7 +3,7 @@
 
 django-dynamic-fixture==2.0.0
 pytest==5.2.2
-pytest-django==3.5.1
+pytest-django==3.6.0
 pytest-xdist==1.30.0
 pytest-cov==2.8.1
 apipkg==1.5
