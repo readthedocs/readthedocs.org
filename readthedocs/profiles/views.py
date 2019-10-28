@@ -135,5 +135,5 @@ class TokenDeleteView(TokenMixin, DeleteView):
 
     http_method_names = ['post']
 
-    def get_object(self, queryset=None):
+    def get_object(self, queryset=None):  # noqa
         return self.request.user.auth_token
