@@ -265,7 +265,7 @@ def _serve_docs(request, final_project, path):
         path = f'/proxito/{path}'
 
     if settings.PYTHON_MEDIA:
-        return _serve_docs_nginx(
+        return _serve_docs_python(
             request, final_project=final_project, path=path
         )
     return _serve_docs_nginx(request, final_project=final_project, path=path)
