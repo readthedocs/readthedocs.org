@@ -379,9 +379,9 @@ class CommunityBaseSettings(Settings):
     }
 
     # Alias tagged via ``docker tag`` on the build servers
-    RTD_DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': RTD_DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+    DOCKER_IMAGE_SETTINGS.update({
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
     })
 
     # All auth
