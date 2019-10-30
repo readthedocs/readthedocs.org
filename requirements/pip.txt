@@ -106,8 +106,7 @@ django-cors-middleware==1.4.0
 user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
-# 1.7.2 blows up on our servers because of azure changes
-django-storages==1.7.1  # pyup: <1.7.2
+django-storages==1.7.2
 
 # Required only in development and linting
 django-debug-toolbar==2.0
