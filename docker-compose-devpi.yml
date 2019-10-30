@@ -1,0 +1,16 @@
+# docker-compose-pypi.yml starts "devpi" service for local cache
+version: '3'
+
+volumes:
+  devpi:
+
+services:
+
+  devpi:
+    image: readthedocsorg_server:latest
+    ports:
+      - "3141:3141"
+    volumes:
+      - ${PWD}/docker/entrypoints/devpi.sh:/usr/src/app/docker/devpi.sh
+      - devpi:/devpi
+    command: ["../../docker/devpi.sh"]
