@@ -184,7 +184,7 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 .. _these issues: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
 
-Some previous year  
+Projects from previous years
 ------------------
 
 * `Search Improvement (2018) <https://summerofcode.withgoogle.com/archive/2018/projects/4656335308193792/>`_
