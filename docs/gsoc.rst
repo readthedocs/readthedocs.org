@@ -185,7 +185,7 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 .. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
 
 Projects from previous years
-------------------
+----------------------------
 
 * `Improved Search And Search As You Type (2019) <https://summerofcode.withgoogle.com/archive/2019/projects/6376055881859072/>`_
 
