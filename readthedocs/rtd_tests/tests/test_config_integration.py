@@ -75,6 +75,7 @@ class LoadConfigTests(TestCase):
             Project,
             main_language_project=None,
             install_project=False,
+            container_image=None,
         )
         self.version = get(Version, project=self.project)
 
