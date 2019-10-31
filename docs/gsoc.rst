@@ -187,9 +187,9 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 Projects from previous years
 ----------------------------
 
-* `Improved Search And Search As You Type (2019) <https://blog.readthedocs.com/search-improvements/>`_
+* `Improved Search And Search As You Type (2019) <https://blog.readthedocs.com/improved-search-and-search-as-you-type/>`_
 * `Building Docs For Pull Requests (2019) <https://blog.readthedocs.com/building-docs-for-pull-requests/>`_
-* `Search Improvement (2018) <https://blog.readthedocs.com/improved-search-and-search-as-you-type/>`_
+* `Search Improvement (2018) <https://blog.readthedocs.com/search-improvements/>`_
 
 Thanks
 ------
