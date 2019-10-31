@@ -187,10 +187,9 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 Projects from previous years
 ----------------------------
 
-* `Improved Search And Search As You Type (2019) <https://summerofcode.withgoogle.com/archive/2019/projects/6376055881859072/>`_
-
-* `Building Docs For Pull Requests(2019) <https://summerofcode.withgoogle.com/archive/2019/projects/6239099793440768/>`_
-* `Search Improvement (2018) <https://summerofcode.withgoogle.com/archive/2018/projects/4656335308193792/>`_
+* `Improved Search And Search As You Type (2019) <https://blog.readthedocs.com/search-improvements/>`_
+* `Building Docs For Pull Requests(2019) <https://blog.readthedocs.com/building-docs-for-pull-requests/>`_
+* `Search Improvement (2018) <https://blog.readthedocs.com/improved-search-and-search-as-you-type/>`_
 
 Thanks
 ------
