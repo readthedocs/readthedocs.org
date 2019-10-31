@@ -23,7 +23,7 @@
 
   <h3>{% trans 'Ad-free projects' %}</h3>
 
-  <div class="module-translation">
+  <div class="module-gold-projects">
     <div class="module-list">
       <div class="module-list-wrapper">
         <ul>
@@ -36,7 +36,7 @@
               <li>
                 <form method="post" action="{% url "gold_projects_remove" project.slug %}">
                   {% csrf_token %}
-                  <input type="submit" value="{% trans 'Remove Ad-Free Status' %}">
+                  <input type="submit" title="{% trans 'Remove Ad-Free Status' %}" value="{% trans 'Remove' %}">
                 </form>
               </li>
             </ul>
