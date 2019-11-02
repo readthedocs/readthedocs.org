@@ -10,6 +10,7 @@
 # AttributeError: 'str' object has no attribute 'rawsource'
 docutils==0.14  # pyup: ignore
 
+sphinx==2.2
 sphinx_rtd_theme==0.4.3
 sphinx-tabs==1.1.13
 # Required to avoid Transifex error with reserved slug
