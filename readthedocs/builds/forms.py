@@ -1,11 +1,14 @@
-# -*- coding: utf-8 -*-
-
 """Django forms for the builds app."""
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
+from readthedocs.builds.version_slug import (
+    VERSION_OK_CHARS,
+    VERSION_TEST_PATTERN,
+    VersionSlugify,
+)
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
@@ -14,7 +17,46 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     class Meta:
         model = Version
-        fields = ['active', 'privacy_level']
+        fields = ['slug', 'active', 'privacy_level']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['slug'].help_text = _(
+            'The name of the version that you can see on your project\'s URL.'
+        )
+
+        if self.instance.pk and self.instance.machine:
+            self.fields['slug'].disabled = True
+
+    def clean_slug(self):
+        slugifier = VersionSlugify(
+            ok_chars=VERSION_OK_CHARS,
+            test_pattern=VERSION_TEST_PATTERN,
+        )
+        original_slug = self.cleaned_data.get('slug')
+
+        slug = slugifier.slugify(original_slug)
+        if not slug:
+            ok_chars = ', '.join(VERSION_OK_CHARS)
+            msg = _(
+                'The slug "{slug}" is not valid. '
+                'It should only contain letters, numbers and {ok_chars}. '
+                'It can not start with {ok_chars}.'
+            )
+            raise forms.ValidationError(
+                msg.format(slug=original_slug, ok_chars=ok_chars)
+            )
+
+        duplicated = (
+            Version.objects
+            .filter(project=self.instance.project, slug=slug)
+            .exclude(pk=self.instance.pk)
+            .exists()
+        )
+        if duplicated:
+            msg = _('The slug "{slug}" is already in use.')
+            raise forms.ValidationError(msg.format(slug=slug))
+        return slug
 
     def clean_active(self):
         active = self.cleaned_data['active']

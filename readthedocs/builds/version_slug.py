@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Contains logic for handling version slugs.
 
@@ -50,19 +48,79 @@ def get_fields_with_model(cls):
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
 VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
+VERSION_OK_CHARS = '-._'  # dash, dot, underscore
+VERSION_TEST_PATTERN = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
+VERSION_FALLBACK_SLUG = 'unknown'
 
 
-class VersionSlugField(models.CharField):
+class VersionSlugify:
 
     """
-    Inspired by ``django_extensions.db.fields.AutoSlugField``.
+    Generates a valid slug for a version.
 
     Uses ``unicode-slugify`` to generate the slug.
     """
 
-    ok_chars = '-._'  # dash, dot, underscore
-    test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
-    fallback_slug = 'unknown'
+    def __init__(self, ok_chars, test_pattern, fallback_slug=''):
+        self.ok_chars = ok_chars
+        self.test_pattern = test_pattern
+        self.fallback_slug = fallback_slug
+
+    def _normalize(self, content):
+        """
+        Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
+
+        .. note::
+
+            We replace these characters to a dash to keep compatibility with the
+            old behavior and also because it makes this more readable.
+
+        For example, ``release/1.0`` will become ``release-1.0``.
+        """
+        return re.sub('[/%!?]', '-', content)
+
+    def is_valid(self, content):
+        return self.test_pattern.match(content)
+
+    def slugify(self, content):
+        """
+        Make ``content`` a valid slug.
+
+        It uses ``unicode-slugify`` behind the scenes which works properly with
+        Unicode characters.
+
+        :returns: `None` if isn't possible to generate a valid slug.
+        """
+        if not content:
+            return None
+
+        normalized = self._normalize(content)
+        slug = unicode_slugify(
+            normalized,
+            only_ascii=True,
+            spaces=False,
+            lower=True,
+            ok=self.ok_chars,
+            space_replacement='-',
+        )
+
+        # Remove first character while it's an invalid character for the
+        # beginning of the slug
+        slug = slug.lstrip(self.ok_chars)
+        slug = slug or self.fallback_slug
+
+        if not self.is_valid(slug):
+            return None
+        return slug
+
+
+class VersionSlugField(models.CharField):
+
+    """Inspired by ``django_extensions.db.fields.AutoSlugField``."""
+
+    ok_chars = VERSION_OK_CHARS
+    test_pattern = VERSION_TEST_PATTERN
+    fallback_slug = VERSION_FALLBACK_SLUG
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('db_index', True)
@@ -80,47 +138,6 @@ class VersionSlugField(models.CharField):
             if model and field == slug_field:
                 return model._default_manager.all()
         return model_cls._default_manager.all()
-
-    def _normalize(self, content):
-        """
-        Normalize some invalid characters (/, %, !, ?) to become a dash (``-``).
-
-        .. note::
-
-            We replace these characters to a dash to keep compatibility with the
-            old behavior and also because it makes this more readable.
-
-        For example, ``release/1.0`` will become ``release-1.0``.
-        """
-        return re.sub('[/%!?]', '-', content)
-
-    def slugify(self, content):
-        """
-        Make ``content`` a valid slug.
-
-        It uses ``unicode-slugify`` behind the scenes which works properly with
-        Unicode characters.
-        """
-        if not content:
-            return ''
-
-        normalized = self._normalize(content)
-        slugified = unicode_slugify(
-            normalized,
-            only_ascii=True,
-            spaces=False,
-            lower=True,
-            ok=self.ok_chars,
-            space_replacement='-',
-        )
-
-        # Remove first character wile it's an invalid character for the
-        # beginning of the slug
-        slugified = slugified.lstrip(self.ok_chars)
-
-        if not slugified:
-            return self.fallback_slug
-        return slugified
 
     def uniquifying_suffix(self, iteration):
         """
@@ -157,11 +174,21 @@ class VersionSlugField(models.CharField):
         """Generate a unique slug for a model instance."""
         # pylint: disable=protected-access
 
+        slugifier = VersionSlugify(
+            ok_chars=self.ok_chars,
+            test_pattern=self.test_pattern,
+            fallback_slug=self.fallback_slug,
+        )
+
         # get fields to populate from and slug field to set
         slug_field = model_instance._meta.get_field(self.attname)
 
-        slug = self.slugify(getattr(model_instance, self._populate_from))
-        count = 0
+        content = getattr(model_instance, self._populate_from)
+        slug = slugifier.slugify(content=content)
+        if slug is None:
+            # If we weren't able to generate a valid slug based on the name
+            # we can still generate one with a suffix.
+            slug = ''
 
         # strip slug depending on max_length attribute of the slug field
         # and clean-up
@@ -186,6 +213,7 @@ class VersionSlugField(models.CharField):
 
         # increases the number while searching for the next valid slug
         # depending on the given slug, clean-up
+        count = 0
         while not slug or queryset.filter(**kwargs).exists():
             slug = original_slug
             end = self.uniquifying_suffix(count)
@@ -196,9 +224,8 @@ class VersionSlugField(models.CharField):
             kwargs[self.attname] = slug
             count += 1
 
-        is_slug_valid = self.test_pattern.match(slug)
-        if not is_slug_valid:
-            raise Exception('Invalid generated slug: {slug}'.format(slug=slug))
+        if not slugifier.is_valid(slug):
+            raise Exception(f'Invalid generated slug: {slug}')
         return slug
 
     def pre_save(self, model_instance, add):
