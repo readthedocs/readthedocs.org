@@ -43,7 +43,7 @@ class CommunityBaseSettings(Settings):
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     # Some endpoints from the API can be proxied on other domain
     # or use the same domain where the docs are being served
-    # (omit the host of that's the case).
+    # (omit the host if that's the case).
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     EXTERNAL_VERSION_URL = None  # for pull request builds
 
