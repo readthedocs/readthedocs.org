@@ -77,7 +77,8 @@ function attach_elastic_search_query(data) {
                         }
 
                         // Creating the result from elements
-                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX + "?highlight=" + $.urlencode(query);
+                        var link = doc.link + DOCUMENTATION_OPTIONS.FILE_SUFFIX;
+
                         var item = $('<a>', {'href': link});
 
                         item.html(title);

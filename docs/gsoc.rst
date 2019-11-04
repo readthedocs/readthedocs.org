@@ -94,25 +94,6 @@ This could include:
 * Taking a swagger YAML file and generating HTML properly with Sphinx
 * Integration with our existing API to generate Swagger output
 
-Autobuild docs for Pull Requests
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It would be great to automatically build docs for Pull Requests in GitHub repos that our users have.
-Currently we don't support this,
-and it's one of our most requested features.
-
-This would include:
-
-* Modeling Pull Requests as a type of version alongside Tags and Branches
-* Modifying how we upload HTML docs to store them in a place like S3 for long term storage
-* Build integration with GitHub to send the status notifications when a PR is building and complete
-
-More info here: 
-
-* https://github.com/readthedocs/readthedocs.org/issues/1340
-* https://github.com/readthedocs/readthedocs.org/issues/2465
-
-
 Build a new Sphinx theme
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -202,6 +183,13 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 
 .. _these issues: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
+
+Projects from previous years
+----------------------------
+
+* `Improved Search And Search As You Type (2019) <https://blog.readthedocs.com/improved-search-and-search-as-you-type/>`_
+* `Building Docs For Pull Requests (2019) <https://blog.readthedocs.com/building-docs-for-pull-requests/>`_
+* `Search Improvement (2018) <https://blog.readthedocs.com/search-improvements/>`_
 
 Thanks
 ------
