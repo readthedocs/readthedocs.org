@@ -333,10 +333,9 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage if the version is not external
+        # Remove resources if the version is not external
         if self.type != EXTERNAL:
-            storage_paths = self.get_storage_paths()
-            tasks.remove_build_storage_paths.delay(storage_paths)
+            tasks.clean_project_resources(self.project, self)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
