@@ -17,7 +17,7 @@ class ProxitoDevSettings(base.CommunityBaseSettings):
 
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
-    PUBLIC_DOMAIN = 'dev.readthedocs.io'
+    PUBLIC_DOMAIN = 'docs.dev.readthedocs.io'
     PUBLIC_DOMAIN_USES_HTTPS = False
 
     @property
