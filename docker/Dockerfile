@@ -37,7 +37,7 @@ RUN pip install --no-cache-dir -r readthedocs.org/requirements/docker.txt
 
 # We clone the -ext here only to install the requirements at this point.
 # -ext is also mounted as volume from the upper directory
-RUN git clone --single-branch --branch humitos/upgrade-azure-storage https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext
+RUN git clone --single-branch --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext
 RUN pip install --no-cache-dir -e readthedocs-ext
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
