@@ -24,10 +24,6 @@
             },
             "default_version": "latest",
             "default_branch": "master",
-            "privacy_level": {
-                "code": "public",
-                "name": "Public"
-            },
             "subproject_of": null,
             "translation_of": null,
             "urls": {

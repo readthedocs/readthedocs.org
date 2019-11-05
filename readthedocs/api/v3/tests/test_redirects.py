@@ -1,6 +1,8 @@
 from .mixins import APIEndpointMixin
 from django.urls import reverse
 
+from readthedocs.redirects.models import Redirect
+
 
 class RedirectsEndpointTests(APIEndpointMixin):
 
@@ -116,6 +118,56 @@ class RedirectsEndpointTests(APIEndpointMixin):
             response_json,
             self._get_response_dict('projects-redirects-list_POST'),
         )
+
+    def test_projects_redirects_type_prefix_list_post(self):
+        self.assertEqual(Redirect.objects.count(), 1)
+        data = {
+            'from_url': '/redirect-this/',
+            'type': 'prefix',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Redirect.objects.all().count(), 2)
+
+        redirect = Redirect.objects.first()
+        self.assertEqual(redirect.redirect_type, 'prefix')
+        self.assertEqual(redirect.from_url, '/redirect-this/')
+        self.assertEqual(redirect.to_url, '')
+
+    def test_projects_redirects_type_sphinx_html_list_post(self):
+        self.assertEqual(Redirect.objects.count(), 1)
+        data = {
+            'type': 'sphinx_html',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(
+            reverse(
+                'projects-redirects-list',
+                kwargs={
+                    'parent_lookup_project__slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Redirect.objects.all().count(), 2)
+
+        redirect = Redirect.objects.first()
+        self.assertEqual(redirect.redirect_type, 'sphinx_html')
+        self.assertEqual(redirect.from_url, '')
+        self.assertEqual(redirect.to_url, '')
+
 
     def test_projects_redirects_detail_put(self):
         data = {

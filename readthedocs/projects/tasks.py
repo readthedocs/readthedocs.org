@@ -777,6 +777,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param epub: whether to save ePub output
         """
         if not settings.RTD_BUILD_MEDIA_STORAGE:
+            # Note: this check can be removed once corporate build servers use storage
             log.warning(
                 LOG_TEMPLATE,
                 {
@@ -846,7 +847,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 },
             )
             try:
-                storage.copy_directory(from_path, to_path)
+                storage.sync_directory(from_path, to_path)
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
@@ -903,11 +904,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         downloads, and search. Tasks are broadcast to all web servers from here.
         """
         # Update version if we have successfully built HTML output
+        # And store whether the build had other media types
         try:
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
                 })
         except HttpClientError:
             log.exception(
@@ -1381,10 +1386,6 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1542,11 +1543,6 @@ def _create_imported_files(version, commit, build):
     :returns: paths of changed files
     :rtype: set
     """
-
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     changed_files = set()
@@ -1842,10 +1838,6 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
     for storage_path in paths:
         log.info('Removing %s from media storage', storage_path)

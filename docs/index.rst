@@ -163,6 +163,7 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`Privacy policy <privacy-policy>` |
+  :doc:`Terms of service <terms-of-service>` |
   :doc:`DMCA takedown policy <dmca/index>` |
   :doc:`Policy for abandoned projects <abandoned-projects>` |
   :doc:`Release notes & changelog <changelog>`
@@ -195,6 +196,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
    security
    privacy-policy
+   terms-of-service
    dmca/index
    abandoned-projects
    changelog

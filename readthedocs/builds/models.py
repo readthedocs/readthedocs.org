@@ -133,6 +133,11 @@ class Version(models.Model):
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
+    # Whether the latest successful build for this version contains certain media types
+    has_pdf = models.BooleanField(_('Has PDF'), default=False)
+    has_epub = models.BooleanField(_('Has ePub'), default=False)
+    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()

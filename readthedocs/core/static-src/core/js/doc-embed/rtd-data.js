@@ -53,6 +53,7 @@ function get() {
 
     var defaults = {
         api_host: 'https://readthedocs.org',
+        proxied_api_host: 'https://readthedocs.org',
         ad_free: false,
     };
 

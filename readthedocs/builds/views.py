@@ -8,7 +8,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import (
     HttpResponseForbidden,
-    HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
 from django.shortcuts import get_object_or_404
@@ -28,6 +27,7 @@ log = logging.getLogger(__name__)
 
 
 class BuildBase:
+
     model = Build
 
     def get_queryset(self):
@@ -55,8 +55,7 @@ class BuildTriggerMixin:
 
         version_slug = request.POST.get('version_slug')
         version = get_object_or_404(
-            Version.internal.all(),
-            project=project,
+            self._get_versions(project),
             slug=version_slug,
         )
 
@@ -79,6 +78,12 @@ class BuildTriggerMixin:
             reverse('builds_detail', args=[project.slug, build.pk]),
         )
 
+    def _get_versions(self, project):
+        return Version.internal.public(
+            user=self.request.user,
+            project=project,
+        )
+
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
@@ -91,16 +96,14 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
         context['project'] = self.project
         context['active_builds'] = active_builds
-        context['versions'] = Version.internal.public(
-            user=self.request.user,
-            project=self.project,
-        )
+        context['versions'] = self._get_versions(self.project)
         context['build_qs'] = self.get_queryset()
 
         return context
 
 
 class BuildDetail(BuildBase, DetailView):
+
     pk_url_kwarg = 'build_pk'
 
     def get_context_data(self, **kwargs):
@@ -150,18 +153,3 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = urlparse(issue_url).geturl()
         context['issue_url'] = issue_url
         return context
-
-
-# Old build view redirects
-
-
-def builds_redirect_list(request, project_slug):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(
-        reverse('builds_project_list', args=[project_slug]),
-    )
-
-
-def builds_redirect_detail(request, project_slug, pk):  # pylint: disable=unused-argument
-    return HttpResponsePermanentRedirect(
-        reverse('builds_detail', args=[project_slug, pk]),
-    )
