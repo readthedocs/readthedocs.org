@@ -96,6 +96,8 @@ class RegexAutomationRuleForm(forms.ModelForm):
         """Check that a custom match was given if a predefined match wasn't used."""
         match_arg = self.cleaned_data['match_arg']
         predefined_match = self.cleaned_data['predefined_match_arg']
+        if predefined_match:
+            match_arg = ''
         if not predefined_match and not match_arg:
             raise forms.ValidationError(
                 _('Custom match should not be empty.'),

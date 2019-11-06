@@ -194,8 +194,8 @@ class VersionAutomationRuleManager(PolymorphicManager):
     """
 
     def add_rule(
-        self, *, project, description, match_arg, predefined_match_arg,
-        version_type, action, action_arg=None,
+        self, *, project, description, match_arg, version_type,
+        action, action_arg=None, predefined_match_arg=None,
     ):
         """
         Append an automation rule to `project`.
