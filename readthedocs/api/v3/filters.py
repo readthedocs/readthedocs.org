@@ -6,50 +6,21 @@ from readthedocs.projects.models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-    name__contains = filters.CharFilter(
-        field_name='name',
-        lookup_expr='contains',
-    )
-    slug__contains = filters.CharFilter(
-        field_name='slug',
-        lookup_expr='contains',
-    )
-    repository_type = filters.CharFilter(
-        field_name='repo_type',
-        lookup_expr='exact',
-    )
 
     class Meta:
         model = Project
         fields = [
-            'name',
-            'name__contains',
-            'slug',
-            'slug__contains',
             'language',
-            'privacy_level',
             'programming_language',
-            'repository_type',
         ]
 
 
 class VersionFilter(filters.FilterSet):
-    verbose_name__contains = filters.CharFilter(
-        field_name='verbose_name',
-        lookup_expr='contains',
-    )
-    slug__contains = filters.CharFilter(
-        field_name='slug',
-        lookup_expr='contains',
-    )
 
     class Meta:
         model = Version
         fields = [
             'verbose_name',
-            'verbose_name__contains',
-            'slug',
-            'slug__contains',
             'privacy_level',
             'active',
             'built',

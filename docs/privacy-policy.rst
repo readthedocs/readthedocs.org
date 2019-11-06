@@ -4,7 +4,7 @@
 Privacy Policy
 ==============
 
-Effective date: **August 1, 2019**
+Effective date: **September  30, 2019**
 
 Welcome to Read the Docs.
 At Read the Docs, we believe in protecting the privacy of our
@@ -30,21 +30,23 @@ Our services
 Read the Docs is made up of:
 
 readthedocs.org ("Read the Docs Community")
-    This is a website aimed at documentation authors writing and building
-    software documentation. This Privacy Policy applies to this site
-    in full without reservation.
+    This is a website aimed at documentation authors and project maintainers
+    writing and distributing technical documentation.
+    This Privacy Policy applies to this site in full without reservation.
 
 readthedocs.com ("Read the Docs for Business")
     This website is a commercial hosted offering for hosting private
     documentation for corporate clients.
-    It is governed by this privacy policy but also separate
-    `terms <https://readthedocs.com/terms/>`_.
+    This Privacy Policy applies to this site in full without reservation.
 
 readthedocs.io, readthedocs-hosted.com, and other domains ("Documentation Sites")
-    These websites are where Read the Docs hosts documentation on
-    behalf of documentation authors. A best effort is made to apply
+    These websites are where Read the Docs hosts documentation (":ref:`User-Generated Content <terms-of-service:User-Generated Content>`")
+    on behalf of documentation authors.
+    A best effort is made to apply
     this Privacy Policy to these sites but the documentation
     may contain content and files created by documentation authors.
+
+All use of Read the Docs is subject to this Privacy Policy, together with our :doc:`Terms of service <terms-of-service>`.
 
 
 What information Read the Docs collects and why
@@ -115,6 +117,9 @@ anyone (including us) may view their contents.
 If you have included private or sensitive information in your Documentation Site,
 such as email addresses, that information may be indexed by search engines or used by third parties.
 
+Read the Docs for Business may host :ref:`private projects <terms-of-service:Private projects>` which we treat as confidential
+and we only access them for support reasons, with your consent, or if required to for security reasons
+
 If you're a **child under the age of 13**, you may not have an account on Read the Docs.
 Read the Docs does not knowingly collect information from or direct any of our content specifically to children under 13.
 If we learn or have reason to suspect that you are a user who is under the age of 13, we will unfortunately have to close your account.
@@ -166,12 +171,12 @@ and we encourage you to check back periodically.
 Payment processing
 ++++++++++++++++++
 
-Should you choose to become a `Supporter`_, purchase a `Gold Membership`_,
+Should you choose to become a `Supporter`_, purchase a `Gold membership`_,
 or become a subscriber to Read the Docs' commercial hosting product,
 your payment information and details will be processed by Stripe.
 Read the Docs does not store your payment information.
 
-.. _Gold Membership: https://readthedocs.org/accounts/gold/
+.. _Gold membership: https://readthedocs.org/accounts/gold/
 .. _Supporter: https://readthedocs.org/sustainability/
 
 Site monitoring

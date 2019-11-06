@@ -12,7 +12,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 from vanilla import DeleteView, DetailView, UpdateView
 
-from readthedocs.core.mixins import LoginRequiredMixin
+from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.payments.mixins import StripeMixin
 from readthedocs.projects.models import Domain, Project
 
@@ -23,7 +23,7 @@ from .models import GoldUser
 class GoldSubscriptionMixin(
         SuccessMessageMixin,
         StripeMixin,
-        LoginRequiredMixin,
+        PrivateViewMixin,
 ):
 
     """Gold subscription mixin for view classes."""
@@ -102,10 +102,6 @@ class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
 def projects(request):
     gold_user = get_object_or_404(GoldUser, user=request.user)
     gold_projects = gold_user.projects.all()
-
-    if not gold_user.can_sponsor_projects():
-        messages.error(request, _('New gold users are no longer allowed to sponsor projects'))
-        return HttpResponseRedirect(reverse('gold_detail'))
 
     if request.method == 'POST':
         form = GoldProjectForm(

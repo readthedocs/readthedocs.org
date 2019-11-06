@@ -41,6 +41,10 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    # Some endpoints from the API can be proxied on other domain
+    # or use the same domain where the docs are being served
+    # (omit the host if that's the case).
+    RTD_PROXIED_API_URL = PUBLIC_API_URL
     EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
@@ -79,6 +83,7 @@ class CommunityBaseSettings(Settings):
     RTD_LATEST_VERBOSE_NAME = 'latest'
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
+    RTD_CLEAN_AFTER_BUILD = False
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -153,6 +158,7 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
+            apps.append('readthedocsext.spamfighting')
         return apps
 
     @property
@@ -365,6 +371,9 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:5.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
         },
+        'readthedocs/build:6.0rc1': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+        },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
@@ -432,18 +441,29 @@ class CommunityBaseSettings(Settings):
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
 
+    # Info from Honza about this:
+    # The key to determine shard number is actually usually not the node count,
+    # but the size of your data.
+    # There are advantages to just having a single shard in an index since
+    # you don't have to do the distribute/collect steps when executing a search.
+    # If your data will allow it (not significantly larger than 40GB)
+    # I would recommend going to a single shard and one replica meaning
+    # any of the two nodes will be able to serve any search without talking to the other one.
+    # Scaling to more searches will then just mean adding a third node
+    # and a second replica resulting in immediate 50% bump in max search throughput.
+
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 2,
-                'number_of_replicas': 0,
+                'number_of_shards': 1,
+                'number_of_replicas': 1,
             }
         },
     }

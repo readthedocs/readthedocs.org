@@ -22,7 +22,14 @@ class PublicDetailPrivateListing(IsAuthenticated):
                 # hitting ``/projects/``, allowing
                 return True
 
-            if view.detail:
+            # NOTE: ``superproject`` is an action name, defined by the class
+            # method under ``ProjectViewSet``. We should apply the same
+            # permissions restrictions than for a detail action (since it only
+            # returns one superproject if exists). ``list`` and ``retrieve`` are
+            # DRF standard action names (same as ``update`` or ``partial_update``).
+            if view.detail and view.action in ('list', 'retrieve', 'superproject'):
+                # detail view is only allowed on list/retrieve actions (not
+                # ``update`` or ``partial_update``).
                 return True
 
             project = view._get_parent_project()

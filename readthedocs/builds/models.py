@@ -8,6 +8,7 @@ from shutil import rmtree
 
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
@@ -17,48 +18,31 @@ from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
-from readthedocs.projects.constants import (
-    BITBUCKET_COMMIT_URL,
-    BITBUCKET_URL,
-    GITHUB_BRAND,
-    GITHUB_COMMIT_URL,
-    GITHUB_URL,
-    GITHUB_PULL_REQUEST_URL,
-    GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITLAB_COMMIT_URL,
-    GITLAB_URL,
-    PRIVACY_CHOICES,
-    PRIVATE,
-    MEDIA_TYPES,
-)
-from readthedocs.projects.models import APIProject, Project
-from readthedocs.projects.version_handling import determine_stable_version
-
 from readthedocs.builds.constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
+    GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
-    EXTERNAL,
     STABLE,
     TAG,
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
-    VersionManager,
-    InternalVersionManager,
-    ExternalVersionManager,
     BuildManager,
-    InternalBuildManager,
     ExternalBuildManager,
+    ExternalVersionManager,
+    InternalBuildManager,
+    InternalVersionManager,
+    VersionAutomationRuleManager,
+    VersionManager,
 )
 from readthedocs.builds.querysets import (
     BuildQuerySet,
@@ -71,7 +55,27 @@ from readthedocs.builds.utils import (
     get_gitlab_username_repo,
 )
 from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.oauth.models import RemoteRepository
+from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import broadcast
+from readthedocs.projects.constants import (
+    BITBUCKET_COMMIT_URL,
+    BITBUCKET_URL,
+    GITHUB_BRAND,
+    GITHUB_COMMIT_URL,
+    GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITHUB_PULL_REQUEST_URL,
+    GITHUB_URL,
+    GITLAB_BRAND,
+    GITLAB_COMMIT_URL,
+    GITLAB_MERGE_REQUEST_COMMIT_URL,
+    GITLAB_MERGE_REQUEST_URL,
+    GITLAB_URL,
+    MEDIA_TYPES,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
+from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.version_handling import determine_stable_version
 
 
 log = logging.getLogger(__name__)
@@ -129,6 +133,11 @@ class Version(models.Model):
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
+    # Whether the latest successful build for this version contains certain media types
+    has_pdf = models.BooleanField(_('Has PDF'), default=False)
+    has_epub = models.BooleanField(_('Has ePub'), default=False)
+    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
@@ -178,7 +187,14 @@ class Version(models.Model):
                     repo=repo,
                     number=self.verbose_name,
                 )
-            # TODO: Add VCS URL for other Git Providers
+            if 'gitlab' in self.project.repo:
+                user, repo = get_gitlab_username_repo(self.project.repo)
+                return GITLAB_MERGE_REQUEST_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.verbose_name,
+                )
+            # TODO: Add VCS URL for BitBucket.
             return ''
 
         url = ''
@@ -317,10 +333,9 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage if the version is not external
+        # Remove resources if the version is not external
         if self.type != EXTERNAL:
-            storage_paths = self.get_storage_paths()
-            tasks.remove_build_storage_paths.delay(storage_paths)
+            tasks.clean_project_resources(self.project, self)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
@@ -787,7 +802,19 @@ class Build(models.Model):
                     number=self.version.verbose_name,
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for other Git Providers
+            if 'gitlab' in repo_url:
+                user, repo = get_gitlab_username_repo(repo_url)
+                if not user and not repo:
+                    return ''
+
+                repo = repo.rstrip('/')
+                return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
+                    user=user,
+                    repo=repo,
+                    number=self.version.verbose_name,
+                    commit=self.commit
+                )
+            # TODO: Add External Version Commit URL for BitBucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)
@@ -845,8 +872,11 @@ class Build(models.Model):
         if self.is_external:
             if self.project.git_provider_name == GITHUB_BRAND:
                 return GITHUB_EXTERNAL_VERSION_NAME
-            # TODO: Add External Version Name for other Git Providers
 
+            if self.project.git_provider_name == GITLAB_BRAND:
+                return GITLAB_EXTERNAL_VERSION_NAME
+
+            # TODO: Add External Version Name for BitBucket.
             return GENERIC_EXTERNAL_VERSION_NAME
         return None
 
@@ -936,6 +966,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
     )
+    description = models.CharField(
+        _('Description'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     match_arg = models.CharField(
         _('Match argument'),
         help_text=_('Value used for the rule to match the version'),
@@ -958,6 +994,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         max_length=32,
         choices=VERSION_TYPES,
     )
+
+    objects = VersionAutomationRuleManager()
 
     class Meta:
         unique_together = (('project', 'priority'),)
@@ -1001,6 +1039,92 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         if action is None:
             raise NotImplementedError
         action(version, match_result, self.action_arg)
+
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        :returns: True if the priority was changed
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+
+        if current_priority == new_priority:
+            return False
+
+        # Move other's priority
+        if new_priority > current_priority:
+            # It was moved down
+            rules = (
+                self.project.automation_rules
+                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                # We sort the queryset in asc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('priority')
+            )
+            expression = F('priority') - 1
+        else:
+            # It was moved up
+            rules = (
+                self.project.automation_rules
+                .filter(priority__lt=current_priority, priority__gte=new_priority)
+                .exclude(pk=self.pk)
+                # We sort the queryset in desc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('-priority')
+            )
+            expression = F('priority') + 1
+
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.priority = total + 99
+        self.save()
+
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = expression
+            rule.save()
+
+        # Put back new priority
+        self.priority = new_priority
+        self.save()
+        return True
+
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Override method to update the other priorities after delete."""
+        current_priority = self.priority
+        project = self.project
+        super().delete(*args, **kwargs)
+
+        rules = (
+            project.automation_rules
+            .filter(priority__gte=current_priority)
+            # We sort the queryset in asc order
+            # to be updated in that order
+            # to avoid hitting the unique constraint (project, priority).
+            .order_by('priority')
+        )
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = F('priority') - 1
+            rule.save()
+
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f'{self.get_action_display()}'
 
     def __str__(self):
         class_name = self.__class__.__name__

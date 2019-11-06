@@ -1,22 +1,9 @@
-:orphan:
-
 API v3
 ======
 
 The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
 and HTTP response status codes are to designate success and failure.
-
-.. warning::
-
-   APIv3 is currently under development and it's not ready to use yet.
-
-
-.. note::
-
-   If you want to beta test it, please `get in touch`_ with us so we can give you early access.
-
-.. _get in touch: mailto:support@readthedocs.org?subject=APIv3%20beta%20test
 
 .. contents:: Table of contents
    :local:
@@ -37,6 +24,11 @@ Token
 The ``Authorization`` HTTP header can be specified with ``Token <your-access-token>``
 to authenticate as a user and have the same permissions that the user itself.
 
+.. note::
+
+   You will find your access Token under
+   `your profile settings <https://readthedocs.org/accounts/tokens/>`_.
+
 
 Session
 ~~~~~~~
@@ -54,6 +46,27 @@ When a user is trying to authenticate via session,
 
 Resources
 ---------
+
+This section shows all the resources that are currently available in APIv3.
+There are some URL attributes that applies to all of these resources:
+
+:?fields=:
+
+   Specify which fields are going to be returned in the response.
+
+:?omit=:
+
+   Specify which fields are going to be omitted from the response.
+
+:?expand=:
+
+   Some resources allow to expand/add extra fields on their responses (see `Project details <#project-details>`__ for example).
+
+
+.. tip::
+
+   You can browse the full API by accessing its root URL: https://readthedocs.org/api/v3/
+
 
 Projects
 ~~~~~~~~
@@ -82,21 +95,8 @@ Projects list
             "results": ["PROJECT"]
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
-
-    :query string name: name of the project.
-    :query string name__contains: part of the name of the project.
-    :query string slug: slug of the project.
-    :query string slug__contains: part of the slug of the project.
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
-    :query string privacy_level: one of ``public``, ``private``, ``protected``.
     :query string programming_language: programming language code as ``py``, ``js``, etc.
-    :query string repository_type: one of ``git``, ``hg``, ``bzr``, ``svn``.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Project details
@@ -136,10 +136,6 @@ Project details
             },
             "default_version": "stable",
             "default_branch": "master",
-            "privacy_level": {
-                "code": "public",
-                "name": "Public",
-            },
             "subproject_of": null,
             "translation_of": null,
             "urls": {
@@ -174,15 +170,9 @@ Project details
             }
         }
 
-    :>json string name: The name of the project.
-    :>json string slug: The project slug (used in the URL).
-
-    .. TODO: complete the returned data docs once agreed on this.
-
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Project`` with this slug
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``active_versions``, ``active_versions.last_build`` and
+                          ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
 
 
 Project create
@@ -190,7 +180,7 @@ Project create
 
 .. http:post:: /api/v3/projects/
 
-    Import a project into Read the Docs.
+    Import a project under authenticated user.
 
     **Example request**:
 
@@ -219,12 +209,35 @@ Project create
 
     **Example response**:
 
-    `See Project details <#project-details>`_
+    `See Project details <#project-details>`__
 
-    :requestheader Authorization: token to authenticate.
+Project update
+++++++++++++++
 
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+.. http:patch:: /api/v3/projects/(string:project_slug)/
+
+    Update an existing project.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X PATCH \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "name": "New name for the project",
+            "default_version": "v0.27.0"
+        }
+
+    :statuscode 204: Updated successfully
 
 
 Versions
@@ -263,17 +276,8 @@ Versions listing
             "results": ["VERSION"]
         }
 
-    :>json integer count: Total number of Projects.
-    :>json string next: URI for next set of Projects.
-    :>json string previous: URI for previous set of Projects.
-    :>json array results: Array of ``Version`` objects.
-
-    :query integer limit: limit number of object returned
-    :query integer offset: offset from the whole list returned
-    :query boolean active: whether return active versions only
-    :query boolean built: whether return only built version
-
-    :requestheader Authorization: token to authenticate.
+    :query boolean active: return only active versions
+    :query boolean built: return only built versions
 
 
 Version detail
@@ -301,7 +305,6 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
-            "uploaded": true,
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -320,21 +323,13 @@ Version detail
             }
         }
 
-    :>json integer id: ID for this version on the database
-    :>json string slug: The slug for this version
-    :>json string verbose_name: The name of the version
-    :>json string identifier: A version control identifier for this version (eg. the commit hash of the tag)
-    :>json string ref: tag or branch pointed by this version (available only when version is ``stable`` or ``latest``)
-    :>json string built: Whether this version has been built
-    :>json string active: Whether this version is active
-    :>json string type: The type of this version (typically "tag" or "branch")
-    :>json string last_build: Build object representing the last build of this version
-    :>json array downloads: URLs to downloads of this version's documentation
+    :>json string ref: the version slug where the ``stable`` version points to.
+                       ``null`` when it's not the stable version.
+    :>json boolean built: the version has at least one successful build.
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Version`` with this slug for this project
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed values are ``last_build`` and ``last_build.config``.
+                          Multiple fields can be passed separated by commas.
 
 
 Version update
@@ -342,23 +337,27 @@ Version update
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
 
-    Edit a version.
+    Update a version.
 
     **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X PATCH \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/version/0.23/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
 
     .. sourcecode:: json
 
         {
             "active": true,
-            "privacy_level": "public"
         }
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 204: Edited successfully
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
-    :statuscode 404: There is no ``Version`` with this slug for this project
+    :statuscode 204: Updated successfully
 
 
 Builds
@@ -448,22 +447,14 @@ Build details
             }
         }
 
-    :>json integer id: The ID of the build
-    :>json string date: The ISO-8601 datetime of the build.
+    :>json string created: The ISO-8601 datetime when the build was created.
+    :>json string finished: The ISO-8601 datetime when the build has finished.
     :>json integer duration: The length of the build in seconds.
     :>json string state: The state of the build (one of ``triggered``, ``building``, ``installing``, ``cloning``, or ``finished``)
-    :>json boolean success: Whether the build was successful
     :>json string error: An error message if the build was unsuccessful
-    :>json string commit: A version control identifier for this build (eg. the commit hash)
-    :>json string builder: The hostname server that built the docs
-    :>json string cold_storage: Whether the build was removed from database and stored externally
 
-    :query boolean include_config: whether or not include the configs used for this build. Default is ``false``
-
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 404: There is no ``Build`` with this ID
+    :query string expand: allows to add/expand some extra fields in the response.
+                          Allowed value is ``config``.
 
 
 Builds listing
@@ -491,9 +482,7 @@ Builds listing
         }
 
     :query string commit: commit hash to filter the builds returned by commit
-    :query boolean running: whether or not to filter the builds returned by currently building
-
-    :requestheader Authorization: token to authenticate.
+    :query boolean running: filter the builds that are currently building/running
 
 
 Build triggering
@@ -514,13 +503,15 @@ Build triggering
 
     **Example response**:
 
-    `See Build details <#build-details>`_
+    .. sourcecode:: json
 
-    :requestheader Authorization: token to authenticate.
+        {
+            "build": "{BUILD}",
+            "project": "{PROJECT}",
+            "version": "{VERSION}"
+        }
 
-    :statuscode 202: Accepted
-    :statuscode 400: Some field is invalid
-    :statuscode 401: Not valid permissions
+    :statuscode 202: the build was triggered
 
 
 Subprojects
@@ -531,6 +522,34 @@ by configuring a project as a subproject of another project.
 This allows for documentation projects to share a search index and a namespace or custom domain,
 but still be maintained independently.
 See :doc:`/subprojects` for more information.
+
+
+Subproject details
+++++++++++++++++++
+
+
+.. http:get:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Retrieve details of a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "alias": "subproject-alias",
+            "child": ["PROJECT"],
+            "_links": {
+                "parent": "/api/v3/projects/pip/"
+            }
+        }
+
 
 Subprojects listing
 +++++++++++++++++++
@@ -554,15 +573,64 @@ Subprojects listing
             "count": 25,
             "next": "/api/v3/projects/pip/subprojects/?limit=10&offset=10",
             "previous": null,
-            "results": ["PROJECT"]
+            "results": ["SUBPROJECT RELATIONSHIP"]
         }
 
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
 
-    :requestheader Authorization: token to authenticate.
+Subproject create
++++++++++++++++++
+
+
+.. http:post:: /api/v3/projects/(str:project_slug)/subprojects/
+
+    Create a subproject relationship between two projects.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X POST \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/ \
+          -H "Content-Type: application/json" \
+          -d @body.json
+
+    The content of ``body.json`` is like,
+
+    .. sourcecode:: json
+
+        {
+            "child": "subproject-child-slug",
+            "alias": "subproject-alias"
+        }
+
+    **Example response**:
+
+    `See Subproject details <#subproject-details>`_
+
+    :>json string child: slug of the child project in the relationship.
+    :>json string alias: optional slug alias to be used in the URL (e.g ``/projects/<alias>/en/latest/``).
+                         If not provided, child project's slug is used as alias.
+
+    :statuscode 201: Subproject created sucessfully
+
+
+Subproject delete
++++++++++++++++++
+
+.. http:delete:: /api/v3/projects/(str:project_slug)/subprojects/(str:alias_slug)/
+
+    Delete a subproject relationship.
+
+    **Example request**:
+
+    .. sourcecode:: bash
+
+        $ curl \
+          -X DELETE \
+          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+    :statuscode 204: Subproject deleted successfully
 
 
 Translations
@@ -595,13 +663,6 @@ Translations listing
             "previous": null,
             "results": ["PROJECT"]
         }
-
-    :>json integer count: total number of projects.
-    :>json string next: URI for next set of projects.
-    :>json string previous: URI for previous set of projects.
-    :>json array results: array of ``project`` objects.
-
-    :requestheader Authorization: token to authenticate.
 
 
 Redirects
@@ -694,14 +755,21 @@ Redirect create
             "type": "page"
         }
 
+    .. note::
+
+       ``type`` can be one of ``prefix``, ``page``, ``exact``, ``sphinx_html`` and ``sphinx_htmldir``.
+
+       Depending on the ``type`` of the redirect, some fields may not be needed:
+
+       * ``prefix`` type does not require ``to_url``.
+       * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
+       * ``sphinx_html`` and ``sphinx_htmldir`` types do not require ``from_url`` and ``to_url``.
+
     **Example response**:
 
     `See Redirect details <#redirect-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+    :statuscode 201: redirect created successfully
 
 
 Redirect update
@@ -735,12 +803,6 @@ Redirect update
 
     `See Redirect details <#redirect-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 200: Success
-    :statuscode 400: Some field is invalid
-
-
 Redirect delete
 ++++++++++++++++
 
@@ -756,9 +818,7 @@ Redirect delete
           -X DELETE \
           -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 204: Deleted successfully
+    :statuscode 204: Redirect deleted successfully
 
 
 Environment Variables
@@ -853,10 +913,7 @@ Environment Variable create
 
     `See Environment Variable details <#environmentvariable-details>`_
 
-    :requestheader Authorization: token to authenticate.
-
-    :statuscode 201: Created
-    :statuscode 400: Some field is invalid
+    :statuscode 201: Environment variable created successfully
 
 
 Environment Variable delete
@@ -876,4 +933,4 @@ Environment Variable delete
 
     :requestheader Authorization: token to authenticate.
 
-    :statuscode 204: Deleted successfully
+    :statuscode 204: Environment variable deleted successfully

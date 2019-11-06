@@ -19,15 +19,14 @@
   {% if integration.has_sync and integration.can_sync %}
     <p>
       {% blocktrans trimmed %}
-        This webhook was configured when this project was imported. If this
-        integration is not functioning correctly, try resyncing the webhook:
+        This integration is being managed automatically by Read the Docs. If 
+        it isn't functioning correctly, try re-syncing the webhook:
       {% endblocktrans %}
     </p>
-
-    <form method="post" action="{% url 'projects_integrations_webhooks_sync' project_slug=project.slug integration_pk=integration.pk %}">
-      {% csrf_token %}
-      <input type="submit" value="{% trans "Resync webhook" %}">
-    </form>
+    <p>
+      {% url 'api_webhook' project_slug=project.slug integration_pk=integration.pk as webhook_url %}
+      <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
+    </p>
   {% else %}
     {% comment %}
       Display information for manual webhook set up if either case is true:
@@ -40,10 +39,11 @@
     {% if integration.has_sync and not integration.can_sync %}
       <p>
         {% blocktrans trimmed %}
-          This integration was created automatically from an existing webhook
-          configured on your repository. To make any changes to this webhook,
-          you'll need to update the configuration there. You can use the
-          following address to manually configure this webhook.
+          This integration is not managed by Read the Docs currently.
+          If this integration is not functioning correctly,
+          you can try re-syncing it. Otherwise you'll need to update
+          the configuration on your repository.
+          You can use the following address to manually configure this webhook.
         {% endblocktrans %}
       </p>
     {% else %}
@@ -70,6 +70,13 @@
         </a>
       {% endblocktrans %}
     </p>
+  {% endif %}
+
+  {% if integration.has_sync %}
+    <form method="post" action="{% url 'projects_integrations_webhooks_sync' project_slug=project.slug integration_pk=integration.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Resync webhook" %}">
+    </form>
   {% endif %}
 
   <h3>{% trans "Recent Activity" %}</h3>

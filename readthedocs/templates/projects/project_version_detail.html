@@ -19,11 +19,14 @@
 
     {% if request.user|is_admin:project %}
       {% if not version.active and version.built %}
+        <form name="version_delete_html" method="post" action="{% url "project_version_delete_html" project.slug version.slug %}">
+          {% csrf_token %}
+        </form>
         <p class="empty">
-          {% url "project_version_delete_html" project.slug version.slug as version_delete_url %}
+          {# We are submitting the form using javascript because it breaks the UI design if we use buttons #}
           {% blocktrans trimmed %}
             This version is inactive but its documentation is still available online.
-            You can <a href="{{ version_delete_url }}">delete this version's documentation</a> if you want to remove it completely.
+            You can <a href="#" onclick="document.forms['version_delete_html'].submit();">delete this version's documentation</a> if you want to remove it completely.
           {% endblocktrans %}
         </p>
       {% endif %}
