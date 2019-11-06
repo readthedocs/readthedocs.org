@@ -990,6 +990,7 @@ def search_analytics_view(request, project_slug):
         slug=project_slug,
     )
 
+
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'

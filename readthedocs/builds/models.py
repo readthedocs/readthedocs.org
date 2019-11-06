@@ -980,7 +980,10 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     predefined_match_arg = models.CharField(
         _('Predefined match argument'),
-        help_text=_('Match argument defined by us, it is used if is not None, otherwise match_arg will be used.'),
+        help_text=_(
+            'Match argument defined by us, it is used if is not None, '
+            'otherwise match_arg will be used.'
+        ),
         max_length=255,
         choices=PREDEFINED_MATCH_ARGS,
         null=True,

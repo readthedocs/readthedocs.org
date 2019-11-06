@@ -1,6 +1,7 @@
 """Django forms for the builds app."""
 
 import re
+import textwrap
 
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -50,9 +51,15 @@ class RegexAutomationRuleForm(forms.ModelForm):
 
     match_arg = forms.CharField(
         label='Custom match',
-        help_text=_(
-            'A <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">regular expression</a> to match the version.'
-        ),
+        help_text=_(textwrap.dedent(
+            """
+            A
+            <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
+                regular expression
+            </a>
+            to match the version.
+            """
+        )),
         required=False,
     )
 
