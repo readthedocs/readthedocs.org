@@ -108,7 +108,10 @@ GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
 # Automation rules
 
 ALL_VERSIONS = 'all-versions'
+ALL_VERSIONS_REGEX = r'.*'
 SEMVER_VERSIONS = 'semver-versions'
+SEMVER_VERSIONS_REGEX = r'^v?(\d+\.)(\d+\.)(\d+)(-.+)?$'
+
 
 PREDEFINED_MATCH_ARGS = (
     (ALL_VERSIONS, _('Any version')),
@@ -117,6 +120,6 @@ PREDEFINED_MATCH_ARGS = (
 )
 
 PREDEFINED_MATCH_ARGS_VALUES = {
-    ALL_VERSIONS: r'.*',
-    SEMVER_VERSIONS: r'^v?(\d+\.)(\d+\.)(\d+)(-.+)?$',
+    ALL_VERSIONS: ALL_VERSIONS_REGEX,
+    SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }

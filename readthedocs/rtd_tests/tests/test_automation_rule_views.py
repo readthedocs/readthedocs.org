@@ -2,7 +2,14 @@ import pytest
 from django.urls import reverse
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, TAG
+from readthedocs.builds.constants import (
+    ALL_VERSIONS,
+    ALL_VERSIONS_REGEX,
+    BRANCH,
+    SEMVER_VERSIONS,
+    SEMVER_VERSIONS_REGEX,
+    TAG,
+)
 from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.models import VersionAutomationRule
 from readthedocs.projects.models import Project
@@ -31,7 +38,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'One rule',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -50,7 +57,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'Another rule',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -69,7 +76,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'Edit rule',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -88,7 +95,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -120,6 +127,32 @@ class TestAutomationRulesViews:
 
         rule = self.project.automation_rules.get(description='One rule')
         assert rule.match_arg == r'^master$'
+
+    @pytest.mark.parametrize(
+        'predefined_match_arg,expected_regex',
+        [
+            (ALL_VERSIONS, ALL_VERSIONS_REGEX),
+            (SEMVER_VERSIONS, SEMVER_VERSIONS_REGEX),
+        ],
+    )
+    def test_create_regex_rule_predefined_match(self, predefined_match_arg, expected_regex):
+        r = self.client.post(
+            reverse(
+                'projects_automation_rule_regex_create',
+                args=[self.project.slug],
+            ),
+            {
+                'description': 'rule',
+                'predefined_match_arg': predefined_match_arg,
+                'version_type': TAG,
+                'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            },
+        )
+        assert r.status_code == 302
+        assert r['Location'] == self.list_rules_url
+
+        rule = self.project.automation_rules.get(description='rule')
+        assert rule.get_match_arg() == expected_regex
 
     def test_empty_custom_match(self):
         r = self.client.post(
@@ -164,7 +197,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-0',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -176,7 +209,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-1',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -188,7 +221,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-2',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -229,7 +262,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-0',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -241,7 +274,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-1',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -253,7 +286,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-2',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -288,7 +321,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-0',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': TAG,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -300,7 +333,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-1',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
@@ -312,7 +345,7 @@ class TestAutomationRulesViews:
             ),
             {
                 'description': 'rule-2',
-                'predefined_match': RegexAutomationRuleForm.ALL_VERSIONS_REGEX,
+                'predefined_match_arg': ALL_VERSIONS,
                 'version_type': BRANCH,
                 'action': VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             },
