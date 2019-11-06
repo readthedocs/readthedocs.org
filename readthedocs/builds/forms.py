@@ -5,7 +5,13 @@ import re
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from readthedocs.builds.constants import BRANCH, BRANCH_TEXT, TAG, TAG_TEXT
+from readthedocs.builds.constants import (
+    ALL_VERSIONS,
+    BRANCH,
+    BRANCH_TEXT,
+    TAG,
+    TAG_TEXT,
+)
 from readthedocs.builds.models import RegexAutomationRule, Version
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
@@ -42,26 +48,10 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
 class RegexAutomationRuleForm(forms.ModelForm):
 
-    ALL_VERSIONS_REGEX = r'.*'
-    SEMVER_REGEX = r'^v?(\d+\.)(\d+\.)(\d)(-.+)?$'
-    MATCH_CHOICES = (
-        (ALL_VERSIONS_REGEX, 'All versions'),
-        (SEMVER_REGEX, 'SemVer versions'),
-        (None, 'Custom match'),
-    )
-
-    predefined_match = forms.ChoiceField(
-        label='Match',
-        choices=MATCH_CHOICES,
-        initial=ALL_VERSIONS_REGEX,
-        required=False,
-        help_text=_('Versions the rule should be applied to'),
-    )
-
     match_arg = forms.CharField(
         label='Custom match',
         help_text=_(
-            'A <a href="https://docs.python.org/3/library/re.html">Python regular expression</a>'
+            'A <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">regular expression</a> to match the version.'
         ),
         required=False,
     )
@@ -70,11 +60,19 @@ class RegexAutomationRuleForm(forms.ModelForm):
         model = RegexAutomationRule
         fields = [
             'description',
-            'predefined_match',
+            'predefined_match_arg',
             'match_arg',
             'version_type',
             'action',
         ]
+        # Don't pollute the UI with help texts
+        help_texts = {
+            'version_type': '',
+            'action': '',
+        }
+        labels = {
+            'predefined_match_arg': 'Match',
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
@@ -87,23 +85,17 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (TAG, TAG_TEXT),
         ]
 
-        # Set initial value of `predefined_match` if `match_arg`
-        # is one predefined match.
-        match_options = set(v[0] for v in self.MATCH_CHOICES)
-        if self.instance.pk:
-            match_arg = self.instance.match_arg
-            if match_arg and match_arg in match_options:
-                self.initial['match'] = self.instance.match_arg
-            else:
-                self.initial['match'] = None
+        self.fields['predefined_match_arg'].initial = ALL_VERSIONS
+        # Allow users to start from the pattern of the predefined match
+        # if they want to use a custom one.
+        if self.instance.pk and self.instance.predefined_match_arg:
+            self.fields['match_arg'].initial = self.instance.get_match_arg()
 
     def clean_match_arg(self):
-        """Use value from predefined_match if a custom match isn't given."""
+        """Check that a custom match was given if a predefined match wasn't used."""
         match_arg = self.cleaned_data['match_arg']
-        match = self.cleaned_data['predefined_match']
-        if match:
-            match_arg = match
-        if not match_arg:
+        predefined_match = self.cleaned_data['predefined_match_arg']
+        if not predefined_match and not match_arg:
             raise forms.ValidationError(
                 _('Custom match should not be empty.'),
             )
@@ -124,6 +116,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 project=self.project,
                 description=self.cleaned_data['description'],
                 match_arg=self.cleaned_data['match_arg'],
+                predefined_match_arg=self.cleaned_data['predefined_match_arg'],
                 version_type=self.cleaned_data['version_type'],
                 action=self.cleaned_data['action'],
             )
