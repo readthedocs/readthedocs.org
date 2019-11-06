@@ -44,7 +44,9 @@ def get_version_compare_data(project, base_version=None):
         'is_highest': True,
     }
     if highest_version_obj:
-        ret_val['url'] = highest_version_obj.get_absolute_url()
+        # Never link to the dashboard,
+        # users reading the docs may don't have access to the dashboard.
+        ret_val['url'] = highest_version_obj.get_absolute_url(link_to_dashboard=False)
         ret_val['slug'] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
         try:
