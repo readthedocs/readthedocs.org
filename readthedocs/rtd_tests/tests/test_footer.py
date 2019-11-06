@@ -240,11 +240,12 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 9
+    EXPECTED_QUERIES = 13
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.create_latest()
+        self.pip.versions.update(built=True)
 
     def render(self):
         request = self.factory.get(self.url)
