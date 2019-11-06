@@ -1138,7 +1138,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
-    TIMEOUT = 2  # timeout in seconds
+    TIMEOUT = 1  # timeout in seconds
 
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
