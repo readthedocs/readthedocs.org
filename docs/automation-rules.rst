@@ -41,17 +41,17 @@ Predefined matches
 
 There are some predefined matches:
 
-- **All versions**: All new versions are matched.
-- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ are matched.
+- **Any version**: All new versions will match.
+- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match.
 
 User defined matches
 --------------------
 
-If none of the above matches meet your use case,
+If none of the above predefined matches meet your use case,
 choose **Custom match**.
 
 The custom match should be a valid `Python regular expression <https://docs.python.org/3/library/re.html>`__.
-Each new version is going to be tested against this regular expression.
+Each new version will be tested against this regular expression.
 
 Actions
 -------
@@ -59,8 +59,8 @@ Actions
 Actions are the task to be executed over the matching version.
 Currently, this actions are available:
 
-- **Activate and build version**: Activates and builds the version.
-- **Set as default version**: Sets the version as default,
+- **Activate version**: Activates and builds the version.
+- **Set version as default**: Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
   It also activates and builds the version.
@@ -91,7 +91,7 @@ Examples
 Activate all new tags
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Match: ``All versions``
+- Match: ``Any version``
 - Version type: ``Tag``
 - Action: ``Activate version``
 
@@ -107,7 +107,7 @@ Set as default new tags that have the ``-stable`` or ``-release`` suffix
 
 - Custom match: ``-(stable)|(release)$``
 - Version type: ``Tag``
-- Action: ``Set as default version``
+- Action: ``Set version as default``
 
 .. note::
    
@@ -128,6 +128,9 @@ Activate all new tags and branches that start with ``v`` or ``V``
 
 Activate all new tags that don't contain the ``-nightly`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. TODO: update example if https://github.com/readthedocs/readthedocs.org/issues/6354 is approved.
+
 
 - Custom match: ``.*(?<!-nightly)$``
 - Version type: ``Tag``
