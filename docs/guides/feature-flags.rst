@@ -37,4 +37,4 @@ e.g. python-reno release notes manager is known to do that
 
 ``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
 
-``SEARCH_ANALYTICS``: :featureflags:`SEARCH_ANALYTICS`
+
