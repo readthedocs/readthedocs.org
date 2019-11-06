@@ -85,11 +85,12 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (TAG, TAG_TEXT),
         ]
 
-        self.fields['predefined_match_arg'].initial = ALL_VERSIONS
+        if not self.instance.pk:
+            self.initial['predefined_match_arg'] = ALL_VERSIONS
         # Allow users to start from the pattern of the predefined match
         # if they want to use a custom one.
         if self.instance.pk and self.instance.predefined_match_arg:
-            self.fields['match_arg'].initial = self.instance.get_match_arg()
+            self.initial['match_arg'] = self.instance.get_match_arg()
 
     def clean_match_arg(self):
         """Check that a custom match was given if a predefined match wasn't used."""

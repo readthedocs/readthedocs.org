@@ -1017,7 +1017,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     def get_match_arg(self):
         """Get the match arg defined for `predefined_match_arg` or the match from user."""
         match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
-            self.PREDEFINED_MATCH_ARGS,
+            self.predefined_match_arg,
         )
         return match_arg or self.match_arg
 
