@@ -211,6 +211,10 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                     task=tasks.remove_dirs,
                     args=[version.get_artifact_paths()],
                 )
+                tasks.clean_project_resources(
+                    version.project,
+                    version,
+                )
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
