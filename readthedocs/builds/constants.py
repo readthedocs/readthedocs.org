@@ -103,3 +103,20 @@ RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
+
+
+# Automation rules
+
+ALL_VERSIONS = 'all-versions'
+SEMVER_VERSIONS = 'semver-versions'
+
+PREDEFINED_MATCH_ARGS = (
+    (ALL_VERSIONS, _('Any version')),
+    (SEMVER_VERSIONS, _('SemVer versions')),
+    (None, _('Custom match')),
+)
+
+PREDEFINED_MATCH_ARGS_VALUES = {
+    ALL_VERSIONS: r'.*',
+    SEMVER_VERSIONS: r'^v?(\d+\.)(\d+\.)(\d+)(-.+)?$',
+}

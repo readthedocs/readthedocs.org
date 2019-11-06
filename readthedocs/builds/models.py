@@ -31,6 +31,8 @@ from readthedocs.builds.constants import (
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
+    PREDEFINED_MATCH_ARGS,
+    PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
     TAG,
     VERSION_TYPES,
@@ -76,7 +78,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
-
 
 log = logging.getLogger(__name__)
 
@@ -978,6 +979,15 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         help_text=_('Value used for the rule to match the version'),
         max_length=255,
     )
+    predefined_match_arg = models.CharField(
+        _('Predefined match argument'),
+        help_text=_('Match argument defined by us, it is used if is not None, otherwise match_arg will be used.'),
+        max_length=255,
+        choices=PREDEFINED_MATCH_ARGS,
+        null=True,
+        blank=True,
+        default=None,
+    )
     action = models.CharField(
         _('Action'),
         help_text=_('Action to apply to matching versions'),
@@ -1004,6 +1014,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         unique_together = (('project', 'priority'),)
         ordering = ('priority', '-modified', '-created')
 
+    def get_match_arg(self):
+        """Get the match arg defined for `predefined_match_arg` or the match from user."""
+        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+            self.PREDEFINED_MATCH_ARGS,
+        )
+        return match_arg or self.match_arg
+
     def run(self, version, *args, **kwargs):
         """
         Run an action if `version` matches the rule.
@@ -1012,7 +1029,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :returns: True if the action was performed
         """
         if version.type == self.version_type:
-            match, result = self.match(version, self.match_arg)
+            match, result = self.match(version, self.get_match_arg())
             if match:
                 self.apply_action(version, result)
                 return True
