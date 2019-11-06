@@ -1156,6 +1156,9 @@ class RegexAutomationRule(VersionAutomationRule):
 
            We use the regex module with the timeout
            arg to avoid ReDoS.
+
+           We could use a finite state machine type of regex too,
+           but there isn't a stable library at the time of writting this code.
         """
         try:
             match = regex.search(
