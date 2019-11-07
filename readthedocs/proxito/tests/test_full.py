@@ -185,6 +185,18 @@ class TestAdditionalDocViews(BaseDocServing):
             response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
         )
 
+    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    def test_directory_indexes(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        storage_mock().exists.return_value = True
+        response = self.client.get(
+            reverse('serve_error_404', kwargs={'proxito_path': '/en/latest/index-exists'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )
+
     def test_sitemap_xml(self):
         self.project.versions.update(active=True)
         private_version = fixture.get(

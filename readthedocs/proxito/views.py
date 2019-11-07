@@ -222,7 +222,7 @@ def serve_docs(
         project_slug, subproject_slug, lang_slug, version_slug, filename
     )
 
-    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
         request,
         project_slug=project_slug,
         subproject_slug=subproject_slug,
@@ -360,12 +360,13 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
     with the default version and finally, if none of them are found, the Read
     the Docs default page (Maze Found) is rendered by Django and served.
     """
+    # pylint: disable=too-many-locals
 
     # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
-    view, args, kwargs = url_resolve(
+    _, __, kwargs = url_resolve(
         proxito_path, urlconf='readthedocs.proxito.urls'
     )
-    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
         request,
         project_slug=kwargs.get('project_slug'),
         subproject_slug=kwargs.get('subproject_slug'),
@@ -500,6 +501,7 @@ def sitemap_xml(request, project):
 
     :rtype: django.http.HttpResponse
     """
+    # pylint: disable=too-many-locals
 
     def priorities_generator():
         """
