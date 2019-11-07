@@ -168,6 +168,7 @@ def _get_project_data_from_request(
     """
     Get the proper project based on the request and URL
 
+    This is used in a few places and so we break out into a utility function.
     """
     # Take the most relevant project so far
     current_project = subproject or project
