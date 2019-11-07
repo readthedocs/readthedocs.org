@@ -78,7 +78,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-
 log = logging.getLogger(__name__)
 
 
@@ -290,7 +289,13 @@ class Version(models.Model):
         )
         return self.identifier
 
-    def get_absolute_url(self):
+    def get_absolute_url(self, link_to_dashboard=True):
+        """
+        Get absolute url to the docs of the version.
+
+        :param link_to_dashboard: If `False` we never try to link to the dashboard,
+                                  we link to the docs even if they result in a 404.
+        """
         # Hack external versions for now.
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
@@ -300,7 +305,7 @@ class Version(models.Model):
                 f'{self.project.slug}/{self.slug}/index.html'
             return url
 
-        if not self.built and not self.uploaded:
+        if not self.built and not self.uploaded and link_to_dashboard:
             return reverse(
                 'project_version_detail',
                 kwargs={
