@@ -396,7 +396,7 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
     # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
     # Secondly, try to serve the 404 page for the default version
     # (project.get_default_version())
-    for version_slug_404 in {version_slug, final_project.get_default_version()}:
+    for version_slug_404 in [version_slug, final_project.get_default_version()]:
         for tryfile in ('404.html', '404/index.html'):
             storage_root_path = final_project.get_storage_path(
                 type_='html',
