@@ -166,7 +166,7 @@ def _get_project_data_from_request(
         filename='',
 ):
     """
-    Get the proper project based on the request and URL
+    Get the proper project based on the request and URL.
 
     This is used in a few places and so we break out into a utility function.
     """
