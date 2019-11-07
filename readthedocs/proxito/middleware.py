@@ -8,13 +8,10 @@ Additional processing is done to get the project from the URL in the ``views.py`
 import logging
 
 from django.conf import settings
-from django.http import HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.projects.models import Domain
-
 
 log = logging.getLogger(__name__)  # noqa
 
