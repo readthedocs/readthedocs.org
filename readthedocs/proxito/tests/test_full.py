@@ -176,7 +176,7 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch('readthedocs.proxito.views.get_storage_class')
     def test_custom_robots_txt(self, storage_mock):
         self.project.versions.update(active=True, built=True)
-        storage_mock().exists.return_value = True
+        storage_mock()().exists.return_value = True
         response = self.client.get(
             reverse('robots_txt'),
             HTTP_HOST='project.readthedocs.io',
@@ -188,13 +188,36 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch('readthedocs.proxito.views.get_storage_class')
     def test_directory_indexes(self, storage_mock):
         self.project.versions.update(active=True, built=True)
-        storage_mock().exists.return_value = True
+        storage_mock()().exists.return_value = True
+        storage_mock()().open().read.return_value = 'foo'
         response = self.client.get(
             reverse('serve_error_404', kwargs={'proxito_path': '/en/latest/index-exists'}),
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(
+            response.content, b'foo'
+        )
+        self.assertEqual(
             response.status_code, 200
+        )
+
+    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    def test_404_storage_paths_checked(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        storage_mock()().exists.return_value = False
+        self.client.get(
+            reverse('serve_error_404', kwargs={'proxito_path': '/en/fancy-version/index-exists'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/index-exists/index.html'),
+                mock.call('html/project/fancy-version/index-exists/README.html'),
+                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/fancy-version/404/index.html'),
+                mock.call('html/project/latest/404.html'),
+                mock.call('html/project/latest/404/index.html')
+            ]
         )
 
     def test_sitemap_xml(self):
