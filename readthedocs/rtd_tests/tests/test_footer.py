@@ -124,6 +124,7 @@ class TestVersionCompareFooter(TestCase):
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
+        self.pip.versions.update(built=True)
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
@@ -150,7 +151,7 @@ class TestVersionCompareFooter(TestCase):
         self.assertDictEqual(valid_data, returned_data)
 
     def test_highest_version_from_latest(self):
-        Version.objects.create_latest(project=self.pip)
+        Version.objects.create_latest(project=self.pip, built=True)
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
@@ -177,6 +178,7 @@ class TestVersionCompareFooter(TestCase):
             identifier='1.0.0',
             type=TAG,
             active=True,
+            built=True,
         )
 
         base_version = self.pip.versions.get(slug='0.8.1')
@@ -221,6 +223,7 @@ class TestVersionCompareFooter(TestCase):
             identifier='2.0.0',
             type=BRANCH,
             active=True,
+            built=True,
         )
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),

@@ -26,7 +26,10 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    versions_qs = Version.internal.public(project=project)
+    versions_qs = (
+        Version.internal.public(project=project)
+        .filter(built=True, active=True)
+    )
 
     # Take preferences over tags only if the project has at least one tag
     if versions_qs.filter(type=TAG).exists():
@@ -46,7 +49,7 @@ def get_version_compare_data(project, base_version=None):
     if highest_version_obj:
         # Never link to the dashboard,
         # users reading the docs may don't have access to the dashboard.
-        ret_val['url'] = highest_version_obj.get_absolute_url(link_to_dashboard=False)
+        ret_val['url'] = highest_version_obj.get_absolute_url()
         ret_val['slug'] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
         try:
