@@ -65,7 +65,7 @@ function init() {
     // Check for new logic around proxying requests.
     // ``proxied_api_host`` won't exist on existing built docs,
     // so default to ``api_host`` in those cases
-    real_api_host = rtd.api_host
+    var real_api_host = rtd.api_host;
     if ("proxied_api_host" in rtd) {
         real_api_host = rtd.proxied_api_host
     }
