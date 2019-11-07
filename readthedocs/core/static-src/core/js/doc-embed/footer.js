@@ -67,7 +67,7 @@ function init() {
     // so default to ``api_host`` in those cases
     var real_api_host = rtd.api_host;
     if ("proxied_api_host" in rtd) {
-        real_api_host = rtd.proxied_api_host
+        real_api_host = rtd.proxied_api_host;
     }
 
     // Get footer HTML from API and inject it into the page.
