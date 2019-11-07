@@ -65,15 +65,14 @@ function init() {
     // Check for new logic around proxying requests.
     // ``proxied_api_host`` won't exist on existing built docs,
     // so default to ``api_host`` in those cases
+    real_api_host = rtd.api_host
     if ("proxied_api_host" in rtd) {
-        api_host = rtd.proxied_api_host
-    } else {
-        api_host = rtd.api_host
+        real_api_host = rtd.proxied_api_host
     }
 
     // Get footer HTML from API and inject it into the page.
     $.ajax({
-        url: api_host + "/api/v2/footer_html/",
+        url: real_api_host + "/api/v2/footer_html/",
         crossDomain: true,
         xhrFields: {
             withCredentials: true,
