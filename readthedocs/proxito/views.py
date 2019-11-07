@@ -165,6 +165,10 @@ def _get_project_data_from_request(
         version_slug=None,
         filename='',
 ):
+    """
+    Get the proper project based on the request and URL
+
+    """
     # Take the most relevant project so far
     current_project = subproject or project
 
@@ -181,18 +185,6 @@ def _get_project_data_from_request(
         final_project = get_object_or_404(
             current_project.translations.all(), language=lang_slug
         )
-
-    # ``final_project`` is now the actual project we want to serve docs on,
-    # accounting for:
-    # * Project
-    # * Subproject
-    # * Translations
-
-    # TODO: Redirects need to be refactored before we can turn them on
-    # They currently do 1 request per redirect that exists for the project
-    # path, http_status = final_project.redirects.get_redirect_path_with_status(
-    #     language=lang_slug, version_slug=version_slug, path=filename
-    # )
 
     # Handle single version by grabbing the default version
     if final_project.single_version:
@@ -273,11 +265,8 @@ def serve_docs(
     )
     path = os.path.join(storage_path, filename)
 
-    # Handle out backend storage not supporting directory indexes,
+    # Handle our backend storage not supporting directory indexes,
     # so we need to append index.html when appropriate.
-    # TODO: We don't currently support `docs.example.com/en/latest/install`
-    # where the user actually wants `docs.example.com/en/latest/install/index.html`
-    # We would need to emulate nginx's try_files in order to handle this.
     if path[-1] == '/':
         path += 'index.html'
 
