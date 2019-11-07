@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.encoding import iri_to_uri
 from django.views.decorators.cache import cache_page
 from django.views.static import serve
+from django.urls import resolve as url_resolve
 
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.builds.models import Version
@@ -156,7 +157,7 @@ def redirect_project_slug(request, project, subproject):  # pylint: disable=unus
 
 @map_project_slug
 @map_subproject_slug
-def serve_docs(
+def _get_project_data_from_request(
         request,
         project,
         subproject,
@@ -164,36 +165,8 @@ def serve_docs(
         version_slug=None,
         filename='',
 ):
-    """Take the incoming parsed URL's and figure out what file to serve."""
-
-    log.debug(
-        'project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
-        project, subproject, lang_slug, version_slug, filename
-    )
-
     # Take the most relevant project so far
     current_project = subproject or project
-
-    # Handle a / redirect when we aren't a single version
-    if all([lang_slug is None, version_slug is None, filename == '',
-            not current_project.single_version]):
-        redirect_to = redirect_project_slug(
-            request,
-            project=current_project,
-            subproject=None,
-        )
-        log.info(
-            'Proxito redirect: from=%s, to=%s, project=%s', filename,
-            redirect_to, current_project.slug
-        )
-        return redirect_to
-
-    if (lang_slug is None or version_slug is None) and not current_project.single_version:
-        log.info(
-            'Invalid URL for project with versions. url=%s, project=%s',
-            filename, current_project.slug
-        )
-        raise Http404('Invalid URL for project with versions')
 
     # Handle single-version projects that have URLs like a real project
     if current_project.single_version:
@@ -224,6 +197,66 @@ def serve_docs(
     # Handle single version by grabbing the default version
     if final_project.single_version:
         version_slug = final_project.get_default_version()
+
+    # ``final_project`` is now the actual project we want to serve docs on,
+    # accounting for:
+    # * Project
+    # * Subproject
+    # * Translations
+
+    return final_project, lang_slug, version_slug, filename
+
+
+def serve_docs(
+        request,
+        project_slug=None,
+        subproject_slug=None,
+        lang_slug=None,
+        version_slug=None,
+        filename='',
+):
+    """Take the incoming parsed URL's and figure out what file to serve."""
+
+    log.debug(
+        'project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
+        project_slug, subproject_slug, lang_slug, version_slug, filename
+    )
+
+    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+        request,
+        project_slug=project_slug,
+        subproject_slug=subproject_slug,
+        lang_slug=lang_slug,
+        version_slug=version_slug,
+        filename=filename,
+    )
+
+    # Handle a / redirect when we aren't a single version
+    if all([lang_slug is None, version_slug is None, filename == '',
+            not final_project.single_version]):
+        redirect_to = redirect_project_slug(
+            request,
+            project=final_project,
+            subproject=None,
+        )
+        log.info(
+            'Proxito redirect: from=%s, to=%s, project=%s', filename,
+            redirect_to, final_project.slug
+        )
+        return redirect_to
+
+    if (lang_slug is None or version_slug is None) and not final_project.single_version:
+        log.info(
+            'Invalid URL for project with versions. url=%s, project=%s',
+            filename, final_project.slug
+        )
+        raise Http404('Invalid URL for project with versions')
+
+    # TODO: Redirects need to be refactored before we can turn them on
+    # They currently do 1 request per redirect that exists for the project
+    # path, http_status = final_project.redirects.get_redirect_path_with_status(
+    #     language=lang_slug, version_slug=version_slug, path=filename
+    # )
 
     # Don't do auth checks
     # try:
@@ -259,13 +292,8 @@ def _serve_docs(request, final_project, path):
     this in production, but I don't want to force a check for DEBUG.
     """
 
-    if not path.startswith('/proxito/'):
-        if path[0] == '/':
-            path = path[1:]
-        path = f'/proxito/{path}'
-
     if settings.PYTHON_MEDIA:
-        return _serve_docs_nginx(
+        return _serve_docs_python(
             request, final_project=final_project, path=path
         )
     return _serve_docs_nginx(request, final_project=final_project, path=path)
@@ -279,6 +307,7 @@ def _serve_docs_python(request, final_project, path):
     """
     log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
 
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
     root_path = storage.path('')
     # Serve from Python
     return serve(request, path, root_path)
@@ -292,6 +321,12 @@ def _serve_docs_nginx(request, final_project, path):
     serve it directly as an internal redirect.
     """
     log.info('[Nginx serve] path=%s, project=%s', path, final_project.slug)
+
+    if not path.startswith('/proxito/'):
+        if path[0] == '/':
+            path = path[1:]
+        path = f'/proxito/{path}'
+
     content_type, encoding = mimetypes.guess_type(path)
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(
@@ -309,6 +344,84 @@ def _serve_docs_nginx(request, final_project, path):
     response['X-Accel-Redirect'] = x_accel_redirect
 
     return response
+
+
+def serve_error_404(request, proxito_path, template_name='404.html'):
+    """
+    Handler for 404 pages on subdomains.
+
+    This does a couple things:
+
+    * Handles directory indexing for URLs that don't end in a slash
+    * Handles directory indexing for README.html (for now)
+    * Handles custom 404 serving
+
+    For 404's, first search for a 404 page in the current version, then continues
+    with the default version and finally, if none of them are found, the Read
+    the Docs default page (Maze Found) is rendered by Django and served.
+    """
+
+    # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
+    view, args, kwargs = url_resolve(proxito_path, urlconf='readthedocs.proxito.urls')
+    final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+        request,
+        project_slug=kwargs.get('project_slug'),
+        subproject_slug=kwargs.get('subproject_slug'),
+        lang_slug=kwargs.get('lang_slug'),
+        version_slug=kwargs.get('version_slug'),
+        filename=kwargs.get('filename', ''),
+    )
+
+    storage_root_path = final_project.get_storage_path(
+        type_='html',
+        version_slug=version_slug,
+        include_file=False,
+    )
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+    # First, check for dirhtml with slash
+    for tryfile in ('index.html', 'README.html'):
+        storage_filename_path = os.path.join(storage_root_path, filename, tryfile)
+        log.debug('Trying index filename: project=%s version=%s, file=%s',
+                  final_project.slug,
+                  version_slug,
+                  storage_filename_path,
+                  )
+        if storage.exists(storage_filename_path):
+            log.info(
+                'Serving index file: project=%s version=%s, url=%s',
+                final_project.slug,
+                version_slug,
+                storage_filename_path,
+            )
+            r = HttpResponse(storage.open(storage_filename_path).read())
+            return r
+
+    # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
+    # Secondly, try to serve the 404 page for the default version
+    # (project.get_default_version())
+    for version_slug_404 in {version_slug, final_project.get_default_version()}:
+        for tryfile in ('404.html', '404/index.html'):
+            storage_root_path = final_project.get_storage_path(
+                type_='html',
+                version_slug=version_slug_404,
+                include_file=False,
+            )
+            storage_filename_path = os.path.join(storage_root_path, tryfile)
+            if storage.exists(storage_filename_path):
+                log.debug(
+                    'serving 404.html page current version: [project: %s] [version: %s]',
+                    final_project.slug,
+                    version_slug_404,
+                )
+                r = HttpResponse(storage.open(storage_filename_path).read())
+                r.status_code = 404
+                return r
+
+    # Finally, return the default 404 page generated by Read the Docs
+    r = render(request, template_name)
+    r.status_code = 404
+    return r
 
 
 @map_project_slug
@@ -333,7 +446,7 @@ def robots_txt(request, project):
         # default version is not built
         not version.built,
     ])
-    import ipdb; ipdb.set_trace()
+
     if no_serve_robots_txt:
         # ... we do return a 404
         raise Http404()

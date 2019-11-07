@@ -37,6 +37,12 @@ from readthedocs.proxito import views
 
 
 urlpatterns = [
+    # Serve custom 404 pages
+    url(
+        r'^_proxito_404_(?P<proxito_path>.*)$',
+        views.serve_error_404,
+        name='serve_error_404',
+    ),
     url(r'robots\.txt$', views.robots_txt, name='robots_txt'),
     url(r'sitemap\.xml$', views.sitemap_xml, name='sitemap_xml'),
 
