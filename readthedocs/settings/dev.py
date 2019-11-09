@@ -89,10 +89,10 @@ if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
 # Allow for local settings override to trigger images name change
 try:
     if DOCKER_USE_DEV_IMAGES:
-        DOCKER_IMAGE_SETTINGS = {
+        RTD_DOCKER_IMAGE_SETTINGS = {
             key.replace('readthedocs/build:', 'readthedocs/build-dev:'): settings
             for (key, settings)
-            in DOCKER_IMAGE_SETTINGS.items()
+            in RTD_DOCKER_IMAGE_SETTINGS.items()
         }
 except NameError:
     pass

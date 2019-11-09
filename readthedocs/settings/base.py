@@ -383,13 +383,13 @@ class CommunityBaseSettings(Settings):
     })
 
     # All auth
-    ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
-    ACCOUNT_EMAIL_REQUIRED = True
-    ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-    ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
-    SOCIALACCOUNT_AUTO_SIGNUP = False
-    SOCIALACCOUNT_PROVIDERS = {
+    RTD_ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
+    RTD_ACCOUNT_EMAIL_REQUIRED = True
+    RTD_ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    RTD_ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+    RTD_ACCOUNT_ACTIVATION_DAYS = 7
+    RTD_SOCIALACCOUNT_AUTO_SIGNUP = False
+    RTD_SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
                 'user:email',
@@ -423,13 +423,13 @@ class CommunityBaseSettings(Settings):
     )
 
     # RTD Settings
-    REPO_LOCK_SECONDS = 30
-    ALLOW_PRIVATE_REPOS = False
-    DEFAULT_PRIVACY_LEVEL = 'public'
-    DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
-    GROK_API_HOST = 'https://api.grokthedocs.com'
-    SERVE_DOCS = ['public']
-    ALLOW_ADMIN = True
+    RTD_REPO_LOCK_SECONDS = 30
+    RTD_ALLOW_PRIVATE_REPOS = False
+    RTD_DEFAULT_PRIVACY_LEVEL = 'public'
+    RTD_DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
+    RTD_GROK_API_HOST = 'https://api.grokthedocs.com'
+    RTD_SERVE_DOCS = ['public']
+    RTD_ALLOW_ADMIN = True
 
     # Elasticsearch settings.
     ES_HOSTS = ['127.0.0.1:9200']
@@ -501,13 +501,13 @@ class CommunityBaseSettings(Settings):
     DO_NOT_TRACK_ENABLED = False
 
     # Misc application settings
-    GLOBAL_ANALYTICS_CODE = None
-    DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
-    GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
-    OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRICTEDSESSIONS_AUTHED_ONLY = True
-    RESTRUCTUREDTEXT_FILTER_SETTINGS = {
+    RTD_GLOBAL_ANALYTICS_CODE = None
+    RTD_DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
+    RTD_GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
+    RTD_AUTH_AVATAR_USER_DEFAULT_URL = RTD_GRAVATAR_DEFAULT_IMAGE
+    RTD_OAUTH_AVATAR_ORG_DEFAULT_URL = RTD_GRAVATAR_DEFAULT_IMAGE
+    RTD_RESTRICTEDSESSIONS_AUTHED_ONLY = True
+    RTD_RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
         'file_insertion_enabled': False,
         'raw_enabled': False,
