@@ -34,8 +34,8 @@ class Service:
     adapter = None
     url_pattern = None
 
-    default_user_avatar_url = settings.OAUTH_AVATAR_USER_DEFAULT_URL
-    default_org_avatar_url = settings.OAUTH_AVATAR_ORG_DEFAULT_URL
+    default_user_avatar_url = settings.RTD_OAUTH_AVATAR_USER_DEFAULT_URL
+    default_org_avatar_url = settings.RTD_OAUTH_AVATAR_ORG_DEFAULT_URL
 
     def __init__(self, user, account):
         self.session = None

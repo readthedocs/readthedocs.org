@@ -15,7 +15,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
 )
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.doc_builder.constants import RTD_DOCKER_LIMITS
 
 
 log = logging.getLogger(__name__)

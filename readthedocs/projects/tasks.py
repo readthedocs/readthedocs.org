@@ -46,7 +46,7 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
 from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.doc_builder.constants import RTD_DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
     LocalBuildEnvironment,

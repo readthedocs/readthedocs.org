@@ -6,7 +6,7 @@ from readthedocs.config import BuildConfigV1, ConfigFileNotFound
 from readthedocs.config import load as load_config
 from readthedocs.projects.models import ProjectConfigurationError
 
-from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
+from .constants import RTD_DOCKER_IMAGE, RTD_DOCKER_IMAGE_SETTINGS
 
 
 def load_yaml_config(version):

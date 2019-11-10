@@ -123,14 +123,14 @@ if settings.DO_NOT_TRACK_ENABLED:
     groups.append(dnt_urls)
 
 
-if settings.READ_THE_DOCS_EXTENSIONS:
+if settings.RTD_EXTENSIONS:
     groups.append([
         url(r'^', include('readthedocsext.urls'))
     ])
 
 if not settings.USE_SUBDOMAIN or settings.DEBUG:
     groups.insert(0, docs_urls)
-if settings.ALLOW_ADMIN:
+if settings.RTD_ALLOW_ADMIN:
     groups.append(admin_urls)
 if settings.DEBUG:
     import debug_toolbar

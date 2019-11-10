@@ -15,7 +15,7 @@ from django.conf import settings
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.constants import DOCKER_IMAGE
+from readthedocs.doc_builder.constants import RTD_DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.constants import LOG_TEMPLATE

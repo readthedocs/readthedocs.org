@@ -128,7 +128,7 @@ class Version(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=PRIVACY_CHOICES,
-        default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
+        default=settings.RTD_DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
     machine = models.BooleanField(_('Machine Created'), default=False)

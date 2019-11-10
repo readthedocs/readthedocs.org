@@ -13,7 +13,7 @@ from .utils import send_to_analytics
 DEFAULT_PARAMETERS = {
     'v': '1',  # analytics version (always 1)
     'aip': '1',  # anonymize IP
-    'tid': settings.GLOBAL_ANALYTICS_CODE,
+    'tid': settings.RTD_GLOBAL_ANALYTICS_CODE,
 
     # User data
     'uip': '',  # User IP address

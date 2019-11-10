@@ -27,12 +27,12 @@ from readthedocs.projects.models import Feature
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
-    DOCKER_IMAGE,
-    DOCKER_LIMITS,
+    RTD_DOCKER_IMAGE,
+    RTD_DOCKER_LIMITS,
     DOCKER_OOM_EXIT_CODE,
-    DOCKER_SOCKET,
+    RTD_DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
-    DOCKER_VERSION,
+    RTD_DOCKER_VERSION,
 )
 from .exceptions import (
     BuildEnvironmentCreationFailed,
@@ -785,12 +785,12 @@ class DockerBuildEnvironment(BuildEnvironment):
     """
 
     command_class = DockerBuildCommand
-    container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_LIMITS.get('memory')
-    container_time_limit = DOCKER_LIMITS.get('time')
+    container_image = RTD_DOCKER_IMAGE
+    container_mem_limit = RTD_DOCKER_LIMITS.get('memory')
+    container_time_limit = RTD_DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
-        self.docker_socket = kwargs.pop('docker_socket', DOCKER_SOCKET)
+        self.docker_socket = kwargs.pop('docker_socket', RTD_DOCKER_SOCKET)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None

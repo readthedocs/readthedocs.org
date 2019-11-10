@@ -328,7 +328,7 @@ class Project(models.Model):
         _('Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=settings.DEFAULT_PRIVACY_LEVEL,
+        default=settings.RTD_DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Level of privacy that you want on the repository.',
         ),
@@ -337,7 +337,7 @@ class Project(models.Model):
         _('Version Privacy Level'),
         max_length=20,
         choices=constants.PRIVACY_CHOICES,
-        default=settings.DEFAULT_PRIVACY_LEVEL,
+        default=settings.RTD_DEFAULT_PRIVACY_LEVEL,
         help_text=_(
             'Default level of privacy you want on built '
             'versions of documentation.',
@@ -581,7 +581,7 @@ class Project(models.Model):
 
         :returns: Full path to media file or path
         """
-        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+        if settings.RTD_DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
             path = os.path.join(
                 settings.MEDIA_ROOT,
                 type_,
