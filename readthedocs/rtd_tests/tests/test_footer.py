@@ -118,6 +118,7 @@ class Testmaker(APITestCase):
 @override_settings(
     USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN='readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class TestVersionCompareFooter(TestCase):
     fixtures = ['test_data']
@@ -130,7 +131,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.get_stable_version()
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'http://pip.readthedocs.io/en/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -142,7 +143,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'http://pip.readthedocs.io/en/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -155,7 +156,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'http://pip.readthedocs.io/en/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -184,7 +185,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 1.0.0 of Pip ({})'.format(version.pk),
-            'url': 'http://pip.readthedocs.io/en/1.0.0/',
+            'url': 'https://pip.readthedocs.io/en/1.0.0/',
             'slug': '1.0.0',
             'version': '1.0.0',
             'is_highest': False,
@@ -198,7 +199,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'http://pip.readthedocs.io/en/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -209,7 +210,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': 'http://pip.readthedocs.io/en/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -227,7 +228,7 @@ class TestVersionCompareFooter(TestCase):
         )
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),
-            'url': 'http://pip.readthedocs.io/en/2.0.0/',
+            'url': 'https://pip.readthedocs.io/en/2.0.0/',
             'slug': '2.0.0',
             'version': '2.0.0',
             'is_highest': False,
