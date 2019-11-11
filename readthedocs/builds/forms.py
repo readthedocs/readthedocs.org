@@ -53,11 +53,10 @@ class RegexAutomationRuleForm(forms.ModelForm):
         label='Custom match',
         help_text=_(textwrap.dedent(
             """
-            A
+            A regular expression to match the version.
             <a href="https://docs.readthedocs.io/page/automation-rules.html#user-defined-matches">
-                regular expression
+              Check the documentation for valid patterns.
             </a>
-            to match the version.
             """
         )),
         required=False,

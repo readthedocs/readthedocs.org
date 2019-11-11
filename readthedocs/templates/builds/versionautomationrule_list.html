@@ -46,7 +46,7 @@
                 <li class="automation-rule">
                   <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=-1 %}">
                     {% csrf_token %}
-                    <input type="submit" value="&#xf062">
+                    <input aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" type="submit" value="&#xf062">
                   </form>
                 </li>
               {% endif %}
@@ -55,7 +55,7 @@
                 <li class="automation-rule">
                   <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=1 %}">
                     {% csrf_token %}
-                    <input type="submit" value="&#xf063">
+                    <input aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" type="submit" value="&#xf063">
                   </form>
                 </li>
               {% endif %}
