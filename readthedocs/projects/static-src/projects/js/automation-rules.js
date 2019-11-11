@@ -16,7 +16,7 @@ $(function () {
   }
   set_help_text(value);
 
-  $('#id_predefined_match_arg').bind('change', function(ev) {
+  $('#id_predefined_match_arg').bind('change', function (ev) {
     if (this.value === '') {
       $('#id_match_arg').parent().show();
     } else {
