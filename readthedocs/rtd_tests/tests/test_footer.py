@@ -1,6 +1,7 @@
 import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
+from django.test.utils import override_settings
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.api.v2.views.footer_views import (
@@ -114,17 +115,23 @@ class Testmaker(APITestCase):
         self.assertNotIn('Edit', response.data['html'])
 
 
+@override_settings(
+    USE_SUBDOMAIN=True,
+    PUBLIC_DOMAIN='readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
+)
 class TestVersionCompareFooter(TestCase):
     fixtures = ['test_data']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
+        self.pip.versions.update(built=True)
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -136,7 +143,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -145,11 +152,11 @@ class TestVersionCompareFooter(TestCase):
         self.assertDictEqual(valid_data, returned_data)
 
     def test_highest_version_from_latest(self):
-        Version.objects.create_latest(project=self.pip)
+        Version.objects.create_latest(project=self.pip, built=True)
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -172,12 +179,13 @@ class TestVersionCompareFooter(TestCase):
             identifier='1.0.0',
             type=TAG,
             active=True,
+            built=True,
         )
 
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 1.0.0 of Pip ({})'.format(version.pk),
-            'url': '/dashboard/pip/version/1.0.0/',
+            'url': 'https://pip.readthedocs.io/en/1.0.0/',
             'slug': '1.0.0',
             'version': '1.0.0',
             'is_highest': False,
@@ -191,7 +199,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -202,7 +210,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -216,10 +224,11 @@ class TestVersionCompareFooter(TestCase):
             identifier='2.0.0',
             type=BRANCH,
             active=True,
+            built=True,
         )
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),
-            'url': '/dashboard/pip/version/2.0.0/',
+            'url': 'https://pip.readthedocs.io/en/2.0.0/',
             'slug': '2.0.0',
             'version': '2.0.0',
             'is_highest': False,
@@ -235,11 +244,12 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 9
+    EXPECTED_QUERIES = 13
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.create_latest()
+        self.pip.versions.update(built=True)
 
     def render(self):
         request = self.factory.get(self.url)

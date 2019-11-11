@@ -6,6 +6,7 @@ import os.path
 import re
 from shutil import rmtree
 
+import regex
 from django.conf import settings
 from django.db import models
 from django.db.models import F
@@ -291,6 +292,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
+        """Get absolute url to the docs of the version."""
         # Hack external versions for now.
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
@@ -1162,6 +1164,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
+    TIMEOUT = 1  # timeout in seconds
+
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
@@ -1171,14 +1175,34 @@ class RegexAutomationRule(VersionAutomationRule):
         proxy = True
 
     def match(self, version, match_arg):
+        """
+        Find a match using regex.search.
+
+        .. note::
+
+           We use the regex module with the timeout
+           arg to avoid ReDoS.
+
+           We could use a finite state machine type of regex too,
+           but there isn't a stable library at the time of writting this code.
+        """
         try:
-            match = re.search(
-                match_arg, version.verbose_name
+            match = regex.search(
+                match_arg,
+                version.verbose_name,
+                # Compatible with the re module
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
             )
             return bool(match), match
+        except TimeoutError:
+            log.warning(
+                'Timeout while parsing regex. pattern=%s, input=%s',
+                match_arg, version.verbose_name,
+            )
         except Exception as e:
             log.info('Error parsing regex: %s', e)
-            return False, None
+        return False, None
 
     def get_edit_url(self):
         return reverse(
