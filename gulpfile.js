@@ -47,6 +47,7 @@ var sources = {
     projects: {
         'js/tools.js': {},
         'js/import.js': {},
+        'js/automation-rules.js': {},
         'css/import.less': {},
         'css/admin.less': {},
     },
