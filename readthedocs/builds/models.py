@@ -6,6 +6,7 @@ import os.path
 import re
 from shutil import rmtree
 
+import regex
 from django.conf import settings
 from django.db import models
 from django.db.models import F
@@ -77,7 +78,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-
 log = logging.getLogger(__name__)
 
 
@@ -132,6 +132,11 @@ class Version(models.Model):
         help_text=_('Level of privacy for this Version.'),
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
+
+    # Whether the latest successful build for this version contains certain media types
+    has_pdf = models.BooleanField(_('Has PDF'), default=False)
+    has_epub = models.BooleanField(_('Has ePub'), default=False)
+    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
@@ -285,6 +290,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
+        """Get absolute url to the docs of the version."""
         # Hack external versions for now.
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
@@ -328,10 +334,9 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage if the version is not external
+        # Remove resources if the version is not external
         if self.type != EXTERNAL:
-            storage_paths = self.get_storage_paths()
-            tasks.remove_build_storage_paths.delay(storage_paths)
+            tasks.clean_project_resources(self.project, self)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
@@ -1133,6 +1138,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
+    TIMEOUT = 1  # timeout in seconds
+
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
@@ -1142,11 +1149,31 @@ class RegexAutomationRule(VersionAutomationRule):
         proxy = True
 
     def match(self, version, match_arg):
+        """
+        Find a match using regex.search.
+
+        .. note::
+
+           We use the regex module with the timeout
+           arg to avoid ReDoS.
+
+           We could use a finite state machine type of regex too,
+           but there isn't a stable library at the time of writting this code.
+        """
         try:
-            match = re.search(
-                match_arg, version.verbose_name
+            match = regex.search(
+                match_arg,
+                version.verbose_name,
+                # Compatible with the re module
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
             )
             return bool(match), match
+        except TimeoutError:
+            log.warning(
+                'Timeout while parsing regex. pattern=%s, input=%s',
+                match_arg, version.verbose_name,
+            )
         except Exception as e:
             log.info('Error parsing regex: %s', e)
-            return False, None
+        return False, None

@@ -23,6 +23,6 @@ Follow these steps to wipe the build environment:
    By wiping the documentation build environment, all the `rst`, `md`,
    and code files associated with it will be removed but not the
    documentation already built (`HTML` and `PDF` files). Your
-   documentation will still online after wiping the build environment.
+   documentation will still be online after wiping the build environment.
 
 Now you can re-build the version with a fresh build environment!

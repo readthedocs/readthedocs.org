@@ -55,20 +55,10 @@ class ProjectTagIndex(ListView):
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
 
-        if self.kwargs.get('username'):
-            self.user = get_object_or_404(
-                User,
-                username=self.kwargs.get('username'),
-            )
-            queryset = queryset.filter(user=self.user)
-        else:
-            self.user = None
-
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['person'] = self.user
         context['tag'] = self.tag
         return context
 

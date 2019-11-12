@@ -240,10 +240,6 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/import/manual/demo/': {'status_code': 302},
         '/dashboard/pip/': {'status_code': 301},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-
-        # This depends on an inactive project
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
 
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
@@ -254,6 +250,8 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
@@ -290,6 +288,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -435,13 +435,19 @@ class PrivateUserProfileMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 405},
+            '/accounts/tokens/delete/': {'status_code': 405},
+        })
+
         self.default_kwargs.update(
             {
                 'username': self.tester.username,
             }
         )
 
-    def test_public_urls(self):
+    def test_private_urls(self):
         from readthedocs.profiles.urls.private import urlpatterns
         self._test_url(urlpatterns)
 
@@ -468,6 +474,14 @@ class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
 
     # Auth protected
     default_status_code = 302
+
+    def setUp(self):
+        super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 302},
+            '/accounts/tokens/delete/': {'status_code': 302},
+        })
 
     def login(self):
         pass
