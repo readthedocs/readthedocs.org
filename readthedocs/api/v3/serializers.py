@@ -159,14 +159,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
         return None
 
 
-class PrivacyLevelSerializer(serializers.Serializer):
-    code = serializers.CharField(source='privacy_level')
-    name = serializers.SerializerMethodField()
-
-    def get_name(self, obj):
-        return obj.privacy_level.title()
-
-
 class VersionLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
@@ -212,7 +204,6 @@ class VersionURLsSerializer(serializers.Serializer):
 
 class VersionSerializer(FlexFieldsModelSerializer):
 
-    privacy_level = PrivacyLevelSerializer(source='*')
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source='*')
@@ -228,7 +219,6 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
-            'privacy_level',
             'type',
             'downloads',
             'urls',
@@ -257,14 +247,13 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It only allows to make the Version active/non-active and private/public.
+    It only allows to make the Version active/non-active.
     """
 
     class Meta:
         model = Version
         fields = [
             'active',
-            'privacy_level',
         ]
 
 
@@ -434,11 +423,6 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url')
 
-    # Exclude ``Protected`` as a possible value for Privacy Level
-    privacy_level_choices = list(PRIVACY_CHOICES)
-    privacy_level_choices.remove((PROTECTED, _('Protected')))
-    privacy_level = serializers.ChoiceField(choices=privacy_level_choices)
-
     class Meta:
         model = Project
         fields = (
@@ -452,7 +436,6 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',
-            'privacy_level',
             'analytics_code',
             'show_version_warning',
             'single_version',
@@ -468,7 +451,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
-    privacy_level = PrivacyLevelSerializer(source='*')
     urls = ProjectURLsSerializer(source='*')
     subproject_of = serializers.SerializerMethodField()
     translation_of = serializers.SerializerMethodField()
@@ -497,7 +479,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'repository',
             'default_version',
             'default_branch',
-            'privacy_level',
             'subproject_of',
             'translation_of',
             'users',
@@ -557,8 +538,11 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     def __init__(self, *args, **kwargs):
         # Initialize the instance with the parent Project to be used in the
-        # serializer validation.
-        self.parent_project = kwargs.pop('parent')
+        # serializer validation. When this Serializer is rendered as a Form in
+        # BrowsableAPIRenderer, it's not initialized with the ``parent``, so we
+        # default to ``None`` because we don't need it at that point.
+        self.parent_project = kwargs.pop('parent', None)
+
         super().__init__(*args, **kwargs)
 
     def validate_child(self, value):
@@ -566,7 +550,19 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         user = self.context['request'].user
         if user not in value.users.all():
             raise serializers.ValidationError(
-                'You do not have permissions on the child project',
+                _('You do not have permissions on the child project'),
+            )
+
+        # Check the child project is not a subproject already
+        if value.superprojects.exists():
+            raise serializers.ValidationError(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if value.subprojects.exists():
+            raise serializers.ValidationError(
+                _('Child is already a superproject'),
             )
         return value
 
@@ -575,7 +571,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         subproject = self.parent_project.subprojects.filter(alias=value)
         if subproject.exists():
             raise serializers.ValidationError(
-                'A subproject with this alias already exists',
+                _('A subproject with this alias already exists'),
             )
         return value
 
@@ -584,13 +580,13 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         # Check the parent and child are not the same project
         if data['child'].slug == self.parent_project.slug:
             raise serializers.ValidationError(
-                'Project can not be subproject of itself',
+                _('Project can not be subproject of itself'),
             )
 
         # Check the parent project is not a subproject already
         if self.parent_project.superprojects.exists():
             raise serializers.ValidationError(
-                'Subproject nesting is not supported',
+                _('Subproject nesting is not supported'),
             )
         return data
 

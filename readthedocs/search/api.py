@@ -6,8 +6,9 @@ from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
+from readthedocs.projects.models import HTMLFile
+from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search import utils, tasks
 
 
 log = logging.getLogger(__name__)
@@ -79,9 +80,11 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
         kwargs['filters']['version'] = self.request.query_params.get('version')
         if not kwargs['filters']['project']:
-            raise ValidationError("Unable to find a project to search")
+            log.info("Unable to find a project to search")
+            return HTMLFile.objects.none()
         if not kwargs['filters']['version']:
-            raise ValidationError("Unable to find a version to search")
+            log.info("Unable to find a version to search")
+            return HTMLFile.objects.none()
         user = self.request.user
         queryset = PageSearch(
             query=query, user=user, **kwargs
