@@ -1,3 +1,5 @@
+// TODO: use knockoutjs instead, and for new code as well.
+
 var $ = require('jquery');
 
 function set_help_text(value) {
