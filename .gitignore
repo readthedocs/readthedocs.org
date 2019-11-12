@@ -37,7 +37,6 @@ media/pdf
 media/static
 /static
 node_modules
-package-lock.json
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
