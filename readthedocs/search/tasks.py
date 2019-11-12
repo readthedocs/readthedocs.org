@@ -159,14 +159,13 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     partial_query_qs = SearchQuery.objects.filter(
         project__slug=project_slug,
         version__slug=version_slug,
-        created__gte=before_10_sec,
-    ).order_by('-created')
+        modified__gte=before_10_sec,
+    ).order_by('-modified')
 
     # check if partial query exists,
     # if yes, then just update the object.
     for partial_query in partial_query_qs.iterator():
         if query.startswith(partial_query.query):
-            partial_query.created = time
             partial_query.query = query
             partial_query.save()
             return
@@ -205,10 +204,8 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
     version = version_qs.first()
 
     # make a new SearchQuery object.
-    obj = SearchQuery.objects.create(
+    SearchQuery.objects.create(
         project=project,
         version=version,
         query=query,
     )
-    obj.created = time
-    obj.save()

@@ -26,10 +26,6 @@
         },
         "modified": "2019-04-29T12:00:00Z",
         "name": "new-project",
-        "privacy_level": {
-            "code": "public",
-            "name": "Public"
-        },
         "programming_language": {
             "code": "words",
             "name": "Only Words"
