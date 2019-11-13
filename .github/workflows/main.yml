@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Trigger tests in corporate
+      run: |
+        curl --request POST \
+        --url https://circleci.com/api/v1.1/project/github/${{ secrets.CORPORATE_REPO }}/tree/master \
+        --user '${{ secrets.CIRCLECI_USER_TOKEN }}:' \
+        --data 'build_parameters[CIRCLE_JOB]=${{ secrets.CIRCLECI_JOB }}'
