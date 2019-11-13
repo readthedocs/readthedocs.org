@@ -15,5 +15,5 @@ jobs:
       run: |
         curl --request POST \
         --url https://circleci.com/api/v1.1/project/github/${{ secrets.CORPORATE_REPO }}/tree/master \
-        --user '${{ secrets.CIRCLECI_USER }}' \
+        --user '${{ secrets.CIRCLECI_USER_TOKEN }}:' \
         --data 'build_parameters[CIRCLE_JOB]=${{ secrets.CIRCLECI_JOB }}'
