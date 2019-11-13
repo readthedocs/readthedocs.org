@@ -526,7 +526,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     child = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Project.objects.all(),
+        queryset=Project.objects.none(),
     )
 
     class Meta:
@@ -544,6 +544,9 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         self.parent_project = kwargs.pop('parent', None)
 
         super().__init__(*args, **kwargs)
+
+        user = self.context['request'].user
+        self.fields['child'].queryset = user.projects.all()
 
     def validate_child(self, value):
         # Check the user is maintainer of the child project
