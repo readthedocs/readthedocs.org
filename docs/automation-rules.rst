@@ -1,7 +1,7 @@
 Automation Rules
 ================
 
-Automation rules allow you to execute some actions over new versions.
+Automation rules allow project maintainers to automate actions on new branches and tags on repositories.
 
 By default when new versions are created,
 they are not activated.
@@ -11,8 +11,9 @@ you need to log in your Read the Docs account first.
 Creating an automation rule
 ---------------------------
 
-#. Go to your project :guilabel:`Admin` > :guilabel:`Automation Rules`
-#. Click on "Add Rule" button
+#. Go to your project dashboard
+#. Click :guilabel:`Admin` > :guilabel:`Automation Rules`
+#. Click on :guilabel:`Add Rule`
 #. Fill in the fields
 
    - Description: A description of what the rule does
@@ -20,7 +21,7 @@ Creating an automation rule
    - Version type: What type of versions the rule should be applied to
    - Action: What action should be applied to matching versions
 
-#. Click "Save"
+#. Click :guilabel:`Save`
 
 How do they work?
 -----------------
@@ -28,27 +29,27 @@ How do they work?
 When a new tag or branch is pushed to your repository,
 Read the Docs creates a new version.
 
-All rules are run over this version in the order they are listed,
-if the version matches the version type and the pattern in the rule,
-an action is executed over that version.
+All rules are evaluated for this version, in the order they are listed.
+If the version matches the version type and the pattern in the rule,
+the specified action is performed on that version.
 
 .. note::
    
-   All actions of the rules that the version matches will be executed over that version.
+Versions can match multiple rules, and all matching actions will be performed on the version.
 
 Predefined matches
 ------------------
 
-There are some predefined matches:
+Automation rules support several predefined version matches:
 
-- **Any version**: All new versions will match.
-- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match.
+- **Any version**: All new versions will match the rule.
+- **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match the rule.
 
 User defined matches
 --------------------
 
 If none of the above predefined matches meet your use case,
-choose **Custom match**.
+you can use a **Custom match**.
 
 The custom match should be a valid `Python regular expression <https://docs.python.org/3/library/re.html>`__.
 Each new version will be tested against this regular expression.
@@ -56,8 +57,8 @@ Each new version will be tested against this regular expression.
 Actions
 -------
 
-Actions are the task to be executed over the matching version.
-Currently, this actions are available:
+When a rule matches a new version, the specified action is performed on that version.
+Currently, the following actions are available:
 
 - **Activate version**: Activates and builds the version.
 - **Set version as default**: Sets the version as default,
@@ -68,8 +69,8 @@ Currently, this actions are available:
 .. note::
    
    If your versions follow :pep:`440`,
-   Read the Docs activates and builds the version if it's greater than the current stable version,
-   and updates the stable version.
+   Read the Docs activates and builds the version if it's greater than the current stable version.
+   The stable version is also automatically updated at the same time.
    See more in :doc:`versions`.
 
 Order
