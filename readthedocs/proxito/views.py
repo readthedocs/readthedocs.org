@@ -210,11 +210,6 @@ def serve_docs(
 ):
     """Take the incoming parsed URL's and figure out what file to serve."""
 
-    log.debug(
-        'project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
-        project_slug, subproject_slug, lang_slug, version_slug, filename
-    )
-
     final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
         request,
         project_slug=project_slug,
@@ -222,6 +217,11 @@ def serve_docs(
         lang_slug=lang_slug,
         version_slug=version_slug,
         filename=filename,
+    )
+
+    log.debug(
+        'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
+        final_project.slug, subproject_slug, lang_slug, version_slug, filename
     )
 
     # Handle a / redirect when we aren't a single version

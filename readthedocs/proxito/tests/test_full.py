@@ -190,6 +190,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = True
         storage_mock()().open().read.return_value = 'foo'
+        # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('serve_error_404', kwargs={'proxito_path': '/en/latest/index-exists'}),
             HTTP_HOST='project.readthedocs.io',
@@ -207,13 +208,13 @@ class TestAdditionalDocViews(BaseDocServing):
 
         storage_mock()().exists.side_effect = [False, False, True]
         response = self.client.get(
-            reverse('serve_error_404', kwargs={'proxito_path': '/en/fancy-version/index-exists'}),
+            reverse('serve_error_404', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
             HTTP_HOST='project.readthedocs.io',
         )
         storage_mock()().exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/index-exists/index.html'),
-                mock.call('html/project/fancy-version/index-exists/README.html'),
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
                 mock.call('html/project/fancy-version/404.html'),
             ]
         )
@@ -226,13 +227,13 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = False
         self.client.get(
-            reverse('serve_error_404', kwargs={'proxito_path': '/en/fancy-version/index-exists'}),
+            reverse('serve_error_404', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
             HTTP_HOST='project.readthedocs.io',
         )
         storage_mock()().exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/index-exists/index.html'),
-                mock.call('html/project/fancy-version/index-exists/README.html'),
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
                 mock.call('html/project/fancy-version/404.html'),
                 mock.call('html/project/fancy-version/404/index.html'),
                 mock.call('html/project/latest/404.html'),
