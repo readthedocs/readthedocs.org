@@ -32,11 +32,15 @@ class Testmaker(APITestCase):
         return response
 
     def test_footer(self):
+        pip = Project.objects.get(slug='pip')
+        pip.show_version_warning = True
+        pip.save()
+
         r = self.client.get(self.url)
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
-        self.assertFalse(r.data['show_version_warning'])
+        self.assertTrue(r.data['show_version_warning'])
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
 
@@ -45,6 +49,19 @@ class Testmaker(APITestCase):
         r = self.render()
         self.assertFalse(r.data['version_active'])
         self.assertEqual(r.status_code, 200)
+
+    def test_footer_dont_show_version_warning(self):
+        pip = Project.objects.get(slug='pip')
+        pip.show_version_warning = False
+        pip.save()
+
+        r = self.client.get(self.url)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data['version_active'])
+        self.assertFalse(r.data['version_compare']['is_highest'])
+        self.assertTrue(r.data['version_supported'])
+        self.assertFalse(r.data['show_version_warning'])
+        self.assertEqual(r.context['main_project'], self.pip)
 
     def test_footer_uses_version_compare(self):
         version_compare = 'readthedocs.api.v2.views.footer_views.get_version_compare_data'  # noqa
@@ -126,6 +143,8 @@ class TestVersionCompareFooter(TestCase):
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
         self.pip.versions.update(built=True)
+        self.pip.show_version_warning = True
+        self.pip.save()
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
@@ -152,7 +171,7 @@ class TestVersionCompareFooter(TestCase):
         self.assertDictEqual(valid_data, returned_data)
 
     def test_highest_version_from_latest(self):
-        Version.objects.create_latest(project=self.pip, built=True)
+        self.pip.versions.filter(slug=LATEST).update(built=True)
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
@@ -248,7 +267,8 @@ class TestFooterPerformance(APITestCase):
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
-        self.pip.versions.create_latest()
+        self.pip.show_version_warning = True
+        self.pip.save()
         self.pip.versions.update(built=True)
 
     def render(self):
