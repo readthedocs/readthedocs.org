@@ -72,7 +72,7 @@ class TestVersionForm(TestCase):
                 'privacy_level': PRIVATE,
             },
         )
-        self.assertTrue(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         clean_project_resources.assert_not_called()
 
         r = self.client.post(
@@ -82,5 +82,5 @@ class TestVersionForm(TestCase):
                 'privacy_level': PRIVATE,
             },
         )
-        self.assertTrue(r.status_code, 200)
+        self.assertEqual(r.status_code, 302)
         clean_project_resources.assert_called_once()

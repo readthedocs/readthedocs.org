@@ -62,9 +62,17 @@ function init() {
         get_data['subproject'] = true;
     }
 
+    // Check for new logic around proxying requests.
+    // ``proxied_api_host`` won't exist on existing built docs,
+    // so default to ``api_host`` in those cases
+    var real_api_host = rtd.api_host;
+    if ("proxied_api_host" in rtd) {
+        real_api_host = rtd.proxied_api_host;
+    }
+
     // Get footer HTML from API and inject it into the page.
     $.ajax({
-        url: rtd.proxied_api_host + "/api/v2/footer_html/",
+        url: real_api_host + "/api/v2/footer_html/",
         crossDomain: true,
         xhrFields: {
             withCredentials: true,
