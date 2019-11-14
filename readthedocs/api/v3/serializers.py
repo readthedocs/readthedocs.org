@@ -546,6 +546,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         super().__init__(*args, **kwargs)
 
         user = self.context['request'].user
+        # TODO: Filter projects using project restrictions for subproject.
         self.fields['child'].queryset = user.projects.all()
 
     def validate_child(self, value):
