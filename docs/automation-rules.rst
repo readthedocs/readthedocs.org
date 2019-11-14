@@ -3,10 +3,9 @@ Automation Rules
 
 Automation rules allow project maintainers to automate actions on new branches and tags on repositories.
 
-By default when new versions are created,
-they are not activated.
-If you want to activate it and do other type of actions,
-you need to log in your Read the Docs account first.
+When a version is created from a new branch or tag,
+automation rules can perform actions like activating the new version,
+or setting the new version as the default version.
 
 Creating an automation rule
 ---------------------------
@@ -15,12 +14,6 @@ Creating an automation rule
 #. Click :guilabel:`Admin` > :guilabel:`Automation Rules`
 #. Click on :guilabel:`Add Rule`
 #. Fill in the fields
-
-   - Description: A description of what the rule does
-   - Match: What versions the rule should be applied to
-   - Version type: What type of versions the rule should be applied to
-   - Action: What action should be applied to matching versions
-
 #. Click :guilabel:`Save`
 
 How do they work?
@@ -35,7 +28,8 @@ the specified action is performed on that version.
 
 .. note::
    
-Versions can match multiple rules, and all matching actions will be performed on the version.
+   Versions can match multiple rules,
+   and all matching actions will be performed on the version.
 
 Predefined matches
 ------------------
@@ -77,7 +71,7 @@ Order
 -----
 
 The order your rules are listed in  :guilabel:`Admin` > :guilabel:`Automation Rules` matters.
-Each action will be executed in that order,
+Each action will be performed in that order,
 so first rules have a higher priority.
 
 You can change the order using the up and down arrow buttons.
@@ -106,14 +100,14 @@ Activate only new branches that belong to the ``1.x`` release
 Set as default new tags that have the ``-stable`` or ``-release`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Custom match: ``-(stable)|(release)$``
+- Custom match: ``-(stable|release)$``
 - Version type: ``Tag``
 - Action: ``Set version as default``
 
 .. note::
    
-   You can also create two rules, one to match ``-stable`` and
-   other to match ``-release``.
+   You can also create two rules:
+   one to match ``-stable`` and other to match ``-release``.
 
 Activate all new tags and branches that start with ``v`` or ``V``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,6 +116,7 @@ Activate all new tags and branches that start with ``v`` or ``V``
 - Version type: ``Tag``
 - Action: ``Activate version``
 
+.. Force new line
 
 - Custom match: ``^[vV]``
 - Version type: ``Branch``
