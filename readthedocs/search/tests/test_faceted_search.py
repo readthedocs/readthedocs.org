@@ -5,7 +5,7 @@ from readthedocs.search.documents import PageDocument
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestPageSearch(object):
+class TestPageSearch:
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_search_exact_match(self, client, project, case):
@@ -24,10 +24,14 @@ class TestPageSearch(object):
         page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
 
-        assert results[1] == {}
-        assert len(results) == 1
+        assert len(results) == 2
         assert results[0]['project'] == 'kuma'
         assert results[0]['path'] == 'testdocumentation'
+        assert results[0]['version'] == 'latest'
+
+        assert results[1]['project'] == 'kuma'
+        assert results[1]['path'] == 'testdocumentation'
+        assert results[1]['version'] == 'stable'
 
     def test_search_combined_result(self, client, project):
         """Check search result are combined of both `AND` and `OR` operator
@@ -40,12 +44,14 @@ class TestPageSearch(object):
         query = 'Elasticsearch Query'
         page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
-        assert len(results) == 3
+        assert len(results) == 6
 
-        result_paths = [r.path for r in results]
+        result_paths_latest = [r.path for r in results if r.version == 'latest']
+        result_paths_stable = [r.path for r in results if r.version == 'stable']
         # ``guides/wipe-environment`` page has both ``Elasticsearch Query`` words
         # ``docker`` page has ``Elasticsearch`` word
         # ``installation`` page has ``Query`` word.
         expected_paths = ['guides/wipe-environment', 'docker', 'installation']
 
-        assert result_paths == expected_paths
+        assert result_paths_latest == expected_paths
+        assert result_paths_stable == expected_paths
