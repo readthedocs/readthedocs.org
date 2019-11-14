@@ -3,10 +3,6 @@ Automation Rules
 
 Automation rules allow project maintainers to automate actions on new branches and tags on repositories.
 
-When a version is created from a new branch or tag,
-automation rules can perform actions like activating the new version,
-or setting the new version as the default version.
-
 Creating an automation rule
 ---------------------------
 
