@@ -26,6 +26,9 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
+    if not project.show_version_warning:
+        return {'is_highest': False}
+
     versions_qs = (
         Version.internal.public(project=project)
         .filter(built=True, active=True)
