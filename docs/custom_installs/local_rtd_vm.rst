@@ -1,20 +1,26 @@
 Local VM Install
 ================
+Please also consult instructions here which are updated more frequently:
+https://docs.readthedocs.io/en/stable/development/install.html
 
 Assumptions and Prerequisites
 -----------------------------
 
-* Debian VM provisioned with python 2.7.x
-* All python dependencies and setup tools are installed:
+* Debian VM provisioned with python 3.6.x
+* All dependencies are installed:
 
 .. prompt:: bash $
 
-  sudo apt-get install python-setuptools
   sudo apt-get install build-essential
-  sudo apt-get install python-dev
-  sudo apt-get install libevent-dev
+  sudo apt-get install python-pip python-setuptools
+  sudo apt-get install python3.6-dev
+  sudo apt-get install libxml2-dev libxslt1-dev zlib1g-dev
   sudo easy_install pip 
 
+* Redis-server
+.. prompt:: bash $
+  sudo apt-get install redis-server
+  
 * Git:
 
 .. prompt:: bash $
@@ -43,7 +49,7 @@ To host your documentation on a local RTD installation, set it up in your VM:
 
     mkdir checkouts
     cd checkouts
-    git clone https://github.com/readthedocs/readthedocs.org.git
+    git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org.git
     cd readthedocs.org
     sudo pip install -r requirements.txt
     
@@ -57,7 +63,7 @@ Possible errors with a local RTD setup
 .. prompt:: bash $
 
     sudo apt-get update
-    sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
+    sudo apt-get install python3.6-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-devel libxslt-devel
     sudo apt-get build-dep python-imaging --fix-missing 
 
 On Debian 8 (jessie) the command is slightly different:
@@ -65,7 +71,7 @@ On Debian 8 (jessie) the command is slightly different:
 .. prompt:: bash $
 
     sudo apt-get update
-    sudo apt-get install python2.7-dev tk8.5 tcl8.5 tk8.5-dev tcl8.5-dev libxml2-dev libxslt-dev
+    sudo apt-get install python3.6-dev libxml2-dev libxslt1-dev zlib1g-dev
     sudo apt-get build-dep python-imaging --fix-missing 
 
 Also don't forget to re-run the dependency installation
@@ -89,6 +95,7 @@ Configure the RTD Server and Superuser
     Username: monami.b
     Email address: monami.b@email.com
     Password: pa$$word
+
 
 RTD Server Administration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
