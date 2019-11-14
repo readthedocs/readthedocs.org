@@ -74,9 +74,9 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
             .filter('term', project=project_slug)
         )
         if version_slug:
-            documents.filter('term', version=version_slug)
+            documents = documents.filter('term', version=version_slug)
         if build_id:
-            documents.exclude('term', build=build_id)
+            documents = documents.exclude('term', build=build_id)
         documents.delete()
     except Exception:
         log.exception('Unable to delete a subset of files. Continuing.')
