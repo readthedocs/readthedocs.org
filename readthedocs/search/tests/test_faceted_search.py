@@ -24,6 +24,7 @@ class TestPageSearch(object):
         page_search = PageDocument.faceted_search(query=query, user='')
         results = page_search.execute()
 
+        assert results[1] == {}
         assert len(results) == 1
         assert results[0]['project'] == 'kuma'
         assert results[0]['path'] == 'testdocumentation'
