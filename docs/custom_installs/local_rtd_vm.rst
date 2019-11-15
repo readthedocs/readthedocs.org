@@ -18,6 +18,7 @@ Assumptions and Prerequisites
   sudo easy_install pip 
 
 * Redis-server
+
 .. prompt:: bash $
   sudo apt-get install redis-server
   
