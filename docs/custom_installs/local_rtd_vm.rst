@@ -2,7 +2,7 @@ Local VM Install
 ================
 
 Please also consult instructions here which are updated more frequently:
-https://docs.readthedocs.io/en/stable/development/install.html
+https://docs.readthedocs.io/page/development/install.html
 
 Assumptions and Prerequisites
 -----------------------------
