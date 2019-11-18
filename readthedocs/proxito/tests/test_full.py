@@ -189,17 +189,32 @@ class TestAdditionalDocViews(BaseDocServing):
     def test_directory_indexes(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = True
-        storage_mock()().open().read.return_value = 'foo'
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('serve_error_404', kwargs={'proxito_path': '/en/latest/index-exists'}),
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(
-            response.content, b'foo'
+            response.status_code, 302
         )
         self.assertEqual(
-            response.status_code, 200
+            response['location'], '/en/latest/index-exists/index.html',
+        )
+
+    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    def test_directory_indexes_get_args(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        storage_mock()().exists.return_value = True
+        # Confirm we've serving from storage for the `index-exists/index.html` file
+        response = self.client.get(
+            reverse('serve_error_404', kwargs={'proxito_path': '/en/latest/index-exists?foo=bar'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(
+            response.status_code, 302
+        )
+        self.assertEqual(
+            response['location'], '/en/latest/index-exists/index.html?foo=bar',
         )
 
     @mock.patch('readthedocs.proxito.views.get_storage_class')

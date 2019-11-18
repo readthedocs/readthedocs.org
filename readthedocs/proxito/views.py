@@ -390,7 +390,11 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
                 version_slug,
                 storage_filename_path,
             )
-            resp = HttpResponseRedirect(os.path.join(filename, tryfile))
+            # Use urlparse so that we maintain GET args in our redirect
+            parts = urlparse(proxito_path)
+            new_path = os.path.join(parts.path, tryfile)
+            new_parts = parts._replace(path=new_path)
+            resp = HttpResponseRedirect(new_parts.geturl())
             return resp
 
     # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
