@@ -32,6 +32,8 @@ from readthedocs.builds.constants import (
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
+    PREDEFINED_MATCH_ARGS,
+    PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
     TAG,
     VERSION_TYPES,
@@ -954,8 +956,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     ACTIVATE_VERSION_ACTION = 'activate-version'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set as default version on match')),
+        (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
     project = models.ForeignKey(
@@ -978,8 +980,21 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         help_text=_('Value used for the rule to match the version'),
         max_length=255,
     )
+    predefined_match_arg = models.CharField(
+        _('Predefined match argument'),
+        help_text=_(
+            'Match argument defined by us, it is used if is not None, '
+            'otherwise match_arg will be used.'
+        ),
+        max_length=255,
+        choices=PREDEFINED_MATCH_ARGS,
+        null=True,
+        blank=True,
+        default=None,
+    )
     action = models.CharField(
         _('Action'),
+        help_text=_('Action to apply to matching versions'),
         max_length=32,
         choices=ACTIONS,
     )
@@ -992,6 +1007,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     version_type = models.CharField(
         _('Version type'),
+        help_text=_('Type of version the rule should be applied to'),
         max_length=32,
         choices=VERSION_TYPES,
     )
@@ -1002,6 +1018,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         unique_together = (('project', 'priority'),)
         ordering = ('priority', '-modified', '-created')
 
+    def get_match_arg(self):
+        """Get the match arg defined for `predefined_match_arg` or the match from user."""
+        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+            self.predefined_match_arg,
+        )
+        return match_arg or self.match_arg
+
     def run(self, version, *args, **kwargs):
         """
         Run an action if `version` matches the rule.
@@ -1010,7 +1033,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :returns: True if the action was performed
         """
         if version.type == self.version_type:
-            match, result = self.match(version, self.match_arg)
+            match, result = self.match(version, self.get_match_arg())
             if match:
                 self.apply_action(version, result)
                 return True
@@ -1127,6 +1150,9 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             return self.description
         return f'{self.get_action_display()}'
 
+    def get_edit_url(self):
+        raise NotImplementedError
+
     def __str__(self):
         class_name = self.__class__.__name__
         return (
@@ -1177,3 +1203,9 @@ class RegexAutomationRule(VersionAutomationRule):
         except Exception as e:
             log.info('Error parsing regex: %s', e)
         return False, None
+
+    def get_edit_url(self):
+        return reverse(
+            'projects_automation_rule_regex_edit',
+            args=[self.project.slug, self.pk],
+        )
