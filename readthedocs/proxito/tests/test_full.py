@@ -231,7 +231,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response.status_code, 302
         )
         self.assertEqual(
-            response['location'], '/en/latest/index-exists/index.html?foo=bar',
+            response['location'], '/en/latest/index-exists/?foo=bar',
         )
 
     @mock.patch('readthedocs.proxito.views.get_storage_class')
