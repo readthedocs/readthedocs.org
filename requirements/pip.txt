@@ -3,7 +3,7 @@ pip==19.3.1
 appdirs==1.4.3
 virtualenv==16.7.7
 
-django==1.11.25  # pyup: <1.12
+django==1.11.26  # pyup: <1.12
 django-extensions==2.2.5
 django_polymorphic==2.1.2
 
@@ -74,7 +74,7 @@ pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.37.2
+stripe==2.38.0
 regex==2019.11.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
