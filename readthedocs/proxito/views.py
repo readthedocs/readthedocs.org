@@ -392,7 +392,10 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
             )
             # Use urlparse so that we maintain GET args in our redirect
             parts = urlparse(proxito_path)
-            new_path = os.path.join(parts.path, tryfile)
+            if tryfile == 'README.html':
+                new_path = os.path.join(parts.path, tryfile)
+            else: 
+                new_path = parts.path + '/'
             new_parts = parts._replace(path=new_path)
             resp = HttpResponseRedirect(new_parts.geturl())
             return resp
