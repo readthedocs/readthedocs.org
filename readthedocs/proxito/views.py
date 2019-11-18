@@ -406,7 +406,7 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
             storage_filename_path = os.path.join(storage_root_path, tryfile)
             if storage.exists(storage_filename_path):
                 log.debug(
-                    'serving 404.html page current version: [project: %s] [version: %s]',
+                    'Serving custom 404.html page: [project: %s] [version: %s]',
                     final_project.slug,
                     version_slug_404,
                 )
