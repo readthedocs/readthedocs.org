@@ -16,17 +16,20 @@ class TestXSS:
         """.strip()
 
         hits = results.hits.hits
-        assert len(hits) == 1  # there should be only one result
+        assert len(hits) == 2
+        assert hits[0]['_source']['version'] == 'stable'
+        assert hits[1]['_source']['version'] == 'latest'
 
-        inner_hits = hits[0]['inner_hits']
+        for hit in hits:
+            inner_hits = hit['inner_hits']
 
-        domain_hits = inner_hits['domains']['hits']['hits']
-        assert len(domain_hits) == 0  # there shouldn't be any results from domains
+            domain_hits = inner_hits['domains']['hits']['hits']
+            assert len(domain_hits) == 0  # there shouldn't be any results from domains
 
-        section_hits = inner_hits['sections']['hits']['hits']
-        assert len(section_hits) == 1
+            section_hits = inner_hits['sections']['hits']['hits']
+            assert len(section_hits) == 1
 
-        section_content_highlight = section_hits[0]['highlight']['sections.content']
-        assert len(section_content_highlight) == 1
+            section_content_highlight = section_hits[0]['highlight']['sections.content']
+            assert len(section_content_highlight) == 1
 
-        assert expected in section_content_highlight[0]
+            assert expected in section_content_highlight[0]
