@@ -23,8 +23,11 @@ class BaseDocServing(TestCase):
         self.eric.set_password('eric')
         self.eric.save()
         self.project = fixture.get(
-            Project, slug='project', privacy_level='project',
-            version_privacy_level='project', users=[self.eric],
+            Project,
+            slug='project',
+            privacy_level=PUBLIC,
+            version_privacy_level=PUBLIC,
+            users=[self.eric],
             main_language_project=None,
         )
         self.project.versions.update(privacy_level=PUBLIC)
