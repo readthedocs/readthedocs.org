@@ -121,6 +121,9 @@ out of your documentation and Read the Docs.
   :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
+* **Versions**
+  :doc:`Automation rules <automation-rules>`
+
 * **Topic specific guides**:
   :doc:`How-to guides <guides/index>`
 
@@ -141,6 +144,8 @@ out of your documentation and Read the Docs.
 
    user-defined-redirects
    automatic-redirects
+
+   automation-rules
 
    guides/index
 

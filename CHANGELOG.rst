@@ -1,3 +1,24 @@
+Version 3.10.0
+--------------
+
+:Date: November 19, 2019
+
+* `@stsewd <http://github.com/stsewd>`__: Set privacy level explicitly (`#6390 <https://github.com/readthedocs/readthedocs.org/pull/6390>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Redirect index files in proxito instead of serving (`#6387 <https://github.com/readthedocs/readthedocs.org/pull/6387>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix search indexing (`#6380 <https://github.com/readthedocs/readthedocs.org/pull/6380>`__)
+* `@humitos <http://github.com/humitos>`__: Include creditcard.png image (`#6379 <https://github.com/readthedocs/readthedocs.org/pull/6379>`__)
+* `@stsewd <http://github.com/stsewd>`__: Silent curl (`#6377 <https://github.com/readthedocs/readthedocs.org/pull/6377>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use github actions to trigger tests in corporate (`#6376 <https://github.com/readthedocs/readthedocs.org/pull/6376>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Show only users projects in the APIv3 browseable form (`#6374 <https://github.com/readthedocs/readthedocs.org/pull/6374>`__)
+* `@humitos <http://github.com/humitos>`__: Release 3.9.0 (`#6371 <https://github.com/readthedocs/readthedocs.org/pull/6371>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Pin the node dependencies with a package-lock (`#6370 <https://github.com/readthedocs/readthedocs.org/pull/6370>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Small optimization to not compute the highest version when it isn't displayed (`#6360 <https://github.com/readthedocs/readthedocs.org/pull/6360>`__)
+* `@krptic07 <http://github.com/krptic07>`__: remove rss feed (`#6348 <https://github.com/readthedocs/readthedocs.org/pull/6348>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 44 (`#6347 <https://github.com/readthedocs/readthedocs.org/pull/6347>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Port additional features to proxito (`#6286 <https://github.com/readthedocs/readthedocs.org/pull/6286>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add docs for automatin rules (`#6072 <https://github.com/readthedocs/readthedocs.org/pull/6072>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement UI for automation rules (`#5996 <https://github.com/readthedocs/readthedocs.org/pull/5996>`__)
+
 Version 3.9.0
 -------------
 
