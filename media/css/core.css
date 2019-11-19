@@ -1307,6 +1307,13 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     content: "\f044";
 }
 
+/* Automation Rules */
+
+li.automation-rule input[type="submit"] {
+    font-family: FontAwesome;
+    font-weight: normal;
+}
+
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }
