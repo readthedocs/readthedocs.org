@@ -385,12 +385,19 @@ def serve_error_404(request, proxito_path, template_name='404.html'):
         )
         if storage.exists(storage_filename_path):
             log.info(
-                'Serving index file: project=%s version=%s, url=%s',
+                'Redirecting to index file: project=%s version=%s, url=%s',
                 final_project.slug,
                 version_slug,
                 storage_filename_path,
             )
-            resp = HttpResponse(storage.open(storage_filename_path).read())
+            # Use urlparse so that we maintain GET args in our redirect
+            parts = urlparse(proxito_path)
+            if tryfile == 'README.html':
+                new_path = os.path.join(parts.path, tryfile)
+            else:
+                new_path = parts.path + '/'
+            new_parts = parts._replace(path=new_path)
+            resp = HttpResponseRedirect(new_parts.geturl())
             return resp
 
     # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
