@@ -280,15 +280,22 @@ class TestAdditionalDocViews(BaseDocServing):
         translation = fixture.get(
             Project,
             main_language_project=self.project,
-            language='translation-es'
+            language='translation-es',
+            privacy_level=constants.PUBLIC,
         )
+        translation.versions.update(privacy_level=constants.PUBLIC)
         # sitemap hreflang should follow correct format.
         # ref: https://en.wikipedia.org/wiki/Hreflang#Common_Mistakes
         hreflang_test_translation_project = fixture.get(
             Project,
             main_language_project=self.project,
-            language='zh_CN'
+            language='zh_CN',
+            privacy_level=constants.PUBLIC,
         )
+        hreflang_test_translation_project.versions.update(
+            privacy_level=constants.PUBLIC,
+        )
+
         response = self.client.get(
             reverse('sitemap_xml'),
             HTTP_HOST='project.readthedocs.io',
