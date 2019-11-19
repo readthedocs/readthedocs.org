@@ -1,8 +1,13 @@
 {% extends "projects/project_edit_base.html" %}
 
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Automation Rules" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/admin.css" %}" />
+{% endblock %}
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
@@ -30,7 +35,7 @@
     </ul>
   </div>
 
-  <div class="module-list">
+  <div class="module-list automation-rules">
     <div class="module-list-wrapper">
       <ul>
         {% for rule in object_list %}
@@ -46,7 +51,9 @@
                 <li class="automation-rule">
                   <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=-1 %}">
                     {% csrf_token %}
-                    <input aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" type="submit" value="&#xf062">
+                    <button aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" class="automation-rule-up">
+                      <span>{% trans 'Move up' %}</span>
+                    </button>
                   </form>
                 </li>
               {% endif %}
@@ -55,7 +62,9 @@
                 <li class="automation-rule">
                   <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=1 %}">
                     {% csrf_token %}
-                    <input aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" type="submit" value="&#xf063">
+                    <button aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" class="automation-rule-down">
+                      <span>{% trans 'Move down' %}</span>
+                    </button>
                   </form>
                 </li>
               {% endif %}

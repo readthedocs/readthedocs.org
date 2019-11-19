@@ -16,3 +16,25 @@
       }
     }
 }
+
+// Automation rules
+#content .module-list.automation-rules .automation-rule button {
+    margin: .25em;
+
+    > span {
+        display: none;
+    }
+
+    &:before {
+        font-family: FontAwesome;
+        font-weight: normal;
+    }
+
+    &.automation-rule-up:before {
+        content: "\f062";
+    }
+
+    &.automation-rule-down:before {
+        content: "\f063";
+    }
+}
