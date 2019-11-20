@@ -5,7 +5,6 @@ import os
 import django_dynamic_fixture as fixture
 import mock
 from django.conf import settings
-from django.core.files.storage import Storage
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -126,7 +125,7 @@ class TestDocServingBackends(BaseDocServing):
     @override_settings(PYTHON_MEDIA=True)
     def test_python_media_serving(self):
         with mock.patch(
-                'readthedocs.proxito.views.serve', return_value=HttpResponse()) as serve_mock:
+                'readthedocs.proxito.views.mixins.serve', return_value=HttpResponse()) as serve_mock:
             url = '/en/latest/awesome.html'
             host = 'project.dev.readthedocs.io'
             self.client.get(url, HTTP_HOST=host)
@@ -173,7 +172,7 @@ class TestAdditionalDocViews(BaseDocServing):
             b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_custom_robots_txt(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = True
@@ -185,7 +184,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = True
@@ -201,7 +200,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response['location'], '/en/latest/index-exists/',
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_readme_serving(self, storage_mock):
         self.project.versions.update(active=True, built=True)
 
@@ -218,7 +217,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response['location'], '/en/latest/readme-exists/README.html',
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_get_args(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = True
@@ -234,7 +233,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response['location'], '/en/latest/index-exists/?foo=bar',
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_404_storage_serves_404(self, storage_mock):
         self.project.versions.update(active=True, built=True)
 
@@ -254,7 +253,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response.status_code, 404
         )
 
-    @mock.patch('readthedocs.proxito.views.get_storage_class')
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_404_storage_paths_checked(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         storage_mock()().exists.return_value = False
