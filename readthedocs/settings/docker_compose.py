@@ -12,11 +12,11 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
-    STATIC_URL = 'http://docs.dev.readthedocs.io/devstoreaccount1/static/'
+    STATIC_URL = 'http://community.dev.readthedocs.io/devstoreaccount1/static/'
 
-    PRODUCTION_DOMAIN = 'docs.dev.readthedocs.io'
-    PUBLIC_DOMAIN = 'docs.dev.readthedocs.io'
-    PUBLIC_API_URL = 'http://docs.dev.readthedocs.io'
+    PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
+    PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
+    PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
 
@@ -83,14 +83,14 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = 'docs.dev.readthedocs.io'
+    AZURE_MEDIA_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
 
     # We want to replace files for the same version built
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = 'docs.dev.readthedocs.io'
+    AZURE_STATIC_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
 
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocsext.storage.azure_storage.AzureStaticStorage'
@@ -101,7 +101,7 @@ class DockerBaseSettings(CommunityDevSettings):
     ]
     AZURE_BUILD_STORAGE_CONTAINER = 'builds'
     BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
-    EXTERNAL_VERSION_URL = 'http://external-builds.docs.dev.readthedocs.io'
+    EXTERNAL_VERSION_URL = 'http://external-builds.community.dev.readthedocs.io'
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
