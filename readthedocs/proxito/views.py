@@ -5,11 +5,11 @@ import logging
 import mimetypes
 import os
 from functools import wraps
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import resolve as url_resolve
 from django.utils.encoding import iri_to_uri
@@ -245,11 +245,23 @@ def serve_docs(
         )
         raise Http404('Invalid URL for project with versions')
 
-    # TODO: Redirects need to be refactored before we can turn them on
-    # They currently do 1 request per redirect that exists for the project
-    # path, http_status = final_project.redirects.get_redirect_path_with_status(
-    #     language=lang_slug, version_slug=version_slug, path=filename
-    # )
+    full_path = request.path
+    redirect_path, http_status = final_project.redirects.get_redirect_path_with_status(
+        language=lang_slug, version_slug=version_slug, path=filename, full_path=full_path,
+    )
+    if redirect_path is not None:
+        schema, netloc, path, params, query, fragments = urlparse(full_path)
+        new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
+
+        # Re-use the domain and protocol used in the current request.
+        # Redirects shouldn't change the domain, version or language.
+        # However, if the new_path is already an absolute URI, just use it
+        new_path = request.build_absolute_uri(new_path)
+
+        if http_status and http_status == 301:
+            return HttpResponsePermanentRedirect(new_path)
+
+        return HttpResponseRedirect(new_path)
 
     # Don't do auth checks
     # try:
