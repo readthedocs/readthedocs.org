@@ -42,6 +42,8 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
+    stdin_open: true
+    tty: true
     command: ["../../docker/proxito.sh"]
 
   web:
@@ -61,6 +63,8 @@ services:
       - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+    stdin_open: true
+    tty: true
     command: ["../../docker/web.sh"]
 
   celery:
@@ -80,6 +84,8 @@ services:
       - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+    stdin_open: true
+    tty: true
     command: ["../../docker/celery.sh"]
 
   build:
@@ -106,6 +112,8 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+    stdin_open: true
+    tty: true
     command: ["../../docker/build.sh"]
 
   storage:
