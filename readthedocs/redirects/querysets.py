@@ -1,9 +1,9 @@
 """Queryset for the redirects app."""
 
 from django.db import models
+from django.db.models import Value, CharField, Q, F
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects import constants
 
 
 class RedirectQuerySetBase(models.QuerySet):
@@ -25,8 +25,55 @@ class RedirectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(self, path, language=None, version_slug=None):
-        for redirect in self.select_related('project'):
+    def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
+        # add extra fields with the ``path`` and ``full_path`` to perform a
+        # filter at db level instead with Python
+        queryset = self.annotate(
+            path=Value(
+                path,
+                output_field=CharField(),
+            ),
+            full_path=Value(
+                full_path,
+                output_field=CharField(),
+            ),
+        )
+        prefix = Q(
+            redirect_type='prefix',
+            path__startswith=F('from_url'),
+        )
+        page = Q(
+            redirect_type='page',
+            path__iexact=F('from_url'),
+        )
+        exact = (
+            Q(
+                redirect_type='exact',
+                from_url__endswith='$rest',  # Python implementation does "in"
+            ) | Q(
+                redirect_type='exact',
+                full_path__iexact=F('from_url'),
+            )
+        )
+        sphinx_html = (
+            Q(
+                redirect_type='sphinx_html',
+                path__endswith='/',
+            ) | Q(
+                redirect_type='sphinx_html',
+                path__endswith='/index.html',
+            )
+        )
+        sphinx_htmldir = Q(
+            redirect_type='sphinx_html',
+            path__endswith='.html',
+        )
+
+        # There should be one and only one redirect returned by this query. I
+        # can't think in a case where there can be more at this point. I'm
+        # leaving the loop just in case for now
+        queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
+        for redirect in queryset.select_related('project'):
             new_path = redirect.get_redirect_path(
                 path=path,
                 language=language,
