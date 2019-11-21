@@ -360,6 +360,8 @@ class CommunityBaseSettings(Settings):
     # https://docs.docker.com/engine/reference/run/#user
     RTD_DOCKER_USER = 'docs:docs'
 
+    RTD_DOCKER_COMPOSE = False
+
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
