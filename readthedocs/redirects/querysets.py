@@ -50,6 +50,13 @@ class RedirectQuerySetBase(models.QuerySet):
                 1,
                 F('from_length') - 5  # Strip "$rest"
             ),
+
+            # 1-indexed
+            full_path_without_rest=Substr(
+                'full_path',
+                1,
+                F('from_length') - 5  # Strip "$rest"
+            ),
         )
         prefix = Q(
             redirect_type='prefix',
@@ -62,8 +69,11 @@ class RedirectQuerySetBase(models.QuerySet):
         exact = (
             Q(
                 redirect_type='exact',
-                from_url__endswith='$rest',  # Python implementation does "in"
-                full_path__startswith=F('from_url_without_rest'),
+                from_url__endswith='$rest',
+                # This works around a bug in Django doing a substr and an endswith,
+                # so instead we do 2 substrs and an exact
+                # https://code.djangoproject.com/ticket/29155
+                full_path_without_rest=F('from_url_without_rest'),
             ) | Q(
                 redirect_type='exact',
                 full_path__iexact=F('from_url'),
