@@ -1,7 +1,8 @@
 """Queryset for the redirects app."""
 
 from django.db import models
-from django.db.models import Value, CharField, Q, F, Func
+from django.db.models import Value, CharField, Q, F, ExpressionWrapper
+from django.db.models.functions import Substr, Length
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
@@ -38,14 +39,16 @@ class RedirectQuerySetBase(models.QuerySet):
                 output_field=CharField(),
             ),
 
-            # NOTE: using replace here could take some time if there are a lot
-            # of redirect for this project.
-            from_url_without_rest=Func(
-                F('from_url'),
-                Value('$rest'),
-                Value(''),
-                # This could be done with ``Replace`` once on Django 2.2
-                function='replace',
+            from_length=ExpressionWrapper(
+                Length('from_url'),
+                output_field=CharField()
+            ),
+
+            # 1-indexed
+            from_url_without_rest=Substr(
+                'from_url',
+                1,
+                F('from_length') - 5  # Strip "$rest"
             ),
         )
         prefix = Q(
