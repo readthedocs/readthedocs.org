@@ -49,6 +49,7 @@ services:
   web:
     image: readthedocsorg_server:latest
     volumes:
+      - ${PWD}/docker/scripts/createsuperuser.py:/usr/src/app/docker/createsuperuser.py
       - ${PWD}/docker/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/docker/entrypoints/web.sh:/usr/src/app/docker/web.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext

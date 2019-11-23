@@ -3,7 +3,7 @@
 ../../docker/common.sh
 
 python3 manage.py migrate
-cat ../../docker/scripts/createsuperuser.py | python3 manage.py shell
+cat ../../docker/createsuperuser.py | python3 manage.py shell
 
 # collect static in background
 python3 manage.py collectstatic --no-input &

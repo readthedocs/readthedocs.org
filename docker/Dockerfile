@@ -27,8 +27,6 @@ RUN apt-get -y install \
 
 RUN pip3 install --upgrade pip
 
-COPY docker/scripts/createsuperuser.py docker/scripts/
-
 RUN mkdir checkouts; cd checkouts
 
 COPY requirements readthedocs.org/requirements
