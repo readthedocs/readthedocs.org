@@ -1,7 +1,7 @@
 """Queryset for the redirects app."""
 
 from django.db import models
-from django.db.models import Value, CharField, Q, F, ExpressionWrapper
+from django.db.models import Value, CharField, IntegerField, Q, F, ExpressionWrapper
 from django.db.models.functions import Substr, Length
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -41,21 +41,23 @@ class RedirectQuerySetBase(models.QuerySet):
 
             from_length=ExpressionWrapper(
                 Length('from_url'),
-                output_field=CharField()
+                output_field=IntegerField(),
             ),
 
             # 1-indexed
             from_url_without_rest=Substr(
                 'from_url',
                 1,
-                F('from_length') - 5  # Strip "$rest"
+                F('from_length') - 5,  # Strip "$rest"
+                output_field=CharField(),
             ),
 
             # 1-indexed
             full_path_without_rest=Substr(
                 'full_path',
                 1,
-                F('from_length') - 5  # Strip "$rest"
+                F('from_length') - 5,  # Strip "$rest"
+                output_field=CharField(),
             ),
         )
         prefix = Q(
