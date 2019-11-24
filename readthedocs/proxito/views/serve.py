@@ -90,9 +90,10 @@ class ServeDocsBase(ServeDocsMixin, View):
             # However, if the new_path is already an absolute URI, just use it
             new_path = request.build_absolute_uri(new_path)
             log.info(
-                'Redirecting to: http_status=%s url=%s',
-                http_status,
+                'Redirecting: from=%s to=%s http_status=%s',
+                request.build_absolute_uri(),
                 new_path,
+                http_status,
             )
 
             if http_status and http_status == 301:
