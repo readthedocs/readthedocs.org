@@ -89,6 +89,11 @@ class ServeDocsBase(ServeDocsMixin, View):
             # Redirects shouldn't change the domain, version or language.
             # However, if the new_path is already an absolute URI, just use it
             new_path = request.build_absolute_uri(new_path)
+            log.info(
+                'Redirecting to: http_status=%s url=%s',
+                http_status,
+                new_path,
+            )
 
             if http_status and http_status == 301:
                 return HttpResponsePermanentRedirect(new_path)
