@@ -95,15 +95,9 @@ class ServeDocsBase(ServeDocsMixin, View):
 
             return HttpResponseRedirect(new_path)
 
-        # Don't do auth checks
-        # try:
-        #     Version.objects.public(user=request.user, project=final_project).get(slug=version_slug)  # noqa
-        # except Version.DoesNotExist:
-        #     # Properly raise a 404 if the version doesn't exist (or is inactive) and
-        #     # a 401 if it does
-        #     if final_project.versions.filter(slug=version_slug, active=True).exists():
-        #         return _serve_401(request, final_project)
-        #     raise Http404('Version does not exist.')
+        # Check user permissions and return an unauthed response if needed
+        if not self.allowed_user(request, final_project, version_slug):
+            return self.get_unauthed_response(request, final_project)
 
         storage_path = final_project.get_storage_path(
             type_='html', version_slug=version_slug, include_file=False
@@ -116,6 +110,9 @@ class ServeDocsBase(ServeDocsMixin, View):
             path += 'index.html'
 
         return self._serve_docs(request, final_project=final_project, path=path)
+
+    def allowed_user(self, *args, **kwargs):
+        return True
 
 
 class ServeDocs(SettingsOverrideObject):
