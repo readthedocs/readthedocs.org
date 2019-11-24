@@ -39,7 +39,7 @@ class RedirectQuerySetBase(models.QuerySet):
                 output_field=CharField(),
             ),
 
-            from_length=ExpressionWrapper(
+            from_url_length=ExpressionWrapper(
                 Length('from_url'),
                 output_field=IntegerField(),
             ),
@@ -48,7 +48,7 @@ class RedirectQuerySetBase(models.QuerySet):
             from_url_without_rest=Substr(
                 'from_url',
                 1,
-                F('from_length') - 5,  # Strip "$rest"
+                F('from_url_length') - 5,  # Strip "$rest"
                 output_field=CharField(),
             ),
 
@@ -56,7 +56,7 @@ class RedirectQuerySetBase(models.QuerySet):
             full_path_without_rest=Substr(
                 'full_path',
                 1,
-                F('from_length') - 5,  # Strip "$rest"
+                F('from_url_length') - 5,  # Strip "$rest"
                 output_field=CharField(),
             ),
         )
