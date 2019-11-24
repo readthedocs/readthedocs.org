@@ -42,8 +42,12 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
+
+    # Allow us to run `docker attach readthedocsorg_proxito_1` and get
+    # control on STDIN and be able to debug our code with interactive pdb
     stdin_open: true
     tty: true
+
     command: ["../../docker/proxito.sh"]
 
   web:
