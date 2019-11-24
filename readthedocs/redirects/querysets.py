@@ -91,7 +91,7 @@ class RedirectQuerySetBase(models.QuerySet):
             )
         )
         sphinx_htmldir = Q(
-            redirect_type='sphinx_html',
+            redirect_type='sphinx_htmldir',
             path__endswith='.html',
         )
 
