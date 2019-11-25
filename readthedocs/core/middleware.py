@@ -63,7 +63,8 @@ class SubdomainMiddleware(MiddlewareMixin):
             public_domain not in host and
             settings.PRODUCTION_DOMAIN not in (host, full_host) and
             'localhost' not in host and
-            'testserver' not in host
+            'testserver' not in host and
+                host != 'web'
         ):
             request.cname = True
             domains = Domain.objects.filter(domain=host)
