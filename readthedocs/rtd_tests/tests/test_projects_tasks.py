@@ -53,12 +53,10 @@ class SyncFilesTests(TestCase):
         args, _ = htmlzip
         self.assertIn('htmlzip', args[0])
 
-        # Artifacts are copied to the media directory
         assert rmtree.call_count == 2
-        args, _ = copy.call_args
-        self.assertIn('artifacts', args[0])
-        self.assertIn('sphinx_pdf', args[0])
-        self.assertIn('media/pdf', args[1])
+
+        # Artifacts are NOT copied to the media directory
+        self.assertFalse(copy.called)
 
     @patch('readthedocs.builds.syncers.Syncer.copy')
     @patch('readthedocs.projects.tasks.shutil.rmtree')
@@ -77,10 +75,9 @@ class SyncFilesTests(TestCase):
 
         # Artifacts are copied to the media directory
         assert rmtree.call_count == 2
-        args, _ = copy.call_args
-        self.assertIn('artifacts', args[0])
-        self.assertIn('sphinx_epub', args[0])
-        self.assertIn('media/epub', args[1])
+
+        # Artifacts are NOT copied to the media directory
+        self.assertFalse(copy.called)
 
     @patch('readthedocs.builds.syncers.Syncer.copy')
     @patch('readthedocs.projects.tasks.shutil.rmtree')
@@ -98,33 +95,9 @@ class SyncFilesTests(TestCase):
 
         # Artifacts are copied to the media directory
         assert rmtree.call_count == 2
-        args, _ = copy.call_args
-        self.assertIn('artifacts', args[0])
-        self.assertIn('sphinx_localmedia', args[0])
-        self.assertIn('media/htmlzip', args[1])
 
-    @patch('readthedocs.builds.syncers.Syncer.copy')
-    @patch('readthedocs.projects.tasks.shutil.rmtree')
-    def test_sync_files_search(self, rmtree, copy):
-        sync_files(
-            self.project.pk, self.version.pk, 'sphinx', search=True, delete_unsynced_media=True
-        )
-        pdf, epub, htmlzip = rmtree.call_args_list
-
-        # pdf and epub are cleaned
-        args, _ = pdf
-        self.assertIn('pdf', args[0])
-        args, _ = epub
-        self.assertIn('epub', args[0])
-        args, _ = htmlzip
-        self.assertIn('htmlzip', args[0])
-
-        # Artifacts are copied to the media directory
-        copy.assert_called_once()
-        args, _ = copy.call_args
-        self.assertIn('artifacts', args[0])
-        self.assertIn('sphinx_search', args[0])
-        self.assertIn('media/json', args[1])
+        # Artifacts are NOT copied to the media directory
+        self.assertFalse(copy.called)
 
 
 class SendBuildStatusTests(TestCase):
