@@ -10,6 +10,8 @@ import os
 import shutil
 import yaml
 
+import docker
+
 from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
@@ -138,13 +140,19 @@ class PythonEnvironment:
                 getattr(settings, 'RTD_DOCKER_COMPOSE', None),
                 getattr(settings, 'RTD_DOCKER_COMPOSE_DEVPI_CONTAINER', None),
         ]):
-            ip = _get_devpi_container_ip()
-            return [
-                '--index-url',
-                f'http://{ip}:3141/root/pypi/+simple/',
-                '--trusted-host',
-                f'{ip}',
-            ]
+            try:
+                ip = _get_devpi_container_ip()
+                if ip:
+                    return [
+                        '--index-url',
+                        f'http://{ip}:3141/root/pypi/+simple/',
+                        '--trusted-host',
+                        f'{ip}',
+                    ]
+            except docker.errors.NotFound:
+                # devpi container not found
+                pass
+
         return []
 
     def _pip_cache_cmd_argument(self):

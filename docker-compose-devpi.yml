@@ -7,10 +7,10 @@ volumes:
 services:
 
   devpi:
-    image: readthedocsorg_server:latest
+    build:
+      context: .
+      dockerfile: ${PWD}/docker/Dockerfile.devpi
     ports:
       - "3141:3141"
     volumes:
-      - ${PWD}/docker/entrypoints/devpi.sh:/usr/src/app/docker/devpi.sh
       - devpi:/devpi
-    command: ["../../docker/devpi.sh"]

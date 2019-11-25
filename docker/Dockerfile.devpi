@@ -1,0 +1,9 @@
+FROM python:3.6-alpine
+
+# Required to compile cffi
+RUN apk add --no-cache openssl-dev libffi-dev build-base
+
+RUN pip3 install --no-cache-dir --upgrade devpi-server
+RUN devpi-init --serverdir=/devpi
+
+CMD ["devpi-server", "--host=0.0.0.0", "--absolute-urls", "--serverdir=/devpi", "--threads=3"]
