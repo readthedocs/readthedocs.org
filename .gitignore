@@ -22,6 +22,8 @@ contrib/supervisord.pid
 celerybeat-schedule.*
 deploy/.vagrant
 dist/*
+docker/azurite
+docker/search
 local_settings.py
 locks/**
 logs/*

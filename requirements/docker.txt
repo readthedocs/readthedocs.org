@@ -1,0 +1,13 @@
+-r pip.txt
+# http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
+psycopg2-binary==2.8.3
+django-redis-cache==2.1.0
+
+# For resizing images
+pillow==6.2.0
+
+# local debugging tools
+watchdog==0.9.0
+datadiff==2.0.0
+ipdb==0.12.2
+pdbpp==0.10.2
