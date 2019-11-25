@@ -276,6 +276,9 @@ def project_download_media(request, project_slug, type_, version_slug):
                  It should only care about the Version permissions,
                  not the actual Project permissions.
     """
+
+    # TODO: this check could be done using ``request.has_perm`` instead, to
+    # avoid having different a logic here for auth permissions.
     version = get_object_or_404(
         Version.objects.public(user=request.user),
         project__slug=project_slug,
@@ -291,46 +294,22 @@ def project_download_media(request, project_slug, type_, version_slug):
         uip=get_client_ip(request),
     )
 
-    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
-
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version.type,
-        )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
-
-        media_path = os.path.join(
-            settings.MEDIA_URL,
-            type_,
-            project_slug,
-            version_slug,
-            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
-        )
-        return HttpResponseRedirect(media_path)
-
-    # Get relative media path
-    path = (
-        version.project.get_production_media_path(
-            type_=type_,
-            version_slug=version_slug,
-        ).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    storage_path = version.project.get_storage_path(
+        type_=type_, version_slug=version_slug,
+        version_type=version.type,
     )
-    content_type, encoding = mimetypes.guess_type(path)
-    content_type = content_type or 'application/octet-stream'
-    response = HttpResponse(content_type=content_type)
-    if encoding:
-        response['Content-Encoding'] = encoding
-    response['X-Accel-Redirect'] = path
-    # Include version in filename; this fixes a long-standing bug
-    filename = '{}-{}.{}'.format(
+    if storage.exists(storage_path):
+        return HttpResponseRedirect(storage.url(storage_path))
+
+    media_path = os.path.join(
+        settings.MEDIA_URL,
+        type_,
         project_slug,
         version_slug,
-        path.split('.')[-1],
+        '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
     )
-    response['Content-Disposition'] = 'filename=%s' % filename
-    return response
+    return HttpResponseRedirect(media_path)
 
 
 def project_versions(request, project_slug):
