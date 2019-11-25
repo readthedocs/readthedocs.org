@@ -312,28 +312,6 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             url,
         )
 
-        # Get relative media path
-        path = (
-            version.project.get_production_media_path(
-                type_=type_,
-                version_slug=version_slug,
-            ).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
-        )
-        content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
-        response = HttpResponse(content_type=content_type)
-        if encoding:
-            response['Content-Encoding'] = encoding
-        response['X-Accel-Redirect'] = path
-        # Include version in filename; this fixes a long-standing bug
-        filename = '{}-{}.{}'.format(
-            project_slug,
-            version_slug,
-            path.split('.')[-1],
-        )
-        response['Content-Disposition'] = 'filename=%s' % filename
-        return response
-
 
 def project_versions(request, project_slug):
     """
