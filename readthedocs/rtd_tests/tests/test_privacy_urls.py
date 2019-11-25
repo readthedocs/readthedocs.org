@@ -8,12 +8,14 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.builds.models import RegexAutomationRule, VersionAutomationRule
 
 
 class URLAccessMixin:
@@ -157,6 +159,13 @@ class ProjectMixin(URLAccessMixin):
         )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
+        self.automation_rule = RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=BRANCH,
+        )
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -170,6 +179,8 @@ class ProjectMixin(URLAccessMixin):
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
+            'automation_rule_pk': self.automation_rule.pk,
+            'steps': 1,
             'invalid_project_slug': 'invalid_slug',
         }
 
@@ -252,12 +263,16 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
@@ -290,6 +305,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
         '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
         '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -299,6 +316,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
@@ -435,6 +454,12 @@ class PrivateUserProfileMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 405},
+            '/accounts/tokens/delete/': {'status_code': 405},
+        })
+
         self.default_kwargs.update(
             {
                 'username': self.tester.username,
@@ -468,6 +493,14 @@ class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
 
     # Auth protected
     default_status_code = 302
+
+    def setUp(self):
+        super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 302},
+            '/accounts/tokens/delete/': {'status_code': 302},
+        })
 
     def login(self):
         pass

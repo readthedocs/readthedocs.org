@@ -2,7 +2,13 @@ import mock
 import pytest
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, LATEST, TAG
+from readthedocs.builds.constants import (
+    ALL_VERSIONS,
+    BRANCH,
+    LATEST,
+    SEMVER_VERSIONS,
+    TAG,
+)
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -80,6 +86,76 @@ class TestRegexAutomationRules:
             project=self.project,
             priority=0,
             match_arg=regex,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=version_type,
+        )
+        assert rule.run(version) is result
+
+    @pytest.mark.parametrize(
+        'version_name,result',
+        [
+            ('master', True),
+            ('latest', True),
+            ('master-something', True),
+            ('something-master', True),
+            ('1.3.2', True),
+            ('1.3.3.5', True),
+            ('1.3.3-rc', True),
+            ('12-a', True),
+            ('1-a', True),
+        ]
+    )
+    @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    def test_predefined_match_all_versions(self, version_name, result, version_type):
+        version = get(
+            Version,
+            verbose_name=version_name,
+            project=self.project,
+            active=False,
+            type=version_type,
+            built=False,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            predefined_match_arg=ALL_VERSIONS,
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=version_type,
+        )
+        assert rule.run(version) is result
+
+    @pytest.mark.parametrize(
+        'version_name,result',
+        [
+            ('master', False),
+            ('latest', False),
+            ('master-something', False),
+            ('something-master', False),
+            ('1.3.3.5', False),
+            ('12-a', False),
+            ('1-a', False),
+
+            ('1.3.2', True),
+            ('1.3.3-rc', True),
+            ('0.1.1', True),
+        ]
+    )
+    @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    def test_predefined_match_semver_versions(self, version_name, result, version_type):
+        version = get(
+            Version,
+            verbose_name=version_name,
+            project=self.project,
+            active=False,
+            type=version_type,
+            built=False,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            predefined_match_arg=SEMVER_VERSIONS,
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )

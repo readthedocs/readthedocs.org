@@ -1,12 +1,21 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import DetailView, FormView, ListView, UpdateView
+from vanilla import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    ListView,
+    UpdateView
+)
 
 from readthedocs.core.forms import (
     UserAdvertisingForm,
@@ -94,16 +103,37 @@ class TokenMixin(PrivateViewMixin):
     template_name = 'profiles/private/token_list.html'
 
     def get_queryset(self):
-        # Token has a OneToOneField relation with User
+        # NOTE: we are currently showing just one token since the DRF model has
+        # a OneToOneField relation with User. Although, we plan to have multiple
+        # scope-based tokens.
         return Token.objects.filter(user__in=[self.request.user])
 
     def get_success_url(self):
-        return reverse(
-            'projects_token',
-            args=[self.get_project().slug],
-        )
+        return reverse('profiles_tokens')
 
 
-class TokenList(TokenMixin, ListView):
-
+class TokenListView(TokenMixin, ListView):
     pass
+
+
+class TokenCreateView(TokenMixin, CreateView):
+
+    """Simple view to generate a Token object for the logged in User."""
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        _, created = Token.objects.get_or_create(user=self.request.user)
+        if created:
+            messages.info(request, 'API Token created successfully')
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class TokenDeleteView(TokenMixin, DeleteView):
+
+    """View to delete/revoke the current Token of the logged in User."""
+
+    http_method_names = ['post']
+
+    def get_object(self, queryset=None):  # noqa
+        return self.request.user.auth_token

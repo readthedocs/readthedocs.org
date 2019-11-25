@@ -480,16 +480,8 @@ class Project(models.Model):
             args=[(self.doc_path,)],
         )
 
-        # Remove build artifacts from storage
-        storage_paths = []
-        for type_ in MEDIA_TYPES:
-            storage_paths.append(
-                '{}/{}'.format(
-                    type_,
-                    self.slug,
-                )
-            )
-        tasks.remove_build_storage_paths.delay(storage_paths)
+        # Remove extra resources
+        tasks.clean_project_resources(self)
 
         super().delete(*args, **kwargs)
 
@@ -533,6 +525,19 @@ class Project(models.Model):
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
+
+    def get_storage_paths(self):
+        """
+        Get the paths of all artifacts used by the project.
+
+        :return: the path to an item in storage
+                 (can be used with ``storage.url`` to get the URL).
+        """
+        storage_paths = [
+            f'{type_}/{self.slug}'
+            for type_ in MEDIA_TYPES
+        ]
+        return storage_paths
 
     def get_storage_path(
             self,
