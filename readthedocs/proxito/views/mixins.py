@@ -74,6 +74,20 @@ class ServeDocsMixin:
 
         return response
 
+    def _serve_media_nginx(self, request, project, version, path):
+        """
+        Same as ``_serve_docs_nginx`` but for media files.
+
+        The only difference is that it adds the Content-Disposition header with
+        the proper filename on it.
+        """
+        filename_ext = path.split('.')[-1]
+        filename = f'{project.slug}-{version.slug}.{filename_ext}'
+
+        response = self._serve_docs_nginx(request, project, path)
+        response['Content-Disposition'] = f'filename={filename}'
+        return response
+
     def _serve_401(self, request, project):
         res = render(request, '401.html')
         res.status_code = 401
