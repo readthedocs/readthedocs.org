@@ -3,11 +3,11 @@
 import itertools
 import logging
 import os
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
@@ -20,7 +20,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
-from .mixins import ServeDocsMixin
+from .mixins import ServeDocsMixin, ServeRedirectMixin
 
 from .decorators import map_project_slug
 from .redirects import redirect_project_slug
@@ -30,7 +30,7 @@ from .utils import _get_project_data_from_request
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeDocsMixin, View):
+class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -77,29 +77,16 @@ class ServeDocsBase(ServeDocsMixin, View):
             )
             raise Http404('Invalid URL for project with versions')
 
-        full_path = request.path
-        redirect_path, http_status = final_project.redirects.get_redirect_path_with_status(
-            language=lang_slug, version_slug=version_slug, path=filename, full_path=full_path,
-        )
-        if redirect_path is not None:
-            schema, netloc, path, params, query, fragments = urlparse(full_path)
-            new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
-
-            # Re-use the domain and protocol used in the current request.
-            # Redirects shouldn't change the domain, version or language.
-            # However, if the new_path is already an absolute URI, just use it
-            new_path = request.build_absolute_uri(new_path)
-            log.info(
-                'Redirecting: from=%s to=%s http_status=%s',
-                request.build_absolute_uri(),
-                new_path,
-                http_status,
-            )
-
-            if http_status and http_status == 301:
-                return HttpResponsePermanentRedirect(new_path)
-
-            return HttpResponseRedirect(new_path)
+        # TODO: un-comment when ready to perform redirect here
+        # redirect_path, http_status = self.get_redirect(
+        #     final_project,
+        #     lang_slug,
+        #     version_slug,
+        #     filename,
+        #     request.path,
+        # )
+        # if redirect_path and http_status:
+        #     return self.get_redirect_response(request, redirect_path, http_status)
 
         # Check user permissions and return an unauthed response if needed
         if not self.allowed_user(request, final_project, version_slug):
@@ -125,7 +112,7 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(View):
+class ServeError404Base(ServeRedirectMixin, View):
 
     def get(self, request, proxito_path, template_name='404.html'):
         """
@@ -155,6 +142,17 @@ class ServeError404Base(View):
             version_slug=kwargs.get('version_slug'),
             filename=kwargs.get('filename', ''),
         )
+
+        # Check and perform redirects on 404 handler
+        redirect_path, http_status = self.get_redirect(
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+            request.path,
+        )
+        if redirect_path and http_status:
+            return self.get_redirect_response(request, redirect_path, http_status)
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
