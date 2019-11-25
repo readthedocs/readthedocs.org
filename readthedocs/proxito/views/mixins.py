@@ -1,5 +1,6 @@
 import logging
 import mimetypes
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -81,7 +82,7 @@ class ServeDocsMixin:
         The only difference is that it adds the Content-Disposition header with
         the proper filename on it.
         """
-        filename_ext = path.split('.')[-1]
+        filename_ext = urlparse(path).path.split('.')[-1]
         filename = f'{project.slug}-{version.slug}.{filename_ext}'
 
         response = self._serve_docs_nginx(request, project, path)
