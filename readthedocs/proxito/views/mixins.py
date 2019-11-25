@@ -20,22 +20,33 @@ class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
-    def _serve_docs(self, request, final_project, version_slug, path, download=False):
+    def _serve_docs(
+            self,
+            request,
+            final_project,
+            path,
+            download=False,
+            version_slug=None,
+    ):
         """
         Serve documentation in the way specified by settings.
 
-        Serve from the filesystem if using PYTHON_MEDIA We definitely shouldn't
-        do this in production, but I don't want to force a check for DEBUG.
+        Serve from the filesystem if using ``PYTHON_MEDIA``. We definitely
+        shouldn't do this in production, but I don't want to force a check for
+        ``DEBUG``.
+
+        If ``download`` and ``version_slug`` are passed, when serving via NGINX
+        the HTTP header ``Content-Disposition`` is added with the proper
+        filename (e.g. "pip-latest.pdf" or "pip-v2.0.pdf")
         """
 
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
                 request,
                 final_project=final_project,
-                version_slug=version_slug,
                 path=path,
-                download=download,
             )
+
         return self._serve_docs_nginx(
             request,
             final_project=final_project,
@@ -44,7 +55,7 @@ class ServeDocsMixin:
             download=download,
         )
 
-    def _serve_docs_python(self, request, final_project, version_slug, path, download):
+    def _serve_docs_python(self, request, final_project, path):
         """
         Serve docs from Python.
 

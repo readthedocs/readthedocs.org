@@ -307,9 +307,9 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
 
         return self._serve_docs(
             request,
-            version.project,
-            version.slug,
-            url,
+            final_project=version.project,
+            version_slug=version.slug,
+            path=url,
             download=True,
         )
 
