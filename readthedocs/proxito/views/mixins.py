@@ -1,9 +1,14 @@
 import logging
 import mimetypes
+from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-from django.http import HttpResponse
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    HttpResponsePermanentRedirect,
+)
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
@@ -79,3 +84,47 @@ class ServeDocsMixin:
         res.status_code = 401
         log.debug('Unauthorized access to %s documentation', project.slug)
         return res
+
+
+class ServeRedirectMixin:
+
+    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
+        """
+        Check for a redirect for this project that matches ``full_path``.
+
+        :returns: the path to redirect the request and its status code
+        :rtype: tuple
+        """
+        redirect_path, http_status = project.redirects.get_redirect_path_with_status(
+            language=lang_slug,
+            version_slug=version_slug,
+            path=filename,
+            full_path=full_path,
+        )
+        return redirect_path, http_status
+
+    def get_redirect_response(self, request, redirect_path, http_status):
+        """
+        Build the response for the ``redirect_path`` and its ``http_status``.
+
+        :returns: redirect respose with the correct path
+        :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
+        """
+        schema, netloc, path, params, query, fragments = urlparse(request.path)
+        new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
+
+        # Re-use the domain and protocol used in the current request.
+        # Redirects shouldn't change the domain, version or language.
+        # However, if the new_path is already an absolute URI, just use it
+        new_path = request.build_absolute_uri(new_path)
+        log.info(
+            'Redirecting: from=%s to=%s http_status=%s',
+            request.build_absolute_uri(),
+            new_path,
+            http_status,
+        )
+
+        if http_status and http_status == 301:
+            return HttpResponsePermanentRedirect(new_path)
+
+        return HttpResponseRedirect(new_path)

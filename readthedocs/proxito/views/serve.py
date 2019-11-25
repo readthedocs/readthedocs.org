@@ -20,7 +20,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
-from .mixins import ServeDocsMixin
+from .mixins import ServeDocsMixin, ServeRedirectMixin
 
 from .decorators import map_project_slug
 from .redirects import redirect_project_slug
@@ -30,7 +30,7 @@ from .utils import _get_project_data_from_request
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeDocsMixin, View):
+class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -77,11 +77,16 @@ class ServeDocsBase(ServeDocsMixin, View):
             )
             raise Http404('Invalid URL for project with versions')
 
-        # TODO: Redirects need to be refactored before we can turn them on
-        # They currently do 1 request per redirect that exists for the project
-        # path, http_status = final_project.redirects.get_redirect_path_with_status(
-        #     language=lang_slug, version_slug=version_slug, path=filename
+        # TODO: un-comment when ready to perform redirect here
+        # redirect_path, http_status = self.get_redirect(
+        #     final_project,
+        #     lang_slug,
+        #     version_slug,
+        #     filename,
+        #     request.path,
         # )
+        # if redirect_path and http_status:
+        #     return self.get_redirect_response(request, redirect_path, http_status)
 
         # Check user permissions and return an unauthed response if needed
         if not self.allowed_user(request, final_project, version_slug):
@@ -107,7 +112,7 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(View):
+class ServeError404Base(ServeRedirectMixin, View):
 
     def get(self, request, proxito_path, template_name='404.html'):
         """
@@ -137,6 +142,17 @@ class ServeError404Base(View):
             version_slug=kwargs.get('version_slug'),
             filename=kwargs.get('filename', ''),
         )
+
+        # Check and perform redirects on 404 handler
+        redirect_path, http_status = self.get_redirect(
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+            request.path,
+        )
+        if redirect_path and http_status:
+            return self.get_redirect_response(request, redirect_path, http_status)
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
