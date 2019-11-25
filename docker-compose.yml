@@ -1,5 +1,10 @@
-# GITHUB_TOKEN environment variable is required to build the images
+# docker-compose.yml file to launch a full instance of Read the Docs.
+#
+# Read the Docs' Core team is using docker-compose internally.
+# We do not offer support on this file and configuration at this point.
+# DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
 
+# GITHUB_TOKEN environment variable is required to build the images
 version: '3'
 
 volumes:
