@@ -1,17 +1,17 @@
 import re
-import pytest
 
+import pytest
 from django.core.urlresolvers import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile
-from readthedocs.search.tests.utils import (
-    get_search_query_from_project_file,
-    SECTION_FIELDS,
-    DOMAIN_FIELDS,
-)
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
+from readthedocs.search.tests.utils import (
+    DOMAIN_FIELDS,
+    SECTION_FIELDS,
+    get_search_query_from_project_file,
+)
 
 
 @pytest.mark.django_db
@@ -224,3 +224,30 @@ class TestDocumentSearch:
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
         assert document_link in first_result['link']
+
+    def test_doc_search_unexisting_project(self, api_client):
+        project = 'notfound'
+        assert not Project.objects.filter(slug=project).exists()
+
+        search_params = {
+            'q': 'documentation',
+            'project': project,
+            'version': 'latest',
+        }
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 404
+
+    def test_doc_search_unexisting_version(self, api_client, project):
+        version = 'notfound'
+        assert not project.versions.filter(slug=version).exists()
+
+        search_params = {
+            'q': 'documentation',
+            'project': project.slug,
+            'version': version,
+        }
+        resp = api_client.get(self.url, search_params)
+        assert resp.status_code == 200
+
+        data = resp.data['results']
+        assert len(data) == 0

@@ -1,4 +1,4 @@
-from .docker import DockerBaseSettings
+from .docker_compose import DockerBaseSettings
 
 
 class ProxitoDevSettings(DockerBaseSettings):

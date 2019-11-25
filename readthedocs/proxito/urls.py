@@ -30,12 +30,29 @@ pip.rtfd.io/<lang>/
 """
 
 from django.conf.urls import url
+from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
+from readthedocs.proxito.views.serve import (
+    ServeDocs,
+    ServeError404,
+    ServeRobotsTXT,
+    ServeSitemapXML,
+)
+from readthedocs.proxito.views.redirects import redirect_page_with_filename
+from readthedocs.proxito.views.utils import fast_404
 
 
 urlpatterns = [
+    # Serve custom 404 pages
+    url(
+        r'^_proxito_404_(?P<proxito_path>.*)$',
+        ServeError404.as_view(),
+        name='serve_error_404',
+    ),
+    url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
+    url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+
     # # TODO: Support this?
     # (Sub)project `page` redirect
     url(
@@ -53,7 +70,7 @@ urlpatterns = [
             r'(?P<version_slug>{version_slug})/'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        ServeDocs.as_view(),
         name='docs_detail',
     ),
 
@@ -75,7 +92,11 @@ urlpatterns = [
             r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        ServeDocs.as_view(),
         name='docs_detail_singleversion_subproject',
     ),
 ]
+
+# Use Django default error handlers to make things simpler
+handler404 = fast_404
+handler500 = defaults.server_error
