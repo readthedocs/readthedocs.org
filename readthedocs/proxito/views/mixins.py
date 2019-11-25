@@ -16,7 +16,7 @@ class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
-    def _serve_docs(self, request, final_project, path):
+    def _serve_docs(self, request, final_project, version_slug, path, download=False):
         """
         Serve documentation in the way specified by settings.
 
@@ -26,11 +26,21 @@ class ServeDocsMixin:
 
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
-                request, final_project=final_project, path=path
+                request,
+                final_project=final_project,
+                version_slug=version_slug,
+                path=path,
+                download=download,
             )
-        return self._serve_docs_nginx(request, final_project=final_project, path=path)
+        return self._serve_docs_nginx(
+            request,
+            final_project=final_project,
+            version_slug=version_slug,
+            path=path,
+            download=download,
+        )
 
-    def _serve_docs_python(self, request, final_project, path):
+    def _serve_docs_python(self, request, final_project, version_slug, path, download):
         """
         Serve docs from Python.
 
@@ -43,7 +53,7 @@ class ServeDocsMixin:
         # Serve from Python
         return serve(request, path, root_path)
 
-    def _serve_docs_nginx(self, request, final_project, path):
+    def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
         """
         Serve docs from nginx.
 
@@ -73,20 +83,11 @@ class ServeDocsMixin:
         x_accel_redirect = iri_to_uri(path)
         response['X-Accel-Redirect'] = x_accel_redirect
 
-        return response
+        if download:
+            filename_ext = urlparse(path).path.split('.')[-1]
+            filename = f'{final_project.slug}-{version_slug}.{filename_ext}'
+            response['Content-Disposition'] = f'filename={filename}'
 
-    def _serve_media_nginx(self, request, project, version, path):
-        """
-        Same as ``_serve_docs_nginx`` but for media files.
-
-        The only difference is that it adds the Content-Disposition header with
-        the proper filename on it.
-        """
-        filename_ext = urlparse(path).path.split('.')[-1]
-        filename = f'{project.slug}-{version.slug}.{filename_ext}'
-
-        response = self._serve_docs_nginx(request, project, path)
-        response['Content-Disposition'] = f'filename={filename}'
         return response
 
     def _serve_401(self, request, project):

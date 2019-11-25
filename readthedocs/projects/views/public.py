@@ -305,11 +305,12 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         url = storage.url(storage_path)
         url = urlparse(url)._replace(scheme='', netloc='').geturl()
 
-        return self._serve_media_nginx(
+        return self._serve_docs(
             request,
             version.project,
-            version,
+            version.slug,
             url,
+            download=True,
         )
 
 
