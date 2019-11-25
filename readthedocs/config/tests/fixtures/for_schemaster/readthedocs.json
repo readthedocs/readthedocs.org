@@ -1,0 +1,25 @@
+﻿{
+  "version": "enum('2')",
+  "formats": "any(list(enum('htmlzip', 'pdf', 'epub')), enum('all'), required=False)",
+  "conda": "include('conda', required=False)",
+  "build": "include('build', required=False)",
+  "python": "include('python', required=False)",
+  "sphinx": "include('sphinx', required=False)",
+  "mkdocs": "include('mkdocs', required=False)",
+  "submodules": "include('submodules', required=False)",
+  "redirects": "map(enum('page'), map(str(), str()), required=False)",
+  "python-install-requirements": {
+    "requirements": "path()"
+  },
+  "python-install": {
+    "path": "path()",
+    "method": "enum('pip', 'setuptools', required=False)",
+    "extra_requirements": "list(str(), required=False)"
+  },
+  "python-install-pipfile": {
+    "pipfile": "path()",
+    "dev": "bool(required=False)",
+    "ignore_pipfile": "bool(required=False)",
+    "skip_lock": "bool(required=False)"
+  }
+}
