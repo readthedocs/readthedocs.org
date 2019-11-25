@@ -270,7 +270,6 @@ def project_downloads(request, project_slug):
 class ProjectDownloadMedia(ServeDocsMixin, View):
 
     def get(self, request, project_slug, type_, version_slug):
-
         """
         Download a specific piece of media.
 
