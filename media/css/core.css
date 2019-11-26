@@ -1293,7 +1293,6 @@ div.httpexchange div.highlight pre {
 
 
 /* Subprojects */
-
 div.module.project-subprojects li.subproject a.subproject-url:before {
     padding-right: .5em;
     font-family: FontAwesome;
@@ -1306,14 +1305,6 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     font-weight: normal;
     content: "\f044";
 }
-
-/* Automation Rules */
-
-li.automation-rule input[type="submit"] {
-    font-family: FontAwesome;
-    font-weight: normal;
-}
-
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }
