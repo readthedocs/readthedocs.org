@@ -20,19 +20,40 @@ class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
-    def _serve_docs(self, request, final_project, path):
+    def _serve_docs(
+            self,
+            request,
+            final_project,
+            path,
+            download=False,
+            version_slug=None,
+    ):
         """
         Serve documentation in the way specified by settings.
 
-        Serve from the filesystem if using PYTHON_MEDIA We definitely shouldn't
-        do this in production, but I don't want to force a check for DEBUG.
+        Serve from the filesystem if using ``PYTHON_MEDIA``. We definitely
+        shouldn't do this in production, but I don't want to force a check for
+        ``DEBUG``.
+
+        If ``download`` and ``version_slug`` are passed, when serving via NGINX
+        the HTTP header ``Content-Disposition`` is added with the proper
+        filename (e.g. "pip-latest.pdf" or "pip-v2.0.pdf")
         """
 
         if settings.PYTHON_MEDIA:
             return self._serve_docs_python(
-                request, final_project=final_project, path=path
+                request,
+                final_project=final_project,
+                path=path,
             )
-        return self._serve_docs_nginx(request, final_project=final_project, path=path)
+
+        return self._serve_docs_nginx(
+            request,
+            final_project=final_project,
+            version_slug=version_slug,
+            path=path,
+            download=download,
+        )
 
     def _serve_docs_python(self, request, final_project, path):
         """
@@ -47,7 +68,7 @@ class ServeDocsMixin:
         # Serve from Python
         return serve(request, path, root_path)
 
-    def _serve_docs_nginx(self, request, final_project, path):
+    def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
         """
         Serve docs from nginx.
 
@@ -76,6 +97,11 @@ class ServeDocsMixin:
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
         x_accel_redirect = iri_to_uri(path)
         response['X-Accel-Redirect'] = x_accel_redirect
+
+        if download:
+            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
+            filename = f'{final_project.slug}-{version_slug}.{filename_ext}'
+            response['Content-Disposition'] = f'filename={filename}'
 
         return response
 

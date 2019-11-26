@@ -102,7 +102,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         if path[-1] == '/':
             path += 'index.html'
 
-        return self._serve_docs(request, final_project=final_project, path=path)
+        return self._serve_docs(
+            request,
+            final_project=final_project,
+            path=path,
+        )
 
     def allowed_user(self, *args, **kwargs):
         return True
@@ -256,7 +260,11 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         if storage.exists(path):
-            return self._serve_docs(request, project, path)
+            return self._serve_docs(
+                request,
+                final_project=project,
+                path=path,
+            )
 
         sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
             scheme='https',
