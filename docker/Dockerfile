@@ -27,7 +27,8 @@ RUN apt-get -y install \
 
 RUN pip3 install --upgrade pip
 
-RUN mkdir checkouts; cd checkouts
+RUN mkdir checkouts
+WORKDIR /usr/src/app/checkouts
 
 COPY requirements readthedocs.org/requirements
 
