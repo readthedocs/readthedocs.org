@@ -66,3 +66,11 @@ For example:
 .. prompt:: bash $
    
    curl -H "Authorization: Token 19okmz5k0i6yk17jp70jlnv91v" https://docs.example.com/en/latest/example.html
+
+
+You can also use basic authorization, with the token as user and an empty password.
+For example:
+
+.. prompt:: bash $
+   
+   curl --url https://docs.example.com/en/latest/example.html --user '19okmz5k0i6yk17jp70jlnv91v:'
