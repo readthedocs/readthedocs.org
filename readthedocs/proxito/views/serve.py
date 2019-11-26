@@ -20,7 +20,11 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
-from .mixins import ServeDocsMixin, ServeRedirectMixin
+from .mixins import (
+    ServeDocsMixin,
+    ServeRedirectMixin,
+    ServeDocsPermissionsMixin,
+)
 
 from .decorators import map_project_slug
 from .redirects import redirect_project_slug
@@ -30,7 +34,12 @@ from .utils import _get_project_data_from_request
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(
+        ServeRedirectMixin,
+        ServeDocsPermissionsMixin,
+        ServeDocsMixin,
+        View,
+):
 
     def get(self,
             request,
@@ -108,7 +117,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path=path,
         )
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, *args, **kwargs):  # noqa
         return True
 
 

@@ -154,3 +154,38 @@ class ServeRedirectMixin:
             return HttpResponsePermanentRedirect(new_path)
 
         return HttpResponseRedirect(new_path)
+
+
+class ServeDocsPermissionsMixin:
+
+    """
+    Mixin to handle documentation permissions.
+
+    To use this mixin, the method that serve the docs should call
+    ``allowed_user`` first to check if the user requesting to read the page is
+    allowed. If allowed, the flow should continue.
+
+    On the other hand, if the user is not allowed, the serve docs method MUST
+    break the flow and return a call to ``get_unauthed_response``.
+    """
+
+    def allowed_user(self, request, project, version_slug):
+        """
+        Return whether the user is allowed to read this documentation's version.
+
+        :returns: ``True`` if allowed. ``False`` otherwise.
+        :rtype: bool
+        """
+        return False
+
+    def get_unauthed_response(self, request, project):
+        """
+        Return response for an unauthed hit at a documentation's version.
+
+        When a user does not have access to read documentation, we need to
+        return a response showing the proper message. This method produces that
+        reponse.
+
+        :rtype: django.http.HttpResponse
+        """
+        return self._serve_401(request, project)
