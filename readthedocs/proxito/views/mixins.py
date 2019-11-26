@@ -99,7 +99,7 @@ class ServeDocsMixin:
         response['X-Accel-Redirect'] = x_accel_redirect
 
         if download:
-            filename_ext = urlparse(path).path.split('.')[-1]
+            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
             filename = f'{final_project.slug}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
