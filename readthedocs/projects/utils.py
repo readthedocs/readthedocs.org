@@ -1,10 +1,9 @@
 """Utility functions used by projects."""
-
 import logging
 import os
 
 from django.conf import settings
-
+from django.db.models import Count
 
 log = logging.getLogger(__name__)
 
@@ -56,3 +55,13 @@ class Echo:
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
+
+
+def get_projects_last_owner(user):
+    """Get projects where `user` is the last owner."""
+    from readthedocs.projects.models import Project
+    return (
+        Project.objects
+        .annotate(num_users=Count('users'))
+        .filter(users=user.id, num_users=1)
+    )

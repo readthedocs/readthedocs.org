@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Signal handling for core app."""
 
 import logging
@@ -14,7 +12,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Domain, Project
-
+from readthedocs.projects.utils import get_projects_last_owner
 
 log = logging.getLogger(__name__)
 
@@ -84,23 +82,15 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
 def delete_projects_and_organizations(sender, instance, *args, **kwargs):
-    # Here we count the owner list from the projects that the user own
-    # Then exclude the projects where there are more than one owner
-    # Add annotate before filter
-    # https://github.com/rtfd/readthedocs.org/pull/4577
-    # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
-    projects = (
-        Project.objects.annotate(num_users=Count('users')
-                                 ).filter(users=instance.id
-                                          ).exclude(num_users__gt=1)
-    )
+    user = instance
+    projects = get_projects_last_owner(user)
 
     # Here we count the users list from the organization that the user belong
     # Then exclude the organizations where there are more than one user
     oauth_organizations = (
-        RemoteOrganization.objects.annotate(num_users=Count('users')
-                                            ).filter(users=instance.id
-                                                     ).exclude(num_users__gt=1)
+        RemoteOrganization.objects
+        .annotate(num_users=Count('users'))
+        .filter(users=instance.id, num_users=1)
     )
 
     projects.delete()
