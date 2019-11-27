@@ -29,5 +29,5 @@ def is_project_user(user, project):
 
 @register.filter
 def projects_last_owner(user):
-    """Returns projects where `user` is the last owner"""
+    """Returns projects where `user` is the last owner."""
     return get_projects_last_owner(user)
