@@ -1,5 +1,5 @@
 Sharing
--------
+=======
 
 .. note::
 
@@ -16,7 +16,7 @@ Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
 
 Enabling
-~~~~~~~~
+--------
 
 * Go into your *Project Admin* page and to the *Sharing* menu.
 * Under the *Share with someone new* heading, select the way you prefer (secret link, password, or HTTP header token),
@@ -40,7 +40,7 @@ Enabling
    If you want access to these features, email us to support@readthedocs.com.
 
 Effects
-~~~~~~~
+-------
 
 Secret Link
 ***********
@@ -59,6 +59,9 @@ view your project.
 HTTP Authorization Header
 *************************
 
+Token Authorization
+~~~~~~~~~~~~~~~~~~~
+
 You need to send the ``Authorization`` header with the token on each HTTP request.
 The header has the form ``Authorization: Token <ACCESS_TOKEN>``.
 For example:
@@ -66,3 +69,13 @@ For example:
 .. prompt:: bash $
    
    curl -H "Authorization: Token 19okmz5k0i6yk17jp70jlnv91v" https://docs.example.com/en/latest/example.html
+
+Basic Authorization
+~~~~~~~~~~~~~~~~~~~
+
+You can also use basic authorization, with the token as user and an empty password.
+For example:
+
+.. prompt:: bash $
+   
+   curl --url https://docs.example.com/en/latest/example.html --user '19okmz5k0i6yk17jp70jlnv91v:'
