@@ -19,6 +19,8 @@ class CommunityTestSettings(CommunityDevSettings):
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest'
+
     @property
     def ES_INDEXES(self):  # noqa - avoid pep8 N802
         es_indexes = super(CommunityTestSettings, self).ES_INDEXES
