@@ -33,6 +33,7 @@ from django.conf.urls import url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
+from readthedocs.urls import downloads_urls
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
@@ -43,7 +44,9 @@ from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
 
-urlpatterns = [
+urlpatterns = downloads_urls
+
+urlpatterns += [
     # Serve custom 404 pages
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',

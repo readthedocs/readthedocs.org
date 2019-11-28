@@ -95,17 +95,25 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         storage_path = final_project.get_storage_path(
             type_='html', version_slug=version_slug, include_file=False
         )
+
+        # URL without scheme and domain to perform an NGINX internal redirect
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+        # If ``filename`` is ``''`` it leaves a trailing slash
         path = os.path.join(storage_path, filename)
+
+        url = storage.url(path)  # this will remove the trailing slash
+        url = urlparse(url)._replace(scheme='', netloc='').geturl()
 
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
-            path += 'index.html'
+            url += '/index.html'
 
         return self._serve_docs(
             request,
             final_project=final_project,
-            path=path,
+            path=url,
         )
 
     def allowed_user(self, *args, **kwargs):

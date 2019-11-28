@@ -32,14 +32,6 @@ urlpatterns = [
         name='project_downloads',
     ),
     url(
-        (
-            r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
-            r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
-        ),
-        public.ProjectDownloadMedia.as_view(),
-        name='project_download_media',
-    ),
-    url(
         r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
         public.project_badge,
         name='project_badge',

@@ -621,7 +621,10 @@ class Project(models.Model):
         except NoReverseMatch:
             return ''
         if full_path:
-            path = '//{}{}'.format(settings.PRODUCTION_DOMAIN, path)
+            # Use project domain for full path --same domain as docs
+            # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
+            domain = self.subdomain()
+            path = f'//{domain}{path}'
         return path
 
     def subdomain(self):

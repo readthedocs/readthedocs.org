@@ -9,6 +9,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
+from readthedocs.constants import pattern_opts
 from readthedocs.core.urls import core_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
@@ -19,12 +20,15 @@ from readthedocs.core.views import (
 )
 from readthedocs.search import views as search_views
 from readthedocs.search.api import PageSearchAPIView
+from readthedocs.projects.views.public import ProjectDownloadMedia
 
 
 admin.autodiscover()
 
 handler404 = server_error_404
 handler500 = server_error_500
+
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
@@ -55,6 +59,21 @@ rtd_urls = [
 
 project_urls = [
     url(r'^projects/', include('readthedocs.projects.urls.public')),
+]
+
+downloads_urls = [
+    url(
+        (
+            # /_/downloads/pdf/pip/latest/
+            r'^{DOC_PATH_PREFIX}downloads/(?P<type_>[-\w]+)/'
+            r'(?P<project_slug>{project_slug})/'
+            r'(?P<version_slug>{version_slug})/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(),
+        name='project_download_media',
+    ),
 ]
 
 api_urls = [
@@ -115,6 +134,7 @@ groups = [
     api_urls,
     core_urls,
     i18n_urls,
+    downloads_urls,
 ]
 
 if settings.DO_NOT_TRACK_ENABLED:
