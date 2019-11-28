@@ -235,7 +235,7 @@ class ProjectVersionsSync(ProjectVersionMixin, GenericView):
         else:
             messages.error(
                 request,
-                _("There was an error when syncing project's versions"),
+                _("There was a problem updating the project versions"),
             )
 
         return HttpResponseRedirect(self.get_success_url())
