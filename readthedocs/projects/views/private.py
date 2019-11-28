@@ -33,9 +33,17 @@ from vanilla import (
     UpdateView,
 )
 
-from readthedocs.builds.forms import VersionForm
-from readthedocs.builds.models import Version
-from readthedocs.core.mixins import ListViewWithForm, LoginRequiredMixin
+from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
+from readthedocs.builds.models import (
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
+from readthedocs.core.mixins import (
+    ListViewWithForm,
+    LoginRequiredMixin,
+    PrivateViewMixin,
+)
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.views.hooks import sync_versions
@@ -78,11 +86,6 @@ from readthedocs.search.models import SearchQuery
 from ..tasks import retry_domain_verification
 
 log = logging.getLogger(__name__)
-
-
-class PrivateViewMixin(LoginRequiredMixin):
-
-    pass
 
 
 class ProjectDashboard(PrivateViewMixin, ListView):
@@ -209,6 +212,10 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
                     task=tasks.remove_dirs,
                     args=[version.get_artifact_paths()],
                 )
+                tasks.clean_project_resources(
+                    version.project,
+                    version,
+                )
                 version.built = False
                 version.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -243,9 +250,9 @@ class ProjectVersionsSync(ProjectVersionMixin, GenericView):
 
 class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
 
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         version = self.get_object()
         if not version.active:
             version.built = False
@@ -260,9 +267,6 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
                 "Can't delete HTML for an active version.",
             )
         return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
 
 
 class ImportWizardView(
@@ -668,16 +672,13 @@ class ProjectTranslationsListAndCreate(ProjectTranslationsMixin, FormView):
 
 class ProjectTranslationsDelete(ProjectTranslationsMixin, GenericView):
 
-    http_method_names = ['get', 'post']
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         project = self.get_project()
         translation = self.get_translation(kwargs['child_slug'])
         project.translations.remove(translation)
         return HttpResponseRedirect(self.get_success_url())
-
-    def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
 
     def get_translation(self, slug):
         project = self.get_project()
@@ -956,6 +957,66 @@ class EnvironmentVariableDetail(EnvironmentVariableMixin, DetailView):
 class EnvironmentVariableDelete(EnvironmentVariableMixin, DeleteView):
 
     http_method_names = ['post']
+
+
+class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
+
+    model = VersionAutomationRule
+    lookup_url_kwarg = 'automation_rule_pk'
+
+    def get_success_url(self):
+        return reverse(
+            'projects_automation_rule_list',
+            args=[self.get_project().slug],
+        )
+
+
+class AutomationRuleList(AutomationRuleMixin, ListView):
+    pass
+
+
+class AutomationRuleMove(AutomationRuleMixin, GenericModelView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        rule = self.get_object()
+        steps = int(self.kwargs.get('steps', 0))
+        rule.move(steps)
+        return HttpResponseRedirect(
+            reverse(
+                'projects_automation_rule_list',
+                args=[self.get_project().slug],
+            )
+        )
+
+
+class AutomationRuleDelete(AutomationRuleMixin, DeleteView):
+
+    http_method_names = ['post']
+
+
+class RegexAutomationRuleMixin(AutomationRuleMixin):
+
+    model = RegexAutomationRule
+    form_class = RegexAutomationRuleForm
+
+
+class RegexAutomationRuleCreate(RegexAutomationRuleMixin, CreateView):
+    pass
+
+
+class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
+    pass
+
+
+@login_required
+def search_analytics_view(request, project_slug):
+    """View for search analytics."""
+    project = get_object_or_404(
+        Project.objects.for_admin_user(request.user),
+        slug=project_slug,
+    )
 
 
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):

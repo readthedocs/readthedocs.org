@@ -2,10 +2,10 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==2.0.0
-pytest==5.2.0
-pytest-django==3.5.1
+pytest==5.2.2
+pytest-django==3.6.0
 pytest-xdist==1.30.0
-pytest-cov==2.7.1
+pytest-cov==2.8.1
 apipkg==1.5
 execnet==1.7.1
 
@@ -17,8 +17,8 @@ execnet==1.7.1
 # (Pinned to 4.4.2 since what we need for testing is still useful)
 Mercurial==4.4.2  # pyup: ignore
 
-yamale==2.0
-pytest-mock==1.10.4
+yamale==2.0.1
+pytest-mock==1.11.2
 
 # local debugging tools
 datadiff==2.0.0

@@ -1,0 +1,52 @@
+{
+    "_links": {
+        "_self": "https://readthedocs.org/api/v3/projects/project/subprojects/subproject-alias/",
+        "parent": "https://readthedocs.org/api/v3/projects/project/"
+    },
+    "alias": "subproject-alias",
+    "child": {
+        "_links": {
+            "_self": "https://readthedocs.org/api/v3/projects/new-project/",
+            "builds": "https://readthedocs.org/api/v3/projects/new-project/builds/",
+            "environmentvariables": "https://readthedocs.org/api/v3/projects/new-project/environmentvariables/",
+            "redirects": "https://readthedocs.org/api/v3/projects/new-project/redirects/",
+            "subprojects": "https://readthedocs.org/api/v3/projects/new-project/subprojects/",
+            "superproject": "https://readthedocs.org/api/v3/projects/new-project/superproject/",
+            "translations": "https://readthedocs.org/api/v3/projects/new-project/translations/",
+            "versions": "https://readthedocs.org/api/v3/projects/new-project/versions/"
+        },
+        "created": "2019-04-29T10:00:00Z",
+        "default_branch": "master",
+        "default_version": "latest",
+        "homepage": "http://project.com",
+        "id": 4,
+        "language": {
+            "code": "en",
+            "name": "English"
+        },
+        "modified": "2019-04-29T12:00:00Z",
+        "name": "new-project",
+        "programming_language": {
+            "code": "words",
+            "name": "Only Words"
+        },
+        "repository": {
+            "type": "git",
+            "url": "https://github.com/rtfd/project"
+        },
+        "slug": "new-project",
+        "tags": [],
+        "translation_of": null,
+        "urls": {
+            "builds": "https://readthedocs.org/projects/new-project/builds/",
+            "documentation": "http://readthedocs.org/docs/project/projects/subproject-alias/en/latest/",
+            "home": "https://readthedocs.org/projects/new-project/",
+            "versions": "https://readthedocs.org/projects/new-project/versions/"
+        },
+        "users": [
+            {
+                "username": "testuser"
+            }
+        ]
+    }
+}

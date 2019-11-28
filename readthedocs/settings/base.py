@@ -41,6 +41,10 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
+    # Some endpoints from the API can be proxied on other domain
+    # or use the same domain where the docs are being served
+    # (omit the host if that's the case).
+    RTD_PROXIED_API_URL = PUBLIC_API_URL
     EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
@@ -347,6 +351,17 @@ class CommunityBaseSettings(Settings):
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
     DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    # User used to create the container.
+    # In production we use the same user than the one defined by the
+    # ``USER docs`` instruction inside the Dockerfile.
+    # In development, we can use the "UID:GID" of the current user running the
+    # instance to avoid file permissions issues.
+    # https://docs.docker.com/engine/reference/run/#user
+    RTD_DOCKER_USER = 'docs:docs'
+
+    RTD_DOCKER_COMPOSE = False
+
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
@@ -366,6 +381,9 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:5.0': {
             'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+        },
+        'readthedocs/build:6.0rc1': {
+            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
         },
     }
 

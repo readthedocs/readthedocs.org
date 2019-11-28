@@ -1293,7 +1293,6 @@ div.httpexchange div.highlight pre {
 
 
 /* Subprojects */
-
 div.module.project-subprojects li.subproject a.subproject-url:before {
     padding-right: .5em;
     font-family: FontAwesome;

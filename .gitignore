@@ -22,6 +22,8 @@ contrib/supervisord.pid
 celerybeat-schedule.*
 deploy/.vagrant
 dist/*
+docker/azurite
+docker/search
 local_settings.py
 locks/**
 logs/*
@@ -37,7 +39,6 @@ media/pdf
 media/static
 /static
 node_modules
-package-lock.json
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds

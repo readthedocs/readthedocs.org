@@ -13,3 +13,19 @@
   display: inline-block;
   margin: 1em 0em 0em 0em;
 }
+#content .module-list.automation-rules .automation-rule button {
+  margin: .25em;
+}
+#content .module-list.automation-rules .automation-rule button > span {
+  display: none;
+}
+#content .module-list.automation-rules .automation-rule button:before {
+  font-family: FontAwesome;
+  font-weight: normal;
+}
+#content .module-list.automation-rules .automation-rule button.automation-rule-up:before {
+  content: "\f062";
+}
+#content .module-list.automation-rules .automation-rule button.automation-rule-down:before {
+  content: "\f063";
+}

@@ -4,102 +4,55 @@
     "previous": null,
     "results": [
         {
-            "id": 2,
-            "name": "subproject",
-            "slug": "subproject",
-            "created": "2019-04-29T10:00:00Z",
-            "modified": "2019-04-29T12:00:00Z",
-            "language": {
-                "code": "en",
-                "name": "English"
+            "_links": {
+                "_self": "https://readthedocs.org/api/v3/projects/project/subprojects/subproject/",
+                "parent": "https://readthedocs.org/api/v3/projects/project/"
             },
-            "programming_language": {
-                "code": "words",
-                "name": "Only Words"
-            },
-            "homepage": "http://subproject.com",
-            "repository": {
-                "url": "https://github.com/rtfd/subproject",
-                "type": "git"
-            },
-            "default_version": "latest",
-            "default_branch": "master",
-            "privacy_level": {
-                "code": "public",
-                "name": "Public"
-            },
-            "subproject_of": {
-                "id": 1,
-                "name": "project",
-                "slug": "project",
+            "alias": "subproject",
+            "child": {
+                "_links": {
+                    "_self": "https://readthedocs.org/api/v3/projects/subproject/",
+                    "builds": "https://readthedocs.org/api/v3/projects/subproject/builds/",
+                    "environmentvariables": "https://readthedocs.org/api/v3/projects/subproject/environmentvariables/",
+                    "redirects": "https://readthedocs.org/api/v3/projects/subproject/redirects/",
+                    "subprojects": "https://readthedocs.org/api/v3/projects/subproject/subprojects/",
+                    "superproject": "https://readthedocs.org/api/v3/projects/subproject/superproject/",
+                    "translations": "https://readthedocs.org/api/v3/projects/subproject/translations/",
+                    "versions": "https://readthedocs.org/api/v3/projects/subproject/versions/"
+                },
                 "created": "2019-04-29T10:00:00Z",
-                "modified": "2019-04-29T12:00:00Z",
+                "default_branch": "master",
+                "default_version": "latest",
+                "homepage": "http://subproject.com",
+                "id": 3,
                 "language": {
                     "code": "en",
                     "name": "English"
                 },
+                "modified": "2019-04-29T12:00:00Z",
+                "name": "subproject",
                 "programming_language": {
                     "code": "words",
                     "name": "Only Words"
                 },
-                "homepage": "http://project.com",
                 "repository": {
-                    "url": "https://github.com/rtfd/project",
-                    "type": "git"
+                    "type": "git",
+                    "url": "https://github.com/rtfd/subproject"
                 },
-                "default_version": "latest",
-                "default_branch": "master",
-                "privacy_level": {
-                    "code": "public",
-                    "name": "Public"
-                },
-                "subproject_of": null,
+                "slug": "subproject",
+                "tags": [],
                 "translation_of": null,
                 "urls": {
-                    "builds": "https://readthedocs.org/projects/project/builds/",
-                    "documentation": "http://readthedocs.org/docs/project/en/latest/",
-                    "home": "https://readthedocs.org/projects/project/",
-                    "versions": "https://readthedocs.org/projects/project/versions/"
-                },
-                "tags": [
-                    "tag",
-                    "project",
-                    "test"
-                ],
-                "_links": {
-                    "_self": "https://readthedocs.org/api/v3/projects/project/",
-                    "versions": "https://readthedocs.org/api/v3/projects/project/versions/",
-                    "builds": "https://readthedocs.org/api/v3/projects/project/builds/",
-                    "environmentvariables": "https://readthedocs.org/api/v3/projects/project/environmentvariables/",
-                    "redirects": "https://readthedocs.org/api/v3/projects/project/redirects/",
-                    "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
-                    "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
-                    "translations": "https://readthedocs.org/api/v3/projects/project/translations/"
+                    "builds": "https://readthedocs.org/projects/subproject/builds/",
+                    "documentation": "http://readthedocs.org/docs/project/projects/subproject/en/latest/",
+                    "home": "https://readthedocs.org/projects/subproject/",
+                    "versions": "https://readthedocs.org/projects/subproject/versions/"
                 },
                 "users": [
                     {
                         "username": "testuser"
                     }
                 ]
-            },
-            "translation_of": null,
-            "urls": {
-                "builds": "https://readthedocs.org/projects/subproject/builds/",
-                "documentation": "http://readthedocs.org/docs/project/projects/subproject/en/latest/",
-                "home": "https://readthedocs.org/projects/subproject/",
-                "versions": "https://readthedocs.org/projects/subproject/versions/"
-            },
-            "tags": [],
-            "users": [],
-            "_links": {
-                "_self": "https://readthedocs.org/api/v3/projects/subproject/",
-                "versions": "https://readthedocs.org/api/v3/projects/subproject/versions/",
-                "builds": "https://readthedocs.org/api/v3/projects/subproject/builds/",
-                "environmentvariables": "https://readthedocs.org/api/v3/projects/subproject/environmentvariables/",
-                "redirects": "https://readthedocs.org/api/v3/projects/subproject/redirects/",
-                "subprojects": "https://readthedocs.org/api/v3/projects/subproject/subprojects/",
-                "superproject": "https://readthedocs.org/api/v3/projects/subproject/superproject/",
-                "translations": "https://readthedocs.org/api/v3/projects/subproject/translations/"
             }
         }
     ]
