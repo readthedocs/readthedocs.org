@@ -69,9 +69,6 @@
         <dd>
           <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
         </dd>
-        <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">{% trans "Downloads" %}</a>
-        </dd>
       </dl>
       {% endblock %}
 
