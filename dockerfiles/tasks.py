@@ -67,3 +67,8 @@ def pull(c):
     for image, tag in images:
         c.run(f'docker pull readthedocs/build:{image}', pty=True)
         c.run(f'docker tag readthedocs/build:{image} readthedocs/build:{tag}', pty=True)
+
+@task
+def test(c, arguments=''):
+    """Run all test suite."""
+    c.run(f'{DOCKER_COMPOSE_COMMAND} run --rm --no-deps web tox {arguments}', pty=True)
