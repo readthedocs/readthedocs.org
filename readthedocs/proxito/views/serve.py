@@ -268,10 +268,12 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         if storage.exists(path):
+            url = storage.url(path)
+            url = urlparse(url)._replace(scheme='', netloc='').geturl()
             return self._serve_docs(
                 request,
                 final_project=project,
-                path=path,
+                path=url,
             )
 
         sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
