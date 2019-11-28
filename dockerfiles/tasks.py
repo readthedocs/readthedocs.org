@@ -49,3 +49,13 @@ def restart(c, containers):
         if extra in containers:
             c.run(f'{DOCKER_COMPOSE_COMMAND} restart nginx', pty=True)
             break
+
+@task
+def pull(c):
+    images = [
+        ('4.0', 'stable'),
+        ('5.0', 'latest'),
+    ]
+    for image, tag in images:
+        c.run(f'docker pull readthedocs/build:{image}', pty=True)
+        c.run(f'docker tag readthedocs/build:{image} readthedocs/build:{tag}', pty=True)

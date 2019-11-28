@@ -45,6 +45,7 @@ namespace.add_collection(
         dockerfiles.tasks.manage,
         dockerfiles.tasks.attach,
         dockerfiles.tasks.restart,
+        dockerfiles.tasks.pull,
     ),
     name='docker',
 )
