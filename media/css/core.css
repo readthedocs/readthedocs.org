@@ -1307,6 +1307,11 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     content: "\f044";
 }
 
+div.module.project-versions-active button.refresh-versions:before {
+    font-family: FontAwesome;
+    font-weight: normal;
+    content: "\f021";
+}
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }

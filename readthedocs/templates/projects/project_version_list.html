@@ -33,7 +33,7 @@ Versions
                 <li>
                   <form method="post" action="{% url 'project_version_sync' project_slug=project.slug %}">
                     {% csrf_token %}
-                    <input type="submit" value="{% trans 'Sync Versions' %}">
+                      <button type="submit" class="refresh-versions"></button>
                   </form>
                 </li>
               </ul>
