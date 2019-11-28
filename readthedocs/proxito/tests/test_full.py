@@ -26,7 +26,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/subproject/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
         )
 
     def test_subproject_single_version(self):
@@ -36,7 +36,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/subproject/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
         )
 
     def test_subproject_translation_serving(self):
@@ -44,7 +44,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/subproject-translation/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/subproject-translation/latest/awesome.html',
         )
 
     def test_subproject_alias_serving(self):
@@ -52,7 +52,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/subproject-alias/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/subproject-alias/latest/awesome.html',
         )
 
     def test_translation_serving(self):
@@ -60,7 +60,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/translation/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/translation/latest/awesome.html',
         )
 
     def test_normal_serving(self):
@@ -68,7 +68,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/project/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
         )
 
     def test_single_version_serving(self):
@@ -78,7 +78,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/project/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
         )
 
     def test_single_version_serving_looks_like_normal(self):
@@ -88,7 +88,7 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/project/latest/en/stable/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/project/latest/en/stable/awesome.html',
         )
 
         # Invalid tests
@@ -140,7 +140,7 @@ class TestDocServingBackends(BaseDocServing):
         resp = self.client.get('/en/latest/awesome.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/html/project/latest/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
         )
 
     @override_settings(PYTHON_MEDIA=False)
@@ -149,7 +149,7 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp['x-accel-redirect'],
-            '/proxito/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
+            '/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
         )
 
 
@@ -181,7 +181,7 @@ class TestAdditionalDocViews(BaseDocServing):
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(
-            response['x-accel-redirect'], '/proxito/html/project/latest/robots.txt',
+            response['x-accel-redirect'], '/proxito/media/html/project/latest/robots.txt',
         )
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
