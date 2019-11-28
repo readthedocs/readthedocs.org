@@ -230,7 +230,7 @@ class ProjectVersionsSync(ProjectVersionMixin, GenericView):
         if sync:
             messages.success(
                 request,
-                _('Project version sync triggered'),
+                _('Project versions are being updated'),
             )
         else:
             messages.error(
