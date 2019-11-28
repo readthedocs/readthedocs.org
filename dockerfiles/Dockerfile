@@ -32,7 +32,7 @@ RUN apt-get -y install \
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 
-RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir --upgrade pip
 
 RUN mkdir checkouts
 WORKDIR /usr/src/app/checkouts
