@@ -6,14 +6,17 @@ DOCKER_COMPOSE_COMMAND = f'docker-compose -f {DOCKER_COMPOSE} -f {DOCKER_COMPOSE
 
 @task
 def build(c, github_token):
+    """Build docker image for servers."""
     c.run(f'GITHUB_TOKEN={github_token} {DOCKER_COMPOSE_COMMAND} build --no-cache', pty=True)
 
 @task
 def down(c):
+    """Stop and remove all the docker containers."""
     c.run(f'{DOCKER_COMPOSE_COMMAND} down', pty=True)
 
 @task
 def up(c, no_search=False):
+    """Start all the docker containers for a Read the Docs instance"""
     if no_search:
         c.run(f'docker-compose -f {DOCKER_COMPOSE} up', pty=True)
     else:
@@ -21,6 +24,7 @@ def up(c, no_search=False):
 
 @task
 def shell(c, running=False, container='web'):
+    """Run a shell inside a container."""
     if running:
         c.run(f'{DOCKER_COMPOSE_COMMAND} exec {container} /bin/bash', pty=True)
     else:
@@ -28,14 +32,17 @@ def shell(c, running=False, container='web'):
 
 @task
 def manage(c, command):
+    """Run manage.py with a specific command."""
     c.run(f'{DOCKER_COMPOSE_COMMAND} run --rm web python3 manage.py {command}', pty=True)
 
 @task
 def attach(c, container):
+    """Attach a tty to a running container (useful for pdb)."""
     c.run(f'docker attach readthedocsorg_{container}_1', pty=True)
 
 @task
 def restart(c, containers):
+    """Restart one or more containers."""
     c.run(f'{DOCKER_COMPOSE_COMMAND} restart {containers}', pty=True)
 
     # When restarting a container that nginx is connected to, we need to restart
@@ -52,6 +59,7 @@ def restart(c, containers):
 
 @task
 def pull(c):
+    """Pull all docker images required for build servers."""
     images = [
         ('4.0', 'stable'),
         ('5.0', 'latest'),
