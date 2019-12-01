@@ -10,9 +10,12 @@ def build(c, github_token):
     c.run(f'GITHUB_TOKEN={github_token} {DOCKER_COMPOSE_COMMAND} build --no-cache', pty=True)
 
 @task
-def down(c):
+def down(c, volumes=False):
     """Stop and remove all the docker containers."""
-    c.run(f'{DOCKER_COMPOSE_COMMAND} down', pty=True)
+    if volumes:
+        c.run(f'{DOCKER_COMPOSE_COMMAND} down -v', pty=True)
+    else:
+        c.run(f'{DOCKER_COMPOSE_COMMAND} down', pty=True)
 
 @task
 def up(c, no_search=False, init=False):
