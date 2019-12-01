@@ -72,6 +72,7 @@ services:
       - storage
       - azure-cli
     environment:
+      - INIT=${INIT}
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     stdin_open: true
     tty: true
