@@ -150,8 +150,10 @@ class PythonEnvironment:
                         f'{ip}',
                     ]
             except docker.errors.NotFound:
-                # devpi container not found
-                pass
+                log.info(
+                    'devpi container not found. container=%s',
+                    getattr(settings, 'RTD_DOCKER_COMPOSE_DEVPI_CONTAINER', None),
+                )
 
         return []
 
