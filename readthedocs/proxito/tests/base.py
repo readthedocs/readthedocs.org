@@ -15,6 +15,7 @@ from readthedocs.projects.models import Project
     ROOT_URLCONF='readthedocs.proxito.urls',
     MIDDLEWARE=['readthedocs.proxito.middleware.ProxitoMiddleware'],
     USE_SUBDOMAIN=True,
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
 )
 class BaseDocServing(TestCase):
 

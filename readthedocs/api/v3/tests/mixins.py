@@ -21,6 +21,7 @@ from readthedocs.redirects.models import Redirect
     PUBLIC_DOMAIN='readthedocs.io',
     PRODUCTION_DOMAIN='readthedocs.org',
     USE_SUBDOMAIN=True,
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
 )
 class APIEndpointMixin(TestCase):
 
