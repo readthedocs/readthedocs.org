@@ -407,5 +407,5 @@ class TestServeDownloadFiles(BaseDocServing):
         })
         response = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response._headers['x-accel-redirect'][1], '/proxito/media/pdf/project/latest/project.pdf')
-        self.assertEqual(response._headers['content-disposition'][1], 'filename=project-latest.pdf')
+        self.assertEqual(response['x-accel-redirect'], '/proxito/media/pdf/project/latest/project.pdf')
+        self.assertEqual(response['content-disposition'], 'filename=project-latest.pdf')
