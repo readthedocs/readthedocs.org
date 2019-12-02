@@ -34,11 +34,6 @@ Enabling
    
    You can always revoke access in the same panel.
 
-.. note::
-   
-   Sharing using a password and a HTTP header token are currently in beta.
-   If you want access to these features, email us to support@readthedocs.com.
-
 Effects
 -------
 
