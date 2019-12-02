@@ -31,6 +31,18 @@ urlpatterns = [
         public.project_downloads,
         name='project_downloads',
     ),
+
+    # NOTE: this URL is kept here only for backward compatibility to serve
+    # non-html files from the dashboard.
+    url(
+        (
+            r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
+            r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
+        ),
+        public.ProjectDownloadMedia.as_view(),
+        name='project_download_media',
+    ),
+
     url(
         r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
         public.project_badge,
