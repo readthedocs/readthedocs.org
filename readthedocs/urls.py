@@ -134,7 +134,6 @@ groups = [
     api_urls,
     core_urls,
     i18n_urls,
-    downloads_urls,
 ]
 
 if settings.DO_NOT_TRACK_ENABLED:
