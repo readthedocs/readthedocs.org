@@ -1,7 +1,11 @@
 {
     "active": true,
     "built": true,
-    "downloads": {},
+    "downloads": {
+        "epub": "https://project.readthedocs.io/_/downloads/epub/project/v1.0/",
+        "htmlzip": "https://project.readthedocs.io/_/downloads/htmlzip/project/v1.0/",
+        "pdf": "https://project.readthedocs.io/_/downloads/pdf/project/v1.0/"
+    },
     "id": 2,
     "identifier": "a1b2c3",
     "_links": {
@@ -13,7 +17,7 @@
     "slug": "v1.0",
     "type": "tag",
     "urls": {
-        "documentation": "http://readthedocs.org/docs/project/en/v1.0/",
+        "documentation": "http://project.readthedocs.io/en/v1.0/",
         "vcs": "https://github.com/rtfd/project/tree/v1.0/"
     },
     "verbose_name": "v1.0"
