@@ -132,6 +132,7 @@ groups = [
     rtd_urls,
     project_urls,
     api_urls,
+    downloads_urls,
     core_urls,
     i18n_urls,
 ]

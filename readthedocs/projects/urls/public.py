@@ -33,14 +33,15 @@ urlpatterns = [
     ),
 
     # NOTE: this URL is kept here only for backward compatibility to serve
-    # non-html files from the dashboard.
+    # non-html files from the dashboard. Only the ``name=`` is deleted, so when
+    # we need to generate the URL we will use the new one. However, if the user
+    # hit this URL with an old link, it will keep working.
     url(
         (
             r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
             r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
         ),
         public.ProjectDownloadMedia.as_view(),
-        name='project_download_media',
     ),
 
     url(
