@@ -13,7 +13,13 @@ from readthedocs.projects.models import Project
 @override_settings(
     PUBLIC_DOMAIN='dev.readthedocs.io',
     ROOT_URLCONF='readthedocs.proxito.urls',
-    MIDDLEWARE=['readthedocs.proxito.middleware.ProxitoMiddleware'],
+    MIDDLEWARE=[
+        # Auth middleware is required since some views uses ``request.user``
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+        'readthedocs.proxito.middleware.ProxitoMiddleware',
+    ],
     USE_SUBDOMAIN=True,
     RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
 )

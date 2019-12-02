@@ -234,7 +234,18 @@ Project update
 
         {
             "name": "New name for the project",
-            "default_version": "v0.27.0"
+            "repository": {
+                "url": "https://github.com/readthedocs/readthedocs.org",
+                "type": "git"
+            },
+            "language": "ja",
+            "programming_language": "py",
+            "homepage": "https://readthedocs.org/",
+            "default_version": "v0.27.0",
+            "default_branch": "develop",
+            "analytics_code": "UA000000",
+            "single_version": false,
+
         }
 
     :statuscode 204: Updated successfully
