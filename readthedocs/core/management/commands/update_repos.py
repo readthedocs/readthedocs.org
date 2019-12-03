@@ -90,6 +90,7 @@ class Command(BaseCommand):
                 ):
                     trigger_build(project=version.project, version=version)
 
+            else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
                     # pylint: disable=no-value-for-parameter
