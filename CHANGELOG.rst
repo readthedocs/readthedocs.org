@@ -1,3 +1,29 @@
+Version 3.11.0
+--------------
+
+:Date: December 03, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Use media availability instead of querying the filesystem (`#6428 <https://github.com/readthedocs/readthedocs.org/pull/6428>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove beta note about sharing by password and header auth (`#6426 <https://github.com/readthedocs/readthedocs.org/pull/6426>`__)
+* `@humitos <http://github.com/humitos>`__: Use trigger_build for update_repos command (`#6422 <https://github.com/readthedocs/readthedocs.org/pull/6422>`__)
+* `@humitos <http://github.com/humitos>`__: Add more supported field to APIv3 docs (`#6417 <https://github.com/readthedocs/readthedocs.org/pull/6417>`__)
+* `@humitos <http://github.com/humitos>`__: Add AuthenticationMiddleware to El Proxito tests (`#6416 <https://github.com/readthedocs/readthedocs.org/pull/6416>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs on sharing (`#6410 <https://github.com/readthedocs/readthedocs.org/pull/6410>`__)
+* `@humitos <http://github.com/humitos>`__: Use WORKDIR to cd into a directory in Dockerfile (`#6409 <https://github.com/readthedocs/readthedocs.org/pull/6409>`__)
+* `@humitos <http://github.com/humitos>`__: Use /data inside Azurite container to persist data (`#6407 <https://github.com/readthedocs/readthedocs.org/pull/6407>`__)
+* `@humitos <http://github.com/humitos>`__: Serve non-html files from nginx (X-Accel-Redirect) (`#6404 <https://github.com/readthedocs/readthedocs.org/pull/6404>`__)
+* `@humitos <http://github.com/humitos>`__: Perform redirects at DB level (`#6398 <https://github.com/readthedocs/readthedocs.org/pull/6398>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend El Proxito views from commercial (`#6397 <https://github.com/readthedocs/readthedocs.org/pull/6397>`__)
+* `@humitos <http://github.com/humitos>`__: Migrate El Proxito views to class-based views (`#6396 <https://github.com/readthedocs/readthedocs.org/pull/6396>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Fix CSS and how we were handling html in automation rule UI (`#6394 <https://github.com/readthedocs/readthedocs.org/pull/6394>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.10.0 (`#6391 <https://github.com/readthedocs/readthedocs.org/pull/6391>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set privacy level explicitly (`#6390 <https://github.com/readthedocs/readthedocs.org/pull/6390>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Redirect index files in proxito instead of serving (`#6387 <https://github.com/readthedocs/readthedocs.org/pull/6387>`__)
+* `@humitos <http://github.com/humitos>`__: Fully working docker-compose file (`#6295 <https://github.com/readthedocs/readthedocs.org/pull/6295>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Subproject validation to use it for Forms and API (`#6285 <https://github.com/readthedocs/readthedocs.org/pull/6285>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Gold Views (`#6272 <https://github.com/readthedocs/readthedocs.org/pull/6272>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add docs for automatin rules (`#6072 <https://github.com/readthedocs/readthedocs.org/pull/6072>`__)
+
 Version 3.10.0
 --------------
 
