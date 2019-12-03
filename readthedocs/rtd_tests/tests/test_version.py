@@ -82,3 +82,15 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_version_supports_wipe(self):
         self.assertTrue(self.branch_version.supports_wipe)
+
+    def test_get_downloads(self):
+        self.assertDictEqual(self.branch_version.get_downloads(), {})
+
+        self.branch_version.has_pdf = True
+        self.branch_version.has_epub = True
+        self.branch_version.save()
+        expected = {
+            'epub': '//readthedocs.org/projects/pip/downloads/epub/stable/',
+            'pdf': '//readthedocs.org/projects/pip/downloads/pdf/stable/',
+        }
+        self.assertDictEqual(self.branch_version.get_downloads(), expected)
