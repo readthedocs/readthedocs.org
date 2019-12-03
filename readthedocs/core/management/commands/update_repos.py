@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Custom management command to rebuild documentation for all projects.
 
@@ -11,11 +9,9 @@ import logging
 from django.core.management.base import BaseCommand
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
