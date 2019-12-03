@@ -6,7 +6,7 @@ This feature is currently available under a :doc:`Feature Flag </guides/feature-
 So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
 
 Features
-========
+--------
 
 - **Build on Pull/Merge Request Event:** We create an external version and trigger a build for that version
   when we receive pull/merge request open event from the webhook.
@@ -30,7 +30,7 @@ Features
     GitHub Build Status Reporting for Pull Requests
 
 Troubleshooting
-===============
+---------------
 
 After the feature is enabled on your project if everything does not work as expected,
 some common causes might be:

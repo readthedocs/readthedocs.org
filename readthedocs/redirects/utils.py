@@ -84,7 +84,7 @@ def get_redirect_response(request, full_path):
         language, version_slug, path = language_and_version_from_path(path)
 
     path, http_status = project.redirects.get_redirect_path_with_status(
-        path=path, language=language, version_slug=version_slug
+        path=path, full_path=full_path, language=language, version_slug=version_slug
     )
 
     if path is None:
