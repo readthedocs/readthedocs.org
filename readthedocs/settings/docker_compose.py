@@ -89,11 +89,11 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
-    RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
     AZURE_STATIC_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
 
     # Storage for static files (those collected with `collectstatic`)
-    STATICFILES_STORAGE = 'readthedocsext.storage.azure_storage.AzureStaticStorage'
+    STATICFILES_STORAGE = 'readthedocs.storage.azure_storage.AzureStaticStorage'
 
     STATICFILES_DIRS = [
         os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),

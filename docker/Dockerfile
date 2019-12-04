@@ -1,7 +1,5 @@
 FROM ubuntu:18.04
 
-ARG GITHUB_TOKEN
-
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG C.UTF-8
 
@@ -25,18 +23,13 @@ RUN apt-get -y install \
         libjpeg-dev \
         sqlite
 
-RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir --upgrade pip
 
 RUN mkdir checkouts
 WORKDIR /usr/src/app/checkouts
 
 COPY requirements readthedocs.org/requirements
 
-RUN pip install --no-cache-dir -r readthedocs.org/requirements/docker.txt
-
-# We clone the -ext here only to install the requirements at this point.
-# -ext is also mounted as volume from the upper directory
-RUN git clone --single-branch --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext
-RUN pip install --no-cache-dir -e readthedocs-ext
+RUN pip3 install --no-cache-dir -r readthedocs.org/requirements/docker.txt
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
