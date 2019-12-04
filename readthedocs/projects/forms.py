@@ -360,20 +360,17 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
             self.fields['child'].queryset = self.get_subproject_queryset()
 
     def clean_parent(self):
-        if self.project.superprojects.exists():
-            # This validation error is mostly for testing, users shouldn't see
-            # this in normal circumstances
-            raise forms.ValidationError(
-                _('Subproject nesting is not supported'),
-            )
+        self.project.is_valid_as_superproject(
+            forms.ValidationError
+        )
         return self.project
 
     def clean_child(self):
         child = self.cleaned_data['child']
-        if child == self.project:
-            raise forms.ValidationError(
-                _('A project can not be a subproject of itself'),
-            )
+
+        child.is_valid_as_subproject(
+            self.project, forms.ValidationError
+        )
         return child
 
     def clean_alias(self):

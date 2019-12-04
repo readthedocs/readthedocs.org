@@ -4,7 +4,6 @@
 # We do not offer support on this file and configuration at this point.
 # DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
 
-# GITHUB_TOKEN environment variable is required to build the images
 version: '3'
 
 volumes:
@@ -19,8 +18,6 @@ services:
     build:
       context: .
       dockerfile: ${PWD}/dockerfiles/Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
 
   nginx:
     image: nginx
@@ -83,7 +80,7 @@ services:
     volumes:
       - ${PWD}/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
       - ${PWD}/dockerfiles/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
-      - ${PWD}/docker/scripts/wait_for_search.py:/usr/src/app/docker/scripts/wait_for_search.py
+      - ${PWD}/dockerfiles/scripts/wait_for_search.py:/usr/src/app/docker/scripts/wait_for_search.py
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
