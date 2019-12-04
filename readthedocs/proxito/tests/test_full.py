@@ -91,6 +91,22 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/html/project/latest/en/stable/awesome.html',
         )
 
+    def test_external_version_serving(self):
+        fixture.get(
+            Version,
+            verbose_name='10',
+            slug='10',
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        url = '/_/external/html/project/10/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/external/html/project/10/awesome.html',
+        )
+
         # Invalid tests
 
     def test_invalid_language_for_project_with_versions(self):
