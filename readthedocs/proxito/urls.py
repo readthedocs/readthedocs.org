@@ -29,6 +29,7 @@ pip.rtfd.io/<lang>/
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
 """
 
+from django.conf import settings
 from django.conf.urls import url
 from django.views import defaults
 
@@ -43,6 +44,8 @@ from readthedocs.proxito.views.serve import (
 from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
+
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '_/')
 
 urlpatterns = [
     # Serve custom 404 pages
@@ -87,16 +90,19 @@ urlpatterns = [
     #     name='docs_detail',
     # ),
 
-    # External builds
+    # External versions
     # (requires to be before single version)
     url(
         (
-            r'^html/(?P<project_slug>{project_slug})/'
+            r'^{DOC_PATH_PREFIX}external/html/(?P<project_slug>{project_slug})/'
             r'(?P<version_slug>{version_slug})/'
-            r'(?P<filename>{filename_slug})'.format(**pattern_opts)
+            r'(?P<filename>{filename_slug})'.format(
+                **pattern_opts,
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+            )
         ),
         ServeDocs.as_view(version_type=EXTERNAL),
-        name='docs_detail_external_build',
+        name='docs_detail_external_version',
     ),
 
     # (Sub)project single version

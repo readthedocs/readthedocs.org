@@ -81,6 +81,7 @@ from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
 log = logging.getLogger(__name__)
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '_/')
 
 
 class Version(models.Model):
@@ -298,8 +299,15 @@ class Version(models.Model):
         # but this is much simpler to handle since we only link them a couple places for now
         if self.type == EXTERNAL:
             # Django's static file serving doesn't automatically append index.html
-            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
-                f'{self.project.slug}/{self.slug}/index.html'
+            scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
+            path = self.project.get_storage_path(
+                type_='html',
+                version_slug=self.slug,
+                version_type=self.type,
+                include_file=False,
+            )
+            url = f'{scheme}://{self.project.subdomain()}/' \
+                f'{DOC_PATH_PREFIX}{path}/index.html'
             return url
 
         if not self.built and not self.uploaded:
