@@ -45,7 +45,6 @@ class CommunityBaseSettings(Settings):
     # or use the same domain where the docs are being served
     # (omit the host if that's the case).
     RTD_PROXIED_API_URL = PUBLIC_API_URL
-    EXTERNAL_VERSION_URL = None  # for pull request builds
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'

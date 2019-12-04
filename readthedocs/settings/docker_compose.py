@@ -101,7 +101,6 @@ class DockerBaseSettings(CommunityDevSettings):
     ]
     AZURE_BUILD_STORAGE_CONTAINER = 'builds'
     BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
-    EXTERNAL_VERSION_URL = 'http://external-builds.community.dev.readthedocs.io'
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
