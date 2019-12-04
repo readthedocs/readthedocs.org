@@ -33,9 +33,9 @@ urlpatterns = [
     ),
 
     # NOTE: this URL is kept here only for backward compatibility to serve
-    # non-html files from the dashboard. Only the ``name=`` is deleted, so when
-    # we need to generate the URL we will use the new one. However, if the user
-    # hit this URL with an old link, it will keep working.
+    # non-html files from the dashboard. The ``name=`` is removed to avoid
+    # generating an invalid URL by mistake (we should manually generate it
+    # pointing to the right place: "docs.domain.org/_/downloads/")
     url(
         (
             r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
