@@ -1,7 +1,8 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL, BRANCH, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -82,3 +83,16 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_version_supports_wipe(self):
         self.assertTrue(self.branch_version.supports_wipe)
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_get_downloads(self):
+        self.assertDictEqual(self.branch_version.get_downloads(), {})
+
+        self.branch_version.has_pdf = True
+        self.branch_version.has_epub = True
+        self.branch_version.save()
+        expected = {
+            'epub': '//readthedocs.org/projects/pip/downloads/epub/stable/',
+            'pdf': '//readthedocs.org/projects/pip/downloads/pdf/stable/',
+        }
+        self.assertDictEqual(self.branch_version.get_downloads(), expected)

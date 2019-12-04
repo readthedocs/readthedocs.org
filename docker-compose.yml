@@ -4,7 +4,6 @@
 # We do not offer support on this file and configuration at this point.
 # DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
 
-# GITHUB_TOKEN environment variable is required to build the images
 version: '3'
 
 volumes:
@@ -19,8 +18,6 @@ services:
     build:
       context: .
       dockerfile: ${PWD}/docker/Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
 
   nginx:
     image: nginx
