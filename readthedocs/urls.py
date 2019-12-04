@@ -9,7 +9,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.constants import pattern_opts
 from readthedocs.core.urls import core_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
@@ -20,7 +19,6 @@ from readthedocs.core.views import (
 )
 from readthedocs.search import views as search_views
 from readthedocs.search.api import PageSearchAPIView
-from readthedocs.projects.views.public import ProjectDownloadMedia
 
 
 admin.autodiscover()
