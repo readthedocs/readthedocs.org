@@ -111,9 +111,6 @@ class URLAccessMixin:
             }
 
         for (view, regex, namespace, name) in deconstructed_urls:
-            if not name:
-                # Skip URLs that does not have a name
-                continue
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
                 if key in list(request_data.keys()):
@@ -199,6 +196,7 @@ class PublicProjectMixin(ProjectMixin):
     response_data = {
         # Public
         '/projects/': {'status_code': 301},
+        '/projects/pip/downloads/pdf/latest/': {'status_code': 200},
         '/projects/pip/badge/': {'status_code': 200},
         '/projects/invalid_slug/': {'status_code': 302},
     }
