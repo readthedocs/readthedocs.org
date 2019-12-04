@@ -28,8 +28,6 @@ admin.autodiscover()
 handler404 = server_error_404
 handler500 = server_error_500
 
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
-
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
     url(r'^support/', SupportView.as_view(), name='support'),
@@ -59,21 +57,6 @@ rtd_urls = [
 
 project_urls = [
     url(r'^projects/', include('readthedocs.projects.urls.public')),
-]
-
-downloads_urls = [
-    url(
-        (
-            # /_/downloads/pdf/pip/latest/
-            r'^{DOC_PATH_PREFIX}downloads/(?P<type_>[-\w]+)/'
-            r'(?P<project_slug>{project_slug})/'
-            r'(?P<version_slug>{version_slug})/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
-        ),
-        ProjectDownloadMedia.as_view(),
-        name='project_download_media',
-    ),
 ]
 
 api_urls = [
@@ -132,7 +115,6 @@ groups = [
     rtd_urls,
     project_urls,
     api_urls,
-    downloads_urls,
     core_urls,
     i18n_urls,
 ]
