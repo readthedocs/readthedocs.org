@@ -1,4 +1,7 @@
+"""Django storage mixin classes for different storage backends (Azure, S3)."""
+
 from urllib.parse import urlsplit, urlunsplit
+
 
 class OverrideHostnameMixin:
 

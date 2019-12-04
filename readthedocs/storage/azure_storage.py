@@ -1,3 +1,8 @@
+# pylint: disable=abstract-method
+# Disable: Method 'path' is abstract in class 'Storage' but is not overridden
+
+"""Django storage classes to use with Azure Blob storage service."""
+
 from azure.common import AzureMissingResourceHttpError
 from django.conf import settings
 from django.contrib.staticfiles.storage import ManifestFilesMixin
@@ -5,7 +10,7 @@ from storages.backends.azure_storage import AzureStorage
 
 from readthedocs.builds.storage import BuildMediaStorageMixin
 
-from .base import OverrideHostnameMixin
+from .mixins import OverrideHostnameMixin
 
 
 class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, AzureStorage):
