@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -31,6 +31,8 @@ log = logging.getLogger(__name__)  # noqa
 
 
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+
+    version_type = INTERNAL
 
     def get(self,
             request,
@@ -57,8 +59,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         )
 
         # Handle a / redirect when we aren't a single version
-        if all([lang_slug is None, version_slug is None, filename == '',
-                not final_project.single_version]):
+        if all([
+                lang_slug is None,
+                version_slug is None,
+                filename == '',
+                not final_project.single_version,
+        ]):
             redirect_to = redirect_project_slug(
                 request,
                 project=final_project,
@@ -70,7 +76,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             )
             return redirect_to
 
-        if (lang_slug is None or version_slug is None) and not final_project.single_version:
+        if all([
+                (lang_slug is None or version_slug is None),
+                not final_project.single_version,
+                self.version_type != EXTERNAL,
+        ]):
             log.info(
                 'Invalid URL for project with versions. url=%s, project=%s',
                 filename, final_project.slug
@@ -93,7 +103,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             return self.get_unauthed_response(request, final_project)
 
         storage_path = final_project.get_storage_path(
-            type_='html', version_slug=version_slug, include_file=False
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
+
         )
         path = os.path.join(storage_path, filename)
 
