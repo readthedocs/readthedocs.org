@@ -24,6 +24,9 @@ services:
       - storage
       - azure-cli
       - search
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - SEARCH=t
 
   # You may need to increase the memory for vm
   # sudo sysctl -w vm.max_map_count=262144
