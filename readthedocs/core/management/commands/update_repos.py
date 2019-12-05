@@ -23,7 +23,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def add_arguments(self, parser):
-        parser.add_argument('slugs', nargs='+', type=str)
+        parser.add_argument('--slugs', nargs='+', type=str)
 
         parser.add_argument(
             '-f',
