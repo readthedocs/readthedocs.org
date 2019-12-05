@@ -730,8 +730,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 ),
             })
 
-        # Update environment from Project's specific environment variables
-        env.update(self.project.environment_variables)
+        # Update environment from Project's specific environment variables,
+        # avoiding to expose environment variables if the version is external
+        # for security reasons.
+        if self.version.type != EXTERNAL:
+            env.update(self.project.environment_variables)
 
         return env
 
