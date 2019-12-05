@@ -34,3 +34,8 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - search_data:/usr/share/elasticsearch/data
+
+    # Remove elasticsearch log since it's useless and shows periodic
+    # "flood stage disk watermark exceeded" all the time
+    logging:
+      driver: none
