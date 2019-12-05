@@ -104,6 +104,13 @@ class APIEndpointMixin(TestCase):
             versions=[],
         )
 
+        # Make all non-html true so responses are complete
+        self.project.versions.update(
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
+        )
+
         self.client = APIClient()
 
     def tearDown(self):
