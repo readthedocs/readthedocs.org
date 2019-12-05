@@ -634,9 +634,9 @@ class Project(models.Model):
 
         for type_ in ('htmlzip', 'epub', 'pdf'):
             downloads[type_] = self.get_production_media_url(
-            type_,
-            default_version,
-        )
+                type_,
+                default_version,
+            )
 
         return downloads
 
