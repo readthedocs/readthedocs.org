@@ -306,7 +306,8 @@ class Version(models.Model):
                 version_type=self.type,
                 include_file=False,
             )
-            url = f'{scheme}://{self.project.subdomain()}/' \
+            domain = self.project.subdomain()
+            url = f'{scheme}://{domain}/' \
                 f'{DOC_PATH_PREFIX}{path}/index.html'
             return url
 
