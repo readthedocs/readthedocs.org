@@ -608,20 +608,17 @@ class Project(models.Model):
             )
         return path
 
-    def get_production_media_url(self, type_, version_slug, full_path=True):
+    def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
-        try:
-            # NOTE: we can't use ``reverse('project_download_media')`` here
-            # because this URL only exists in El Proxito and this method is
-            # accessed from Web instance
-            path = f'/{DOC_PATH_PREFIX}downloads/{type_}/{self.slug}/{version_slug}/'
-        except NoReverseMatch:
-            return ''
-        if full_path:
-            # Use project domain for full path --same domain as docs
-            # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
-            domain = self.subdomain()
-            path = f'//{domain}{path}'
+        # Use project domain for full path --same domain as docs
+        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
+        domain = self.subdomain()
+
+        # NOTE: we can't use ``reverse('project_download_media')`` here
+        # because this URL only exists in El Proxito and this method is
+        # accessed from Web instance
+        path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{type_}/{self.slug}/{version_slug}/'
+
         return path
 
     def subdomain(self):
