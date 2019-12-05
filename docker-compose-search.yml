@@ -31,6 +31,7 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
     environment:
       - discovery.type=single-node
+      - node.name=search
       - cluster.routing.allocation.disk.threshold_enabled=false
       - cluster.info.update.interval=30m
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
