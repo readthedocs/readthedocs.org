@@ -5,9 +5,9 @@ DOCKER_COMPOSE_SEARCH = 'docker-compose-search.yml'
 DOCKER_COMPOSE_COMMAND = f'docker-compose -f {DOCKER_COMPOSE} -f {DOCKER_COMPOSE_SEARCH}'
 
 @task
-def build(c, github_token):
+def build(c):
     """Build docker image for servers."""
-    c.run(f'GITHUB_TOKEN={github_token} {DOCKER_COMPOSE_COMMAND} build --no-cache', pty=True)
+    c.run(f'{DOCKER_COMPOSE_COMMAND} build --no-cache', pty=True)
 
 @task
 def down(c, volumes=False):
