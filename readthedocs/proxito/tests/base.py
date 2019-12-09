@@ -21,7 +21,6 @@ from readthedocs.projects.models import Project
         'readthedocs.proxito.middleware.ProxitoMiddleware',
     ],
     USE_SUBDOMAIN=True,
-    DOC_PATH_PREFIX='_/',
 )
 class BaseDocServing(TestCase):
 

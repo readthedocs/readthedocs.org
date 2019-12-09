@@ -81,7 +81,6 @@ from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
 log = logging.getLogger(__name__)
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '_/')
 
 
 class Version(models.Model):
@@ -306,9 +305,13 @@ class Version(models.Model):
                 version_type=self.type,
                 include_file=False,
             )
-            domain = self.project.subdomain()
-            url = f'{scheme}://{domain}/' \
-                f'{DOC_PATH_PREFIX}{path}/index.html'
+
+            # We don't want the `external/` part in the user-facing URL
+            if path.startswith(EXTERNAL):
+                path = path.replace(f'{EXTERNAL}/', '', 1)
+
+            domain = settings.RTD_EXTERNAL_VERSION_DOMAIN
+            url = f'{scheme}://{domain}/{path}/index.html'
             return url
 
         if not self.built and not self.uploaded:

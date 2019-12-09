@@ -45,8 +45,6 @@ from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
 
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '_/')
-
 urlpatterns = [
     # Serve custom 404 pages
     url(
@@ -91,14 +89,14 @@ urlpatterns = [
     # ),
 
     # External versions
-    # (requires to be before single version)
+    # (RTD_EXTERNAL_VERSION_DOMAIN/html/<project-slug>/<version-slug>/<filename>)
+    # NOTE: requires to be before single version
     url(
         (
-            r'^{DOC_PATH_PREFIX}external/html/(?P<project_slug>{project_slug})/'
+            r'^html/(?P<project_slug>{project_slug})/'
             r'(?P<version_slug>{version_slug})/'
             r'(?P<filename>{filename_slug})'.format(
                 **pattern_opts,
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
             )
         ),
         ServeDocs.as_view(version_type=EXTERNAL),
