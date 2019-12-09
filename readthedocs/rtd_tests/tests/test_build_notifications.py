@@ -40,7 +40,7 @@ class BuildNotificationsTests(TestCase):
 
     def test_send_email_notification(self):
         fixture.get(EmailHook, project=self.project)
-        send_notifications(self.version.pk, self.build.pk)
+        send_notifications(self.version.pk, self.build.pk, email=True)
         self.assertEqual(len(mail.outbox), 1)
 
     def test_send_email_and_webhook__notification(self):
@@ -48,7 +48,7 @@ class BuildNotificationsTests(TestCase):
         fixture.get(WebHook, project=self.project)
         with patch('readthedocs.projects.tasks.requests.post') as mock:
             mock.return_value = None
-            send_notifications(self.version.pk, self.build.pk)
+            send_notifications(self.version.pk, self.build.pk, email=True)
             mock.assert_called_once()
         self.assertEqual(len(mail.outbox), 1)
 
