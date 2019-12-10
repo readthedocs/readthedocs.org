@@ -2,6 +2,8 @@
 
 ../../docker/common.sh
 
+python3 ../../docker/scripts/wait_for_search.py
+
 watchmedo auto-restart \
   --patterns="*.py" \
   --ignore-patterns="*.#*.py;./user_builds/*;./public_*;./private_*;*.pyo;*.pyc;*flycheck*.py;./media/*;./.tox/*" \
