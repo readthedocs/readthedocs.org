@@ -248,7 +248,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 update_on_success=False,
             )
 
-            before_vcs.send(sender=self.version)
+            before_vcs.send(sender=self.version, environment=environment)
             with self.project.repo_nonblockinglock(version=self.version):
                 self.sync_repo(environment)
             return True
@@ -464,7 +464,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         # Environment used for code checkout & initial configuration reading
         with environment:
             try:
-                before_vcs.send(sender=self.version)
+                before_vcs.send(sender=self.version, environment=environment)
                 if self.project.skip:
                     raise ProjectBuildsSkippedError
                 try:
@@ -569,6 +569,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
 
             try:
+                before_build.send(
+                    sender=self.version,
+                    environment=self.build_env,
+                )
                 with self.project.repo_nonblockinglock(version=self.version):
                     self.setup_python_environment()
 
@@ -1004,7 +1008,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: dict
         """
         self.build_env.update_build(state=BUILD_STATE_BUILDING)
-        before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
         outcomes['html'] = self.build_docs_html()
