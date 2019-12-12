@@ -19,7 +19,7 @@
       {% if extra_recipients|length > 0 %}
         <li>
           {% blocktrans trimmed count counter=extra_recipients|length %}
-            And 1 other recipient.
+            And {{ counter }} other recipient.
           {% plural %}
             And {{ counter }} other recipients...
           {% endblocktrans %}

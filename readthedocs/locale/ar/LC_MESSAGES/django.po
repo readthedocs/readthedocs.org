@@ -2300,7 +2300,7 @@ msgstr ""
 
 #: templates/notifications/send_notification_form.html:21
 #, python-format
-msgid "And 1 other recipient."
+msgid "And %(counter)s other recipient."
 msgid_plural "And %(counter)s other recipients..."
 msgstr[0] ""
 msgstr[1] ""
