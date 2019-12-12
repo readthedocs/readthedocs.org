@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Schema for Read the Docs configuration file",
+  "type": "object",
+  "additionalProperties": false
+  "properties": {
+    "basics": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+          "version": {
+            "enum('2')"
+            "description": "The version of the spec to be used",
+          },
+          "formats": {
+            "any(list(enum('htmlzip', 'pdf', 'epub')),
+            "enum('all'), required=False)",
+            "description": "Formats of tehe documentation to be built",
+            "default":"[]",
+          },  
+          "conda": {
+            "include('conda', required=False)",
+            "description": "Configuration for Conda support",
+          },
+          "build": {
+            "include('build', required=False)",
+            "description": "Configuration for the documentation build process",
+          },
+          "python": {
+            "include('python', required=False)",
+            "description": "Configuration of the Python environment to be used",
+          },
+          "sphinx": {
+            "include('sphinx', required=False)",
+            "description": "Configuration for sphinx documentation, and is default",
+          },
+          "mkdocs": {
+            "include('mkdocs', required=False)",
+            "description": "Configuration for mkdocs documentation",
+          },
+          "submodules": {
+            "include('submodules', required=False)",
+            "description": "Submodules configuration",
+          },
+          "redirects": {
+            "map(enum('page'), map(str(), str()), required=False)",
+            "description": "Redirects for the current version to be built",
+            "default":"null",
+          },
+          ---
+          "conda": {
+            "environment": {
+              "path()",
+              "description":"The path to the Conda environment file from the root of the project",
+            }
+          }
+          "build": {
+            "image": {
+              "enum('stable', 'latest', required=False)",
+              "description":"The build docker image to be used",
+              "default":"'latest'",
+              "note":"it can be overridden by a project",
+            }
+          }
+          "python": {
+            "version": {
+              "enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)",
+              "description":"The Python version (this depends on the build image)",
+              "default":"'3'",
+            }
+            "system_packages": {
+              "bool(required=False)",
+              "description":"Gives the virtual environment access to the global site-packages dir",
+              "default":"false | project config",
+            }
+            "install": {
+              "list(any(include('python-install-requirements'), include('python-install'), include('python-install-pipfile')), required=False)",
+              "description":"Installation of packages and requirements",
+            }
+          }
+          "python-install-requirements": {
+            "requirements": {
+              "path()",
+              "description":"The path to the requirements file from the root of the project",
+            }
+          }
+          "python-install: {
+            "path":{
+              "path()",
+              "description":"The path to the project to be installed",
+            }
+            "method": {
+              "enum('pip', 'setuptools', required=False)",
+              "description":"Install using python setup.py install or pip",
+              "default":"pip",
+            }
+            "extra_requirements": {
+              "list(str(), required=False)",
+              "description":"Extra requirements sections to install in addition to the package dependencies",
+              "validity":"when `method` is `pip`",
+              "default":"[]",
+            }
+          }
+          "python-install-pipfile": {
+            "pipfile": {
+              "path()",
+              "description":"Add the --dev option to pipenv install",
+            }
+            "dev": {
+              "bool(required=False)",
+              "description":"Gives the virtual environment access to the global site-packages dir",
+              "default":"false",
+            }
+            "ignore_pipfile": {
+              "bool(required=False)",
+              "description":"Add the --ignore-pipfile option to pipenv install",
+              "default":"false",
+            }
+            "skip_lock": {
+              "bool(required=False)",
+              "description":"Add the --skip-lock option to pipenv install",
+              "default":"true",
+            }
+          }
+          "sphinx": {
+            "builder": {
+              "enum('html', 'htmldir', 'singlehtml', required=False)",
+              "description":"The builder type for the sphinx documentation",
+              "default":"'html'",
+            }
+            "configuration": {
+              "path(required=False)",
+              "description":"The path to the conf.py file",
+              "default":"rtd will try to find it | project config",
+            }
+            "fail_on_warning": {
+              "bool(requried=False)",
+              "description":"Add the -W option to sphinx build",
+            }
+          }
+          "mkdocs": {
+            "configuration": {
+              "path(required=False)",
+              "description":"The path to the mkdocs.yml file",
+              "default":"rtd will try to find it | project config",
+            }
+            "fail_on_warning": {
+              "bool(requried=False)",
+              "description":"Add the --strict optio to mkdocs build",
+              "default":"false",
+            }
+          }
+          "submodules": {
+            "include": {
+              "any(list(str()), enum('all'), required=False)",
+              "description":"List of submodules to be included",
+              "default":"[]",
+            }
+            "exclude": {
+              "any(list(str()), enum('all'), required=False)",
+              "description":"List of submodules to be ignored",
+              "default":"[]",
+            }
+            "recursive": {
+              "bool(requried=False)",
+              "description":"Do a recursive clone?",
+              "default":"false",
+            }
+          }
+      }
+    }
+  }
+}
