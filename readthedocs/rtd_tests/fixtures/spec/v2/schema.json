@@ -15,7 +15,7 @@
           "formats": {
             "any(list(enum('htmlzip', 'pdf', 'epub')),
             "enum('all'), required=False)",
-            "description": "Formats of tehe documentation to be built",
+            "description": "Formats of the documentation to be built",
             "default":"[]",
           },  
           "conda": {
@@ -146,7 +146,7 @@
             }
             "fail_on_warning": {
               "bool(requried=False)",
-              "description":"Add the --strict optio to mkdocs build",
+              "description":"Add the --strict option to mkdocs build",
               "default":"false",
             }
           }
