@@ -1533,7 +1533,10 @@ class Feature(models.Model):
         ),
         (
             ALL_VERSIONS_IN_HTML_CONTEXT,
-            _('Pass all versions (including private) into the html context when building with Sphinx'),
+            _(
+                'Pass all versions (including private) into the html context '
+                'when building with Sphinx'
+            ),
         ),
     )
 
