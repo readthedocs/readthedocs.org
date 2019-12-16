@@ -113,16 +113,22 @@ class BaseSphinx(BaseBuilder):
 
         # Avoid hitting database and API if using Docker build environment
         if settings.DONT_HIT_API:
-            versions = self.project.active_versions().filter(
-                privacy_level=PUBLIC,
-            )
+            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = self.project.active_versions()
+            else:
+                versions = self.project.active_versions().filter(
+                    privacy_level=PUBLIC,
+                )
             downloads = self.version.get_downloads(pretty=True)
         else:
-            versions = [
-                v
-                for v in self.project.api_versions()
-                if v.privacy_level == PUBLIC
-            ]
+            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = self.project.api_versions()
+            else:
+                versions = [
+                    v
+                    for v in self.project.api_versions()
+                    if v.privacy_level == PUBLIC
+                ]
             downloads = api.version(self.version.pk).get()['downloads']
 
         data = {

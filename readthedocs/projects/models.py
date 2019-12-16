@@ -1479,6 +1479,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
+    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1530,7 +1531,10 @@ class Feature(models.Model):
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
-
+        (
+            ALL_VERSIONS_IN_HTML_CONTEXT,
+            _('Pass all versions (including private) into the html context when building with Sphinx'),
+        ),
     )
 
     projects = models.ManyToManyField(
