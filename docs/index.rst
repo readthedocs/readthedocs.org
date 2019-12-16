@@ -121,6 +121,9 @@ out of your documentation and Read the Docs.
   :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
+* **Versions**
+  :doc:`Automation rules <automation-rules>`
+
 * **Topic specific guides**:
   :doc:`How-to guides <guides/index>`
 
@@ -141,6 +144,8 @@ out of your documentation and Read the Docs.
 
    user-defined-redirects
    automatic-redirects
+
+   automation-rules
 
    guides/index
 
@@ -163,6 +168,7 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`Privacy policy <privacy-policy>` |
+  :doc:`Terms of service <terms-of-service>` |
   :doc:`DMCA takedown policy <dmca/index>` |
   :doc:`Policy for abandoned projects <abandoned-projects>` |
   :doc:`Release notes & changelog <changelog>`
@@ -195,6 +201,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
    security
    privacy-policy
+   terms-of-service
    dmca/index
    abandoned-projects
    changelog

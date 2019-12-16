@@ -8,12 +8,14 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from taggit.models import Tag
 
+from readthedocs.builds.constants import BRANCH
 from readthedocs.builds.models import Build, BuildCommandResult
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.builds.models import RegexAutomationRule, VersionAutomationRule
 
 
 class URLAccessMixin:
@@ -157,6 +159,13 @@ class ProjectMixin(URLAccessMixin):
         )
         self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
+        self.automation_rule = RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=BRANCH,
+        )
         self.default_kwargs = {
             'project_slug': self.pip.slug,
             'subproject_slug': self.subproject.slug,
@@ -170,6 +179,8 @@ class ProjectMixin(URLAccessMixin):
             'integration_pk': self.integration.pk,
             'exchange_pk': self.webhook_exchange.pk,
             'environmentvariable_pk': self.environment_variable.pk,
+            'automation_rule_pk': self.automation_rule.pk,
+            'steps': 1,
             'invalid_project_slug': 'invalid_slug',
         }
 
@@ -177,13 +188,15 @@ class ProjectMixin(URLAccessMixin):
 class PublicProjectMixin(ProjectMixin):
 
     request_data = {
+        '/projects/': {},
         '/projects/search/autocomplete/': {'data': {'term': 'pip'}},
         '/projects/autocomplete/version/pip/': {'data': {'term': 'pip'}},
         '/projects/pip/autocomplete/file/': {'data': {'term': 'pip'}},
     }
     response_data = {
         # Public
-        '/projects/pip/downloads/pdf/latest/': {'status_code': 302},
+        '/projects/': {'status_code': 301},
+        '/projects/pip/downloads/pdf/latest/': {'status_code': 200},
         '/projects/pip/badge/': {'status_code': 200},
         '/projects/invalid_slug/': {'status_code': 302},
     }
@@ -234,14 +247,10 @@ class PublicProjectUnauthAccessTest(PublicProjectMixin, TestCase):
 class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
 
     response_data = {
-        # Places where we 302 on success -- These delete pages should probably be 405'ing
+        # Places where we 302 on success, and 301 for old pages -- These delete pages should probably be 405'ing
         '/dashboard/import/manual/demo/': {'status_code': 302},
-        '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/': {'status_code': 301},
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 302},
-
-        # This depends on an inactive project
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 400},
 
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
@@ -252,12 +261,18 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     def get_url_path_ctx(self):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
@@ -277,7 +292,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/import/manual/demo/': {'status_code': 302},
 
         # Unauth access redirect for non-owners
-        '/dashboard/pip/': {'status_code': 302},
+        '/dashboard/pip/': {'status_code': 301},
 
         # 405's where we should be POST'ing
         '/dashboard/pip/users/delete/': {'status_code': 405},
@@ -288,6 +303,10 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
         '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
         '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
+        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
+        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -297,6 +316,8 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         return {
             'integration_id': self.integration.id,
             'environmentvariable_id': self.environment_variable.id,
+            'automation_rule_id': self.automation_rule.id,
+            'steps': 1,
         }
 
     def login(self):
@@ -379,6 +400,107 @@ class APIUnauthAccessTest(APIMixin, TestCase):
         from readthedocs.api.v2.urls import urlpatterns
         get_public_task_data.side_effect = TaskNoPermission('Nope')
         self._test_url(urlpatterns)
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class PublicUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_public_urls(self):
+        from readthedocs.profiles.urls.public import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PublicUserProfileAdminAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PublicUserProfileUserAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PublicUserProfileUnauthAccessTest(PublicUserProfileMixin, TestCase):
+
+    def login(self):
+        pass
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileMixin(URLAccessMixin):
+
+    def setUp(self):
+        super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 405},
+            '/accounts/tokens/delete/': {'status_code': 405},
+        })
+
+        self.default_kwargs.update(
+            {
+                'username': self.tester.username,
+            }
+        )
+
+    def test_private_urls(self):
+        from readthedocs.profiles.urls.private import urlpatterns
+        self._test_url(urlpatterns)
+
+
+class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='owner', password='test')
+
+    def is_admin(self):
+        return True
+
+
+class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def login(self):
+        return self.client.login(username='tester', password='test')
+
+    def is_admin(self):
+        return False
+
+
+class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
+
+    # Auth protected
+    default_status_code = 302
+
+    def setUp(self):
+        super().setUp()
+
+        self.response_data.update({
+            '/accounts/tokens/create/': {'status_code': 302},
+            '/accounts/tokens/delete/': {'status_code': 302},
+        })
 
     def login(self):
         pass

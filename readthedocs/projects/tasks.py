@@ -428,7 +428,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications(version_pk, build_pk)
+            self.send_notifications(version_pk, build_pk, email=True)
             return False
 
     def run_setup(self, record=True):
@@ -489,7 +489,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
             if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications(self.version.pk, self.build['id'])
+                self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             return False
 
@@ -592,8 +592,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            # TODO: Send RTD Webhook notification for build failure.
-            self.send_notifications(self.version.pk, self.build['id'])
+            # Send Webhook and email notification for build failure.
+            self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             if self.commit:
                 send_external_build_status(
@@ -603,7 +603,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     status=BUILD_STATUS_FAILURE
                 )
         elif self.build_env.successful:
-            # TODO: Send RTD Webhook notification for build success.
+            # Send Webhook notification for build success.
+            self.send_notifications(self.version.pk, self.build['id'], email=False)
+
             if self.commit:
                 send_external_build_status(
                     version_type=self.version.type,
@@ -730,8 +732,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 ),
             })
 
-        # Update environment from Project's specific environment variables
-        env.update(self.project.environment_variables)
+        # Update environment from Project's specific environment variables,
+        # avoiding to expose environment variables if the version is external
+        # for security reasons.
+        if self.version.type != EXTERNAL:
+            env.update(self.project.environment_variables)
 
         return env
 
@@ -777,6 +782,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param epub: whether to save ePub output
         """
         if not settings.RTD_BUILD_MEDIA_STORAGE:
+            # Note: this check can be removed once corporate build servers use storage
             log.warning(
                 LOG_TEMPLATE,
                 {
@@ -846,7 +852,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 },
             )
             try:
-                storage.copy_directory(from_path, to_path)
+                storage.sync_directory(from_path, to_path)
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
@@ -903,11 +909,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         downloads, and search. Tasks are broadcast to all web servers from here.
         """
         # Update version if we have successfully built HTML output
+        # And store whether the build had other media types
         try:
             if html:
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
                 })
         except HttpClientError:
             log.exception(
@@ -1077,10 +1087,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self, version_pk, build_pk):
+    def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
         if self.version.type != EXTERNAL:
-            send_notifications.delay(version_pk, build_pk=build_pk)
+            send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1381,10 +1391,6 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating intersphinx data')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1507,7 +1513,10 @@ def clean_build(version_pk):
     except Exception:
         log.exception('Error while fetching the version from the api')
         return False
-    if not version.project.has_feature(Feature.CLEAN_AFTER_BUILD):
+    if (
+        not settings.RTD_CLEAN_AFTER_BUILD and
+        not version.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+    ):
         log.info(
             'Skipping build files deletetion for version: %s',
             version_pk,
@@ -1539,11 +1548,6 @@ def _create_imported_files(version, commit, build):
     :returns: paths of changed files
     :rtype: set
     """
-
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not updating imported files')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     changed_files = set()
@@ -1622,8 +1626,9 @@ def _sync_imported_files(version, build, changed_files):
     # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
         model=HTMLFile,
-        version=version,
-        build=build,
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+        build_id=build,
     )
 
     # Delete SphinxDomain objects from previous versions
@@ -1654,7 +1659,7 @@ def _sync_imported_files(version, build, changed_files):
 
 
 @app.task(queue='web')
-def send_notifications(version_pk, build_pk):
+def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
     if not version:
@@ -1664,11 +1669,13 @@ def send_notifications(version_pk, build_pk):
 
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
-    for email in version.project.emailhook_notifications.all().values_list(
+
+    if email:
+        for email_address in version.project.emailhook_notifications.all().values_list(
             'email',
             flat=True,
-    ):
-        email_notification(version, build, email)
+        ):
+            email_notification(version, build, email_address)
 
 
 def email_notification(version, build, email):
@@ -1744,6 +1751,8 @@ def webhook_notification(version, build, hook_url):
         'slug': project.slug,
         'build': {
             'id': build.id,
+            'commit': build.commit,
+            'state': build.state,
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
         },
@@ -1839,14 +1848,51 @@ def remove_build_storage_paths(paths):
 
     :param paths: list of paths in build media storage to delete
     """
-    if not settings.RTD_BUILD_MEDIA_STORAGE:
-        log.warning('RTD_BUILD_MEDIA_STORAGE is missing - Not removing paths from media storage')
-        return
-
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
     for storage_path in paths:
         log.info('Removing %s from media storage', storage_path)
         storage.delete_directory(storage_path)
+
+
+@app.task(queue='web')
+def remove_search_indexes(project_slug, version_slug=None):
+    """Wrapper around ``remove_indexed_files`` to make it a task."""
+    remove_indexed_files(
+        model=HTMLFile,
+        project_slug=project_slug,
+        version_slug=version_slug,
+    )
+
+
+def clean_project_resources(project, version=None):
+    """
+    Delete all extra resources used by `version` of `project`.
+
+    It removes:
+
+    - Artifacts from storage.
+    - Search indexes from ES.
+
+    :param version: Version instance. If isn't given,
+                    all resources of `project` will be deleted.
+
+    .. note::
+       This function is usually called just before deleting project.
+       Make sure to not depend on the project object inside the tasks.
+    """
+    # Remove storage paths
+    storage_paths = []
+    if version:
+        storage_paths = version.get_storage_paths()
+    else:
+        storage_paths = project.get_storage_paths()
+    remove_build_storage_paths.delay(storage_paths)
+
+    # Remove indexes
+    remove_search_indexes.delay(
+        project_slug=project.slug,
+        version_slug=version.slug if version else None,
+    )
 
 
 @app.task(queue='web')

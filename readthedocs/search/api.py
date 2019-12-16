@@ -1,12 +1,14 @@
 import itertools
 import logging
 
+from django.utils import timezone
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
+from readthedocs.projects.models import HTMLFile
+from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
-from readthedocs.search import utils, tasks
 
 
 log = logging.getLogger(__name__)
@@ -78,9 +80,11 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
         kwargs['filters']['version'] = self.request.query_params.get('version')
         if not kwargs['filters']['project']:
-            raise ValidationError("Unable to find a project to search")
+            log.info("Unable to find a project to search")
+            return HTMLFile.objects.none()
         if not kwargs['filters']['version']:
-            raise ValidationError("Unable to find a version to search")
+            log.info("Unable to find a version to search")
+            return HTMLFile.objects.none()
         user = self.request.user
         queryset = PageSearch(
             query=query, user=user, **kwargs
@@ -160,8 +164,11 @@ class PageSearchAPIView(generics.ListAPIView):
 
         project_slug = self.request.query_params.get('project', None)
         version_slug = self.request.query_params.get('version', None)
-        query = self.request.query_params.get('q', '')
         total_results = response.data.get('count', 0)
+        time = timezone.now()
+
+        query = self.request.query_params.get('q', '')
+        query = query.lower().strip()
 
         # record the search query with a celery task
         tasks.record_search_query.delay(
@@ -169,6 +176,7 @@ class PageSearchAPIView(generics.ListAPIView):
             version_slug,
             query,
             total_results,
+            time.isoformat(),
         )
 
         return response

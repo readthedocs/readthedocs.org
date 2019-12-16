@@ -6,8 +6,10 @@ import os.path
 import re
 from shutil import rmtree
 
+import regex
 from django.conf import settings
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
@@ -30,6 +32,8 @@ from readthedocs.builds.constants import (
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
+    PREDEFINED_MATCH_ARGS,
+    PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
     TAG,
     VERSION_TYPES,
@@ -75,7 +79,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
-
 
 log = logging.getLogger(__name__)
 
@@ -131,6 +134,11 @@ class Version(models.Model):
         help_text=_('Level of privacy for this Version.'),
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
+
+    # Whether the latest successful build for this version contains certain media types
+    has_pdf = models.BooleanField(_('Has PDF'), default=False)
+    has_epub = models.BooleanField(_('Has ePub'), default=False)
+    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
@@ -284,6 +292,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
+        """Get absolute url to the docs of the version."""
         # Hack external versions for now.
         # TODO: We can integrate them into the resolver
         # but this is much simpler to handle since we only link them a couple places for now
@@ -327,10 +336,9 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage if the version is not external
+        # Remove resources if the version is not external
         if self.type != EXTERNAL:
-            storage_paths = self.get_storage_paths()
-            tasks.remove_build_storage_paths.delay(storage_paths)
+            tasks.clean_project_resources(self.project, self)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
@@ -371,17 +379,18 @@ class Version(models.Model):
         def prettify(k):
             return k if pretty else k.lower()
 
-        if project.has_pdf(self.slug, version_type=self.type):
+        if self.has_pdf:
             data[prettify('PDF')] = project.get_production_media_url(
                 'pdf',
                 self.slug,
             )
-        if project.has_htmlzip(self.slug, version_type=self.type):
+
+        if self.has_htmlzip:
             data[prettify('HTML')] = project.get_production_media_url(
                 'htmlzip',
                 self.slug,
             )
-        if project.has_epub(self.slug, version_type=self.type):
+        if self.has_epub:
             data[prettify('Epub')] = project.get_production_media_url(
                 'epub',
                 self.slug,
@@ -948,8 +957,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     ACTIVATE_VERSION_ACTION = 'activate-version'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set as default version on match')),
+        (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
     project = models.ForeignKey(
@@ -972,8 +981,21 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         help_text=_('Value used for the rule to match the version'),
         max_length=255,
     )
+    predefined_match_arg = models.CharField(
+        _('Predefined match argument'),
+        help_text=_(
+            'Match argument defined by us, it is used if is not None, '
+            'otherwise match_arg will be used.'
+        ),
+        max_length=255,
+        choices=PREDEFINED_MATCH_ARGS,
+        null=True,
+        blank=True,
+        default=None,
+    )
     action = models.CharField(
         _('Action'),
+        help_text=_('Action to apply to matching versions'),
         max_length=32,
         choices=ACTIONS,
     )
@@ -986,6 +1008,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     version_type = models.CharField(
         _('Version type'),
+        help_text=_('Type of version the rule should be applied to'),
         max_length=32,
         choices=VERSION_TYPES,
     )
@@ -996,6 +1019,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         unique_together = (('project', 'priority'),)
         ordering = ('priority', '-modified', '-created')
 
+    def get_match_arg(self):
+        """Get the match arg defined for `predefined_match_arg` or the match from user."""
+        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+            self.predefined_match_arg,
+        )
+        return match_arg or self.match_arg
+
     def run(self, version, *args, **kwargs):
         """
         Run an action if `version` matches the rule.
@@ -1004,7 +1034,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :returns: True if the action was performed
         """
         if version.type == self.version_type:
-            match, result = self.match(version, self.match_arg)
+            match, result = self.match(version, self.get_match_arg())
             if match:
                 self.apply_action(version, result)
                 return True
@@ -1035,10 +1065,94 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             raise NotImplementedError
         action(version, match_result, self.action_arg)
 
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        :returns: True if the priority was changed
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+
+        if current_priority == new_priority:
+            return False
+
+        # Move other's priority
+        if new_priority > current_priority:
+            # It was moved down
+            rules = (
+                self.project.automation_rules
+                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                # We sort the queryset in asc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('priority')
+            )
+            expression = F('priority') - 1
+        else:
+            # It was moved up
+            rules = (
+                self.project.automation_rules
+                .filter(priority__lt=current_priority, priority__gte=new_priority)
+                .exclude(pk=self.pk)
+                # We sort the queryset in desc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('-priority')
+            )
+            expression = F('priority') + 1
+
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.priority = total + 99
+        self.save()
+
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = expression
+            rule.save()
+
+        # Put back new priority
+        self.priority = new_priority
+        self.save()
+        return True
+
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Override method to update the other priorities after delete."""
+        current_priority = self.priority
+        project = self.project
+        super().delete(*args, **kwargs)
+
+        rules = (
+            project.automation_rules
+            .filter(priority__gte=current_priority)
+            # We sort the queryset in asc order
+            # to be updated in that order
+            # to avoid hitting the unique constraint (project, priority).
+            .order_by('priority')
+        )
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = F('priority') - 1
+            rule.save()
+
     def get_description(self):
         if self.description:
             return self.description
         return f'{self.get_action_display()}'
+
+    def get_edit_url(self):
+        raise NotImplementedError
 
     def __str__(self):
         class_name = self.__class__.__name__
@@ -1051,6 +1165,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
+    TIMEOUT = 1  # timeout in seconds
+
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
@@ -1060,11 +1176,37 @@ class RegexAutomationRule(VersionAutomationRule):
         proxy = True
 
     def match(self, version, match_arg):
+        """
+        Find a match using regex.search.
+
+        .. note::
+
+           We use the regex module with the timeout
+           arg to avoid ReDoS.
+
+           We could use a finite state machine type of regex too,
+           but there isn't a stable library at the time of writting this code.
+        """
         try:
-            match = re.search(
-                match_arg, version.verbose_name
+            match = regex.search(
+                match_arg,
+                version.verbose_name,
+                # Compatible with the re module
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
             )
             return bool(match), match
+        except TimeoutError:
+            log.warning(
+                'Timeout while parsing regex. pattern=%s, input=%s',
+                match_arg, version.verbose_name,
+            )
         except Exception as e:
             log.info('Error parsing regex: %s', e)
-            return False, None
+        return False, None
+
+    def get_edit_url(self):
+        return reverse(
+            'projects_automation_rule_regex_edit',
+            args=[self.project.slug, self.pk],
+        )

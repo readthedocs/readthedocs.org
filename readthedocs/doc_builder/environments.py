@@ -939,34 +939,43 @@ class DockerBuildEnvironment(BuildEnvironment):
                 ),
             )
 
+    def _get_binds(self):
+        """
+        Return proper Docker Binds depending on settings.
+
+        It uses Docker Volume if running on a docker-compose. Otherwise, it
+        returns just a regular mountpoint path.
+        """
+        if getattr(settings, 'RTD_DOCKER_COMPOSE', False):
+            from pathlib import Path
+            binds = {
+                settings.RTD_DOCKER_COMPOSE_VOLUME: {
+                    'bind': str(Path(self.project.doc_path).parent),
+                    'mode': 'rw',
+                },
+            }
+        else:
+            binds = {
+                self.project.doc_path: {
+                    'bind': self.project.doc_path,
+                    'mode': 'rw',
+                },
+            }
+
+        return binds
+
     def get_container_host_config(self):
         """
         Create the ``host_config`` settings for the container.
 
         It mainly generates the proper path bindings between the Docker
         container and the Host by mounting them with the proper permissions.
-        Besides, it mounts the ``GLOBAL_PIP_CACHE`` if it's set and we are under
-        ``DEBUG``.
 
         The object returned is passed to Docker function
         ``client.create_container``.
         """
-        binds = {
-            self.project.doc_path: {
-                'bind': self.project.doc_path,
-                'mode': 'rw',
-            },
-        }
-
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            binds.update({
-                self.project.pip_cache_path: {
-                    'bind': self.project.pip_cache_path,
-                    'mode': 'rw',
-                },
-            })
         return self.get_client().create_host_config(
-            binds=binds,
+            binds=self._get_binds(),
             mem_limit=self.container_mem_limit,
         )
 
@@ -1039,9 +1048,11 @@ class DockerBuildEnvironment(BuildEnvironment):
                 ),
                 name=self.container_id,
                 hostname=self.container_id,
+                volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
                 environment=self.environment,
+                user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)
         except ConnectionError:

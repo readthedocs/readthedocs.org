@@ -41,6 +41,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_superproject(self):
+        self._create_subproject()
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         response = self.client.get(
             reverse(
@@ -55,22 +56,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertDictEqual(
             response.json(),
             self._get_response_dict('projects-superproject'),
-        )
-
-    def test_projects_subprojects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-subprojects-list',
-                kwargs={
-                    'parent_lookup_superprojects__parent__slug': self.project.slug,
-                },
-            ),
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(
-            response.json(),
-            self._get_response_dict('projects-subprojects-list'),
         )
 
     def test_others_projects_builds_list(self):
@@ -181,3 +166,92 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(project.repo, 'https://github.com/rtfd/template')
         self.assertNotEqual(project.default_version, 'v1.0')
         self.assertIn(self.me, project.users.all())
+
+    def test_update_project(self):
+        data = {
+            'name': 'Updated name',
+            'repository': {
+                'url': 'https://bitbucket.com/rtfd/updated-repository',
+                'type': 'hg',
+            },
+            'language': 'es',
+            'programming_language': 'js',
+            'homepage': 'https://updated-homepage.org',
+            'default_version': 'stable',
+            'default_branch': 'updated-default-branch',
+            'privacy_level': 'private',
+            'analytics_code': 'UA-XXXXXX',
+            'show_version_warning': False,
+            'single_version': True,
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.put(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.name, 'Updated name')
+        self.assertEqual(self.project.slug, 'project')
+        self.assertEqual(self.project.repo, 'https://bitbucket.com/rtfd/updated-repository')
+        self.assertEqual(self.project.repo_type, 'hg')
+        self.assertEqual(self.project.language, 'es')
+        self.assertEqual(self.project.programming_language, 'js')
+        self.assertEqual(self.project.project_url, 'https://updated-homepage.org')
+        self.assertEqual(self.project.default_version, 'stable')
+        self.assertEqual(self.project.default_branch, 'updated-default-branch')
+        self.assertEqual(self.project.privacy_level, 'public')
+        self.assertEqual(self.project.analytics_code, 'UA-XXXXXX')
+        self.assertEqual(self.project.show_version_warning, False)
+        self.assertEqual(self.project.single_version, True)
+
+    def test_partial_update_project(self):
+        data = {
+            'name': 'Updated name',
+            'repository': {
+                'url': 'https://github.com/rtfd/updated-repository',
+            },
+            'default_branch': 'updated-default-branch',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.patch(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.name, 'Updated name')
+        self.assertEqual(self.project.slug, 'project')
+        self.assertEqual(self.project.repo, 'https://github.com/rtfd/updated-repository')
+        self.assertNotEqual(self.project.default_version, 'updated-default-branch')
+
+    def test_partial_update_others_project(self):
+        data = {
+            'name': 'Updated name',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.patch(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.others_project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 403)

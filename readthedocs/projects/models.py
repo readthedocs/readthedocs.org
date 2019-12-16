@@ -480,16 +480,8 @@ class Project(models.Model):
             args=[(self.doc_path,)],
         )
 
-        # Remove build artifacts from storage
-        storage_paths = []
-        for type_ in MEDIA_TYPES:
-            storage_paths.append(
-                '{}/{}'.format(
-                    type_,
-                    self.slug,
-                )
-            )
-        tasks.remove_build_storage_paths.delay(storage_paths)
+        # Remove extra resources
+        tasks.clean_project_resources(self)
 
         super().delete(*args, **kwargs)
 
@@ -533,6 +525,19 @@ class Project(models.Model):
                     (api.project(self.pk).subprojects().get()['subprojects'])]
         return [(proj.child.slug, proj.child.get_docs_url())
                 for proj in self.subprojects.all()]
+
+    def get_storage_paths(self):
+        """
+        Get the paths of all artifacts used by the project.
+
+        :return: the path to an item in storage
+                 (can be used with ``storage.url`` to get the URL).
+        """
+        storage_paths = [
+            f'{type_}/{self.slug}'
+            for type_ in MEDIA_TYPES
+        ]
+        return storage_paths
 
     def get_storage_path(
             self,
@@ -625,18 +630,14 @@ class Project(models.Model):
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url(
-            'htmlzip',
-            self.get_default_version(),
-        )
-        downloads['epub'] = self.get_production_media_url(
-            'epub',
-            self.get_default_version(),
-        )
-        downloads['pdf'] = self.get_production_media_url(
-            'pdf',
-            self.get_default_version(),
-        )
+        default_version = self.get_default_version()
+
+        for type_ in ('htmlzip', 'epub', 'pdf'):
+            downloads[type_] = self.get_production_media_url(
+                type_,
+                default_version,
+            )
+
         return downloads
 
     @property
@@ -658,8 +659,6 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
@@ -783,15 +782,12 @@ class Project(models.Model):
         if os.path.exists(path):
             return True
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-            storage_path = self.get_storage_path(
-                type_=type_, version_slug=version_slug,
-                version_type=version_type
-            )
-            return storage.exists(storage_path)
-
-        return False
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.get_storage_path(
+            type_=type_, version_slug=version_slug,
+            version_type=version_type
+        )
+        return storage.exists(storage_path)
 
     def has_pdf(self, version_slug=LATEST, version_type=None):
         return self.has_media(
@@ -949,28 +945,38 @@ class Project(models.Model):
             versions.filter(active=True, uploaded=True)
         )
 
-    def ordered_active_versions(self, user=None):
+    def ordered_active_versions(self, **kwargs):
+        """
+        Get all active versions, sorted.
+
+        :param kwargs: All kwargs are passed down to the
+                       `Version.internal.public` queryset.
+        """
         from readthedocs.builds.models import Version
-        kwargs = {
-            'project': self,
-            'only_active': True,
-        }
-        if user:
-            kwargs['user'] = user
-        versions = Version.internal.public(**kwargs).select_related(
-            'project',
-            'project__main_language_project',
-        ).prefetch_related(
-            Prefetch(
-                'project__superprojects',
-                ProjectRelationship.objects.all().select_related('parent'),
-                to_attr='_superprojects',
-            ),
-            Prefetch(
-                'project__domains',
-                Domain.objects.filter(canonical=True),
-                to_attr='_canonical_domains',
-            ),
+        kwargs.update(
+            {
+                'project': self,
+                'only_active': True,
+            },
+        )
+        versions = (
+            Version.internal.public(**kwargs)
+            .select_related(
+                'project',
+                'project__main_language_project',
+            )
+            .prefetch_related(
+                Prefetch(
+                    'project__superprojects',
+                    ProjectRelationship.objects.all().select_related('parent'),
+                    to_attr='_superprojects',
+                ),
+                Prefetch(
+                    'project__domains',
+                    Domain.objects.filter(canonical=True),
+                    to_attr='_canonical_domains',
+                ),
+            )
         )
         return sort_version_aware(versions)
 
@@ -1146,6 +1152,44 @@ class Project(models.Model):
             for variable in self.environmentvariable_set.all()
         }
 
+    def is_valid_as_superproject(self, error_class):
+        """
+        Checks if the project can be a superproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the parent project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Subproject nesting is not supported'),
+            )
+
+    def is_valid_as_subproject(self, parent, error_class):
+        """
+        Checks if the project can be a subproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the child project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if self.subprojects.exists():
+            raise error_class(
+                _('Child is already a superproject'),
+            )
+
+        # Check the parent and child are not the same project
+        if parent.slug == self.slug:
+            raise error_class(
+                _('Project can not be subproject of itself'),
+            )
+
 
 class APIProject(Project):
 
@@ -1271,33 +1315,27 @@ class HTMLFile(ImportedFile):
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
         file_path = None
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
-        if settings.RTD_BUILD_MEDIA_STORAGE:
-            storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        fjson_paths = []
+        basename = os.path.splitext(self.path)[0]
+        fjson_paths.append(basename + '.fjson')
+        if basename.endswith('/index'):
+            new_basename = re.sub(r'\/index$', '', basename)
+            fjson_paths.append(new_basename + '.fjson')
 
-            fjson_paths = []
-            basename = os.path.splitext(self.path)[0]
-            fjson_paths.append(basename + '.fjson')
-            if basename.endswith('/index'):
-                new_basename = re.sub(r'\/index$', '', basename)
-                fjson_paths.append(new_basename + '.fjson')
-
-            storage_path = self.project.get_storage_path(
-                type_='json', version_slug=self.version.slug, include_file=False
-            )
-            try:
-                for fjson_path in fjson_paths:
-                    file_path = storage.join(storage_path, fjson_path)
-                    if storage.exists(file_path):
-                        return process_file(file_path)
-            except Exception:
-                log.warning(
-                    'Unhandled exception during search processing file: %s',
-                    file_path,
-                )
-        else:
+        storage_path = self.project.get_storage_path(
+            type_='json', version_slug=self.version.slug, include_file=False
+        )
+        try:
+            for fjson_path in fjson_paths:
+                file_path = storage.join(storage_path, fjson_path)
+                if storage.exists(file_path):
+                    return process_file(file_path)
+        except Exception:
             log.warning(
-                'Skipping HTMLFile processing because of no storage backend'
+                'Unhandled exception during search processing file: %s',
+                file_path,
             )
 
         return {
@@ -1441,7 +1479,6 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    SEARCH_ANALYTICS = 'search_analytics'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1493,10 +1530,7 @@ class Feature(models.Model):
             CONDA_APPEND_CORE_REQUIREMENTS,
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
-        (
-            SEARCH_ANALYTICS,
-            _('Enable search analytics'),
-        )
+
     )
 
     projects = models.ManyToManyField(

@@ -1,0 +1,83 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Automation Rules" %}{% endblock %}
+
+{% block extra_links %}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/admin.css" %}" />
+{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-automation-rules-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Automation Rules" %}{% endblock %}
+
+{% block project_edit_content %}
+
+  <p class="help_text">
+    {% blocktrans trimmed %}
+      Automate actions on new branches and tags.
+      Check the <a href="https://docs.readthedocs.io/page/automation-rules.html">documentation on automation rules</a> for more information.
+    {% endblocktrans %}
+  </p>
+
+
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="{% url 'projects_automation_rule_regex_create' project_slug=project.slug %}">
+          {% trans "Add Rule" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="module-list automation-rules">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for rule in object_list %}
+          <li class="module-item">
+            <a href="{{ rule.get_edit_url }}">
+              {{ rule.get_description }}
+            </a>
+            <span class="quiet">
+              ({{ rule.get_version_type_display }})
+            </span>
+            <ul class="module-item-menu">
+              {% if not forloop.first %}
+                <li class="automation-rule">
+                  <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=-1 %}">
+                    {% csrf_token %}
+                    <button aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" class="automation-rule-up">
+                      <span>{% trans 'Move up' %}</span>
+                    </button>
+                  </form>
+                </li>
+              {% endif %}
+
+              {% if not forloop.last %}
+                <li class="automation-rule">
+                  <form method="post" action="{% url 'projects_automation_rule_move' project_slug=project.slug automation_rule_pk=rule.pk steps=1 %}">
+                    {% csrf_token %}
+                    <button aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" class="automation-rule-down">
+                      <span>{% trans 'Move down' %}</span>
+                    </button>
+                  </form>
+                </li>
+              {% endif %}
+            </ul>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No automation rules are currently configured.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

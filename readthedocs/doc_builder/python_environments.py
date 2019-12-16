@@ -10,6 +10,9 @@ import os
 import shutil
 import yaml
 
+from django.conf import settings
+
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
@@ -102,8 +105,7 @@ class PythonEnvironment:
                 '--upgrade',
                 '--upgrade-strategy',
                 'eager',
-                '--cache-dir',
-                self.project.pip_cache_path,
+                *self._pip_cache_cmd_argument(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -120,6 +122,27 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def _pip_cache_cmd_argument(self):
+        """
+        Return the pip command ``--cache-dir`` or ``--no-cache-dir`` argument.
+
+        The decision is made considering if the directories are going to be
+        cleaned after the build (``RTD_CLEAN_AFTER_BUILD=True`` or project has
+        the ``CLEAN_AFTER_BUILD`` feature enabled). In this case, there is no
+        need to cache anything.
+        """
+        if (
+            settings.RTD_CLEAN_AFTER_BUILD or
+            self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+        ):
+            return [
+                '--no-cache-dir',
+            ]
+        return [
+            '--cache-dir',
+            self.project.pip_cache_path,
+        ]
 
     def venv_bin(self, filename=None):
         """
@@ -212,7 +235,11 @@ class PythonEnvironment:
         it returns sha256 hash of empty string.
         """
         m = hashlib.sha256()
+
         env_vars = self.version.project.environment_variables
+        if self.version.type == EXTERNAL:
+            env_vars = {}
+
         for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
             m.update(hash_str.encode('utf-8'))
@@ -287,8 +314,7 @@ class Virtualenv(PythonEnvironment):
             'pip',
             'install',
             '--upgrade',
-            '--cache-dir',
-            self.project.pip_cache_path,
+            *self._pip_cache_cmd_argument(),
         ]
 
         # Install latest pip first,
@@ -384,8 +410,7 @@ class Virtualenv(PythonEnvironment):
                 args += ['--upgrade']
             args += [
                 '--exists-action=w',
-                '--cache-dir',
-                self.project.pip_cache_path,
+                *self._pip_cache_cmd_argument(),
                 '-r',
                 requirements_file_path,
             ]
@@ -581,8 +606,7 @@ class Conda(PythonEnvironment):
             'pip',
             'install',
             '-U',
-            '--cache-dir',
-            self.project.pip_cache_path,
+            *self._pip_cache_cmd_argument(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(

@@ -1,3 +1,190 @@
+Version 3.11.0
+--------------
+
+:Date: December 03, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Use media availability instead of querying the filesystem (`#6428 <https://github.com/readthedocs/readthedocs.org/pull/6428>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove beta note about sharing by password and header auth (`#6426 <https://github.com/readthedocs/readthedocs.org/pull/6426>`__)
+* `@humitos <http://github.com/humitos>`__: Use trigger_build for update_repos command (`#6422 <https://github.com/readthedocs/readthedocs.org/pull/6422>`__)
+* `@humitos <http://github.com/humitos>`__: Add more supported field to APIv3 docs (`#6417 <https://github.com/readthedocs/readthedocs.org/pull/6417>`__)
+* `@humitos <http://github.com/humitos>`__: Add AuthenticationMiddleware to El Proxito tests (`#6416 <https://github.com/readthedocs/readthedocs.org/pull/6416>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs on sharing (`#6410 <https://github.com/readthedocs/readthedocs.org/pull/6410>`__)
+* `@humitos <http://github.com/humitos>`__: Use WORKDIR to cd into a directory in Dockerfile (`#6409 <https://github.com/readthedocs/readthedocs.org/pull/6409>`__)
+* `@humitos <http://github.com/humitos>`__: Use /data inside Azurite container to persist data (`#6407 <https://github.com/readthedocs/readthedocs.org/pull/6407>`__)
+* `@humitos <http://github.com/humitos>`__: Serve non-html files from nginx (X-Accel-Redirect) (`#6404 <https://github.com/readthedocs/readthedocs.org/pull/6404>`__)
+* `@humitos <http://github.com/humitos>`__: Perform redirects at DB level (`#6398 <https://github.com/readthedocs/readthedocs.org/pull/6398>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend El Proxito views from commercial (`#6397 <https://github.com/readthedocs/readthedocs.org/pull/6397>`__)
+* `@humitos <http://github.com/humitos>`__: Migrate El Proxito views to class-based views (`#6396 <https://github.com/readthedocs/readthedocs.org/pull/6396>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Fix CSS and how we were handling html in automation rule UI (`#6394 <https://github.com/readthedocs/readthedocs.org/pull/6394>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.10.0 (`#6391 <https://github.com/readthedocs/readthedocs.org/pull/6391>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set privacy level explicitly (`#6390 <https://github.com/readthedocs/readthedocs.org/pull/6390>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Redirect index files in proxito instead of serving (`#6387 <https://github.com/readthedocs/readthedocs.org/pull/6387>`__)
+* `@humitos <http://github.com/humitos>`__: Fully working docker-compose file (`#6295 <https://github.com/readthedocs/readthedocs.org/pull/6295>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Subproject validation to use it for Forms and API (`#6285 <https://github.com/readthedocs/readthedocs.org/pull/6285>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Gold Views (`#6272 <https://github.com/readthedocs/readthedocs.org/pull/6272>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add docs for automatin rules (`#6072 <https://github.com/readthedocs/readthedocs.org/pull/6072>`__)
+
+Version 3.10.0
+--------------
+
+:Date: November 19, 2019
+
+* `@stsewd <http://github.com/stsewd>`__: Set privacy level explicitly (`#6390 <https://github.com/readthedocs/readthedocs.org/pull/6390>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Redirect index files in proxito instead of serving (`#6387 <https://github.com/readthedocs/readthedocs.org/pull/6387>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix search indexing (`#6380 <https://github.com/readthedocs/readthedocs.org/pull/6380>`__)
+* `@humitos <http://github.com/humitos>`__: Include creditcard.png image (`#6379 <https://github.com/readthedocs/readthedocs.org/pull/6379>`__)
+* `@stsewd <http://github.com/stsewd>`__: Silent curl (`#6377 <https://github.com/readthedocs/readthedocs.org/pull/6377>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use github actions to trigger tests in corporate (`#6376 <https://github.com/readthedocs/readthedocs.org/pull/6376>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Show only users projects in the APIv3 browseable form (`#6374 <https://github.com/readthedocs/readthedocs.org/pull/6374>`__)
+* `@humitos <http://github.com/humitos>`__: Release 3.9.0 (`#6371 <https://github.com/readthedocs/readthedocs.org/pull/6371>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Pin the node dependencies with a package-lock (`#6370 <https://github.com/readthedocs/readthedocs.org/pull/6370>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Small optimization to not compute the highest version when it isn't displayed (`#6360 <https://github.com/readthedocs/readthedocs.org/pull/6360>`__)
+* `@krptic07 <http://github.com/krptic07>`__: remove rss feed (`#6348 <https://github.com/readthedocs/readthedocs.org/pull/6348>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 44 (`#6347 <https://github.com/readthedocs/readthedocs.org/pull/6347>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Port additional features to proxito (`#6286 <https://github.com/readthedocs/readthedocs.org/pull/6286>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add docs for automatin rules (`#6072 <https://github.com/readthedocs/readthedocs.org/pull/6072>`__)
+* `@stsewd <http://github.com/stsewd>`__: Implement UI for automation rules (`#5996 <https://github.com/readthedocs/readthedocs.org/pull/5996>`__)
+
+Version 3.9.0
+-------------
+
+:Date: November 12, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Pin the node dependencies with a package-lock (`#6370 <https://github.com/readthedocs/readthedocs.org/pull/6370>`__)
+* `@humitos <http://github.com/humitos>`__: Force PUBLIC_DOMAIN_USES_HTTPS on version compare tests (`#6367 <https://github.com/readthedocs/readthedocs.org/pull/6367>`__)
+* `@segevfiner <http://github.com/segevfiner>`__: Remove a stray backtick from import-guide.rst (`#6362 <https://github.com/readthedocs/readthedocs.org/pull/6362>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't compare inactive or non build versions (`#6361 <https://github.com/readthedocs/readthedocs.org/pull/6361>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix test (`#6358 <https://github.com/readthedocs/readthedocs.org/pull/6358>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Change the default of proxied_api_host to api_host (`#6355 <https://github.com/readthedocs/readthedocs.org/pull/6355>`__)
+* `@stsewd <http://github.com/stsewd>`__: Dont link to dashboard from footer (`#6353 <https://github.com/readthedocs/readthedocs.org/pull/6353>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade django-storages (`#6339 <https://github.com/readthedocs/readthedocs.org/pull/6339>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 43 (`#6334 <https://github.com/readthedocs/readthedocs.org/pull/6334>`__)
+* `@KartikKapil <http://github.com/KartikKapil>`__: added previous year gsoc projects (`#6333 <https://github.com/readthedocs/readthedocs.org/pull/6333>`__)
+* `@stsewd <http://github.com/stsewd>`__: Support 6.0rc1 build image (`#6329 <https://github.com/readthedocs/readthedocs.org/pull/6329>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't error on non existing version (`#6325 <https://github.com/readthedocs/readthedocs.org/pull/6325>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove files from storage and delete indexes from ES when no longer needed (`#6323 <https://github.com/readthedocs/readthedocs.org/pull/6323>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix eslint (`#6317 <https://github.com/readthedocs/readthedocs.org/pull/6317>`__)
+* `@humitos <http://github.com/humitos>`__: Revert "Adding RTD prefix for docker only in setting.py and all… (`#6315 <https://github.com/readthedocs/readthedocs.org/pull/6315>`__)
+* `@anindyamanna <http://github.com/anindyamanna>`__: Fixed Broken links (`#6300 <https://github.com/readthedocs/readthedocs.org/pull/6300>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use sync instead of copy for blob storage (`#6298 <https://github.com/readthedocs/readthedocs.org/pull/6298>`__)
+* `@sciencewhiz <http://github.com/sciencewhiz>`__: Fix missing word in wipe guide (`#6294 <https://github.com/readthedocs/readthedocs.org/pull/6294>`__)
+* `@jaferkhan <http://github.com/jaferkhan>`__: Removed unused code from view and template (#6250) (`#6288 <https://github.com/readthedocs/readthedocs.org/pull/6288>`__)
+* `@stsewd <http://github.com/stsewd>`__: Rename test name (`#6283 <https://github.com/readthedocs/readthedocs.org/pull/6283>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Store version media availability (`#6278 <https://github.com/readthedocs/readthedocs.org/pull/6278>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Link to the terms of service (`#6277 <https://github.com/readthedocs/readthedocs.org/pull/6277>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: API V3 Subproject Creation Bug fix (`#6275 <https://github.com/readthedocs/readthedocs.org/pull/6275>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix footer (`#6274 <https://github.com/readthedocs/readthedocs.org/pull/6274>`__)
+* `@stsewd <http://github.com/stsewd>`__: Fix tests (`#6269 <https://github.com/readthedocs/readthedocs.org/pull/6269>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor profile's views (`#6267 <https://github.com/readthedocs/readthedocs.org/pull/6267>`__)
+* `@humitos <http://github.com/humitos>`__: Default to None when using the Serializer as Form for Browsable… (`#6266 <https://github.com/readthedocs/readthedocs.org/pull/6266>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix inactive version list not showing when no resuts returned (`#6264 <https://github.com/readthedocs/readthedocs.org/pull/6264>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Downgrade django-storges. (`#6263 <https://github.com/readthedocs/readthedocs.org/pull/6263>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.8.0 (`#6262 <https://github.com/readthedocs/readthedocs.org/pull/6262>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update doccs version detail (api v3) (`#6259 <https://github.com/readthedocs/readthedocs.org/pull/6259>`__)
+* `@stsewd <http://github.com/stsewd>`__: Merge #6176 to master (`#6258 <https://github.com/readthedocs/readthedocs.org/pull/6258>`__)
+* `@humitos <http://github.com/humitos>`__: Remove privacy_level field from APIv3 (`#6257 <https://github.com/readthedocs/readthedocs.org/pull/6257>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Redirect /projects/ URL to /dashboard/ (`#6255 <https://github.com/readthedocs/readthedocs.org/pull/6255>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow project badges for private version (`#6252 <https://github.com/readthedocs/readthedocs.org/pull/6252>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add pub_date to project admin (`#6244 <https://github.com/readthedocs/readthedocs.org/pull/6244>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Allow only post requests for delete views (`#6242 <https://github.com/readthedocs/readthedocs.org/pull/6242>`__)
+* `@Iamshankhadeep <http://github.com/Iamshankhadeep>`__: Changing created to modified time (`#6234 <https://github.com/readthedocs/readthedocs.org/pull/6234>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Initial stub of proxito (`#6226 <https://github.com/readthedocs/readthedocs.org/pull/6226>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add Better error message for lists in config file (`#6200 <https://github.com/readthedocs/readthedocs.org/pull/6200>`__)
+* `@stsewd <http://github.com/stsewd>`__: Put view under login (`#6193 <https://github.com/readthedocs/readthedocs.org/pull/6193>`__)
+* `@humitos <http://github.com/humitos>`__: Ship API v3 (`#6169 <https://github.com/readthedocs/readthedocs.org/pull/6169>`__)
+* `@stsewd <http://github.com/stsewd>`__: Protection against ReDoS (`#6163 <https://github.com/readthedocs/readthedocs.org/pull/6163>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Optimize json parsing (`#6160 <https://github.com/readthedocs/readthedocs.org/pull/6160>`__)
+* `@tapaswenipathak <http://github.com/tapaswenipathak>`__: Added missing i18n for footer api (`#6144 <https://github.com/readthedocs/readthedocs.org/pull/6144>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use different setting for footer api url (`#6131 <https://github.com/readthedocs/readthedocs.org/pull/6131>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'highlight' URL param from search results (`#6087 <https://github.com/readthedocs/readthedocs.org/pull/6087>`__)
+* `@Iamshankhadeep <http://github.com/Iamshankhadeep>`__: Adding RTD prefix for docker only in setting.py and all other places where is needed (`#6040 <https://github.com/readthedocs/readthedocs.org/pull/6040>`__)
+* `@stsewd <http://github.com/stsewd>`__: Design doc for organizations (`#5958 <https://github.com/readthedocs/readthedocs.org/pull/5958>`__)
+
+Version 3.8.0
+-------------
+
+:Date: October 09, 2019
+
+* `@stsewd <http://github.com/stsewd>`__: Update doccs version detail (api v3) (`#6259 <https://github.com/readthedocs/readthedocs.org/pull/6259>`__)
+* `@stsewd <http://github.com/stsewd>`__: Merge #6176 to master (`#6258 <https://github.com/readthedocs/readthedocs.org/pull/6258>`__)
+* `@humitos <http://github.com/humitos>`__: Remove privacy_level field from APIv3 (`#6257 <https://github.com/readthedocs/readthedocs.org/pull/6257>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Redirect /projects/ URL to /dashboard/ (`#6255 <https://github.com/readthedocs/readthedocs.org/pull/6255>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Allow project badges for private version (`#6252 <https://github.com/readthedocs/readthedocs.org/pull/6252>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 40 (`#6251 <https://github.com/readthedocs/readthedocs.org/pull/6251>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add note about specifying dependencies (`#6248 <https://github.com/readthedocs/readthedocs.org/pull/6248>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add pub_date to project admin (`#6244 <https://github.com/readthedocs/readthedocs.org/pull/6244>`__)
+* `@humitos <http://github.com/humitos>`__: Do not use --cache-dir for pip if CLEAN_AFTER_BUILD is enabled (`#6239 <https://github.com/readthedocs/readthedocs.org/pull/6239>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update pytest (`#6233 <https://github.com/readthedocs/readthedocs.org/pull/6233>`__)
+* `@iambenzo <http://github.com/iambenzo>`__: remove /projects/ (`#6228 <https://github.com/readthedocs/readthedocs.org/pull/6228>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Initial stub of proxito (`#6226 <https://github.com/readthedocs/readthedocs.org/pull/6226>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Improve the version listview (`#6224 <https://github.com/readthedocs/readthedocs.org/pull/6224>`__)
+* `@stsewd <http://github.com/stsewd>`__: Override production media artifacts on test (`#6220 <https://github.com/readthedocs/readthedocs.org/pull/6220>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Customize default build media storage for the FS (`#6215 <https://github.com/readthedocs/readthedocs.org/pull/6215>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Release 3.7.5 (`#6214 <https://github.com/readthedocs/readthedocs.org/pull/6214>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove dead code (`#6213 <https://github.com/readthedocs/readthedocs.org/pull/6213>`__)
+* `@stsewd <http://github.com/stsewd>`__: Only use the sphinx way to mock (`#6212 <https://github.com/readthedocs/readthedocs.org/pull/6212>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Only Build Active Versions from Build List Page Form (`#6205 <https://github.com/readthedocs/readthedocs.org/pull/6205>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Make raw_config private (`#6199 <https://github.com/readthedocs/readthedocs.org/pull/6199>`__)
+* `@Iamshankhadeep <http://github.com/Iamshankhadeep>`__: moved expandable_fields to meta class (`#6198 <https://github.com/readthedocs/readthedocs.org/pull/6198>`__)
+* `@stsewd <http://github.com/stsewd>`__: Put view under login (`#6193 <https://github.com/readthedocs/readthedocs.org/pull/6193>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove pie-chart from search analytics page (`#6192 <https://github.com/readthedocs/readthedocs.org/pull/6192>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor SearchAnalytics view (`#6190 <https://github.com/readthedocs/readthedocs.org/pull/6190>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor ProjectRedirects views (`#6187 <https://github.com/readthedocs/readthedocs.org/pull/6187>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor ProjectTranslations views (`#6185 <https://github.com/readthedocs/readthedocs.org/pull/6185>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor ProjectNotications views (`#6183 <https://github.com/readthedocs/readthedocs.org/pull/6183>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor views ProjectUsers (`#6178 <https://github.com/readthedocs/readthedocs.org/pull/6178>`__)
+* `@humitos <http://github.com/humitos>`__: Create subproject relationship via APIv3 endpoint (`#6176 <https://github.com/readthedocs/readthedocs.org/pull/6176>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor views ProjectVersion (`#6175 <https://github.com/readthedocs/readthedocs.org/pull/6175>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add terms of service (`#6174 <https://github.com/readthedocs/readthedocs.org/pull/6174>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Document connected account permissions (`#6172 <https://github.com/readthedocs/readthedocs.org/pull/6172>`__)
+* `@stsewd <http://github.com/stsewd>`__: Refactor views projects (`#6171 <https://github.com/readthedocs/readthedocs.org/pull/6171>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Optimize json parsing (`#6160 <https://github.com/readthedocs/readthedocs.org/pull/6160>`__)
+* `@humitos <http://github.com/humitos>`__: APIv3 endpoint: allow to modify a Project once it's imported (`#5952 <https://github.com/readthedocs/readthedocs.org/pull/5952>`__)
+
+Version 3.7.5
+-------------
+
+:Date: September 26, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Remove if storage blocks (`#6191 <https://github.com/readthedocs/readthedocs.org/pull/6191>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Update security docs (`#6179 <https://github.com/readthedocs/readthedocs.org/pull/6179>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Add the private spamfighting module to INSTALLED_APPS (`#6177 <https://github.com/readthedocs/readthedocs.org/pull/6177>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Document connected account permissions (`#6172 <https://github.com/readthedocs/readthedocs.org/pull/6172>`__)
+* `@stsewd <http://github.com/stsewd>`__: Require login for old redirect (`#6170 <https://github.com/readthedocs/readthedocs.org/pull/6170>`__)
+* `@humitos <http://github.com/humitos>`__: Remove old and unused code (`#6167 <https://github.com/readthedocs/readthedocs.org/pull/6167>`__)
+* `@stsewd <http://github.com/stsewd>`__: Clean up views (`#6166 <https://github.com/readthedocs/readthedocs.org/pull/6166>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs for sharing (`#6164 <https://github.com/readthedocs/readthedocs.org/pull/6164>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#6158 <https://github.com/readthedocs/readthedocs.org/pull/6158>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Remove PR Builder Project Idea from RTD GSoC Docs (`#6147 <https://github.com/readthedocs/readthedocs.org/pull/6147>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Serialize time in search queries properly (`#6142 <https://github.com/readthedocs/readthedocs.org/pull/6142>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend DomainCreate view (`#6139 <https://github.com/readthedocs/readthedocs.org/pull/6139>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Integration Re-sync Bug Fix (`#6124 <https://github.com/readthedocs/readthedocs.org/pull/6124>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't log BuildEnvironmentWarning as error (`#6112 <https://github.com/readthedocs/readthedocs.org/pull/6112>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Add Search Guide (`#6101 <https://github.com/readthedocs/readthedocs.org/pull/6101>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Add PR Builder guide to docs (`#6093 <https://github.com/readthedocs/readthedocs.org/pull/6093>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Record search queries smartly (`#6088 <https://github.com/readthedocs/readthedocs.org/pull/6088>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Remove 'highlight' URL param from search results (`#6087 <https://github.com/readthedocs/readthedocs.org/pull/6087>`__)
+
+Version 3.7.4
+-------------
+
+:Date: September 05, 2019
+
+* `@ericholscher <http://github.com/ericholscher>`__: Remove paid support callout (`#6140 <https://github.com/readthedocs/readthedocs.org/pull/6140>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix IntegrationAdmin with raw_id_fields for Projects (`#6136 <https://github.com/readthedocs/readthedocs.org/pull/6136>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Fix link to html_extra_path (`#6135 <https://github.com/readthedocs/readthedocs.org/pull/6135>`__)
+* `@stsewd <http://github.com/stsewd>`__: Move out authorization from FooterHTML view (`#6133 <https://github.com/readthedocs/readthedocs.org/pull/6133>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Add setting for always cleaning the build post-build (`#6132 <https://github.com/readthedocs/readthedocs.org/pull/6132>`__)
+* `@pyup-bot <http://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#6129 <https://github.com/readthedocs/readthedocs.org/pull/6129>`__)
+* `@stsewd <http://github.com/stsewd>`__:  Refactor footer_html view to class (`#6125 <https://github.com/readthedocs/readthedocs.org/pull/6125>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Use raw_id_fields in the TokenAdmin (`#6116 <https://github.com/readthedocs/readthedocs.org/pull/6116>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Fixed footer ads supported on all themes (`#6115 <https://github.com/readthedocs/readthedocs.org/pull/6115>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't log BuildEnvironmentWarning as error (`#6112 <https://github.com/readthedocs/readthedocs.org/pull/6112>`__)
+* `@pllim <http://github.com/pllim>`__: Use the force when fetching with Git (`#6109 <https://github.com/readthedocs/readthedocs.org/pull/6109>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Record search queries smartly (`#6088 <https://github.com/readthedocs/readthedocs.org/pull/6088>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add move method to automation rule (`#5998 <https://github.com/readthedocs/readthedocs.org/pull/5998>`__)
+* `@dojutsu-user <http://github.com/dojutsu-user>`__: Index more domain data into elasticsearch (`#5979 <https://github.com/readthedocs/readthedocs.org/pull/5979>`__)
+
 Version 3.7.3
 -------------
 

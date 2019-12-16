@@ -1,5 +1,5 @@
-API v2
-======
+API v2 (deprecated)
+===================
 
 The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
@@ -7,16 +7,16 @@ and HTTP response status codes are to designate success and failure.
 
 .. note::
 
-    A newer API v3 is in early development stages.
+    A newer and better API v3 is ready to use.
     Some improvements coming in v3 are:
 
-    * Search API
-    * Write access
-    * Simpler URLs which use slugs instead of numeric IDs
+    * Simpler URLs which use slugs
+    * Token based authentication
+    * Import a new project
+    * Activate a version
     * Improved error reporting
 
-    If there are features you would like in v3, please get in touch
-    in the `issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`_.
+    See its full documentation at :doc:`/api/v3`.
 
 
 Authentication and authorization

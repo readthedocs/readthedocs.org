@@ -1,9 +1,7 @@
 import csv
-import io
 from urllib.parse import urlsplit
 
 import mock
-import pytest
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -12,12 +10,10 @@ from django_dynamic_fixture import get, new
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.models import UserProfile
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
-from readthedocs.projects.models import Feature, HTMLFile, Project
-from readthedocs.search.models import SearchQuery
+from readthedocs.projects.models import Feature, Project
 
 
 class Testmaker(TestCase):
@@ -87,10 +83,6 @@ class PrivateViewsAreProtectedTests(TestCase):
 
     def test_import_wizard_demo(self):
         response = self.client.get('/dashboard/import/manual/demo/')
-        self.assertRedirectToLogin(response)
-
-    def test_projects_manage(self):
-        response = self.client.get('/dashboard/pip/')
         self.assertRedirectToLogin(response)
 
     def test_edit(self):
@@ -286,7 +278,7 @@ class TestSearchAnalyticsView(TestCase):
         test_time = timezone.datetime(2019, 8, 2, 12, 0)
         self.test_time = timezone.make_aware(test_time)
 
-        get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
+        get(Feature, projects=[self.pip])
 
     def test_top_queries(self):
         with mock.patch('django.utils.timezone.now') as test_time:
@@ -310,23 +302,6 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(
                 expected_result,
                 list(resp.context['queries']),
-            )
-
-    def test_distribution_of_top_queries(self):
-        with mock.patch('django.utils.timezone.now') as test_time:
-            test_time.return_value = self.test_time
-
-            expected_result = {
-                'labels': ['hello world', 'documentation', 'read the docs', 'advertising',
-                            'elasticsearch', 'sphinx', 'github', 'hello', 'search'],
-                'int_data': [5, 4, 4, 3, 2, 2, 1, 1, 1],
-            }
-            resp = self.client.get(self.analyics_page, {'version': self.version.slug})
-
-            self.assertEqual(resp.status_code, 200)
-            self.assertDictEqual(
-                expected_result,
-                resp.context['distribution_of_top_queries'],
             )
 
     def test_query_count_of_1_month(self):

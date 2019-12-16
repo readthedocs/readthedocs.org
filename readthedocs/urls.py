@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.urls import core_urls, deprecated_urls, docs_urls
+from readthedocs.core.urls import core_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
     SupportView,
@@ -115,7 +115,6 @@ groups = [
     api_urls,
     core_urls,
     i18n_urls,
-    deprecated_urls,
 ]
 
 if settings.DO_NOT_TRACK_ENABLED:

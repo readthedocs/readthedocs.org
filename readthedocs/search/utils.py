@@ -43,18 +43,22 @@ def index_new_files(model, version, build):
         log.exception('Unable to index a subset of files. Continuing.')
 
 
-def remove_indexed_files(model, version, build):
+def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     """
-    Remove files from the version from the search index.
+    Remove files from `version_slug` of `project_slug` from the search index.
 
-    This excludes files from the current build.
+    :param model: Class of the model to be deleted.
+    :param project_slug: Project slug.
+    :param version_slug: Version slug. If isn't given,
+                    all index from `project` are deleted.
+    :param build_id: Build id. If isn't given, all index from `version` are deleted.
     """
 
     if not DEDConfig.autosync_enabled():
         log.info(
             'Autosync disabled, skipping removal from the search index for: %s:%s',
-            version.project.slug,
-            version.slug,
+            project_slug,
+            version_slug,
         )
         return
 
@@ -62,16 +66,18 @@ def remove_indexed_files(model, version, build):
         document = list(registry.get_documents(models=[model]))[0]
         log.info(
             'Deleting old files from search index for: %s:%s',
-            version.project.slug,
-            version.slug,
+            project_slug,
+            version_slug,
         )
-        (
+        documents = (
             document().search()
-            .filter('term', project=version.project.slug)
-            .filter('term', version=version.slug)
-            .exclude('term', build=build)
-            .delete()
+            .filter('term', project=project_slug)
         )
+        if version_slug:
+            documents = documents.filter('term', version=version_slug)
+        if build_id:
+            documents = documents.exclude('term', build=build_id)
+        documents.delete()
     except Exception:
         log.exception('Unable to delete a subset of files. Continuing.')
 
