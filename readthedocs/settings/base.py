@@ -277,7 +277,6 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
-    GLOBAL_PIP_CACHE = False
 
     # I18n
     TIME_ZONE = 'UTC'

@@ -23,7 +23,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def add_arguments(self, parser):
-        parser.add_argument('slugs', nargs='+', type=str)
+        parser.add_argument('--slugs', nargs='+', type=str)
 
         parser.add_argument(
             '-f',
@@ -43,17 +43,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         force = options['force']
         version = options['version']
+        slugs = options.get('slugs', [])
 
-        if options.get('slugs', []):
-            for slug in options['slugs']:
-                if version and version != 'all':
-                    log.info('Updating version %s for %s', version, slug)
-                    for version in Version.objects.filter(
-                            project__slug=slug,
-                            slug=version,
-                    ):
-                        trigger_build(project=version.project, version=version)
-                elif version == 'all':
+        if slugs:
+            for slug in slugs:
+                if version == 'all':
                     log.info('Updating all versions for %s', slug)
                     for version in Version.objects.filter(
                             project__slug=slug,
@@ -77,6 +71,13 @@ class Command(BaseCommand):
                             uploaded=False,
                     ):
                         trigger_build(project=version.project, version=version)
+                elif version:
+                    log.info('Updating version %s for %s', version, slug)
+                    for version in Version.objects.filter(
+                            project__slug=slug,
+                            slug=version,
+                    ):
+                        trigger_build(project=version.project, version=version)
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building %s', p)
@@ -87,6 +88,26 @@ class Command(BaseCommand):
                 for version in Version.objects.filter(
                         active=True,
                         uploaded=False,
+                ):
+                    trigger_build(project=version.project, version=version)
+            elif version == INTERNAL:
+                log.info('Updating all internal versions')
+                for version in Version.internal.filter(
+                        active=True,
+                        uploaded=False,
+                ):
+                    trigger_build(project=version.project, version=version)
+            elif version == EXTERNAL:
+                log.info('Updating all external versions')
+                for version in Version.external.filter(
+                        active=True,
+                        uploaded=False,
+                ):
+                    trigger_build(project=version.project, version=version)
+            elif version:
+                log.info('Updating version %s', version)
+                for version in Version.objects.filter(
+                        slug=version,
                 ):
                     trigger_build(project=version.project, version=version)
 
