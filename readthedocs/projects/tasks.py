@@ -104,20 +104,21 @@ class SyncRepositoryMixin:
         version_data = api_v2.version(version_pk).get()
         return APIVersion(**version_data)
 
-    def get_vcs_repo(self):
-        """Get the VCS object of the current project."""
+    def get_vcs_repo(self, environment):
+        """
+        Get the VCS object of the current project.
+
+        All VCS commands will be executed using `environment`.
+        """
         version_repo = self.project.vcs_repo(
-            self.version.slug,
-            # When called from ``SyncRepositoryTask.run`` we don't have
-            # a ``setup_env`` so we use just ``None`` and commands won't
-            # be recorded
-            getattr(self, 'setup_env', None),
+            version=self.version.slug,
+            environment=environment,
             verbose_name=self.version.verbose_name,
             version_type=self.version.type
         )
         return version_repo
 
-    def sync_repo(self):
+    def sync_repo(self, environment):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
         if not os.path.exists(self.project.doc_path):
@@ -143,7 +144,7 @@ class SyncRepositoryMixin:
                 'msg': msg,
             }
         )
-        version_repo = self.get_vcs_repo()
+        version_repo = self.get_vcs_repo(environment)
         version_repo.update()
         self.sync_versions(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
@@ -238,9 +239,18 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
-            before_vcs.send(sender=self.version)
+
+            environment = LocalBuildEnvironment(
+                project=self.project,
+                version=self.version,
+                build=self.build,
+                record=False,
+                update_on_success=False,
+            )
+
+            before_vcs.send(sender=self.version, environment=environment)
             with self.project.repo_nonblockinglock(version=self.version):
-                self.sync_repo()
+                self.sync_repo(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -343,6 +353,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if config is not None:
             self.config = config
         self.task = task
+        # TODO: remove this
         self.setup_env = None
 
     # pylint: disable=arguments-differ
@@ -437,7 +448,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         Return True if successful.
         """
-        self.setup_env = LocalBuildEnvironment(
+        environment = LocalBuildEnvironment(
             project=self.project,
             version=self.version,
             build=self.build,
@@ -445,15 +456,20 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             update_on_success=False,
         )
 
+        # TODO: Remove.
+        # There is code that still depends of this attribute
+        # outside this function. Don't use self.setup_env for new code.
+        self.setup_env = environment
+
         # Environment used for code checkout & initial configuration reading
-        with self.setup_env:
+        with environment:
             try:
-                before_vcs.send(sender=self.version)
+                before_vcs.send(sender=self.version, environment=environment)
                 if self.project.skip:
                     raise ProjectBuildsSkippedError
                 try:
                     with self.project.repo_nonblockinglock(version=self.version):
-                        self.setup_vcs()
+                        self.setup_vcs(environment)
                 except vcs_support_utils.LockTimeout as e:
                     self.task.retry(exc=e, throw=False)
                     raise VersionLockedError
@@ -467,13 +483,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                 self.save_build_config()
-                self.additional_vcs_operations()
+                self.additional_vcs_operations(environment)
             finally:
                 after_vcs.send(sender=self.version)
 
-        if self.setup_env.failure or self.config is None:
+        if environment.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
-                self.setup_env.failure,
+                environment.failure,
             )
             log.info(
                 LOG_TEMPLATE,
@@ -488,23 +504,23 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # of VersionLockedError: this exception occurs when a build is
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
-            if not isinstance(self.setup_env.failure, VersionLockedError):
+            if not isinstance(environment.failure, VersionLockedError):
                 self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             return False
 
-        if self.setup_env.successful and not self.project.has_valid_clone:
+        if environment.successful and not self.project.has_valid_clone:
             self.set_valid_clone()
 
         return True
 
-    def additional_vcs_operations(self):
+    def additional_vcs_operations(self, environment):
         """
         Execution of tasks that involve the project's VCS.
 
         All this tasks have access to the configuration object.
         """
-        version_repo = self.get_vcs_repo()
+        version_repo = self.get_vcs_repo(environment)
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
@@ -553,6 +569,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
 
             try:
+                before_build.send(
+                    sender=self.version,
+                    environment=self.build_env,
+                )
                 with self.project.repo_nonblockinglock(version=self.version):
                     self.setup_python_environment()
 
@@ -660,13 +680,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             for key, val in build.items() if key not in private_keys
         }
 
-    def setup_vcs(self):
+    def setup_vcs(self, environment):
         """
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
         """
-        self.setup_env.update_build(state=BUILD_STATE_CLONING)
+        environment.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
             LOG_TEMPLATE,
@@ -677,7 +697,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             }
         )
         try:
-            self.sync_repo()
+            self.sync_repo(environment)
         except RepositoryError:
             log.warning('There was an error with the repository', exc_info=True)
             # Re raise the exception to stop the build at this point
@@ -988,7 +1008,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: dict
         """
         self.build_env.update_build(state=BUILD_STATE_BUILDING)
-        before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
         outcomes['html'] = self.build_docs_html()
