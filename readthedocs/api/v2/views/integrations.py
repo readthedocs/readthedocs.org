@@ -359,6 +359,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def handle_webhook(self):
         # Get event and trigger other webhook events
         action = self.data.get('action', None)
+        deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -366,14 +367,15 @@ class GitHubWebhookView(WebhookMixin, APIView):
             data=self.data,
             event=event,
         )
-        # Handle push events and trigger builds
-        if event == GITHUB_PUSH:
+        # Don't build a branch if it's a push that was actually a delete
+        # https://developer.github.com/v3/activity/events/types/#pushevent
+        if event == GITHUB_PUSH and not deleted:
             try:
                 branches = [self._normalize_ref(self.data['ref'])]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
-        if event in (GITHUB_CREATE, GITHUB_DELETE):
+        if event in (GITHUB_CREATE, GITHUB_DELETE) or (event == GITHUB_PUSH and deleted):
             return self.sync_versions(self.project)
 
         if (
