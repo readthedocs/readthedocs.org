@@ -1,6 +1,6 @@
 #! /bin/sh
 
-../../docker/common.sh
+source common.sh
 
 if [ -n "$INIT" ];
 then

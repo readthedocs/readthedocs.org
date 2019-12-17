@@ -1,6 +1,6 @@
 #! /bin/sh
 
-../../docker/common.sh
+source common.sh
 
 python3 ../../docker/scripts/wait_for_search.py
 
