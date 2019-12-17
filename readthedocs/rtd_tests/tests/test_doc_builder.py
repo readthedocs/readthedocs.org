@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import tempfile
 from collections import namedtuple
@@ -17,6 +16,7 @@ from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
+from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 
@@ -68,6 +68,59 @@ class SphinxBuilderTest(TestCase):
                 params['conf_py_path'],
                 expected,
             )
+
+    @patch('readthedocs.doc_builder.backends.sphinx.api')
+    @patch('readthedocs.projects.models.api')
+    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
+    @patch('readthedocs.builds.models.Version.get_conf_py_path')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_html_context_only_has_public_versions(
+            self, checkout_path, get_conf_py_path,
+            docs_dir, api_project, api_version,
+    ):
+        tmp_dir = tempfile.mkdtemp()
+        checkout_path.return_value = tmp_dir
+        docs_dir.return_value = tmp_dir
+        get_conf_py_path.side_effect = ProjectConfigurationError
+
+        api_version.version().get.return_value = {'downloads': []}
+        api_project.project().active_versions.get.return_value = {
+            'versions': [
+                {
+                    'slug': 'v1',
+                    'privacy_level': PUBLIC,
+                },
+                {
+                    'slug': 'v2',
+                    'privacy_level': PUBLIC,
+                },
+                {
+                    'slug': 'v3',
+                    'privacy_level': PROTECTED,
+                },
+                {
+                    'slug': 'latest',
+                    'privacy_level': PRIVATE,
+                },
+            ],
+        }
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=None,
+        )
+        base_sphinx = BaseSphinx(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        base_sphinx.config_file = tempfile.mktemp()
+        context = base_sphinx.get_config_params()
+        versions = {
+            v.slug
+            for v in context['versions']
+        }
+        self.assertEqual(versions, {'v1', 'v2'})
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.create_index')
