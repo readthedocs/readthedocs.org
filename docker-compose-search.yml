@@ -7,19 +7,7 @@ volumes:
 
 services:
 
-  web:
-    links:
-      - storage
-      - database
-      - cache
-      - search
-
   celery:
-    links:
-      - storage
-      - database
-      - cache
-      - search
     depends_on:
       - storage
       - azure-cli

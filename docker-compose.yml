@@ -23,7 +23,7 @@ services:
     image: nginx
     ports:
       - "80:80"
-    links:
+    depends_on:
       - web
       - proxito
       - storage
@@ -38,10 +38,6 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
-    links:
-      - storage
-      - database
-      - cache
     environment:
       - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
@@ -62,15 +58,11 @@ services:
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
-    links:
-      - storage
-      - database
-      - cache
     depends_on:
       - storage
       - azure-cli
     environment:
-      - INIT=${INIT}
+      - INIT=${INIT:-}
       - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     stdin_open: true
@@ -86,10 +78,6 @@ services:
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
-    links:
-      - storage
-      - database
-      - cache
     depends_on:
       - storage
       - azure-cli
@@ -118,10 +106,6 @@ services:
 
       # Docker in Docker
       - /var/run/docker.sock:/var/run/docker.sock
-    links:
-      - web
-      - storage
-      - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
       - DOCKER_NO_RELOAD
@@ -141,8 +125,6 @@ services:
     image: microsoft/azure-cli
     volumes:
       - ${PWD}/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
-    links:
-      - storage
     depends_on:
       - storage
     command: ["/usr/local/bin/create-containers.sh"]
