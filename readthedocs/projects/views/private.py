@@ -1006,12 +1006,6 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
 
-        context['show_analytics'] = project.has_feature(
-            Feature.SEARCH_ANALYTICS,
-        )
-        if not context['show_analytics']:
-            return context
-
         # data for plotting the line-chart
         query_count_of_1_month = SearchQuery.generate_queries_count_of_one_month(
             project.slug,
