@@ -17,17 +17,22 @@ def down(c, volumes=False):
     else:
         c.run(f'{DOCKER_COMPOSE_COMMAND} down', pty=True)
 
+
 @task
-def up(c, no_search=False, init=False):
+def up(c, no_search=False, init=False, no_reload=False):
     """Start all the docker containers for a Read the Docs instance"""
-    INIT  = ''
+    INIT = 'INIT='
+    DOCKER_NO_RELOAD = 'DOCKER_NO_RELOAD='
     if init:
         INIT = 'INIT=t'
+    if no_reload:
+        DOCKER_NO_RELOAD = 'DOCKER_NO_RELOAD=t'
 
     if no_search:
-        c.run(f'{INIT} docker-compose -f {DOCKER_COMPOSE} up', pty=True)
+        c.run(f'{INIT} {DOCKER_NO_RELOAD} docker-compose -f {DOCKER_COMPOSE} up', pty=True)
     else:
-        c.run(f'{INIT} {DOCKER_COMPOSE_COMMAND} up', pty=True)
+        c.run(f'{INIT} {DOCKER_NO_RELOAD} {DOCKER_COMPOSE_COMMAND} up', pty=True)
+
 
 @task
 def shell(c, running=False, container='web'):

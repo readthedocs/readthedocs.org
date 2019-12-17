@@ -43,6 +43,7 @@ services:
       - database
       - cache
     environment:
+      - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
 
     # Allow us to run `docker attach readthedocsorg_proxito_1` and get
@@ -70,6 +71,7 @@ services:
       - azure-cli
     environment:
       - INIT=${INIT}
+      - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     stdin_open: true
     tty: true
@@ -93,6 +95,7 @@ services:
       - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
     command: ["../../docker/celery.sh"]
@@ -121,6 +124,7 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+      - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
     command: ["../../docker/build.sh"]
