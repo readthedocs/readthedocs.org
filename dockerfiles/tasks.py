@@ -35,6 +35,25 @@ def up(c, no_search=False, init=False, no_reload=False):
 
 
 @task
+def start(c, no_search=False, no_reload=False):
+    """Start all containers for a Read the Docs instance"""
+    DOCKER_NO_RELOAD = 'DOCKER_NO_RELOAD='
+    if no_reload:
+        DOCKER_NO_RELOAD = 'DOCKER_NO_RELOAD=t'
+
+    if no_search:
+        c.run(f'{DOCKER_NO_RELOAD} docker-compose -f {DOCKER_COMPOSE} start', pty=True)
+    else:
+        c.run(f'{DOCKER_NO_RELOAD} {DOCKER_COMPOSE_COMMAND} start', pty=True)
+
+
+@task
+def stop(c):
+    """Stop all running containers."""
+    c.run(f'{DOCKER_COMPOSE_COMMAND} stop', pty=True)
+
+
+@task
 def shell(c, running=False, container='web'):
     """Run a shell inside a container."""
     if running:
