@@ -19,6 +19,6 @@ else
   --signal=SIGTERM \
   --kill-after=5 \
   --interval=5 \
-  -- 
+  -- \
   $CMD
 fi
