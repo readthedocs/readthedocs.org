@@ -42,7 +42,7 @@ you might hit one of these issues:
 
 #. **Build status is not being reported on your Pull/Merge Request**. 
    You need to make sure your webhook is properly setup
-    to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
+   to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
 If you have tried all the above troubleshooting and still getting issues,
