@@ -41,6 +41,8 @@ namespace.add_collection(
         dockerfiles.tasks.build,
         dockerfiles.tasks.down,
         dockerfiles.tasks.up,
+        dockerfiles.tasks.start,
+        dockerfiles.tasks.stop,
         dockerfiles.tasks.shell,
         dockerfiles.tasks.manage,
         dockerfiles.tasks.attach,
