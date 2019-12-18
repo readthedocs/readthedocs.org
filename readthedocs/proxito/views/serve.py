@@ -100,20 +100,22 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
         # If ``filename`` is ``''`` it leaves a trailing slash
         path = os.path.join(storage_path, filename)
-
-        url = storage.url(path)  # this will remove the trailing slash
-        # URL without scheme and domain to perform an NGINX internal redirect
-        url = urlparse(url)._replace(scheme='', netloc='').geturl()
-
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
-            url += '/index.html'
+            # We need to add the index.html before ``storage.url`` since the
+            # Signature and Expire time is calculated per file.
+            path += 'index.html'
+
+        storage_url = storage.url(path)  # this will remove the trailing slash
+        # URL without scheme and domain to perform an NGINX internal redirect
+        parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
+        final_url = parsed_url.geturl()
 
         return self._serve_docs(
             request,
             final_project=final_project,
-            path=url,
+            path=final_url,
         )
 
     def allowed_user(self, *args, **kwargs):
