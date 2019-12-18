@@ -213,25 +213,25 @@ class CommunityBaseSettings(Settings):
     ]
 
     # Paths
-    SITE_ROOT = os.path.dirname(
+    RTD_SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
-    DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
-    UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
-    CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
-    LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
-    PRODUCTION_ROOT = os.path.join(SITE_ROOT, 'prod_artifacts')
-    PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
+    RTD_TEMPLATE_ROOT = os.path.join(RTD_SITE_ROOT, 'readthedocs', 'templates')
+    RTD_DOCROOT = os.path.join(RTD_SITE_ROOT, 'user_builds')
+    RTD_UPLOAD_ROOT = os.path.join(RTD_SITE_ROOT, 'user_uploads')
+    RTD_CNAME_ROOT = os.path.join(RTD_SITE_ROOT, 'cnames')
+    RTD_LOGS_ROOT = os.path.join(RTD_SITE_ROOT, 'logs')
+    RTD_PRODUCTION_ROOT = os.path.join(RTD_SITE_ROOT, 'prod_artifacts')
+    RTD_PRODUCTION_MEDIA_ARTIFACTS = os.path.join(RTD_PRODUCTION_ROOT, 'media')
 
     # Assets and media
-    STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
+    STATIC_ROOT = os.path.join(RTD_SITE_ROOT, 'static')
     STATIC_URL = '/static/'
-    MEDIA_ROOT = os.path.join(SITE_ROOT, 'media/')
+    MEDIA_ROOT = os.path.join(RTD_SITE_ROOT, 'media/')
     MEDIA_URL = '/media/'
     ADMIN_MEDIA_PREFIX = '/media/admin/'
     STATICFILES_DIRS = [
-        os.path.join(SITE_ROOT, 'readthedocs', 'static'),
-        os.path.join(SITE_ROOT, 'media'),
+        os.path.join(RTD_SITE_ROOT, 'readthedocs', 'static'),
+        os.path.join(RTD_SITE_ROOT, 'media'),
     ]
     STATICFILES_FINDERS = [
         'readthedocs.core.static.SelectiveFileSystemFinder',
@@ -246,7 +246,7 @@ class CommunityBaseSettings(Settings):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [TEMPLATE_ROOT],
+            'DIRS': [RTD_TEMPLATE_ROOT],
             'OPTIONS': {
                 'debug': DEBUG,
                 'context_processors': [
@@ -299,7 +299,7 @@ class CommunityBaseSettings(Settings):
         ('ko', gettext('Korean')),
     )
     LOCALE_PATHS = [
-        os.path.join(SITE_ROOT, 'readthedocs', 'locale'),
+        os.path.join(RTD_SITE_ROOT, 'readthedocs', 'locale'),
     ]
     USE_I18N = True
     USE_L10N = True
@@ -563,7 +563,7 @@ class CommunityBaseSettings(Settings):
             'debug': {
                 'level': 'DEBUG',
                 'class': 'logging.handlers.RotatingFileHandler',
-                'filename': os.path.join(LOGS_ROOT, 'debug.log'),
+                'filename': os.path.join(RTD_LOGS_ROOT, 'debug.log'),
                 'formatter': 'default',
             },
             'null': {

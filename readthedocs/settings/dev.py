@@ -17,7 +17,7 @@ class CommunityDevSettings(CommunityBaseSettings):
         return {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
+                'NAME': os.path.join(self.RTD_SITE_ROOT, 'dev.db'),
             }
         }
 

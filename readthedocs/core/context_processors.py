@@ -13,8 +13,8 @@ def readthedocs_processor(request):
         'USE_SUBDOMAIN': settings.USE_SUBDOMAIN,
         'GLOBAL_ANALYTICS_CODE': settings.GLOBAL_ANALYTICS_CODE,
         'DASHBOARD_ANALYTICS_CODE': settings.DASHBOARD_ANALYTICS_CODE,
-        'SITE_ROOT': settings.SITE_ROOT + '/',
-        'TEMPLATE_ROOT': settings.TEMPLATE_ROOT + '/',
+        'SITE_ROOT': settings.RTD_SITE_ROOT + '/',
+        'TEMPLATE_ROOT': settings.RTD_TEMPLATE_ROOT + '/',
         'DO_NOT_TRACK_ENABLED': settings.DO_NOT_TRACK_ENABLED,
         'USE_PROMOS': settings.USE_PROMOS,
     }
