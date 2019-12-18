@@ -44,6 +44,16 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
 
+        if all([
+                self.version_type == EXTERNAL,
+                request.get_host() != settings.RTD_EXTERNAL_VERSION_DOMAIN,
+        ]):
+            log.warning(
+                'Trying to serve an EXTERNAL version under a not allowed '
+                'domain. url=%s', request.path,
+            )
+            raise Http404()
+
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
