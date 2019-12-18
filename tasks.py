@@ -35,16 +35,11 @@ namespace.add_collection(
 )
 
 namespace.add_collection(
-    Collection(
-        common.dockerfiles.tasks.build,
-        common.dockerfiles.tasks.down,
-        common.dockerfiles.tasks.up,
-        common.dockerfiles.tasks.shell,
-        common.dockerfiles.tasks.manage,
-        common.dockerfiles.tasks.attach,
-        common.dockerfiles.tasks.restart,
-        common.dockerfiles.tasks.pull,
-        common.dockerfiles.tasks.test,
+    Collection.from_module(
+        common.dockerfiles.tasks,
+        config={
+            'container_prefix': 'readthedocsorg',
+        },
     ),
     name='docker',
 )
