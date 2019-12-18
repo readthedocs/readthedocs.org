@@ -67,3 +67,6 @@ env.bak/
 venv.bak/
 
 dev.db-journal
+/readthedocs/settings/build.py
+/readthedocs/settings/celery.py
+/readthedocs/settings/web.py

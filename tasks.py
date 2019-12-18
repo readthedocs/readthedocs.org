@@ -7,6 +7,7 @@ import os
 from invoke import task, Collection
 
 import common.tasks
+import dockerfiles.tasks
 
 
 ROOT_PATH = os.path.dirname(__file__)
@@ -33,6 +34,21 @@ namespace.add_collection(
         common.tasks.upgrade_all_packages,
     ),
     name='packages',
+)
+
+namespace.add_collection(
+    Collection(
+        dockerfiles.tasks.build,
+        dockerfiles.tasks.down,
+        dockerfiles.tasks.up,
+        dockerfiles.tasks.shell,
+        dockerfiles.tasks.manage,
+        dockerfiles.tasks.attach,
+        dockerfiles.tasks.restart,
+        dockerfiles.tasks.pull,
+        dockerfiles.tasks.test,
+    ),
+    name='docker',
 )
 
 # Localization tasks
