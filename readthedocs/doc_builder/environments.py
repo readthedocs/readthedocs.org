@@ -103,11 +103,10 @@ class BuildCommand(BuildCommandResultMixin):
         if cwd is None:
             cwd = os.getcwd()
         self.cwd = cwd
-        self.environment = os.environ.copy()
-        if environment is not None:
-            if 'PATH' in environment:
-                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
-            self.environment.update(environment)
+        self.environment = {}
+        if environment is None:
+            self.environment = os.environ.copy()
+        self.environment.update(environment)
 
         self.combine_output = combine_output
         self.input_data = input_data
@@ -150,13 +149,7 @@ class BuildCommand(BuildCommandResultMixin):
         if self.combine_output:
             stderr = subprocess.STDOUT
 
-        environment = {}
-        environment.update(self.environment)
-        environment['READTHEDOCS'] = 'True'
-        if self.build_env is not None:
-            environment['READTHEDOCS_VERSION'] = self.build_env.version.slug
-            environment['READTHEDOCS_PROJECT'] = self.build_env.project.slug
-            environment['READTHEDOCS_LANGUAGE'] = self.build_env.project.language
+        environment = self.environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
@@ -329,6 +322,7 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
+                environment=self.environment,
                 stdout=True,
                 stderr=True,
             )
@@ -1051,7 +1045,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
-                environment=self.environment,
                 user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)

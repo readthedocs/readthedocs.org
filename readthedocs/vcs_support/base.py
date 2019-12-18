@@ -81,12 +81,7 @@ class BaseVCS:
 
     @property
     def env(self):
-        environment = os.environ.copy()
-
-        # TODO: kind of a hack
-        del environment['PATH']
-
-        return environment
+        return {}
 
     def update(self):
         """
