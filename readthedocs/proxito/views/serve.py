@@ -91,7 +91,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 not final_project.single_version,
                 self.version_type != EXTERNAL,
         ]):
-            log.info(
+            log.warning(
                 'Invalid URL for project with versions. url=%s, project=%s',
                 filename, final_project.slug
             )
