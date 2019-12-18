@@ -630,18 +630,14 @@ class Project(models.Model):
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url(
-            'htmlzip',
-            self.get_default_version(),
-        )
-        downloads['epub'] = self.get_production_media_url(
-            'epub',
-            self.get_default_version(),
-        )
-        downloads['pdf'] = self.get_production_media_url(
-            'pdf',
-            self.get_default_version(),
-        )
+        default_version = self.get_default_version()
+
+        for type_ in ('htmlzip', 'epub', 'pdf'):
+            downloads[type_] = self.get_production_media_url(
+                type_,
+                default_version,
+            )
+
         return downloads
 
     @property
@@ -663,8 +659,6 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
@@ -938,8 +932,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk
-                                        ).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1486,7 +1479,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    SEARCH_ANALYTICS = 'search_analytics'
+    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1539,9 +1532,12 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
-            SEARCH_ANALYTICS,
-            _('Enable search analytics'),
-        )
+            ALL_VERSIONS_IN_HTML_CONTEXT,
+            _(
+                'Pass all versions (including private) into the html context '
+                'when building with Sphinx'
+            ),
+        ),
     )
 
     projects = models.ManyToManyField(

@@ -945,9 +945,6 @@ class DockerBuildEnvironment(BuildEnvironment):
 
         It uses Docker Volume if running on a docker-compose. Otherwise, it
         returns just a regular mountpoint path.
-
-        Besides, it binds the ``GLOBAL_PIP_CACHE`` if it's set and we are under
-        ``DEBUG`` mode.
         """
         if getattr(settings, 'RTD_DOCKER_COMPOSE', False):
             from pathlib import Path
@@ -964,14 +961,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                     'mode': 'rw',
                 },
             }
-
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            binds.update({
-                self.project.pip_cache_path: {
-                    'bind': self.project.pip_cache_path,
-                    'mode': 'rw',
-                },
-            })
 
         return binds
 
