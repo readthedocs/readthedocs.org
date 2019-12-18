@@ -26,7 +26,6 @@ services:
     depends_on:
       - web
       - proxito
-      - storage
     volumes:
       - ${PWD}/dockerfiles/nginx:/etc/nginx/conf.d
 
@@ -38,6 +37,10 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
+    depends_on:
+      - database
+      - storage
+      - cache
     environment:
       - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
@@ -59,8 +62,9 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
     depends_on:
+      - database
       - storage
-      - azure-cli
+      - cache
     environment:
       - INIT=${INIT:-}
       - DOCKER_NO_RELOAD
@@ -79,8 +83,9 @@ services:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
     depends_on:
+      - database
+      - cache
       - storage
-      - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
       - DOCKER_NO_RELOAD
@@ -106,6 +111,8 @@ services:
 
       # Docker in Docker
       - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - web
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
       - DOCKER_NO_RELOAD
