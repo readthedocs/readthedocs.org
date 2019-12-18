@@ -92,7 +92,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     @override_settings(
-        RTD_EXTERNAL_VERSION_DOMAIN='external-builds.readthedocs.io',
+        RTD_EXTERNAL_VERSION_DOMAIN='external-builds.dev.readthedocs.io',
     )
     def test_external_version_serving(self):
         fixture.get(
@@ -107,10 +107,27 @@ class TestFullDocServing(BaseDocServing):
         host = 'external-builds.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/external/html/project/10/awesome.html',
+            resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
 
         # Invalid tests
+
+    @override_settings(
+        RTD_EXTERNAL_VERSION_DOMAIN='external-builds.dev.readthedocs.io',
+    )
+    def test_invalid_domain_for_external_version_serving(self):
+        fixture.get(
+            Version,
+            verbose_name='10',
+            slug='10',
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        url = '/html/project/10/awesome.html'
+        host = 'project.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
 
     def test_invalid_language_for_project_with_versions(self):
         url = '/foo/latest/awesome.html'
