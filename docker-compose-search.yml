@@ -9,8 +9,9 @@ services:
 
   celery:
     depends_on:
+      - database
+      - cache
       - storage
-      - azure-cli
       - search
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
