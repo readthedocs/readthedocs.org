@@ -201,6 +201,7 @@ class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
         'id',
         'project',
         'priority',
+        'predefined_match_arg',
         'match_arg',
         'action',
         'version_type',

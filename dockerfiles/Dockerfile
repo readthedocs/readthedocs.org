@@ -1,9 +1,9 @@
 FROM ubuntu:18.04
 
-ARG GITHUB_TOKEN
-
 ENV DEBIAN_FRONTEND noninteractive
-ENV LANG C.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 WORKDIR /usr/src/app
 
@@ -16,6 +16,7 @@ RUN apt-get -y install \
         libpq-dev \
         libxml2-dev \
         libxslt1-dev \
+        locales \
         build-essential \
         python3-pip \
         python3-dev \
@@ -25,18 +26,17 @@ RUN apt-get -y install \
         libjpeg-dev \
         sqlite
 
-RUN pip3 install --upgrade pip
+# Uncomment en_US.UTF-8 locale and generate it
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+
+RUN pip3 install --no-cache-dir --upgrade pip
 
 RUN mkdir checkouts
 WORKDIR /usr/src/app/checkouts
 
 COPY requirements readthedocs.org/requirements
 
-RUN pip install --no-cache-dir -r readthedocs.org/requirements/docker.txt
-
-# We clone the -ext here only to install the requirements at this point.
-# -ext is also mounted as volume from the upper directory
-RUN git clone --single-branch --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext
-RUN pip install --no-cache-dir -e readthedocs-ext
+RUN pip3 install --no-cache-dir -r readthedocs.org/requirements/docker.txt
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org

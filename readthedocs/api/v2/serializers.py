@@ -86,6 +86,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'slug',
             'identifier',
             'verbose_name',
+            'privacy_level',
             'active',
             'built',
             'downloads',
