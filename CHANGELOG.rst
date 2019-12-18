@@ -1,3 +1,29 @@
+Version 3.11.1
+--------------
+
+:Date: December 18, 2019
+
+* `@humitos <http://github.com/humitos>`__: Upgrade Django due a security issue (`#6470 <https://github.com/readthedocs/readthedocs.org/pull/6470>`__)
+* `@humitos <http://github.com/humitos>`__: Use django storage to build URL returned by El Proxito (`#6466 <https://github.com/readthedocs/readthedocs.org/pull/6466>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Handle GitHub Push events with `deleted: true` in the JSON (`#6465 <https://github.com/readthedocs/readthedocs.org/pull/6465>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Update troubleshooting steps for PR builder (`#6463 <https://github.com/readthedocs/readthedocs.org/pull/6463>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add DOCKER_NORELOAD to compose settings (`#6461 <https://github.com/readthedocs/readthedocs.org/pull/6461>`__)
+* `@stsewd <http://github.com/stsewd>`__: Be explicit when using setup_env (`#6451 <https://github.com/readthedocs/readthedocs.org/pull/6451>`__)
+* `@keshavvinayak01 <http://github.com/keshavvinayak01>`__: Fixed remove_search_analytics issue (`#6447 <https://github.com/readthedocs/readthedocs.org/pull/6447>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Fix logic to build internal/external versions on update_repos management command (`#6442 <https://github.com/readthedocs/readthedocs.org/pull/6442>`__)
+* `@humitos <http://github.com/humitos>`__: Refactor get_downloads to make one query for default_version (`#6441 <https://github.com/readthedocs/readthedocs.org/pull/6441>`__)
+* `@humitos <http://github.com/humitos>`__: Do not expose env variables on external versions (`#6440 <https://github.com/readthedocs/readthedocs.org/pull/6440>`__)
+* `@humitos <http://github.com/humitos>`__: Better ES settings on docker-compose (`#6439 <https://github.com/readthedocs/readthedocs.org/pull/6439>`__)
+* `@humitos <http://github.com/humitos>`__: Remove global pip cache (`#6437 <https://github.com/readthedocs/readthedocs.org/pull/6437>`__)
+* `@humitos <http://github.com/humitos>`__: Bring Azure storage backend classes to this repository (`#6433 <https://github.com/readthedocs/readthedocs.org/pull/6433>`__)
+* `@stsewd <http://github.com/stsewd>`__: Show predefined match on automation rules admin (`#6432 <https://github.com/readthedocs/readthedocs.org/pull/6432>`__)
+* `@stsewd <http://github.com/stsewd>`__: Override production domain explicitly (`#6431 <https://github.com/readthedocs/readthedocs.org/pull/6431>`__)
+* `@humitos <http://github.com/humitos>`__: inv tasks to use when developing with docker (`#6418 <https://github.com/readthedocs/readthedocs.org/pull/6418>`__)
+* `@piyushpalawat99 <http://github.com/piyushpalawat99>`__: Fix #6395 (`#6402 <https://github.com/readthedocs/readthedocs.org/pull/6402>`__)
+* `@stsewd <http://github.com/stsewd>`__: Only pass public versions to html context (`#6118 <https://github.com/readthedocs/readthedocs.org/pull/6118>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add an "Edit Versions" listing to the Admin menu (`#6110 <https://github.com/readthedocs/readthedocs.org/pull/6110>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Extend webhook notifications with build status (`#5621 <https://github.com/readthedocs/readthedocs.org/pull/5621>`__)
+
 Version 3.11.0
 --------------
 
