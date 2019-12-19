@@ -103,11 +103,9 @@ class BuildCommand(BuildCommandResultMixin):
         if cwd is None:
             cwd = os.getcwd()
         self.cwd = cwd
-        self.environment = os.environ.copy()
-        if environment is not None:
-            if 'PATH' in environment:
-                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
-            self.environment.update(environment)
+        self.environment = environment.copy() if environment else {}
+        if 'PATH' in self.environment:
+            raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
         self.combine_output = combine_output
         self.input_data = input_data
