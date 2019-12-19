@@ -445,12 +445,13 @@ class BaseEnvironment:
             kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('BIN_PATH', None)
+        environment = self.environment.copy()
+        env_path = environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
             raise BuildEnvironmentError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = self.environment
+        kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
