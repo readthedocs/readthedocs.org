@@ -481,7 +481,7 @@ class BaseEnvironment:
                 log.warning(
                     LOG_TEMPLATE,
                     {
-                        'project': self.project.slug,
+                        'project': self.project.slug if self.project else '',
                         'version': 'latest',
                         'msg': msg,
                     }
@@ -570,8 +570,8 @@ class BuildEnvironment(BaseEnvironment):
         log.info(
             LOG_TEMPLATE,
             {
-                'project': self.project.slug,
-                'version': self.version.slug,
+                'project': self.project.slug if self.project else '',
+                'version': self.version.slug if self.version else '',
                 'msg': 'Build finished',
             }
         )
@@ -606,17 +606,17 @@ class BuildEnvironment(BaseEnvironment):
             log_level_function(
                 LOG_TEMPLATE,
                 {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
+                    'project': self.project.slug if self.project else '',
+                    'version': self.version.slug if self.version else '',
                     'msg': exc_value,
                 },
                 exc_info=True,
                 extra={
                     'stack': True,
                     'tags': {
-                        'build': self.build.get('id'),
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        'build': self.build.get('id') if self.build else '',
+                        'project': self.project.slug if self.project else '',
+                        'version': self.version.slug if self.version else '',
                     },
                 },
             )
