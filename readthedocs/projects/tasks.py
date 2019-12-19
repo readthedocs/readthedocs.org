@@ -725,7 +725,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = {
-            'READTHEDOCS': True,
+            'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': self.version.slug,
             'READTHEDOCS_PROJECT': self.project.slug,
             'READTHEDOCS_LANGUAGE': self.project.language,
