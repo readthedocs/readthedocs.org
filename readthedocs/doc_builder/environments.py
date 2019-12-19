@@ -453,7 +453,7 @@ class BaseEnvironment:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
             raise BuildEnvironmentError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = self.environment
+        kwargs['environment'] = self.environment.copy()
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
