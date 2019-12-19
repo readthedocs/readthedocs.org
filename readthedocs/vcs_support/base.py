@@ -64,11 +64,20 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(project)
+        self.environment = environment or self._get_default_buil_environment()
 
         # Update the env variables with the proper VCS env variables
         self.environment.environment.update(self.env)
+
+    def _get_default_buil_environment(self):
+        from readthedocs.doc_builder.environments import LocalBuildEnvironment
+
+        environment = os.environ.copy()
+        environment['BIN_PATH'] = environment.pop('PATH', None)
+        return LocalBuildEnvironment(
+            record=False,
+            environment=environment,
+        )
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
