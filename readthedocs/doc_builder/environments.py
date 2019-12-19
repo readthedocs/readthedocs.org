@@ -103,10 +103,9 @@ class BuildCommand(BuildCommandResultMixin):
         if cwd is None:
             cwd = os.getcwd()
         self.cwd = cwd
-        self.environment = {}
-        if environment is None:
-            self.environment = os.environ.copy()
-        self.environment.update(environment)
+
+        environment = environment or {}
+        self.environment = environment.copy()
 
         self.combine_output = combine_output
         self.input_data = input_data
