@@ -324,7 +324,7 @@ class Symlink:
         # Create symlink
         if version is not None:
             docs_dir = os.path.join(
-                settings.DOCROOT,
+                settings.RTD_DOCROOT,
                 self.project.slug,
                 'rtd-builds',
                 version.slug,
@@ -362,7 +362,7 @@ class Symlink:
             )
             symlink = os.path.join(version_dir, version.slug)
             docs_dir = os.path.join(
-                settings.DOCROOT,
+                settings.RTD_DOCROOT,
                 self.project.slug,
                 'rtd-builds',
                 version.slug,
