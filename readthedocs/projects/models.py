@@ -651,7 +651,7 @@ class Project(models.Model):
 
     @property
     def doc_path(self):
-        return os.path.join(settings.DOCROOT, self.slug.replace('_', '-'))
+        return os.path.join(settings.RTD_DOCROOT, self.slug.replace('_', '-'))
 
     def checkout_path(self, version=LATEST):
         return os.path.join(self.doc_path, 'checkouts', version)
