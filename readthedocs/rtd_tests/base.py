@@ -19,17 +19,17 @@ log = logging.getLogger(__name__)
 
 class RTDTestCase(TestCase):
     def setUp(self):
-        self.original_DOCROOT = settings.DOCROOT
+        self.original_DOCROOT = settings.RTD_DOCROOT
         self.cwd = os.path.dirname(__file__)
         self.build_dir = tempfile.mkdtemp()
         log.info('build dir: %s', self.build_dir)
         if not os.path.exists(self.build_dir):
             os.makedirs(self.build_dir)
-        settings.DOCROOT = self.build_dir
+        settings.RTD_DOCROOT = self.build_dir
 
     def tearDown(self):
         shutil.rmtree(self.build_dir)
-        settings.DOCROOT = self.original_DOCROOT
+        settings.RTD_DOCROOT = self.original_DOCROOT
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
