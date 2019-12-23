@@ -80,9 +80,20 @@ Projects list
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -108,9 +119,20 @@ Project details
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -184,13 +206,27 @@ Project create
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X POST \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.post(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -220,13 +256,27 @@ Project update
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X PATCH \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X PATCH \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.patch(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -272,9 +322,20 @@ Versions listing
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -300,9 +361,20 @@ Version detail
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/stable/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/stable/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/stable/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -352,13 +424,27 @@ Version update
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X PATCH \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/version/0.23/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X PATCH \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/version/0.23/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/ersion/0.23/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.patch(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -393,9 +479,20 @@ Build details
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/builds/8592686/?expand=config'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -477,9 +574,20 @@ Builds listing
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/builds/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/builds/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -506,11 +614,22 @@ Build triggering
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X POST \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            response = requests.post(URL, headers = HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -545,9 +664,20 @@ Subproject details
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -572,9 +702,20 @@ Subprojects listing
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -598,13 +739,27 @@ Subproject create
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X POST \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.post(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -635,11 +790,22 @@ Subproject delete
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X DELETE \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+        .. code-tab:: bash
+
+            $ curl \
+              -X DELETE \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            response = requests.delete(URL, headers = HEADERS)
+            print(response.text)
 
     :statuscode 204: Subproject deleted successfully
 
@@ -660,9 +826,20 @@ Translations listing
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/translations/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/translations/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/translations/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**:
 
@@ -693,9 +870,20 @@ Redirect details
 
     **Example request**
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**
 
@@ -724,9 +912,20 @@ Redirects listing
 
     **Example request**
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**
 
@@ -748,13 +947,27 @@ Redirect create
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X POST \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.post(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -792,13 +1005,27 @@ Redirect update
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X PUT \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X PUT \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.put(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -823,11 +1050,22 @@ Redirect delete
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X DELETE \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+        .. code-tab:: bash
+
+            $ curl \
+              -X DELETE \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/redirects/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            response = requests.delete(URL, headers = HEADERS)
+            print(response.text)
 
     :statuscode 204: Redirect deleted successfully
 
@@ -850,9 +1088,20 @@ Environment Variable details
 
     **Example request**
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**
 
@@ -879,9 +1128,20 @@ Environment Variables listing
 
     **Example request**
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': 'token {}'.format(TOKEN)}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.text)
 
     **Example response**
 
@@ -903,13 +1163,27 @@ Environment Variable create
 
     **Example request**:
 
-    .. sourcecode:: bash
+    .. tabs::
 
-        $ curl \
-          -X POST \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/ \
-          -H "Content-Type: application/json" \
-          -d @body.json
+        .. code-tab:: bash
+
+            $ curl \
+              -X POST \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/ \
+              -H "Content-Type: application/json" \
+              -d @body.json
+
+        .. code-tab:: python
+
+            import requests
+            import json
+            URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            data = json.load(open('body.json', 'rb'))
+            response = requests.post(URL,
+                            json = data, headers = HEADERS)
+            print(response.text)
 
     The content of ``body.json`` is like,
 
@@ -936,11 +1210,22 @@ Environment Variable delete
 
     **Example request**:
 
-    .. sourcecode:: bash
+   .. tabs::
 
-        $ curl \
-          -X DELETE \
-          -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+        .. code-tab:: bash
+
+            $ curl \
+              -X DELETE \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            response = requests.delete(URL, headers = HEADERS)
+            print(response.text)
 
     :requestheader Authorization: token to authenticate.
 
