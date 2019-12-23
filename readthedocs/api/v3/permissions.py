@@ -4,6 +4,8 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 class UserProjectsListing(BasePermission):
+    """Allow access to ``/projects`` (user's projects listing)."""
+
     def has_permission(self, request, view):
         if view.basename == 'projects' and any([
                 view.action == 'list',
@@ -21,7 +23,6 @@ class PublicDetailPrivateListing(IsAuthenticated):
 
     * Always give permission for a ``detail`` request
     * Only give permission for ``listing`` request if user is admin of the project
-    * Allow access to ``/projects`` (user's projects listing)
     """
 
     def has_permission(self, request, view):
@@ -53,6 +54,14 @@ class IsProjectAdmin(BasePermission):
 
 
 class CommonPermissionsBase(BasePermission):
+
+    """
+    Common permission class used for most APIv3 endpoints.
+
+    This class should be used by ``APIv3Settings.permission_classes`` to define
+    the permissions for most APIv3 endpoints. It has to be overriden from
+    corporate to define proper permissions there.
+    """
 
     def has_permission(self, request, view):
         if not IsAuthenticated().has_permission(request, view):
