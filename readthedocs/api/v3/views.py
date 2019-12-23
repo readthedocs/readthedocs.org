@@ -28,7 +28,7 @@ from readthedocs.redirects.models import Redirect
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
 from .mixins import ProjectQuerySetMixin, UpdateMixin
-from .permissions import PublicDetailPrivateListing, IsProjectAdmin
+from .permissions import CommonPermissions, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -64,7 +64,7 @@ class APIv3Settings:
     # Using only ``TokenAuthentication`` for now, so we can give access to
     # specific carefully selected users only
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (PublicDetailPrivateListing,)
+    permission_classes = (CommonPermissions,)
 
     pagination_class = LimitOffsetPagination
     LimitOffsetPagination.default_limit = 10

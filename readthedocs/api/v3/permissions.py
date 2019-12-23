@@ -50,3 +50,19 @@ class IsProjectAdmin(BasePermission):
         project = view._get_parent_project()
         if view.has_admin_permission(request.user, project):
             return True
+
+
+class CommonPermissionsBase(BasePermission):
+
+    def has_permission(self, request, view):
+        if not IsAuthenticated().has_permission(request, view):
+            return False
+
+        return any([
+            UserProjectsListing().has_permission(request, view),
+            PublicDetailPrivateListing().has_permission(request, view),
+        ])
+
+
+class CommonPermissions(SettingsOverrideObject):
+    _default_class = CommonPermissionsBase
