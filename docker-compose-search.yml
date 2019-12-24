@@ -40,3 +40,5 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
       - search_data:/usr/share/elasticsearch/data
+    networks:
+      community:
