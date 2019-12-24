@@ -37,24 +37,20 @@ def gravatar(email, size=48):
 
 
 @register.simple_tag(name='doc_url')
-def make_document_url(project, version=None, page=''):
+def make_document_url(project, version=None, page='', path=''):
     """
-    Create a URL for a Project, Version and page.
+    Create a URL for a Project, Version and page (and/or path).
 
-    ``page`` could be the name of the document as Sphinx call it (e.g.
-    /config-file/v1) (note that the extension is not present) or the filename of
-    the page (e.g. index.html). We need to detect which is the case and add the
-    .html extension when it's a docname.
+    :param page: is the name of the document as Sphinx call it (e.g.
+        /config-file/v1) (note that the extension is not present)
+    :param path: is the full path of the page (e.g. /section/configuration.html)
+
+    :returns: URL to the page (e.g. https://docs.domain.com/en/latest/section/configuration.html)
     """
     if not project:
         return ''
-
-    if page and not page.endswith('.html'):
-        if project.documentation_type in ('sphinx', 'mkdocs'):
-            page = f'{page}.html'
-
-    path = resolve(project=project, version_slug=version, filename=page)
-    return path
+    filename = path or page
+    return resolve(project=project, version_slug=version, filename=filename)
 
 
 @register.filter(is_safe=True)

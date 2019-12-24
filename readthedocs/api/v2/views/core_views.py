@@ -20,11 +20,12 @@ def docurl(request):
 
     Example::
 
-        GET https://readthedocs.org/api/v2/docurl/?project=requests&version=latest&doc=index
+        GET https://readthedocs.org/api/v2/docurl/?project=requests&version=latest&doc=index&path=index.html
     """
     project = request.GET.get('project')
     version = request.GET.get('version', LATEST)
     doc = request.GET.get('doc', 'index')
+    path = request.GET.get('path', '')
     if project is None:
         return Response(
             {'error': 'Need project and doc'},
@@ -42,5 +43,6 @@ def docurl(request):
             project=project,
             version=version.slug,
             page=doc,
+            path=path,
         ),
     })
