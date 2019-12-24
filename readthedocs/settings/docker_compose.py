@@ -18,6 +18,11 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
+
+    # Required by /embed/ from -ext
+    # NOTE: this could be replaced by PUBLIC_API_URL
+    PUBLIC_API_HOST = 'http://community.dev.readthedocs.io'
+
     SLUMBER_API_HOST = 'http://web:8000'
 
     MULTIPLE_APP_SERVERS = ['web']
