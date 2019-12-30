@@ -452,6 +452,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertEqual(project_a.language, 'en')
         self.assertEqual(project_b.language, 'es')
         data = model_to_dict(project_a)
+
+        # Remove None values from data
+        data = {k: v for k, v in data.items() if v is not None}
+
         data['language'] = 'es'
         resp = self.client.post(
             reverse(
@@ -485,6 +489,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertEqual(project_a.language, 'en')
         self.assertEqual(project_b.language, 'es')
         data = model_to_dict(project_a)
+
+        # Remove None values from data
+        data = {k: v for k, v in data.items() if v is not None}
+
         # Same language
         data['language'] = 'en'
         resp = self.client.post(
