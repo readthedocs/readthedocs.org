@@ -55,7 +55,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['-verbose_name'],
-                'permissions': (('view_version', 'View Version'),),
             },
         ),
         migrations.CreateModel(

@@ -69,7 +69,6 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('slug',),
-                'permissions': (('view_project', 'View Project'),),
             },
         ),
         migrations.CreateModel(
