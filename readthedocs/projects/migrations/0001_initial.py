@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
                 ('num_major', models.IntegerField(default=2, blank=True, help_text='2 means supporting 3.X.X and 2.X.X, but not 1.X.X', null=True, verbose_name='Number of Major versions')),
                 ('num_minor', models.IntegerField(default=2, blank=True, help_text='2 means supporting 2.2.X and 2.1.X, but not 2.0.X', null=True, verbose_name='Number of Minor versions')),
                 ('num_point', models.IntegerField(default=2, blank=True, help_text='2 means supporting 2.2.2 and 2.2.1, but not 2.2.0', null=True, verbose_name='Number of Point versions')),
-                ('main_language_project', models.ForeignKey(related_name='translations', blank=True, to='projects.Project', null=True)),
+                ('main_language_project', models.ForeignKey(related_name='translations', blank=True, to='projects.Project', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('slug',),
@@ -76,8 +76,8 @@ class Migration(migrations.Migration):
             name='ProjectRelationship',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('child', models.ForeignKey(related_name='superprojects', verbose_name='Child', to='projects.Project')),
-                ('parent', models.ForeignKey(related_name='subprojects', verbose_name='Parent', to='projects.Project')),
+                ('child', models.ForeignKey(related_name='superprojects', verbose_name='Child', to='projects.Project', on_delete=models.CASCADE)),
+                ('parent', models.ForeignKey(related_name='subprojects', verbose_name='Parent', to='projects.Project', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('url', models.URLField(help_text='URL to send the webhook to', blank=True)),
-                ('project', models.ForeignKey(related_name='webhook_notifications', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='webhook_notifications', to='projects.Project', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,
@@ -109,6 +109,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='emailhook',
             name='project',
-            field=models.ForeignKey(related_name='emailhook_notifications', to='projects.Project'),
+            field=models.ForeignKey(related_name='emailhook_notifications', to='projects.Project', on_delete=models.CASCADE),
         ),
     ]
