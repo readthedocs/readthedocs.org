@@ -91,6 +91,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -625,12 +626,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -920,6 +923,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))
