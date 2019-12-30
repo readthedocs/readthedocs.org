@@ -405,11 +405,6 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            # project
-            ('view_project', _('View Project')),
-        )
 
     def __str__(self):
         return self.name
