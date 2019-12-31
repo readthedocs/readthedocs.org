@@ -10,13 +10,12 @@ from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
     REPO_CHOICES,
-    PRIVACY_CHOICES,
-    PROTECTED,
 )
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.redirects.models import Redirect, TYPE_CHOICES as REDIRECT_TYPE_CHOICES
@@ -398,7 +397,7 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializer(FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
 
     """Serializer used to Import a Project."""
 
@@ -416,7 +415,11 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
         )
 
 
-class ProjectUpdateSerializer(FlexFieldsModelSerializer):
+class ProjectCreateSerializer(SettingsOverrideObject):
+    _default_class = ProjectCreateSerializerBase
+
+
+class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -445,7 +448,11 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
         )
 
 
-class ProjectSerializer(FlexFieldsModelSerializer):
+class ProjectUpdateSerializer(SettingsOverrideObject):
+    _default_class = ProjectUpdateSerializerBase
+
+
+class ProjectSerializerBase(FlexFieldsModelSerializer):
 
     homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
@@ -518,6 +525,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             return self.__class__(obj.superprojects.first().parent).data
         except Exception:
             return None
+
+
+class ProjectSerializer(SettingsOverrideObject):
+    _default_class = ProjectSerializerBase
 
 
 class SubprojectCreateSerializer(FlexFieldsModelSerializer):
