@@ -12,6 +12,19 @@ volumes:
   postgres_data:
   postgres_backups_data:
 
+# We create this network here to be able to use a static IP for NGINX.
+# This is needed because hitting `community.dev.readthedocs.io` from
+# any service will fail since it will resolve to 127.0.0.1, but
+# instead we need to hit NGINX's IP (this is used on Embed API from
+# -ext for example) Setting a static IP for NGINX, allow us to
+# override /etc/hosts with this IP.
+networks:
+  community:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.1.0.0/16
+
 services:
   server:
     # Image used for all the other services (proxito, web, celery, build)
@@ -29,6 +42,9 @@ services:
       - storage
     volumes:
       - ${PWD}/dockerfiles/nginx:/etc/nginx/conf.d
+    networks:
+      community:
+        ipv4_address: 10.1.0.100
 
   proxito:
     image: readthedocsorg_server:latest
@@ -50,6 +66,9 @@ services:
     # control on STDIN and be able to debug our code with interactive pdb
     stdin_open: true
     tty: true
+
+    networks:
+      community:
 
     command: ["../../docker/proxito.sh"]
 
@@ -75,6 +94,12 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     stdin_open: true
     tty: true
+
+    extra_hosts:
+      - "community.dev.readthedocs.io:10.1.0.100"
+    networks:
+      community:
+
     command: ["../../docker/web.sh"]
 
   celery:
@@ -98,6 +123,8 @@ services:
       - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
+    networks:
+      community:
     command: ["../../docker/celery.sh"]
 
   build:
@@ -127,6 +154,8 @@ services:
       - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
+    networks:
+      community:
     command: ["../../docker/build.sh"]
 
   storage:
@@ -135,6 +164,8 @@ services:
       - azurite_data:/data
     ports:
       - "10000:10000"
+    networks:
+      community:
     command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
 
   azure-cli:
@@ -145,10 +176,14 @@ services:
       - storage
     depends_on:
       - storage
+    networks:
+      community:
     command: ["/usr/local/bin/create-containers.sh"]
 
   cache:
     image: redis:3.2.7
+    networks:
+      community:
 
   database:
     image: postgres:11.1
@@ -159,3 +194,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backups_data:/backups
+    networks:
+      community:
