@@ -98,8 +98,9 @@ For the commercial site:
 - The footer shows links to the project's dashboard (build, downloads, home) to only admin users.
 - Only versions with ``hidden = False`` are listed on the footer and appear on search results.
 - If a project has a `404.html` file on the default version, it's served if the user has permission over that version.
-- If a project has a ``robots.txt`` file on the default version, it's served if the user has permission over that version.
-- A ``sitemap.xml`` file is served if the user has permissions over the default version.
+- If a project has a ``robots.txt`` file on the default version, and it's public, it's served.
+- A ``sitemap.xml`` file is served if the user has at least on public version.
+  And it will only list public versions.
 
 Migration
 ---------
@@ -109,8 +110,8 @@ we need to add a setting ``RTD_ALLOW_PRIVACY_LEVELS`` (``False`` by default).
 
 For the community and commercial site, we need to:
 
-- Remove/change code that depend on the project's privacy level.
-  Use the default version's privacy level instead.
+- Remove/change code that depends on the project's privacy level.
+  Use the global setting ``RTD_ALLOW_PRIVACY_LEVELS`` and default version's privacy level instead.
 
   - Display robots.txt
   - Serve 404.html page
@@ -118,7 +119,7 @@ For the community and commercial site, we need to:
   - Querysets
 
 - Remove `Project.privacy_level` field
-- Migrate all protected versions to have the attribute ``hidden = True``,
+- Migrate all protected versions to have the attribute ``hidden = True`` (data migration),
   and set their privacy level to public for the community site and private for the commercial site.
 - Change all querysets used to list versions on the footer and on search to use the ``hidden`` attribute.
 - Update docs
@@ -149,10 +150,13 @@ Public project (community)
   Normal use case, no changes required.
 - Protected version:
   Users didn't want to list this version on the footer,
-  but also not deactivate it. This can be solved by using the new ``hidden`` setting.
+  but also not deactivate it.
+  We can do a data migration of those versions to the new ``hidden`` setting and make them public.
 - Private version:
   Users didn't want to show this version to their users yet or they were testing something.
   This can be solved with the pull request builder feature and the ``hidden`` setting.
+  We migrate those to public with the ``hidden`` setting.
+  If we are worried about leaking anything from the version, we can email users before doing the change. 
 
 Protected project (community)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -160,14 +164,21 @@ Protected project (community)
 Protected projects are not listed publicly.
 Probably users were hosting a WIP project,
 or personal public project.
-A public project with public versions should work for them,
+A public project should work for them,
 as we are removing listing all projects publicly (except for search).
+
+The migration path for versions of protected projects is the same as a public project.
 
 Private project (community)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Probably these users want to use our enterprise solution instead.
 Or they were hosting a personal project.
+
+The migration path for versions of private projects is the same as a public project.
+
+If we are worried about leaking anything from the dashboard or build page,
+we can email users before doing the change.
 
 Commercial site
 ###############
@@ -182,14 +193,18 @@ Private project (commercial)
 - Protected version:
   Users didn't want to list this version on the footer,
   but also not deactivate it. This can be solved by using the new ``hidden`` setting.
+  We can do a data migration of those versions to the new ``hidden`` setting and make them private.
 - Public version:
   User has private code, but want to make public their docs.
+  No changes required.
 
 Protected project (commercial)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 I can't think of a use case for protected projects,
 since they aren't listed publicly on the commercial site.
+
+The migration path for versions of protected projects is the same as a private project.
 
 Public project (commercial)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -201,9 +216,15 @@ public versions don't have links to the project dashboard (except for admin user
 
 - Private versions:
   Users under the organization can see links to the dashboard.
+  Not changes required.
 - Protected versions:
   Users under the organization can see links to the dashboard.
+  We can do a data migration of those versions to the new ``hidden`` setting and make them private.
 - Public versions:
   All users can see links to the dashboard.
   Probably they have an open source project,
   but they still want to manage access using the same teams of the organization.
+  Not changes are required.
+
+A breaking change here is:
+users outside the organization would not be able to see the dashboard of the project.
