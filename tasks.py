@@ -1,13 +1,11 @@
 """Read the Docs tasks."""
 
-from __future__ import division, print_function, unicode_literals
-
 import os
 
 from invoke import task, Collection
 
 import common.tasks
-import dockerfiles.tasks
+import common.dockerfiles.tasks
 
 
 ROOT_PATH = os.path.dirname(__file__)
@@ -37,16 +35,11 @@ namespace.add_collection(
 )
 
 namespace.add_collection(
-    Collection(
-        dockerfiles.tasks.build,
-        dockerfiles.tasks.down,
-        dockerfiles.tasks.up,
-        dockerfiles.tasks.shell,
-        dockerfiles.tasks.manage,
-        dockerfiles.tasks.attach,
-        dockerfiles.tasks.restart,
-        dockerfiles.tasks.pull,
-        dockerfiles.tasks.test,
+    Collection.from_module(
+        common.dockerfiles.tasks,
+        config={
+            'container_prefix': 'readthedocsorg',
+        },
     ),
     name='docker',
 )
