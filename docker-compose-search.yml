@@ -1,0 +1,44 @@
+# docker-compose-search.yml starts "search" service and override some
+# services to link them so they can use the "search" as well.
+version: '3'
+
+volumes:
+  search_data:
+
+services:
+
+  web:
+    links:
+      - storage
+      - database
+      - cache
+      - search
+
+  celery:
+    links:
+      - storage
+      - database
+      - cache
+      - search
+    depends_on:
+      - storage
+      - azure-cli
+      - search
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - SEARCH=t
+
+  # You may need to increase the memory for vm
+  # sudo sysctl -w vm.max_map_count=262144
+  search:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    environment:
+      - discovery.type=single-node
+      - node.name=search
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - cluster.info.update.interval=30m
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - search_data:/usr/share/elasticsearch/data
+    networks:
+      community:

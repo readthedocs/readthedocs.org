@@ -1098,6 +1098,23 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.install.0.requirements'
 
+    def test_python_install_requirements_error_msg(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'path': '.',
+                        'requirements': None,
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+
+        assert str(excinfo.value) == 'Invalid "python.install[0].requirements": expected string'
+
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = self.get_build_config(
             {
@@ -1870,7 +1887,7 @@ class TestBuildConfigV2:
             },
         })
         build.validate()
-        assert build.raw_config == {}
+        assert build._raw_config == {}
 
     @pytest.mark.parametrize(
         'value,expected', [
@@ -1888,27 +1905,27 @@ class TestBuildConfigV2:
     def test_pop_config_single(self):
         build = self.get_build_config({'one': 1})
         build.pop_config('one')
-        assert build.raw_config == {}
+        assert build._raw_config == {}
 
     def test_pop_config_nested(self):
         build = self.get_build_config({'one': {'two': 2}})
         build.pop_config('one.two')
-        assert build.raw_config == {}
+        assert build._raw_config == {}
 
     def test_pop_config_nested_with_residue(self):
         build = self.get_build_config({'one': {'two': 2, 'three': 3}})
         build.pop_config('one.two')
-        assert build.raw_config == {'one': {'three': 3}}
+        assert build._raw_config == {'one': {'three': 3}}
 
     def test_pop_config_default_none(self):
         build = self.get_build_config({'one': {'two': 2, 'three': 3}})
         assert build.pop_config('one.four') is None
-        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+        assert build._raw_config == {'one': {'two': 2, 'three': 3}}
 
     def test_pop_config_default(self):
         build = self.get_build_config({'one': {'two': 2, 'three': 3}})
         assert build.pop_config('one.four', 4) == 4
-        assert build.raw_config == {'one': {'two': 2, 'three': 3}}
+        assert build._raw_config == {'one': {'two': 2, 'three': 3}}
 
     def test_pop_config_raise_exception(self):
         build = self.get_build_config({'one': {'two': 2, 'three': 3}})

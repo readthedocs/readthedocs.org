@@ -1,10 +1,10 @@
 # Base packages
-pip==19.2.3
+pip==19.3.1
 appdirs==1.4.3
-virtualenv==16.7.5
+virtualenv==16.7.7
 
-django==1.11.24  # pyup: <1.12
-django-extensions==2.2.1
+django==1.11.27  # pyup: <1.12
+django-extensions==2.2.5
 django_polymorphic==2.1.2
 
 djangorestframework==3.10.3
@@ -42,7 +42,7 @@ celery==4.1.1  # pyup: ignore
 
 django-allauth==0.40.0
 
-GitPython==3.0.2
+GitPython==3.0.4
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
@@ -63,28 +63,27 @@ git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17
 #     from elasticsearch_dsl import Document as DSLDocument
 # ImportError: cannot import name 'Document'
 django-elasticsearch-dsl==0.5.1  # pyup: ignore
-pyquery==1.4.0
+selectolax==0.2.1
 
-# lxml is used by pyquery
-# defusedxml is recommended when using lxml
-lxml==4.4.1
-defusedxml==0.6.0
+# Ignoring orjson for now because it makes Travis to fail
+orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.2
-pytz==2019.2
+pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
 mock==3.0.5
-stripe==2.35.1
+stripe==2.38.0
+regex==2019.11.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.1
-django-crispy-forms==1.7.2
+django-crispy-forms==1.8.0
 
-docker==4.0.2
+docker==4.1.0
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
@@ -99,7 +98,7 @@ django-taggit==1.1.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==19.1
+packaging==19.2
 
 # Commenting stuff
 django-cors-middleware==1.4.0
@@ -108,7 +107,9 @@ django-cors-middleware==1.4.0
 user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
-django-storages==1.7.1  # pyup: <1.8
+django-storages[azure]==1.7.2
+azure-storage-blob==1.5.0
+azure-storage-common==1.4.2
 
 # Required only in development and linting
 django-debug-toolbar==2.0

@@ -12,7 +12,7 @@
     "created": "2019-04-29T10:00:00Z",
     "default_branch": "master",
     "default_version": "latest",
-    "id": 4,
+    "id": 3,
     "homepage": "http://template.readthedocs.io/",
     "language": {
         "code": "en",
@@ -20,10 +20,6 @@
     },
     "modified": "2019-04-29T12:00:00Z",
     "name": "Test Project",
-    "privacy_level": {
-        "code": "public",
-        "name": "Public"
-    },
     "programming_language": {
         "code": "py",
         "name": "Python"

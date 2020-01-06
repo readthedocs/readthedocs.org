@@ -1,10 +1,10 @@
 import logging
 from pathlib import Path
 
+from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import safe_join, get_available_overwrite_name
-
+from storages.utils import get_available_overwrite_name, safe_join
 
 log = logging.getLogger(__name__)
 
@@ -87,6 +87,48 @@ class BuildMediaStorageMixin:
                 with filepath.open('rb') as fd:
                     self.save(sub_destination, fd)
 
+    def sync_directory(self, source, destination):
+        """
+        Sync a directory recursively to storage.
+
+        Overwrites files in remote storage with files from ``source`` (no timstamp/hash checking).
+        Removes files and folders in remote storage that are not present in ``source``.
+
+        :param source: the source path on the local disk
+        :param destination: the destination path in storage
+        """
+        if destination in ('', '/'):
+            raise SuspiciousFileOperation('Syncing all storage cannot be right')
+
+        log.debug(
+            'Syncing to media storage. source=%s destination=%s',
+            source, destination,
+        )
+        source = Path(source)
+        copied_files = set()
+        copied_dirs = set()
+        for filepath in source.iterdir():
+            sub_destination = self.join(destination, filepath.name)
+            if filepath.is_dir():
+                # Recursively sync the subdirectory
+                self.sync_directory(filepath, sub_destination)
+                copied_dirs.add(filepath.name)
+            elif filepath.is_file():
+                with filepath.open('rb') as fd:
+                    self.save(sub_destination, fd)
+                copied_files.add(filepath.name)
+
+        # Remove files that are not present in ``source``
+        dest_folders, dest_files = self.listdir(self._dirpath(destination))
+        for folder in dest_folders:
+            if folder not in copied_dirs:
+                self.delete_directory(self.join(destination, folder))
+        for filename in dest_files:
+            if filename not in copied_files:
+                filepath = self.join(destination, filename)
+                log.debug('Deleting file from media storage. file=%s', filepath)
+                self.delete(filepath)
+
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
 
@@ -107,7 +149,19 @@ class BuildMediaStorageMixin:
 
 class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
 
-    """Storage subclass that writes build artifacts under MEDIA_ROOT."""
+    """Storage subclass that writes build artifacts in PRODUCTION_MEDIA_ARTIFACTS or MEDIA_ROOT."""
+
+    def __init__(self, **kwargs):
+        location = kwargs.pop('location', None)
+
+        if not location:
+            # Mirrors the logic of getting the production media path
+            if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+                location = settings.MEDIA_ROOT
+            else:
+                location = settings.PRODUCTION_MEDIA_ARTIFACTS
+
+        super().__init__(location)
 
     def get_available_name(self, name, max_length=None):
         """

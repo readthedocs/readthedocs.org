@@ -184,6 +184,13 @@ which provide outlines on the larger tasks that we're hoping to accomplish.
 .. _these issues: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _milestones: https://github.com/readthedocs/readthedocs.org/milestones
 
+Projects from previous years
+----------------------------
+
+* `Improved Search And Search As You Type (2019) <https://blog.readthedocs.com/improved-search-and-search-as-you-type/>`_
+* `Building Docs For Pull Requests (2019) <https://blog.readthedocs.com/building-docs-for-pull-requests/>`_
+* `Search Improvement (2018) <https://blog.readthedocs.com/search-improvements/>`_
+
 Thanks
 ------
 
