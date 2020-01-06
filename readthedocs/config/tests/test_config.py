@@ -1465,7 +1465,7 @@ class TestBuildConfigV2:
         'value,expected',
         [
             ('html', 'sphinx'),
-            ('htmldir', 'sphinx_htmldir'),
+            ('dirhtml', 'sphinx_htmldir'),
             ('singlehtml', 'sphinx_singlehtml'),
         ],
     )

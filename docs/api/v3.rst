@@ -435,6 +435,16 @@ Build details
                 "build": {
                     "image": "readthedocs/build:latest"
                 },
+
+
+
+
+
+
+
+
+
+
                 "doctype": "sphinx_htmldir",
                 "sphinx": {
                     "builder": "sphinx_htmldir",
