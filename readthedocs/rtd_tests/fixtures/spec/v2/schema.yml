@@ -97,6 +97,8 @@ sphinx:
   # The builder type for the sphinx documentation
   # Default: 'html'
   builder: enum('html', 'dirhtml', 'singlehtml', required=False)
+  builder: enum('html', 'htmldir', 'singlehtml', required=False)
+
 
   # The path to the conf.py file
   # Default: rtd will try to find it | project config

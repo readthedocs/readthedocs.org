@@ -773,6 +773,7 @@ class TestLoadConfigV2:
         [
             ('html', 'sphinx'),
             ('dirhtml', 'sphinx_htmldir'),
+            ('htmldir','sphinx_htmldir'),
             ('singlehtml', 'sphinx_singlehtml'),
         ],
     )
