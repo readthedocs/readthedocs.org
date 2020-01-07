@@ -284,6 +284,7 @@ The builder type for the Sphinx documentation.
 
 :Type: ``string``
 :Options: ``html``, ``htmldir``, ``singlehtml``
+:Options: ``html``, ``dirhtml``, ``singlehtml``
 :Default: ``html``
 
 sphinx.configuration
