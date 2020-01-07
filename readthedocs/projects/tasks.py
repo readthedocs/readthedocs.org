@@ -246,6 +246,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 build=self.build,
                 record=False,
                 update_on_success=False,
+                environment=self.get_rtd_env_vars(),
             )
 
             before_vcs.send(sender=self.version, environment=environment)
@@ -454,6 +455,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=self.build,
             record=record,
             update_on_success=False,
+            environment=self.get_rtd_env_vars(),
         )
 
         # TODO: Remove.
@@ -722,14 +724,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if commit:
             self.build['commit'] = commit
 
-    def get_env_vars(self):
-        """Get bash environment variables used for all builder commands."""
+    def get_rtd_env_vars(self):
+        """Get bash environment variables specific to Read the Docs."""
         env = {
             'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': self.version.slug,
             'READTHEDOCS_PROJECT': self.project.slug,
             'READTHEDOCS_LANGUAGE': self.project.language,
         }
+        return env
+
+    def get_env_vars(self):
+        """Get bash environment variables used for all builder commands."""
+        env = self.get_rtd_env_vars()
 
         if self.config.conda is not None:
             env.update({
