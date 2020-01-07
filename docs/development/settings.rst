@@ -180,13 +180,3 @@ project and build documentations without having elasticsearch.
 
 
 .. _elasticsearch-dsl-py.connections.configure: https://elasticsearch-dsl.readthedocs.io/en/stable/configuration.html#multiple-clusters
-
-EXTERNAL_VERSION_URL
---------------------
-
-Default: ``None``
-
-The URL where we host external version builds (Pull Requests).
-Set this to the URL where the static files are uploaded to,
-with a prefix of `/external/`,
-to make it work.

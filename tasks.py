@@ -1,12 +1,11 @@
 """Read the Docs tasks."""
 
-from __future__ import division, print_function, unicode_literals
-
 import os
 
 from invoke import task, Collection
 
 import common.tasks
+import common.dockerfiles.tasks
 
 
 ROOT_PATH = os.path.dirname(__file__)
@@ -33,6 +32,16 @@ namespace.add_collection(
         common.tasks.upgrade_all_packages,
     ),
     name='packages',
+)
+
+namespace.add_collection(
+    Collection.from_module(
+        common.dockerfiles.tasks,
+        config={
+            'container_prefix': 'readthedocsorg',
+        },
+    ),
+    name='docker',
 )
 
 # Localization tasks
