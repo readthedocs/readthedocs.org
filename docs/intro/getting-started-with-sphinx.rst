@@ -108,7 +108,7 @@ Then in your ``conf.py``:
           format for technical documentation, please read `this blog post`_
           for motivation.
 
-.. _this blog post: https://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
+.. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
 
 External resources
