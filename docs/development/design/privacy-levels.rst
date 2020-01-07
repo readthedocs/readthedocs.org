@@ -97,8 +97,8 @@ For the commercial site:
 - The project's dashboard is visible to only users that have read permission over the project.
 - The footer shows links to the project's dashboard (build, downloads, home) to only admin users.
 - Only versions with ``hidden = False`` are listed on the footer and appear on search results.
-- If a project has a `404.html` file on the default version, it's served if the user has permission over that version.
-- If a project has a ``robots.txt`` file on the default version, and it's public, it's served.
+- If a project has a ``404.html`` file on the default version, it's served if the user has permission over that version.
+- If a project has a ``robots.txt`` file on the default version, it's served if the user has permission over that version.
 - A ``sitemap.xml`` file is served if the user has at least on public version.
   And it will only list public versions.
 
