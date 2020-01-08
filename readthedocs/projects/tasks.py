@@ -243,7 +243,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             environment = LocalBuildEnvironment(
                 project=self.project,
                 version=self.version,
-                build=self.build,
                 record=False,
                 update_on_success=False,
             )
