@@ -287,7 +287,8 @@ The builder type for the Sphinx documentation.
 :Default: ``html``
 
 .. note::
-   The htmldir builder option was renamed to dirhtml to use the same name as sphinx. Configurations using the old name will continue working.
+   The ``htmldir`` builder option was renamed to ``dirhtml`` to use the same name as sphinx.
+   Configurations using the old name will continue working.
 
 sphinx.configuration
 ````````````````````
