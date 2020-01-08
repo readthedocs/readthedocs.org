@@ -1,3 +1,20 @@
+Version 3.11.2
+--------------
+
+:Date: January 08, 2020
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix link to my blog post breaking https (`#6495 <https://github.com/readthedocs/readthedocs.org/pull/6495>`__)
+* `@humitos <http://github.com/humitos>`__: Use a fixed IP for NGINX under docker-compose (`#6491 <https://github.com/readthedocs/readthedocs.org/pull/6491>`__)
+* `@humitos <http://github.com/humitos>`__: Add 'index.html' to the path before using storage.url(path) (`#6476 <https://github.com/readthedocs/readthedocs.org/pull/6476>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Release 3.11.1 (`#6473 <https://github.com/readthedocs/readthedocs.org/pull/6473>`__)
+* `@humitos <http://github.com/humitos>`__: Use tasks from common (including docker ones) (`#6471 <https://github.com/readthedocs/readthedocs.org/pull/6471>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade Django due a security issue (`#6470 <https://github.com/readthedocs/readthedocs.org/pull/6470>`__)
+* `@humitos <http://github.com/humitos>`__: Fix celery auto-reload command (`#6469 <https://github.com/readthedocs/readthedocs.org/pull/6469>`__)
+* `@humitos <http://github.com/humitos>`__: Use django storage to build URL returned by El Proxito (`#6466 <https://github.com/readthedocs/readthedocs.org/pull/6466>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Handle GitHub Push events with `deleted: true` in the JSON (`#6465 <https://github.com/readthedocs/readthedocs.org/pull/6465>`__)
+* `@humitos <http://github.com/humitos>`__: Serve external version through El Proxito (`#6434 <https://github.com/readthedocs/readthedocs.org/pull/6434>`__)
+* `@segevfiner <http://github.com/segevfiner>`__: Remove a stray backtick from import-guide.rst (`#6362 <https://github.com/readthedocs/readthedocs.org/pull/6362>`__)
+
 Version 3.11.1
 --------------
 
