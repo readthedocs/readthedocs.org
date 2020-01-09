@@ -90,7 +90,7 @@ Example:
 
 .. note::
 
-   PDF/epub/htmlzip output is not supported when using MkDocs  
+   PDF/epub/htmlzip output is not supported when using MkDocs
 
 python
 ~~~~~~
@@ -119,6 +119,11 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 
 :Type: ``number``
 :Default: ``3``
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+  the build, this setting will not have any effect, as the Python version is managed by Conda.
 
 python.install
 ``````````````
@@ -149,6 +154,12 @@ Example:
       install:
          - requirements: docs/requirements.txt
          - requirements: requirements.txt
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment to
+  manage the build, this setting will not have any effect. Instead
+  add the extra requirements to the ``environment`` file of Conda.
 
 Packages
 ''''''''
@@ -213,6 +224,12 @@ Depending on the :ref:`config-file/v2:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
 That you can access to them by enabling this option.
 See :ref:`builds:The build environment` for more details.
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment
+  to manage the build, this setting will not have any effect, since
+  the virtual environment creation is managed by Conda.
 
 conda
 ~~~~~
