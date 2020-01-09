@@ -120,6 +120,7 @@ services:
       - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - CELERY_APP_NAME=readthedocs
       - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
@@ -151,6 +152,7 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+      - CELERY_APP_NAME=readthedocs
       - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
