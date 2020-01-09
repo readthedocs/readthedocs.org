@@ -25,7 +25,7 @@ def rtd_parse_tags(tag_string):
     if tag_string:
         tag_string = tag_string.lower().replace('_', '-')
 
-    tags = [slugify(tag) for tag in _parse_tags(tag_string)]
+    tags = (slugify(tag) for tag in _parse_tags(tag_string))
     return sorted([tag for tag in tags if tag])
 
 
