@@ -108,7 +108,7 @@ Then in your ``conf.py``:
           format for technical documentation, please read `this blog post`_
           for motivation.
 
-.. _this blog post: https://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
+.. _this blog post: https://www.ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/
 
 
 External resources
@@ -122,4 +122,4 @@ Here are some external resources to help you learn more about Sphinx.
 
 .. _Sphinx documentation: http://www.sphinx-doc.org/
 .. _RestructuredText primer: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-.. _An introduction to Sphinx and Read the Docs for technical writers: https://ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/
+.. _An introduction to Sphinx and Read the Docs for technical writers: https://www.ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/
