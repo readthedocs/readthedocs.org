@@ -39,7 +39,6 @@ extensions = [
     'recommonmark',
     'notfound.extension',
     'sphinx_search.extension',
-    'sphinx_tabs.tabs',
 ]
 templates_path = ['_templates']
 
