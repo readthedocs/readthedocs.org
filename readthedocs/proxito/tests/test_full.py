@@ -431,17 +431,3 @@ class TestAdditionalDocViews(BaseDocServing):
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
-
-
-class TestServeDownloadFiles(BaseDocServing):
-
-    def test_project_download_media(self):
-        url = reverse('project_download_media', kwargs={
-            'project_slug': self.project.slug,
-            'version_slug': 'latest',
-            'type_': 'pdf',
-        })
-        response = self.client.get(url, HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response['x-accel-redirect'], '/proxito/media/pdf/project/latest/project.pdf')
-        self.assertEqual(response['content-disposition'], 'filename=project-latest.pdf')
