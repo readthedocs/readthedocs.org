@@ -20,12 +20,13 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True
+    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': 'search:9200',
@@ -90,11 +91,11 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
-    RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
     AZURE_STATIC_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
 
     # Storage for static files (those collected with `collectstatic`)
-    STATICFILES_STORAGE = 'readthedocsext.storage.azure_storage.AzureStaticStorage'
+    STATICFILES_STORAGE = 'readthedocs.storage.azure_storage.AzureStaticStorage'
 
     STATICFILES_DIRS = [
         os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
@@ -102,7 +103,6 @@ class DockerBaseSettings(CommunityDevSettings):
     ]
     AZURE_BUILD_STORAGE_CONTAINER = 'builds'
     BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
-    EXTERNAL_VERSION_URL = 'http://external-builds.community.dev.readthedocs.io'
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False

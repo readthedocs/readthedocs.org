@@ -1,3 +1,72 @@
+Version 3.11.2
+--------------
+
+:Date: January 08, 2020
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix link to my blog post breaking https (`#6495 <https://github.com/readthedocs/readthedocs.org/pull/6495>`__)
+* `@humitos <http://github.com/humitos>`__: Use a fixed IP for NGINX under docker-compose (`#6491 <https://github.com/readthedocs/readthedocs.org/pull/6491>`__)
+* `@humitos <http://github.com/humitos>`__: Add 'index.html' to the path before using storage.url(path) (`#6476 <https://github.com/readthedocs/readthedocs.org/pull/6476>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Release 3.11.1 (`#6473 <https://github.com/readthedocs/readthedocs.org/pull/6473>`__)
+* `@humitos <http://github.com/humitos>`__: Use tasks from common (including docker ones) (`#6471 <https://github.com/readthedocs/readthedocs.org/pull/6471>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade Django due a security issue (`#6470 <https://github.com/readthedocs/readthedocs.org/pull/6470>`__)
+* `@humitos <http://github.com/humitos>`__: Fix celery auto-reload command (`#6469 <https://github.com/readthedocs/readthedocs.org/pull/6469>`__)
+* `@humitos <http://github.com/humitos>`__: Use django storage to build URL returned by El Proxito (`#6466 <https://github.com/readthedocs/readthedocs.org/pull/6466>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Handle GitHub Push events with `deleted: true` in the JSON (`#6465 <https://github.com/readthedocs/readthedocs.org/pull/6465>`__)
+* `@humitos <http://github.com/humitos>`__: Serve external version through El Proxito (`#6434 <https://github.com/readthedocs/readthedocs.org/pull/6434>`__)
+* `@segevfiner <http://github.com/segevfiner>`__: Remove a stray backtick from import-guide.rst (`#6362 <https://github.com/readthedocs/readthedocs.org/pull/6362>`__)
+
+Version 3.11.1
+--------------
+
+:Date: December 18, 2019
+
+* `@humitos <http://github.com/humitos>`__: Upgrade Django due a security issue (`#6470 <https://github.com/readthedocs/readthedocs.org/pull/6470>`__)
+* `@humitos <http://github.com/humitos>`__: Use django storage to build URL returned by El Proxito (`#6466 <https://github.com/readthedocs/readthedocs.org/pull/6466>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Handle GitHub Push events with `deleted: true` in the JSON (`#6465 <https://github.com/readthedocs/readthedocs.org/pull/6465>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Update troubleshooting steps for PR builder (`#6463 <https://github.com/readthedocs/readthedocs.org/pull/6463>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add DOCKER_NORELOAD to compose settings (`#6461 <https://github.com/readthedocs/readthedocs.org/pull/6461>`__)
+* `@stsewd <http://github.com/stsewd>`__: Be explicit when using setup_env (`#6451 <https://github.com/readthedocs/readthedocs.org/pull/6451>`__)
+* `@keshavvinayak01 <http://github.com/keshavvinayak01>`__: Fixed remove_search_analytics issue (`#6447 <https://github.com/readthedocs/readthedocs.org/pull/6447>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Fix logic to build internal/external versions on update_repos management command (`#6442 <https://github.com/readthedocs/readthedocs.org/pull/6442>`__)
+* `@humitos <http://github.com/humitos>`__: Refactor get_downloads to make one query for default_version (`#6441 <https://github.com/readthedocs/readthedocs.org/pull/6441>`__)
+* `@humitos <http://github.com/humitos>`__: Do not expose env variables on external versions (`#6440 <https://github.com/readthedocs/readthedocs.org/pull/6440>`__)
+* `@humitos <http://github.com/humitos>`__: Better ES settings on docker-compose (`#6439 <https://github.com/readthedocs/readthedocs.org/pull/6439>`__)
+* `@humitos <http://github.com/humitos>`__: Remove global pip cache (`#6437 <https://github.com/readthedocs/readthedocs.org/pull/6437>`__)
+* `@humitos <http://github.com/humitos>`__: Bring Azure storage backend classes to this repository (`#6433 <https://github.com/readthedocs/readthedocs.org/pull/6433>`__)
+* `@stsewd <http://github.com/stsewd>`__: Show predefined match on automation rules admin (`#6432 <https://github.com/readthedocs/readthedocs.org/pull/6432>`__)
+* `@stsewd <http://github.com/stsewd>`__: Override production domain explicitly (`#6431 <https://github.com/readthedocs/readthedocs.org/pull/6431>`__)
+* `@humitos <http://github.com/humitos>`__: inv tasks to use when developing with docker (`#6418 <https://github.com/readthedocs/readthedocs.org/pull/6418>`__)
+* `@piyushpalawat99 <http://github.com/piyushpalawat99>`__: Fix #6395 (`#6402 <https://github.com/readthedocs/readthedocs.org/pull/6402>`__)
+* `@stsewd <http://github.com/stsewd>`__: Only pass public versions to html context (`#6118 <https://github.com/readthedocs/readthedocs.org/pull/6118>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Add an "Edit Versions" listing to the Admin menu (`#6110 <https://github.com/readthedocs/readthedocs.org/pull/6110>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Extend webhook notifications with build status (`#5621 <https://github.com/readthedocs/readthedocs.org/pull/5621>`__)
+
+Version 3.11.0
+--------------
+
+:Date: December 03, 2019
+
+* `@davidfischer <http://github.com/davidfischer>`__: Use media availability instead of querying the filesystem (`#6428 <https://github.com/readthedocs/readthedocs.org/pull/6428>`__)
+* `@stsewd <http://github.com/stsewd>`__: Remove beta note about sharing by password and header auth (`#6426 <https://github.com/readthedocs/readthedocs.org/pull/6426>`__)
+* `@humitos <http://github.com/humitos>`__: Use trigger_build for update_repos command (`#6422 <https://github.com/readthedocs/readthedocs.org/pull/6422>`__)
+* `@humitos <http://github.com/humitos>`__: Add more supported field to APIv3 docs (`#6417 <https://github.com/readthedocs/readthedocs.org/pull/6417>`__)
+* `@humitos <http://github.com/humitos>`__: Add AuthenticationMiddleware to El Proxito tests (`#6416 <https://github.com/readthedocs/readthedocs.org/pull/6416>`__)
+* `@stsewd <http://github.com/stsewd>`__: Update docs on sharing (`#6410 <https://github.com/readthedocs/readthedocs.org/pull/6410>`__)
+* `@humitos <http://github.com/humitos>`__: Use WORKDIR to cd into a directory in Dockerfile (`#6409 <https://github.com/readthedocs/readthedocs.org/pull/6409>`__)
+* `@humitos <http://github.com/humitos>`__: Use /data inside Azurite container to persist data (`#6407 <https://github.com/readthedocs/readthedocs.org/pull/6407>`__)
+* `@humitos <http://github.com/humitos>`__: Serve non-html files from nginx (X-Accel-Redirect) (`#6404 <https://github.com/readthedocs/readthedocs.org/pull/6404>`__)
+* `@humitos <http://github.com/humitos>`__: Perform redirects at DB level (`#6398 <https://github.com/readthedocs/readthedocs.org/pull/6398>`__)
+* `@humitos <http://github.com/humitos>`__: Allow to extend El Proxito views from commercial (`#6397 <https://github.com/readthedocs/readthedocs.org/pull/6397>`__)
+* `@humitos <http://github.com/humitos>`__: Migrate El Proxito views to class-based views (`#6396 <https://github.com/readthedocs/readthedocs.org/pull/6396>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Fix CSS and how we were handling html in automation rule UI (`#6394 <https://github.com/readthedocs/readthedocs.org/pull/6394>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.10.0 (`#6391 <https://github.com/readthedocs/readthedocs.org/pull/6391>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set privacy level explicitly (`#6390 <https://github.com/readthedocs/readthedocs.org/pull/6390>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Redirect index files in proxito instead of serving (`#6387 <https://github.com/readthedocs/readthedocs.org/pull/6387>`__)
+* `@humitos <http://github.com/humitos>`__: Fully working docker-compose file (`#6295 <https://github.com/readthedocs/readthedocs.org/pull/6295>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Subproject validation to use it for Forms and API (`#6285 <https://github.com/readthedocs/readthedocs.org/pull/6285>`__)
+* `@saadmk11 <http://github.com/saadmk11>`__: Refactor Gold Views (`#6272 <https://github.com/readthedocs/readthedocs.org/pull/6272>`__)
+* `@stsewd <http://github.com/stsewd>`__: Add docs for automatin rules (`#6072 <https://github.com/readthedocs/readthedocs.org/pull/6072>`__)
+
 Version 3.10.0
 --------------
 

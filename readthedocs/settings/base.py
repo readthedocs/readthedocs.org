@@ -45,7 +45,7 @@ class CommunityBaseSettings(Settings):
     # or use the same domain where the docs are being served
     # (omit the host if that's the case).
     RTD_PROXIED_API_URL = PUBLIC_API_URL
-    EXTERNAL_VERSION_URL = None  # for pull request builds
+    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
@@ -275,7 +275,6 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
-    GLOBAL_PIP_CACHE = False
 
     # I18n
     TIME_ZONE = 'UTC'

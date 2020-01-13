@@ -6,16 +6,16 @@ import logging
 import mimetypes
 import operator
 import os
+from urllib.parse import urlparse
 from collections import OrderedDict
 
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
@@ -32,6 +32,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.proxito.views.mixins import ServeDocsMixin
 
 from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
@@ -266,71 +267,50 @@ def project_downloads(request, project_slug):
     )
 
 
-def project_download_media(request, project_slug, type_, version_slug):
-    """
-    Download a specific piece of media.
+class ProjectDownloadMedia(ServeDocsMixin, View):
 
-    Perform an auth check if serving in private mode.
+    def get(self, request, project_slug, type_, version_slug):
+        """
+        Download a specific piece of media.
 
-    .. warning:: This is linked directly from the HTML pages.
-                 It should only care about the Version permissions,
-                 not the actual Project permissions.
-    """
-    version = get_object_or_404(
-        Version.objects.public(user=request.user),
-        project__slug=project_slug,
-        slug=version_slug,
-    )
+        Perform an auth check if serving in private mode.
 
-    # Send media download to analytics - sensitive data is anonymized
-    analytics_event.delay(
-        event_category='Build Media',
-        event_action=f'Download {type_}',
-        event_label=str(version),
-        ua=request.META.get('HTTP_USER_AGENT'),
-        uip=get_client_ip(request),
-    )
+        .. warning:: This is linked directly from the HTML pages.
+                     It should only care about the Version permissions,
+                     not the actual Project permissions.
+        """
+        version = get_object_or_404(
+            Version.objects.public(user=request.user),
+            project__slug=project_slug,
+            slug=version_slug,
+        )
 
-    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+        # Send media download to analytics - sensitive data is anonymized
+        analytics_event.delay(
+            event_category='Build Media',
+            event_action=f'Download {type_}',
+            event_label=str(version),
+            ua=request.META.get('HTTP_USER_AGENT'),
+            uip=get_client_ip(request),
+        )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
             type_=type_, version_slug=version_slug,
             version_type=version.type,
         )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
 
-        media_path = os.path.join(
-            settings.MEDIA_URL,
-            type_,
-            project_slug,
-            version_slug,
-            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
+        # URL without scheme and domain to perform an NGINX internal redirect
+        url = storage.url(storage_path)
+        url = urlparse(url)._replace(scheme='', netloc='').geturl()
+
+        return self._serve_docs(
+            request,
+            final_project=version.project,
+            version_slug=version.slug,
+            path=url,
+            download=True,
         )
-        return HttpResponseRedirect(media_path)
-
-    # Get relative media path
-    path = (
-        version.project.get_production_media_path(
-            type_=type_,
-            version_slug=version_slug,
-        ).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
-    )
-    content_type, encoding = mimetypes.guess_type(path)
-    content_type = content_type or 'application/octet-stream'
-    response = HttpResponse(content_type=content_type)
-    if encoding:
-        response['Content-Encoding'] = encoding
-    response['X-Accel-Redirect'] = path
-    # Include version in filename; this fixes a long-standing bug
-    filename = '{}-{}.{}'.format(
-        project_slug,
-        version_slug,
-        path.split('.')[-1],
-    )
-    response['Content-Disposition'] = 'filename=%s' % filename
-    return response
 
 
 def project_versions(request, project_slug):

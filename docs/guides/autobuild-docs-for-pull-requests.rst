@@ -6,7 +6,7 @@ This feature is currently available under a :doc:`Feature Flag </guides/feature-
 So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
 
 Features
-========
+--------
 
 - **Build on Pull/Merge Request Event:** We create an external version and trigger a build for that version
   when we receive pull/merge request open event from the webhook.
@@ -30,20 +30,19 @@ Features
     GitHub Build Status Reporting for Pull Requests
 
 Troubleshooting
-===============
+---------------
 
-After the feature is enabled on your project if everything does not work as expected,
-some common causes might be:
+After the feature is enabled on your project,
+you might hit one of these issues:
 
-#. Project repository should be from GitHub or GitLab. This feature is only available for GitHub or GitLab.
-
-#. Social Account (GitHub, Gitlab) is not connected with Read the Docs account.
-   If your project repository provider is GitHub or GitLab you need to make sure
+#. **Pull Requests builds are not triggering**.
+   We only support GitHub and GitLab currently. You need to make sure
    that you Read the Docs account is connected with that providers social account.
    You can check this by going to your `profile settings`_.
 
-#. Webhook is not properly setup. You need to make sure your webhook is properly setup
-   to handle events. You can setup or ``re-sync`` the webhook from you projects admin dashboard.
+#. **Build status is not being reported on your Pull/Merge Request**. 
+   You need to make sure your webhook is properly setup
+   to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
 If you have tried all the above troubleshooting and still getting issues,

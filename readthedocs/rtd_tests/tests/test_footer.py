@@ -12,7 +12,6 @@ from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 class Testmaker(APITestCase):
@@ -74,23 +73,25 @@ class Testmaker(APITestCase):
             self.assertEqual(r.data['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.pdf$'):
-            response = self.render()
+        self.latest.has_pdf = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('pdf', response.data['html'])
 
     def test_pdf_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('pdf', response.data['html'])
 
     def test_epub_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.epub$'):
-            response = self.render()
+        self.latest.has_epub = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('epub', response.data['html'])
 
     def test_epub_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.epub$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):

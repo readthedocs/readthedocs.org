@@ -630,18 +630,14 @@ class Project(models.Model):
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url(
-            'htmlzip',
-            self.get_default_version(),
-        )
-        downloads['epub'] = self.get_production_media_url(
-            'epub',
-            self.get_default_version(),
-        )
-        downloads['pdf'] = self.get_production_media_url(
-            'pdf',
-            self.get_default_version(),
-        )
+        default_version = self.get_default_version()
+
+        for type_ in ('htmlzip', 'epub', 'pdf'):
+            downloads[type_] = self.get_production_media_url(
+                type_,
+                default_version,
+            )
+
         return downloads
 
     @property
@@ -663,8 +659,6 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
@@ -938,8 +932,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk
-                                        ).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1158,6 +1151,44 @@ class Project(models.Model):
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
         }
+
+    def is_valid_as_superproject(self, error_class):
+        """
+        Checks if the project can be a superproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the parent project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Subproject nesting is not supported'),
+            )
+
+    def is_valid_as_subproject(self, parent, error_class):
+        """
+        Checks if the project can be a subproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the child project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if self.subprojects.exists():
+            raise error_class(
+                _('Child is already a superproject'),
+            )
+
+        # Check the parent and child are not the same project
+        if parent.slug == self.slug:
+            raise error_class(
+                _('Project can not be subproject of itself'),
+            )
 
 
 class APIProject(Project):
@@ -1448,7 +1479,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    SEARCH_ANALYTICS = 'search_analytics'
+    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1501,9 +1532,12 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
-            SEARCH_ANALYTICS,
-            _('Enable search analytics'),
-        )
+            ALL_VERSIONS_IN_HTML_CONTEXT,
+            _(
+                'Pass all versions (including private) into the html context '
+                'when building with Sphinx'
+            ),
+        ),
     )
 
     projects = models.ManyToManyField(

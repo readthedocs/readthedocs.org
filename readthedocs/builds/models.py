@@ -298,8 +298,20 @@ class Version(models.Model):
         # but this is much simpler to handle since we only link them a couple places for now
         if self.type == EXTERNAL:
             # Django's static file serving doesn't automatically append index.html
-            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
-                f'{self.project.slug}/{self.slug}/index.html'
+            scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
+            path = self.project.get_storage_path(
+                type_='html',
+                version_slug=self.slug,
+                version_type=self.type,
+                include_file=False,
+            )
+
+            # We don't want the `external/` part in the user-facing URL
+            if path.startswith(EXTERNAL):
+                path = path.replace(f'{EXTERNAL}/', '', 1)
+
+            domain = settings.RTD_EXTERNAL_VERSION_DOMAIN
+            url = f'{scheme}://{domain}/{path}/index.html'
             return url
 
         if not self.built and not self.uploaded:
@@ -379,17 +391,18 @@ class Version(models.Model):
         def prettify(k):
             return k if pretty else k.lower()
 
-        if project.has_pdf(self.slug, version_type=self.type):
+        if self.has_pdf:
             data[prettify('PDF')] = project.get_production_media_url(
                 'pdf',
                 self.slug,
             )
-        if project.has_htmlzip(self.slug, version_type=self.type):
+
+        if self.has_htmlzip:
             data[prettify('HTML')] = project.get_production_media_url(
                 'htmlzip',
                 self.slug,
             )
-        if project.has_epub(self.slug, version_type=self.type):
+        if self.has_epub:
             data[prettify('Epub')] = project.get_production_media_url(
                 'epub',
                 self.slug,
