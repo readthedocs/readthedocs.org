@@ -55,7 +55,6 @@ urlpatterns = [
             # /_/downloads/<alias>/<lang>/<ver>/<type>/
             r'^{DOC_PATH_PREFIX}downloads/'
             r'(?:(?P<subproject_slug>{project_slug})/)?'
-            # r'(?P<subproject_slug>{project_slug})/'  # make this optional
             r'(?P<lang_slug>{lang_slug})/'
             r'(?P<version_slug>{version_slug})/'
             r'(?P<type_>[-\w]+)/$'.format(
