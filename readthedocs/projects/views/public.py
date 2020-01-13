@@ -324,7 +324,7 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         )
         return final_project.versions.get(slug=version_slug)
 
-    def _version_dashboard_url(request, project_slug, type_, version_slug):
+    def _version_dashboard_url(self, request, project_slug, type_, version_slug):
         version = get_object_or_404(
             Version.objects.public(user=request.user),
             project__slug=project_slug,
