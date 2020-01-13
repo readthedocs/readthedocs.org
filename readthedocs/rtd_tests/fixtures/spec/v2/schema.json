@@ -8,56 +8,195 @@
       "type": "object",
       "additionalProperties": true,
       "properties": {
-	      "version": "enum('2')",
-	      "formats": "any(list(enum('htmlzip', 'pdf', 'epub')), enum('all'), required=False)",
-	      "conda": "include('conda', required=False)",
-	      "build": "include('build', required=False)",
-	      "python": "include('python', required=False)",
-	      "sphinx": "include('sphinx', required=False)",
-	      "mkdocs": "include('mkdocs', required=False)",
-	      "submodules": "include('submodules', required=False)",
-	      "redirects": "map(enum('page'), map(str(), str()), required=False)",
-	      "python-install-requirements": {
-		      "requirements": "path()"
+	      "version":{
+		      "description":"The version of the spec to be use",
+		      "type":"string",
+		      "enum":["2"]
 	      },
-	      "python-install": {
-		      "path": "path()",
-		      "method": "enum('pip', 'setuptools', required=False)",
-		      "extra_requirements": "list(str(), required=False)"
-	      },
-	      "python-install-pipfile": {
-		      "pipfile": "path()",
-		      "dev": "bool(required=False)",
-		      "ignore_pipfile": "bool(required=False)",
-		      "skip_lock": "bool(required=False)"
-	      },
-	      "build": {
-		      "image":"enum('stable', 'latest', required=False)"
-	      },
-	      "python": {
-		      "version":"enum('2', '2.7', '3', '3.3', '3.4', '3.5', '3.6', required=False)"
-	      },
-	      "system_packages":"bool(required=False)",
-	      "install":"list(any(include('python-install-requirements),include('python-install-pipfile')),required=False)",
-	      "python-install-requirements":{
-		      "requirements":"path()"
-	      },
+	      "formats":{
+		      "anyof":[
+			      {"type":"array",
+			      "items":{
+				      "type":"string",
+				      "enum":["htmlzip","epub","pdf"]
 
+			      } },
+			      {
+				      "type":"string",
+				      "enum":["all"]
+			      
+			      }
+		      ]
+
+
+
+	      },
+	      "conda":{
+		     "include":"conda"
+		     
+	      },
+	      "build":{
+		      "include":"build"
+	      },
+	      "python":{
+	      "include":"python"
+	      },
 	      "sphinx":{
-		      "bulider":"enum('html','htmldir','singlehtml',required=False)",
-		      "configuration":"path(required=False)",
-		      "fail_on_warning":"bool(required=False)"
-
+		      "include":"sphinx"
 	      },
 	      "mkdocs":{
-		      "configuratation":"path(required=False)",
-		      "fail_on_warning":"bool(required=False)"
+		      "include":"mkdocs"
 	      },
 	      "submodules":{
-		      "include":"any(list(str()),enum('all'), required=False)",
-		      "exclude":"any(list(str()),enum('all'), required=False)",
-		      "recursive":"bool(required=False)"
+		      "include":"mkdocs"
+	      },
+	      "redirects":{
+		      "mapInt":
+		      {
+			      "type":"string",
+			      "enum":["page"],
+			      
+			      "mapInt":
+			      {
+				      
+			      }
+
+
+		      } 
+	      },
+	      "conda":
+	      {
+		      "enviroment":"path()"
+	      },
+	      "build":
+	      {
+		      "image":
+		      {
+			      "type":"string",
+			      "enum":["stable","latest"]
+		      }
+	      },
+	      "python":
+	      {
+		      "version":
+		      {
+			      "type":"string",
+			      "enum":["2","2.7","3","3.3","3.4","3.5","3.6"]
+		      },
+		      "system_packages":
+		      {
+			      "type":"boolean"
+		      },
+		      "install":
+		      {
+			      "type":"array",
+			      "items":
+			      {
+				      "anyof":
+				      [
+					      "include":"python-install-requirements",
+					      "include":"python-install",
+					      "include":"python-install-pipfile"
+				      ]
+
+			      }
+
+		      }
+
+	      },
+	      "python-install-requirements":
+	      {
+		      "requirements":"path()"
+
+	      },
+	      "python-install":
+	      {
+		      "path":"path()",
+		      "method":
+		      {
+			      "type":"string",
+			      "enum":["pip","setuptools"]
+		      },
+		      "extra_requirements":
+		      {
+			      "type":"array",
+			      "items":
+			      {
+				      "type":"string"
+
+			      }
+		      }
+
+	      },
+	      "python-install-pipfile":
+	      {
+		      "pipfile":"path()",
+		      "dev":
+		      {
+			      "type":"boolean"
+		      },
+		      "ignore_pipfile":
+		      {
+			      "type":"boolean"
+		      },
+		      "skip_lock":
+		      {
+			      "type":"boolean"
+		      }
 	      }
+	      "sphinx":
+	      {
+		      "bulider":
+		      {
+			      "type":"string",
+			      "enum":["html","htmldir","singlehtml"]
+
+
+		      },
+		      "configuration":"path()",
+		      "fail_on_warning":"boolean"
+
+	      },
+	      "mkdocs":
+	      {
+		      "configuration":"path()",
+		      "fail_on_warning":"boolean",
+		      "submodules":
+		      {
+			      "include":
+			      {
+				      "anyof":
+				      [
+					      "type":"array",
+					      "items":
+					      {
+						     "type":"string",
+						     "enum":["all"]
+					      }
+				      ]
+			      },
+			      "exclude":
+			      {
+				      "anyof":
+                                      [
+                                              "type":"array",
+                                              "items":
+                                              {
+                                                     "type":"string",
+                                                     "enum":["all"]
+                                              }
+                                      ]
+			      },
+			      "recursive":
+			      {
+				      "type":"boolean"
+			      }
+		      }
+
+	      }
+
+
+
       }
     }
   }
