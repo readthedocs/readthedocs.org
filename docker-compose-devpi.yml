@@ -1,4 +1,4 @@
-# docker-compose-pypi.yml starts "devpi" service for local cache
+# docker-compose-devpi.yml starts "devpi" service for local cache
 version: '3'
 
 volumes:
@@ -9,8 +9,10 @@ services:
   devpi:
     build:
       context: .
-      dockerfile: ${PWD}/docker/Dockerfile.devpi
+      dockerfile: ${PWD}/common/dockerfiles/Dockerfile.devpi
     ports:
       - "3141:3141"
     volumes:
       - devpi:/devpi
+    networks:
+      community:
