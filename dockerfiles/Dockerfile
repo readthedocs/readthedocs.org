@@ -5,8 +5,6 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-WORKDIR /usr/src/app
-
 RUN apt-get -y update
 RUN apt-get -y install \
         curl \
@@ -32,11 +30,7 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 RUN pip3 install --no-cache-dir --upgrade pip
 
-RUN mkdir checkouts
-WORKDIR /usr/src/app/checkouts
-
-COPY requirements readthedocs.org/requirements
-
-RUN pip3 install --no-cache-dir -r readthedocs.org/requirements/docker.txt
+COPY requirements /tmp/requirements
+RUN pip3 install --no-cache-dir -r /tmp/requirements/docker.txt
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
