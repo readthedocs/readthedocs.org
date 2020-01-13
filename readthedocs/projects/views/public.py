@@ -33,6 +33,7 @@ from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
@@ -269,7 +270,9 @@ def project_downloads(request, project_slug):
 
 class ProjectDownloadMedia(ServeDocsMixin, View):
 
-    def get(self, request, project_slug, type_, version_slug):
+    same_domain_url = False
+
+    def get(self, request, project_slug=None, type_=None, version_slug=None, lang_slug=None, subproject_slug=None):
         """
         Download a specific piece of media.
 
@@ -279,11 +282,10 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
                      It should only care about the Version permissions,
                      not the actual Project permissions.
         """
-        version = get_object_or_404(
-            Version.objects.public(user=request.user),
-            project__slug=project_slug,
-            slug=version_slug,
-        )
+        if self.same_domain_url:
+            version = self._version_same_domain_url(request, type_, lang_slug, version_slug, subproject_slug)
+        else:
+            version = self._version_dashboard_url(request, project_slug, type_, version_slug)
 
         # Send media download to analytics - sensitive data is anonymized
         analytics_event.delay(
@@ -311,6 +313,24 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             path=url,
             download=True,
         )
+
+    def _version_same_domain_url(self, request, type_, lang_slug, version_slug, subproject_slug=None):
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+            request,
+            project_slug=None,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+        )
+        return final_project.versions.get(slug=version_slug)
+
+    def _version_dashboard_url(request, project_slug, type_, version_slug):
+        version = get_object_or_404(
+            Version.objects.public(user=request.user),
+            project__slug=project_slug,
+            slug=version_slug,
+        )
+        return version
 
 
 def project_versions(request, project_slug):

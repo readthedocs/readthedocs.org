@@ -617,9 +617,26 @@ class Project(models.Model):
         # NOTE: we can't use ``reverse('project_download_media')`` here
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
-        path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{type_}/{self.slug}/{version_slug}/'
+
+        if self.is_subproject:
+            # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'
+        else:
+            # docs.example.com/_/downloads/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
 
         return path
+
+    @property
+    def is_subproject(self):
+        """Return whether or not this project is a subproject."""
+        return self.superprojects.exists()
+
+    @property
+    def alias(self):
+        """Return the alias (as subproject) for this project if it's a subproject."""
+        if self.is_subproject:
+            return self.superprojects.first().alias
 
     def subdomain(self):
         """Get project subdomain from resolver."""
