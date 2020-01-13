@@ -34,7 +34,7 @@ from django.conf.urls import url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.views.public import ProjectDownloadMedia
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
@@ -103,6 +103,21 @@ urlpatterns = [
     #     serve_docs,
     #     name='docs_detail',
     # ),
+
+    # External versions
+    # (RTD_EXTERNAL_VERSION_DOMAIN/html/<project-slug>/<version-slug>/<filename>)
+    # NOTE: requires to be before single version
+    url(
+        (
+            r'^html/(?P<project_slug>{project_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<filename>{filename_slug})'.format(
+                **pattern_opts,
+            )
+        ),
+        ServeDocs.as_view(version_type=EXTERNAL),
+        name='docs_detail_external_version',
+    ),
 
     # (Sub)project single version
     url(

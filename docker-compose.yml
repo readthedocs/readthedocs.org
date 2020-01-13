@@ -12,6 +12,19 @@ volumes:
   postgres_data:
   postgres_backups_data:
 
+# We create this network here to be able to use a static IP for NGINX.
+# This is needed because hitting `community.dev.readthedocs.io` from
+# any service will fail since it will resolve to 127.0.0.1, but
+# instead we need to hit NGINX's IP (this is used on Embed API from
+# -ext for example) Setting a static IP for NGINX, allow us to
+# override /etc/hosts with this IP.
+networks:
+  community:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.1.0.0/16
+
 services:
   server:
     # Image used for all the other services (proxito, web, celery, build)
@@ -29,12 +42,15 @@ services:
       - storage
     volumes:
       - ${PWD}/dockerfiles/nginx:/etc/nginx/conf.d
+    networks:
+      community:
+        ipv4_address: 10.1.0.100
 
   proxito:
     image: readthedocsorg_server:latest
     volumes:
-      - ${PWD}/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
-      - ${PWD}/dockerfiles/entrypoints/proxito.sh:/usr/src/app/docker/proxito.sh
+      - ${PWD}/common/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
+      - ${PWD}/common/dockerfiles/entrypoints/proxito.sh:/usr/src/app/docker/proxito.sh
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
@@ -43,6 +59,7 @@ services:
       - database
       - cache
     environment:
+      - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
 
     # Allow us to run `docker attach readthedocsorg_proxito_1` and get
@@ -50,14 +67,17 @@ services:
     stdin_open: true
     tty: true
 
+    networks:
+      community:
+
     command: ["../../docker/proxito.sh"]
 
   web:
     image: readthedocsorg_server:latest
     volumes:
-      - ${PWD}/dockerfiles/scripts/createsuperuser.py:/usr/src/app/docker/createsuperuser.py
-      - ${PWD}/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
-      - ${PWD}/dockerfiles/entrypoints/web.sh:/usr/src/app/docker/web.sh
+      - ${PWD}/common/dockerfiles/scripts/createsuperuser.py:/usr/src/app/docker/createsuperuser.py
+      - ${PWD}/common/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
+      - ${PWD}/common/dockerfiles/entrypoints/web.sh:/usr/src/app/docker/web.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
@@ -70,17 +90,24 @@ services:
       - azure-cli
     environment:
       - INIT=${INIT}
+      - DOCKER_NO_RELOAD
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
     stdin_open: true
     tty: true
+
+    extra_hosts:
+      - "community.dev.readthedocs.io:10.1.0.100"
+    networks:
+      community:
+
     command: ["../../docker/web.sh"]
 
   celery:
     image: readthedocsorg_server:latest
     volumes:
-      - ${PWD}/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
-      - ${PWD}/dockerfiles/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
-      - ${PWD}/dockerfiles/scripts/wait_for_search.py:/usr/src/app/docker/scripts/wait_for_search.py
+      - ${PWD}/common/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
+      - ${PWD}/common/dockerfiles/entrypoints/celery.sh:/usr/src/app/docker/celery.sh
+      - ${PWD}/common/dockerfiles/scripts/wait_for_search.py:/usr/src/app/docker/scripts/wait_for_search.py
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
@@ -93,15 +120,19 @@ services:
       - azure-cli
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - CELERY_APP_NAME=readthedocs
+      - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
+    networks:
+      community:
     command: ["../../docker/celery.sh"]
 
   build:
     image: readthedocsorg_server:latest
     volumes:
-      - ${PWD}/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
-      - ${PWD}/dockerfiles/entrypoints/build.sh:/usr/src/app/docker/build.sh
+      - ${PWD}/common/dockerfiles/entrypoints/common.sh:/usr/src/app/docker/common.sh
+      - ${PWD}/common/dockerfiles/entrypoints/build.sh:/usr/src/app/docker/build.sh
       - ${PWD}/../readthedocs-ext:/usr/src/app/checkouts/readthedocs-ext
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
@@ -121,8 +152,12 @@ services:
       - cache
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+      - CELERY_APP_NAME=readthedocs
+      - DOCKER_NO_RELOAD
     stdin_open: true
     tty: true
+    networks:
+      community:
     command: ["../../docker/build.sh"]
 
   storage:
@@ -131,20 +166,26 @@ services:
       - azurite_data:/data
     ports:
       - "10000:10000"
+    networks:
+      community:
     command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
 
   azure-cli:
     image: microsoft/azure-cli
     volumes:
-      - ${PWD}/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
+      - ${PWD}/common/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
     links:
       - storage
     depends_on:
       - storage
+    networks:
+      community:
     command: ["/usr/local/bin/create-containers.sh"]
 
   cache:
     image: redis:3.2.7
+    networks:
+      community:
 
   database:
     image: postgres:11.1
@@ -155,3 +196,5 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backups_data:/backups
+    networks:
+      community:
