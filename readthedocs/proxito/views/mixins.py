@@ -105,7 +105,7 @@ class ServeDocsMixin:
             domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
             if final_project.is_subproject:
                 alias = final_project.alias
-                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'
+                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
             else:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
