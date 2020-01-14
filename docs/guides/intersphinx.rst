@@ -1,16 +1,18 @@
-Link to Other Project's Documentation With Intersphinx
+Link to Other Projects' Documentation With Intersphinx
 ======================================================
 
 You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to link to any location of your docs.
-It helps you to keep all links up to date, Sphinx will raise a warning if the reference doesn't exist.
+It helps you to keep all links within your docs up to date and warns you if a reference target moves or changes
+so you can ensure that your docs don't have broken cross-references.
 
 Some times you may need to link to a location of another documentation project.
 We could just link to where the documentation is hosted,
 and use Sphinx's ``linkcheck`` builder to check for broken links.
 
 Another way is using :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`.
-Which allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
-This is, you could use the ``:ref:`` role to link to sections of other documentation projects.
+Intersphinx allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
+That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
+Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
 
 Using Intersphinx
 -----------------
@@ -109,7 +111,7 @@ Now we can add the link to the private project with the token like:
    Sphinx will strip the token from the URLs when generating the links.
 
 You can use your tokens with environment variables,
-so you don't hard coded them in your ``conf.py`` file.
+so you don't have to hard code them in your ``conf.py`` file.
 See :doc:`/guides/environment-variables` to use environment variables inside Read the Docs.
 
 For example,
