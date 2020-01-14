@@ -5,11 +5,9 @@ You may be familiar with using the :ref:`:ref: role <sphinx:ref-role>` to link t
 It helps you to keep all links within your docs up to date and warns you if a reference target moves or changes
 so you can ensure that your docs don't have broken cross-references.
 
-Some times you may need to link to a location of another documentation project.
-We could just link to where the documentation is hosted.
-
-Another way is using :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`.
-Intersphinx allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
+Sometimes you may need to link to a specific section of another project's documentation.
+While you could just hyperlink directly, there is a better way.
+:doc:`Intersphinx <sphinx:usage/extensions/intersphinx>` allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
 That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
 Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
 
