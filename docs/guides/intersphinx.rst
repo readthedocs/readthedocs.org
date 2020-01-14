@@ -6,19 +6,28 @@ It helps you to keep all links within your docs up to date and warns you if a re
 so you can ensure that your docs don't have broken cross-references.
 
 Some times you may need to link to a location of another documentation project.
-We could just link to where the documentation is hosted,
-and use Sphinx's ``linkcheck`` builder to check for broken links.
+We could just link to where the documentation is hosted.
 
 Another way is using :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`.
 Intersphinx allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
 That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
 Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
 
+.. note::
+
+   You can also use Sphinx's ``linkcheck`` builder to check for broken links.
+   By default it will also check the validity of ``#anchors`` in links.
+
+   .. prompt:: bash $
+
+      sphinx-build -b linkcheck . _build/linkcheck
+
+   See all the `options for the linkcheck builder <https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-the-linkcheck-builder>`__.
+
 Using Intersphinx
 -----------------
 
 To use Intersphinx you need to add it to the list of extensions in your ``conf.py`` file.
-
 
 .. code:: python
 
@@ -54,6 +63,15 @@ Result:
 - :ref:`:ref: role <sphinx:ref-role>`
 - :doc:`sphinx:usage/extensions/intersphinx`
 - :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>`
+
+.. note::
+
+   You can get the targets used in Intersphinx by inspecting the source file of the project or
+   using `this utility <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#showing-all-links-of-an-intersphinx-mapping-file>`__ provided by Intersphinx:
+
+   .. prompt:: bash $
+      
+      python -msphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
 
 Intersphinx in Read the Docs
 ----------------------------
