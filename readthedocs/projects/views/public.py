@@ -270,6 +270,7 @@ def project_downloads(request, project_slug):
 
 class ProjectDownloadMedia(ServeDocsMixin, View):
 
+    # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
     def get(self, request, project_slug=None, type_=None, version_slug=None, lang_slug=None, subproject_slug=None):
@@ -277,6 +278,13 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         Download a specific piece of media.
 
         Perform an auth check if serving in private mode.
+
+        This view is used to download a file using old-style URLs (download from
+        the dashboard) and new-style URLs (download from the same domain as
+        docs). Basically, the parameters received by the GET view are different
+        (``project_slug`` does not come in the new-style URLs, for example) and
+        we need to take it from the request. Once we get the final ``version``
+        to be served, everything is the same for both paths.
 
         .. warning:: This is linked directly from the HTML pages.
                      It should only care about the Version permissions,
@@ -315,6 +323,12 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         )
 
     def _version_same_domain_url(self, request, type_, lang_slug, version_slug, subproject_slug=None):
+        """
+        Return the version to be served (new-style URLs).
+
+        It uses the request to get the ``project``. The rest of arguments come
+        from the URL.
+        """
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
             request,
             project_slug=None,
@@ -325,6 +339,11 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         return final_project.versions.get(slug=version_slug)
 
     def _version_dashboard_url(self, request, project_slug, type_, version_slug):
+        """
+        Return the version to be served (old-style URLs)
+
+        All the arguments come from the URL.
+        """
         version = get_object_or_404(
             Version.objects.public(user=request.user),
             project__slug=project_slug,
