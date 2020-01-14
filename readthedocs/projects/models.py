@@ -620,7 +620,7 @@ class Project(models.Model):
 
         if self.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
@@ -634,7 +634,7 @@ class Project(models.Model):
 
     @property
     def alias(self):
-        """Return the alias (as subproject) for this project if it's a subproject."""
+        """Return the alias (as subproject) if it's a subproject."""  # noqa
         if self.is_subproject:
             return self.superprojects.first().alias
 
