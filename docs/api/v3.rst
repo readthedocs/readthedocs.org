@@ -222,7 +222,7 @@ Project create
             import json
             URL = 'https://readthedocs.org/api/v3/projects/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.post(
                 URL,
@@ -275,7 +275,7 @@ Project update
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.patch(
                 URL,
@@ -446,7 +446,7 @@ Version update
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/ersion/0.23/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.patch(
                 URL,
@@ -636,7 +636,7 @@ Build triggering
             import requests
             URL = 'https://readthedocs.org/api/v3/projects/pip/versions/latest/builds/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.post(URL, headers=HEADERS)
             print(response.json())
 
@@ -764,11 +764,11 @@ Subproject create
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.post(
                 URL,
-                json = data,
+                json=data,
                 headers=HEADERS,
             )
             print(response.json())
@@ -815,7 +815,7 @@ Subproject delete
             import requests
             URL = 'https://readthedocs.org/api/v3/projects/pip/subprojects/subproject-alias/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.delete(URL, headers=HEADERS)
             print(response.json())
 
@@ -975,7 +975,7 @@ Redirect create
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.post(
                 URL,
@@ -1036,7 +1036,7 @@ Redirect update
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/1/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.put(
                 URL,
@@ -1081,7 +1081,7 @@ Redirect delete
             import requests
             URL = 'https://readthedocs.org/api/v3/projects/pip/redirects/1/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.delete(URL, headers=HEADERS)
             print(response.json())
 
@@ -1197,7 +1197,7 @@ Environment Variable create
             import json
             URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))
             response = requests.post(
                 URL,
@@ -1244,7 +1244,7 @@ Environment Variable delete
             import requests
             URL = 'https://readthedocs.org/api/v3/projects/pip/environmentvariables/1/'
             TOKEN = '<token>'
-            HEADERS = {'Authorization' : 'token {}'.format(TOKEN)}
+            HEADERS = {'Authorization': f'token {TOKEN}'}
             response = requests.delete(URL, headers=HEADERS)
             print(response.json())
 
