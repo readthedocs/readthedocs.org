@@ -4,9 +4,9 @@
             "active": true,
             "built": true,
             "downloads": {
-                "epub": "https://project.readthedocs.io/_/downloads/epub/project/v1.0/",
-                "htmlzip": "https://project.readthedocs.io/_/downloads/htmlzip/project/v1.0/",
-                "pdf": "https://project.readthedocs.io/_/downloads/pdf/project/v1.0/"
+                "epub": "https://project.readthedocs.io/_/downloads/en/v1.0/epub/",
+                "htmlzip": "https://project.readthedocs.io/_/downloads/en/v1.0/htmlzip/",
+                "pdf": "https://project.readthedocs.io/_/downloads/en/v1.0/pdf/"
             },
             "id": 2,
             "identifier": "a1b2c3",

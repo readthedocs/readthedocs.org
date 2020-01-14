@@ -96,7 +96,7 @@ class TestVersionModel(VersionMixin, TestCase):
         self.branch_version.has_epub = True
         self.branch_version.save()
         expected = {
-            'epub': '//pip.readthedocs.io/_/downloads/epub/pip/stable/',
-            'pdf': '//pip.readthedocs.io/_/downloads/pdf/pip/stable/',
+            'epub': '//pip.readthedocs.io/_/downloads/en/stable/epub/',
+            'pdf': '//pip.readthedocs.io/_/downloads/en/stable/pdf/',
         }
         self.assertDictEqual(self.branch_version.get_downloads(), expected)
