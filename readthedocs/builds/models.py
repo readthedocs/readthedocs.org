@@ -70,6 +70,7 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
+    DOCUMENTATION_CHOICES,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
@@ -139,6 +140,16 @@ class Version(models.Model):
     has_pdf = models.BooleanField(_('Has PDF'), default=False)
     has_epub = models.BooleanField(_('Has ePub'), default=False)
     has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
+
+    documentation_type = models.CharField(
+        _('Documentation type'),
+        max_length=20,
+        choices=DOCUMENTATION_CHOICES,
+        default='sphinx',
+        help_text=_(
+            'Type of documentation the version was built with.'
+        ),
+    )
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
