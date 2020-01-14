@@ -336,7 +336,11 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             lang_slug=lang_slug,
             version_slug=version_slug,
         )
-        return final_project.versions.get(slug=version_slug)
+        version = get_object_or_404(
+            final_project.versions.public(user=request.user),
+            slug=version_slug,
+        )
+        return version
 
     def _version_dashboard_url(self, request, project_slug, type_, version_slug):
         """
