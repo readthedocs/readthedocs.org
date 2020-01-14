@@ -934,6 +934,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'documentation_type': self.config.doctype,
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
