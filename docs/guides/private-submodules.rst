@@ -2,8 +2,8 @@ Using Private Git Submodules with Read the Docs for Business
 ============================================================
 
 Read the Docs uses SSH keys (with read only permissions) in order to clone private repositories.
-An SSH key is automatically generated and setup for your main repository, but not for your submodules.
-You'll need to setup that SSH key on each repository of your submodules.
+An SSH key is automatically generated and added to your main repository, but not on your submodules.
+In order to give Read the Docs access to clone your submodules you'll need to add the public SSH key to each repository of your submodules.
 
 .. note::
 
@@ -57,7 +57,7 @@ GitLab
 
 For GitLab, Read the Docs uses `deploy keys with read only access <https://docs.gitlab.com/ee/ssh/#deploy-keys>`__.
 GitLab allows you to reuse a deploy key across different repositories.
-Since Read the Docs already set the public SSH key on your main repository,
+Since Read the Docs already added the public SSH key on your main repository,
 you only need to add it to each repository of your submodules.
 
 - Go to the project's settings on GitLab
@@ -70,7 +70,23 @@ you only need to add it to each repository of your submodules.
 Bitbucket
 ---------
 
+For Bitbucket, Read the Docs uses `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__.
+Bitbucket allows you to reuse an access key across different repositories.
+Since Read the Docs already set the public SSH key on your main repository,
+you only need to add it to each repository of your submodules.
+
+- Go to the project's settings on Bitbucket
+- Click on :guilabel:`Access keys`
+- Click on :guilabel:`Add key`
+- Put a descriptive label and paste the :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Project's SSH key>`
+- Click on :guilabel:`Add key`
+- Repeat the previous steps for each submodule.
+
 Others
 ------
 
-If you are not using any of the above integrations.
+If you are not using any of the above providers.
+Read the Docs will still generate a pair of SSH keys.
+You'll need to add the :ref:`public SSH key from your Read the Docs project <guides/private-submodules:Project's SSH key>`
+to the main repository and each of its submodules.
+Refer to your provider's documentation for the steps.
