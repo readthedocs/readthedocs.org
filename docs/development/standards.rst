@@ -108,6 +108,8 @@ After cloning ``readthedocs.org`` repository, you need to
 
       inv.docker up  --init
 
+#. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
+
 
 Working with Docker Compose
 ---------------------------
