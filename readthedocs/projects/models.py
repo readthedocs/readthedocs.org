@@ -52,6 +52,7 @@ from .constants import (
 
 
 log = logging.getLogger(__name__)
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 
 class ProjectRelationship(models.Model):
@@ -607,22 +608,35 @@ class Project(models.Model):
             )
         return path
 
-    def get_production_media_url(self, type_, version_slug, full_path=True):
+    def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
-        try:
-            path = reverse(
-                'project_download_media',
-                kwargs={
-                    'project_slug': self.slug,
-                    'type_': type_,
-                    'version_slug': version_slug,
-                },
-            )
-        except NoReverseMatch:
-            return ''
-        if full_path:
-            path = '//{}{}'.format(settings.PRODUCTION_DOMAIN, path)
+        # Use project domain for full path --same domain as docs
+        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
+        domain = self.subdomain()
+
+        # NOTE: we can't use ``reverse('project_download_media')`` here
+        # because this URL only exists in El Proxito and this method is
+        # accessed from Web instance
+
+        if self.is_subproject:
+            # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+        else:
+            # docs.example.com/_/downloads/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
+
         return path
+
+    @property
+    def is_subproject(self):
+        """Return whether or not this project is a subproject."""
+        return self.superprojects.exists()
+
+    @property
+    def alias(self):
+        """Return the alias (as subproject) if it's a subproject."""  # noqa
+        if self.is_subproject:
+            return self.superprojects.first().alias
 
     def subdomain(self):
         """Get project subdomain from resolver."""

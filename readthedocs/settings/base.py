@@ -96,6 +96,8 @@ class CommunityBaseSettings(Settings):
     # override classes
     CLASS_OVERRIDES = {}
 
+    DOC_PATH_PREFIX = '_/'
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
