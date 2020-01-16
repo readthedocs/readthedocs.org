@@ -153,8 +153,10 @@ save some work while typing docker compose commands. This section explains these
        you can run ``inv docker.attach web`` and jump into a pdb session
        (it also works with ipdb and pdb++)
 
-``inv docker.test {arguments}``
-    Runs the test suite inside the container.
+``inv docker.test``
+    Runs all the test suites inside the container.
+
+    * ``--arguments`` will pass arguments to Tox command (e.g. ``--arguments "-e py36 -- -k test_api"``)
 
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
