@@ -21,7 +21,7 @@ approximates our production environment, in order to spot bugs and logical
 inconsistencies before they make their way to production.
 
 Currently, core team members are migrating to a Docker Compose based
-solution that it's not fully recommend yet for Contributing development.
+solution that it's not fully recommended yet for contributing development.
 
 This solution gives us many features that allows us to have an
 environment closer to production:
@@ -106,7 +106,7 @@ After cloning ``readthedocs.org`` repository, you need to
 
    .. prompt:: bash
 
-      inv.docker up  --init
+      inv docker.up  --init  # --init is only needed the first time
 
 #. go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
 
