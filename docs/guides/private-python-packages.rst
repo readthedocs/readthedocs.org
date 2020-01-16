@@ -29,6 +29,9 @@ Below you can find the steps to get a personal token from our supported provider
 .. note::
    
    The URI should be in your :ref:`requirements file <config-file/v2:Requirements file>`.
+   PIP will automatically expand environment variables in your URI,
+   you can :doc:`add environment variables </guides/environment-variables>` in Read the Docs,
+   so you don't to hard code the token in the URI.
 
 GitHub
 ~~~~~~
@@ -42,7 +45,7 @@ URI example:
 
 .. code::
    
-   git+https://{token}@github.com/user/project.git@{version}#egg={package-name}
+   git+https://${GITHUB_TOKEN}@github.com/user/project.git@{version}#egg={package-name}
 
 .. warning::
 
@@ -63,9 +66,9 @@ URI example:
 
 .. code::
    
-   git+https://{user}:{token}@gitlab.com/user/project.git@{version}#egg={package-name}
+   git+https://${GITLAB_TOKEN_USER}:${GITLAB_TOKEN}@gitlab.com/user/project.git@{version}#egg={package-name}
 
-Here ``user`` is the user from the deploy token you created, not  your GitLab user.
+Here ``GITLAB_TOKEN_USER`` is the user from the deploy token you created, not  your GitLab user.
 
 Bitbucket
 ~~~~~~~~~
@@ -78,9 +81,9 @@ URI example:
 
 .. code::
    
-   git+https://{user}:{app-password}@bitbucket.org/user/project.git@{version}#egg={package-name}'
+   git+https://${BITBUCKET_USER}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/user/project.git@{version}#egg={package-name}'
 
-Here ``user`` is your Bitbucket user.
+Here ``BITBUCKET_USER`` is your Bitbucket user.
 
 .. warning::
 
