@@ -46,3 +46,4 @@ These guides will help you customize or tune aspects of the Read the Docs build 
     sitemaps
     specifying-dependencies
     wipe-environment
+    private-python-packages
