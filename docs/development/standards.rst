@@ -102,7 +102,7 @@ After cloning ``readthedocs.org`` repository, you need to
 
    .. prompt:: bash
 
-      inv.docker up  --init
+      inv docker.up  --init  # --init is only needed the first time
 
 
 Working with Docker Compose
