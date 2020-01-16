@@ -88,6 +88,10 @@ After cloning ``readthedocs.org`` repository, you need to
 
 #. build the Docker image for the servers:
 
+   .. warning::
+
+      This command could take a while to finish since it will download several Docker images.
+
    .. prompt:: bash
 
       inv docker.build
