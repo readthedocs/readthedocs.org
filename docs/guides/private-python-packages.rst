@@ -93,11 +93,16 @@ Here ``BITBUCKET_USER`` is your Bitbucket user.
 Installing packages from a repository manager other than PyPI
 -------------------------------------------------------------
 
-Environment variables
-~~~~~~~~~~~~~~~~~~~~~
+PIP by default will install your packages from `PyPI <https://pypi.org/>`__.
+If use a repository manager like ``pypiserver``, ``Nexus Repository``,
+you need to set the :ref:`pip:--index-url` option.
+In Read the Docs you have two ways of set that option:
 
-Using a ``pip.conf`` file
-~~~~~~~~~~~~~~~~~~~~~~~~~
+- Set the ``PIP_INDEX_URL`` :doc:`environment variable in Read the Docs </guides/environment-variables>`.
+  See :ref:`pip:using environment variables`.
+- Put ``--index-url=https://my-index-url.com/`` at the top of your requirements file.
+  See :ref:`pip:requirements file format`.
 
-Using a requirements file
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.. note::
+
+   Check your repository manager's documentation for the appropriate index URL.
