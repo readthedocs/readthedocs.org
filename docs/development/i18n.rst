@@ -302,7 +302,7 @@ help pages <http://help.transifex.com/features/client/>`_.
 
    For the Read the Docs community site, we use a `fabric script`_ to follow this process:
 
-   .. _fabric script: https://github.com/readthedocs/readthedocs.org/blob/master/fabfile.py
+   .. _fabric script: https://github.com/readthedocs/readthedocs.org/blob/master/tasks.py.
 
    #. Update files and push sources (English) to Transifex:
 
