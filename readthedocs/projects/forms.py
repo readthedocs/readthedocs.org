@@ -563,8 +563,7 @@ class TranslationBaseForm(forms.Form):
             # bulk update.
             self.translation.main_language_project = self.parent
             self.translation.save()
-            # Run symlinking and other sync logic to make sure we are in a good
-            # state.
+            # Run other sync logic to make sure we are in a good state.
             self.parent.save()
         return self.parent
 

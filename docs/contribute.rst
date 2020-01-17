@@ -125,7 +125,6 @@ for your own :doc:`custom installation <custom_installs/index>`.
    development/front-end
    development/design/index
    development/buildenvironments
-   development/symlinks
    development/settings
    development/i18n
    development/issue-labels

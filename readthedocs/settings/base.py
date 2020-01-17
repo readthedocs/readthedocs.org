@@ -318,12 +318,6 @@ class CommunityBaseSettings(Settings):
 
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
-        # Ran every hour on minute 30
-        'hourly-remove-orphan-symlinks': {
-            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
-            'schedule': crontab(minute=30),
-            'options': {'queue': 'web'},
-        },
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),

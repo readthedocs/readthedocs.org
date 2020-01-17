@@ -244,20 +244,3 @@ def safe_makedirs(directory_name):
     except OSError as e:
         if e.errno != errno.EEXIST:  # 17, FileExistsError
             raise
-
-
-def safe_unlink(path):
-    """
-    Unlink ``path`` symlink using ``os.unlink``.
-
-    This helper handles the exception ``FileNotFoundError`` to avoid logging in
-    cases where the symlink does not exist already and there is nothing to
-    unlink.
-
-    :param path: symlink path to unlink
-    :type path: str
-    """
-    try:
-        os.unlink(path)
-    except FileNotFoundError:
-        log.warning('Unlink failed. Path %s does not exists', path)

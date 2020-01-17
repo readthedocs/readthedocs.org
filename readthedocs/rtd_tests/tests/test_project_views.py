@@ -11,11 +11,10 @@ from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 from mock import patch
 
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects import tasks
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
@@ -475,22 +474,6 @@ class TestPrivateViews(MockBuildTestCase):
             count=1,
             html=True,
         )
-
-    def test_subproject_create(self):
-        project = get(Project, slug='pip', users=[self.user])
-        subproject = get(Project, users=[self.user])
-
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
-            response = self.client.post(
-                '/dashboard/pip/subprojects/create/',
-                data={'child': subproject.pk},
-            )
-            self.assertEqual(response.status_code, 302)
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.symlink_subproject,
-                args=[project.pk],
-            )
 
     @patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create(self, attach_webhook):

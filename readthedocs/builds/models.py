@@ -328,17 +328,6 @@ class Version(models.Model):
             private=private,
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        """Add permissions to the Version for all owners on save."""
-        from readthedocs.projects import tasks
-        obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
-        return obj
-
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)

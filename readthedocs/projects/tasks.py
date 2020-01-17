@@ -33,7 +33,6 @@ from readthedocs.builds.constants import (
     BUILD_STATE_INSTALLING,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
-    LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
     EXTERNAL,
@@ -42,8 +41,7 @@ from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import broadcast, safe_unlink, send_email
+from readthedocs.core.utils import send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -1062,71 +1060,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 
 # Web tasks
-@app.task(queue='web')
-def symlink_project(project_pk):
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        sym.run()
-
-
-@app.task(queue='web')
-def symlink_domain(project_pk, domain, delete=False):
-    """
-    Symlink domain.
-
-    :param project_pk: project's pk
-    :type project_pk: int
-    :param domain: domain for the symlink
-    :type domain: str
-    """
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        if delete:
-            sym.remove_symlink_cname(domain)
-        else:
-            sym.symlink_cnames(domain)
-
-
-@app.task(queue='web')
-def remove_orphan_symlinks():
-    """
-    Remove orphan symlinks.
-
-    List CNAME_ROOT for Public and Private symlinks, check that all the listed
-    cname exist in the database and if doesn't exist, they are un-linked.
-    """
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
-            valid_cnames = set(
-                Domain.objects.all().values_list('domain', flat=True),
-            )
-            orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
-            for cname in orphan_cnames:
-                orphan_domain_path = os.path.join(domain_path, cname)
-                log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                safe_unlink(orphan_domain_path)
-
-
-@app.task(queue='web')
-def broadcast_remove_orphan_symlinks():
-    """
-    Broadcast the task ``remove_orphan_symlinks`` to all our web servers.
-
-    This task is executed by CELERY BEAT.
-    """
-    broadcast(type='web', task=remove_orphan_symlinks, args=[])
-
-
-@app.task(queue='web')
-def symlink_subproject(project_pk):
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        sym.symlink_subprojects()
-
-
 @app.task(queue='web')
 def fileify(version_pk, commit, build):
     """

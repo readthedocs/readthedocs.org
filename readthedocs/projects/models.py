@@ -414,8 +414,6 @@ class Project(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        first_save = self.pk is None
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
@@ -431,30 +429,6 @@ class Project(models.Model):
         except Exception:
             log.exception('Failed to update latest identifier')
 
-        try:
-            if not first_save:
-                log.info(
-                    'Re-symlinking project and subprojects: project=%s',
-                    self.slug,
-                )
-                broadcast(
-                    type='app',
-                    task=tasks.symlink_project,
-                    args=[self.pk],
-                )
-                log.info(
-                    'Re-symlinking superprojects: project=%s',
-                    self.slug,
-                )
-                for relationship in self.superprojects.all():
-                    broadcast(
-                        type='app',
-                        task=tasks.symlink_project,
-                        args=[relationship.parent.pk],
-                    )
-
-        except Exception:
-            log.exception('failed to symlink project')
         try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
@@ -658,19 +632,6 @@ class Project(models.Model):
     def pip_cache_path(self):
         """Path to pip cache."""
         return os.path.join(self.doc_path, '.cache', 'pip')
-
-    #
-    # Paths for symlinks in project doc_path.
-    #
-    def translations_symlink_path(self, language=None):
-        """Path in the doc_path that we symlink translations."""
-        if not language:
-            language = self.language
-        return os.path.join(self.doc_path, 'translations', language)
-
-    #
-    # End symlink paths
-    #
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project."""
@@ -1422,27 +1383,12 @@ class Domain(models.Model):
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
         else:
             self.domain = parsed.path
         super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain],
-        )
-
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain, True],
-        )
-        super().delete(*args, **kwargs)
 
 
 class Feature(models.Model):

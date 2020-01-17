@@ -445,14 +445,6 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
         kwargs['user'] = self.request.user
         return super().get_form(data, files, **kwargs)
 
-    def form_valid(self, form):
-        broadcast(
-            type='app',
-            task=tasks.symlink_subproject,
-            args=[self.get_project().pk],
-        )
-        return super().form_valid(form)
-
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])
 
