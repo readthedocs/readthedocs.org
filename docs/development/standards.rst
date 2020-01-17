@@ -21,7 +21,7 @@ approximates our production environment, in order to spot bugs and logical
 inconsistencies before they make their way to production.
 
 Currently, core team members are migrating to a Docker Compose based
-solution that it's not fully recommended yet for contributing development.
+solution that is not yet recommended for contributing to development.
 
 This solution gives us many features that allows us to have an
 environment closer to production:
