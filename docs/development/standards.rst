@@ -84,7 +84,7 @@ After cloning ``readthedocs.org`` repository, you need to
 
    .. prompt:: bash
 
-      pip install common/dockerfiles/requirements.txt
+      pip install -r common/dockerfiles/requirements.txt
 
 #. build the Docker image for the servers:
 
