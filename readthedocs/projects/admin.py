@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
-from readthedocs.core.utils import broadcast, trigger_build
+from readthedocs.core.utils import trigger_build
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.search.utils import _indexing_helper
@@ -29,7 +29,7 @@ from .notifications import (
     ResourceUsageNotification,
 )
 from .tag_utils import import_tags
-from .tasks import remove_dirs
+from .tasks import clean_project_resources
 
 
 class ProjectSendNotificationView(SendNotificationView):
@@ -206,18 +206,14 @@ class ProjectAdmin(admin.ModelAdmin):
 
     def delete_selected_and_artifacts(self, request, queryset):
         """
-        Remove HTML/etc artifacts from application instances.
+        Remove HTML/etc artifacts from storage.
 
         Prior to the query delete, broadcast tasks to delete HTML artifacts from
         application instances.
         """
         if request.POST.get('post'):
             for project in queryset:
-                broadcast(
-                    type='app',
-                    task=remove_dirs,
-                    args=[(project.doc_path,)],
-                )
+                clean_project_resources(project)
         return delete_selected(self, request, queryset)
 
     def build_default_version(self, request, queryset):

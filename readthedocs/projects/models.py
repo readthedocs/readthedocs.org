@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -456,15 +456,6 @@ class Project(models.Model):
         except Exception:
             log.exception('failed to symlink project')
         try:
-            if not first_save:
-                broadcast(
-                    type='app',
-                    task=tasks.update_static_metadata,
-                    args=[self.pk],
-                )
-        except Exception:
-            log.exception('failed to update static metadata')
-        try:
             branch = self.default_branch or self.vcs_repo().fallback_branch
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
@@ -472,17 +463,10 @@ class Project(models.Model):
             log.exception('Error creating default branches')
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-
-        # Remove local FS build artifacts on the web servers
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[(self.doc_path,)],
-        )
+        from readthedocs.projects.tasks import clean_project_resources
 
         # Remove extra resources
-        tasks.clean_project_resources(self)
+        clean_project_resources(self)
 
         super().delete(*args, **kwargs)
 

@@ -76,9 +76,6 @@ class DockerBaseSettings(CommunityDevSettings):
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-    # Avoid syncing to the web servers
-    FILE_SYNCER = "readthedocs.builds.syncers.NullSyncer"
-
     # https://github.com/Azure/Azurite/blob/master/README.md#default-storage-account
     AZURE_ACCOUNT_NAME = 'devstoreaccount1'
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='

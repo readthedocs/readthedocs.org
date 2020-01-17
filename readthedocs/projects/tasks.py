@@ -40,7 +40,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
@@ -792,29 +791,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
 
-        This looks very similar to `move_files` and is intended to replace it!
-
         :param html: whether to save HTML output
         :param localmedia: whether to save localmedia (htmlzip) output
         :param search: whether to save search artifacts
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if not settings.RTD_BUILD_MEDIA_STORAGE:
-            # Note: this check can be removed once corporate build servers use storage
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.version.project.slug,
-                    'version': self.version.slug,
-                    'msg': (
-                        'RTD_BUILD_MEDIA_STORAGE is missing - '
-                        'Not writing build artifacts to media storage'
-                    ),
-                },
-            )
-            return
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
@@ -948,28 +930,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
-        broadcast(
-            type='app',
-            task=sync_files,
-            args=[
-                self.project.pk,
-                self.version.pk,
-                self.config.doctype,
-            ],
-            kwargs=dict(
-                hostname=hostname,
-                html=html,
-                localmedia=localmedia,
-                search=search,
-                pdf=pdf,
-                epub=epub,
-                delete_unsynced_media=delete_unsynced_media,
-            ),
-            callback=sync_callback.s(
-                version_pk=self.version.pk,
-                commit=self.build['commit'],
-                build=self.build['id'],
-            ),
+        fileify.delay(
+            version_pk=self.version.pk,
+            commit=self.build['commit'],
+            build=self.build['id'],
         )
 
     def setup_python_environment(self):
@@ -1030,24 +994,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         success = html_builder.build()
         if success:
             html_builder.move()
-
-        # Gracefully attempt to move files via task on web workers.
-        try:
-            # We upload EXTERNAL version media files to blob storage
-            # We should have this check here to make sure
-            # the files don't get re-uploaded on web.
-            if self.version.type != EXTERNAL:
-                broadcast(
-                    type='app',
-                    task=move_files,
-                    args=[
-                        self.version.pk,
-                        socket.gethostname(), self.config.doctype
-                    ],
-                    kwargs=dict(html=True),
-                )
-        except socket.error:
-            log.exception('move_files task has failed on socket error.')
 
         return success
 
@@ -1116,176 +1062,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 
 # Web tasks
-@app.task(queue='web')
-def sync_files(
-        project_pk,
-        version_pk,
-        doctype,
-        hostname=None,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
-        delete_unsynced_media=False,
-):
-    """
-    Sync build artifacts to application instances.
-
-    This task broadcasts from a build instance on build completion and performs
-    synchronization of build artifacts on each application instance.
-    """
-    # Clean up unused artifacts
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-
-    # Sync files to the web servers
-    move_files(
-        version_pk,
-        hostname,
-        doctype,
-        html=html,
-        localmedia=localmedia,
-        search=search,
-        pdf=pdf,
-        epub=epub,
-        delete_unsynced_media=delete_unsynced_media,
-    )
-
-    # Symlink project
-    symlink_project(project_pk)
-
-    # Update metadata
-    update_static_metadata(project_pk)
-
-
-@app.task(queue='web')
-def move_files(
-        version_pk,
-        hostname,
-        doctype,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
-        delete_unsynced_media=False,
-):
-    """
-    Task to move built documentation to web servers.
-
-    :param version_pk: Version id to sync files for
-    :param hostname: Hostname to sync to
-    :param html: Sync HTML
-    :type html: bool
-    :param localmedia: Sync local media files
-    :type localmedia: bool
-    :param search: Sync search files
-    :type search: bool
-    :param pdf: Sync PDF files
-    :type pdf: bool
-    :param epub: Sync ePub files
-    :type epub: bool
-    :param delete_unsynced_media: Whether to try and delete files.
-    :type delete_unsynced_media: bool
-    """
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-
-    # This is False if we have already synced media files to blob storage
-    # We set `epub=False` for example so data doesn't get re-uploaded on each
-    # web, so we need this to protect against deleting in those cases
-    if delete_unsynced_media:
-        downloads = {
-            'pdf': pdf,
-            'epub': epub,
-            'htmlzip': localmedia,
-        }
-        unsync_downloads = (k for k, v in downloads.items() if not v)
-        for media_type in unsync_downloads:
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_=media_type,
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-    log.debug(
-        LOG_TEMPLATE,
-        {
-            'project': version.project.slug,
-            'version': version.slug,
-            'msg': 'Moving files',
-        }
-    )
-
-    if html:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_=doctype,
-        )
-        target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target, host=hostname)
-
-    if search:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_search',
-        )
-        to_path = version.project.get_production_media_path(
-            type_='json',
-            version_slug=version.slug,
-            include_file=False,
-        )
-        Syncer.copy(from_path, to_path, host=hostname)
-
-    if localmedia:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            ),
-            '{}.zip'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='htmlzip',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if pdf:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            ),
-            '{}.pdf'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='pdf',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if epub:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            ),
-            '{}.epub'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='epub',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-
-
 @app.task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
@@ -1382,7 +1158,7 @@ def fileify(version_pk, commit, build):
             'project': version.project.slug,
             'version': version.slug,
             'msg': 'Creating ImportedFiles',
-        }
+        },
     )
     try:
         changed_files = _create_imported_files(version, commit, build)
@@ -1789,60 +1565,6 @@ def webhook_notification(version, build, hook_url):
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
 
-@app.task(queue='web')
-def update_static_metadata(project_pk, path=None):
-    """
-    Update static metadata JSON file.
-
-    Metadata settings include the following project settings:
-
-    version
-      The default version for the project, default: `latest`
-
-    language
-      The default language for the project, default: `en`
-
-    languages
-      List of languages built by linked translation projects.
-    """
-    project = Project.objects.get(pk=project_pk)
-    if not path:
-        path = project.static_metadata_path()
-
-    log.info(
-        LOG_TEMPLATE,
-        {
-            'project': project.slug,
-            'version': '',
-            'msg': 'Updating static metadata',
-        }
-    )
-    translations = [trans.language for trans in project.translations.all()]
-    languages = set(translations)
-    # Convert to JSON safe types
-    metadata = {
-        'version': project.default_version,
-        'language': project.language,
-        'languages': list(languages),
-        'single_version': project.single_version,
-        'subdomain': project.subdomain(),
-        'canonical_url': project.get_canonical_url(),
-    }
-    try:
-        fh = open(path, 'w+')
-        json.dump(metadata, fh)
-        fh.close()
-    except (AttributeError, IOError) as e:
-        log.debug(
-            LOG_TEMPLATE,
-            {
-                'project': project.slug,
-                'version': '',
-                'msg': 'Cannot write to metadata.json: {}'.format(e),
-            }
-        )
-
-
 # Random Tasks
 @app.task()
 def remove_dirs(paths):
@@ -1911,19 +1633,6 @@ def clean_project_resources(project, version=None):
         project_slug=project.slug,
         version_slug=version.slug if version else None,
     )
-
-
-@app.task(queue='web')
-def sync_callback(_, version_pk, commit, build, *args, **kwargs):
-    """
-    Called once the sync_files tasks are done.
-
-    The first argument is the result from previous tasks, which we discard.
-    """
-    try:
-        fileify(version_pk, commit=commit, build=build)
-    except Exception:
-        log.exception('Post sync tasks failed, not stopping build')
 
 
 @app.task()

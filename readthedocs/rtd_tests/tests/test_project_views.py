@@ -450,14 +450,12 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.models.broadcast') as broadcast:
+        with patch('readthedocs.projects.models.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[(project.doc_path,)],
+            clean_project_resources.assert_called_with(
+                project=project,
             )
 
     def test_delete_superproject(self):

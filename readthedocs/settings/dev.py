@@ -39,7 +39,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test
