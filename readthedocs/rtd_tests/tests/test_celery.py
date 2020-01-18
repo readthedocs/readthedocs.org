@@ -4,6 +4,7 @@ from os.path import exists
 from tempfile import mkdtemp
 
 from allauth.socialaccount.models import SocialAccount
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from messages_extends.models import Message
@@ -22,7 +23,6 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -32,7 +32,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-class TestCeleryBuilding(RTDTestCase):
+class TestCeleryBuilding(TestCase):
 
     """
     These tests run the build functions directly.

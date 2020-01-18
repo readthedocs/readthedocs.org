@@ -5,6 +5,7 @@ from os.path import exists
 from tempfile import mkdtemp
 import textwrap
 
+from django.test import TestCase
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from mock import Mock, patch
@@ -14,7 +15,6 @@ from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature, Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
     create_git_tag,
@@ -25,7 +25,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-class TestGitBackend(RTDTestCase):
+class TestGitBackend(TestCase):
     def setUp(self):
         git_repo = make_test_git()
         super().setUp()
@@ -277,7 +277,7 @@ class TestGitBackend(RTDTestCase):
         )
 
 
-class TestHgBackend(RTDTestCase):
+class TestHgBackend(TestCase):
 
     def setUp(self):
         hg_repo = make_test_hg()

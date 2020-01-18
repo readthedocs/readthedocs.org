@@ -87,8 +87,6 @@ class CommunityBaseSettings(Settings):
     DONT_HIT_API = False
     DONT_HIT_DB = True
 
-    SYNC_USER = getpass.getuser()
-
     USER_MATURITY_DAYS = 7
 
     # override classes
@@ -143,7 +141,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.analytics',
             'readthedocs.sphinx_domains',
             'readthedocs.search',
-
 
             # allauth
             'allauth',
@@ -215,8 +212,6 @@ class CommunityBaseSettings(Settings):
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
     DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
-    UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
-    CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
     LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
     PRODUCTION_ROOT = os.path.join(SITE_ROOT, 'prod_artifacts')
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
@@ -430,7 +425,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
-    SERVE_DOCS = ['public']
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
@@ -508,7 +502,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
         'file_insertion_enabled': False,
