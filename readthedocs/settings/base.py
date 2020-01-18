@@ -25,8 +25,6 @@ class CommunityBaseSettings(Settings):
     # Django settings
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
-    SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
-    SINGLE_VERSION_URLCONF = 'readthedocs.core.urls.single_version'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -177,8 +175,6 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
-        'readthedocs.core.middleware.SubdomainMiddleware',
-        'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
     )
 

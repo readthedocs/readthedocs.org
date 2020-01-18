@@ -9,12 +9,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.urls import core_urls, docs_urls
+from readthedocs.core.urls import core_urls
 from readthedocs.core.views import (
     HomepageView,
     SupportView,
     do_not_track,
-    server_error_404,
     server_error_500,
 )
 from readthedocs.search import views as search_views
@@ -23,7 +22,6 @@ from readthedocs.search.api import PageSearchAPIView
 
 admin.autodiscover()
 
-handler404 = server_error_404
 handler500 = server_error_500
 
 basic_urls = [
@@ -47,8 +45,6 @@ rtd_urls = [
     url(r'^accounts/gold/', include('readthedocs.gold.urls')),
     # For redirects
     url(r'^builds/', include('readthedocs.builds.urls')),
-    # For testing the 404's with DEBUG on.
-    url(r'^404/$', handler404),
     # For testing the 500's with DEBUG on.
     url(r'^500/$', handler500),
 ]
@@ -127,8 +123,6 @@ if settings.READ_THE_DOCS_EXTENSIONS:
         url(r'^', include('readthedocsext.urls'))
     ])
 
-if not settings.USE_SUBDOMAIN or settings.DEBUG:
-    groups.insert(0, docs_urls)
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
 if settings.DEBUG:

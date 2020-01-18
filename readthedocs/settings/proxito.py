@@ -25,11 +25,7 @@ class ProxitoDevSettings(base.CommunityBaseSettings):
         # Use our new middleware instead of the old one
         classes = super().MIDDLEWARE
         classes = list(classes)
-        index = classes.index(
-            'readthedocs.core.middleware.SubdomainMiddleware'
-        )
-        classes[index] = 'readthedocs.proxito.middleware.ProxitoMiddleware'
-        classes.remove('readthedocs.core.middleware.SingleVersionMiddleware')
+        classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
         return classes
 
 
