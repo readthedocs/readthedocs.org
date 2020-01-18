@@ -34,11 +34,10 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 RUN pip3 install --no-cache-dir --upgrade pip
 
-RUN mkdir checkouts
-WORKDIR /usr/src/app/checkouts
+WORKDIR /tmp
 
-COPY requirements readthedocs.org/requirements
-
-RUN pip3 install --no-cache-dir -r readthedocs.org/requirements/docker.txt
+RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/pip.txt
+RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/docker.txt
+RUN pip3 install --no-cache-dir -r docker.txt
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org
