@@ -103,6 +103,15 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 ''',
 }
+linkcheck_ignore = [
+    r'^https?\://127\.0\.0\.1.*',
+    r'^https?\://localhost.*',
+    r'^https?\://yourproject\.readthedocs\.io.*',
+    r'^https?\://docs\.example\.com.*',
+    r'^https?\://foo\.readthedocs\.io/projects.*',
+    r'^https?\://github\.com.+?#L\d+(-L\d+)?',
+    r'^https://$',
+]
 
 
 def setup(app):
