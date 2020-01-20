@@ -329,6 +329,7 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
+                environment=self.environment,
                 stdout=True,
                 stderr=True,
             )
@@ -452,7 +453,7 @@ class BaseEnvironment:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
             raise BuildEnvironmentError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = self.environment
+        kwargs['environment'] = self.environment.copy()
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
@@ -1051,7 +1052,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
-                environment=self.environment,
                 user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)
