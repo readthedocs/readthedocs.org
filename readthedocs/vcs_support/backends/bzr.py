@@ -80,7 +80,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('bzr', 'revno')[:2]
+        _, stdout = self.run('bzr', 'revno', record=False)[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):

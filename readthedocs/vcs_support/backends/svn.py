@@ -101,7 +101,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('svnversion')[:2]
+        _, stdout = self.run('svnversion', record=False)[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):

@@ -105,7 +105,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout = self.run('hg', 'identify', '--id')[:2]
+        _, stdout = self.run('hg', 'identify', '--id', record=False)[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
