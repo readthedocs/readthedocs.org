@@ -64,6 +64,8 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
+        # TODO: always pass an explict environment
+        # This is only used in tests #6546
         from readthedocs.doc_builder.environments import LocalBuildEnvironment
         self.environment = environment or LocalBuildEnvironment(record=False)
 
