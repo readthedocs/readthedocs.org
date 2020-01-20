@@ -128,10 +128,16 @@ class ServeRedirectMixin:
         :returns: the path to redirect the request and its status code
         :rtype: tuple
         """
+
+        # Generate the full path from the filename.
+        path = filename
+        if not filename.startswith('/'):
+            path = '/' + filename
+
         redirect_path, http_status = project.redirects.get_redirect_path_with_status(
             language=lang_slug,
             version_slug=version_slug,
-            path=filename,
+            path=path,
             full_path=full_path,
         )
         return redirect_path, http_status
