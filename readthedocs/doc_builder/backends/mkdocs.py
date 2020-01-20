@@ -13,9 +13,9 @@ from django.conf import settings
 from django.template import loader as template_loader
 
 from readthedocs.doc_builder.base import BaseBuilder
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
-
 
 log = logging.getLogger(__name__)
 
@@ -225,6 +225,11 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        repo = self.project.vcs_repo(
+            version=self.version.slug,
+            environment=self.build_env,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
             'project': self.version.project.slug,
@@ -239,7 +244,7 @@ class BaseMkdocs(BaseBuilder):
             'api_host': settings.PUBLIC_API_URL,
             'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
+            'commit': repo.commit,
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
         }

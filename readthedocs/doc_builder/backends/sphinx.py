@@ -18,6 +18,7 @@ from django.template.loader import render_to_string
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
@@ -28,7 +29,6 @@ from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
-
 
 log = logging.getLogger(__name__)
 
@@ -131,6 +131,10 @@ class BaseSphinx(BaseBuilder):
                 ]
             downloads = api.version(self.version.pk).get()['downloads']
 
+        repo = self.project.vcs_repo(
+            version=self.version.slug,
+            environment=self.build_env,
+        )
         data = {
             'html_theme': 'sphinx_rtd_theme',
             'html_theme_import': 'sphinx_rtd_theme',
@@ -141,7 +145,7 @@ class BaseSphinx(BaseBuilder):
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
             'proxied_api_host': settings.RTD_PROXIED_API_URL,
-            'commit': self.project.vcs_repo(self.version.slug).commit,
+            'commit': repo.commit,
             'versions': versions,
             'downloads': downloads,
 
