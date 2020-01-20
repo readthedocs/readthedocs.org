@@ -154,6 +154,7 @@ class BuildCommand(BuildCommandResultMixin):
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
 
+        # Always copy the PATH from the host into the environment
         env_paths = os.environ.get('PATH', '').split(':')
         if self.bin_path is not None:
             env_paths.insert(0, self.bin_path)
