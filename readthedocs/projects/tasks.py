@@ -368,7 +368,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         failure cases. We first run a few commands in a build environment,
         but do not report on environment success. This avoids a flicker on the
         build output page where the build is marked as finished in between the
-        local environment steps and the build steps.
+        checkout steps and the build steps.
 
         If a failure is raised, or the build is not successful, return
         ``False``, otherwise, ``True``.
