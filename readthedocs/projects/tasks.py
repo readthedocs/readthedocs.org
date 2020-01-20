@@ -440,7 +440,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def run_setup(self, record=True):
         """
-        Run setup in the local environment.
+        Run setup in a build environment.
 
         Return True if successful.
         """
