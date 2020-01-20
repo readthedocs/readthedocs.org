@@ -237,8 +237,8 @@ class Backend(BaseVCS):
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
-            return stdout.strip()
+            repo = git.Repo(self.working_dir)
+            return str(repo.head.commit)
         return None
 
     @property

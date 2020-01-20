@@ -717,7 +717,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # Re raise the exception to stop the build at this point
             raise
 
-        commit = self.commit or self.project.vcs_repo(self.version.slug).commit
+        commit = self.commit or self.get_vcs_repo(environment).commit
         if commit:
             self.build['commit'] = commit
 
