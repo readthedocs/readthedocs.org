@@ -40,8 +40,9 @@ you might hit one of these issues:
    that you Read the Docs account is connected with that providers social account.
    You can check this by going to your `profile settings`_.
 
-#. **Build status is not being reported on your Pull/Merge Request**. 
-   You need to make sure your webhook is properly setup
+#. **Build status is not being reported on your Pull/Merge Request**.
+   You need to make sure that you granted access to ReadtheDocs `OAuth App`_ to your/organizations account.
+   Also make sure your webhook is properly setup
    to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
 
@@ -49,3 +50,4 @@ If you have tried all the above troubleshooting and still getting issues,
 please let us know by sending us an `email <mailto:support@readthedocs.org>`__.
 
 .. _profile settings: https://readthedocs.org/accounts/social/connections/
+.. _OAuth App: https://github.com/settings/applications
