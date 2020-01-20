@@ -203,7 +203,7 @@ class Version(models.Model):
         if self.slug == STABLE:
             slug_url = self.ref
         elif self.slug == LATEST:
-            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+            slug_url = self.project.get_default_branch()
         else:
             slug_url = self.slug
 
@@ -250,9 +250,7 @@ class Version(models.Model):
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
         if self.slug == LATEST:
-            if self.project.default_branch:
-                return self.project.default_branch
-            return self.project.vcs_repo().fallback_branch
+            return self.project.get_default_branch()
 
         if self.slug == STABLE:
             if self.type == BRANCH:

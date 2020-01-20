@@ -465,7 +465,7 @@ class Project(models.Model):
         except Exception:
             log.exception('failed to update static metadata')
         try:
-            branch = self.default_branch or self.vcs_repo().fallback_branch
+            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
         except Exception:
@@ -840,7 +840,7 @@ class Project(models.Model):
         # ``version.slug`` instead of a ``Version`` instance (I prefer an
         # instance here)
 
-        backend = backend_cls.get(self.repo_type)
+        backend = self.get_vcs_class()
         if not backend:
             repo = None
         else:
@@ -849,6 +849,9 @@ class Project(models.Model):
                 verbose_name=verbose_name, version_type=version_type
             )
         return repo
+
+    def get_vcs_class(self):
+        return backend_cls.get(self.repo_type)
 
     def git_service_class(self):
         """Get the service class for project. e.g: GitHubService, GitLabService."""
@@ -1080,7 +1083,7 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
-        return self.vcs_repo().fallback_branch
+        return self.get_vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
