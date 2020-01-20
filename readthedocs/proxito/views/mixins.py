@@ -1,6 +1,7 @@
 import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
+from slugify import slugify as unicode_slugify
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -37,7 +38,8 @@ class ServeDocsMixin:
 
         If ``download`` and ``version_slug`` are passed, when serving via NGINX
         the HTTP header ``Content-Disposition`` is added with the proper
-        filename (e.g. "pip-latest.pdf" or "pip-v2.0.pdf")
+        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
+        or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
         if settings.PYTHON_MEDIA:
@@ -100,7 +102,12 @@ class ServeDocsMixin:
 
         if download:
             filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            filename = f'{final_project.slug}-{version_slug}.{filename_ext}'
+            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
+            if final_project.is_subproject:
+                alias = final_project.alias
+                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
+            else:
+                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
         return response

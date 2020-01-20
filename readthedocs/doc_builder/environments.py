@@ -322,6 +322,7 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
+                environment=self.environment,
                 stdout=True,
                 stderr=True,
             )
@@ -1045,7 +1046,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
-                environment=self.environment,
                 user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)

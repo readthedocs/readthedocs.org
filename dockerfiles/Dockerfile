@@ -24,7 +24,9 @@ RUN apt-get -y install \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
-        sqlite
+        sqlite \
+        netcat \
+        telnet
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
