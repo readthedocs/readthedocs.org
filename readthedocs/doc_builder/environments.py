@@ -103,11 +103,9 @@ class BuildCommand(BuildCommandResultMixin):
         if cwd is None:
             cwd = os.getcwd()
         self.cwd = cwd
-        self.environment = os.environ.copy()
-        if environment is not None:
-            if 'PATH' in environment:
-                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
-            self.environment.update(environment)
+        self.environment = environment.copy() if environment else {}
+        if 'PATH' in self.environment:
+            raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
         self.combine_output = combine_output
         self.input_data = input_data
@@ -155,10 +153,12 @@ class BuildCommand(BuildCommandResultMixin):
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
+
+        # Always copy the PATH from the host into the environment
+        env_paths = os.environ.get('PATH', '').split(':')
         if self.bin_path is not None:
-            env_paths = environment.get('PATH', '').split(':')
             env_paths.insert(0, self.bin_path)
-            environment['PATH'] = ':'.join(env_paths)
+        environment['PATH'] = ':'.join(env_paths)
 
         try:
             # When using ``shell=True`` the command should be flatten
@@ -442,12 +442,13 @@ class BaseEnvironment:
             kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('BIN_PATH', None)
+        environment = self.environment.copy()
+        env_path = environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
             raise BuildEnvironmentError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = self.environment.copy()
+        kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
@@ -601,8 +602,8 @@ class BuildEnvironment(BaseEnvironment):
             log_level_function(
                 LOG_TEMPLATE,
                 {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
+                    'project': self.project.slug if self.project else '',
+                    'version': self.version.slug if self.version else '',
                     'msg': exc_value,
                 },
                 exc_info=True,
