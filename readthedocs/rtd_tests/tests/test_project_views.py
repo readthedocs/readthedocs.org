@@ -403,13 +403,6 @@ class TestPublicViews(MockBuildTestCase):
             type=EXTERNAL
         )
 
-    def test_project_download_media(self):
-        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response._headers['x-accel-redirect'][1], '/proxito/media/pdf/pip/latest/pip.pdf')
-        self.assertEqual(response._headers['content-disposition'][1], 'filename=pip-latest.pdf')
-
     def test_project_detail_view_only_shows_internal_versons(self):
         url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)

@@ -24,9 +24,9 @@ but it's a great honor to be able to have such an impact already.
 We plan to keep building a great experience for people hosting their docs with us,
 and for users of the documentation that we host.
 
-.. _started: http://ericholscher.com/blog/2010/aug/16/announcing-read-docs/
-.. _`Documentation matters`: http://ericholscher.com/blog/2012/jan/22/why-read-docs-matters/
-.. _look back at 2013: http://ericholscher.com/blog/2013/dec/23/read-the-docs-2013-stats/
+.. _started: https://www.ericholscher.com/blog/2010/aug/16/announcing-read-docs/
+.. _`Documentation matters`: https://www.ericholscher.com/blog/2012/jan/22/why-read-docs-matters/
+.. _look back at 2013: https://www.ericholscher.com/blog/2013/dec/23/read-the-docs-2013-stats/
 
 .. _`Django`: https://docs.djangoproject.com/
 .. _`SQLAlchemy`: http://docs.sqlalchemy.org/
