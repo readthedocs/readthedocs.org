@@ -31,8 +31,8 @@ be added as subprojects to this parent project.
 
 If the example project ``Foo`` was set up with a custom domain,
 ``docs.example.com``, the URLs for projects ``Foo`` and ``Bar`` would
-respectively be at: http://docs.example.com/en/latest/ and
-http://docs.example.com/projects/bar/en/latest/
+respectively be at: https://docs.example.com/en/latest/ and
+https://docs.example.com/projects/bar/en/latest/
 
 Search
 ------
