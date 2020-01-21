@@ -183,7 +183,8 @@ class ServeError404Base(ServeRedirectMixin, View):
 
         # Always add a `/` to the filename to match our old logic:
         # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        filename = '/' + filename
+        if lang_slug and version_slug:
+            filename = '/' + filename
 
         # Check and perform redirects on 404 handler
         redirect_path, http_status = self.get_redirect(
