@@ -35,6 +35,7 @@ from django.views import defaults
 
 from readthedocs.constants import pattern_opts
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
@@ -44,8 +45,39 @@ from readthedocs.proxito.views.serve import (
 from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 urlpatterns = [
+    # Serve project downloads
+    # /_/downloads/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+    # Serve subproject downloads
+    # /_/downloads/<alias>/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<subproject_slug>{project_slug})/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+
     # Serve custom 404 pages
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',

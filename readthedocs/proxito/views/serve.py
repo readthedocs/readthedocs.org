@@ -187,7 +187,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             lang_slug,
             version_slug,
             filename,
-            request.path,
+            proxito_path,
         )
         if redirect_path and http_status:
             return self.get_redirect_response(request, redirect_path, http_status)
