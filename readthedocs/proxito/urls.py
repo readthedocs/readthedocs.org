@@ -82,7 +82,7 @@ urlpatterns = [
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',
         ServeError404.as_view(),
-        name='serve_error_404',
+        name='proxito_404_handler',
     ),
     url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
     url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
@@ -105,6 +105,19 @@ urlpatterns = [
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         ServeDocs.as_view(),
+        name='docs_detail',
+    ),
+
+    # Hack /en/latest so it redirects properly
+    # We don't want to serve the docs here,
+    # because it's at a different level of serving so relative links break.
+    url(
+        (
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
+        ),
+        ServeDocs.as_view(redirect_root=True),
         name='docs_detail',
     ),
 
