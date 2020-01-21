@@ -14,6 +14,7 @@ from mock import patch
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
@@ -29,9 +30,10 @@ class SphinxBuilderTest(TestCase):
         self.project = Project.objects.get(slug='pip')
         self.version = self.project.versions.first()
 
-        self.build_env = namedtuple('project', 'version')
-        self.build_env.project = self.project
-        self.build_env.version = self.version
+        self.build_env = LocalBuildEnvironment(
+            project=self.project,
+            version=self.version,
+        )
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
@@ -224,9 +226,10 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = namedtuple('project', 'version')
-        self.build_env.project = self.project
-        self.build_env.version = self.version
+        self.build_env = LocalBuildEnvironment(
+            project=self.project,
+            version=self.version,
+        )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_get_theme_name(self, checkout_path):
