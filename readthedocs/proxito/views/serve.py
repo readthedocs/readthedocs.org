@@ -152,7 +152,7 @@ class ServeDocs(SettingsOverrideObject):
 
 class ServeError404Base(ServeRedirectMixin, View):
 
-    def get(self, request, proxito_path, template_name='404.html'):
+    def get(self, request, proxito_path=None, template_name='404.html'):
         """
         Handler for 404 pages on subdomains.
 
@@ -170,7 +170,8 @@ class ServeError404Base(ServeRedirectMixin, View):
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
-            proxito_path, urlconf='readthedocs.proxito.urls'
+            proxito_path,
+            urlconf='readthedocs.proxito.urls',
         )
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -181,22 +182,33 @@ class ServeError404Base(ServeRedirectMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
-        # Always add a `/` to the filename to match our old logic:
+        # we need to manage other cases as well --idea borrowed from
+        # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L82-L88
+
+        # ``filepath`` is the path without ``/<lang>/<version>`` and without
+        # query, starting with a ``/``. This matches our old logic:
         # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        redirect_filename = filename
-        if lang_slug and version_slug:
-            redirect_filename = '/' + filename
+        schema, netloc, path, params, query, fragments = urlparse(filename)  # just to remove query from it
+        filepath = path
+
+        # we can't check for lang and version here because ``/install.html`` is
+        # a valid path to use as redirect and does not include lang and ver on
+        # it. So, it should be fine always adding the ``/`` to the beginning.
+        filepath = '/' + filepath  # .lstrip('/')  # not sure about the .lstrip yet
+        # if lang_slug and version_slug:
+        #     filepath = '/' + filename
+
 
         # Check and perform redirects on 404 handler
         redirect_path, http_status = self.get_redirect(
             project=final_project,
             lang_slug=lang_slug,
             version_slug=version_slug,
-            filename=redirect_filename,
+            filepath=filepath,
             full_path=proxito_path,
         )
         if redirect_path and http_status:
-            return self.get_redirect_response(request, redirect_path, http_status)
+            return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
 
         storage_root_path = final_project.get_storage_path(
             type_='html',

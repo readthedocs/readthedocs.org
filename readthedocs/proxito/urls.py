@@ -147,5 +147,25 @@ urlpatterns = [
 ]
 
 # Use Django default error handlers to make things simpler
-handler404 = fast_404
+# handler404 = fast_404
+
+# Allow performing NGINX internal redirects at Django level.
+# This is useful for testing El Proxito ``@notfoundfallback``
+# TODO: move this to a proper place
+from functools import wraps
+def map_proxito_path(view_func):
+
+    @wraps(view_func)
+    def inner_view(request, *args, **kwargs):
+        # import pdb; pdb.set_trace()
+        return view_func(
+            request,
+            *args,
+            proxito_path=request.get_full_path(),
+            **kwargs,
+        )
+    return inner_view
+
+handler404 = map_proxito_path(ServeError404.as_view())
+
 handler500 = defaults.server_error
