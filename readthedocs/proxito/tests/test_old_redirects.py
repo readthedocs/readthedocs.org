@@ -20,6 +20,9 @@ from readthedocs.redirects.models import Redirect
 from .base import BaseDocServing
 
 
+@override_settings(
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.builds.storage.BuildMediaFileSystemStorage',
+)
 class InternalRedirectTests(BaseDocServing):
 
     """
@@ -46,7 +49,6 @@ class InternalRedirectTests(BaseDocServing):
         )
 
     def test_page_redirect_with_query_params(self):
-        # import pdb; pdb.set_trace()
         r = self.client.get('/page/test.html?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
