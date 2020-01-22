@@ -28,7 +28,7 @@ whether that is Sphinx or MkDocs.
 Read the Docs how-to guides
 ---------------------------
 
-These guides will help you customize or tune aspects of the Read the Docs build environment.
+These guides will help you customize or tune aspects of the Read the Docs.
 
 .. toctree::
     :maxdepth: 1
