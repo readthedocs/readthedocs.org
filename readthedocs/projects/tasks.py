@@ -203,6 +203,16 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_rtd_env_vars(self):
+        """Get bash environment variables specific to Read the Docs."""
+        env = {
+            'READTHEDOCS': 'True',
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
+        }
+        return env
+
 
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
@@ -720,16 +730,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
-
-    def get_rtd_env_vars(self):
-        """Get bash environment variables specific to Read the Docs."""
-        env = {
-            'READTHEDOCS': 'True',
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
-        }
-        return env
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
