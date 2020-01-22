@@ -47,4 +47,4 @@ http://www.mattcutts.com/blog/seo-advice-url-canonicalization/
 
 This is a good explanation for why canonical pages are good for SEO:
 
-http://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-practices-since-sitemaps
+https://moz.com/blog/canonical-url-tag-the-most-important-advancement-in-seo-practices-since-sitemaps

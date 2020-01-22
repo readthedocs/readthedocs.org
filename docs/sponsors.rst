@@ -25,14 +25,14 @@ Past sponsors
 * `Rackspace`_
 * `Mozilla`_
 
-.. _Revsys: http://www.revsys.com/
-.. _Python Software Foundation: http://python.org/psf/
-.. _Mozilla Web Dev: http://blog.mozilla.com/webdev/
+.. _Revsys: https://www.revsys.com/
+.. _Python Software Foundation: https://www.python.org/psf/
+.. _Mozilla Web Dev: https://blog.mozilla.org/webdev/
 .. _Django Software Foundation: https://www.djangoproject.com/foundation/
 .. _Lab305: http://www.lab305.com/
-.. _Rackspace: http://www.rackspace.com/
+.. _Rackspace: https://www.rackspace.com/
 .. _Mozilla: https://www.mozilla.org/en-US/
-.. _Twilio: http://twilio.com/
+.. _Twilio: https://twilio.com/
 .. _Cloudflare: https://www.cloudflare.com/
 .. _Microsoft Azure: https://azure.microsoft.com/
 
