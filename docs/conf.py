@@ -110,6 +110,10 @@ linkcheck_ignore = [
     r'https?://docs\.example\.com',
     r'https://foo\.readthedocs\.io/projects',
     r'https://github\.com.+?#L\d+',
+    r'https://github\.com/readthedocs/readthedocs\.org/issues',
+    r'https://github\.com/readthedocs/readthedocs\.org/pull',
+    r'https://docs\.readthedocs\.io/\?rtd_search',
+    r'https://readthedocs\.org/search',
 ]
 
 
