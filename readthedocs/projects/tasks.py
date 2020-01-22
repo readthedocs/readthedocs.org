@@ -1549,7 +1549,7 @@ def clean_build(version_pk):
     # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda', '.cache')
     ]
     try:
         with version.project.repo_nonblockinglock(version):
