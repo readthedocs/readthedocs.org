@@ -110,7 +110,6 @@ linkcheck_ignore = [
     r'https?://docs\.example\.com',
     r'https://foo\.readthedocs\.io/projects',
     r'https://github\.com.+?#L\d+',
-    r'https://$',
 ]
 
 

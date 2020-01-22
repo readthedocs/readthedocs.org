@@ -846,7 +846,7 @@ Version 3.2.2
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/readthedocs/readthedocs.org/pull/5276>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/readthedocs/readthedocs.org/pull/5275>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/readthedocs/readthedocs.org/pull/5274>`__)
-* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
+* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs ``https://`` prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
 * `@humitos <https://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/readthedocs/readthedocs.org/pull/5272>`__)
 * `@humitos <https://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/readthedocs/readthedocs.org/pull/5269>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/readthedocs/readthedocs.org/pull/5263>`__)
