@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -32,6 +32,8 @@ log = logging.getLogger(__name__)  # noqa
 
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
+    version_type = INTERNAL
+
     def get(self,
             request,
             project_slug=None,
@@ -41,6 +43,16 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename='',
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
+
+        if all([
+                self.version_type == EXTERNAL,
+                request.get_host() != settings.RTD_EXTERNAL_VERSION_DOMAIN,
+        ]):
+            log.warning(
+                'Trying to serve an EXTERNAL version under a not allowed '
+                'domain. url=%s', request.path,
+            )
+            raise Http404()
 
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -57,8 +69,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         )
 
         # Handle a / redirect when we aren't a single version
-        if all([lang_slug is None, version_slug is None, filename == '',
-                not final_project.single_version]):
+        if all([
+                lang_slug is None,
+                version_slug is None,
+                filename == '',
+                not final_project.single_version,
+        ]):
             redirect_to = redirect_project_slug(
                 request,
                 project=final_project,
@@ -70,8 +86,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             )
             return redirect_to
 
-        if (lang_slug is None or version_slug is None) and not final_project.single_version:
-            log.info(
+        if all([
+                (lang_slug is None or version_slug is None),
+                not final_project.single_version,
+                self.version_type != EXTERNAL,
+        ]):
+            log.warning(
                 'Invalid URL for project with versions. url=%s, project=%s',
                 filename, final_project.slug
             )
@@ -93,7 +113,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             return self.get_unauthed_response(request, final_project)
 
         storage_path = final_project.get_storage_path(
-            type_='html', version_slug=version_slug, include_file=False
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
+
         )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -163,7 +187,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             lang_slug,
             version_slug,
             filename,
-            request.path,
+            proxito_path,
         )
         if redirect_path and http_status:
             return self.get_redirect_response(request, redirect_path, http_status)

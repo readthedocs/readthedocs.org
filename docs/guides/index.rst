@@ -17,6 +17,7 @@ whether that is Sphinx or MkDocs.
 
     adding-custom-css
     custom-404-page
+    intersphinx
     manage-translations
     mkdocs-old-versions
     pdf-non-ascii-languages

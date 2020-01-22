@@ -1,3 +1,45 @@
+Version 3.11.3
+--------------
+
+:Date: January 21, 2020
+
+* `@ericholscher <http://github.com/ericholscher>`__: Pass proper path to redirect code (`#6555 <https://github.com/readthedocs/readthedocs.org/pull/6555>`__)
+* `@Daniel-Mietchen <http://github.com/Daniel-Mietchen>`__: Fixing a broken link (`#6550 <https://github.com/readthedocs/readthedocs.org/pull/6550>`__)
+* `@stsewd <http://github.com/stsewd>`__: Guide: Intersphinx in Read the Docs (`#6520 <https://github.com/readthedocs/readthedocs.org/pull/6520>`__)
+* `@humitos <http://github.com/humitos>`__: Add netcat and telnet for celery debugging with rdb (`#6518 <https://github.com/readthedocs/readthedocs.org/pull/6518>`__)
+* `@humitos <http://github.com/humitos>`__: Core team development standards guide (`#6517 <https://github.com/readthedocs/readthedocs.org/pull/6517>`__)
+* `@dibyaaaaax <http://github.com/dibyaaaaax>`__: Add www to the broken link (`#6513 <https://github.com/readthedocs/readthedocs.org/pull/6513>`__)
+* `@davidfischer <http://github.com/davidfischer>`__: Don't allow empty tags (`#6512 <https://github.com/readthedocs/readthedocs.org/pull/6512>`__)
+* `@Parth1811 <http://github.com/Parth1811>`__: Fixes #6510 -- Removed the `show_analytics` checks from the template (`#6511 <https://github.com/readthedocs/readthedocs.org/pull/6511>`__)
+* `@stsewd <http://github.com/stsewd>`__: Only install node on eslint step on travis (`#6505 <https://github.com/readthedocs/readthedocs.org/pull/6505>`__)
+* `@stsewd <http://github.com/stsewd>`__: Don't pass build to environment when doing a sync (`#6503 <https://github.com/readthedocs/readthedocs.org/pull/6503>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Release 3.11.2 (`#6502 <https://github.com/readthedocs/readthedocs.org/pull/6502>`__)
+* `@Blackcipher101 <http://github.com/Blackcipher101>`__: Added "dirhtml" target (`#6500 <https://github.com/readthedocs/readthedocs.org/pull/6500>`__)
+* `@humitos <http://github.com/humitos>`__: Use CELERY_APP_NAME to call the proper celery app (`#6499 <https://github.com/readthedocs/readthedocs.org/pull/6499>`__)
+* `@stsewd <http://github.com/stsewd>`__: Copy path from host only when using a LocalBuildEnviroment (`#6482 <https://github.com/readthedocs/readthedocs.org/pull/6482>`__)
+* `@stsewd <http://github.com/stsewd>`__: Set env variables in the same way for DockerBuildEnvironment  and Loc… (`#6481 <https://github.com/readthedocs/readthedocs.org/pull/6481>`__)
+* `@stsewd <http://github.com/stsewd>`__: Use environment variable per run, not per container (`#6480 <https://github.com/readthedocs/readthedocs.org/pull/6480>`__)
+* `@humitos <http://github.com/humitos>`__: Update celery requirements to its latest version (`#6448 <https://github.com/readthedocs/readthedocs.org/pull/6448>`__)
+* `@stsewd <http://github.com/stsewd>`__: Execute checkout step respecting docker setting (`#6436 <https://github.com/readthedocs/readthedocs.org/pull/6436>`__)
+* `@humitos <http://github.com/humitos>`__: Serve non-html at documentation domain though El Proxito (`#6419 <https://github.com/readthedocs/readthedocs.org/pull/6419>`__)
+
+Version 3.11.2
+--------------
+
+:Date: January 08, 2020
+
+* `@ericholscher <http://github.com/ericholscher>`__: Fix link to my blog post breaking https (`#6495 <https://github.com/readthedocs/readthedocs.org/pull/6495>`__)
+* `@humitos <http://github.com/humitos>`__: Use a fixed IP for NGINX under docker-compose (`#6491 <https://github.com/readthedocs/readthedocs.org/pull/6491>`__)
+* `@humitos <http://github.com/humitos>`__: Add 'index.html' to the path before using storage.url(path) (`#6476 <https://github.com/readthedocs/readthedocs.org/pull/6476>`__)
+* `@agjohnson <http://github.com/agjohnson>`__: Release 3.11.1 (`#6473 <https://github.com/readthedocs/readthedocs.org/pull/6473>`__)
+* `@humitos <http://github.com/humitos>`__: Use tasks from common (including docker ones) (`#6471 <https://github.com/readthedocs/readthedocs.org/pull/6471>`__)
+* `@humitos <http://github.com/humitos>`__: Upgrade Django due a security issue (`#6470 <https://github.com/readthedocs/readthedocs.org/pull/6470>`__)
+* `@humitos <http://github.com/humitos>`__: Fix celery auto-reload command (`#6469 <https://github.com/readthedocs/readthedocs.org/pull/6469>`__)
+* `@humitos <http://github.com/humitos>`__: Use django storage to build URL returned by El Proxito (`#6466 <https://github.com/readthedocs/readthedocs.org/pull/6466>`__)
+* `@ericholscher <http://github.com/ericholscher>`__: Handle GitHub Push events with `deleted: true` in the JSON (`#6465 <https://github.com/readthedocs/readthedocs.org/pull/6465>`__)
+* `@humitos <http://github.com/humitos>`__: Serve external version through El Proxito (`#6434 <https://github.com/readthedocs/readthedocs.org/pull/6434>`__)
+* `@segevfiner <http://github.com/segevfiner>`__: Remove a stray backtick from import-guide.rst (`#6362 <https://github.com/readthedocs/readthedocs.org/pull/6362>`__)
+
 Version 3.11.1
 --------------
 

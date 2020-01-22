@@ -111,6 +111,11 @@ class URLAccessMixin:
             }
 
         for (view, regex, namespace, name) in deconstructed_urls:
+
+            # Skip URL and views that are not named
+            if not name:
+                continue
+
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
                 if key in list(request_data.keys()):

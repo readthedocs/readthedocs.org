@@ -702,7 +702,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True,
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            environment=mock.ANY,
+            stderr=True,
+            stdout=True,
         )
         self.assertEqual(build_env.commands[0].exit_code, 1)
         self.assertEqual(build_env.commands[0].output, 'This is the return')
@@ -758,7 +761,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True,
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            environment=mock.ANY,
+            stderr=True,
+            stdout=True,
         )
         self.assertEqual(len(build_env.commands), 0)
         self.assertFalse(build_env.failed)
@@ -801,7 +807,10 @@ class TestDockerBuildEnvironment(TestCase):
 
         self.mocks.docker_client.exec_create.assert_called_with(
             container='build-123-project-6-pip',
-            cmd="/bin/sh -c 'cd /tmp && echo\\ test'", stderr=True, stdout=True,
+            cmd="/bin/sh -c 'cd /tmp && echo\\ test'",
+            environment=mock.ANY,
+            stderr=True,
+            stdout=True,
         )
         self.assertEqual(build_env.commands[0].exit_code, 0)
         self.assertEqual(build_env.commands[0].output, 'This is the return')

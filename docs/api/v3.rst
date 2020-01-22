@@ -319,9 +319,9 @@ Version detail
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
-                "pdf": "https://readthedocs.org/projects/pip/downloads/pdf/stable/",
-                "htmlzip": "https://readthedocs.org/projects/pip/downloads/htmlzip/stable/",
-                "epub": "https://readthedocs.org/projects/pip/downloads/epub/stable/"
+                "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
+                "htmlzip": "https://pip.readthedocs.io/_/downloads/htmlzip/pip/stable/",
+                "epub": "https://pip.readthedocs.io/_/downloads/epub/pip/stable/"
             },
             "urls": {
                 "documentation": "https://pip.pypa.io/en/stable/",

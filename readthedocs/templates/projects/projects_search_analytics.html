@@ -11,51 +11,40 @@
 {% block project_edit_content_header %}{% trans "Search Analytics" %}{% endblock %}
 
 {% block project_edit_content %}
-  {% if show_analytics %}
 
-    <h3>{% trans "Top queries" %}</h3>
-    <div class="module-list">
-      <div class="module-list-wrapper">
-        <ul class="long-list-overflow">
-          {% for query, count in queries %}
-            <li class="module-item">
-              {{ query }}
-              <span class="right quiet">
-                {{ count }} search{{ count|pluralize:"es" }}
-              </span>
-            </li>
-          {% empty %}
-            <li class="module-item">
-              <p class="quiet">
-                {% trans 'No date available.' %}
-              </p>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+  <h3>{% trans "Top queries" %}</h3>
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul class="long-list-overflow">
+        {% for query, count in queries %}
+          <li class="module-item">
+            {{ query }}
+            <span class="right quiet">
+              {{ count }} search{{ count|pluralize:"es" }}
+            </span>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans 'No date available.' %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
+  </div>
 
-    <br/>
-    {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
-      <h2>{% trans "Overview of the past 1 month:" %}</h2>
-      <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
-    {% endif %}
-
-    <br />
-    <form method="get">
-      <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
-    </form>
-  {% else %}
-    <p class="empty">
-      {% blocktrans trimmed %}
-        Hey there! This feature is currently in beta state and is available under a
-        <a href='https://docs.readthedocs.io/page/guides/feature-flags.html#available-flags'>feature flag</a>.
-        In case you want to test this feature and help giving us feedback,
-        please contact us via
-        <a href='https://github.com/readthedocs/readthedocs.org/issues/new?title=Request%20to%20enable%20SEARCH_ANALYTICS%20feature%20flag%20for%20project%20{{ project }}'>GitHub issues</a>.
-      {% endblocktrans %}
-    </p>
+  <br/>
+  {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
+    <h2>{% trans "Overview of the past 1 month:" %}</h2>
+    <canvas id="analytics-chart-last-7-days" width="400" height="150"></canvas>
   {% endif %}
+
+  <br />
+  <form method="get">
+    <button type="submit" name="download" value="true">{% trans "Download all data" %}</button>
+  </form>
+
 {% endblock %}
 
 {% block extra_scripts %}
@@ -70,7 +59,7 @@
 
 {% block footerjs %}
 
-  {% if query_count_of_1_month.labels and query_count_of_1_month.int_data and show_analytics %}
+  {% if query_count_of_1_month.labels and query_count_of_1_month.int_data %}
     // Line chart
     var line_chart = document.getElementById("analytics-chart-last-7-days").getContext("2d");
     var line_chart_labels = {{ query_count_of_1_month.labels|safe }};

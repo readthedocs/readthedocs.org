@@ -64,8 +64,10 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(project)
+        # TODO: always pass an explict environment
+        # This is only used in tests #6546
+        from readthedocs.doc_builder.environments import LocalBuildEnvironment
+        self.environment = environment or LocalBuildEnvironment(record=False)
 
         # Update the env variables with the proper VCS env variables
         self.environment.environment.update(self.env)
@@ -81,12 +83,7 @@ class BaseVCS:
 
     @property
     def env(self):
-        environment = os.environ.copy()
-
-        # TODO: kind of a hack
-        del environment['PATH']
-
-        return environment
+        return {}
 
     def update(self):
         """
