@@ -104,13 +104,13 @@ notfound_context = {
 ''',
 }
 linkcheck_ignore = [
-    r'^https?\://127\.0\.0\.1.*',
-    r'^https?\://localhost.*',
-    r'^https?\://yourproject\.readthedocs\.io.*',
-    r'^https?\://docs\.example\.com.*',
-    r'^https?\://foo\.readthedocs\.io/projects.*',
-    r'^https?\://github\.com.+?#L\d+(-L\d+)?',
-    r'^https://$',
+    r'http://127\.0\.0\.1',
+    r'http://localhost',
+    r'https://yourproject\.readthedocs\.io',
+    r'https?://docs\.example\.com',
+    r'https://foo\.readthedocs\.io/projects',
+    r'https://github\.com.+?#L\d+',
+    r'https://$',
 ]
 
 
