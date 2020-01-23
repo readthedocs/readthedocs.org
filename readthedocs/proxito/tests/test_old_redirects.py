@@ -22,7 +22,7 @@ from .mixins import MockStorageMixin
 
 
 @override_settings(
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.builds.storage.BuildMediaStorageTest',
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.proxito.tests.storage.BuildMediaStorageTest',
 )
 class InternalRedirectTests(BaseDocServing):
 
@@ -129,7 +129,7 @@ class InternalRedirectTests(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=True,
     ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.builds.storage.BuildMediaStorageTest',
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.proxito.tests.storage.BuildMediaStorageTest',
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
