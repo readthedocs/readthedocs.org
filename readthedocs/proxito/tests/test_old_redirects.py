@@ -21,6 +21,7 @@ from .base import BaseDocServing
 
 
 @override_settings(
+    # Will return ``False`` when calling ``storage.exists``
     RTD_BUILD_MEDIA_STORAGE='readthedocs.builds.storage.BuildMediaFileSystemStorage',
 )
 class InternalRedirectTests(BaseDocServing):
@@ -28,9 +29,9 @@ class InternalRedirectTests(BaseDocServing):
     """
     Test our own internal redirects.
 
-    * redirects at /
-    * redirects on /page/.*
-    * invalid URLs
+    * redirects at / --happens at ``ServeDocs`` view
+    * redirects on /page/.* --happens at ``URLConf``
+    * invalid URLs --happens at ``URLConf``
     """
 
     def test_root_url(self):
@@ -38,6 +39,22 @@ class InternalRedirectTests(BaseDocServing):
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/',
+        )
+
+    def test_root_url_redirect_to_default_version(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            active=True,
+            slug='v3.0',
+        )
+        self.project.default_version = 'v3.0'
+        self.project.save()
+
+        r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'http://project.dev.readthedocs.io/en/v3.0/',
         )
 
     def test_page_on_main_site(self):
@@ -56,50 +73,51 @@ class InternalRedirectTests(BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/test.html?foo=bar',
         )
 
-    # If slug is neither valid lang nor valid version, it should 404.
     def test_url_with_nonexistent_slug(self):
+        # Invalid URL for a not single version project
         r = self.client.get('/nonexistent/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
     def test_url_filename_only(self):
+        # Invalid URL for a not single version project
         r = self.client.get('/test.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
     def test_url_dir_file(self):
+        # Invalid URL for a not single version project
         r = self.client.get('/nonexistent_dir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
     def test_url_dir_subdir_file(self):
+        # Invalid language in the URL
         r = self.client.get('/nonexistent_dir/subdir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
     def test_url_lang_file(self):
+        # Invalid URL missing version
         r = self.client.get('/en/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
-    # Storage backend for testing El Proxito always return True when checking if
-    # a file exists. As this URL seems valid, it will return 200.
     @pytest.mark.xfail(strict=True)
     def test_url_lang_subdir_file(self):
-        r = self.client.get('/en/nonexistent_dir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(r.status_code, 404)
+        # This URL looks like a valid URL. lang=en version=nonexistent_dir
 
-    # This it's returning 404 because /latest/ does not map to a language
-    # def test_improper_url_version_dir_file(self):
-    #     r = self.client.get('/latest/nonexistent_dir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
-    #     self.assertEqual(r.status_code, 404)
+        # El Proxito does not check that the file exists when serving it and
+        # returns a 200, that happens as an internal NGINX redirect if the file
+        # does not exist in the storage
+        r = self.client.get(
+            '/en/nonexistent_dir/bogus.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
+        self.assertEqual(r.status_code, 404)
 
     def test_root_redirect_with_query_params(self):
         r = self.client.get('/?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/?foo=bar'
+            'http://project.dev.readthedocs.io/en/latest/?foo=bar',
         )
-
-    def test_improper_subdomain_filename_only(self):
-        r = self.client.get('/test.html', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(r.status_code, 404)
 
 
 # Use ``PYTHON_MEDIA`` here to raise a 404 when trying to serve the file
@@ -108,7 +126,10 @@ class InternalRedirectTests(BaseDocServing):
 # ``/proxito/ internal`` location
 # NOTE: this could be achieved by mocking ``_serve_docs_nginx`` to raise a
 # 404 directly and avoid using PYTHON_MEDIA.
-@override_settings(PYTHON_MEDIA=True)
+@override_settings(
+    PYTHON_MEDIA=True,
+    ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
+)
 class UserRedirectTests(BaseDocServing):
 
     def test_redirect_prefix_infinite(self):
@@ -142,7 +163,7 @@ class UserRedirectTests(BaseDocServing):
 
     # FIXME: these tests are valid, but the problem I'm facing is that the
     # request is received as ``GET '//my.host/path/'`` (note that we are loosing
-    # the http://)
+    # the http:)
     @pytest.mark.xfail(strict=True)
     def test_redirect_prefix_crossdomain(self):
         """
@@ -207,7 +228,6 @@ class UserRedirectTests(BaseDocServing):
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
         )
 
-    # FIXME: this seems a valid test that it's currently not passing
     @pytest.mark.xfail(strict=True)
     def test_redirect_sphinx_htmldir_crossdomain(self):
         """
@@ -293,7 +313,6 @@ class UserRedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
-
 
     def test_redirect_with_query_params(self):
         Redirect.objects.create(
@@ -440,7 +459,6 @@ class UserRedirectTests(BaseDocServing):
             'http://docs.project.io/en/latest/tutorial/install.html',
         )
 
-    @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
     def test_redirect_html(self):
         Redirect.objects.create(
             project=self.project, redirect_type='sphinx_html',
@@ -451,7 +469,6 @@ class UserRedirectTests(BaseDocServing):
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/faq.html',
         )
 
-    @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
     def test_redirect_html_index(self):
         Redirect.objects.create(
             project=self.project, redirect_type='sphinx_html',
@@ -462,7 +479,6 @@ class UserRedirectTests(BaseDocServing):
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/faq.html',
         )
 
-    @override_settings(USE_SUBDOMAIN=True, PYTHON_MEDIA=True)
     def test_redirect_htmldir(self):
         Redirect.objects.create(
             project=self.project, redirect_type='sphinx_htmldir',
@@ -472,7 +488,6 @@ class UserRedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], 'http://project.dev.readthedocs.io/en/latest/faq/',
         )
-
 
     def test_redirect_root_with_301_status(self):
         Redirect.objects.create(
