@@ -300,24 +300,30 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                      not the actual Project permissions.
         """
         if self.same_domain_url:
-            resp = self._version_same_domain_url(
+            # It uses the request to get the ``project``. The rest of arguments come
+            # from the URL.
+            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
                 request,
-                type_,
-                lang_slug,
-                version_slug,
-                subproject_slug,
+                project_slug=None,
+                subproject_slug=subproject_slug,
+                lang_slug=lang_slug,
+                version_slug=version_slug,
             )
-            # HACK: allow ourselves to return a 302 from this function
-            if isinstance(resp, HttpResponse):
-                return resp
-            else:
-                version = resp
+
+            if not self.allowed_user(request, final_project, version_slug):
+                return self.get_unauthed_response(request, final_project)
+
+            version = get_object_or_404(
+                final_project.versions.public(user=request.user),
+                slug=version_slug,
+            )
+
         else:
-            version = self._version_dashboard_url(
-                request,
-                project_slug,
-                type_,
-                version_slug,
+            # All the arguments come from the URL.
+            version = get_object_or_404(
+                Version.objects.public(user=request.user),
+                project__slug=project_slug,
+                slug=version_slug,
             )
 
         # Send media download to analytics - sensitive data is anonymized
@@ -348,50 +354,8 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             download=True,
         )
 
-    def _version_same_domain_url(
-            self,
-            request,
-            type_,
-            lang_slug,
-            version_slug,
-            subproject_slug=None,
-    ):
-        """
-        Return the version to be served (new-style URLs).
 
-        It uses the request to get the ``project``. The rest of arguments come
-        from the URL.
-        """
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=None,
-            subproject_slug=subproject_slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-        )
 
-        if not self.allowed_user(request, final_project, version_slug):
-            return self.get_unauthed_response(request, final_project)
-
-        version = get_object_or_404(
-            final_project.versions.public(user=request.user),
-            slug=version_slug,
-        )
-
-        return version
-
-    def _version_dashboard_url(self, request, project_slug, type_, version_slug):
-        """
-        Return the version to be served (old-style URLs).
-
-        All the arguments come from the URL.
-        """
-        version = get_object_or_404(
-            Version.objects.public(user=request.user),
-            project__slug=project_slug,
-            slug=version_slug,
-        )
-        return version
 
 
 class ProjectDownloadMedia(SettingsOverrideObject):
