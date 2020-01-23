@@ -290,10 +290,6 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         ``3.0``. We write an exact redirect from ``/en/2.0/$rest`` to
         ``/en/3.0/``.
         """
-        self._storage_exists([
-            '/media/html/project/version/guides/install.html',
-        ])
-
         fixture.get(
             Redirect,
             project=self.project,
