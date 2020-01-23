@@ -124,7 +124,7 @@ class ServeDocsMixin:
 
 class ServeRedirectMixin:
 
-    def get_redirect(self, project, lang_slug, version_slug, filepath, full_path):
+    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
         """
         Check for a redirect for this project that matches ``full_path``.
 
@@ -134,7 +134,7 @@ class ServeRedirectMixin:
         redirect_path, http_status = project.redirects.get_redirect_path_with_status(
             language=lang_slug,
             version_slug=version_slug,
-            path=filepath,
+            path=filename,
             full_path=full_path,
         )
         return redirect_path, http_status

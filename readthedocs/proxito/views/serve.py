@@ -180,18 +180,18 @@ class ServeError404Base(ServeRedirectMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
-        # ``filepath`` is the path without ``/<lang>/<version>`` and without
-        # query, starting with a ``/``. This matches our old logic:
+        # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
+        # without query, starting with a ``/``. This matches our old logic:
         # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
         # We parse ``filename`` to remove the query from it
         schema, netloc, path, params, query, fragments = urlparse(filename)
-        filepath = path
+        redirect_filename = path
 
         # we can't check for lang and version here to decide if we need to add
         # the ``/`` or not because ``/install.html`` is a valid path to use as
         # redirect and does not include lang and version on it. It should be
         # fine always adding the ``/`` to the beginning.
-        filepath = '/' + filepath.lstrip('/')
+        redirect_filename = '/' + redirect_filename.lstrip('/')
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
@@ -239,7 +239,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             project=final_project,
             lang_slug=lang_slug,
             version_slug=version_slug,
-            filepath=filepath,
+            filename=redirect_filename,
             full_path=proxito_path,
         )
         if redirect_path and http_status:
