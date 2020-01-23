@@ -355,9 +355,6 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
         )
 
 
-
-
-
 class ProjectDownloadMedia(SettingsOverrideObject):
     _default_class = ProjectDownloadMediaBase
 
