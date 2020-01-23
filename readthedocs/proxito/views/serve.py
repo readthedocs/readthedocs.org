@@ -182,22 +182,18 @@ class ServeError404Base(ServeRedirectMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
-        # we need to manage other cases as well --idea borrowed from
-        # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L82-L88
-
         # ``filepath`` is the path without ``/<lang>/<version>`` and without
         # query, starting with a ``/``. This matches our old logic:
         # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        schema, netloc, path, params, query, fragments = urlparse(filename)  # just to remove query from it
+        # We parse ``filename`` to remove the query from it
+        schema, netloc, path, params, query, fragments = urlparse(filename)
         filepath = path
 
-        # we can't check for lang and version here because ``/install.html`` is
-        # a valid path to use as redirect and does not include lang and ver on
-        # it. So, it should be fine always adding the ``/`` to the beginning.
-        filepath = '/' + filepath  # .lstrip('/')  # not sure about the .lstrip yet
-        # if lang_slug and version_slug:
-        #     filepath = '/' + filename
-
+        # we can't check for lang and version here to decide if we need to add
+        # the ``/`` or not because ``/install.html`` is a valid path to use as
+        # redirect and does not include lang and version on it. It should be
+        # fine always adding the ``/`` to the beginning.
+        filepath = '/' + filepath.lstrip('/')
 
         # Check and perform redirects on 404 handler
         redirect_path, http_status = self.get_redirect(
