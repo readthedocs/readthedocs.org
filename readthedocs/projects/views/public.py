@@ -368,7 +368,11 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
         if not self.allowed_user(request, final_project, version_slug):
             return self.get_unauthed_response(request, final_project)
 
-        version = final_project.versions.public(user=request.user).filter(slug=version_slug).first()
+        version = get_object_or_404(
+            final_project.versions.public(user=request.user),
+            slug=version_slug,
+        )
+
         return version
 
     def _version_dashboard_url(self, request, project_slug, type_, version_slug):
