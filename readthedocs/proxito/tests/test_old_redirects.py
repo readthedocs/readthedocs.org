@@ -34,10 +34,14 @@ class InternalRedirectTests(BaseDocServing):
     """
 
     def test_root_url(self):
-        r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://project.dev.readthedocs.io/en/latest/',
+            r['Location'],
+            'http://project.dev.readthedocs.io/en/latest/',
         )
 
     def test_root_url_redirect_to_default_version(self):
@@ -50,14 +54,21 @@ class InternalRedirectTests(BaseDocServing):
         self.project.default_version = 'v3.0'
         self.project.save()
 
-        r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'http://project.dev.readthedocs.io/en/v3.0/',
+            r['Location'],
+            'http://project.dev.readthedocs.io/en/v3.0/',
         )
 
     def test_page_on_main_site(self):
-        r = self.client.get('/page/test.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/page/test.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'],
@@ -65,7 +76,10 @@ class InternalRedirectTests(BaseDocServing):
         )
 
     def test_page_redirect_with_query_params(self):
-        r = self.client.get('/page/test.html?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/page/test.html?foo=bar',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'],
@@ -74,27 +88,42 @@ class InternalRedirectTests(BaseDocServing):
 
     def test_url_with_nonexistent_slug(self):
         # Invalid URL for a not single version project
-        r = self.client.get('/nonexistent/', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/nonexistent/',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 404)
 
     def test_url_filename_only(self):
         # Invalid URL for a not single version project
-        r = self.client.get('/test.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/test.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 404)
 
     def test_url_dir_file(self):
         # Invalid URL for a not single version project
-        r = self.client.get('/nonexistent_dir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/nonexistent_dir/bogus.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 404)
 
     def test_url_dir_subdir_file(self):
         # Invalid language in the URL
-        r = self.client.get('/nonexistent_dir/subdir/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/nonexistent_dir/subdir/bogus.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 404)
 
     def test_url_lang_file(self):
         # Invalid URL missing version
-        r = self.client.get('/en/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/en/bogus.html',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 404)
 
     def test_url_lang_subdir_file(self):
@@ -112,7 +141,10 @@ class InternalRedirectTests(BaseDocServing):
             self.assertEqual(r.status_code, 404)
 
     def test_root_redirect_with_query_params(self):
-        r = self.client.get('/?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            '/?foo=bar',
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'],
