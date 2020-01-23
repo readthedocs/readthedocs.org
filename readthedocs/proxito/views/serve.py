@@ -146,9 +146,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path=final_url,
         )
 
-    def allowed_user(self, *args, **kwargs):
-        return True
-
 
 class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
