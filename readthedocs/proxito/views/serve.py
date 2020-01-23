@@ -164,7 +164,7 @@ class ServeError404Base(ServeRedirectMixin, View):
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         # pylint: disable=too-many-locals
-        log.info('Executing handler404. proxito_path=%s', proxito_path)
+        log.info('Executing 404 handler. proxito_path=%s', proxito_path)
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
