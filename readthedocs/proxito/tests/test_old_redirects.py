@@ -9,10 +9,9 @@ and adapted to use:
  * USE_SUBDOMAIN=True always
 """
 
-import pytest
-
-from django.test.utils import override_settings
 import django_dynamic_fixture as fixture
+import pytest
+from django.test.utils import override_settings
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -98,18 +97,19 @@ class InternalRedirectTests(BaseDocServing):
         r = self.client.get('/en/bogus.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
 
-    @pytest.mark.xfail(strict=True)
     def test_url_lang_subdir_file(self):
-        # This URL looks like a valid URL. lang=en version=nonexistent_dir
-
         # El Proxito does not check that the file exists when serving it and
-        # returns a 200, that happens as an internal NGINX redirect if the file
-        # does not exist in the storage
-        r = self.client.get(
-            '/en/nonexistent_dir/bogus.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 404)
+        # returns a 200, if the file does not exist (we force this with
+        # ``PTYHON_MEDIA=True``) the handler404 is executed. It will check again
+        # for the file in the storage and it will fail.
+        with override_settings(PYTHON_MEDIA=True):
+            r = self.client.get(
+                # This URL looks like a valid URL.
+                # lang=en version=nonexistent_dir
+                '/en/nonexistent_dir/bogus.html',
+                HTTP_HOST='project.dev.readthedocs.io',
+            )
+            self.assertEqual(r.status_code, 404)
 
     def test_root_redirect_with_query_params(self):
         r = self.client.get('/?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
