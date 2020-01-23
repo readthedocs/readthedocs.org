@@ -30,6 +30,7 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.views.mixins import ServeDocsMixin
@@ -268,7 +269,7 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMedia(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(ServeDocsMixin, View):
 
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
@@ -363,10 +364,11 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             lang_slug=lang_slug,
             version_slug=version_slug,
         )
-        version = get_object_or_404(
-            final_project.versions.public(user=request.user),
-            slug=version_slug,
-        )
+
+        if not self.allowed_user(request, final_project, version_slug):
+            return self.get_unauthed_response(request, final_project)
+
+        version = final_project.versions.public(user=request.user).filter(slug=version_slug).first()
         return version
 
     def _version_dashboard_url(self, request, project_slug, type_, version_slug):
@@ -381,6 +383,10 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             slug=version_slug,
         )
         return version
+
+
+class ProjectDownloadMedia(SettingsOverrideObject):
+    _default_class = ProjectDownloadMediaBase
 
 
 def project_versions(request, project_slug):
