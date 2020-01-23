@@ -28,9 +28,9 @@ but that URL would break once you moved them.
 Read the Docs includes a language and version slug in your documentation,
 but not all documentation is hosted this way.
 
-Say that you previously had your docs hosted at ``http://docs.example.com/dev/``,
+Say that you previously had your docs hosted at ``https://docs.example.com/dev/``,
 you move ``docs.example.com`` to point at Read the Docs.
-So users will have a bookmark saved to a page at ``http://docs.example.com/dev/install.html``.
+So users will have a bookmark saved to a page at ``https://docs.example.com/dev/install.html``.
 
 You can now set a *Prefix Redirect* that will redirect all 404's with a prefix to a new place.
 The example configuration would be::
@@ -85,8 +85,8 @@ documents, a Prefix Redirect won't suffice and you'll need to create *Exact Redi
 to redirect from a specific URL, to a specific page.
 
 Say you're moving ``docs.example.com`` to Read the Docs and want to redirect traffic
-from an old page at ``http://docs.example.com/dev/install.html`` to a new URL
-of ``http://docs.example.com/en/latest/installing-your-site.html``.
+from an old page at ``https://docs.example.com/dev/install.html`` to a new URL
+of ``https://docs.example.com/en/latest/installing-your-site.html``.
 
 The example configuration would be::
 

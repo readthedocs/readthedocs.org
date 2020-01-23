@@ -106,5 +106,5 @@ As per requirements of `django-elasticsearch-dsl`_, it is stored in the
 .. _GitHub Repository: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/search
 .. _the Elasticsearch document: https://www.elastic.co/guide/en/elasticsearch/guide/current/document.html
 .. _django-elasticsearch-dsl: https://github.com/sabricot/django-elasticsearch-dsl
-.. _elasticsearch-dsl: http://elasticsearch-dsl.readthedocs.io/en/latest/
+.. _elasticsearch-dsl: https://elasticsearch-dsl.readthedocs.io/en/latest/
 .. _signals: https://docs.djangoproject.com/en/2.1/topics/signals/

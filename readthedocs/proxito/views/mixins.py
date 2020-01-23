@@ -118,6 +118,9 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to %s documentation', project.slug)
         return res
 
+    def allowed_user(self, *args, **kwargs):
+        return True
+
 
 class ServeRedirectMixin:
 

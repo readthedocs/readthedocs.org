@@ -142,9 +142,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path=final_url,
         )
 
-    def allowed_user(self, *args, **kwargs):
-        return True
-
 
 class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
@@ -181,13 +178,19 @@ class ServeError404Base(ServeRedirectMixin, View):
             filename=kwargs.get('filename', ''),
         )
 
+        # Always add a `/` to the filename to match our old logic:
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
+        redirect_filename = filename
+        if lang_slug and version_slug:
+            redirect_filename = '/' + filename
+
         # Check and perform redirects on 404 handler
         redirect_path, http_status = self.get_redirect(
-            final_project,
-            lang_slug,
-            version_slug,
-            filename,
-            request.path,
+            project=final_project,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=redirect_filename,
+            full_path=proxito_path,
         )
         if redirect_path and http_status:
             return self.get_redirect_response(request, redirect_path, http_status)
