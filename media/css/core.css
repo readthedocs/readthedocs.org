@@ -516,9 +516,6 @@ div.module.search-dashboard input {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     text-decoration: none;
   }
-  #project_bar div.project-view-docs > a:hover{
-	  background-color: #3e8e41
-  }
 
   #project_bar .project-title { padding: 0; }
   #project_bar .project-title h1 { margin: 0 0 5px; padding: 0; }
