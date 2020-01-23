@@ -840,7 +840,7 @@ class Project(models.Model):
         # ``version.slug`` instead of a ``Version`` instance (I prefer an
         # instance here)
 
-        backend = self.get_vcs_class()
+        backend = self.vcs_class()
         if not backend:
             repo = None
         else:
@@ -850,7 +850,12 @@ class Project(models.Model):
             )
         return repo
 
-    def get_vcs_class(self):
+    def vcs_class(self):
+        """
+        Get the class used for VCS operations.
+
+        This is useful when doing operations that don't need to have the repository on disk.
+        """
         return backend_cls.get(self.repo_type)
 
     def git_service_class(self):
@@ -1083,7 +1088,7 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
-        return self.get_vcs_class().fallback_branch
+        return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(

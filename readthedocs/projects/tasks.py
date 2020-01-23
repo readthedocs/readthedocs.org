@@ -124,7 +124,7 @@ class SyncRepositoryMixin:
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
 
-        if not self.project.get_vcs_class():
+        if not self.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
                     repo_type=self.project.repo_type,
