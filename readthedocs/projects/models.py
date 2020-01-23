@@ -252,7 +252,10 @@ class Project(models.Model):
     show_version_warning = models.BooleanField(
         _('Show version warning'),
         default=False,
-        help_text=_('Show warning banner in non-stable nor latest versions.'),
+        help_text=_(
+            'Show a warning banner with a link to the stable version.'
+            'The banner is shown in all the versions, but in the latest and stable.'
+            ),
     )
 
     # Sphinx specific build options.
