@@ -152,7 +152,7 @@ class ServeDocs(SettingsOverrideObject):
 
 class ServeError404Base(ServeRedirectMixin, View):
 
-    def get(self, request, proxito_path=None, template_name='404.html'):
+    def get(self, request, proxito_path, template_name='404.html'):
         """
         Handler for 404 pages on subdomains.
 
