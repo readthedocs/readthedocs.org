@@ -300,13 +300,18 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                      not the actual Project permissions.
         """
         if self.same_domain_url:
-            version = self._version_same_domain_url(
+            resp = self._version_same_domain_url(
                 request,
                 type_,
                 lang_slug,
                 version_slug,
                 subproject_slug,
             )
+            # HACK: allow ourselves to return a 302 from this function
+            if isinstance(resp, HttpResponse):
+                return resp
+            else:
+                version = resp
         else:
             version = self._version_dashboard_url(
                 request,
