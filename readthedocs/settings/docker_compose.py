@@ -59,6 +59,10 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    }
+
     ACCOUNT_EMAIL_VERIFICATION = "none"
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
