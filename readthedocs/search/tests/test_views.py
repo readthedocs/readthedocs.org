@@ -347,7 +347,7 @@ class TestPageSearch(object):
         assert len(version_facets) == 4
 
         project_versions = [v.slug for v in versions] + [LATEST]
-        assert sorted(project_versions) == sorted(resulted_version_facets)
+        assert sorted(project_versions) == sorted(version_facets_str)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
         """
