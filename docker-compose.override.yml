@@ -27,6 +27,7 @@ services:
         ipv4_address: 10.10.0.100
 
   proxito:
+    image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
@@ -34,6 +35,7 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
 
   web:
+    image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
@@ -43,6 +45,7 @@ services:
       - "community.dev.readthedocs.io:10.10.0.100"
 
   celery:
+    image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
@@ -51,6 +54,7 @@ services:
       - CELERY_APP_NAME=readthedocs
 
   build:
+    image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
       - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
