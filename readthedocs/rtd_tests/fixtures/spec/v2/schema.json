@@ -4,201 +4,230 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "basics": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-	      "version":{
-		      "description":"The version of the spec to be use",
-		      "type":"string",
-		      "enum":["2"]
-	      },
-	      "formats":{
-		      "anyof":[
-			      {"type":"array",
-			      "items":{
-				      "type":"string",
-				      "enum":["htmlzip","epub","pdf"]
-
-			      } },
-			      {
-				      "type":"string",
-				      "enum":["all"]
-			      
-			      }
-		      ]
-
-
-
-	      },
-	      "conda":{
-		     "include":"conda"
-		     
-	      },
-	      "build":{
-		      "include":"build"
-	      },
-	      "python":{
-	      "include":"python"
-	      },
-	      "sphinx":{
-		      "include":"sphinx"
-	      },
-	      "mkdocs":{
-		      "include":"mkdocs"
-	      },
-	      "submodules":{
-		      "include":"mkdocs"
-	      },
-	      "redirects":{
-		      "mapInt":
-		      {
-			      "type":"string",
-			      "enum":["page"],
-			      
-			      "mapInt":
-			      {
-				      
-			      }
-
-
-		      } 
-	      },
-	      "conda":
-	      {
-		      "enviroment":"path()"
-	      },
-	      "build":
-	      {
-		      "image":
-		      {
-			      "type":"string",
-			      "enum":["stable","latest"]
-		      }
-	      },
-	      "python":
-	      {
-		      "version":
-		      {
-			      "type":"string",
-			      "enum":["2","2.7","3","3.3","3.4","3.5","3.6"]
-		      },
-		      "system_packages":
-		      {
-			      "type":"boolean"
-		      },
-		      "install":
-		      {
-			      "type":"array",
-			      "items":
-			      {
-				      "anyof":
-				      [
-					      "include":"python-install-requirements",
-					      "include":"python-install",
-					      "include":"python-install-pipfile"
-				      ]
-
-			      }
-
-		      }
-
-	      },
-	      "python-install-requirements":
-	      {
-		      "requirements":"path()"
-
-	      },
-	      "python-install":
-	      {
-		      "path":"path()",
-		      "method":
-		      {
-			      "type":"string",
-			      "enum":["pip","setuptools"]
-		      },
-		      "extra_requirements":
-		      {
-			      "type":"array",
-			      "items":
-			      {
-				      "type":"string"
-
-			      }
-		      }
-
-	      },
-	      "python-install-pipfile":
-	      {
-		      "pipfile":"path()",
-		      "dev":
-		      {
-			      "type":"boolean"
-		      },
-		      "ignore_pipfile":
-		      {
-			      "type":"boolean"
-		      },
-		      "skip_lock":
-		      {
-			      "type":"boolean"
-		      }
-	      }
-	      "sphinx":
-	      {
-		      "bulider":
-		      {
-			      "type":"string",
-			      "enum":["html","htmldir","singlehtml"]
-
-
-		      },
-		      "configuration":"path()",
-		      "fail_on_warning":"boolean"
-
-	      },
-	      "mkdocs":
-	      {
-		      "configuration":"path()",
-		      "fail_on_warning":"boolean",
-		      "submodules":
-		      {
-			      "include":
-			      {
-				      "anyof":
-				      [
-					      "type":"array",
-					      "items":
-					      {
-						     "type":"string",
-						     "enum":["all"]
-					      }
-				      ]
-			      },
-			      "exclude":
-			      {
-				      "anyof":
-                                      [
-                                              "type":"array",
-                                              "items":
-                                              {
-                                                     "type":"string",
-                                                     "enum":["all"]
-                                              }
-                                      ]
-			      },
-			      "recursive":
-			      {
-				      "type":"boolean"
-			      }
-		      }
-
-	      }
-
-
-
+    "version": {
+      "type": "string",
+      "enum": [
+        "2"
+      ]
+    },
+    "formats": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "htmlzip",
+          "pdf",
+          "epub",
+          "all"
+        ]
       }
+    },
+    "conda": {
+      "additionalProperties": false,
+      "properties": {
+        "environment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "conda"
+      ]
+    },
+    "build": {
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "string",
+          "enum": [
+            "stable",
+            "latest"
+          ],
+          "default": "latest"
+        }
+      }
+    },
+    "python": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": [
+            "2",
+            "2.7",
+            "3",
+            "3.3",
+            "3.4",
+            "3.5",
+            "3.6",
+		  "3.7"
+          ],
+          "default": "3"
+        },
+        "system_packages": {
+          "type": "boolean",
+          "default": false
+        },
+        "install": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "requirements": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "requirements"
+                ]
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string",
+                    "enum": [
+                      "pip",
+                      "setuptools"
+                    ],
+                    "default": "pip"
+                  },
+                  "extra_requirements": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "path"
+                ]
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "pipfile": {
+                    "type": "string"
+                  },
+                  "dev": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "ignore_pipfile": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "skip_lock": {
+                    "type": "boolean",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "pipfile"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "sphinx": {
+      "additionalProperties": false,
+      "properties": {
+        "builder": {
+          "type": "string",
+          "enum": ["html", "htmldir", "dirhtml", "singlehtml"],
+          "default": "html"
+        },
+        "configuration": {
+          "type": "string"
+        },
+        "fail_on_warning": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "mkdocs": {
+      "additionalProperties": false,
+      "properties": {
+        "configuration": {
+          "type": "string"
+        },
+        "fail_on_warning": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "submodules": {
+      "additionalProperties": false,
+      "properties": {
+        "include": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "all"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "default": []
+        },
+        "exclude": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "all"
+              ]
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ],
+          "default": []
+        },
+        "recursive": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "redirects": {
+      "type": "object",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "object",
+              "additionalProperties": true,
+              "minProperties": 1
+            }
+          }
+        }
+      ]
     }
-  }
+  },
+  "required": [
+    "version"
+  ]
 }
-
