@@ -161,7 +161,7 @@ Project details
             },
             "_links": {
                 "_self": "/api/v3/projects/pip/",
-                "versions": "/api/v3/project/pip/version/",
+                "versions": "/api/v3/projects/pip/versions/",
                 "builds": "/api/v3/projects/pip/builds/",
                 "subprojects": "/api/v3/projects/pip/subprojects/",
                 "superproject": "/api/v3/projects/pip/superproject/",
@@ -294,7 +294,7 @@ Versions listing
 Version detail
 ++++++++++++++
 
-.. http:get:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
+.. http:get:: /api/v3/projects/{project}/versions/{version}
 
     Retrieve details of a single version.
 
