@@ -96,6 +96,11 @@ After cloning ``readthedocs.org`` repository, you need to
 
       inv docker.build
 
+   .. tip::
+
+      If you pass ``GITHUB_TOKEN`` environment variable to this command,
+      it will add support for readthedocs-ext.
+
 #. pull down Docker images for the builders:
 
    .. prompt:: bash
@@ -187,27 +192,6 @@ To do this, add the ``pip`` command required for your dependency in ``common.sh`
 Once the PR that adds this dependency was merged into ``master``, you can rebuild the image
 so the dependency is added to the Docker image itself and it's not needed to be installed
 each time the container spins up.
-
-
-Adding support for ``-ext``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-   This is a temporary solution.
-
-
-.. warning::
-
-   ``readthedocs-ext`` is closed source for now and it's not available for non-core team members.
-
-Read the Docs extensions can be installed with the same pattern than `Adding a new Python dependency`_
-using the ``common.sh`` script. You can add the following line to the script:
-
-.. code-block:: bash
-
-   # common.sh
-   pip install -e ../readthedocs-ext/
 
 
 Debugging Celery
