@@ -33,7 +33,6 @@ log = logging.getLogger(__name__)  # noqa
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
     version_type = INTERNAL
-    redirect_root = False
 
     def get(self,
             request,
@@ -44,9 +43,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename='',
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
-
-        if self.redirect_root:
-            raise Http404('Falling back to 404 handler on root missing a slash')
 
         if all([
                 self.version_type == EXTERNAL,

@@ -117,7 +117,7 @@ urlpatterns = [
             r'(?P<lang_slug>{lang_slug})/'
             r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
         ),
-        ServeDocs.as_view(redirect_root=True),
+        fast_404,
         name='docs_detail_directory_indexing',
     ),
 
