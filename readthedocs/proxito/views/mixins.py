@@ -118,6 +118,9 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to %s documentation', project.slug)
         return res
 
+    def allowed_user(self, *args, **kwargs):
+        return True
+
 
 class ServeRedirectMixin:
 
@@ -136,14 +139,15 @@ class ServeRedirectMixin:
         )
         return redirect_path, http_status
 
-    def get_redirect_response(self, request, redirect_path, http_status):
+    def get_redirect_response(self, request, redirect_path, proxito_path, http_status):
         """
-        Build the response for the ``redirect_path`` and its ``http_status``.
+        Build the response for the ``redirect_path``, ``proxito_path`` and its ``http_status``.
 
         :returns: redirect respose with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
-        schema, netloc, path, params, query, fragments = urlparse(request.path)
+
+        schema, netloc, path, params, query, fragments = urlparse(proxito_path)
         new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
 
         # Re-use the domain and protocol used in the current request.
@@ -156,6 +160,14 @@ class ServeRedirectMixin:
             new_path,
             http_status,
         )
+
+        if request.build_absolute_uri() == new_path:
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                new_path,
+            )
+            return HttpResponse('Infinite Redirect.', status=404)
 
         if http_status and http_status == 301:
             return HttpResponsePermanentRedirect(new_path)

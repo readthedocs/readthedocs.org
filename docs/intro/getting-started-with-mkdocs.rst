@@ -73,5 +73,5 @@ Here are some external resources to help you learn more about MkDocs.
 * `Writing your docs with MkDocs`_
 
 .. _MkDocs documentation: https://www.mkdocs.org/
-.. _Markdown syntax guide: http://daringfireball.net/projects/markdown/syntax
+.. _Markdown syntax guide: https://daringfireball.net/projects/markdown/syntax
 .. _Writing your docs with MkDocs: https://www.mkdocs.org/user-guide/writing-your-docs/

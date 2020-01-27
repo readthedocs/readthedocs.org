@@ -124,7 +124,7 @@ class SyncRepositoryMixin:
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
 
-        if not self.project.vcs_repo():
+        if not self.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
                     repo_type=self.project.repo_type,
@@ -203,6 +203,16 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_rtd_env_vars(self):
+        """Get bash environment variables specific to Read the Docs."""
+        env = {
+            'READTHEDOCS': 'True',
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
+        }
+        return env
+
 
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
@@ -240,7 +250,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             self.version = self.get_version(version_pk)
             self.project = self.version.project
 
-            environment = LocalBuildEnvironment(
+            if settings.DOCKER_ENABLE:
+                env_cls = DockerBuildEnvironment
+            else:
+                env_cls = LocalBuildEnvironment
+            environment = env_cls(
                 project=self.project,
                 version=self.version,
                 record=False,
@@ -720,16 +734,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         commit = self.commit or self.project.vcs_repo(self.version.slug).commit
         if commit:
             self.build['commit'] = commit
-
-    def get_rtd_env_vars(self):
-        """Get bash environment variables specific to Read the Docs."""
-        env = {
-            'READTHEDOCS': 'True',
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
-        }
-        return env
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
@@ -1549,7 +1553,7 @@ def clean_build(version_pk):
     # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda', '.cache')
     ]
     try:
         with version.project.repo_nonblockinglock(version):

@@ -1,11 +1,11 @@
 FROM ubuntu:18.04
 
+ARG GITHUB_TOKEN
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-
-WORKDIR /usr/src/app
 
 RUN apt-get -y update
 RUN apt-get -y install \
@@ -34,11 +34,17 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 RUN pip3 install --no-cache-dir --upgrade pip
 
-RUN mkdir checkouts
-WORKDIR /usr/src/app/checkouts
+WORKDIR /tmp
 
-COPY requirements readthedocs.org/requirements
+RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/pip.txt
+RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/docker.txt
+RUN pip3 install --no-cache-dir -r docker.txt
 
-RUN pip3 install --no-cache-dir -r readthedocs.org/requirements/docker.txt
+# Install readthedocs-ext only if GITHUB_TOKEN is provided
+RUN if [ -n "$GITHUB_TOKEN" ] ; \
+        then \
+        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
+        pip3 install --no-cache-dir -e readthedocs-ext ; \
+        fi
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org

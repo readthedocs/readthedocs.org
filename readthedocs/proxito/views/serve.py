@@ -146,9 +146,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             path=final_url,
         )
 
-    def allowed_user(self, *args, **kwargs):
-        return True
-
 
 class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
@@ -171,10 +168,12 @@ class ServeError404Base(ServeRedirectMixin, View):
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         # pylint: disable=too-many-locals
+        log.info('Executing 404 handler. proxito_path=%s', proxito_path)
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
-            proxito_path, urlconf='readthedocs.proxito.urls'
+            proxito_path,
+            urlconf='readthedocs.proxito.urls',
         )
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -184,23 +183,6 @@ class ServeError404Base(ServeRedirectMixin, View):
             version_slug=kwargs.get('version_slug'),
             filename=kwargs.get('filename', ''),
         )
-
-        # Always add a `/` to the filename to match our old logic:
-        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
-        redirect_filename = filename
-        if lang_slug and version_slug:
-            redirect_filename = '/' + filename
-
-        # Check and perform redirects on 404 handler
-        redirect_path, http_status = self.get_redirect(
-            project=final_project,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=redirect_filename,
-            full_path=proxito_path,
-        )
-        if redirect_path and http_status:
-            return self.get_redirect_response(request, redirect_path, http_status)
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
@@ -222,7 +204,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             )
             if storage.exists(storage_filename_path):
                 log.info(
-                    'Redirecting to index file: project=%s version=%s, url=%s',
+                    'Redirecting to index file: project=%s version=%s, storage_path=%s',
                     final_project.slug,
                     version_slug,
                     storage_filename_path,
@@ -232,10 +214,40 @@ class ServeError404Base(ServeRedirectMixin, View):
                 if tryfile == 'README.html':
                     new_path = os.path.join(parts.path, tryfile)
                 else:
-                    new_path = parts.path + '/'
+                    new_path = parts.path.rstrip('/') + '/'
                 new_parts = parts._replace(path=new_path)
-                resp = HttpResponseRedirect(new_parts.geturl())
-                return resp
+                redirect_url = new_parts.geturl()
+
+                # TODO: decide if we need to check for infinite redirect here
+                # (from URL == to URL)
+                return HttpResponseRedirect(redirect_url)
+
+        # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
+        # without query, starting with a ``/``. This matches our old logic:
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
+        # We parse ``filename`` to remove the query from it
+        schema, netloc, path, params, query, fragments = urlparse(filename)
+        redirect_filename = path
+
+        # we can't check for lang and version here to decide if we need to add
+        # the ``/`` or not because ``/install.html`` is a valid path to use as
+        # redirect and does not include lang and version on it. It should be
+        # fine always adding the ``/`` to the beginning.
+        redirect_filename = '/' + redirect_filename.lstrip('/')
+
+        # Check and perform redirects on 404 handler
+        # NOTE: this redirect check must be done after trying files like
+        # ``index.html`` and ``README.html`` to emulate the behavior we had when
+        # serving directly from NGINX without passing through Python.
+        redirect_path, http_status = self.get_redirect(
+            project=final_project,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=redirect_filename,
+            full_path=proxito_path,
+        )
+        if redirect_path and http_status:
+            return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
 
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
