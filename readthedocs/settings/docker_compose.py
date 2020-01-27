@@ -21,7 +21,12 @@ class DockerBaseSettings(CommunityDevSettings):
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
 
-    MULTIPLE_APP_SERVERS = ['web']
+    # There is no need to list any web here, because the ``broadcast`` function
+    # on them are just for syncfiles and symlinks
+    MULTIPLE_APP_SERVERS = []
+
+    # We need to list the build here because we still use the ``broadcast``
+    # function for wipping versions
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # Enable auto syncing elasticsearch documents
