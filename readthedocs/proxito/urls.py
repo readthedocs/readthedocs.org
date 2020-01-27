@@ -118,7 +118,7 @@ urlpatterns = [
             r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
         ),
         ServeDocs.as_view(redirect_root=True),
-        name='docs_detail',
+        name='docs_detail_directory_indexing',
     ),
 
     # # TODO: Support this?
