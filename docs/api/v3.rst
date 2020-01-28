@@ -161,7 +161,7 @@ Project details
             },
             "_links": {
                 "_self": "/api/v3/projects/pip/",
-                "versions": "/api/v3/projects/pip/versions/",
+                "versions": "/api/v3/project/pip/version/",
                 "builds": "/api/v3/projects/pip/builds/",
                 "subprojects": "/api/v3/projects/pip/subprojects/",
                 "superproject": "/api/v3/projects/pip/superproject/",
@@ -346,7 +346,7 @@ Version detail
 Version update
 ++++++++++++++
 
-.. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
+.. http:patch:: /api/v3/projects/{project}/versions/{version}
 
     Update a version.
 
