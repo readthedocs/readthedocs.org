@@ -124,7 +124,7 @@ class SyncRepositoryMixin:
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
 
-        if not self.project.vcs_repo():
+        if not self.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
                     repo_type=self.project.repo_type,
@@ -250,7 +250,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             self.version = self.get_version(version_pk)
             self.project = self.version.project
 
-            environment = LocalBuildEnvironment(
+            if settings.DOCKER_ENABLE:
+                env_cls = DockerBuildEnvironment
+            else:
+                env_cls = LocalBuildEnvironment
+            environment = env_cls(
                 project=self.project,
                 version=self.version,
                 record=False,
@@ -939,6 +943,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'documentation_type': self.config.doctype,
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -1549,7 +1554,7 @@ def clean_build(version_pk):
     # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda', '.cache')
     ]
     try:
         with version.project.repo_nonblockinglock(version):

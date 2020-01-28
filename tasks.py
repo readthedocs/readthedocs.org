@@ -38,7 +38,7 @@ namespace.add_collection(
     Collection.from_module(
         common.dockerfiles.tasks,
         config={
-            'container_prefix': 'readthedocsorg',
+            'container_prefix': 'community',
         },
     ),
     name='docker',
