@@ -17,10 +17,6 @@ Version 3.11.4
 * `@stsewd <http://github.com/stsewd>`__: Use settings override in footer (`#6560 <https://github.com/readthedocs/readthedocs.org/pull/6560>`__)
 * `@ericholscher <http://github.com/ericholscher>`__: Fix proxito redirects breaking without a / (`#6558 <https://github.com/readthedocs/readthedocs.org/pull/6558>`__)
 * `@stsewd <http://github.com/stsewd>`__: Remove unused file (`#6557 <https://github.com/readthedocs/readthedocs.org/pull/6557>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Release 3.11.3 (`#6556 <https://github.com/readthedocs/readthedocs.org/pull/6556>`__)
-* `@ericholscher <http://github.com/ericholscher>`__: Pass proper path to redirect code (`#6555 <https://github.com/readthedocs/readthedocs.org/pull/6555>`__)
-* `@mgeier <http://github.com/mgeier>`__: DOC: Change a lot of http links to https (`#6553 <https://github.com/readthedocs/readthedocs.org/pull/6553>`__)
-* `@Daniel-Mietchen <http://github.com/Daniel-Mietchen>`__: Fixing a broken link (`#6550 <https://github.com/readthedocs/readthedocs.org/pull/6550>`__)
 * `@stsewd <http://github.com/stsewd>`__: Don't use an instance of VCS when isn't needed (`#6548 <https://github.com/readthedocs/readthedocs.org/pull/6548>`__)
 * `@saadmk11 <http://github.com/saadmk11>`__: Add GitHub OAuth App Permission issue to PR Builder Troubleshooting docs (`#6547 <https://github.com/readthedocs/readthedocs.org/pull/6547>`__)
 * `@humitos <http://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
@@ -31,7 +27,6 @@ Version 3.11.4
 * `@stsewd <http://github.com/stsewd>`__: Improve test for sync_repo (`#6504 <https://github.com/readthedocs/readthedocs.org/pull/6504>`__)
 * `@humitos <http://github.com/humitos>`__: Show debug toolbar when running docker compose (`#6488 <https://github.com/readthedocs/readthedocs.org/pull/6488>`__)
 * `@dibyaaaaax <http://github.com/dibyaaaaax>`__: Add python examples for API v3 Documentation (`#6487 <https://github.com/readthedocs/readthedocs.org/pull/6487>`__)
-* `@stsewd <http://github.com/stsewd>`__: Copy path from host only when using a LocalBuildEnviroment (`#6482 <https://github.com/readthedocs/readthedocs.org/pull/6482>`__)
 
 Version 3.11.3
 --------------
