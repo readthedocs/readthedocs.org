@@ -792,7 +792,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         self.container = None
         self.container_name = slugify(
             'build-{build}-project-{project_id}-{project_name}'.format(
-                build=self.build.get('id'),
+                build=self.build.get('id') if self.build else '',
                 project_id=self.project.pk,
                 project_name=self.project.slug,
             )[:DOCKER_HOSTNAME_MAX_LEN],
@@ -931,7 +931,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             # Instead, give the user a generic failure
             raise BuildEnvironmentError(
                 BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build['id'],
+                    build_id=self.build.get('id') if self.build else '',
                 ),
             )
 
