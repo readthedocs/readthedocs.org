@@ -282,8 +282,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 extra={
                     'stack': True,
                     'tags': {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        'project': self.project.slug if self.project else '',
+                        'version': self.version.slug if self.version else '',
                     },
                 },
             )
