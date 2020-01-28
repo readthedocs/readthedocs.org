@@ -52,6 +52,7 @@ from .constants import (
 
 
 log = logging.getLogger(__name__)
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 
 class ProjectRelationship(models.Model):
@@ -461,7 +462,7 @@ class Project(models.Model):
         except Exception:
             log.exception('failed to update static metadata')
         try:
-            branch = self.default_branch or self.vcs_repo().fallback_branch
+            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
         except Exception:
@@ -604,22 +605,35 @@ class Project(models.Model):
             )
         return path
 
-    def get_production_media_url(self, type_, version_slug, full_path=True):
+    def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
-        try:
-            path = reverse(
-                'project_download_media',
-                kwargs={
-                    'project_slug': self.slug,
-                    'type_': type_,
-                    'version_slug': version_slug,
-                },
-            )
-        except NoReverseMatch:
-            return ''
-        if full_path:
-            path = '//{}{}'.format(settings.PRODUCTION_DOMAIN, path)
+        # Use project domain for full path --same domain as docs
+        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
+        domain = self.subdomain()
+
+        # NOTE: we can't use ``reverse('project_download_media')`` here
+        # because this URL only exists in El Proxito and this method is
+        # accessed from Web instance
+
+        if self.is_subproject:
+            # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+        else:
+            # docs.example.com/_/downloads/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
+
         return path
+
+    @property
+    def is_subproject(self):
+        """Return whether or not this project is a subproject."""
+        return self.superprojects.exists()
+
+    @property
+    def alias(self):
+        """Return the alias (as subproject) if it's a subproject."""  # noqa
+        if self.is_subproject:
+            return self.superprojects.first().alias
 
     def subdomain(self):
         """Get project subdomain from resolver."""
@@ -823,7 +837,7 @@ class Project(models.Model):
         # ``version.slug`` instead of a ``Version`` instance (I prefer an
         # instance here)
 
-        backend = backend_cls.get(self.repo_type)
+        backend = self.vcs_class()
         if not backend:
             repo = None
         else:
@@ -832,6 +846,14 @@ class Project(models.Model):
                 verbose_name=verbose_name, version_type=version_type
             )
         return repo
+
+    def vcs_class(self):
+        """
+        Get the class used for VCS operations.
+
+        This is useful when doing operations that don't need to have the repository on disk.
+        """
+        return backend_cls.get(self.repo_type)
 
     def git_service_class(self):
         """Get the service class for project. e.g: GitHubService, GitLabService."""
@@ -1063,7 +1085,7 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
-        return self.vcs_repo().fallback_branch
+        return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(

@@ -84,7 +84,11 @@ class TestVersionModel(VersionMixin, TestCase):
     def test_version_supports_wipe(self):
         self.assertTrue(self.branch_version.supports_wipe)
 
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
     def test_get_downloads(self):
         self.assertDictEqual(self.branch_version.get_downloads(), {})
 
@@ -92,7 +96,7 @@ class TestVersionModel(VersionMixin, TestCase):
         self.branch_version.has_epub = True
         self.branch_version.save()
         expected = {
-            'epub': '//readthedocs.org/projects/pip/downloads/epub/stable/',
-            'pdf': '//readthedocs.org/projects/pip/downloads/pdf/stable/',
+            'epub': '//pip.readthedocs.io/_/downloads/en/stable/epub/',
+            'pdf': '//pip.readthedocs.io/_/downloads/en/stable/pdf/',
         }
         self.assertDictEqual(self.branch_version.get_downloads(), expected)

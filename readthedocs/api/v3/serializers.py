@@ -236,7 +236,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
         data = {}
 
         for k, v in downloads.items():
-            if k in ('htmlzip', 'pdf', 'epub'):
+            if k in ('html', 'pdf', 'epub'):
+
+                # Keep backward compatibility
+                if k == 'html':
+                    k = 'htmlzip'
+
                 data[k] = ('http:' if settings.DEBUG else 'https:') + v
 
         return data

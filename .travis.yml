@@ -3,11 +3,7 @@ python:
   - 3.6
 dist: xenial
 
-env:
-  global:
-    - NODE_VERSION=10.17.0
-
-matrix:
+jobs:
   include:
     - python: 3.6
       env: TOXENV=py36,codecov ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
@@ -19,7 +15,7 @@ matrix:
       env: TOXENV=lint
       script: tox
     - python: 3.6
-      env: TOXENV=eslint
+      env: TOXENV=eslint NODE_VERSION=10.17.0
     - python: 3.6
       env: TOXENV=migrations
 cache:
@@ -29,14 +25,8 @@ cache:
     - ~/.npm
 install:
   - ./scripts/travis/install_elasticsearch.sh
+  - ./scripts/travis/install_node.sh
   - pip install tox-travis
-  - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
-  - source ~/.nvm/nvm.sh
-  - nvm install $NODE_VERSION
-  - nvm use $NODE_VERSION
-  - npm install -g bower
-  - npm install
-  - bower install
 script:
   - ./scripts/travis/run_tests.sh
 notifications:
