@@ -30,9 +30,15 @@ pyyaml==5.1.2
 Pygments==2.4.2
 
 # Basic tools
-redis==3.3.11
-kombu==4.6.7
-celery==4.3.0
+# Redis 3.x has an incompatible change and fails
+# https://stackoverflow.com/questions/53331405/django-compress-error-invalid-input-of-type-cachekey
+# https://github.com/sebleier/django-redis-cache/pull/162
+redis==2.10.6  # pyup: ignore
+# Kombu >4.3 requires redis>=3.2
+kombu==4.3.0  # pyup: ignore
+# Celery 4.2 is incompatible with our code
+# when ALWAYS_EAGER = True
+celery==4.1.1  # pyup: ignore
 
 django-allauth==0.40.0
 
