@@ -21,6 +21,11 @@ networks:
 
 services:
 
+  server:
+    build:
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+
   nginx:
     networks:
       readthedocs:
