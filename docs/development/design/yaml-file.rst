@@ -155,6 +155,6 @@ Footnotes
 
 .. [#privacy-level] https://github.com/readthedocs/readthedocs.org/issues/2663
 .. [#project-description] https://github.com/readthedocs/readthedocs.org/issues/3689
-.. [#yaml-spec] http://yaml.org/spec/1.2/spec.html
+.. [#yaml-spec] https://yaml.org/spec/1.2/spec.html
 .. [#specversioning] https://github.com/readthedocs/readthedocs.org/issues/3806
 .. [#one-checkout] https://github.com/readthedocs/readthedocs.org/issues/1375

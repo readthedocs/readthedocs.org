@@ -70,6 +70,7 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
+    DOCUMENTATION_CHOICES,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
@@ -140,6 +141,16 @@ class Version(models.Model):
     has_epub = models.BooleanField(_('Has ePub'), default=False)
     has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
 
+    documentation_type = models.CharField(
+        _('Documentation type'),
+        max_length=20,
+        choices=DOCUMENTATION_CHOICES,
+        default='sphinx',
+        help_text=_(
+            'Type of documentation the version was built with.'
+        ),
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
@@ -203,7 +214,7 @@ class Version(models.Model):
         if self.slug == STABLE:
             slug_url = self.ref
         elif self.slug == LATEST:
-            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+            slug_url = self.project.get_default_branch()
         else:
             slug_url = self.slug
 
@@ -250,9 +261,7 @@ class Version(models.Model):
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
         if self.slug == LATEST:
-            if self.project.default_branch:
-                return self.project.default_branch
-            return self.project.vcs_repo().fallback_branch
+            return self.project.get_default_branch()
 
         if self.slug == STABLE:
             if self.type == BRANCH:

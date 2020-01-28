@@ -236,7 +236,6 @@ class TestAdditionalDocViews(BaseDocServing):
 
     def test_versioned_no_slash(self):
         self.project.versions.update(active=True, built=True)
-        # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest'}),
             HTTP_HOST='project.readthedocs.io',

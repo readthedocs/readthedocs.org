@@ -2197,6 +2197,7 @@ class APIVersionTests(TestCase):
             'has_epub': False,
             'has_htmlzip': False,
             'has_pdf': False,
+            'documentation_type': 'sphinx',
         }
 
         self.assertDictEqual(
