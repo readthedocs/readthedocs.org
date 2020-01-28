@@ -17,6 +17,7 @@ Version 3.11.4
 * `@stsewd <http://github.com/stsewd>`__: Use settings override in footer (`#6560 <https://github.com/readthedocs/readthedocs.org/pull/6560>`__)
 * `@ericholscher <http://github.com/ericholscher>`__: Fix proxito redirects breaking without a / (`#6558 <https://github.com/readthedocs/readthedocs.org/pull/6558>`__)
 * `@stsewd <http://github.com/stsewd>`__: Remove unused file (`#6557 <https://github.com/readthedocs/readthedocs.org/pull/6557>`__)
+* `@mgeier <http://github.com/mgeier>`__: DOC: Change a lot of http links to https (`#6553 <https://github.com/readthedocs/readthedocs.org/pull/6553>`__)
 * `@stsewd <http://github.com/stsewd>`__: Don't use an instance of VCS when isn't needed (`#6548 <https://github.com/readthedocs/readthedocs.org/pull/6548>`__)
 * `@saadmk11 <http://github.com/saadmk11>`__: Add GitHub OAuth App Permission issue to PR Builder Troubleshooting docs (`#6547 <https://github.com/readthedocs/readthedocs.org/pull/6547>`__)
 * `@humitos <http://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
