@@ -12,6 +12,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
@@ -72,7 +73,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class FooterHTML(APIView):
+class BaseFooterHTML(APIView):
 
     """
     Render and return footer markup.
@@ -228,3 +229,7 @@ class FooterHTML(APIView):
         )
 
         return Response(resp_data)
+
+
+class FooterHTML(SettingsOverrideObject):
+    _default_class = BaseFooterHTML

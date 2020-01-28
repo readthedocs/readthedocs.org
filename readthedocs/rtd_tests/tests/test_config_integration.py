@@ -8,7 +8,7 @@ from django.test import TestCase
 from django_dynamic_fixture import get
 from mock import MagicMock, PropertyMock, patch
 
-from readthedocs.builds.constants import EXTERNAL, BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.config import (
     ALL,
@@ -20,12 +20,12 @@ from readthedocs.config import (
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -493,7 +493,7 @@ class TestLoadConfigV2:
         )
 
         update_docs = self.get_update_docs_task()
-        update_docs.run_build(docker=False, record=False)
+        update_docs.run_build(record=False)
 
         assert update_docs.config.conda.environment == conda_file
         assert isinstance(update_docs.python_env, Conda)
@@ -773,6 +773,7 @@ class TestLoadConfigV2:
         [
             ('html', 'sphinx'),
             ('htmldir', 'sphinx_htmldir'),
+            ('dirhtml', 'sphinx_htmldir'),
             ('singlehtml', 'sphinx_singlehtml'),
         ],
     )
@@ -1062,7 +1063,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         args, kwargs = checkout_submodules.call_args
         assert set(args[0]) == set(expected)
@@ -1091,7 +1092,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         args, kwargs = checkout_submodules.call_args
         assert set(args[0]) == {'two', 'three'}
@@ -1120,7 +1121,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         checkout_submodules.assert_not_called()
 
@@ -1143,6 +1144,6 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         checkout_submodules.assert_not_called()

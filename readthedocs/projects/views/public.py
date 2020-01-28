@@ -30,9 +30,11 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
@@ -267,23 +269,62 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMedia(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(ServeDocsMixin, View):
 
-    def get(self, request, project_slug, type_, version_slug):
+    # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
+    same_domain_url = False
+
+    def get(
+            self,
+            request,
+            project_slug=None,
+            type_=None,
+            version_slug=None,
+            lang_slug=None,
+            subproject_slug=None,
+    ):
         """
         Download a specific piece of media.
 
         Perform an auth check if serving in private mode.
 
+        This view is used to download a file using old-style URLs (download from
+        the dashboard) and new-style URLs (download from the same domain as
+        docs). Basically, the parameters received by the GET view are different
+        (``project_slug`` does not come in the new-style URLs, for example) and
+        we need to take it from the request. Once we get the final ``version``
+        to be served, everything is the same for both paths.
+
         .. warning:: This is linked directly from the HTML pages.
                      It should only care about the Version permissions,
                      not the actual Project permissions.
         """
-        version = get_object_or_404(
-            Version.objects.public(user=request.user),
-            project__slug=project_slug,
-            slug=version_slug,
-        )
+        if self.same_domain_url:
+            # It uses the request to get the ``project``. The rest of arguments come
+            # from the URL.
+            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+                request,
+                project_slug=None,
+                subproject_slug=subproject_slug,
+                lang_slug=lang_slug,
+                version_slug=version_slug,
+            )
+
+            if not self.allowed_user(request, final_project, version_slug):
+                return self.get_unauthed_response(request, final_project)
+
+            version = get_object_or_404(
+                final_project.versions.public(user=request.user),
+                slug=version_slug,
+            )
+
+        else:
+            # All the arguments come from the URL.
+            version = get_object_or_404(
+                Version.objects.public(user=request.user),
+                project__slug=project_slug,
+                slug=version_slug,
+            )
 
         # Send media download to analytics - sensitive data is anonymized
         analytics_event.delay(
@@ -296,7 +337,8 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug,
+            type_=type_,
+            version_slug=version_slug,
             version_type=version.type,
         )
 
@@ -311,6 +353,10 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
             path=url,
             download=True,
         )
+
+
+class ProjectDownloadMedia(SettingsOverrideObject):
+    _default_class = ProjectDownloadMediaBase
 
 
 def project_versions(request, project_slug):

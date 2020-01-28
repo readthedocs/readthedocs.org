@@ -104,26 +104,27 @@ class SyncRepositoryMixin:
         version_data = api_v2.version(version_pk).get()
         return APIVersion(**version_data)
 
-    def get_vcs_repo(self):
-        """Get the VCS object of the current project."""
+    def get_vcs_repo(self, environment):
+        """
+        Get the VCS object of the current project.
+
+        All VCS commands will be executed using `environment`.
+        """
         version_repo = self.project.vcs_repo(
-            self.version.slug,
-            # When called from ``SyncRepositoryTask.run`` we don't have
-            # a ``setup_env`` so we use just ``None`` and commands won't
-            # be recorded
-            getattr(self, 'setup_env', None),
+            version=self.version.slug,
+            environment=environment,
             verbose_name=self.version.verbose_name,
             version_type=self.version.type
         )
         return version_repo
 
-    def sync_repo(self):
+    def sync_repo(self, environment):
         """Update the project's repository and hit ``sync_versions`` API."""
         # Make Dirs
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
 
-        if not self.project.vcs_repo():
+        if not self.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
                     repo_type=self.project.repo_type,
@@ -143,7 +144,7 @@ class SyncRepositoryMixin:
                 'msg': msg,
             }
         )
-        version_repo = self.get_vcs_repo()
+        version_repo = self.get_vcs_repo(environment)
         version_repo.update()
         self.sync_versions(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
@@ -202,6 +203,16 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_rtd_env_vars(self):
+        """Get bash environment variables specific to Read the Docs."""
+        env = {
+            'READTHEDOCS': 'True',
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
+        }
+        return env
+
 
 @app.task(max_retries=5, default_retry_delay=7 * 60)
 def sync_repository_task(version_pk):
@@ -238,9 +249,22 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         try:
             self.version = self.get_version(version_pk)
             self.project = self.version.project
-            before_vcs.send(sender=self.version)
+
+            if settings.DOCKER_ENABLE:
+                env_cls = DockerBuildEnvironment
+            else:
+                env_cls = LocalBuildEnvironment
+            environment = env_cls(
+                project=self.project,
+                version=self.version,
+                record=False,
+                update_on_success=False,
+                environment=self.get_rtd_env_vars(),
+            )
+
+            before_vcs.send(sender=self.version, environment=environment)
             with self.project.repo_nonblockinglock(version=self.version):
-                self.sync_repo()
+                self.sync_repo(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -343,21 +367,22 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if config is not None:
             self.config = config
         self.task = task
+        # TODO: remove this
         self.setup_env = None
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True,
             force=False, **__
     ):
         """
         Run a documentation sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
-        failure cases. We first run a few commands in a local build environment,
+        failure cases. We first run a few commands in a build environment,
         but do not report on environment success. This avoids a flicker on the
         build output page where the build is marked as finished in between the
-        local environment steps and the docker build steps.
+        checkout steps and the build steps.
 
         If a failure is raised, or the build is not successful, return
         ``False``, otherwise, ``True``.
@@ -370,8 +395,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param build_pk int: Build id (if None, commands are not recorded)
         :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project (if ``None``,
-            ``settings.DOCKER_ENABLE`` is used)
         :param force bool: force Sphinx build
 
         :returns: whether build was successful or not
@@ -379,8 +402,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: bool
         """
         try:
-            if docker is None:
-                docker = settings.DOCKER_ENABLE
             self.version = self.get_version(version_pk)
             self.project = self.version.project
             self.build = self.get_build(build_pk)
@@ -392,7 +413,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-            self.run_build(docker=docker, record=record)
+            self.run_build(record=record)
             return True
         except Exception:
             log.exception(
@@ -428,32 +449,43 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 self.setup_env.update_build(BUILD_STATE_FINISHED)
 
             # Send notifications for unhandled errors
-            self.send_notifications(version_pk, build_pk)
+            self.send_notifications(version_pk, build_pk, email=True)
             return False
 
     def run_setup(self, record=True):
         """
-        Run setup in the local environment.
+        Run setup in a build environment.
 
         Return True if successful.
         """
-        self.setup_env = LocalBuildEnvironment(
+        if settings.DOCKER_ENABLE:
+            env_cls = DockerBuildEnvironment
+        else:
+            env_cls = LocalBuildEnvironment
+
+        environment = env_cls(
             project=self.project,
             version=self.version,
             build=self.build,
             record=record,
             update_on_success=False,
+            environment=self.get_rtd_env_vars(),
         )
 
+        # TODO: Remove.
+        # There is code that still depends of this attribute
+        # outside this function. Don't use self.setup_env for new code.
+        self.setup_env = environment
+
         # Environment used for code checkout & initial configuration reading
-        with self.setup_env:
+        with environment:
             try:
-                before_vcs.send(sender=self.version)
+                before_vcs.send(sender=self.version, environment=environment)
                 if self.project.skip:
                     raise ProjectBuildsSkippedError
                 try:
                     with self.project.repo_nonblockinglock(version=self.version):
-                        self.setup_vcs()
+                        self.setup_vcs(environment)
                 except vcs_support_utils.LockTimeout as e:
                     self.task.retry(exc=e, throw=False)
                     raise VersionLockedError
@@ -467,13 +499,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     )
 
                 self.save_build_config()
-                self.additional_vcs_operations()
+                self.additional_vcs_operations(environment)
             finally:
                 after_vcs.send(sender=self.version)
 
-        if self.setup_env.failure or self.config is None:
+        if environment.failure or self.config is None:
             msg = 'Failing build because of setup failure: {}'.format(
-                self.setup_env.failure,
+                environment.failure,
             )
             log.info(
                 LOG_TEMPLATE,
@@ -488,39 +520,36 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             # of VersionLockedError: this exception occurs when a build is
             # triggered before the previous one has finished (e.g. two webhooks,
             # one after the other)
-            if not isinstance(self.setup_env.failure, VersionLockedError):
-                self.send_notifications(self.version.pk, self.build['id'])
+            if not isinstance(environment.failure, VersionLockedError):
+                self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             return False
 
-        if self.setup_env.successful and not self.project.has_valid_clone:
+        if environment.successful and not self.project.has_valid_clone:
             self.set_valid_clone()
 
         return True
 
-    def additional_vcs_operations(self):
+    def additional_vcs_operations(self, environment):
         """
         Execution of tasks that involve the project's VCS.
 
         All this tasks have access to the configuration object.
         """
-        version_repo = self.get_vcs_repo()
+        version_repo = self.get_vcs_repo(environment)
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def run_build(self, docker, record):
+    def run_build(self, record):
         """
         Build the docs in an environment.
 
-        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
-            otherwise it uses a ``LocalBuildEnvironment`` to run all the
-            commands to build the docs
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
         env_vars = self.get_env_vars()
 
-        if docker:
+        if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
@@ -553,6 +582,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             )
 
             try:
+                before_build.send(
+                    sender=self.version,
+                    environment=self.build_env,
+                )
                 with self.project.repo_nonblockinglock(version=self.version):
                     self.setup_python_environment()
 
@@ -592,8 +625,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     log.warning('No build ID, not syncing files')
 
         if self.build_env.failed:
-            # TODO: Send RTD Webhook notification for build failure.
-            self.send_notifications(self.version.pk, self.build['id'])
+            # Send Webhook and email notification for build failure.
+            self.send_notifications(self.version.pk, self.build['id'], email=True)
 
             if self.commit:
                 send_external_build_status(
@@ -603,7 +636,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     status=BUILD_STATUS_FAILURE
                 )
         elif self.build_env.successful:
-            # TODO: Send RTD Webhook notification for build success.
+            # Send Webhook notification for build success.
+            self.send_notifications(self.version.pk, self.build['id'], email=False)
+
             if self.commit:
                 send_external_build_status(
                     version_type=self.version.type,
@@ -658,13 +693,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             for key, val in build.items() if key not in private_keys
         }
 
-    def setup_vcs(self):
+    def setup_vcs(self, environment):
         """
         Update the checkout of the repo to make sure it's the latest.
 
         This also syncs versions in the DB.
         """
-        self.setup_env.update_build(state=BUILD_STATE_CLONING)
+        environment.update_build(state=BUILD_STATE_CLONING)
 
         log.info(
             LOG_TEMPLATE,
@@ -675,7 +710,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             }
         )
         try:
-            self.sync_repo()
+            self.sync_repo(environment)
         except RepositoryError:
             log.warning('There was an error with the repository', exc_info=True)
             # Re raise the exception to stop the build at this point
@@ -702,12 +737,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
-        env = {
-            'READTHEDOCS': True,
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
-        }
+        env = self.get_rtd_env_vars()
 
         if self.config.conda is not None:
             env.update({
@@ -730,8 +760,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 ),
             })
 
-        # Update environment from Project's specific environment variables
-        env.update(self.project.environment_variables)
+        # Update environment from Project's specific environment variables,
+        # avoiding to expose environment variables if the version is external
+        # for security reasons.
+        if self.version.type != EXTERNAL:
+            env.update(self.project.environment_variables)
 
         return env
 
@@ -910,6 +943,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'documentation_type': self.config.doctype,
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -983,7 +1017,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: dict
         """
         self.build_env.update_build(state=BUILD_STATE_BUILDING)
-        before_build.send(sender=self.version)
 
         outcomes = defaultdict(lambda: False)
         outcomes['html'] = self.build_docs_html()
@@ -1082,10 +1115,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         builder.move()
         return success
 
-    def send_notifications(self, version_pk, build_pk):
+    def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
         if self.version.type != EXTERNAL:
-            send_notifications.delay(version_pk, build_pk=build_pk)
+            send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
@@ -1521,7 +1554,7 @@ def clean_build(version_pk):
     # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda')
+        for dir_ in ('checkouts', 'envs', 'conda', '.cache')
     ]
     try:
         with version.project.repo_nonblockinglock(version):
@@ -1654,7 +1687,7 @@ def _sync_imported_files(version, build, changed_files):
 
 
 @app.task(queue='web')
-def send_notifications(version_pk, build_pk):
+def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
     if not version:
@@ -1664,11 +1697,13 @@ def send_notifications(version_pk, build_pk):
 
     for hook in version.project.webhook_notifications.all():
         webhook_notification(version, build, hook.url)
-    for email in version.project.emailhook_notifications.all().values_list(
+
+    if email:
+        for email_address in version.project.emailhook_notifications.all().values_list(
             'email',
             flat=True,
-    ):
-        email_notification(version, build, email)
+        ):
+            email_notification(version, build, email_address)
 
 
 def email_notification(version, build, email):
@@ -1744,6 +1779,8 @@ def webhook_notification(version, build, hook_url):
         'slug': project.slug,
         'build': {
             'id': build.id,
+            'commit': build.commit,
+            'state': build.state,
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
         },

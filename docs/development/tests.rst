@@ -43,11 +43,11 @@ lint
 docs
     Test documentation compilation with Sphinx.
 
-.. _`Tox`: http://tox.readthedocs.io/en/latest/index.html
-.. _`Prospector`: http://prospector.readthedocs.io/en/master/
-.. _`pylint`: http://docs.pylint.org/
+.. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
+.. _`Prospector`: https://prospector.readthedocs.io/en/master/
+.. _`pylint`: https://pylint.readthedocs.io/
 .. _`pyflakes`: https://github.com/pyflakes/pyflakes
-.. _`pep8`: http://pep8.readthedocs.io/en/latest/index.html
+.. _`pep8`: https://pep8.readthedocs.io/en/latest/index.html
 
 Continuous Integration
 ----------------------
