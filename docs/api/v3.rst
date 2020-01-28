@@ -161,7 +161,7 @@ Project details
             },
             "_links": {
                 "_self": "/api/v3/projects/pip/",
-                "versions": "/api/v3/project/pip/version/",
+                "versions": "/api/v3/projects/pip/versions/",
                 "builds": "/api/v3/projects/pip/builds/",
                 "subprojects": "/api/v3/projects/pip/subprojects/",
                 "superproject": "/api/v3/projects/pip/superproject/",
@@ -315,7 +315,7 @@ Version detail
             "identifier": "3a6b3995c141c0888af6591a59240ba5db7d9914",
             "ref": "19.0.2",
             "built": true,
-            "active": true
+            "active": true,
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -346,7 +346,7 @@ Version detail
 Version update
 ++++++++++++++
 
-.. http:patch:: /api/v3/projects/{project}/versions/{version}
+.. http:patch:: /api/v3/projects/(string:{projects})/versions/(string:{version})/
 
     Update a version.
 
@@ -365,7 +365,7 @@ Version update
     .. sourcecode:: json
 
         {
-            "active": true,
+            "active": true
         }
 
     :statuscode 204: Updated successfully
