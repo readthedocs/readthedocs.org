@@ -300,6 +300,7 @@ class Virtualenv(PythonEnvironment):
             site_packages,
             # This is removed because of the pip breakage,
             # it was sometimes installing pip 20.0 which broke everything
+            # https://github.com/readthedocs/readthedocs.org/issues/6585
             # '--no-download',
             env_path,
             # Don't use virtualenv bin that doesn't exist yet
