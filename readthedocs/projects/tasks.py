@@ -262,9 +262,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 environment=self.get_rtd_env_vars(),
             )
 
-            before_vcs.send(sender=self.version, environment=environment)
-            with self.project.repo_nonblockinglock(version=self.version):
-                self.sync_repo(environment)
+            with environment:
+                before_vcs.send(sender=self.version, environment=environment)
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.sync_repo(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
