@@ -19,6 +19,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.redirects.exceptions import InfiniteRedirectException
 
 from .mixins import ServeDocsMixin, ServeRedirectMixin
 
@@ -243,7 +244,11 @@ class ServeError404Base(ServeRedirectMixin, View):
             full_path=proxito_path,
         )
         if redirect_path and http_status:
-            return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+            try:
+                return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+            except InfiniteRedirectException:
+                # Continue with our normal 404 handling in this case
+                pass
 
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
