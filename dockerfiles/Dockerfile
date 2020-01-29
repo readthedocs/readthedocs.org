@@ -41,6 +41,7 @@ RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master
 RUN pip3 install --no-cache-dir -r docker.txt
 
 # Install readthedocs-ext only if GITHUB_TOKEN is provided
+WORKDIR /usr/src/app/checkouts/
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
         git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \

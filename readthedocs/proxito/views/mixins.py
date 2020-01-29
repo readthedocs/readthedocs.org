@@ -156,12 +156,12 @@ class ServeRedirectMixin:
         new_path = request.build_absolute_uri(new_path)
         log.info(
             'Redirecting: from=%s to=%s http_status=%s',
-            request.build_absolute_uri(),
+            request.build_absolute_uri(proxito_path),
             new_path,
             http_status,
         )
 
-        if request.build_absolute_uri() == new_path:
+        if request.build_absolute_uri(proxito_path) == new_path:
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
