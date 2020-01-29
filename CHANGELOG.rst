@@ -1,3 +1,19 @@
+Version 3.11.5
+--------------
+
+:Date: January 29, 2020
+
+* `@humitos <https://github.com/humitos>`__: Avoid infinite redirect on El Proxito on 404 (`#6606 <https://github.com/readthedocs/readthedocs.org/pull/6606>`__)
+* `@humitos <https://github.com/humitos>`__: Use proper path to download/install readthedocs-ext (`#6603 <https://github.com/readthedocs/readthedocs.org/pull/6603>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't assume build isn't None in a docker build env (`#6599 <https://github.com/readthedocs/readthedocs.org/pull/6599>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with pip 20.0 breaking on install (`#6598 <https://github.com/readthedocs/readthedocs.org/pull/6598>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Revert "Update celery requirements to its latest version" (`#6596 <https://github.com/readthedocs/readthedocs.org/pull/6596>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove .cache from parent dir (`#6595 <https://github.com/readthedocs/readthedocs.org/pull/6595>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 3.11.4 again (`#6594 <https://github.com/readthedocs/readthedocs.org/pull/6594>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 3.11.4 (`#6593 <https://github.com/readthedocs/readthedocs.org/pull/6593>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate doctype from project to version (`#6523 <https://github.com/readthedocs/readthedocs.org/pull/6523>`__)
+
 Version 3.11.4
 --------------
 
