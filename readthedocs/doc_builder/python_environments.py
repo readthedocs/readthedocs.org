@@ -298,7 +298,6 @@ class Virtualenv(PythonEnvironment):
             self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
-            '--no-download',
             env_path,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
@@ -319,7 +318,7 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip>=20.0.1']
+        cmd = pip_install_cmd + ['pip']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
