@@ -379,6 +379,18 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         # Sync versions on other PUSH events that create or delete
         elif event in (GITHUB_CREATE, GITHUB_DELETE, GITHUB_PUSH):
+            if event == GITHUB_PUSH:
+                # GitHub will send push and create/delete events on a creation/deletion.
+                # If we receive a push event we need to check if the webhook doesn't
+                # already have the create/delete events. So we don't trigger the sync twice.
+                # We listen to push events for creation/deletion for old webhooks only.
+                integration = self.get_integration()
+                events = integration.provider_data.get('events', [])
+                if (
+                    (created and GITHUB_CREATE in events) or
+                    (deleted and GITHUB_DELETE in events)
+                ):
+                    return None
             return self.sync_versions(self.project)
 
         elif (
