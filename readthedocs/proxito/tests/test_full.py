@@ -94,6 +94,26 @@ class TestFullDocServing(BaseDocServing):
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='external-builds.dev.readthedocs.io',
     )
+    def test_single_version_external_serving(self):
+        fixture.get(
+            Version,
+            verbose_name='10',
+            slug='10',
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        self.project.update(single_version=True)
+        url = '/html/project/10/awesome.html'
+        host = 'external-builds.dev.readthedocs.io'
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
+        )
+
+    @override_settings(
+        RTD_EXTERNAL_VERSION_DOMAIN='external-builds.dev.readthedocs.io',
+    )
     def test_external_version_serving(self):
         fixture.get(
             Version,
