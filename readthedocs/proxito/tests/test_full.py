@@ -95,6 +95,8 @@ class TestFullDocServing(BaseDocServing):
         RTD_EXTERNAL_VERSION_DOMAIN='external-builds.dev.readthedocs.io',
     )
     def test_single_version_external_serving(self):
+        self.project.single_version = True
+        self.project.save()
         fixture.get(
             Version,
             verbose_name='10',
@@ -103,7 +105,6 @@ class TestFullDocServing(BaseDocServing):
             active=True,
             project=self.project,
         )
-        self.project.update(single_version=True)
         url = '/html/project/10/awesome.html'
         host = 'external-builds.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
