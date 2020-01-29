@@ -60,7 +60,7 @@ def _get_project_data_from_request(
         )
 
     # Handle single version by grabbing the default version
-    # We might have version_slug when we're serving a PR 
+    # We might have version_slug when we're serving a PR
     if final_project.single_version and not version_slug:
         version_slug = final_project.get_default_version()
 
