@@ -169,7 +169,7 @@ class ServeRedirectMixin:
                 'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
                 new_path,
             )
-            raise InfiniteRedirectException(url=new_path)
+            raise InfiniteRedirectException()
 
         if http_status and http_status == 301:
             return HttpResponsePermanentRedirect(new_path)
