@@ -409,18 +409,21 @@ class BaseEnvironment:
     def record_command(self, command):
         pass
 
+    @property
+    def command_class(self):
+        raise NotImplementedError
+
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
-        return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
+        return self.run_command_class(cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, record=None, warn_only=False,
+            self, cmd, record=None, warn_only=False,
             record_as_success=False, **kwargs
     ):
         """
         Run command from this environment.
 
-        :param cls: command class to instantiate a command
         :param cmd: command (as a list) to execute in this environment
         :param record: whether or not to record this particular command
             (``False`` implies ``warn_only=True``)
@@ -452,7 +455,7 @@ class BaseEnvironment:
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
-        build_cmd = cls(cmd, **kwargs)
+        build_cmd = self.command_class(cmd, **kwargs)
         build_cmd.run()
 
         if record:
