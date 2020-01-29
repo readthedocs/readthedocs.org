@@ -790,13 +790,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
-        self.container_name = slugify(
-            'build-{build}-project-{project_id}-{project_name}'.format(
-                build=self.build.get('id'),
-                project_id=self.project.pk,
-                project_name=self.project.slug,
-            )[:DOCKER_HOSTNAME_MAX_LEN],
-        )
+        self.container_name = self.get_container_name()
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -908,6 +902,17 @@ class DockerBuildEnvironment(BuildEnvironment):
 
         return super().__exit__(exc_type, exc_value, tb)
 
+    def get_container_name(self):
+        if self.build:
+            name = 'build-{build}-project-{project_id}-{project_name}'.format(
+                build=self.build.get('id'),
+                project_id=self.project.pk,
+                project_name=self.project.slug,
+            )
+        else:
+            name = f'sync-project-{self.project.pk}-{self.project.slug}'
+        return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
+
     def get_client(self):
         """Create Docker client connection."""
         try:
@@ -929,11 +934,13 @@ class DockerBuildEnvironment(BuildEnvironment):
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
             # Instead, give the user a generic failure
-            raise BuildEnvironmentError(
-                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build['id'],
-                ),
-            )
+            if self.build:
+                error = BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build.get('id'),
+                )
+            else:
+                error = 'Failed to connect to Docker API client'
+            raise BuildEnvironmentError(error)
 
     def _get_binds(self):
         """
