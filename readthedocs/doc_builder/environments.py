@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import traceback
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -922,7 +923,9 @@ class DockerBuildEnvironment(BuildEnvironment):
                 project_name=self.project.slug,
             )
         else:
-            name = f'sync-project-{self.project.pk}-{self.project.slug}'
+            # An uuid is added, so the container name is unique per sync.
+            uuid_ = uuid.uuid4().hex[:8]
+            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
         return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
