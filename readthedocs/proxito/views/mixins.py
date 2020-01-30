@@ -14,6 +14,8 @@ from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
+from readthedocs.redirects.exceptions import InfiniteRedirectException
+
 log = logging.getLogger(__name__)  # noqa
 
 
@@ -167,7 +169,7 @@ class ServeRedirectMixin:
                 'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
                 new_path,
             )
-            return HttpResponse('Infinite Redirect.', status=404)
+            raise InfiniteRedirectException()
 
         if http_status and http_status == 301:
             return HttpResponsePermanentRedirect(new_path)
