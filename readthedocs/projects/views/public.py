@@ -313,6 +313,11 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             if not self.allowed_user(request, final_project, version_slug):
                 return self.get_unauthed_response(request, final_project)
 
+            version = get_object_or_404(
+                final_project.versions,
+                slug=version_slug,
+            )
+
         else:
             # All the arguments come from the URL.
             version = get_object_or_404(
