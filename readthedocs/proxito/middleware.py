@@ -42,7 +42,7 @@ def map_host_to_project_slug(request):
         project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
         if Project.objects.filter(slug=project_slug).exists():
             request.rtdheader = True
-            log.info('Setting project based on X_RTD_SLUG header: %s' % project_slug)
+            log.info('Setting project based on X_RTD_SLUG header: %s', project_slug)
             return project_slug
 
     if public_domain in host or host == 'proxito':
@@ -52,13 +52,12 @@ def map_host_to_project_slug(request):
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
             return project_slug
-        else:
-            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
-            # But these feel like they might be phishing, etc. so let's block them for now.
-            log.warning('Weird variation on our hostname: host=%s', host)
-            return render(
-                request, 'core/dns-404.html', context={'host': host}, status=400
-            )
+        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
+        # But these feel like they might be phishing, etc. so let's block them for now.
+        log.warning('Weird variation on our hostname: host=%s', host)
+        return render(
+            request, 'core/dns-404.html', context={'host': host}, status=400
+        )
 
     # Serve CNAMEs
     domain = Domain.objects.filter(domain=host).first()
@@ -67,12 +66,12 @@ def map_host_to_project_slug(request):
         request.cname = True
         log.debug('Proxito CNAME: host=%s', host)
         return project_slug
-    else:
-        # Some person is CNAMEing to us without configuring a domain - 404.
-        log.debug('CNAME 404: host=%s', host)
-        return render(
-            request, 'core/dns-404.html', context={'host': host}, status=404
-        )
+
+    # Some person is CNAMEing to us without configuring a domain - 404.
+    log.debug('CNAME 404: host=%s', host)
+    return render(
+        request, 'core/dns-404.html', context={'host': host}, status=404
+    )
 
 
 class ProxitoMiddleware(MiddlewareMixin):
