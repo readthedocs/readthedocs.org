@@ -33,7 +33,7 @@ from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.mixins import ServeDocsMixin, ServeDocsPermissionsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 from .base import ProjectOnboardMixin
@@ -269,7 +269,7 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMediaBase(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(ServeDocsPermissionsMixin, ServeDocsMixin, View):
 
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
@@ -353,6 +353,10 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             path=url,
             download=True,
         )
+
+    def allowed_user(self, *args, **kwargs):
+        # always grant permissions to community users
+        return True
 
 
 class ProjectDownloadMedia(SettingsOverrideObject):

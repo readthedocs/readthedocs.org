@@ -21,7 +21,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
-from .mixins import ServeDocsMixin, ServeRedirectMixin
+from .mixins import ServeDocsMixin, ServeRedirectMixin, ServeDocsPermissionsMixin
 
 from .decorators import map_project_slug
 from .redirects import redirect_project_slug
@@ -31,7 +31,12 @@ from .utils import _get_project_data_from_request
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeDocsBase(
+        ServeRedirectMixin,
+        ServeDocsPermissionsMixin,
+        ServeDocsMixin,
+        View,
+):
 
     version_type = INTERNAL
 
@@ -142,6 +147,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             final_project=final_project,
             path=final_url,
         )
+
+    def allowed_user(self, *args, **kwargs):
+        # always grant permissions to community users
+        return True
 
 
 class ServeDocs(SettingsOverrideObject):
