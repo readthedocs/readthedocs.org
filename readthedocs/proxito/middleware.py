@@ -41,6 +41,7 @@ def map_host_to_project_slug(request):
     if 'HTTP_X_RTD_SLUG' in request.META:
         project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
         request.rtdheader = True
+        log.info('Setting project based on X_RTD_SLUG header: %s' % project_slug)
 
     elif public_domain in host or host == 'proxito':
         # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
