@@ -912,8 +912,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             )
         else:
             # An uuid is added, so the container name is unique per sync.
-            uuid = str(uuid.uuid4())[:8]
-            name = f'sync-{uuid}-project-{self.project.pk}-{self.project.slug}'
+            uuid_ = uuid.uuid4().hex[:8]
+            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
         return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
