@@ -108,7 +108,7 @@ user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
 django-storages[azure]==1.9
-azure-storage-blob==1.5.0
+azure-storage-blob==12.1.0
 azure-storage-common==1.4.2
 
 # Required only in development and linting
