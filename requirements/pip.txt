@@ -1,7 +1,7 @@
 # Base packages
 pip==20.0.2
 appdirs==1.4.3
-virtualenv==16.7.7
+virtualenv==16.7.9
 
 django==1.11.27  # pyup: <1.12
 django-extensions==2.2.5
