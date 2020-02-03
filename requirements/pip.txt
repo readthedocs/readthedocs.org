@@ -69,7 +69,7 @@ selectolax==0.2.1
 orjson==2.0.7  # pyup: ignore
 
 # Utils
-django-gravatar2==1.4.2
+django-gravatar2==1.4.4
 pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
