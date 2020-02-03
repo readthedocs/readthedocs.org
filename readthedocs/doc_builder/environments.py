@@ -827,7 +827,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                         ),
                     )
                     self.failure = exc
-                    self.build['state'] = BUILD_STATE_FINISHED
+                    if self.build:
+                        self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warning(
