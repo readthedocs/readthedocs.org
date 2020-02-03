@@ -91,7 +91,7 @@ django-textclassifier==1.0
 nltk==3.4.5
 textblob==0.15.3
 
-django-annoying==0.10.5
+django-annoying==0.10.6
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
 django-taggit==1.1.0
