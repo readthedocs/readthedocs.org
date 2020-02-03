@@ -294,7 +294,7 @@ Versions listing
 Version detail
 ++++++++++++++
 
-.. http:get:: /api/v3/projects/{project}/versions/{version}
+.. http:get:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
 
     Retrieve details of a single version.
 
