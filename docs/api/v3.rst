@@ -346,7 +346,7 @@ Version detail
 Version update
 ++++++++++++++
 
-.. http:patch:: /api/v3/projects/(string:{projects})/versions/(string:{version})/
+.. http:patch:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
 
     Update a version.
 
