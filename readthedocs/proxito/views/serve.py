@@ -262,7 +262,7 @@ class ServeError404Base(ServeRedirectMixin, View):
                 )
                 storage_filename_path = os.path.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
-                    log.debug(
+                    log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
                         final_project.slug,
                         version_slug_404,
