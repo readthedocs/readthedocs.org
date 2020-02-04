@@ -24,6 +24,20 @@ class DockerBaseSettings(CommunityDevSettings):
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
+    # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
+    # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+    HOSTIP = os.environ.get('HOSTIP')
+
+    import platform
+    if platform.system() == 'Darwin':
+        # On Mac, host.docker.internal always point to the host's IP
+        HOSTIP = 'host.docker.internal'
+
+    ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
+
+    # Create a Token for an admin User and set it here.
+    ADSERVER_API_KEY = None
+
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
     ELASTICSEARCH_DSL = {

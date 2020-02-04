@@ -46,6 +46,7 @@ services:
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+      - HOSTIP=${HOSTIP:-}
     extra_hosts:
       - "community.dev.readthedocs.io:10.10.0.100"
 
