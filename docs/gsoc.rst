@@ -7,8 +7,11 @@ Google Summer of Code
           **Contacting us will not increase your chance of being accepted,
           but opening Pull Requests with docs and tests will.**
 
-Read the Docs is excited to be in the Google Summer of Code in 2019.
-This page will contain all the information for students and anyone else interested in helping.
+**Read the Docs will not be participating in the Google Summer of Code in 2020.**
+We hope to return to the program in the future,
+and appreciate the interest everyone has shown.
+
+You can see our :ref:`gsoc:Projects from previous years` for the work that students have done in the past.
 
 Skills
 ------
