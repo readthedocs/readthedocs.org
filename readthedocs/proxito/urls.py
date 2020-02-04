@@ -42,12 +42,23 @@ from readthedocs.proxito.views.serve import (
     ServeRobotsTXT,
     ServeSitemapXML,
 )
+from readthedocs.api.v2.views import footer_views
 from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 urlpatterns = [
+    # Proxied URLs
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}api/v2/footer_html'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        footer_views.FooterHTML.as_view(),
+        name='proxied_footer_html',
+    ),
     # Serve project downloads
     # /_/downloads/<lang>/<ver>/<type>/
     url(
