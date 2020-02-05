@@ -27,22 +27,26 @@ pip.rtfd.io/<lang>/
 * Can't have subprojects (pip.rtfd.io/en/projects/foo/en/latestindex.html)
     * This would stop us from detaching translations from Project modeling
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
+
+## Proxied API
+
+pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.views import defaults
 
-from readthedocs.constants import pattern_opts
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.views.public import ProjectDownloadMedia
+from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
     ServeRobotsTXT,
     ServeSitemapXML,
 )
-from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.utils import fast_404
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
@@ -76,6 +80,12 @@ urlpatterns = [
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
+    ),
+
+    # Serve proxied API
+    url(
+        r'^api/v2/',
+        include('readthedocs.api.v2.proxied_urls'),
     ),
 
     # Serve custom 404 pages
