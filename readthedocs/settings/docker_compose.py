@@ -19,7 +19,7 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
-    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'dev.readthedocs.build'
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']

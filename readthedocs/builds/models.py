@@ -302,27 +302,6 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         """Get absolute url to the docs of the version."""
-        # Hack external versions for now.
-        # TODO: We can integrate them into the resolver
-        # but this is much simpler to handle since we only link them a couple places for now
-        if self.type == EXTERNAL:
-            # Django's static file serving doesn't automatically append index.html
-            scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-            path = self.project.get_storage_path(
-                type_='html',
-                version_slug=self.slug,
-                version_type=self.type,
-                include_file=False,
-            )
-
-            # We don't want the `external/` part in the user-facing URL
-            if path.startswith(EXTERNAL):
-                path = path.replace(f'{EXTERNAL}/', '', 1)
-
-            domain = settings.RTD_EXTERNAL_VERSION_DOMAIN
-            url = f'{scheme}://{domain}/{path}/index.html'
-            return url
-
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -332,9 +311,11 @@ class Version(models.Model):
                 },
             )
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             private=private,
+            external=external,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ

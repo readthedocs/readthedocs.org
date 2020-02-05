@@ -45,9 +45,16 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
 
+        # Handle external domain
+        if request.external_domain:
+            self.version_type = EXTERNAL
+            log.warning('Replacing version slug from URL old=%s new=%s',
+                        version_slug, request.host_version_slug)
+            version_slug = request.host_version_slug
+
         if all([
                 self.version_type == EXTERNAL,
-                request.get_host() != settings.RTD_EXTERNAL_VERSION_DOMAIN,
+                settings.RTD_EXTERNAL_VERSION_DOMAIN not in request.get_host(),
         ]):
             log.warning(
                 'Trying to serve an EXTERNAL version under a not allowed '
@@ -118,7 +125,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             include_file=False,
             version_type=self.version_type,
-
         )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -150,6 +156,8 @@ class ServeDocs(SettingsOverrideObject):
 
 class ServeError404Base(ServeRedirectMixin, View):
 
+    version_type = INTERNAL
+
     def get(self, request, proxito_path, template_name='404.html'):
         """
         Handler for 404 pages on subdomains.
@@ -166,6 +174,10 @@ class ServeError404Base(ServeRedirectMixin, View):
         """
         # pylint: disable=too-many-locals
         log.info('Executing 404 handler. proxito_path=%s', proxito_path)
+
+        if request.external_domain:
+            self.version_type = EXTERNAL
+            version_slug = request.host_version_slug
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
@@ -185,6 +197,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             type_='html',
             version_slug=version_slug,
             include_file=False,
+            version_type=self.version_type,
         )
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
@@ -259,6 +272,7 @@ class ServeError404Base(ServeRedirectMixin, View):
                     type_='html',
                     version_slug=version_slug_404,
                     include_file=False,
+                    version_type=self.version_type,
                 )
                 storage_filename_path = os.path.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
@@ -283,6 +297,8 @@ class ServeError404(SettingsOverrideObject):
 
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
+    version_type = INTERNAL
+
     @method_decorator(map_project_slug)
     def get(self, request, project):
         """
@@ -291,6 +307,11 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
+
+        if request.external_domain:
+            self.version_type = EXTERNAL
+            version_slug = request.host_version_slug
+
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
@@ -311,7 +332,10 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             raise Http404()
 
         storage_path = project.get_storage_path(
-            type_='html', version_slug=version_slug, include_file=False
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
         )
         path = os.path.join(storage_path, 'robots.txt')
 
