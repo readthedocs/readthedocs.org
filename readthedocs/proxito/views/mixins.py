@@ -14,6 +14,8 @@ from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 
+from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.core.resolver import resolve
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
 log = logging.getLogger(__name__)  # noqa
@@ -22,6 +24,8 @@ log = logging.getLogger(__name__)  # noqa
 class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
+
+    version_type = INTERNAL
 
     def _serve_docs(
             self,
@@ -123,8 +127,31 @@ class ServeDocsMixin:
     def allowed_user(self, *args, **kwargs):
         return True
 
+    def get_version(self, request, version_slug):
+        # Handle external domain
+        if hasattr(request, 'external_domain'):
+            self.version_type = EXTERNAL
+            log.warning('Replacing version slug from URL old=%s new=%s',
+                        version_slug, request.host_version_slug)
+            version_slug = request.host_version_slug
+        return version_slug
+
 
 class ServeRedirectMixin:
+
+    def system_redirect(self, request, final_project, lang_slug, version_slug, filename):
+        urlparse_result = urlparse(request.get_full_path())
+        to = resolve(
+            project=final_project,
+            version_slug=version_slug,
+            filename=filename,
+            query_params=urlparse_result.query,
+            external=hasattr(request, 'external_domain'),
+        )
+        log.info('System Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        resp = HttpResponseRedirect(to)
+        resp['X-RTD-System-Redirect'] = True
+        return resp
 
     def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
         """
@@ -172,6 +199,10 @@ class ServeRedirectMixin:
             raise InfiniteRedirectException()
 
         if http_status and http_status == 301:
-            return HttpResponsePermanentRedirect(new_path)
+            resp = HttpResponsePermanentRedirect(new_path)
+        else:
+            resp = HttpResponseRedirect(new_path)
 
-        return HttpResponseRedirect(new_path)
+        # Add a user-visible header to make debugging easier
+        resp['X-RTD-User-Redirect'] = True
+        return resp

@@ -108,7 +108,7 @@ class ResolverBase:
         language = language or project.language
 
         if private is None:
-            private, external = self._get_private_and_external(project, version_slug)
+            private, _ = self._get_private_and_external(project, version_slug)
 
         filename = self._fix_filename(project, filename)
 
@@ -231,9 +231,11 @@ class ResolverBase:
         return project
 
     def _get_external_subdomain(self, project, version_slug):
-        """Determine canonical project domain as subdomain."""
+        """Determine domain for an external version."""
         project = self._get_canonical_project(project)
         subdomain_slug = project.slug.replace('_', '-')
+        # Version slug is in the domain so we can properly serve single-version projects
+        # and have them resolve the proper version from the PR.
         return f'{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}'
 
     def _get_project_subdomain(self, project):
