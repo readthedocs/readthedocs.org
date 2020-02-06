@@ -84,7 +84,9 @@ urlpatterns = [
 
     # Serve proxied API
     url(
-        r'^api/v2/',
+        r'^{DOC_PATH_PREFIX}api/v2/'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
         include('readthedocs.api.v2.proxied_urls'),
     ),
 
