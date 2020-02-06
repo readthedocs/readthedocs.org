@@ -1,15 +1,16 @@
 Google Summer of Code
 =====================
 
-.. note:: Thanks for your interest in Read the Docs!
-          Please follow the instructions in `Getting Started`_,
-          as a good place to start.
-          **Contacting us will not increase your chance of being accepted,
-          but opening Pull Requests with docs and tests will.**
 
-**Read the Docs will not be participating in the Google Summer of Code in 2020.**
-We hope to return to the program in the future,
-and appreciate the interest everyone has shown.
+.. warning:: **Read the Docs will not be participating in the Google Summer of Code in 2020.**
+             We hope to return to the program in the future,
+             and appreciate the interest everyone has shown.
+
+Thanks for your interest in Read the Docs!
+Please follow the instructions in `Getting Started`_,
+as a good place to start.
+**Contacting us will not increase your chance of being accepted,
+but opening Pull Requests with docs and tests will.**
 
 You can see our :ref:`gsoc:Projects from previous years` for the work that students have done in the past.
 
