@@ -1778,7 +1778,7 @@ def webhook_notification(version, build, hook_url):
     """
     project = version.project
 
-    data = json.dumps({
+    data = {
         'name': project.name,
         'slug': project.slug,
         'build': {
@@ -1788,7 +1788,7 @@ def webhook_notification(version, build, hook_url):
             'success': build.success,
             'date': build.date.strftime('%Y-%m-%d %H:%M:%S'),
         },
-    })
+    }
     log.debug(
         LOG_TEMPLATE,
         {
@@ -1798,7 +1798,7 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(hook_url, json=data)
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
