@@ -1305,6 +1305,7 @@ class ImportedFile(models.Model):
             project=self.project,
             version_slug=self.version.slug,
             filename=self.path,
+            external=False,
         )
 
     def __str__(self):

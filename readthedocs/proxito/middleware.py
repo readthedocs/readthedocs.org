@@ -16,7 +16,7 @@ from readthedocs.projects.models import Domain, Project
 log = logging.getLogger(__name__)  # noqa
 
 
-def map_host_to_project_slug(request):
+def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
     """
     Take the request and map the host to the proper project slug.
 
