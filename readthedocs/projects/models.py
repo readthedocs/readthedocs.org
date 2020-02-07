@@ -489,7 +489,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, private=None, external=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None, private=None, external=False):
         """
         Return a URL for the docs.
 
