@@ -65,11 +65,17 @@ def map_host_to_project_slug(request):
     if external_domain in host:
         # Serve custom versions on external-host-domain
         if external_domain_parts == host_parts[1:]:
-            project_slug, version_slug = host_parts[0].split('--', 1)
-            request.external_domain = True
-            request.host_version_slug = version_slug
-            log.debug('Proxito External Domain: host=%s', host)
-            return project_slug
+            try:
+                project_slug, version_slug = host_parts[0].split('--', 1)
+                request.external_domain = True
+                request.host_version_slug = version_slug
+                log.debug('Proxito External Domain: host=%s', host)
+                return project_slug
+            except ValueError:
+                log.warning('Weird variation on our hostname: host=%s', host)
+                return render(
+                    request, 'core/dns-404.html', context={'host': host}, status=400
+                )
 
     # Serve CNAMEs
     domain = Domain.objects.filter(domain=host).first()

@@ -127,7 +127,7 @@ class ServeDocsMixin:
     def allowed_user(self, *args, **kwargs):
         return True
 
-    def get_version(self, request, version_slug):
+    def set_version_from_host(self, request, version_slug):
         # Handle external domain
         if hasattr(request, 'external_domain'):
             self.version_type = EXTERNAL

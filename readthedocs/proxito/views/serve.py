@@ -35,9 +35,11 @@ class PageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             request,
             project_slug=None,
             subproject_slug=None,
+            version_slug=None,
             filename='',
     ):  # noqa
 
+        version_slug = self.set_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -46,7 +48,6 @@ class PageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=None,
             filename=filename,
         )
-        version_slug = self.get_version(request, version_slug)
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
 
@@ -61,8 +62,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename='',
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
-        version_slug = self.get_version(request, version_slug)
 
+        version_slug = self.set_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -72,7 +73,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.debug(
+        log.info(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
@@ -173,9 +174,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         )
 
         version_slug = kwargs.get('version_slug')
-
-        version_slug = self.get_version(request, version_slug)
-
+        version_slug = self.set_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=kwargs.get('project_slug'),
