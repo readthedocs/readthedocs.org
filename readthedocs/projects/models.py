@@ -493,7 +493,7 @@ class Project(models.Model):
         """
         Return a URL for the docs.
 
-        Always use http for now, to avoid content warnings.
+        ``external`` defaults False because we only link external versions in very specific places
         """
         return resolve(
             project=self,

@@ -368,10 +368,12 @@ class Version(models.Model):
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
             private=private,
+            external=external,
         )
 
     def get_downloads(self, pretty=False):
