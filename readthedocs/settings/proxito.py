@@ -29,7 +29,15 @@ class ProxitoDevSettings(base.CommunityBaseSettings):
             'readthedocs.core.middleware.SubdomainMiddleware'
         )
         classes[index] = 'readthedocs.proxito.middleware.ProxitoMiddleware'
-        classes.remove('readthedocs.core.middleware.SingleVersionMiddleware')
+
+        middleware_to_remove = (
+            'readthedocs.core.middleware.SingleVersionMiddleware',
+            'csp.middleware.CSPMiddleware',
+        )
+        for mw in middleware_to_remove:
+            if mw in classes:
+                classes.remove(mw)
+
         return classes
 
 
