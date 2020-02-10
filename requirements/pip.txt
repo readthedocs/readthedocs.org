@@ -74,7 +74,7 @@ pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
 mock==4.0.1
-stripe==2.38.0
+stripe==2.42.0
 regex==2019.11.1
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
