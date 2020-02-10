@@ -104,7 +104,7 @@ packaging==20.1
 django-cors-middleware==1.5.0
 
 # User agent parsing - used for analytics purposes
-user-agents==2.0
+user-agents==2.1
 
 # Utilities used to upload build media to cloud storage
 django-storages[azure]==1.7.2
