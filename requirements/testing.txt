@@ -2,7 +2,7 @@
 -r local-docs-build.txt
 
 django-dynamic-fixture==3.0.2
-pytest==5.2.2
+pytest==5.3.5
 pytest-django==3.6.0
 pytest-xdist==1.30.0
 pytest-cov==2.8.1
