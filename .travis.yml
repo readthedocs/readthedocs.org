@@ -28,7 +28,7 @@ install:
   - ./scripts/travis/install_node.sh
   - pip install tox-travis
 script:
-  - ./scripts/travis/run_tests.sh
+  - tox
 notifications:
   slack:
     rooms:
