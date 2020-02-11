@@ -250,6 +250,13 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             self.version = self.get_version(version_pk)
             self.project = self.version.project
 
+            if not Project.objects.is_active(self.project):
+                log.warning(
+                    'Sync not triggered because Project is not active: project=%s',
+                    self.project.slug,
+                )
+                return False
+
             if settings.DOCKER_ENABLE:
                 env_cls = DockerBuildEnvironment
             else:
@@ -409,6 +416,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.build_force = force
             self.commit = commit
             self.config = None
+
+            if not Project.objects.is_active(self.project):
+                log.warning(
+                    'Build not triggered because Project is not active: project=%s',
+                    self.project.slug,
+                )
+                return False
 
             # Build process starts here
             setup_successful = self.run_setup(record=record)
