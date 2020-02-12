@@ -1798,7 +1798,11 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(
+            hook_url,
+            data=data,
+            headers={'content-type': 'application/json'}
+        )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
