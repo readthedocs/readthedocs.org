@@ -74,7 +74,7 @@ def sync_versions(project):
     we always pass the default version.
 
     :returns: The version slug that was used to trigger the clone.
-    :rtype: str
+    :rtype: str or ``None`` if failed
     """
 
     if not Project.objects.is_active(project):
