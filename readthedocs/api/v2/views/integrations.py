@@ -159,6 +159,7 @@ class WebhookMixin:
             integration = Integration.objects.create(
                 project=self.project,
                 integration_type=self.integration_type,
+                provider_data={},
                 # If we didn't create the integration,
                 # we didn't set a secret.
                 secret=None,
@@ -196,13 +197,20 @@ class WebhookMixin:
             'versions': list(to_build),
         }
 
-    def sync_versions(self, project):
-        version = sync_versions(project)
+    def sync_versions(self, project, sync=True):
+        """
+        Trigger a sync and returns a response indicating if the build was triggered or not.
+
+        If `sync` is False, the sync isn't triggered and a response indicating so is returned.
+        """
+        version = None
+        if sync:
+            version = sync_versions(project)
         return {
             'build_triggered': False,
             'project': project.slug,
-            'versions': [version],
-            'versions_synced': True,
+            'versions': [version] if version else [],
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -390,7 +398,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                     (created and GITHUB_CREATE in events) or
                     (deleted and GITHUB_DELETE in events)
                 ):
-                    return None
+                    return self.sync_versions(self.project, sync=False)
             return self.sync_versions(self.project)
 
         elif (
