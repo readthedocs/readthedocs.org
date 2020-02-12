@@ -4,6 +4,7 @@ import logging
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import sync_repository_task
 
 
@@ -75,6 +76,14 @@ def sync_versions(project):
     :returns: The version slug that was used to trigger the clone.
     :rtype: str
     """
+
+    if not Project.objects.is_active(project):
+        log.warning(
+            'Sync not triggered because Project is not active: project=%s',
+            project.slug,
+        )
+        return None
+
     try:
         version_identifier = project.get_default_branch()
         version = (
