@@ -85,7 +85,16 @@ def sync_versions(project):
         if not version:
             log.info('Unable to sync from %s version', version_identifier)
             return None
-        sync_repository_task.delay(version.pk)
+
+        options = {}
+        if project.build_queue:
+            # respect the queue for this project
+            options['queue'] = project.build_queue
+
+        sync_repository_task.apply_async(
+            (version.pk,),
+            **options,
+        )
         return version.slug
     except Exception:
         log.exception('Unknown sync versions exception')
