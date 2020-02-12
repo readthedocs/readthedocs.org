@@ -424,7 +424,7 @@ Version detail
 Version update
 ++++++++++++++
 
-.. http:patch:: /api/v3/projects/(string:project_slug)/version/(string:version_slug)/
+.. http:patch:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
 
     Update a version.
 
@@ -460,7 +460,7 @@ Version update
     .. sourcecode:: json
 
         {
-            "active": true,
+            "active": true
         }
 
     :statuscode 204: Updated successfully

@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import traceback
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
+from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
@@ -825,7 +827,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                         ),
                     )
                     self.failure = exc
-                    self.build['state'] = BUILD_STATE_FINISHED
+                    if self.build:
+                        self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warning(
@@ -872,16 +875,27 @@ class DockerBuildEnvironment(BuildEnvironment):
             client = self.get_client()
             try:
                 client.kill(self.container_id)
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to kill. id=%s',
+                    self.container_id,
+                )
             except DockerAPIError:
                 log.exception(
                     'Unable to kill container: id=%s',
                     self.container_id,
                 )
+
             try:
                 log.info('Removing container: id=%s', self.container_id)
                 client.remove_container(self.container_id)
-            # Catch direct failures from Docker API or with a requests HTTP
-            # request. These errors should not surface to the user.
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to remove. id=%s',
+                    self.container_id,
+                )
+            # Catch direct failures from Docker API or with an HTTP request.
+            # These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
                     LOG_TEMPLATE,
@@ -910,7 +924,9 @@ class DockerBuildEnvironment(BuildEnvironment):
                 project_name=self.project.slug,
             )
         else:
-            name = f'sync-project-{self.project.pk}-{self.project.slug}'
+            # An uuid is added, so the container name is unique per sync.
+            uuid_ = uuid.uuid4().hex[:8]
+            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
         return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
