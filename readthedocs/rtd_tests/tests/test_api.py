@@ -1317,6 +1317,56 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+    def test_github_dont_trigger_double_sync(self, trigger_build):
+        """Don't trigger a sync twice if the webhook has the create/delete events."""
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data={
+                'events': [
+                    GITHUB_CREATE,
+                    GITHUB_DELETE,
+                ],
+            },
+            secret=None,
+        )
+
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+        }
+        payload = {
+            'ref': 'master',
+            'created': True,
+            'deleted': False,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+            **headers
+        )
+        self.assertFalse(resp.json()['versions_synced'])
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_CREATE,
+        }
+        payload = {'ref': 'master'}
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+            **headers
+        )
+        self.assertTrue(resp.json()['versions_synced'])
+
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
