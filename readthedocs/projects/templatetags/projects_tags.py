@@ -2,7 +2,7 @@
 
 from django import template
 
-from readthedocs.projects.utils import get_projects_last_owner
+from readthedocs.projects.utils import get_projects_only_owner
 from readthedocs.projects.version_handling import comparable_version
 
 register = template.Library()
@@ -28,6 +28,6 @@ def is_project_user(user, project):
 
 
 @register.filter
-def projects_last_owner(user):
+def projects_only_owner(user):
     """Returns projects where `user` is the last owner."""
-    return get_projects_last_owner(user)
+    return get_projects_only_owner(user)

@@ -19,7 +19,7 @@
         The following projects and all their documentation will be deleted.
       </p>
       <ul>
-        {% for project in user|projects_last_owner %}
+        {% for project in user|projects_only_owner %}
           <li>
             <a href="{{ project.get_absolute_url }}">{{ project.slug }}</a>
           </li>

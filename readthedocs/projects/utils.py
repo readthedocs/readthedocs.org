@@ -57,8 +57,8 @@ class Echo:
         return value
 
 
-def get_projects_last_owner(user):
-    """Get projects where `user` is the last owner."""
+def get_projects_only_owner(user):
+    """Get projects where `user` is the only owner."""
     from readthedocs.projects.models import Project
     return (
         Project.objects

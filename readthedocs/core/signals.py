@@ -12,7 +12,7 @@ from rest_framework.permissions import SAFE_METHODS
 
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Domain, Project
-from readthedocs.projects.utils import get_projects_last_owner
+from readthedocs.projects.utils import get_projects_only_owner
 
 log = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
 def delete_projects_and_organizations(sender, instance, *args, **kwargs):
     user = instance
-    projects = get_projects_last_owner(user)
+    projects = get_projects_only_owner(user)
 
     # Here we count the users list from the organization that the user belong
     # Then exclude the organizations where there are more than one user
