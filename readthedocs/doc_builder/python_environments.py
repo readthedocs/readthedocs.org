@@ -12,6 +12,7 @@ import yaml
 
 from django.conf import settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
@@ -234,7 +235,11 @@ class PythonEnvironment:
         it returns sha256 hash of empty string.
         """
         m = hashlib.sha256()
+
         env_vars = self.version.project.environment_variables
+        if self.version.type == EXTERNAL:
+            env_vars = {}
+
         for variable, value in env_vars.items():
             hash_str = f'_{variable}_{value}_'
             m.update(hash_str.encode('utf-8'))
@@ -293,7 +298,10 @@ class Virtualenv(PythonEnvironment):
             self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
-            '--no-download',
+            # This is removed because of the pip breakage,
+            # it was sometimes installing pip 20.0 which broke everything
+            # https://github.com/readthedocs/readthedocs.org/issues/6585
+            # '--no-download',
             env_path,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,

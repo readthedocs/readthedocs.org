@@ -349,7 +349,7 @@ class BuildEnvironmentTests(TestCase):
         task.config = mock.Mock(conda=None)
 
         env = {
-            'READTHEDOCS': True,
+            'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': version.slug,
             'READTHEDOCS_PROJECT': project.slug,
             'READTHEDOCS_LANGUAGE': project.language,

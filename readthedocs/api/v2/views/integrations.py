@@ -202,6 +202,7 @@ class WebhookMixin:
             'build_triggered': False,
             'project': project.slug,
             'versions': [version],
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -359,6 +360,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def handle_webhook(self):
         # Get event and trigger other webhook events
         action = self.data.get('action', None)
+        created = self.data.get('created', False)
+        deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -366,17 +369,19 @@ class GitHubWebhookView(WebhookMixin, APIView):
             data=self.data,
             event=event,
         )
-        # Handle push events and trigger builds
-        if event == GITHUB_PUSH:
+        # Don't build a branch if it's a push that was actually a delete
+        # https://developer.github.com/v3/activity/events/types/#pushevent
+        if event == GITHUB_PUSH and not (deleted or created):
             try:
                 branches = [self._normalize_ref(self.data['ref'])]
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
-        if event in (GITHUB_CREATE, GITHUB_DELETE):
+        # Sync versions on other PUSH events that create or delete
+        elif event in (GITHUB_CREATE, GITHUB_DELETE, GITHUB_PUSH):
             return self.sync_versions(self.project)
 
-        if (
+        elif (
             self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
             event == GITHUB_PULL_REQUEST and action
         ):

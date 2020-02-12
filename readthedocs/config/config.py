@@ -637,6 +637,7 @@ class BuildConfigV2(BuildConfigBase):
     valid_sphinx_builders = {
         'html': 'sphinx',
         'htmldir': 'sphinx_htmldir',
+        'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
     builders_display = dict(DOCUMENTATION_CHOICES)

@@ -35,7 +35,7 @@ option.
 After this image is downloaded, you can update your settings to use the new
 image -- see `Configuration`_.
 
-.. _`Docker`: http://docker.com
+.. _`Docker`: https://www.docker.com
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
 .. _`container image repo`: https://github.com/readthedocs/readthedocs-docker-images
 

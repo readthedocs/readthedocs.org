@@ -8,7 +8,7 @@ class DockerBaseSettings(CommunityDevSettings):
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
-    RTD_DOCKER_COMPOSE_VOLUME = 'readthedocsorg_build-user-builds'
+    RTD_DOCKER_COMPOSE_VOLUME = 'community_build-user-builds'
     RTD_DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
@@ -19,12 +19,27 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
+    # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
+    # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+    HOSTIP = os.environ.get('HOSTIP')
+
+    import platform
+    if platform.system() == 'Darwin':
+        # On Mac, host.docker.internal always point to the host's IP
+        HOSTIP = 'host.docker.internal'
+
+    ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
+
+    # Create a Token for an admin User and set it here.
+    ADSERVER_API_KEY = None
+
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True
+    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
     ELASTICSEARCH_DSL = {
         'default': {
             'hosts': 'search:9200',
@@ -58,6 +73,10 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+    }
+
     ACCOUNT_EMAIL_VERIFICATION = "none"
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
@@ -89,11 +108,11 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
-    RTD_BUILD_MEDIA_STORAGE = 'readthedocsext.storage.azure_storage.AzureBuildMediaStorage'
+    RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
     AZURE_STATIC_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
 
     # Storage for static files (those collected with `collectstatic`)
-    STATICFILES_STORAGE = 'readthedocsext.storage.azure_storage.AzureStaticStorage'
+    STATICFILES_STORAGE = 'readthedocs.storage.azure_storage.AzureStaticStorage'
 
     STATICFILES_DIRS = [
         os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
@@ -101,7 +120,6 @@ class DockerBaseSettings(CommunityDevSettings):
     ]
     AZURE_BUILD_STORAGE_CONTAINER = 'builds'
     BUILD_COLD_STORAGE_URL = 'http://storage:10000/builds'
-    EXTERNAL_VERSION_URL = 'http://external-builds.community.dev.readthedocs.io'
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False

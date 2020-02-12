@@ -76,7 +76,7 @@ You can configure these settings in a ``readthedocs.yml`` file.
 See our :doc:`/config-file/index` docs for more details.
 
 It is also important to note that the default version of Sphinx is ``v1.8.5``. If
-chosing to build your documentation other than this, it must be specified in a
+choosing to build your documentation other than this, it must be specified in a
 ``requirements.txt`` file.
 
 Read the Docs will host multiple versions of your code. You can read more about

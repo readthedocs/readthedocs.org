@@ -1,6 +1,7 @@
 import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
+from slugify import slugify as unicode_slugify
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class
@@ -12,6 +13,8 @@ from django.http import (
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
+
+from readthedocs.redirects.exceptions import InfiniteRedirectException
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -37,7 +40,8 @@ class ServeDocsMixin:
 
         If ``download`` and ``version_slug`` are passed, when serving via NGINX
         the HTTP header ``Content-Disposition`` is added with the proper
-        filename (e.g. "pip-latest.pdf" or "pip-v2.0.pdf")
+        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
+        or "docs-celeryproject-org-kombu-en-stable.pdf")
         """
 
         if settings.PYTHON_MEDIA:
@@ -100,7 +104,12 @@ class ServeDocsMixin:
 
         if download:
             filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            filename = f'{final_project.slug}-{version_slug}.{filename_ext}'
+            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
+            if final_project.is_subproject:
+                alias = final_project.alias
+                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
+            else:
+                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
         return response
@@ -110,6 +119,9 @@ class ServeDocsMixin:
         res.status_code = 401
         log.debug('Unauthorized access to %s documentation', project.slug)
         return res
+
+    def allowed_user(self, *args, **kwargs):
+        return True
 
 
 class ServeRedirectMixin:
@@ -129,14 +141,15 @@ class ServeRedirectMixin:
         )
         return redirect_path, http_status
 
-    def get_redirect_response(self, request, redirect_path, http_status):
+    def get_redirect_response(self, request, redirect_path, proxito_path, http_status):
         """
-        Build the response for the ``redirect_path`` and its ``http_status``.
+        Build the response for the ``redirect_path``, ``proxito_path`` and its ``http_status``.
 
         :returns: redirect respose with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
-        schema, netloc, path, params, query, fragments = urlparse(request.path)
+
+        schema, netloc, path, params, query, fragments = urlparse(proxito_path)
         new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
 
         # Re-use the domain and protocol used in the current request.
@@ -145,10 +158,18 @@ class ServeRedirectMixin:
         new_path = request.build_absolute_uri(new_path)
         log.info(
             'Redirecting: from=%s to=%s http_status=%s',
-            request.build_absolute_uri(),
+            request.build_absolute_uri(proxito_path),
             new_path,
             http_status,
         )
+
+        if request.build_absolute_uri(proxito_path) == new_path:
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                new_path,
+            )
+            raise InfiniteRedirectException()
 
         if http_status and http_status == 301:
             return HttpResponsePermanentRedirect(new_path)

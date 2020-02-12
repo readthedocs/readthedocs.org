@@ -52,6 +52,7 @@ from .constants import (
 
 
 log = logging.getLogger(__name__)
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 
 class ProjectRelationship(models.Model):
@@ -464,7 +465,7 @@ class Project(models.Model):
         except Exception:
             log.exception('failed to update static metadata')
         try:
-            branch = self.default_branch or self.vcs_repo().fallback_branch
+            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
         except Exception:
@@ -607,22 +608,35 @@ class Project(models.Model):
             )
         return path
 
-    def get_production_media_url(self, type_, version_slug, full_path=True):
+    def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
-        try:
-            path = reverse(
-                'project_download_media',
-                kwargs={
-                    'project_slug': self.slug,
-                    'type_': type_,
-                    'version_slug': version_slug,
-                },
-            )
-        except NoReverseMatch:
-            return ''
-        if full_path:
-            path = '//{}{}'.format(settings.PRODUCTION_DOMAIN, path)
+        # Use project domain for full path --same domain as docs
+        # (project-slug.{PUBLIC_DOMAIN} or docs.project.com)
+        domain = self.subdomain()
+
+        # NOTE: we can't use ``reverse('project_download_media')`` here
+        # because this URL only exists in El Proxito and this method is
+        # accessed from Web instance
+
+        if self.is_subproject:
+            # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+        else:
+            # docs.example.com/_/downloads/<lang>/<ver>/pdf/
+            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
+
         return path
+
+    @property
+    def is_subproject(self):
+        """Return whether or not this project is a subproject."""
+        return self.superprojects.exists()
+
+    @property
+    def alias(self):
+        """Return the alias (as subproject) if it's a subproject."""  # noqa
+        if self.is_subproject:
+            return self.superprojects.first().alias
 
     def subdomain(self):
         """Get project subdomain from resolver."""
@@ -630,18 +644,14 @@ class Project(models.Model):
 
     def get_downloads(self):
         downloads = {}
-        downloads['htmlzip'] = self.get_production_media_url(
-            'htmlzip',
-            self.get_default_version(),
-        )
-        downloads['epub'] = self.get_production_media_url(
-            'epub',
-            self.get_default_version(),
-        )
-        downloads['pdf'] = self.get_production_media_url(
-            'pdf',
-            self.get_default_version(),
-        )
+        default_version = self.get_default_version()
+
+        for type_ in ('htmlzip', 'epub', 'pdf'):
+            downloads[type_] = self.get_production_media_url(
+                type_,
+                default_version,
+            )
+
         return downloads
 
     @property
@@ -663,8 +673,6 @@ class Project(models.Model):
     @property
     def pip_cache_path(self):
         """Path to pip cache."""
-        if settings.GLOBAL_PIP_CACHE and settings.DEBUG:
-            return settings.GLOBAL_PIP_CACHE
         return os.path.join(self.doc_path, '.cache', 'pip')
 
     #
@@ -832,7 +840,7 @@ class Project(models.Model):
         # ``version.slug`` instead of a ``Version`` instance (I prefer an
         # instance here)
 
-        backend = backend_cls.get(self.repo_type)
+        backend = self.vcs_class()
         if not backend:
             repo = None
         else:
@@ -841,6 +849,14 @@ class Project(models.Model):
                 verbose_name=verbose_name, version_type=version_type
             )
         return repo
+
+    def vcs_class(self):
+        """
+        Get the class used for VCS operations.
+
+        This is useful when doing operations that don't need to have the repository on disk.
+        """
+        return backend_cls.get(self.repo_type)
 
     def git_service_class(self):
         """Get the service class for project. e.g: GitHubService, GitLabService."""
@@ -938,8 +954,7 @@ class Project(models.Model):
     def api_versions(self):
         from readthedocs.builds.models import APIVersion
         ret = []
-        for version_data in api.project(self.pk
-                                        ).active_versions.get()['versions']:
+        for version_data in api.project(self.pk).active_versions.get()['versions']:
             version = APIVersion(**version_data)
             ret.append(version)
         return sort_version_aware(ret)
@@ -1073,7 +1088,7 @@ class Project(models.Model):
         """Get the version representing 'latest'."""
         if self.default_branch:
             return self.default_branch
-        return self.vcs_repo().fallback_branch
+        return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, __ = ProjectRelationship.objects.get_or_create(
@@ -1158,6 +1173,44 @@ class Project(models.Model):
             variable.name: variable.value
             for variable in self.environmentvariable_set.all()
         }
+
+    def is_valid_as_superproject(self, error_class):
+        """
+        Checks if the project can be a superproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the parent project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Subproject nesting is not supported'),
+            )
+
+    def is_valid_as_subproject(self, parent, error_class):
+        """
+        Checks if the project can be a subproject.
+
+        This is used to handle form and serializer validations
+        if check fails returns ValidationError using to the error_class passed
+        """
+        # Check the child project is not a subproject already
+        if self.superprojects.exists():
+            raise error_class(
+                _('Child is already a subproject of another project'),
+            )
+
+        # Check the child project is already a superproject
+        if self.subprojects.exists():
+            raise error_class(
+                _('Child is already a superproject'),
+            )
+
+        # Check the parent and child are not the same project
+        if parent.slug == self.slug:
+            raise error_class(
+                _('Project can not be subproject of itself'),
+            )
 
 
 class APIProject(Project):
@@ -1448,7 +1501,7 @@ class Feature(models.Model):
     EXTERNAL_VERSION_BUILD = 'external_version_build'
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
-    SEARCH_ANALYTICS = 'search_analytics'
+    ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1501,9 +1554,12 @@ class Feature(models.Model):
             _('Append Read the Docs core requirements to environment.yml file'),
         ),
         (
-            SEARCH_ANALYTICS,
-            _('Enable search analytics'),
-        )
+            ALL_VERSIONS_IN_HTML_CONTEXT,
+            _(
+                'Pass all versions (including private) into the html context '
+                'when building with Sphinx'
+            ),
+        ),
     )
 
     projects = models.ManyToManyField(
