@@ -202,7 +202,7 @@ class WebhookMixin:
             'build_triggered': False,
             'project': project.slug,
             'versions': [version],
-            'versions_synced': True,
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
