@@ -6,7 +6,7 @@ dist: xenial
 jobs:
   include:
     - python: 3.6
-      env: TOXENV=py36,codecov ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
+      env: TOXENV=py36,codecov TRAVIS_TOX_POSARGS='' ES_VERSION=6.2.4 ES_DOWNLOAD_URL=https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ES_VERSION}.tar.gz
     - python: 3.6
       env: TOXENV=docs
     - python: 3.6
