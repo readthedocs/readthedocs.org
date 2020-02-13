@@ -255,11 +255,10 @@ class BuildConfigBase:
     def python_full_version(self):
         ver = self.python.version
         if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                v for v in self.get_valid_python_versions()
-                if not isinstance(v, str) and v < ver + 1
+            # use default Python version if user only set '2', or '3'
+            return self.get_default_python_version_for_image(
+                self.build.image,
+                ver,
             )
         return ver
 
@@ -295,6 +294,28 @@ class BuildConfigBase:
                 self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+
+    def get_default_python_version_for_image(self, build_image, python):
+        """
+        Return the default Python version for Docker image and Py2 or Py3.
+
+        :param build_image: the Docker image complete name, already validated
+            (``readthedocs/build:4.0``, not just ``4.0``)
+        :type build_image: str
+
+        :param python: major Python version (``2`` or ``3``) to get its default
+            full version
+        :type python: int
+
+        :returns: default version for the ``DOCKER_DEFAULT_VERSION`` if not
+                  ``build_image`` found.
+        """
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                settings.DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
+            )
+        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['default_version'][python]
 
     def as_dict(self):
         config = {}
