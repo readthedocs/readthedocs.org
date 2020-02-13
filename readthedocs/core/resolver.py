@@ -281,7 +281,6 @@ class ResolverBase:
         return settings.USE_SUBDOMAIN and settings.PUBLIC_DOMAIN is not None
 
 
-
 class Resolver(SettingsOverrideObject):
 
     _default_class = ResolverBase
