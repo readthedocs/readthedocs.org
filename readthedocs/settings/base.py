@@ -415,7 +415,7 @@ class CommunityBaseSettings(Settings):
                 },
             },
         },
-        'readthedocs/build:6.0rc1': {
+        'readthedocs/build:6.0': {
             'python': {
                 'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
                 'default_version': {
@@ -428,8 +428,8 @@ class CommunityBaseSettings(Settings):
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
     })
 
     # All auth
