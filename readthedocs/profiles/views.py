@@ -47,7 +47,7 @@ class ProfileEdit(PrivateViewMixin, UpdateView):
         )
 
 
-class BaseAccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
+class AccountDeleteBase(PrivateViewMixin, SuccessMessageMixin, FormView):
 
     form_class = UserDeleteForm
     template_name = 'profiles/private/delete_account.html'
@@ -82,7 +82,7 @@ class BaseAccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
 
 class AccountDelete(SettingsOverrideObject):
 
-    _default_class = BaseAccountDelete
+    _default_class = AccountDeleteBase
 
 
 class ProfileDetail(DetailView):
