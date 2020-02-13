@@ -124,4 +124,6 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
 
-    DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
+    # Remove the checks on the number of fields being submitted
+    # This limit is mostly hit on large forms in the Django admin
+    DATA_UPLOAD_MAX_NUMBER_FIELDS = None
