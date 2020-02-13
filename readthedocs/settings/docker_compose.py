@@ -123,3 +123,5 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
+
+    DATA_UPLOAD_MAX_NUMBER_FIELDS = 1000000
