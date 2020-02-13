@@ -41,7 +41,11 @@ def _get_project_data_from_request(
     if current_project.single_version:
         if lang_slug and version_slug:
             filename = os.path.join(lang_slug, version_slug, filename)
-            log.warning('URL looks like versioned, fixing, url=%s', filename)
+            log.warning(
+                'URL looks like versioned on a single version project.'
+                'Changing filename to match. filename=%s',
+                filename
+            )
             lang_slug = version_slug = None
 
     # Check to see if we need to serve a translation

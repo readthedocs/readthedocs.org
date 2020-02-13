@@ -1305,6 +1305,7 @@ class ImportedFile(models.Model):
             project=self.project,
             version_slug=self.version.slug,
             filename=self.path,
+            # this should always be False because we don't have ImportedFile's for external versions
             external=False,
         )
 

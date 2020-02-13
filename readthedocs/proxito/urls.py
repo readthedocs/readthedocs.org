@@ -36,7 +36,7 @@ from django.views import defaults
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
-    PageRedirect,
+    ServePageRedirect,
     ServeDocs,
     ServeError404,
     ServeRobotsTXT,
@@ -91,7 +91,7 @@ urlpatterns = [
     url(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        PageRedirect.as_view(),
+        ServePageRedirect.as_view(),
         name='redirect_page_with_filename',
     ),
 

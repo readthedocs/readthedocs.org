@@ -30,7 +30,7 @@ from .utils import _get_project_data_from_request
 log = logging.getLogger(__name__)  # noqa
 
 
-class PageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
     def get(self,
             request,
             project_slug=None,
@@ -39,7 +39,7 @@ class PageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             filename='',
     ):  # noqa
 
-        version_slug = self.set_version_from_host(request, version_slug)
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -63,7 +63,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
 
-        version_slug = self.set_version_from_host(request, version_slug)
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -81,7 +81,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         # Handle a / redirect when we aren't a single version
         if all([
                 lang_slug is None,
-                # External domains will always have a version
+                # External versions/builds will always have a version,
+                # because it is taken from the host name
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
@@ -174,7 +175,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         )
 
         version_slug = kwargs.get('version_slug')
-        version_slug = self.set_version_from_host(request, version_slug)
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=kwargs.get('project_slug'),
