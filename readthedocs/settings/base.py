@@ -424,6 +424,15 @@ class CommunityBaseSettings(Settings):
                 },
             },
         },
+        'readthedocs/build:testing': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
