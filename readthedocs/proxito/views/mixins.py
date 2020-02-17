@@ -121,6 +121,7 @@ class ServeDocsMixin:
             response['Content-Disposition'] = f'filename={filename}'
 
         # Add debugging headers to proxito responses
+        response['X-RTD-Domain'] = request.get_host()
         response['X-RTD-Project'] = final_project.slug
         response['X-RTD-Version'] = version_slug
         response['X-RTD-Path'] = path
