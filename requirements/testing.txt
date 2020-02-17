@@ -1,7 +1,7 @@
 -r pip.txt
 -r local-docs-build.txt
 
-django-dynamic-fixture==3.0.2
+django-dynamic-fixture==2.0.0
 pytest==5.3.5
 pytest-django==3.8.0
 pytest-xdist==1.31.0

@@ -101,7 +101,7 @@ dj-pagination==2.4.0
 packaging==20.1
 
 # Commenting stuff
-django-cors-middleware==1.5.0
+django-cors-middleware==1.4.0
 
 # User agent parsing - used for analytics purposes
 user-agents==2.1
