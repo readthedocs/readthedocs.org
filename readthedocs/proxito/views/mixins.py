@@ -1,3 +1,4 @@
+import copy
 import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
@@ -83,12 +84,15 @@ class ServeDocsMixin:
         Returns a response with ``X-Accel-Redirect``, which will cause nginx to
         serve it directly as an internal redirect.
         """
-        log.info('[Nginx serve] path=%s, project=%s', path, final_project.slug)
 
+        original_path = copy.copy(path)
         if not path.startswith('/proxito/'):
             if path[0] == '/':
                 path = path[1:]
             path = f'/proxito/{path}'
+
+        log.info('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
+                 original_path, path, final_project.slug)
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -116,6 +120,10 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
+        # Add debugging headers to proxito responses
+        response['X-RTD-Project'] = final_project.slug
+        response['X-RTD-Version'] = version_slug
+        response['X-RTD-Path'] = path
         return response
 
     def _serve_401(self, request, project):
@@ -140,6 +148,11 @@ class ServeDocsMixin:
 class ServeRedirectMixin:
 
     def system_redirect(self, request, final_project, lang_slug, version_slug, filename):
+        """
+        Return a redirect that is defined by RTD instead of the user.
+
+        This is normally used for `/` and `/page/*` redirects.
+        """
         urlparse_result = urlparse(request.get_full_path())
         to = resolve(
             project=final_project,
