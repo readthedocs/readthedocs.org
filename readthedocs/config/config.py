@@ -30,11 +30,10 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_path,
     validate_list,
+    validate_path,
     validate_string,
 )
-
 
 __all__ = (
     'ALL',
@@ -83,7 +82,7 @@ class ConfigFileNotFound(ConfigError):
 
     def __init__(self, directory):
         super().__init__(
-            f"Configuration file not found in: {directory}",
+            f'Configuration file not found in: {directory}',
             CONFIG_FILE_REQUIRED,
         )
 
@@ -315,7 +314,11 @@ class BuildConfigBase:
                 settings.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['default_version'][python_version]
+        return (
+            # For linting
+            settings.DOCKER_IMAGE_SETTINGS[build_image]['python']
+            ['default_version'][python_version]
+        )
 
     def as_dict(self):
         config = {}
@@ -426,7 +429,9 @@ class BuildConfigV1(BuildConfigBase):
                 )
         # Update docker default settings from image name
         if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
+            self.env_config.update(
+                settings.DOCKER_IMAGE_SETTINGS[build['image']]
+            )
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
