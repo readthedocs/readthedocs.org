@@ -19,14 +19,6 @@ def fast_404(request, *args, **kwargs):
     return HttpResponse('Not Found.', status=404)
 
 
-def _fallback():
-    # TODO: This currently isn't used. It might be though, so keeping it for now
-    res = HttpResponse('Internal fallback to RTD app')
-    res.status_code = 420
-    log.debug('Falling back to RTD app')
-    return res
-
-
 @map_project_slug
 @map_subproject_slug
 def _get_project_data_from_request(
@@ -49,6 +41,11 @@ def _get_project_data_from_request(
     if current_project.single_version:
         if lang_slug and version_slug:
             filename = os.path.join(lang_slug, version_slug, filename)
+            log.warning(
+                'URL looks like versioned on a single version project.'
+                'Changing filename to match. filename=%s',
+                filename
+            )
             lang_slug = version_slug = None
 
     # Check to see if we need to serve a translation
