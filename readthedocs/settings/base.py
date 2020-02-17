@@ -370,6 +370,24 @@ class CommunityBaseSettings(Settings):
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
+        'readthedocs/build:2.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
+        },
+        'readthedocs/build:3.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.6,
+                },
+            },
+        },
         'readthedocs/build:4.0': {
             'python': {
                 'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
