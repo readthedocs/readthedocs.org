@@ -125,6 +125,15 @@ class ServeDocsMixin:
         response['X-RTD-Project'] = final_project.slug
         response['X-RTD-Version'] = version_slug
         response['X-RTD-Path'] = path
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Version-Method'] = 'rtdheader'
+        if hasattr(request, 'subdomain'):
+            response['X-RTD-Version-Method'] = 'subdomain'
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'external_domain'
+        if hasattr(request, 'cname'):
+            response['X-RTD-Version-Method'] = 'cname'
+
         return response
 
     def _serve_401(self, request, project):
