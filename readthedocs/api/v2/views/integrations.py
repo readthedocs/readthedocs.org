@@ -159,7 +159,6 @@ class WebhookMixin:
             integration = Integration.objects.create(
                 project=self.project,
                 integration_type=self.integration_type,
-                provider_data={},
                 # If we didn't create the integration,
                 # we didn't set a secret.
                 secret=None,
