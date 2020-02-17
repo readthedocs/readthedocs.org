@@ -295,7 +295,7 @@ class BuildConfigBase:
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
 
-    def get_default_python_version_for_image(self, build_image, python):
+    def get_default_python_version_for_image(self, build_image, python_version):
         """
         Return the default Python version for Docker image and Py2 or Py3.
 
@@ -303,9 +303,9 @@ class BuildConfigBase:
             (``readthedocs/build:4.0``, not just ``4.0``)
         :type build_image: str
 
-        :param python: major Python version (``2`` or ``3``) to get its default
-            full version
-        :type python: int
+        :param python_version: major Python version (``2`` or ``3``) to get its
+            default full version
+        :type python_version: int
 
         :returns: default version for the ``DOCKER_DEFAULT_VERSION`` if not
                   ``build_image`` found.
@@ -315,7 +315,7 @@ class BuildConfigBase:
                 settings.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['default_version'][python]
+        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['default_version'][python_version]
 
     def as_dict(self):
         config = {}
