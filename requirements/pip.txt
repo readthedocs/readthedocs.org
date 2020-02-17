@@ -21,7 +21,7 @@ drf-flex-fields==0.7.5
 drf-extensions==0.6.0
 
 django-vanilla-views==1.0.6
-jsonfield==2.0.2
+jsonfield==3.0.0
 
 requests==2.22.0
 requests-toolbelt==0.9.1
