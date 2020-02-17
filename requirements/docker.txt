@@ -1,6 +1,6 @@
 -r pip.txt
 # http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
-psycopg2-binary==2.8.3
+psycopg2-binary==2.8.4
 django-redis-cache==2.1.0
 
 # For resizing images
