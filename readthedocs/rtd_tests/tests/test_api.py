@@ -1345,6 +1345,38 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
 
+    def test_github_sync_on_push_event(self, trigger_build):
+        """Sync if the webhook doesn't have the create/delete events, but we recieve a push event with created/deleted."""
+        integration = Integration.objects.create(
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+            provider_data={
+                'events': [],
+            },
+            secret=None,
+        )
+
+        client = APIClient()
+
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+        }
+        payload = {
+            'ref': 'master',
+            'created': True,
+            'deleted': False,
+        }
+        resp = client.post(
+            reverse(
+                'api_webhook_github',
+                kwargs={'project_slug': self.project.slug}
+            ),
+            payload,
+            format='json',
+            **headers
+        )
+        self.assertTrue(resp.json()['versions_synced'])
+
     def test_github_dont_trigger_double_sync(self, trigger_build):
         """Don't trigger a sync twice if the webhook has the create/delete events."""
         integration = Integration.objects.create(
