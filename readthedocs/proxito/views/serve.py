@@ -45,7 +45,7 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
             project_slug=project_slug,
             subproject_slug=subproject_slug,
             lang_slug=None,
-            version_slug=None,
+            version_slug=version_slug,
             filename=filename,
         )
         return self.system_redirect(request, final_project, lang_slug, version_slug, filename)

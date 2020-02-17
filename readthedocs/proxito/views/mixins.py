@@ -164,6 +164,8 @@ class ServeRedirectMixin:
         This is normally used for `/` and `/page/*` redirects.
         """
         urlparse_result = urlparse(request.get_full_path())
+        if hasattr(request, 'external_domain'):
+            log.debug('Request is external')
         to = resolve(
             project=final_project,
             version_slug=version_slug,
