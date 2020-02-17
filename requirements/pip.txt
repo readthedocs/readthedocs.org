@@ -40,7 +40,7 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.41.0
+django-allauth==0.40.0
 
 GitPython==3.0.7
 
