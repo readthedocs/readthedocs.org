@@ -232,7 +232,6 @@ class ResolverBase:
 
     def _get_external_subdomain(self, project, version_slug):
         """Determine domain for an external version."""
-        project = self._get_canonical_project(project)
         subdomain_slug = project.slug.replace('_', '-')
         # Version slug is in the domain so we can properly serve single-version projects
         # and have them resolve the proper version from the PR.
@@ -240,10 +239,8 @@ class ResolverBase:
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        if self._use_subdomain():
-            project = self._get_canonical_project(project)
-            subdomain_slug = project.slug.replace('_', '-')
-            return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
+        subdomain_slug = project.slug.replace('_', '-')
+        return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
     def _get_private_and_external(self, project, version_slug):
         from readthedocs.builds.models import Version
