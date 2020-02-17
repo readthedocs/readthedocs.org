@@ -371,22 +371,58 @@ class CommunityBaseSettings(Settings):
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         'readthedocs/build:1.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.4],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.4,
+                },
+            },
         },
         'readthedocs/build:2.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
         },
         'readthedocs/build:3.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.6,
+                },
+            },
         },
         'readthedocs/build:4.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:6.0rc1': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
     }
 
