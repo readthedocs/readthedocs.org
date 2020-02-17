@@ -20,7 +20,7 @@ git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c
 git+https://github.com/readthedocs/readthedocs-sphinx-search@master
 
 
-Pygments==2.4.2
+Pygments==2.5.2
 
 mkdocs==1.0.4
 Markdown==3.1.1
