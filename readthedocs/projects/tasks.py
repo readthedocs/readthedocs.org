@@ -154,7 +154,7 @@ class SyncRepositoryMixin:
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build to the stable version when hittig the
+        It may trigger a new build to the stable version when hitting the
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
@@ -1798,7 +1798,11 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(
+            hook_url,
+            data=data,
+            headers={'content-type': 'application/json'}
+        )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 
