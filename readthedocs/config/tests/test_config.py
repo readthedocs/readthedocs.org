@@ -974,8 +974,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [1, 2.8, 4, 3.8]),
-            ('stable', [1, 2.8, 4, 3.8]),
+            ('latest', [1, 2.8, 4]),
+            ('stable', [1, 2.8, 4]),
         ],
     )
     def test_python_version_invalid(self, image, versions):
