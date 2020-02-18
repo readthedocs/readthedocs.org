@@ -98,7 +98,7 @@ From a repository manager other than PyPI
 -----------------------------------------
 
 Pip by default will install your packages from `PyPI <https://pypi.org/>`__.
-If you use a repository manager like *pypiserver*, or *Nexus Repository*,
+If you are using a repository manager like *pypiserver*, or *Nexus Repository*,
 you need to set the :option:`pip:--index-url` option.
 You have two ways of set that option:
 
