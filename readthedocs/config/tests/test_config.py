@@ -528,8 +528,8 @@ class TestValidateBuild:
         build = BuildConfigV1(
             {},
             {
-                'build': {'image': 1.0},
-                'python': {'version': '3.3'},
+                'build': {'image': 2.0},
+                'python': {'version': '3.8'},
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -1000,9 +1000,7 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,default_version',
         [
-            ('1.0', 3.4),
             ('2.0', 3.5),
-            ('3.0', 3.6),
             ('4.0', 3.7),
             ('5.0', 3.7),
             ('latest', 3.7),
