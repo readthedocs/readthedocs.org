@@ -192,7 +192,10 @@ class ResolverBase:
             # or fallback to settings
             settings.PUBLIC_DOMAIN_USES_HTTPS and
             settings.PUBLIC_DOMAIN and
-            settings.PUBLIC_DOMAIN in domain,
+            any([
+                settings.PUBLIC_DOMAIN in domain,
+                settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
+            ]),
         ])
         protocol = 'https' if use_https_protocol else 'http'
 
