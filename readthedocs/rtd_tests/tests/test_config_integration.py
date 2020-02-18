@@ -146,7 +146,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+            [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -493,7 +493,7 @@ class TestLoadConfigV2:
         )
 
         update_docs = self.get_update_docs_task()
-        update_docs.run_build(docker=False, record=False)
+        update_docs.run_build(record=False)
 
         assert update_docs.config.conda.environment == conda_file
         assert isinstance(update_docs.python_env, Conda)
