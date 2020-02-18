@@ -16,13 +16,13 @@ From a Git repository
 Pip supports installing packages from a :ref:`Git repository <pip:vcs support>` using the URI form:
 
 .. code::
-   
+
    git+https://gitprovider.com/user/project.git@{version}#egg={package-name}
 
 Or if your repository is private:
 
 .. code::
-   
+
    git+https://{token}@gitprovider.com/user/project.git@{version}#egg={package-name}
 
 Where ``version`` can be a tag, a branch, or a commit.
@@ -49,7 +49,7 @@ on how to create a personal token.
 URI example:
 
 .. code::
-   
+
    git+https://${GITHUB_TOKEN}@github.com/user/project.git@{version}#egg={package-name}
 
 .. warning::
@@ -69,7 +69,7 @@ on how to create a deploy token.
 URI example:
 
 .. code::
-   
+
    git+https://${GITLAB_TOKEN_USER}:${GITLAB_TOKEN}@gitlab.com/user/project.git@{version}#egg={package-name}
 
 Here ``GITLAB_TOKEN_USER`` is the user from the deploy token you created, not your GitLab user.
@@ -84,7 +84,7 @@ on how to create an app password.
 URI example:
 
 .. code::
-   
+
    git+https://${BITBUCKET_USER}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/user/project.git@{version}#egg={package-name}'
 
 Here ``BITBUCKET_USER`` is your Bitbucket user.
