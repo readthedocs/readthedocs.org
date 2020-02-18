@@ -252,7 +252,7 @@ class Integration(models.Model):
         max_length=32,
         choices=INTEGRATIONS,
     )
-    provider_data = JSONField(_('Provider data'))
+    provider_data = JSONField(_('Provider data'), default=dict)
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',

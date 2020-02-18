@@ -19,7 +19,7 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
-    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
@@ -123,3 +123,7 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
+
+    # Remove the checks on the number of fields being submitted
+    # This limit is mostly hit on large forms in the Django admin
+    DATA_UPLOAD_MAX_NUMBER_FIELDS = None
