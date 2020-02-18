@@ -25,7 +25,7 @@ Free and open source
     for nearly 100,000 large and small open source projects
     in almost every human and computer language.
 
-.. _Read the docs: http://readthedocs.org/
+.. _Read the docs: https://readthedocs.org/
 
 
 First steps
@@ -121,6 +121,9 @@ out of your documentation and Read the Docs.
   :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
+* **Versions**
+  :doc:`Automation rules <automation-rules>`
+
 * **Topic specific guides**:
   :doc:`How-to guides <guides/index>`
 
@@ -141,6 +144,8 @@ out of your documentation and Read the Docs.
 
    user-defined-redirects
    automatic-redirects
+
+   automation-rules
 
    guides/index
 

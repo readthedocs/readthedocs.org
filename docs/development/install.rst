@@ -76,12 +76,12 @@ you need these libraries.
       or you need to find the proper equivalent libraries.
 
 
-.. _Python 3.6: http://www.python.org/
+.. _Python 3.6: https://www.python.org/
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
-.. _Git: http://git-scm.com/
+.. _Git: https://git-scm.com/
 .. _Mercurial: https://www.mercurial-scm.org/
 .. _Pip: https://pip.pypa.io/en/stable/
-.. _Homebrew: http://brew.sh/
+.. _Homebrew: https://brew.sh/
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Redis: https://redis.io/
 .. _bug: https://code.djangoproject.com/ticket/29182
@@ -183,4 +183,4 @@ see :doc:`buildenvironments`.
 For building this documentation,
 see :doc:`docs`.
 
-And for setting up for the front end development, see :doc:`standards`.
+And for setting up for the front end development, see :doc:`front-end`.

@@ -773,7 +773,10 @@ class IntegrationsTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
     def setUp(self):
-        self.project = get(Project)
+        self.project = get(
+            Project,
+            build_queue=None,
+        )
         self.feature_flag = get(
             Feature,
             projects=[self.project],
@@ -847,6 +850,31 @@ class IntegrationsTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         self.assertFalse(trigger_build.called)
 
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_sync_repository_custom_project_queue(self, sync_repository_task, trigger_build):
+        client = APIClient()
+        self.project.build_queue = 'specific-build-queue'
+        self.project.save()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            self.github_payload,
+            format='json',
+            **headers,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        self.assertTrue(resp.data['versions_synced'])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.apply_async.assert_called_with(
+            (latest_version.pk,),
+            queue='specific-build-queue',
+        )
+
     def test_github_webhook_for_branches(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
@@ -910,6 +938,26 @@ class IntegrationsTests(TestCase):
         )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
+    def test_github_webhook_no_build_on_delete(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        payload = {'ref': 'master', 'deleted': True}
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PUSH}
+        resp = client.post(
+            '/api/v2/webhook/github/{}/'.format(self.project.slug),
+            payload,
+            format='json',
+            **headers
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertFalse(resp.data['build_triggered'])
+        self.assertEqual(resp.data['project'], self.project.slug)
+        self.assertEqual(resp.data['versions'], [LATEST])
+        trigger_build.assert_not_called()
+        latest_version = self.project.versions.get(slug=LATEST)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+
+    @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_create_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
@@ -926,7 +974,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
@@ -1171,7 +1219,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
@@ -1379,7 +1427,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_push_hook_deletion(
@@ -1401,7 +1449,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_creation(
@@ -1424,7 +1472,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_deletion(
@@ -1447,7 +1495,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
@@ -1899,7 +1947,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_bitbucket_push_hook_deletion(
@@ -1918,7 +1966,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.delay.assert_called_with(latest_version.pk)
+        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
@@ -2170,9 +2218,14 @@ class APIVersionTests(TestCase):
                 'use_system_packages': False,
                 'users': [1],
             },
+            'privacy_level': 'public',
             'downloads': {},
             'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
             'slug': '0.8',
+            'has_epub': False,
+            'has_htmlzip': False,
+            'has_pdf': False,
+            'documentation_type': 'sphinx',
         }
 
         self.assertDictEqual(
@@ -2212,6 +2265,25 @@ class APIVersionTests(TestCase):
         resp = self.client.get(url, content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
+
+    def test_modify_version(self):
+        pip = Project.objects.get(slug='pip')
+        version = pip.versions.get(slug='0.8')
+
+        data = {
+            'pk': version.pk,
+        }
+        resp = self.client.patch(
+            reverse('version-detail', kwargs=data),
+            data=json.dumps({'built': False, 'has_pdf': True}),
+            content_type='application/json',
+            HTTP_AUTHORIZATION='Basic {}'.format(eric_auth),  # Eric is staff
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.data['built'], False)
+        self.assertEqual(resp.data['has_pdf'], True)
+        self.assertEqual(resp.data['has_epub'], False)
+        self.assertEqual(resp.data['has_htmlzip'], False)
 
 
 class TaskViewsTests(TestCase):

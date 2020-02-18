@@ -12,6 +12,7 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
@@ -26,7 +27,13 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    versions_qs = Version.internal.public(project=project)
+    if not project.show_version_warning:
+        return {'is_highest': False}
+
+    versions_qs = (
+        Version.internal.public(project=project)
+        .filter(built=True, active=True)
+    )
 
     # Take preferences over tags only if the project has at least one tag
     if versions_qs.filter(type=TAG).exists():
@@ -44,6 +51,8 @@ def get_version_compare_data(project, base_version=None):
         'is_highest': True,
     }
     if highest_version_obj:
+        # Never link to the dashboard,
+        # users reading the docs may don't have access to the dashboard.
         ret_val['url'] = highest_version_obj.get_absolute_url()
         ret_val['slug'] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
@@ -64,7 +73,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class FooterHTML(APIView):
+class BaseFooterHTML(APIView):
 
     """
     Render and return footer markup.
@@ -220,3 +229,7 @@ class FooterHTML(APIView):
         )
 
         return Response(resp_data)
+
+
+class FooterHTML(SettingsOverrideObject):
+    _default_class = BaseFooterHTML

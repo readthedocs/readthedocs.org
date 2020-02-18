@@ -6,16 +6,16 @@ import logging
 import mimetypes
 import operator
 import os
+from urllib.parse import urlparse
 from collections import OrderedDict
 
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import View
@@ -30,8 +30,11 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
@@ -55,20 +58,10 @@ class ProjectTagIndex(ListView):
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
 
-        if self.kwargs.get('username'):
-            self.user = get_object_or_404(
-                User,
-                username=self.kwargs.get('username'),
-            )
-            queryset = queryset.filter(user=self.user)
-        else:
-            self.user = None
-
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['person'] = self.user
         context['tag'] = self.tag
         return context
 
@@ -276,71 +269,94 @@ def project_downloads(request, project_slug):
     )
 
 
-def project_download_media(request, project_slug, type_, version_slug):
-    """
-    Download a specific piece of media.
+class ProjectDownloadMediaBase(ServeDocsMixin, View):
 
-    Perform an auth check if serving in private mode.
+    # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
+    same_domain_url = False
 
-    .. warning:: This is linked directly from the HTML pages.
-                 It should only care about the Version permissions,
-                 not the actual Project permissions.
-    """
-    version = get_object_or_404(
-        Version.objects.public(user=request.user),
-        project__slug=project_slug,
-        slug=version_slug,
-    )
+    def get(
+            self,
+            request,
+            project_slug=None,
+            type_=None,
+            version_slug=None,
+            lang_slug=None,
+            subproject_slug=None,
+    ):
+        """
+        Download a specific piece of media.
 
-    # Send media download to analytics - sensitive data is anonymized
-    analytics_event.delay(
-        event_category='Build Media',
-        event_action=f'Download {type_}',
-        event_label=str(version),
-        ua=request.META.get('HTTP_USER_AGENT'),
-        uip=get_client_ip(request),
-    )
+        Perform an auth check if serving in private mode.
 
-    if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
+        This view is used to download a file using old-style URLs (download from
+        the dashboard) and new-style URLs (download from the same domain as
+        docs). Basically, the parameters received by the GET view are different
+        (``project_slug`` does not come in the new-style URLs, for example) and
+        we need to take it from the request. Once we get the final ``version``
+        to be served, everything is the same for both paths.
+
+        .. warning:: This is linked directly from the HTML pages.
+                     It should only care about the Version permissions,
+                     not the actual Project permissions.
+        """
+        if self.same_domain_url:
+            # It uses the request to get the ``project``. The rest of arguments come
+            # from the URL.
+            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+                request,
+                project_slug=None,
+                subproject_slug=subproject_slug,
+                lang_slug=lang_slug,
+                version_slug=version_slug,
+            )
+
+            if not self.allowed_user(request, final_project, version_slug):
+                return self.get_unauthed_response(request, final_project)
+
+            version = get_object_or_404(
+                final_project.versions.public(user=request.user),
+                slug=version_slug,
+            )
+
+        else:
+            # All the arguments come from the URL.
+            version = get_object_or_404(
+                Version.objects.public(user=request.user),
+                project__slug=project_slug,
+                slug=version_slug,
+            )
+
+        # Send media download to analytics - sensitive data is anonymized
+        analytics_event.delay(
+            event_category='Build Media',
+            event_action=f'Download {type_}',
+            event_label=str(version),
+            ua=request.META.get('HTTP_USER_AGENT'),
+            uip=get_client_ip(request),
+        )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version.type,
-        )
-        if storage.exists(storage_path):
-            return HttpResponseRedirect(storage.url(storage_path))
-
-        media_path = os.path.join(
-            settings.MEDIA_URL,
-            type_,
-            project_slug,
-            version_slug,
-            '%s.%s' % (project_slug, type_.replace('htmlzip', 'zip')),
-        )
-        return HttpResponseRedirect(media_path)
-
-    # Get relative media path
-    path = (
-        version.project.get_production_media_path(
             type_=type_,
             version_slug=version_slug,
-        ).replace(settings.PRODUCTION_ROOT, '/prod_artifacts')
-    )
-    content_type, encoding = mimetypes.guess_type(path)
-    content_type = content_type or 'application/octet-stream'
-    response = HttpResponse(content_type=content_type)
-    if encoding:
-        response['Content-Encoding'] = encoding
-    response['X-Accel-Redirect'] = path
-    # Include version in filename; this fixes a long-standing bug
-    filename = '{}-{}.{}'.format(
-        project_slug,
-        version_slug,
-        path.split('.')[-1],
-    )
-    response['Content-Disposition'] = 'filename=%s' % filename
-    return response
+            version_type=version.type,
+        )
+
+        # URL without scheme and domain to perform an NGINX internal redirect
+        url = storage.url(storage_path)
+        url = urlparse(url)._replace(scheme='', netloc='').geturl()
+
+        return self._serve_docs(
+            request,
+            final_project=version.project,
+            version_slug=version.slug,
+            path=url,
+            download=True,
+        )
+
+
+class ProjectDownloadMedia(SettingsOverrideObject):
+    _default_class = ProjectDownloadMediaBase
 
 
 def project_versions(request, project_slug):

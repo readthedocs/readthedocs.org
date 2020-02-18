@@ -18,6 +18,7 @@ from django.template.loader import render_to_string
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
@@ -112,10 +113,22 @@ class BaseSphinx(BaseBuilder):
 
         # Avoid hitting database and API if using Docker build environment
         if settings.DONT_HIT_API:
-            versions = self.project.active_versions()
+            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = self.project.active_versions()
+            else:
+                versions = self.project.active_versions().filter(
+                    privacy_level=PUBLIC,
+                )
             downloads = self.version.get_downloads(pretty=True)
         else:
-            versions = self.project.api_versions()
+            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = self.project.api_versions()
+            else:
+                versions = [
+                    v
+                    for v in self.project.api_versions()
+                    if v.privacy_level == PUBLIC
+                ]
             downloads = api.version(self.version.pk).get()['downloads']
 
         data = {
@@ -127,6 +140,7 @@ class BaseSphinx(BaseBuilder):
             'settings': settings,
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
+            'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,

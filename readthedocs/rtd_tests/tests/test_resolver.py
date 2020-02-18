@@ -8,6 +8,7 @@ from readthedocs.core.resolver import (
     resolve_domain,
     resolve_path,
 )
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -470,6 +471,23 @@ class ResolverDomainTests(ResolverBase):
             url = resolve_domain(project=self.translation, private=True)
             self.assertEqual(url, 'pip.public.readthedocs.org')
 
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='public.readthedocs.org',
+        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+        USE_SUBDOMAIN=True,
+    )
+    def test_domain_external(self):
+        latest = self.pip.versions.first()
+        latest.type = EXTERNAL
+        latest.save()
+        url = resolve(project=self.pip)
+        self.assertEqual(url, 'http://pip--latest.dev.readthedocs.build/en/latest/')
+        url = resolve(project=self.pip, version_slug=latest.slug)
+        self.assertEqual(url, 'http://pip--latest.dev.readthedocs.build/en/latest/')
+        url = resolve(project=self.pip, version_slug='non-external')
+        self.assertEqual(url, 'http://pip.public.readthedocs.org/en/non-external/')
+
 
 class ResolverTests(ResolverBase):
 
@@ -769,8 +787,8 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://{project.slug}.readthedocs.io/projects/'
                 '{subproject.slug}/en/latest/'
             ).format(
-                 project=self.superproject_en,
-                 subproject=self.subproject_en,
+                project=self.superproject_en,
+                subproject=self.subproject_en,
             ),
         )
 
@@ -781,8 +799,8 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://{project.slug}.readthedocs.io/projects/'
                 '{subproject.slug}/es/latest/'
             ).format(
-                 project=self.superproject_en,
-                 subproject=self.subproject_en,
+                project=self.superproject_en,
+                subproject=self.subproject_en,
             ),
         )
         # yapf: enable
@@ -811,7 +829,7 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://docs.example.com/projects/'
                 '{subproject.slug}/en/latest/'
             ).format(
-                 subproject=self.subproject_en,
+                subproject=self.subproject_en,
             ),
         )
 
@@ -822,7 +840,7 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://docs.example.com/projects/'
                 '{subproject.slug}/es/latest/'
             ).format(
-                 subproject=self.subproject_en,
+                subproject=self.subproject_en,
             ),
         )
         # yapf: enable

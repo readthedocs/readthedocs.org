@@ -1,6 +1,9 @@
 import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
+from django.test.utils import override_settings
+from django.urls import reverse
+from django_dynamic_fixture import get
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.api.v2.views.footer_views import (
@@ -10,32 +13,42 @@ from readthedocs.api.v2.views.footer_views import (
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
-class Testmaker(APITestCase):
-    fixtures = ['test_data']
-    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
-    factory = APIRequestFactory()
+class TestFooterHTML(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.pip = Project.objects.get(slug='pip')
-        cls.latest = cls.pip.versions.create_latest()
+    def setUp(self):
+        self.pip = get(
+            Project,
+            slug='pip',
+            repo='https://github.com/rtfd/readthedocs.org',
+            privacy_level=PUBLIC,
+            main_language_project=None,
+        )
+        self.latest = self.pip.versions.get(slug=LATEST)
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+
+        self.factory = APIRequestFactory()
 
     def render(self):
-        request = self.factory.get(self.url)
-        response = FooterHTML.as_view()(request)
-        response.render()
-        return response
+        r = self.client.get(self.url)
+        return r
 
     def test_footer(self):
-        r = self.client.get(self.url)
+        pip = Project.objects.get(slug='pip')
+        pip.show_version_warning = True
+        pip.save()
+
+        r = self.render()
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
-        self.assertFalse(r.data['show_version_warning'])
+        self.assertTrue(r.data['show_version_warning'])
         self.assertEqual(r.context['main_project'], self.pip)
         self.assertEqual(r.status_code, 200)
 
@@ -44,6 +57,19 @@ class Testmaker(APITestCase):
         r = self.render()
         self.assertFalse(r.data['version_active'])
         self.assertEqual(r.status_code, 200)
+
+    def test_footer_dont_show_version_warning(self):
+        pip = Project.objects.get(slug='pip')
+        pip.show_version_warning = False
+        pip.save()
+
+        r = self.render()
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.data['version_active'])
+        self.assertFalse(r.data['version_compare']['is_highest'])
+        self.assertTrue(r.data['version_supported'])
+        self.assertFalse(r.data['show_version_warning'])
+        self.assertEqual(r.context['main_project'], self.pip)
 
     def test_footer_uses_version_compare(self):
         version_compare = 'readthedocs.api.v2.views.footer_views.get_version_compare_data'  # noqa
@@ -56,23 +82,25 @@ class Testmaker(APITestCase):
             self.assertEqual(r.data['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.pdf$'):
-            response = self.render()
+        self.latest.has_pdf = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('pdf', response.data['html'])
 
     def test_pdf_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('pdf', response.data['html'])
 
     def test_epub_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.epub$'):
-            response = self.render()
+        self.latest.has_epub = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('epub', response.data['html'])
 
     def test_epub_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.epub$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
@@ -114,17 +142,25 @@ class Testmaker(APITestCase):
         self.assertNotIn('Edit', response.data['html'])
 
 
+@override_settings(
+    USE_SUBDOMAIN=True,
+    PUBLIC_DOMAIN='readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
+)
 class TestVersionCompareFooter(TestCase):
     fixtures = ['test_data']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
+        self.pip.versions.update(built=True)
+        self.pip.show_version_warning = True
+        self.pip.save()
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -136,7 +172,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -145,11 +181,11 @@ class TestVersionCompareFooter(TestCase):
         self.assertDictEqual(valid_data, returned_data)
 
     def test_highest_version_from_latest(self):
-        Version.objects.create_latest(project=self.pip)
+        self.pip.versions.filter(slug=LATEST).update(built=True)
         base_version = self.pip.versions.get(slug=LATEST)
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -172,12 +208,13 @@ class TestVersionCompareFooter(TestCase):
             identifier='1.0.0',
             type=TAG,
             active=True,
+            built=True,
         )
 
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 1.0.0 of Pip ({})'.format(version.pk),
-            'url': '/dashboard/pip/version/1.0.0/',
+            'url': 'https://pip.readthedocs.io/en/1.0.0/',
             'slug': '1.0.0',
             'version': '1.0.0',
             'is_highest': False,
@@ -191,7 +228,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8.1')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': True,
@@ -202,7 +239,7 @@ class TestVersionCompareFooter(TestCase):
         base_version = self.pip.versions.get(slug='0.8')
         valid_data = {
             'project': 'Version 0.8.1 of Pip (19)',
-            'url': '/dashboard/pip/version/0.8.1/',
+            'url': 'https://pip.readthedocs.io/en/0.8.1/',
             'slug': '0.8.1',
             'version': '0.8.1',
             'is_highest': False,
@@ -216,10 +253,11 @@ class TestVersionCompareFooter(TestCase):
             identifier='2.0.0',
             type=BRANCH,
             active=True,
+            built=True,
         )
         valid_data = {
             'project': 'Version 2.0.0 of Pip ({})'.format(version.pk),
-            'url': '/dashboard/pip/version/2.0.0/',
+            'url': 'https://pip.readthedocs.io/en/2.0.0/',
             'slug': '2.0.0',
             'version': '2.0.0',
             'is_highest': False,
@@ -235,11 +273,13 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 9
+    EXPECTED_QUERIES = 13
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
-        self.pip.versions.create_latest()
+        self.pip.show_version_warning = True
+        self.pip.save()
+        self.pip.versions.update(built=True)
 
     def render(self):
         request = self.factory.get(self.url)

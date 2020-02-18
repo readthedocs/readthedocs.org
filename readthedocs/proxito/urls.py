@@ -29,19 +29,69 @@ pip.rtfd.io/<lang>/
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
 """
 
+from django.conf import settings
 from django.conf.urls import url
+from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.proxito.views import redirect_page_with_filename, serve_docs
+from readthedocs.projects.views.public import ProjectDownloadMedia
+from readthedocs.proxito.views.serve import (
+    ServePageRedirect,
+    ServeDocs,
+    ServeError404,
+    ServeRobotsTXT,
+    ServeSitemapXML,
+)
+from readthedocs.proxito.views.utils import fast_404
 
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 urlpatterns = [
+    # Serve project downloads
+    # /_/downloads/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+    # Serve subproject downloads
+    # /_/downloads/<alias>/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<subproject_slug>{project_slug})/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+
+    # Serve custom 404 pages
+    url(
+        r'^_proxito_404_(?P<proxito_path>.*)$',
+        ServeError404.as_view(),
+        name='proxito_404_handler',
+    ),
+    url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
+    url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+
     # # TODO: Support this?
     # (Sub)project `page` redirect
     url(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
+        ServePageRedirect.as_view(),
         name='redirect_page_with_filename',
     ),
 
@@ -53,8 +103,21 @@ urlpatterns = [
             r'(?P<version_slug>{version_slug})/'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        ServeDocs.as_view(),
         name='docs_detail',
+    ),
+
+    # Hack /en/latest so it redirects properly
+    # We don't want to serve the docs here,
+    # because it's at a different level of serving so relative links break.
+    url(
+        (
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
+        ),
+        fast_404,
+        name='docs_detail_directory_indexing',
     ),
 
     # # TODO: Support this?
@@ -75,7 +138,11 @@ urlpatterns = [
             r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
-        serve_docs,
+        ServeDocs.as_view(),
         name='docs_detail_singleversion_subproject',
     ),
 ]
+
+# Use Django default error handlers to make things simpler
+handler404 = fast_404
+handler500 = defaults.server_error

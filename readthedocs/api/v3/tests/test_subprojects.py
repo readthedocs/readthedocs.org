@@ -89,7 +89,33 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.subprojects.count(), 1)
 
     def test_projects_subprojects_list_post_with_subproject_of_itself(self):
-        self.assertEqual(self.project.subprojects.count(), 1)
+        newproject = self._create_new_project()
+        self.assertEqual(newproject.subprojects.count(), 0)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        data = {
+            'child': newproject.slug,
+            'alias': 'subproject-alias',
+        }
+        response = self.client.post(
+            reverse(
+                'projects-subprojects-list',
+                kwargs={
+                    'parent_lookup_parent__slug': newproject.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            'Project can not be subproject of itself',
+            response.json()['child'],
+        )
+        self.assertEqual(newproject.subprojects.count(), 0)
+
+    def test_projects_subprojects_list_post_with_child_already_superproject(self):
+        newproject = self._create_new_project()
+        self.assertEqual(newproject.subprojects.count(), 0)
+        self.assertTrue(self.project.subprojects.exists())
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
         data = {
             'child': self.project.slug,
@@ -99,17 +125,42 @@ class SubprojectsEndpointTests(APIEndpointMixin):
             reverse(
                 'projects-subprojects-list',
                 kwargs={
-                    'parent_lookup_parent__slug': self.project.slug,
+                    'parent_lookup_parent__slug': newproject.slug,
                 },
             ),
             data,
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Project can not be subproject of itself',
-            response.json()['non_field_errors'],
+            'Child is already a superproject',
+            response.json()['child'],
         )
-        self.assertEqual(self.project.subprojects.count(), 1)
+        self.assertEqual(newproject.subprojects.count(), 0)
+
+    def test_projects_subprojects_list_post_with_child_already_subproject(self):
+        newproject = self._create_new_project()
+        self.assertEqual(newproject.subprojects.count(), 0)
+        self.assertTrue(self.subproject.superprojects.exists())
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        data = {
+            'child': self.subproject.slug,
+            'alias': 'subproject-alias',
+        }
+        response = self.client.post(
+            reverse(
+                'projects-subprojects-list',
+                kwargs={
+                    'parent_lookup_parent__slug': newproject.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            'Child is already a subproject of another project',
+            response.json()['child'],
+        )
+        self.assertEqual(newproject.subprojects.count(), 0)
 
     def test_projects_subprojects_list_post_nested_subproject(self):
         newproject = self._create_new_project()

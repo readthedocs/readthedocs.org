@@ -24,15 +24,11 @@
             },
             "default_version": "latest",
             "default_branch": "master",
-            "privacy_level": {
-                "code": "public",
-                "name": "Public"
-            },
             "subproject_of": null,
             "translation_of": null,
             "urls": {
                 "builds": "https://readthedocs.org/projects/project/builds/",
-                "documentation": "http://readthedocs.org/docs/project/en/latest/",
+                "documentation": "http://project.readthedocs.io/en/latest/",
                 "home": "https://readthedocs.org/projects/project/",
                 "versions": "https://readthedocs.org/projects/project/versions/"
             },

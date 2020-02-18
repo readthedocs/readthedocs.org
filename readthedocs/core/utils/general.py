@@ -20,6 +20,7 @@ def wipe_version_via_slugs(version_slug, project_slug):
         os.path.join(version.project.doc_path, 'checkouts', version.slug),
         os.path.join(version.project.doc_path, 'envs', version.slug),
         os.path.join(version.project.doc_path, 'conda', version.slug),
+        os.path.join(version.project.doc_path, '.cache'),
     ]
     for del_dir in del_dirs:
         broadcast(type='build', task=remove_dirs, args=[(del_dir,)])

@@ -3,7 +3,6 @@
 from django.db import models
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects import constants
 
 
 class RedirectQuerySetBase(models.QuerySet):
@@ -25,7 +24,7 @@ class RedirectQuerySetBase(models.QuerySet):
             queryset = self._add_user_repos(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(self, path, language=None, version_slug=None):
+    def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
         for redirect in self.select_related('project'):
             new_path = redirect.get_redirect_path(
                 path=path,
