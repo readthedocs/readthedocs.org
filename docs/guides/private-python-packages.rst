@@ -1,13 +1,17 @@
-Using Private Python Packages with Read the Docs for Business
-=============================================================
+Using Private Python Packages
+=============================
 
-Read the Docs uses :doc:`PIP <pip:index>` to install your Python packages,
+.. warning::
+
+   This guide is for :doc:`/commercial/index`.
+
+Read the Docs uses :doc:`pip <pip:index>` to install your Python packages,
 see :doc:`/guides/specifying-dependencies`.
 
 Installing packages from a Git repository
 -----------------------------------------
 
-PIP supports installing packages from a :ref:`Git repository <pip:vcs support>` using the form:
+Pip supports installing packages from a :ref:`Git repository <pip:vcs support>` using the form:
 
 .. code::
    
@@ -29,15 +33,14 @@ Below you can find the steps to get a personal token from our supported provider
 .. note::
    
    The URI should be in your :ref:`requirements file <config-file/v2:Requirements file>`.
-   PIP will automatically expand environment variables in your URI,
+   Pip will automatically expand environment variables in your URI,
    you can :doc:`add environment variables </guides/environment-variables>` in Read the Docs,
    so you don't to hard code the token in the URI.
 
 GitHub
 ~~~~~~
 
-If you are using GitHub,
-you need to create a personal access token with the ``repo`` scope.
+You need to create a personal access token with the ``repo`` scope.
 Check the `GitHub documentation <https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line#creating-a-token>`__
 on how to create a personal token.
 
@@ -57,8 +60,7 @@ URI example:
 GitLab
 ~~~~~~
 
-If you are using GitLab,
-you need to create a deploy token with the ``read_repository`` scope for the repository you want to install the package from.
+You need to create a deploy token with the ``read_repository`` scope for the repository you want to install the package from.
 Check the `GitLab documentation <https://docs.gitlab.com/ee/user/project/deploy_tokens/#creating-a-deploy-token>`__
 on how to create a deploy token.
 
@@ -68,12 +70,12 @@ URI example:
    
    git+https://${GITLAB_TOKEN_USER}:${GITLAB_TOKEN}@gitlab.com/user/project.git@{version}#egg={package-name}
 
-Here ``GITLAB_TOKEN_USER`` is the user from the deploy token you created, not  your GitLab user.
+Here ``GITLAB_TOKEN_USER`` is the user from the deploy token you created, not your GitLab user.
 
 Bitbucket
 ~~~~~~~~~
 
-Create an app password with ``Read repositories`` permissions.
+You need to create an app password with ``Read repositories`` permissions.
 Check the `Bitbucket documentation <https://confluence.atlassian.com/bitbucket/app-passwords-828781300.html>`__
 on how to create an app password.
 
@@ -94,7 +96,7 @@ Installing packages from a repository manager other than PyPI
 -------------------------------------------------------------
 
 PIP by default will install your packages from `PyPI <https://pypi.org/>`__.
-If use a repository manager like ``pypiserver``, ``Nexus Repository``,
+If use a repository manager like ``pypiserver``, or ``Nexus Repository``,
 you need to set the :ref:`pip:--index-url` option.
 In Read the Docs you have two ways of set that option:
 
