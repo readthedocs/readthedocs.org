@@ -6,7 +6,8 @@ from urllib.parse import urlunparse
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import PRIVATE
+from readthedocs.builds.constants import EXTERNAL
 
 log = logging.getLogger(__name__)
 
@@ -107,7 +108,7 @@ class ResolverBase:
         language = language or project.language
 
         if private is None:
-            private = self._get_private(project, version_slug)
+            private, _ = self._get_private_and_external(project, version_slug)
 
         filename = self._fix_filename(project, filename)
 
@@ -161,19 +162,22 @@ class ResolverBase:
 
     def resolve(
             self, project, require_https=False, filename='', query_params='',
-            private=None, **kwargs
+            private=None, external=None, **kwargs
     ):
-        if private is None:
-            version_slug = kwargs.get('version_slug')
+        version_slug = kwargs.get('version_slug')
+
+        if private is None or external is None:
             if version_slug is None:
                 version_slug = project.get_default_version()
-            private = self._get_private(project, version_slug)
+            private, external = self._get_private_and_external(project, version_slug)
 
         canonical_project = self._get_canonical_project(project)
         custom_domain = canonical_project.get_canonical_custom_domain()
         use_custom_domain = self._use_custom_domain(custom_domain)
 
-        if use_custom_domain:
+        if external:
+            domain = self._get_external_subdomain(canonical_project, version_slug)
+        elif use_custom_domain:
             domain = custom_domain.domain
         elif self._use_subdomain():
             domain = self._get_project_subdomain(canonical_project)
@@ -226,21 +230,28 @@ class ResolverBase:
             return self._get_canonical_project(next_project, projects)
         return project
 
+    def _get_external_subdomain(self, project, version_slug):
+        """Determine domain for an external version."""
+        subdomain_slug = project.slug.replace('_', '-')
+        # Version slug is in the domain so we can properly serve single-version projects
+        # and have them resolve the proper version from the PR.
+        return f'{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}'
+
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        if self._use_subdomain():
-            project = self._get_canonical_project(project)
-            subdomain_slug = project.slug.replace('_', '-')
-            return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
+        subdomain_slug = project.slug.replace('_', '-')
+        return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
-    def _get_private(self, project, version_slug):
+    def _get_private_and_external(self, project, version_slug):
         from readthedocs.builds.models import Version
         try:
             version = project.versions.get(slug=version_slug)
             private = version.privacy_level == PRIVATE
+            external = version.type == EXTERNAL
         except Version.DoesNotExist:
             private = settings.DEFAULT_PRIVACY_LEVEL == PRIVATE
-        return private
+            external = False
+        return private, external
 
     def _fix_filename(self, project, filename):
         """
