@@ -385,6 +385,7 @@ def project_versions(request, project_slug):
     version_filter = request.GET.get('version_filter', '')
     if version_filter:
         inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
+    total_inactive_versions_count = inactive_versions.count()
     inactive_versions = inactive_versions[:max_inactive_versions]
 
     # If there's a wiped query string, check the string against the versions
@@ -406,6 +407,7 @@ def project_versions(request, project_slug):
             'active_versions': active_versions,
             'project': project,
             'max_inactive_versions': max_inactive_versions,
+            'total_inactive_versions_count': total_inactive_versions_count,
         },
     )
 
