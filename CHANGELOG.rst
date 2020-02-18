@@ -1,3 +1,25 @@
+Version 3.12.0
+--------------
+
+:Date: February 18, 2020
+
+This version has two major changes:
+
+* It updates our default docker images to stable=5.0 and latest=6.0.
+* It changes our PR builder domain to `readthedocs.build`
+
+* `@humitos <https://github.com/humitos>`__: Use PUBLIC_DOMAIN_USES_HTTPS for resolver tests (`#6673 <https://github.com/readthedocs/readthedocs.org/pull/6673>`__)
+* `@stsewd <https://github.com/stsewd>`__: Always run CoreTagsTests with http (`#6671 <https://github.com/readthedocs/readthedocs.org/pull/6671>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old docker settings (`#6670 <https://github.com/readthedocs/readthedocs.org/pull/6670>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update gitpython and django (`#6667 <https://github.com/readthedocs/readthedocs.org/pull/6667>`__)
+* `@humitos <https://github.com/humitos>`__: New docker release (6.0 and testing) (`#6654 <https://github.com/readthedocs/readthedocs.org/pull/6654>`__)
+* `@humitos <https://github.com/humitos>`__: Default python version per Docker image (`#6653 <https://github.com/readthedocs/readthedocs.org/pull/6653>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add pytest-custom_exit_code (`#6648 <https://github.com/readthedocs/readthedocs.org/pull/6648>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial attempt to serve PR builds at `readthedocs.build` (`#6629 <https://github.com/readthedocs/readthedocs.org/pull/6629>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove re-authing of users on downloads. (`#6619 <https://github.com/readthedocs/readthedocs.org/pull/6619>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't trigger a sync twice on creation/deletion for GitHub (`#6614 <https://github.com/readthedocs/readthedocs.org/pull/6614>`__)
+* `@s-weigand <https://github.com/s-weigand>`__: Add linkcheck test for the docs (`#6543 <https://github.com/readthedocs/readthedocs.org/pull/6543>`__)
+
 Version 3.11.6
 --------------
 
@@ -918,7 +940,7 @@ Version 3.2.2
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/readthedocs/readthedocs.org/pull/5276>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/readthedocs/readthedocs.org/pull/5275>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/readthedocs/readthedocs.org/pull/5274>`__)
-* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
+* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs ``https://`` prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
 * `@humitos <https://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/readthedocs/readthedocs.org/pull/5272>`__)
 * `@humitos <https://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/readthedocs/readthedocs.org/pull/5269>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/readthedocs/readthedocs.org/pull/5263>`__)

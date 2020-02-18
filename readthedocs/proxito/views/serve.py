@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL, INTERNAL
+from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
@@ -24,17 +24,34 @@ from readthedocs.redirects.exceptions import InfiniteRedirectException
 from .mixins import ServeDocsMixin, ServeRedirectMixin
 
 from .decorators import map_project_slug
-from .redirects import redirect_project_slug
 from .utils import _get_project_data_from_request
 
 
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+    def get(self,
+            request,
+            project_slug=None,
+            subproject_slug=None,
+            version_slug=None,
+            filename='',
+    ):  # noqa
 
-    version_type = INTERNAL
-    redirect_root = False
+        version_slug = self.get_version_from_host(request, version_slug)
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=None,
+            version_slug=version_slug,
+            filename=filename,
+        )
+        return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+
+class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
@@ -46,19 +63,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
     ):  # noqa
         """Take the incoming parsed URL's and figure out what file to serve."""
 
-        if self.redirect_root:
-            raise Http404('Falling back to 404 handler on root missing a slash')
-
-        if all([
-                self.version_type == EXTERNAL,
-                request.get_host() != settings.RTD_EXTERNAL_VERSION_DOMAIN,
-        ]):
-            log.warning(
-                'Trying to serve an EXTERNAL version under a not allowed '
-                'domain. url=%s', request.path,
-            )
-            raise Http404()
-
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -68,7 +73,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.debug(
+        log.info(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
@@ -76,20 +81,13 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         # Handle a / redirect when we aren't a single version
         if all([
                 lang_slug is None,
-                version_slug is None,
+                # External versions/builds will always have a version,
+                # because it is taken from the host name
+                version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
         ]):
-            redirect_to = redirect_project_slug(
-                request,
-                project=final_project,
-                subproject=None,
-            )
-            log.info(
-                'Proxito redirect: from=%s, to=%s, project=%s', filename,
-                redirect_to, final_project.slug
-            )
-            return redirect_to
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         if all([
                 (lang_slug is None or version_slug is None),
@@ -122,7 +120,6 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             include_file=False,
             version_type=self.version_type,
-
         )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -152,7 +149,7 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(ServeRedirectMixin, View):
+class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self, request, proxito_path, template_name='404.html'):
         """
@@ -176,12 +173,15 @@ class ServeError404Base(ServeRedirectMixin, View):
             proxito_path,
             urlconf='readthedocs.proxito.urls',
         )
+
+        version_slug = kwargs.get('version_slug')
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=kwargs.get('project_slug'),
             subproject_slug=kwargs.get('subproject_slug'),
             lang_slug=kwargs.get('lang_slug'),
-            version_slug=kwargs.get('version_slug'),
+            version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
 
@@ -189,6 +189,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             type_='html',
             version_slug=version_slug,
             include_file=False,
+            version_type=self.version_type,
         )
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
@@ -263,6 +264,7 @@ class ServeError404Base(ServeRedirectMixin, View):
                     type_='html',
                     version_slug=version_slug_404,
                     include_file=False,
+                    version_type=self.version_type,
                 )
                 storage_filename_path = os.path.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
@@ -295,6 +297,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
+
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
@@ -315,7 +318,10 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             raise Http404()
 
         storage_path = project.get_storage_path(
-            type_='html', version_slug=version_slug, include_file=False
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
         )
         path = os.path.join(storage_path, 'robots.txt')
 

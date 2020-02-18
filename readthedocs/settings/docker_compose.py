@@ -19,10 +19,24 @@ class DockerBaseSettings(CommunityDevSettings):
     PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
-    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.community.dev.readthedocs.io'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
+
+    # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
+    # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
+    HOSTIP = os.environ.get('HOSTIP')
+
+    import platform
+    if platform.system() == 'Darwin':
+        # On Mac, host.docker.internal always point to the host's IP
+        HOSTIP = 'host.docker.internal'
+
+    ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
+
+    # Create a Token for an admin User and set it here.
+    ADSERVER_API_KEY = None
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
@@ -109,3 +123,7 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_EMULATED_MODE = True
     AZURE_CUSTOM_DOMAIN = 'storage:10000'
     AZURE_SSL = False
+
+    # Remove the checks on the number of fields being submitted
+    # This limit is mostly hit on large forms in the Django admin
+    DATA_UPLOAD_MAX_NUMBER_FIELDS = None
