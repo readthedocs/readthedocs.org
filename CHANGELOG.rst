@@ -1,6 +1,11 @@
 Version 3.12.0
 --------------
 
+This version has two major changes:
+
+* It updates our default docker images to stable=5.0 and latest=6.0.
+* It changes our PR builder domain to `readthedocs.build`
+
 :Date: February 18, 2020
 
 * `@humitos <https://github.com/humitos>`__: Use PUBLIC_DOMAIN_USES_HTTPS for resolver tests (`#6673 <https://github.com/readthedocs/readthedocs.org/pull/6673>`__)
