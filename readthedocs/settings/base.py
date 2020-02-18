@@ -96,6 +96,8 @@ class CommunityBaseSettings(Settings):
     # override classes
     CLASS_OVERRIDES = {}
 
+    DOC_PATH_PREFIX = '_/'
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
@@ -310,6 +312,8 @@ class CommunityBaseSettings(Settings):
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
     CELERYD_HIJACK_ROOT_LOGGER = False
+    # This stops us from pre-fetching a task that then sits around on the builder
+    CELERY_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
@@ -366,30 +370,60 @@ class CommunityBaseSettings(Settings):
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
-        'readthedocs/build:1.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-        },
+        # A large number of users still have this pinned in their config file.
+        # We must have documented it at some point.
         'readthedocs/build:2.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-        },
-        'readthedocs/build:3.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
         },
         'readthedocs/build:4.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
-        'readthedocs/build:6.0rc1': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+        'readthedocs/build:6.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
+        'readthedocs/build:7.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
+        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
 
     # All auth

@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import traceback
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
+from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
@@ -103,11 +105,9 @@ class BuildCommand(BuildCommandResultMixin):
         if cwd is None:
             cwd = os.getcwd()
         self.cwd = cwd
-        self.environment = os.environ.copy()
-        if environment is not None:
-            if 'PATH' in environment:
-                raise BuildEnvironmentError('\'PATH\' can\'t be set.')
-            self.environment.update(environment)
+        self.environment = environment.copy() if environment else {}
+        if 'PATH' in self.environment:
+            raise BuildEnvironmentError('\'PATH\' can\'t be set. Use bin_path')
 
         self.combine_output = combine_output
         self.input_data = input_data
@@ -150,21 +150,17 @@ class BuildCommand(BuildCommandResultMixin):
         if self.combine_output:
             stderr = subprocess.STDOUT
 
-        environment = {}
-        environment.update(self.environment)
-        environment['READTHEDOCS'] = 'True'
-        if self.build_env is not None:
-            environment['READTHEDOCS_VERSION'] = self.build_env.version.slug
-            environment['READTHEDOCS_PROJECT'] = self.build_env.project.slug
-            environment['READTHEDOCS_LANGUAGE'] = self.build_env.project.language
+        environment = self.environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
             del environment['DJANGO_SETTINGS_MODULE']
         if 'PYTHONPATH' in environment:
             del environment['PYTHONPATH']
+
+        # Always copy the PATH from the host into the environment
+        env_paths = os.environ.get('PATH', '').split(':')
         if self.bin_path is not None:
-            env_paths = environment.get('PATH', '').split(':')
             env_paths.insert(0, self.bin_path)
-            environment['PATH'] = ':'.join(env_paths)
+        environment['PATH'] = ':'.join(env_paths)
 
         try:
             # When using ``shell=True`` the command should be flatten
@@ -329,6 +325,7 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
+                environment=self.environment,
                 stdout=True,
                 stderr=True,
             )
@@ -447,12 +444,13 @@ class BaseEnvironment:
             kwargs.update({'record_as_success': record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
-        env_path = self.environment.pop('BIN_PATH', None)
+        environment = self.environment.copy()
+        env_path = environment.pop('BIN_PATH', None)
         if 'bin_path' not in kwargs and env_path:
             kwargs['bin_path'] = env_path
         if 'environment' in kwargs:
             raise BuildEnvironmentError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = self.environment
+        kwargs['environment'] = environment
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
@@ -606,8 +604,8 @@ class BuildEnvironment(BaseEnvironment):
             log_level_function(
                 LOG_TEMPLATE,
                 {
-                    'project': self.project.slug,
-                    'version': self.version.slug,
+                    'project': self.project.slug if self.project else '',
+                    'version': self.version.slug if self.version else '',
                     'msg': exc_value,
                 },
                 exc_info=True,
@@ -794,13 +792,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
-        self.container_name = slugify(
-            'build-{build}-project-{project_id}-{project_name}'.format(
-                build=self.build.get('id'),
-                project_id=self.project.pk,
-                project_name=self.project.slug,
-            )[:DOCKER_HOSTNAME_MAX_LEN],
-        )
+        self.container_name = self.get_container_name()
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -835,7 +827,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                         ),
                     )
                     self.failure = exc
-                    self.build['state'] = BUILD_STATE_FINISHED
+                    if self.build:
+                        self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warning(
@@ -882,16 +875,27 @@ class DockerBuildEnvironment(BuildEnvironment):
             client = self.get_client()
             try:
                 client.kill(self.container_id)
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to kill. id=%s',
+                    self.container_id,
+                )
             except DockerAPIError:
                 log.exception(
                     'Unable to kill container: id=%s',
                     self.container_id,
                 )
+
             try:
                 log.info('Removing container: id=%s', self.container_id)
                 client.remove_container(self.container_id)
-            # Catch direct failures from Docker API or with a requests HTTP
-            # request. These errors should not surface to the user.
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to remove. id=%s',
+                    self.container_id,
+                )
+            # Catch direct failures from Docker API or with an HTTP request.
+            # These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
                     LOG_TEMPLATE,
@@ -911,6 +915,19 @@ class DockerBuildEnvironment(BuildEnvironment):
                 exc_type, exc_value, tb = sys.exc_info()
 
         return super().__exit__(exc_type, exc_value, tb)
+
+    def get_container_name(self):
+        if self.build:
+            name = 'build-{build}-project-{project_id}-{project_name}'.format(
+                build=self.build.get('id'),
+                project_id=self.project.pk,
+                project_name=self.project.slug,
+            )
+        else:
+            # An uuid is added, so the container name is unique per sync.
+            uuid_ = uuid.uuid4().hex[:8]
+            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
+        return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
         """Create Docker client connection."""
@@ -933,11 +950,13 @@ class DockerBuildEnvironment(BuildEnvironment):
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
             # Instead, give the user a generic failure
-            raise BuildEnvironmentError(
-                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build['id'],
-                ),
-            )
+            if self.build:
+                error = BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build.get('id'),
+                )
+            else:
+                error = 'Failed to connect to Docker API client'
+            raise BuildEnvironmentError(error)
 
     def _get_binds(self):
         """
@@ -1051,7 +1070,6 @@ class DockerBuildEnvironment(BuildEnvironment):
                 volumes=self._get_binds(),
                 host_config=self.get_container_host_config(),
                 detach=True,
-                environment=self.environment,
                 user=settings.RTD_DOCKER_USER,
             )
             client.start(container=self.container_id)

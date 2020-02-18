@@ -129,7 +129,7 @@ For example,
 Kombu is a subproject of Celery,
 so you can access it on the `celery.readthedocs.io` domain:
 
-http://celery.readthedocs.io/projects/kombu/en/latest/
+https://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for custom domains:
 
@@ -163,7 +163,7 @@ I want comments in my docs
 
 RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
-.. _Disqus: http://disqus.com/
+.. _Disqus: https://disqus.com/
 .. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
 
 How do I support multiple languages of documentation?

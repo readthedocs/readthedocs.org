@@ -1,0 +1,91 @@
+# docker-compose.override.yml file to launch a full instance of Read the Docs.
+#
+# Read the Docs' Core team is using docker-compose internally.
+# We do not offer support on this file and configuration at this point.
+# DO NOT USE DOCKER-COMPOSE SETUP FOR PRODUCTION OR CUSTOM INSTALLATION.
+
+# We create this network here to be able to use a static IP for NGINX.
+# This is needed because hitting `community.dev.readthedocs.io` from
+# any service will fail since it will resolve to 127.0.0.1, but
+# instead we need to hit NGINX's IP (this is used on Embed API from
+# -ext for example) Setting a static IP for NGINX, allow us to
+# override /etc/hosts with this IP.
+version: '3'
+
+networks:
+  readthedocs:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.10.0.0/16
+
+services:
+
+  server:
+    build:
+      args:
+        GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+
+  nginx:
+    networks:
+      readthedocs:
+        ipv4_address: 10.10.0.100
+
+  proxito:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
+
+  web:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+      - HOSTIP=${HOSTIP:-}
+    extra_hosts:
+      - "community.dev.readthedocs.io:10.10.0.100"
+
+  celery:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - CELERY_APP_NAME=readthedocs
+
+  build:
+    image: community_server:latest
+    volumes:
+      - ${PWD}:/usr/src/app/checkouts/readthedocs.org
+      - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
+    environment:
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+      - CELERY_APP_NAME=readthedocs
+
+  storage:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    volumes:
+      - storage_data:/data
+    ports:
+      - "10000:10000"
+    networks:
+      readthedocs:
+    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
+
+  azure-cli:
+    image: microsoft/azure-cli
+    volumes:
+      - ${PWD}/common/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
+    links:
+      - storage
+    depends_on:
+      - storage
+    networks:
+      readthedocs:
+    command: ["/usr/local/bin/create-containers.sh"]

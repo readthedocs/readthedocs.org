@@ -61,16 +61,17 @@
 
       {% block readthedocs %}
       <dl>
+        {# We hardcode the URLS because we don't have access to the URLCONF of the main app from proxito #}
         <!-- These are kept as relative links for internal installs that are http -->
         <dt>{% trans "On Read the Docs" %}</dt>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'projects_detail' project.slug %}">{% trans "Project Home" %}</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/">{% trans "Project Home" %}</a>
         </dd>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'builds_project_list' project.slug %}">{% trans "Builds" %}</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/builds/">{% trans "Builds" %}</a>
         </dd>
         <dd>
-          <a href="//{{ settings.PRODUCTION_DOMAIN }}{% url 'project_downloads' project.slug %}">{% trans "Downloads" %}</a>
+          <a href="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/downloads/">{% trans "Downloads" %}</a>
         </dd>
       </dl>
       {% endblock %}
@@ -116,7 +117,8 @@
         <dt>{% trans "Search" %}</dt>
         <dd>
           <div style="padding: 6px;">
-            <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}{% url 'elastic_project_search' project.slug %}" method="get">
+            {# We hardcode the URLS because we don't have access to the URLCONF of the main app from proxito #}
+            <form id="flyout-search-form" class="wy-form" target="_blank" action="//{{ settings.PRODUCTION_DOMAIN }}/projects/{{ project.slug }}/search/" method="get">
               <input type="text" name="q" placeholder="{% trans "Search docs" %}">
               </form>
           </div>
