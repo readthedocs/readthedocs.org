@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import traceback
+import uuid
 from datetime import datetime
 
 from django.conf import settings
@@ -14,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
+from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
@@ -790,13 +792,7 @@ class DockerBuildEnvironment(BuildEnvironment):
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
-        self.container_name = slugify(
-            'build-{build}-project-{project_id}-{project_name}'.format(
-                build=self.build.get('id'),
-                project_id=self.project.pk,
-                project_name=self.project.slug,
-            )[:DOCKER_HOSTNAME_MAX_LEN],
-        )
+        self.container_name = self.get_container_name()
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -831,7 +827,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                         ),
                     )
                     self.failure = exc
-                    self.build['state'] = BUILD_STATE_FINISHED
+                    if self.build:
+                        self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
                 else:
                     log.warning(
@@ -878,16 +875,27 @@ class DockerBuildEnvironment(BuildEnvironment):
             client = self.get_client()
             try:
                 client.kill(self.container_id)
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to kill. id=%s',
+                    self.container_id,
+                )
             except DockerAPIError:
                 log.exception(
                     'Unable to kill container: id=%s',
                     self.container_id,
                 )
+
             try:
                 log.info('Removing container: id=%s', self.container_id)
                 client.remove_container(self.container_id)
-            # Catch direct failures from Docker API or with a requests HTTP
-            # request. These errors should not surface to the user.
+            except DockerNotFoundError:
+                log.info(
+                    'Container does not exists, nothing to remove. id=%s',
+                    self.container_id,
+                )
+            # Catch direct failures from Docker API or with an HTTP request.
+            # These errors should not surface to the user.
             except (DockerAPIError, ConnectionError):
                 log.exception(
                     LOG_TEMPLATE,
@@ -907,6 +915,19 @@ class DockerBuildEnvironment(BuildEnvironment):
                 exc_type, exc_value, tb = sys.exc_info()
 
         return super().__exit__(exc_type, exc_value, tb)
+
+    def get_container_name(self):
+        if self.build:
+            name = 'build-{build}-project-{project_id}-{project_name}'.format(
+                build=self.build.get('id'),
+                project_id=self.project.pk,
+                project_name=self.project.slug,
+            )
+        else:
+            # An uuid is added, so the container name is unique per sync.
+            uuid_ = uuid.uuid4().hex[:8]
+            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
+        return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
         """Create Docker client connection."""
@@ -929,11 +950,13 @@ class DockerBuildEnvironment(BuildEnvironment):
             # We don't raise an error here mentioning Docker, that is a
             # technical detail that the user can't resolve on their own.
             # Instead, give the user a generic failure
-            raise BuildEnvironmentError(
-                BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
-                    build_id=self.build['id'],
-                ),
-            )
+            if self.build:
+                error = BuildEnvironmentError.GENERIC_WITH_BUILD_ID.format(
+                    build_id=self.build.get('id'),
+                )
+            else:
+                error = 'Failed to connect to Docker API client'
+            raise BuildEnvironmentError(error)
 
     def _get_binds(self):
         """

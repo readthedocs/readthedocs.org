@@ -313,8 +313,10 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             if not self.allowed_user(request, final_project, version_slug):
                 return self.get_unauthed_response(request, final_project)
 
+            # We don't use ``.public`` in this filter because the access
+            # permission was already granted by ``.allowed_user``
             version = get_object_or_404(
-                final_project.versions.public(user=request.user),
+                final_project.versions,
                 slug=version_slug,
             )
 

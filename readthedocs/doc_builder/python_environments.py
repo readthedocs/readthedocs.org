@@ -298,7 +298,10 @@ class Virtualenv(PythonEnvironment):
             self.config.python_interpreter,
             '-mvirtualenv',
             site_packages,
-            '--no-download',
+            # This is removed because of the pip breakage,
+            # it was sometimes installing pip 20.0 which broke everything
+            # https://github.com/readthedocs/readthedocs.org/issues/6585
+            # '--no-download',
             env_path,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,

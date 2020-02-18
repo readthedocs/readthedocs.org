@@ -154,7 +154,7 @@ class SyncRepositoryMixin:
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build to the stable version when hittig the
+        It may trigger a new build to the stable version when hitting the
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
@@ -262,9 +262,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 environment=self.get_rtd_env_vars(),
             )
 
-            before_vcs.send(sender=self.version, environment=environment)
-            with self.project.repo_nonblockinglock(version=self.version):
-                self.sync_repo(environment)
+            with environment:
+                before_vcs.send(sender=self.version, environment=environment)
+                with self.project.repo_nonblockinglock(version=self.version):
+                    self.sync_repo(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -282,8 +283,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 extra={
                     'stack': True,
                     'tags': {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        'project': self.project.slug if self.project else '',
+                        'version': self.version.slug if self.version else '',
                     },
                 },
             )
@@ -809,6 +810,23 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
+        # TODO: Remove this logic from `update_app_instances`
+        # It's in both places to make sure it runs.
+        try:
+            if html:
+                version = api_v2.version(self.version.pk)
+                version.patch({
+                    'built': True,
+                    'documentation_type': self.config.doctype,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
+                })
+        except HttpClientError:
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
         if not settings.RTD_BUILD_MEDIA_STORAGE:
             # Note: this check can be removed once corporate build servers use storage
             log.warning(
@@ -1554,8 +1572,11 @@ def clean_build(version_pk):
     # because we are syncing the servers with an async task.
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda', '.cache')
+        for dir_ in ('checkouts', 'envs', 'conda')
     ]
+    del_dirs.append(
+        os.path.join(version.project.doc_path, '.cache')
+    )
     try:
         with version.project.repo_nonblockinglock(version):
             log.info('Removing: %s', del_dirs)
@@ -1794,7 +1815,11 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(
+            hook_url,
+            data=data,
+            headers={'content-type': 'application/json'}
+        )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 

@@ -11,6 +11,7 @@ and adapted to use:
 
 import django_dynamic_fixture as fixture
 import pytest
+from django.urls import reverse
 from django.test.utils import override_settings
 
 from readthedocs.builds.models import Version
@@ -515,6 +516,30 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/faq.html',
         )
+
+    def test_not_found_page_without_trailing_slash(self):
+        # https://github.com/readthedocs/readthedocs.org/issues/4673
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type='prefix',
+            from_url='/',
+        )
+
+        # Use ``proxito_404_handler`` URL here to emulate the internal redirect
+        # that happens on NGINX (URL path will be
+        # http://project.dev.readthedocs.io/_proxito_404_/en/latest/section/file-not-found
+        # when the view receives it)
+        r = self.client.get(
+            reverse(
+                'proxito_404_handler',
+                kwargs={
+                    'proxito_path': '/en/latest/section/file-not-found',
+                }),
+            HTTP_HOST='project.dev.readthedocs.io',
+        )
+        # Avoid infinite redirect
+        self.assertEqual(r.status_code, 404)
 
 
 # FIXME: these tests are valid, but the problem I'm facing is that the request

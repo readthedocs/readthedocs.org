@@ -105,15 +105,3 @@ class TestSingleVersionURLs(TestCase):
                 'filename': 'some/path/index.html',
             },
         )
-
-    def test_external_version(self):
-        match = resolve('/html/project/version/path/index.html')
-        self.assertEqual(match.url_name, 'docs_detail_external_version')
-        self.assertEqual(match.args, ())
-        self.assertEqual(
-            match.kwargs, {
-                'project_slug': 'project',
-                'version_slug': 'version',
-                'filename': 'path/index.html',
-            },
-        )

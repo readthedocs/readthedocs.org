@@ -486,17 +486,18 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, private=None):
+    def get_docs_url(self, version_slug=None, lang_slug=None, private=None, external=False):
         """
         Return a URL for the docs.
 
-        Always use http for now, to avoid content warnings.
+        ``external`` defaults False because we only link external versions in very specific places
         """
         return resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
             private=private,
+            external=external,
         )
 
     def get_builds_url(self):
@@ -1303,6 +1304,8 @@ class ImportedFile(models.Model):
             project=self.project,
             version_slug=self.version.slug,
             filename=self.path,
+            # this should always be False because we don't have ImportedFile's for external versions
+            external=False,
         )
 
     def __str__(self):
