@@ -39,7 +39,6 @@ from django.views import defaults
 
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views.public import ProjectDownloadMedia
-from readthedocs.proxito.views.redirects import redirect_page_with_filename
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
