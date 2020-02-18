@@ -30,11 +30,10 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_path,
     validate_list,
+    validate_path,
     validate_string,
 )
-
 
 __all__ = (
     'ALL',
@@ -83,7 +82,7 @@ class ConfigFileNotFound(ConfigError):
 
     def __init__(self, directory):
         super().__init__(
-            f"Configuration file not found in: {directory}",
+            f'Configuration file not found in: {directory}',
             CONFIG_FILE_REQUIRED,
         )
 
@@ -255,11 +254,10 @@ class BuildConfigBase:
     def python_full_version(self):
         ver = self.python.version
         if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                v for v in self.get_valid_python_versions()
-                if not isinstance(v, str) and v < ver + 1
+            # use default Python version if user only set '2', or '3'
+            return self.get_default_python_version_for_image(
+                self.build.image,
+                ver,
             )
         return ver
 
@@ -295,6 +293,32 @@ class BuildConfigBase:
                 self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+
+    def get_default_python_version_for_image(self, build_image, python_version):
+        """
+        Return the default Python version for Docker image and Py2 or Py3.
+
+        :param build_image: the Docker image complete name, already validated
+            (``readthedocs/build:4.0``, not just ``4.0``)
+        :type build_image: str
+
+        :param python_version: major Python version (``2`` or ``3``) to get its
+            default full version
+        :type python_version: int
+
+        :returns: default version for the ``DOCKER_DEFAULT_VERSION`` if not
+                  ``build_image`` found.
+        """
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                settings.DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
+            )
+        return (
+            # For linting
+            settings.DOCKER_IMAGE_SETTINGS[build_image]['python']
+            ['default_version'][python_version]
+        )
 
     def as_dict(self):
         config = {}
@@ -405,7 +429,9 @@ class BuildConfigV1(BuildConfigBase):
                 )
         # Update docker default settings from image name
         if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
+            self.env_config.update(
+                settings.DOCKER_IMAGE_SETTINGS[build['image']]
+            )
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
