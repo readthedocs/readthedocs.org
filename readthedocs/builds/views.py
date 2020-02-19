@@ -87,8 +87,8 @@ class BuildTriggerMixin:
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
 
         active_builds = self.get_queryset().exclude(
             state='finished',
