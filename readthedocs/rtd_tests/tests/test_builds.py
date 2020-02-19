@@ -380,10 +380,10 @@ class BuildEnvironmentTests(TestCase):
 
 class BuildModelTests(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
-        self.eric = User(username='eric')
+        self.eric = User.objects.get(username='eric')
         self.eric.set_password('test')
         self.eric.save()
 

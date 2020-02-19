@@ -60,8 +60,8 @@ class ProjectTagIndex(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
         context['tag'] = self.tag
         return context
 
