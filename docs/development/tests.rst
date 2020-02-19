@@ -7,26 +7,34 @@ and your code style passes our code linting suite.
 Read the Docs uses `Tox`_ to execute testing and linting procedures. Tox is the
 only dependency you need to run linting or our test suite, the remainder of our
 requirements will be installed by Tox into environment specific virtualenv
-paths. Before testing, make sure you have Tox installed::
+paths. Before testing, make sure you have Tox installed:
+
+.. prompt:: bash
 
     pip install tox
 
 To run the full test and lint suite against your changes, simply run Tox. Tox
 should return without any errors. You can run Tox against all of our
-environments by running::
+environments by running:
+
+.. prompt:: bash
 
     tox
 
 In order to run all test including the search tests, include `"'--including-search'"`
-argument::
+argument:
+
+.. prompt:: bash
 
     tox "'--including-search'"
 
 .. warning::
 
-   Running tests for search needs an Elasticsearch :ref:`instance running locally <development/search:Installing and running Elasticsearch>`.
+   Running tests for search needs an Elasticsearch :ref:`instance running locally <development/search:Manual Elasticsearch installation and setup>`.
 
-To target a specific environment::
+To target a specific environment:
+
+.. prompt:: bash
 
     tox -e py36
 

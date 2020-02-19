@@ -19,4 +19,5 @@ It has those features and more!
     :maxdepth: 2
     :glob:
 
-    *
+    local_rtd_vm
+    customization

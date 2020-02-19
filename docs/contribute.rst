@@ -43,43 +43,6 @@ Those tickets are meant to be standalone and can be worked on ad-hoc.
 When contributing code, then please follow the standard Contribution
 Guidelines set forth at `contribution-guide.org`_.
 
-We have a strict code style that is easy to follow since you just have to
-install `pre-commit`_ and it will automatically run different linting tools
-(`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
-and `yapf`_) to check your changes before you commit them. `pre-commit` will let
-you know if there were any problems that it wasn't able to fix automatically.
-
-To run the `pre-commit` command and check your changes:
-
-.. prompt:: bash $
-
-    pip install -U pre-commit
-    git add <your-modified-files>
-    pre-commit run
-
-or to run against a specific file:
-
-.. prompt:: bash $
-
-    pre-commit run --files <file.py>
-
-`pre-commit` can also be run as a git pre-commit hook. You can set this up
-with:
-
-.. prompt:: bash $
-
-    pre-commit install
-
-After this installation, the next time you run `git commit` the `pre-commit run`
-command will be run immediately and will inform you of the changes and errors.
-
-.. note::
-
-    Our code base is still maturing and the core team doesn't yet recommend
-    running this as a pre-commit hook due to the number of changes this will
-    cause while constructing a pull request. Independent pull requests with
-    linting changes would be a great help to making this possible.
-
 
 .. _Feature: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _Improvement: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
@@ -88,14 +51,6 @@ command will be run immediately and will inform you of the changes and errors.
 .. _Sprintable: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
-.. _pre-commit: https://github.com/pre-commit/pre-commit
-.. _autoflake: https://github.com/myint/autoflake
-.. _autopep8: https://github.com/hhatto/autopep8
-.. _docformatter: https://github.com/myint/docformatter
-.. _isort: https://github.com/timothycrosley/isort
-.. _prospector: https://prospector.landscape.io/en/master
-.. _unify: https://github.com/myint/unify
-.. _yapf: https://github.com/google/yapf
 
 Contributing to documentation
 -----------------------------
@@ -116,7 +71,6 @@ for your own :doc:`custom installation <custom_installs/index>`.
 .. toctree::
    :maxdepth: 1
 
-   development/install
    development/standards
    development/search
    development/architecture
@@ -127,6 +81,7 @@ for your own :doc:`custom installation <custom_installs/index>`.
    development/buildenvironments
    development/symlinks
    development/settings
+   development/install
    development/i18n
    development/issue-labels
    development/design

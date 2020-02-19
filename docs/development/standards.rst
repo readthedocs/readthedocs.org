@@ -1,16 +1,9 @@
-Development Standards
-=====================
+Development Setup and Standards
+===============================
 
-These are build standards that are adhered to by the core development team while
-developing Read the Docs and related services. If you are a new contributor to
-Read the Docs, it might a be a good idea to follow these guidelines as well. The
-:doc:`standard installation instructions <install>` do cover what it takes to
-get started with a local installation of Read the Docs and can be used for local
-development by non-core team.
-
-.. warning::
-
-   Take into account that Core team does not offer support on this setup currently.
+These are development setup and standards that are adhered to by the core development team while
+developing Read the Docs and related services. If you are a contributor to Read the Docs,
+it might a be a good idea to follow these guidelines as well.
 
 
 Core team standards
@@ -69,7 +62,7 @@ Serve documentation via El Proxito
 
 Search enabled by default
     Elasticsearch is properly configured and enabled by default.
-    Besides, all the documentation indexes are updated after a build is finished.
+    All the documentation indexes are updated after a build is finished.
 
 
 Setup your environment

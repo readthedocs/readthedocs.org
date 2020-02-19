@@ -1,5 +1,5 @@
-Installation
-============
+-Installation
+=============
 
 .. meta::
    :description lang=en: Install a local instance of Read the Docs on your own servers with our step by step guide.
@@ -7,6 +7,14 @@ Installation
 
 Here is a step by step guide on how to install Read the Docs.
 It will get you to a point of having a local running instance.
+
+.. note::
+
+    It may be worth familiarizing yourself with the Read the Docs
+    :doc:`development setup and standards </development/standards>`.
+    That document details the local setup with Docker which may be useful
+    for setting up your own instance.
+
 
 Requirements
 ------------
