@@ -109,7 +109,10 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        sort = self.request.GET.get('sort')
+        if sort not in ['modified_date', '-modified_date', 'slug', '-slug']:
+            sort = 'slug'
+        return Project.objects.dashboard(self.request.user).order_by(sort)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
