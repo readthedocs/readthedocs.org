@@ -57,6 +57,11 @@ class DockerBaseSettings(CommunityDevSettings):
                 'handlers': ['null'],
                 'propagate': False,
             },
+            'azure.storage.common._auth': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            # Disable gitpython logging
             'git.cmd': {
                 'handlers': ['null'],
                 'propagate': False,
