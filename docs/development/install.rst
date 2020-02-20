@@ -1,5 +1,5 @@
--Installation
-=============
+Installation
+============
 
 .. meta::
    :description lang=en: Install a local instance of Read the Docs on your own servers with our step by step guide.
