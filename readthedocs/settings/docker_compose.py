@@ -21,6 +21,9 @@ class DockerBaseSettings(CommunityDevSettings):
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
+    # In the local docker environment, nginx should be trusted to set the host correctly
+    USE_X_FORWARDED_HOST = True
+
     MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
