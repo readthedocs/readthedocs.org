@@ -19,8 +19,7 @@ management command:
 
 .. prompt:: bash
 
-    inv docker.shell
-    ./manage.py reindex_elasticsearch
+    inv docker.manage reindex_elasticsearch
 
 For performance optimization, we implemented our own version of management command rather than
 the built in management command provided by the `django-elasticsearch-dsl`_ package.
