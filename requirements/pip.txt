@@ -113,3 +113,6 @@ azure-storage-common==1.4.2
 
 # Required only in development and linting
 django-debug-toolbar==2.0
+
+# For enabling content-security-policy
+django-csp==3.6
