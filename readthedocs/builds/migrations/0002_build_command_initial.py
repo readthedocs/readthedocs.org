@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('exit_code', models.IntegerField(verbose_name='Command exit code')),
                 ('start_time', models.DateTimeField(verbose_name='Start time')),
                 ('end_time', models.DateTimeField(verbose_name='End time')),
-                ('build', models.ForeignKey(related_name='commands', verbose_name='Build', to='builds.Build')),
+                ('build', models.ForeignKey(related_name='commands', verbose_name='Build', to='builds.Build', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['start_time'],

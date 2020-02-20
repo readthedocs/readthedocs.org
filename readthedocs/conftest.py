@@ -14,8 +14,6 @@ except ImportError:
         ('community', True),
         ('corporate', False),
         ('environment', 'readthedocs'),
-
-        ('url_scheme', 'http'),
     )
 
 
@@ -50,8 +48,3 @@ def settings_modification(settings):
 @pytest.fixture
 def api_client():
     return APIClient()
-
-
-@pytest.fixture(scope="class")
-def url_scheme(request):
-    request.cls.url_scheme = request.config.option.url_scheme

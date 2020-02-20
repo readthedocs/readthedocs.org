@@ -475,6 +475,7 @@ class ResolverDomainTests(ResolverBase):
         PRODUCTION_DOMAIN='readthedocs.org',
         PUBLIC_DOMAIN='public.readthedocs.org',
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+        PUBLIC_DOMAIN_USES_HTTPS=True,
         USE_SUBDOMAIN=True,
     )
     def test_domain_external(self):
@@ -482,11 +483,11 @@ class ResolverDomainTests(ResolverBase):
         latest.type = EXTERNAL
         latest.save()
         url = resolve(project=self.pip)
-        self.assertEqual(url, 'http://pip--latest.dev.readthedocs.build/en/latest/')
+        self.assertEqual(url, 'https://pip--latest.dev.readthedocs.build/en/latest/')
         url = resolve(project=self.pip, version_slug=latest.slug)
-        self.assertEqual(url, 'http://pip--latest.dev.readthedocs.build/en/latest/')
+        self.assertEqual(url, 'https://pip--latest.dev.readthedocs.build/en/latest/')
         url = resolve(project=self.pip, version_slug='non-external')
-        self.assertEqual(url, 'http://pip.public.readthedocs.org/en/non-external/')
+        self.assertEqual(url, 'https://pip.public.readthedocs.org/en/non-external/')
 
 
 class ResolverTests(ResolverBase):

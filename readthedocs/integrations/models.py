@@ -246,7 +246,11 @@ class Integration(models.Model):
 
     INTEGRATIONS = WEBHOOK_INTEGRATIONS
 
-    project = models.ForeignKey(Project, related_name='integrations')
+    project = models.ForeignKey(
+        Project,
+        related_name='integrations',
+        on_delete=models.CASCADE,
+    )
     integration_type = models.CharField(
         _('Integration type'),
         max_length=32,

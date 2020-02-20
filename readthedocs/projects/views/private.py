@@ -115,8 +115,8 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         self.validate_primary_email(request.user)
         return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
 
         return context
 
