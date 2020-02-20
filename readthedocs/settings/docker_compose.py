@@ -57,7 +57,7 @@ class DockerBaseSettings(CommunityDevSettings):
                 'handlers': ['null'],
                 'propagate': False,
             },
-            'azure.storage.common._auth': {
+            'azure.storage.common': {
                 'handlers': ['null'],
                 'propagate': False,
             },
