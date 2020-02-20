@@ -57,6 +57,10 @@ class DockerBaseSettings(CommunityDevSettings):
                 'handlers': ['null'],
                 'propagate': False,
             },
+            'git.cmd': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
         })
         return logging
 
