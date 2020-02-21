@@ -322,21 +322,24 @@ class Version(models.Model):
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
+        if not self.project.has_feature(feature_id='skip_sync'):
+            broadcast(
+                type='app',
+                task=tasks.symlink_project,
+                args=[self.project.pk],
+            )
         return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[self.get_artifact_paths()],
-        )
+        has_skip_sync = self.project.has_feature(feature_id='skip_sync')
+        if not has_skip_sync:
+            broadcast(
+                type='app',
+                task=tasks.remove_dirs,
+                args=[self.get_artifact_paths()],
+            )
 
         # Remove resources if the version is not external
         if self.type != EXTERNAL:
@@ -344,11 +347,12 @@ class Version(models.Model):
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
+        if not has_skip_sync:
+            broadcast(
+                type='app',
+                task=tasks.symlink_project,
+                args=[project_pk],
+            )
 
     @property
     def identifier_friendly(self):
