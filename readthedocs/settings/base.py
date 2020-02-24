@@ -77,6 +77,18 @@ class CommunityBaseSettings(Settings):
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_BLOCK_ALL_MIXED_CONTENT = True
+    CSP_DEFAULT_SRC = None  # This could be improved
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_OBJECT_SRC = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_EXCLUDE_URL_PREFIXES = (
+        "/admin/",
+    )
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -180,6 +192,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
+        'csp.middleware.CSPMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (

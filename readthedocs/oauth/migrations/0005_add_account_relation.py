@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='remoteorganization',
             name='account',
-            field=models.ForeignKey(related_name='remote_organizations', verbose_name='Connected account', blank=True, to='socialaccount.SocialAccount', null=True),
+            field=models.ForeignKey(related_name='remote_organizations', verbose_name='Connected account', blank=True, to='socialaccount.SocialAccount', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='remoterepository',
             name='account',
-            field=models.ForeignKey(related_name='remote_repositories', verbose_name='Connected account', blank=True, to='socialaccount.SocialAccount', null=True),
+            field=models.ForeignKey(related_name='remote_repositories', verbose_name='Connected account', blank=True, to='socialaccount.SocialAccount', null=True, on_delete=models.CASCADE),
         ),
     ]

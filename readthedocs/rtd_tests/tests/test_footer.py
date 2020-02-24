@@ -148,7 +148,8 @@ class TestFooterHTML(TestCase):
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class TestVersionCompareFooter(TestCase):
-    fixtures = ['test_data']
+
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
@@ -267,7 +268,7 @@ class TestVersionCompareFooter(TestCase):
 
 
 class TestFooterPerformance(APITestCase):
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
     url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
     factory = APIRequestFactory()
 
