@@ -53,10 +53,6 @@ class DockerBaseSettings(CommunityDevSettings):
         logging = super().LOGGING
         logging['loggers'].update({
             # Disable azurite logging
-            'azure.storage.common.storageclient': {
-                'handlers': ['null'],
-                'propagate': False,
-            },
             'azure.storage.common': {
                 'handlers': ['null'],
                 'propagate': False,
