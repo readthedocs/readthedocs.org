@@ -76,7 +76,7 @@ services:
       - "10000:10000"
     networks:
       readthedocs:
-    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
+    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data", "--loose"]
 
   azure-cli:
     image: microsoft/azure-cli
