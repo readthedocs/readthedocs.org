@@ -23,7 +23,7 @@ git+https://github.com/readthedocs/readthedocs-sphinx-search@master
 Pygments==2.5.2
 
 mkdocs==1.1
-Markdown==3.1.1
+Markdown==3.2.1
 
 # Docs
 sphinxcontrib-httpdomain==1.7.0
