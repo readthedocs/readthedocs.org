@@ -45,7 +45,7 @@ SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 class TestLocalBuildEnvironment(TestCase):
 
     """Test execution and exception handling in environment."""
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -363,7 +363,7 @@ class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -1448,7 +1448,7 @@ class TestPythonEnvironment(TestCase):
 
 
 class AutoWipeEnvironmentBase:
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
     build_env_class = None
 
     def setUp(self):

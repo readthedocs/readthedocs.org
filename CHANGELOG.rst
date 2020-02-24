@@ -1,3 +1,50 @@
+Version 3.12.0
+--------------
+
+:Date: February 18, 2020
+
+This version has two major changes:
+
+* It updates our default docker images to stable=5.0 and latest=6.0.
+* It changes our PR builder domain to `readthedocs.build`
+
+* `@humitos <https://github.com/humitos>`__: Use PUBLIC_DOMAIN_USES_HTTPS for resolver tests (`#6673 <https://github.com/readthedocs/readthedocs.org/pull/6673>`__)
+* `@stsewd <https://github.com/stsewd>`__: Always run CoreTagsTests with http (`#6671 <https://github.com/readthedocs/readthedocs.org/pull/6671>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old docker settings (`#6670 <https://github.com/readthedocs/readthedocs.org/pull/6670>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update gitpython and django (`#6667 <https://github.com/readthedocs/readthedocs.org/pull/6667>`__)
+* `@humitos <https://github.com/humitos>`__: New docker release (6.0 and testing) (`#6654 <https://github.com/readthedocs/readthedocs.org/pull/6654>`__)
+* `@humitos <https://github.com/humitos>`__: Default python version per Docker image (`#6653 <https://github.com/readthedocs/readthedocs.org/pull/6653>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add pytest-custom_exit_code (`#6648 <https://github.com/readthedocs/readthedocs.org/pull/6648>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial attempt to serve PR builds at `readthedocs.build` (`#6629 <https://github.com/readthedocs/readthedocs.org/pull/6629>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove re-authing of users on downloads. (`#6619 <https://github.com/readthedocs/readthedocs.org/pull/6619>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't trigger a sync twice on creation/deletion for GitHub (`#6614 <https://github.com/readthedocs/readthedocs.org/pull/6614>`__)
+* `@s-weigand <https://github.com/s-weigand>`__: Add linkcheck test for the docs (`#6543 <https://github.com/readthedocs/readthedocs.org/pull/6543>`__)
+
+Version 3.11.6
+--------------
+
+:Date: February 04, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Note we aren't doing GSOC in 2020 (`#6618 <https://github.com/readthedocs/readthedocs.org/pull/6618>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: only serve x-rtd-slug project if it exists (`#6617 <https://github.com/readthedocs/readthedocs.org/pull/6617>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add check for a single_version project having a version_slug for PR builds (`#6615 <https://github.com/readthedocs/readthedocs.org/pull/6615>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#6613 <https://github.com/readthedocs/readthedocs.org/pull/6613>`__)
+* `@stsewd <https://github.com/stsewd>`__: Create unique container per sync (`#6612 <https://github.com/readthedocs/readthedocs.org/pull/6612>`__)
+* `@stsewd <https://github.com/stsewd>`__: Check for None before assignment (`#6611 <https://github.com/readthedocs/readthedocs.org/pull/6611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Raise exception when we get an InfiniteRedirect (`#6609 <https://github.com/readthedocs/readthedocs.org/pull/6609>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 3.11.5 (`#6608 <https://github.com/readthedocs/readthedocs.org/pull/6608>`__)
+* `@humitos <https://github.com/humitos>`__: Avoid infinite redirect on El Proxito on 404 (`#6606 <https://github.com/readthedocs/readthedocs.org/pull/6606>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't error when killing/removing non-existent cotainer (`#6605 <https://github.com/readthedocs/readthedocs.org/pull/6605>`__)
+* `@humitos <https://github.com/humitos>`__: Use proper path to download/install readthedocs-ext (`#6603 <https://github.com/readthedocs/readthedocs.org/pull/6603>`__)
+* `@humitos <https://github.com/humitos>`__: Use timeout on internal API calls (`#6602 <https://github.com/readthedocs/readthedocs.org/pull/6602>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't assume build isn't None in a docker build env (`#6599 <https://github.com/readthedocs/readthedocs.org/pull/6599>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with pip 20.0 breaking on install (`#6598 <https://github.com/readthedocs/readthedocs.org/pull/6598>`__)
+* `@stsewd <https://github.com/stsewd>`__: More protection against None (`#6597 <https://github.com/readthedocs/readthedocs.org/pull/6597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Revert "Update celery requirements to its latest version" (`#6596 <https://github.com/readthedocs/readthedocs.org/pull/6596>`__)
+* `@Blackcipher101 <https://github.com/Blackcipher101>`__: Changed documentation of Api v3 (`#6574 <https://github.com/readthedocs/readthedocs.org/pull/6574>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
+* `@humitos <https://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
+
 Version 3.11.5
 --------------
 
@@ -893,7 +940,7 @@ Version 3.2.2
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/readthedocs/readthedocs.org/pull/5276>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/readthedocs/readthedocs.org/pull/5275>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/readthedocs/readthedocs.org/pull/5274>`__)
-* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
+* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs ``https://`` prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
 * `@humitos <https://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/readthedocs/readthedocs.org/pull/5272>`__)
 * `@humitos <https://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/readthedocs/readthedocs.org/pull/5269>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/readthedocs/readthedocs.org/pull/5263>`__)

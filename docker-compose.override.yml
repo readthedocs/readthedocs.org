@@ -46,6 +46,7 @@ services:
       - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+      - HOSTIP=${HOSTIP:-}
     extra_hosts:
       - "community.dev.readthedocs.io:10.10.0.100"
 
@@ -75,7 +76,7 @@ services:
       - "10000:10000"
     networks:
       readthedocs:
-    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
+    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data", "--loose"]
 
   azure-cli:
     image: microsoft/azure-cli

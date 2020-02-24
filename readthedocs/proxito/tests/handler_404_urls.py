@@ -21,7 +21,7 @@ from readthedocs.proxito.views.serve import ServeError404
 def map_proxito_path(view_func):
 
     @wraps(view_func)
-    def inner_view(request, *args, **kwargs):
+    def inner_view(request, exception, *args, **kwargs):
         return view_func(
             request,
             *args,

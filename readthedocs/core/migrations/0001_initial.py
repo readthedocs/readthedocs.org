@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('whitelisted', models.BooleanField(default=False, verbose_name='Whitelisted')),
                 ('homepage', models.CharField(max_length=100, verbose_name='Homepage', blank=True)),
                 ('allow_email', models.BooleanField(default=True, help_text='Show your email on VCS contributions.', verbose_name='Allow email')),
-                ('user', models.ForeignKey(related_name='profile', verbose_name='User', to=settings.AUTH_USER_MODEL, unique=True)),
+                ('user', models.ForeignKey(related_name='profile', verbose_name='User', to=settings.AUTH_USER_MODEL, unique=True, on_delete=models.CASCADE)),
             ],
         ),
     ]

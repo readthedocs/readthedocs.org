@@ -26,16 +26,19 @@ class SphinxDomain(TimeStampedModel):
     project = models.ForeignKey(
         Project,
         related_name='sphinx_domains',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         related_name='sphinx_domains',
+        on_delete=models.CASCADE,
     )
     html_file = models.ForeignKey(
         HTMLFile,
         related_name='sphinx_domains',
         null=True,
+        on_delete=models.CASCADE,
     )
     commit = models.CharField(_('Commit'), max_length=255, null=True)
     build = models.IntegerField(_('Build id'), null=True)

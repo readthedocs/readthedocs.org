@@ -2,6 +2,8 @@ import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
+from django_dynamic_fixture import get
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.api.v2.views.footer_views import (
@@ -11,31 +13,38 @@ from readthedocs.api.v2.views.footer_views import (
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import FooterNoSessionMiddleware
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
-class Testmaker(APITestCase):
-    fixtures = ['test_data']
-    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
-    factory = APIRequestFactory()
+class TestFooterHTML(TestCase):
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.pip = Project.objects.get(slug='pip')
-        cls.latest = cls.pip.versions.create_latest()
+    def setUp(self):
+        self.pip = get(
+            Project,
+            slug='pip',
+            repo='https://github.com/rtfd/readthedocs.org',
+            privacy_level=PUBLIC,
+            main_language_project=None,
+        )
+        self.latest = self.pip.versions.get(slug=LATEST)
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+
+        self.factory = APIRequestFactory()
 
     def render(self):
-        request = self.factory.get(self.url)
-        response = FooterHTML.as_view()(request)
-        response.render()
-        return response
+        r = self.client.get(self.url)
+        return r
 
     def test_footer(self):
         pip = Project.objects.get(slug='pip')
         pip.show_version_warning = True
         pip.save()
 
-        r = self.client.get(self.url)
+        r = self.render()
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
@@ -54,7 +63,7 @@ class Testmaker(APITestCase):
         pip.show_version_warning = False
         pip.save()
 
-        r = self.client.get(self.url)
+        r = self.render()
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.data['version_active'])
         self.assertFalse(r.data['version_compare']['is_highest'])
@@ -139,7 +148,8 @@ class Testmaker(APITestCase):
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class TestVersionCompareFooter(TestCase):
-    fixtures = ['test_data']
+
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
@@ -258,7 +268,7 @@ class TestVersionCompareFooter(TestCase):
 
 
 class TestFooterPerformance(APITestCase):
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
     url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
     factory = APIRequestFactory()
 
