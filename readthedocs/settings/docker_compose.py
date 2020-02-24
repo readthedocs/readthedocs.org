@@ -56,7 +56,12 @@ class DockerBaseSettings(CommunityDevSettings):
         logging = super().LOGGING
         logging['loggers'].update({
             # Disable azurite logging
-            'azure.storage.common.storageclient': {
+            'azure.storage.common': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            # Disable gitpython logging
+            'git.cmd': {
                 'handlers': ['null'],
                 'propagate': False,
             },
