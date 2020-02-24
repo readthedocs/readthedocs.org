@@ -1022,15 +1022,21 @@ class Project(models.Model):
         Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
+
+        # return immediately if the current stable is managed by the user and
+        # not automatically by Read the Docs (``machine=False``)
+        current_stable = self.get_stable_version()
+        if not current_stable.machine:
+            return None
+
         versions = self.versions(manager=INTERNAL).all()
         new_stable = determine_stable_version(versions)
         if new_stable:
-            current_stable = self.get_stable_version()
             if current_stable:
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.machine:
+                if identifier_updated:
                     log.info(
                         'Update stable version: %(project)s:%(version)s',
                         {
