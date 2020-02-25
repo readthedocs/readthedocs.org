@@ -3,7 +3,7 @@
 import re
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.constants import LATEST

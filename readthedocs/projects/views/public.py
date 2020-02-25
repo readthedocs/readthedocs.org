@@ -60,7 +60,7 @@ class ProjectTagIndex(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
         context['tag'] = self.tag
         return context
@@ -367,6 +367,8 @@ def project_versions(request, project_slug):
 
     Shows the available versions and lets the user choose which ones to build.
     """
+    max_inactive_versions = 100
+
     project = get_object_or_404(
         Project.objects.protected(request.user),
         slug=project_slug,
@@ -385,7 +387,8 @@ def project_versions(request, project_slug):
     version_filter = request.GET.get('version_filter', '')
     if version_filter:
         inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
-    inactive_versions = inactive_versions[:100]
+    total_inactive_versions_count = inactive_versions.count()
+    inactive_versions = inactive_versions[:max_inactive_versions]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
@@ -405,6 +408,8 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'max_inactive_versions': max_inactive_versions,
+            'total_inactive_versions_count': total_inactive_versions_count,
         },
     )
 
