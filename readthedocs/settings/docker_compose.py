@@ -33,7 +33,7 @@ class DockerBaseSettings(CommunityDevSettings):
     # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
     HOSTIP = os.environ.get('HOSTIP')
 
-    # If the host IP is not specified, try to get it from the socket address lis
+    # If the host IP is not specified, try to get it from the socket address list
     _, __, ips = socket.gethostbyname_ex(socket.gethostname())
     if ips and not HOSTIP:
         HOSTIP = ips[0][:-1] + "1"
