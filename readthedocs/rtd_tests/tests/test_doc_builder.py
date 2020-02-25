@@ -23,7 +23,7 @@ from readthedocs.projects.models import Feature, Project
 
 class SphinxBuilderTest(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')

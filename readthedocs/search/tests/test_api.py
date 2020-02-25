@@ -1,7 +1,7 @@
 import re
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
@@ -25,6 +25,9 @@ class TestDocumentSearch:
         # installed
         cls.url = reverse('doc_search')
 
+    def get_search(self, api_client, search_params):
+        return api_client.get(self.url, search_params)
+
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_works_with_title_query(self, api_client, project, page_num):
         query = get_search_query_from_project_file(
@@ -39,7 +42,7 @@ class TestDocumentSearch:
             'version': version.slug,
             'q': query
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -75,7 +78,7 @@ class TestDocumentSearch:
             'version': version.slug,
             'q': query
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -121,7 +124,7 @@ class TestDocumentSearch:
             'project': 'docs',
             'version': 'latest'
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -151,7 +154,7 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': dummy_version.slug
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -173,7 +176,7 @@ class TestDocumentSearch:
             PageDocument().update(html_file)
 
         search_params = {'q': query, 'project': project.slug, 'version': latest_version.slug}
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         # Check the count is 61 (1 existing and 60 new created)
@@ -185,14 +188,14 @@ class TestDocumentSearch:
 
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
         """Hitting Document Search endpoint without query parameters should return error"""
-        resp = api_client.get(self.url)
+        resp = self.get_search(api_client, {})
         assert resp.status_code == 400
         # Check error message is there
         assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
@@ -212,7 +215,7 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': version.slug
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -234,7 +237,7 @@ class TestDocumentSearch:
             'project': project,
             'version': 'latest',
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
     def test_doc_search_unexisting_version(self, api_client, project):
@@ -246,7 +249,7 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': version,
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
