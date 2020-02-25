@@ -69,7 +69,9 @@ services:
       - CELERY_APP_NAME=readthedocs
 
   storage:
-    image: mcr.microsoft.com/azure-storage/azurite:latest
+    # https://github.com/Azure/Azurite
+    # Pin the version of Azurite as there are sometimes backwards incompatible changes
+    image: mcr.microsoft.com/azure-storage/azurite:3.5.0
     volumes:
       - storage_data:/data
     ports:
