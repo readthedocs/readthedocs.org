@@ -35,6 +35,7 @@ class GoldUser(models.Model):
         verbose_name=_('User'),
         unique=True,
         related_name='gold',
+        on_delete=models.CASCADE,
     )
     level = models.CharField(
         _('Level'),
