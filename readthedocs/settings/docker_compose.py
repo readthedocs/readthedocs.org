@@ -1,6 +1,8 @@
 import os
+import socket
 
 from .dev import CommunityDevSettings
+
 
 class DockerBaseSettings(CommunityDevSettings):
 
@@ -31,10 +33,10 @@ class DockerBaseSettings(CommunityDevSettings):
     # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
     HOSTIP = os.environ.get('HOSTIP')
 
-    import platform
-    if platform.system() == 'Darwin':
-        # On Mac, host.docker.internal always point to the host's IP
-        HOSTIP = 'host.docker.internal'
+    # If the host IP is not specified, try to get it from the socket address lis
+    _, __, ips = socket.gethostbyname_ex(socket.gethostname())
+    if ips and not HOSTIP:
+        HOSTIP = ips[0][:-1] + "1"
 
     ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
 
