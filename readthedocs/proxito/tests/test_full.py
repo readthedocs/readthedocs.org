@@ -213,6 +213,7 @@ class TestDocServingBackends(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
 )
 class TestAdditionalDocViews(BaseDocServing):
     # Test that robots.txt and sitemap.xml work

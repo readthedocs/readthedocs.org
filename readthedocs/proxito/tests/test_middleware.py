@@ -1,5 +1,6 @@
 # Copied from test_middleware.py
 
+import pytest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -10,8 +11,7 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.utils import create_user
 
 
-@override_settings(USE_SUBDOMAIN=True)
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
+@pytest.mark.proxito
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
