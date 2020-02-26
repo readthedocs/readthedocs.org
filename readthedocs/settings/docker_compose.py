@@ -43,11 +43,6 @@ class DockerBaseSettings(CommunityDevSettings):
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
-    ELASTICSEARCH_DSL = {
-        'default': {
-            'hosts': 'search:9200',
-        },
-    }
 
     RTD_CLEAN_AFTER_BUILD = True
 
