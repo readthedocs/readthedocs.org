@@ -14,14 +14,15 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
-    STATIC_URL = 'http://community.dev.readthedocs.io/devstoreaccount1/static/'
 
     PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
-    PUBLIC_API_URL = 'http://community.dev.readthedocs.io'
+    PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
     RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
+
+    STATIC_URL = f'http://{PRODUCTION_DOMAIN}/devstoreaccount1/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
@@ -112,14 +113,14 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
+    AZURE_MEDIA_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
 
     # We want to replace files for the same version built
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = 'community.dev.readthedocs.io'
+    AZURE_STATIC_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
 
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.azure_storage.AzureStaticStorage'
