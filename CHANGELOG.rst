@@ -1,3 +1,17 @@
+Version 4.0.0
+-------------
+
+:Date: February 25, 2020
+
+**This release upgrades our codebase to run on Django 2.2**.
+This is a breaking change,
+so we have released it as our 4th major version.
+
+* `@stsewd <https://github.com/stsewd>`__: Data migration for old integration models (`#6675 <https://github.com/readthedocs/readthedocs.org/pull/6675>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 3.12.0 (`#6674 <https://github.com/readthedocs/readthedocs.org/pull/6674>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Django 2.2.9 (`#6494 <https://github.com/readthedocs/readthedocs.org/pull/6494>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Show message if version list truncated (`#6276 <https://github.com/readthedocs/readthedocs.org/pull/6276>`__)
+
 Version 3.12.0
 --------------
 
