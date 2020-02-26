@@ -252,7 +252,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                 return response
 
         # Most of the code below is taken directly from Django's SessionMiddleware.
-        # Some changes (marked with NOTE:) were added to accommodate having two cookies instead of one.
+        # Some changes (marked with NOTE:) were added to support the fallback cookie.
 
         try:
             accessed = request.session.accessed
