@@ -251,6 +251,9 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
             ):
                 return response
 
+        # Most of the code below is taken directly from Django's SessionMiddleware.
+        # Some changes (marked with NOTE:) were added to accommodate having two cookies instead of one.
+
         try:
             accessed = request.session.accessed
             modified = request.session.modified
@@ -260,6 +263,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
         else:
             # First check if we need to delete this cookie.
             # The session should be deleted only if the session is entirely empty
+            # NOTE: This was changed to support both cookies
             if (
                 settings.SESSION_COOKIE_NAME in request.COOKIES or
                 self.cookie_name_fallback in request.COOKIES
@@ -304,6 +308,7 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                             samesite=settings.SESSION_COOKIE_SAMESITE,
                         )
 
+                        # NOTE: This was added to support the fallback cookie
                         if not settings.SESSION_COOKIE_SAMESITE:
                             # Forcibly set the session cookie to SameSite=None
                             # This isn't supported in Django<3.1
