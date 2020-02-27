@@ -15,6 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
+from requests.exceptions import Timeout
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
@@ -28,7 +29,6 @@ from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
-
 
 log = logging.getLogger(__name__)
 
@@ -121,15 +121,23 @@ class BaseSphinx(BaseBuilder):
                 )
             downloads = self.version.get_downloads(pretty=True)
         else:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+            versions = []
+            downloads = []
+            try:
                 versions = self.project.api_versions()
-            else:
-                versions = [
-                    v
-                    for v in self.project.api_versions()
-                    if v.privacy_level == PUBLIC
-                ]
-            downloads = api.version(self.version.pk).get()['downloads']
+                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                    versions = [
+                        v
+                        for v in versions
+                        if v.privacy_level == PUBLIC
+                    ]
+                downloads = api.version(self.version.pk).get()['downloads']
+            except Timeout:
+                log.info(
+                    'Timeout while fetching versions and downloads for Sphinx context. '
+                    'project: % version: %',
+                    self.project.slug, self.version.slug,
+                )
 
         data = {
             'html_theme': 'sphinx_rtd_theme',
