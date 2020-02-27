@@ -133,7 +133,7 @@ class BaseSphinx(BaseBuilder):
                     ]
                 downloads = api.version(self.version.pk).get()['downloads']
             except Timeout:
-                log.info(
+                log.exception(
                     'Timeout while fetching versions and downloads for Sphinx context. '
                     'project: % version: %',
                     self.project.slug, self.version.slug,
