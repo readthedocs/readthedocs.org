@@ -603,7 +603,7 @@ class CommunityBaseSettings(Settings):
         },
         'handlers': {
             'console': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging.StreamHandler',
                 'formatter': 'default'
             },
@@ -621,7 +621,7 @@ class CommunityBaseSettings(Settings):
             '': {  # root logger
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
-                'level': 'DEBUG',
+                'level': 'INFO',
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
