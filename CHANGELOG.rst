@@ -8,7 +8,6 @@ This version has two major changes:
 * It updates our default docker images to stable=5.0 and latest=6.0.
 * It changes our PR builder domain to `readthedocs.build`
 
-* `@gallowayj <https://github.com/gallowayj>`__: Drop mock as a dependency (`#6665 <https://github.com/readthedocs/readthedocs.org/pull/6665>`__)
 * `@humitos <https://github.com/humitos>`__: Use PUBLIC_DOMAIN_USES_HTTPS for resolver tests (`#6673 <https://github.com/readthedocs/readthedocs.org/pull/6673>`__)
 * `@stsewd <https://github.com/stsewd>`__: Always run CoreTagsTests with http (`#6671 <https://github.com/readthedocs/readthedocs.org/pull/6671>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Remove old docker settings (`#6670 <https://github.com/readthedocs/readthedocs.org/pull/6670>`__)
