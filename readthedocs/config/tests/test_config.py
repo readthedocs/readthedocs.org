@@ -4,7 +4,7 @@ import textwrap
 from collections import OrderedDict
 
 import pytest
-from mock import DEFAULT, patch
+from unittest.mock import DEFAULT, patch
 from pytest import raises
 
 from readthedocs.config import (

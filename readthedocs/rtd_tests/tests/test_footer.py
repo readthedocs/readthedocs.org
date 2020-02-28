@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.test.utils import override_settings

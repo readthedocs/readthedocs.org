@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version

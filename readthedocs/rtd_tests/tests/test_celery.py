@@ -7,7 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
