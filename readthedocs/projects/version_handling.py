@@ -109,13 +109,12 @@ def sort_versions(version_list):
         if comparable_version:
             versions.append((version_obj, comparable_version))
 
-    return list(
-        sorted(
-            versions,
-            key=lambda version_info: version_info[1],
-            reverse=True,
-        ),
+    # sort in-place to avoid leaking memory on projects with lot of versions
+    versions.sort(
+        key=lambda version_info: version_info[1],
+        reverse=True,
     )
+    return versions
 
 
 def highest_version(version_list):
