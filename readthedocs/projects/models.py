@@ -1572,6 +1572,14 @@ class Feature(models.Model):
                 'when building with Sphinx'
             ),
         ),
+        (
+            SKIP_SYNC_TAGS,
+            _('Skip syncing tags'),
+        ),
+        (
+            SKIP_SYNC_BRANCHES,
+            _('Skip syncing branches'),
+        ),
     )
 
     projects = models.ManyToManyField(
