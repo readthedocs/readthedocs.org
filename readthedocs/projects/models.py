@@ -1512,8 +1512,8 @@ class Feature(models.Model):
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
-    SYNC_TAGS = 'sync_tags'
-    SYNC_BRANCHES = 'sync_branches'
+    SKIP_SYNC_TAGS = 'skip_sync_tags'
+    SKIP_SYNC_BRANCHES = 'skip_sync_branches'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
