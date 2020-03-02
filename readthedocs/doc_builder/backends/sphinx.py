@@ -135,7 +135,7 @@ class BaseSphinx(BaseBuilder):
             except Timeout:
                 log.exception(
                     'Timeout while fetching versions and downloads for Sphinx context. '
-                    'project: % version: %',
+                    'project: %s version: %s',
                     self.project.slug, self.version.slug,
                 )
 
