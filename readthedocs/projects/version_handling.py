@@ -103,7 +103,9 @@ def sort_versions(version_list):
             packaging.version.Version))
     """
     versions = []
-    for version_obj in version_list:
+    # use ``.iterator()`` to avoid fetching all the versions at once (this may
+    # have an impact when the project has lot of tags)
+    for version_obj in version_list.iterator():
         version_slug = version_obj.verbose_name
         comparable_version = parse_version_failsafe(version_slug)
         if comparable_version:
