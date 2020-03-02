@@ -159,19 +159,19 @@ class SyncRepositoryMixin:
         """
         version_post_data = {'repo': version_repo.repo_url}
 
-        if all(
+        if all([
             version_repo.supports_tags,
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
-        ):
+        ]):
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
             } for v in version_repo.tags]
 
-        if all(
+        if all([
             version_repo.supports_branches,
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
-        ):
+        ]):
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
