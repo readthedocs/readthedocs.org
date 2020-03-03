@@ -1581,7 +1581,8 @@ class Feature(models.Model):
             SKIP_SYNC_BRANCHES,
             _('Skip syncing branches'),
         ),
-            SKIP_SYNC, 
+        (
+            SKIP_SYNC,
             _('Skip symlinking and file syncing to webs'),
         ),
     )
