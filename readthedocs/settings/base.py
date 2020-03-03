@@ -491,10 +491,10 @@ class CommunityBaseSettings(Settings):
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
-    ES_HOSTS = ['127.0.0.1:9200']
+    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': 'search:9200'
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
