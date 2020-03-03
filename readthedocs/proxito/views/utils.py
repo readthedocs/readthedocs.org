@@ -2,7 +2,7 @@ import os
 import logging
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from .decorators import map_project_slug, map_subproject_slug
 
@@ -17,6 +17,24 @@ def fast_404(request, *args, **kwargs):
     this in RTD prod when we fallback to it.
     """
     return HttpResponse('Not Found.', status=404)
+
+
+def proxito_404_page_handler(request, exception=None, template_name='404.html'):
+    """
+    Decide what 404 page return depending if it's an internal NGINX redirect.
+
+    We want to return fast when the 404 is used as an internal NGINX redirect to
+    reach our ``ServeError404`` view. However, if the 404 exception was risen
+    inside ``ServeError404`` view, we want to render the default Read the Docs
+    Maze page.
+    """
+
+    if request.resolver_match.url_name != 'proxito_404_handler':
+        return fast_404(request, exception, template_name)
+
+    resp = render(request, template_name)
+    resp.status_code = 404
+    return resp
 
 
 @map_project_slug
