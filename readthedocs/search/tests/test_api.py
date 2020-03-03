@@ -5,6 +5,7 @@ from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
@@ -139,7 +140,12 @@ class TestDocumentSearch:
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(Version, project=project, active=True)
+        dummy_version = G(
+            Version,
+            project=project,
+            active=True,
+            privacy_level=PUBLIC,
+        )
         # Create HTMLFile same as the latest version
         latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
         for f in latest_version_files:
