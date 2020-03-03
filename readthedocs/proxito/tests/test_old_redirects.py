@@ -11,6 +11,7 @@ and adapted to use:
 
 import django_dynamic_fixture as fixture
 import pytest
+from django.http import Http404
 from django.urls import reverse
 from django.test.utils import override_settings
 
@@ -201,11 +202,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/redirect/',
         )
 
-        r = self.client.get(
-            '/en/latest/redirect/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 404)
+        with self.assertRaises(Http404):
+            r = self.client.get(
+                '/en/latest/redirect/',
+                HTTP_HOST='project.dev.readthedocs.io',
+            )
 
 
     def test_redirect_root(self):
@@ -461,12 +462,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
         with override_settings(PYTHON_MEDIA=True):
-            # File does not exist in storage media
-            r = self.client.get(
-                '/en/latest/',
-                HTTP_HOST='project.dev.readthedocs.io',
-            )
-            self.assertEqual(r.status_code, 404)
+            with self.assertRaises(Http404):
+                # File does not exist in storage media
+                r = self.client.get(
+                    '/en/latest/',
+                    HTTP_HOST='project.dev.readthedocs.io',
+                )
 
     def test_redirect_html_index(self):
         fixture.get(
