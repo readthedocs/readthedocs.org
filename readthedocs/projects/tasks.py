@@ -1173,6 +1173,8 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
+    if version.project.has_feature(Feature.SKIP_SYNC):
+        return
 
     # Sync files to the web servers
     move_files(
@@ -1323,6 +1325,8 @@ def move_files(
 @app.task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
+    if project.has_feature(Feature.SKIP_SYNC):
+        return
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.run()
@@ -1339,6 +1343,8 @@ def symlink_domain(project_pk, domain, delete=False):
     :type domain: str
     """
     project = Project.objects.get(pk=project_pk)
+    if project.has_feature(Feature.SKIP_SYNC):
+        return
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
