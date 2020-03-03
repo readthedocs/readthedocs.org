@@ -15,7 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
-from requests.exceptions import Timeout
+from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
@@ -132,7 +132,7 @@ class BaseSphinx(BaseBuilder):
                         if v.privacy_level == PUBLIC
                     ]
                 downloads = api.version(self.version.pk).get()['downloads']
-            except Timeout:
+            except ConnectionError:
                 log.exception(
                     'Timeout while fetching versions and downloads for Sphinx context. '
                     'project: %s version: %s',
