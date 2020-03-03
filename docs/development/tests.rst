@@ -35,8 +35,6 @@ you can also set the ``TOX_POSARGS`` environment variable to an empty string::
 .. warning::
 
    Running tests for search needs an Elasticsearch :ref:`instance running locally <development/search:Installing and running Elasticsearch>`.
-   If you are testing inside :ref:`docker compose <development/standards:Working with Docker Compose>`,
-   you'll need to override the ``ES_HOSTS`` and ``ELASTICSEARCH_DSL`` settings to point to ``search:9200`` instead.
 
 To target a specific environment::
 
