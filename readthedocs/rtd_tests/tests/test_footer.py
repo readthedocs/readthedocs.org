@@ -12,7 +12,7 @@ from readthedocs.api.v2.views.footer_views import (
 )
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
-from readthedocs.core.middleware import FooterNoSessionMiddleware
+from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
@@ -104,7 +104,7 @@ class TestFooterHTML(TestCase):
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
-        mid = FooterNoSessionMiddleware()
+        mid = ReadTheDocsSessionMiddleware()
 
         # Null session here
         request = self.factory.get('/api/v2/footer_html/')

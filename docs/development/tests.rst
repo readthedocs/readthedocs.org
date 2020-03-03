@@ -17,10 +17,20 @@ environments by running::
 
     tox
 
-In order to run all test including the search tests, include `"'--including-search'"`
-argument::
+By default, tox won't run tests from search,
+in order to run all test including the search tests,
+you need to override tox's posargs.
+If you don't have any additional arguments to pass,
+you can also set the ``TOX_POSARGS`` environment variable to an empty string::
 
-    tox "'--including-search'"
+    TOX_POSARGS='' tox
+
+.. note::
+
+   If you need to override tox's posargs, but you still don't want to run the search tests,
+   you need to include ``-m 'not search'`` to your command::
+
+       tox -- -m 'not search' -x
 
 .. warning::
 

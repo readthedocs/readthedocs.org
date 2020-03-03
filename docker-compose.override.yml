@@ -35,17 +35,17 @@ services:
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
-      - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito.py
+      - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito_docker.py
     environment:
-      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito_docker
 
   web:
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
-      - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web.py
+      - ${PWD}/dockerfiles/settings/web.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/web_docker.py
     environment:
-      - DJANGO_SETTINGS_MODULE=readthedocs.settings.web
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.web_docker
       - HOSTIP=${HOSTIP:-}
     extra_hosts:
       - "community.dev.readthedocs.io:10.10.0.100"
@@ -54,29 +54,31 @@ services:
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
-      - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery.py
+      - ${PWD}/dockerfiles/settings/celery.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/celery_docker.py
     environment:
-      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery_docker
       - CELERY_APP_NAME=readthedocs
 
   build:
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
-      - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build.py
+      - ${PWD}/dockerfiles/settings/build.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/build_docker.py
     environment:
-      - DJANGO_SETTINGS_MODULE=readthedocs.settings.build
+      - DJANGO_SETTINGS_MODULE=readthedocs.settings.build_docker
       - CELERY_APP_NAME=readthedocs
 
   storage:
-    image: mcr.microsoft.com/azure-storage/azurite:latest
+    # https://github.com/Azure/Azurite
+    # Pin the version of Azurite as there are sometimes backwards incompatible changes
+    image: mcr.microsoft.com/azure-storage/azurite:3.5.0
     volumes:
       - storage_data:/data
     ports:
       - "10000:10000"
     networks:
       readthedocs:
-    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data"]
+    command: ["azurite-blob", "--silent", "--blobPort", "10000", "--blobHost", "0.0.0.0", "--location", "/data", "--loose"]
 
   azure-cli:
     image: microsoft/azure-cli
