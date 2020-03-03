@@ -159,13 +159,19 @@ class SyncRepositoryMixin:
         """
         version_post_data = {'repo': version_repo.repo_url}
 
-        if version_repo.supports_tags:
+        if all([
+            version_repo.supports_tags,
+            not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
+        ]):
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
             } for v in version_repo.tags]
 
-        if version_repo.supports_branches:
+        if all([
+            version_repo.supports_branches,
+            not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+        ]):
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
@@ -1167,6 +1173,8 @@ def sync_files(
     version = Version.objects.get_object_or_log(pk=version_pk)
     if not version:
         return
+    if version.project.has_feature(Feature.SKIP_SYNC):
+        return
 
     # Sync files to the web servers
     move_files(
@@ -1317,6 +1325,8 @@ def move_files(
 @app.task(queue='web')
 def symlink_project(project_pk):
     project = Project.objects.get(pk=project_pk)
+    if project.has_feature(Feature.SKIP_SYNC):
+        return
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         sym.run()
@@ -1333,6 +1343,8 @@ def symlink_domain(project_pk, domain, delete=False):
     :type domain: str
     """
     project = Project.objects.get(pk=project_pk)
+    if project.has_feature(Feature.SKIP_SYNC):
+        return
     for symlink in [PublicSymlink, PrivateSymlink]:
         sym = symlink(project=project)
         if delete:
