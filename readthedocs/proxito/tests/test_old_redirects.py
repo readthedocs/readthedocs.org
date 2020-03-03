@@ -527,20 +527,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url='/',
         )
 
-        # Use ``proxito_404_handler`` URL here to emulate the internal redirect
-        # that happens on NGINX (URL path will be
-        # http://project.dev.readthedocs.io/_proxito_404_/en/latest/section/file-not-found
-        # when the view receives it)
-        r = self.client.get(
-            reverse(
-                'proxito_404_handler',
-                kwargs={
-                    'proxito_path': '/en/latest/section/file-not-found',
-                }),
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        # Avoid infinite redirect
-        self.assertEqual(r.status_code, 404)
+        with self.assertRaises(Http404):
+            # Avoid infinite redirect
+            r = self.client.get(
+                '/en/latest/section/file-not-found',
+                HTTP_HOST='project.dev.readthedocs.io',
+            )
 
 
 # FIXME: these tests are valid, but the problem I'm facing is that the request
