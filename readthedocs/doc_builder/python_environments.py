@@ -290,7 +290,7 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        site_packages = '--no-site-packages'
+        site_packages = ''
         if self.config.python.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path()
