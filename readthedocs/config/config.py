@@ -268,9 +268,9 @@ class BuildConfigBase:
 
         The user can use any of this values in the YAML file. These values are
         the keys of ``DOCKER_IMAGE_SETTINGS`` Django setting (without the
-        ``readthedocs/build`` part) plus ``stable`` and ``latest``.
+        ``readthedocs/build`` part) plus ``stable``, ``latest`` and ``testing``.
         """
-        images = {'stable', 'latest'}
+        images = {'stable', 'latest', 'testing'}
         for k in settings.DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):

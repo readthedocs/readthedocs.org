@@ -880,7 +880,7 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'conda.environment'
 
-    @pytest.mark.parametrize('value', ['stable', 'latest'])
+    @pytest.mark.parametrize('value', ['stable', 'latest', 'testing'])
     def test_build_image_check_valid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         build.validate()
