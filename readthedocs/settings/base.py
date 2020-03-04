@@ -59,7 +59,7 @@ class CommunityBaseSettings(Settings):
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
     SERVER_EMAIL = DEFAULT_FROM_EMAIL
-    SUPPORT_EMAIL = None
+    SUPPORT_EMAIL = 'support@readthedocs.org'
 
     # Sessions
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
