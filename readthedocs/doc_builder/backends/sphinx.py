@@ -15,7 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
-from requests.exceptions import Timeout
+from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
@@ -111,6 +111,9 @@ class BaseSphinx(BaseBuilder):
         gitlab_version_is_editable = (self.version.type == 'branch')
         display_gitlab = gitlab_user is not None
 
+        versions = []
+        downloads = []
+        subproject_urls = []
         # Avoid hitting database and API if using Docker build environment
         if settings.DONT_HIT_API:
             if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
@@ -120,9 +123,8 @@ class BaseSphinx(BaseBuilder):
                     privacy_level=PUBLIC,
                 )
             downloads = self.version.get_downloads(pretty=True)
+            subproject_urls = self.project.get_subproject_urls()
         else:
-            versions = []
-            downloads = []
             try:
                 versions = self.project.api_versions()
                 if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
@@ -132,9 +134,10 @@ class BaseSphinx(BaseBuilder):
                         if v.privacy_level == PUBLIC
                     ]
                 downloads = api.version(self.version.pk).get()['downloads']
-            except Timeout:
+                subproject_urls = self.project.get_subproject_urls()
+            except ConnectionError:
                 log.exception(
-                    'Timeout while fetching versions and downloads for Sphinx context. '
+                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
                     'project: %s version: %s',
                     self.project.slug, self.version.slug,
                 )
@@ -152,6 +155,7 @@ class BaseSphinx(BaseBuilder):
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
+            'subproject_urls': subproject_urls,
 
             # GitHub
             'github_user': github_user,

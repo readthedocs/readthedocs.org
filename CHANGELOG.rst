@@ -1,3 +1,31 @@
+Version 4.0.1
+-------------
+
+:Date: March 03, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add feature flag for branch & tag syncing to API. (`#6729 <https://github.com/readthedocs/readthedocs.org/pull/6729>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't fail a build on api timing out (`#6719 <https://github.com/readthedocs/readthedocs.org/pull/6719>`__)
+* `@stsewd <https://github.com/stsewd>`__: Be explicit on privacy level for search tests (`#6713 <https://github.com/readthedocs/readthedocs.org/pull/6713>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make easy to run search tests in docker compose (`#6711 <https://github.com/readthedocs/readthedocs.org/pull/6711>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Docker settings improvements (`#6709 <https://github.com/readthedocs/readthedocs.org/pull/6709>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Workaround SameSite cookies (`#6708 <https://github.com/readthedocs/readthedocs.org/pull/6708>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Figure out the host IP when using Docker (`#6707 <https://github.com/readthedocs/readthedocs.org/pull/6707>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Pin the version of Azurite for docker-compose development (`#6706 <https://github.com/readthedocs/readthedocs.org/pull/6706>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.0 (`#6704 <https://github.com/readthedocs/readthedocs.org/pull/6704>`__)
+* `@humitos <https://github.com/humitos>`__: Rename docker settings to fix local environment (`#6703 <https://github.com/readthedocs/readthedocs.org/pull/6703>`__)
+* `@sduthil <https://github.com/sduthil>`__: API v3 doc: fix typos in URL for PATCH /versions/slug/ (`#6698 <https://github.com/readthedocs/readthedocs.org/pull/6698>`__)
+* `@humitos <https://github.com/humitos>`__: Sort vesions in-place to help performance (`#6696 <https://github.com/readthedocs/readthedocs.org/pull/6696>`__)
+* `@humitos <https://github.com/humitos>`__: Use .iterator when sorting versions (`#6694 <https://github.com/readthedocs/readthedocs.org/pull/6694>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just completely skip sync and symlink operations (`#6689 <https://github.com/readthedocs/readthedocs.org/pull/6689>`__)
+* `@humitos <https://github.com/humitos>`__: Disable more loggings in development environment (`#6683 <https://github.com/readthedocs/readthedocs.org/pull/6683>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use x-forwarded-host in local docker environment (`#6679 <https://github.com/readthedocs/readthedocs.org/pull/6679>`__)
+* `@humitos <https://github.com/humitos>`__: Allow user to set `build.image: testing` in the config file (`#6676 <https://github.com/readthedocs/readthedocs.org/pull/6676>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add azurite --loose option (`#6669 <https://github.com/readthedocs/readthedocs.org/pull/6669>`__)
+* `@stsewd <https://github.com/stsewd>`__: Have more control over search tests (`#6644 <https://github.com/readthedocs/readthedocs.org/pull/6644>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Enable content security policy in report-only mode (`#6642 <https://github.com/readthedocs/readthedocs.org/pull/6642>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add test settings file for proxito (`#6623 <https://github.com/readthedocs/readthedocs.org/pull/6623>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: using private submodules in rtd.com (`#6527 <https://github.com/readthedocs/readthedocs.org/pull/6527>`__)
+
 Version 4.0.0
 -------------
 
