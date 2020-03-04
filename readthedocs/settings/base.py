@@ -66,6 +66,8 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
+    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
+    SESSION_COOKIE_SAMESITE = None
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -180,7 +182,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.FooterNoSessionMiddleware',
+        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
@@ -489,10 +491,10 @@ class CommunityBaseSettings(Settings):
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
-    ES_HOSTS = ['127.0.0.1:9200']
+    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': 'search:9200'
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
