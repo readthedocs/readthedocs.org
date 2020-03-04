@@ -1,9 +1,10 @@
-from readthedocs.rtd_tests.tests.test_footer import TestFooterHTML
-from django.test import override_settings
+from django.test import TestCase, override_settings
+
+from readthedocs.rtd_tests.tests.test_footer import BaseTestFooterHTML
 
 
 @override_settings(ROOT_URLCONF='readthedocs.proxito.urls')
-class TestProxiedFooterHTML(TestFooterHTML):
+class TestProxiedFooterHTML(BaseTestFooterHTML):
 
     def setUp(self):
         super().setUp()

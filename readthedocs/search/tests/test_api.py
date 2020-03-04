@@ -17,7 +17,7 @@ from readthedocs.search.tests.utils import (
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestDocumentSearch:
+class BaseTestDocumentSearch:
 
     def setup_method(self, method):
         # This reverse needs to be inside the ``setup_method`` method because from
@@ -259,3 +259,8 @@ class TestDocumentSearch:
 
         data = resp.data['results']
         assert len(data) == 0
+
+
+class TestDocumentSearch(BaseTestDocumentSearch):
+
+    pass

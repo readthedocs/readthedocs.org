@@ -17,7 +17,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
-class TestFooterHTML(TestCase):
+class BaseTestFooterHTML:
 
     def setUp(self):
         self.pip = get(
@@ -140,6 +140,11 @@ class TestFooterHTML(TestCase):
         self.assertIn('On GitHub', response.data['html'])
         self.assertIn('View', response.data['html'])
         self.assertNotIn('Edit', response.data['html'])
+
+
+class TestFooterHTML(BaseTestFooterHTML, TestCase):
+
+    pass
 
 
 @override_settings(
