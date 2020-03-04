@@ -1,17 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import re
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.tests.utils import (
-    get_search_query_from_project_file,
     DATA_TYPES_VALUES,
+    get_search_query_from_project_file,
 )
 
 
@@ -85,7 +83,7 @@ class TestProjectSearch:
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestPageSearch(object):
+class TestPageSearch:
     url = reverse('search')
 
     def _get_search_result(self, url, client, search_params):

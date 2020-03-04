@@ -66,6 +66,8 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
+    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
+    SESSION_COOKIE_SAMESITE = None
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -76,6 +78,18 @@ class CommunityBaseSettings(Settings):
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_BLOCK_ALL_MIXED_CONTENT = True
+    CSP_DEFAULT_SRC = None  # This could be improved
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_OBJECT_SRC = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_EXCLUDE_URL_PREFIXES = (
+        "/admin/",
+    )
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -168,7 +182,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.FooterNoSessionMiddleware',
+        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
@@ -180,6 +194,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
+        'csp.middleware.CSPMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -312,6 +327,8 @@ class CommunityBaseSettings(Settings):
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
     CELERYD_HIJACK_ROOT_LOGGER = False
+    # This stops us from pre-fetching a task that then sits around on the builder
+    CELERY_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
@@ -368,30 +385,60 @@ class CommunityBaseSettings(Settings):
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
-        'readthedocs/build:1.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-        },
+        # A large number of users still have this pinned in their config file.
+        # We must have documented it at some point.
         'readthedocs/build:2.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-        },
-        'readthedocs/build:3.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
         },
         'readthedocs/build:4.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
-        'readthedocs/build:6.0rc1': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+        'readthedocs/build:6.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
+        'readthedocs/build:7.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
+        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
 
     # All auth
@@ -444,10 +491,10 @@ class CommunityBaseSettings(Settings):
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
-    ES_HOSTS = ['127.0.0.1:9200']
+    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': 'search:9200'
         },
     }
     # Chunk size for elasticsearch reindex celery tasks

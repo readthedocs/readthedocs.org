@@ -528,8 +528,8 @@ class TestValidateBuild:
         build = BuildConfigV1(
             {},
             {
-                'build': {'image': 1.0},
-                'python': {'version': '3.3'},
+                'build': {'image': 2.0},
+                'python': {'version': '3.8'},
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
@@ -880,7 +880,7 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'conda.environment'
 
-    @pytest.mark.parametrize('value', ['stable', 'latest'])
+    @pytest.mark.parametrize('value', ['stable', 'latest', 'testing'])
     def test_build_image_check_valid(self, value):
         build = self.get_build_config({'build': {'image': value}})
         build.validate()
@@ -974,8 +974,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', [1, 2.8, 4, 3.8]),
-            ('stable', [1, 2.8, 4, 3.8]),
+            ('latest', [1, 2.8, 4]),
+            ('stable', [1, 2.8, 4]),
         ],
     )
     def test_python_version_invalid(self, image, versions):
@@ -996,6 +996,26 @@ class TestBuildConfigV2:
         build = self.get_build_config({})
         build.validate()
         assert build.python.version == 3
+
+    @pytest.mark.parametrize(
+        'image,default_version',
+        [
+            ('2.0', 3.5),
+            ('4.0', 3.7),
+            ('5.0', 3.7),
+            ('latest', 3.7),
+            ('stable', 3.7),
+        ],
+    )
+    def test_python_version_default_from_image(self, image, default_version):
+        build = self.get_build_config({
+            'build': {
+                'image': image,
+            },
+        })
+        build.validate()
+        assert build.python.version == int(default_version)  # 2 or 3
+        assert build.python_full_version == default_version
 
     @pytest.mark.parametrize('value', [2, 3])
     def test_python_version_overrides_default(self, value):

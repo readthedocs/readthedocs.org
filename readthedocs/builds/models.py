@@ -92,6 +92,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -160,11 +161,6 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            #              version
-            ('view_version', _('View Version')),
-        )
 
     def __str__(self):
         return ugettext(
@@ -302,27 +298,6 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         """Get absolute url to the docs of the version."""
-        # Hack external versions for now.
-        # TODO: We can integrate them into the resolver
-        # but this is much simpler to handle since we only link them a couple places for now
-        if self.type == EXTERNAL:
-            # Django's static file serving doesn't automatically append index.html
-            scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-            path = self.project.get_storage_path(
-                type_='html',
-                version_slug=self.slug,
-                version_type=self.type,
-                include_file=False,
-            )
-
-            # We don't want the `external/` part in the user-facing URL
-            if path.startswith(EXTERNAL):
-                path = path.replace(f'{EXTERNAL}/', '', 1)
-
-            domain = settings.RTD_EXTERNAL_VERSION_DOMAIN
-            url = f'{scheme}://{domain}/{path}/index.html'
-            return url
-
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -332,30 +307,35 @@ class Version(models.Model):
                 },
             )
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             private=private,
+            external=external,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """Add permissions to the Version for all owners on save."""
         from readthedocs.projects import tasks
         obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
+        if not self.project.has_feature(feature_id='skip_sync'):
+            broadcast(
+                type='app',
+                task=tasks.symlink_project,
+                args=[self.project.pk],
+            )
         return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[self.get_artifact_paths()],
-        )
+        has_skip_sync = self.project.has_feature(feature_id='skip_sync')
+        if not has_skip_sync:
+            broadcast(
+                type='app',
+                task=tasks.remove_dirs,
+                args=[self.get_artifact_paths()],
+            )
 
         # Remove resources if the version is not external
         if self.type != EXTERNAL:
@@ -363,11 +343,12 @@ class Version(models.Model):
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
+        if not has_skip_sync:
+            broadcast(
+                type='app',
+                task=tasks.symlink_project,
+                args=[project_pk],
+            )
 
     @property
     def identifier_friendly(self):
@@ -387,10 +368,12 @@ class Version(models.Model):
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
             private=private,
+            external=external,
         )
 
     def get_downloads(self, pretty=False):
@@ -646,12 +629,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -941,6 +926,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))

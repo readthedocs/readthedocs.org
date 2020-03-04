@@ -34,16 +34,15 @@ from django.conf.urls import url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
+    ServePageRedirect,
     ServeDocs,
     ServeError404,
     ServeRobotsTXT,
     ServeSitemapXML,
 )
-from readthedocs.proxito.views.redirects import redirect_page_with_filename
-from readthedocs.proxito.views.utils import fast_404
+from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
@@ -92,7 +91,7 @@ urlpatterns = [
     url(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
+        ServePageRedirect.as_view(),
         name='redirect_page_with_filename',
     ),
 
@@ -133,21 +132,6 @@ urlpatterns = [
     #     name='docs_detail',
     # ),
 
-    # External versions
-    # (RTD_EXTERNAL_VERSION_DOMAIN/html/<project-slug>/<version-slug>/<filename>)
-    # NOTE: requires to be before single version
-    url(
-        (
-            r'^html/(?P<project_slug>{project_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<filename>{filename_slug})'.format(
-                **pattern_opts,
-            )
-        ),
-        ServeDocs.as_view(version_type=EXTERNAL),
-        name='docs_detail_external_version',
-    ),
-
     # (Sub)project single version
     url(
         (
@@ -160,5 +144,5 @@ urlpatterns = [
 ]
 
 # Use Django default error handlers to make things simpler
-handler404 = fast_404
+handler404 = proxito_404_page_handler
 handler500 = defaults.server_error

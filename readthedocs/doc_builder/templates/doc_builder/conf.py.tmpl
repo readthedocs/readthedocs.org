@@ -84,7 +84,7 @@ context = {
     'downloads': [ {% for key, val in downloads.items %}
     ("{{ key }}", "{{ val }}"),{% endfor %}
     ],
-    'subprojects': [ {% for slug, url in project.get_subproject_urls %}
+    'subprojects': [ {% for slug, url in subproject_urls %}
         ("{{ slug }}", "{{ url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',

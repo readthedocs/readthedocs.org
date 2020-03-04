@@ -15,6 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
+from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
@@ -28,7 +29,6 @@ from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
-
 
 log = logging.getLogger(__name__)
 
@@ -111,6 +111,9 @@ class BaseSphinx(BaseBuilder):
         gitlab_version_is_editable = (self.version.type == 'branch')
         display_gitlab = gitlab_user is not None
 
+        versions = []
+        downloads = []
+        subproject_urls = []
         # Avoid hitting database and API if using Docker build environment
         if settings.DONT_HIT_API:
             if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
@@ -120,16 +123,24 @@ class BaseSphinx(BaseBuilder):
                     privacy_level=PUBLIC,
                 )
             downloads = self.version.get_downloads(pretty=True)
+            subproject_urls = self.project.get_subproject_urls()
         else:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+            try:
                 versions = self.project.api_versions()
-            else:
-                versions = [
-                    v
-                    for v in self.project.api_versions()
-                    if v.privacy_level == PUBLIC
-                ]
-            downloads = api.version(self.version.pk).get()['downloads']
+                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                    versions = [
+                        v
+                        for v in versions
+                        if v.privacy_level == PUBLIC
+                    ]
+                downloads = api.version(self.version.pk).get()['downloads']
+                subproject_urls = self.project.get_subproject_urls()
+            except ConnectionError:
+                log.exception(
+                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
+                    'project: %s version: %s',
+                    self.project.slug, self.version.slug,
+                )
 
         data = {
             'html_theme': 'sphinx_rtd_theme',
@@ -144,6 +155,7 @@ class BaseSphinx(BaseBuilder):
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
+            'subproject_urls': subproject_urls,
 
             # GitHub
             'github_user': github_user,
