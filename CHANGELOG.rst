@@ -6,13 +6,7 @@ Version 4.0.2
 * `@ericholscher <https://github.com/ericholscher>`__: Don't call virtualenv with `--no-site-packages` (`#6738 <https://github.com/readthedocs/readthedocs.org/pull/6738>`__)
 * `@stsewd <https://github.com/stsewd>`__: Catch ConnectionError from request on api timing out (`#6735 <https://github.com/readthedocs/readthedocs.org/pull/6735>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.1 (`#6733 <https://github.com/readthedocs/readthedocs.org/pull/6733>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Reset common to `master` (`#6732 <https://github.com/readthedocs/readthedocs.org/pull/6732>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Add feature flag for branch & tag syncing to API. (`#6729 <https://github.com/readthedocs/readthedocs.org/pull/6729>`__)
 * `@humitos <https://github.com/humitos>`__: Improve Proxito 404 handler to render user-facing Maze when needed (`#6726 <https://github.com/readthedocs/readthedocs.org/pull/6726>`__)
-* `@stsewd <https://github.com/stsewd>`__: Be explicit on privacy level for search tests (`#6713 <https://github.com/readthedocs/readthedocs.org/pull/6713>`__)
-* `@stsewd <https://github.com/stsewd>`__: Make easy to run search tests in docker compose (`#6711 <https://github.com/readthedocs/readthedocs.org/pull/6711>`__)
-* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just completely skip sync and symlink operations (`#6689 <https://github.com/readthedocs/readthedocs.org/pull/6689>`__)
-* `@humitos <https://github.com/humitos>`__: Allow user to set `build.image: testing` in the config file (`#6676 <https://github.com/readthedocs/readthedocs.org/pull/6676>`__)
 
 Version 4.0.1
 -------------
