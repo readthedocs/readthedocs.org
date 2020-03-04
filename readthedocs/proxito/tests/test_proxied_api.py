@@ -4,7 +4,7 @@ from readthedocs.rtd_tests.tests.test_footer import BaseTestFooterHTML
 
 
 @override_settings(ROOT_URLCONF='readthedocs.proxito.urls')
-class TestProxiedFooterHTML(BaseTestFooterHTML):
+class TestProxiedFooterHTML(BaseTestFooterHTML, TestCase):
 
     def setUp(self):
         super().setUp()
