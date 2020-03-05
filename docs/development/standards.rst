@@ -105,7 +105,7 @@ After cloning ``readthedocs.org`` repository, you need to
 
    .. prompt:: bash
 
-      inv docker.pull
+      inv docker.pull --only-latest
 
 #. start all the containers:
 
@@ -172,6 +172,7 @@ save some work while typing docker compose commands. This section explains these
 ``inv docker.pull``
     Downloads and tags all the Docker images required for builders.
 
+    * ``--only-latest`` does not pull ``stable`` and ``testing`` images.
 
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
