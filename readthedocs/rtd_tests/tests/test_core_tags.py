@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 import pytest
 from django.conf import settings
 from django.test import TestCase

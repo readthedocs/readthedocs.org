@@ -3,7 +3,7 @@
 import os
 import re
 
-import mock
+from unittest import mock
 
 
 def fake_paths(check):
