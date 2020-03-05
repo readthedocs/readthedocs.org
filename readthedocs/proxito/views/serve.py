@@ -53,7 +53,7 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
 
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
-    def _get_storage_path(
+    def check_redirects_and_unauth(
             self,
             request,
             project_slug=None,
@@ -61,28 +61,35 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             lang_slug=None,
             version_slug=None,
             filename='',
-    ):  # noqa
-        """Take the incoming parsed URL's and figure out what file to serve."""
+    ):
+        response = self._handle_root_slash_redirect(
+            final_project,
+            version_slug,
+            lang_slug,
+            filename,
+        )
+        if response:
+            return response
 
-        version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=project_slug,
-            subproject_slug=subproject_slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
+        self._check_invalid_url_for_project(
+            final_project,
+            version_slug,
+            lang_slug,
         )
 
-        # HACK: this is terrible, but I need to find a way to not call
-        # ``_get_project_data_from_request`` twice on ``.get``.
-        self.final_project = final_project
+        # TODO: perform redirect here when we are ready
 
-        log.info(
-            'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
-            final_project.slug, subproject_slug, lang_slug, version_slug, filename
-        )
+        # Check user permissions and return an unauthed response if needed
+        if not self.allowed_user(request, final_project, version_slug):
+            return self.get_unauthed_response(request, final_project)
 
+    def _handle_root_slash_redirect(
+            self,
+            final_project,
+            version_slug,
+            lang_slug,
+            filename,
+    ):
         # Handle a / redirect when we aren't a single version
         if all([
                 lang_slug is None,
@@ -94,6 +101,13 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
+
+    def _check_invalid_url_for_project(
+            self,
+            final_project,
+            version_slug,
+            lang_slug,
+    ):
         if all([
                 (lang_slug is None or version_slug is None),
                 not final_project.single_version,
@@ -105,21 +119,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             )
             raise Http404('Invalid URL for project with versions')
 
-        # TODO: un-comment when ready to perform redirect here
-        # redirect_path, http_status = self.get_redirect(
-        #     final_project,
-        #     lang_slug,
-        #     version_slug,
-        #     filename,
-        #     request.path,
-        # )
-        # if redirect_path and http_status:
-        #     return self.get_redirect_response(request, redirect_path, http_status)
-
-        # Check user permissions and return an unauthed response if needed
-        if not self.allowed_user(request, final_project, version_slug):
-            return self.get_unauthed_response(request, final_project)
-
+    def _get_storage_path(
+            self,
+            final_project,
+            version_slug=None,
+            filename='',
+    ):  # noqa
         storage_path = final_project.get_storage_path(
             type_='html',
             version_slug=version_slug,
@@ -148,11 +153,34 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=None,
             filename='',
     ):  # noqa
-        storage_path = self._get_storage_path(
+        version_slug = self.get_version_from_host(request, version_slug)
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
             subproject_slug=subproject_slug,
             lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+
+        log.info(
+            'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
+            final_project.slug, subproject_slug, lang_slug, version_slug, filename
+        )
+
+        response = self.check_redirects_and_unauth(
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+        if response:
+            return response
+
+        storage_path = self._get_storage_path(
+            final_project=final_project,
             version_slug=version_slug,
             filename=filename,
         )
@@ -178,6 +206,32 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=None,
             filename='',
     ):  # noqa
+        version_slug = self.get_version_from_host(request, version_slug)
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+
+        log.info(
+            'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
+            final_project.slug, subproject_slug, lang_slug, version_slug, filename
+        )
+
+        response = self.check_redirects_and_unauth(
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+        if response:
+            return response
+
         storage_path = self._get_storage_path(
             request,
             project_slug=project_slug,
