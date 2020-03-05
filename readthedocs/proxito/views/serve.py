@@ -53,7 +53,8 @@ class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
 
 class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
-    def get(self,
+    def _get_storage_path(
+            self,
             request,
             project_slug=None,
             subproject_slug=None,
@@ -72,6 +73,10 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=filename,
         )
+
+        # HACK: this is terrible, but I need to find a way to not call
+        # ``_get_project_data_from_request`` twice on ``.get``.
+        self.final_project = final_project
 
         log.info(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
@@ -133,16 +138,60 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             # Signature and Expire time is calculated per file.
             path += 'index.html'
 
-        storage_url = storage.url(path)  # this will remove the trailing slash
+        return path
+
+    def get(self,
+            request,
+            project_slug=None,
+            subproject_slug=None,
+            lang_slug=None,
+            version_slug=None,
+            filename='',
+    ):  # noqa
+        storage_path = self._get_storage_path(
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_url = storage.url(storage_path)  # this will remove the trailing slash
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
         final_url = parsed_url.geturl()
 
         return self._serve_docs(
             request,
-            final_project=final_project,
+            final_project=self.final_project,
             path=final_url,
         )
+
+    def head(
+            self,
+            request,
+            project_slug=None,
+            subproject_slug=None,
+            lang_slug=None,
+            version_slug=None,
+            filename='',
+    ):  # noqa
+        storage_path = self._get_storage_path(
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
+
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        if storage.exists(storage_path):
+            return HttpResponse()
+
+        raise Http404()
 
 
 class ServeDocs(SettingsOverrideObject):
