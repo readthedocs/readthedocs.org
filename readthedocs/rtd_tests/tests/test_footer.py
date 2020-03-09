@@ -27,6 +27,8 @@ class BaseTestFooterHTML:
             privacy_level=PUBLIC,
             main_language_project=None,
         )
+        self.pip.versions.update(privacy_level=PUBLIC)
+
         self.latest = self.pip.versions.get(slug=LATEST)
         self.url = (
             reverse('footer_html') +
