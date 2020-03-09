@@ -200,11 +200,17 @@ class TestDocumentSearch:
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
-        """Hitting Document Search endpoint without query parameters should return error"""
+        """Hitting Document Search endpoint without project and version should return 404."""
         resp = self.get_search(api_client, {})
+        assert resp.status_code == 404
+
+    def test_doc_search_without_query(self, api_client, project):
+        """Hitting Document Search endpoint without a query should return error."""
+        resp = self.get_search(
+            api_client, {'project': project.slug, 'version': project.versions.first().slug})
         assert resp.status_code == 400
         # Check error message is there
-        assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
+        assert 'q' in resp.data.keys()
 
     def test_doc_search_subprojects(self, api_client, all_projects):
         """Test Document search return results from subprojects also"""
@@ -256,7 +262,4 @@ class TestDocumentSearch:
             'version': version,
         }
         resp = self.get_search(api_client, search_params)
-        assert resp.status_code == 200
-
-        data = resp.data['results']
-        assert len(data) == 0
+        assert resp.status_code == 404

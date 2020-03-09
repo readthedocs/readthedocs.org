@@ -82,27 +82,6 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
         log.exception('Unable to delete a subset of files. Continuing.')
 
 
-# TODO: Rewrite all the views using this in Class Based View,
-# and move this function to a mixin
-def get_project_list_or_404(project_slug, user, version_slug=None):
-    """
-    Return list of project and its subprojects.
-
-    It filters by Version privacy instead of Project privacy,
-    so we can support public versions on private projects.
-    """
-    project_list = []
-    main_project = get_object_or_404(Project, slug=project_slug)
-    subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
-    for project in list(subprojects) + [main_project]:
-        version = Version.internal.public(user).filter(
-            project__slug=project.slug, slug=version_slug
-        )
-        if version.exists():
-            project_list.append(version.first().project)
-    return project_list
-
-
 def _get_index(indices, index_name):
     """
     Get Index from all the indices.

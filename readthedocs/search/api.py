@@ -1,15 +1,17 @@
 import itertools
 import logging
 
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import generics, serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 
-from readthedocs.projects.models import HTMLFile
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
-
 
 log = logging.getLogger(__name__)
 
@@ -60,10 +62,49 @@ class PageSearchSerializer(serializers.Serializer):
 
 class PageSearchAPIView(generics.ListAPIView):
 
-    """Main entry point to perform a search using Elasticsearch."""
+    """
+    Main entry point to perform a search using Elasticsearch.
 
+    Required query params:
+    - q (search term)
+    - project
+    - version
+
+    .. note::
+
+       The methods `_get_project` and `_get_version`
+       are called many times, so a basic cache is implemented.
+    """
+
+    permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
+
+    def _get_project(self):
+        cache_key = '_cached_project'
+        project = getattr(self, cache_key, None)
+
+        if not project:
+            project_slug = self.request.GET.get('project', None)
+            project = get_object_or_404(Project, slug=project_slug)
+            setattr(self, cache_key, project)
+
+        return project
+
+    def _get_version(self):
+        cache_key = '_cached_version'
+        version = getattr(self, cache_key, None)
+
+        if not version:
+            version_slug = self.request.GET.get('version', None)
+            project = self._get_project()
+            version = get_object_or_404(
+                project.versions.all(),
+                slug=version_slug,
+            )
+            setattr(self, cache_key, version)
+
+        return version
 
     def get_queryset(self):
         """
@@ -78,13 +119,7 @@ class PageSearchAPIView(generics.ListAPIView):
         query = self.request.query_params.get('q', '')
         kwargs = {'filter_by_user': False, 'filters': {}}
         kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
-        kwargs['filters']['version'] = self.request.query_params.get('version')
-        if not kwargs['filters']['project']:
-            log.info("Unable to find a project to search")
-            return HTMLFile.objects.none()
-        if not kwargs['filters']['version']:
-            log.info("Unable to find a version to search")
-            return HTMLFile.objects.none()
+        kwargs['filters']['version'] = self._get_version().slug
         user = self.request.user
         queryset = PageSearch(
             query=query, user=user, **kwargs
@@ -120,17 +155,24 @@ class PageSearchAPIView(generics.ListAPIView):
         """
         Return a list containing the project itself and all its subprojects.
 
-        The project slug is retrieved from ``project`` query param.
-
         :rtype: list
-
-        :raises: Http404 if project is not found
         """
-        project_slug = self.request.query_params.get('project')
-        version_slug = self.request.query_params.get('version')
-        all_projects = utils.get_project_list_or_404(
-            project_slug=project_slug, user=self.request.user, version_slug=version_slug,
+        main_version = self._get_version()
+        main_project = self._get_project()
+
+        subprojects = Project.objects.filter(
+            superprojects__parent_id=main_project.id,
         )
+        all_projects = []
+        for project in list(subprojects) + [main_project]:
+            version = (
+                Version.objects
+                .public(user=self.request.user, project=project)
+                .filter(slug=main_version.slug)
+                .first()
+            )
+            if version:
+                all_projects.append(version.project)
         return all_projects
 
     def get_all_projects_url(self):
@@ -151,7 +193,7 @@ class PageSearchAPIView(generics.ListAPIView):
         :rtype: dict
         """
         all_projects = self.get_all_projects()
-        version_slug = self.request.query_params.get('version')
+        version_slug = self._get_version().slug
         projects_url = {}
         for project in all_projects:
             projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
@@ -162,8 +204,8 @@ class PageSearchAPIView(generics.ListAPIView):
 
         response = super().list(request, *args, **kwargs)
 
-        project_slug = self.request.query_params.get('project', None)
-        version_slug = self.request.query_params.get('version', None)
+        project_slug = self._get_project().slug
+        version_slug = self._get_version().slug
         total_results = response.data.get('count', 0)
         time = timezone.now()
 
