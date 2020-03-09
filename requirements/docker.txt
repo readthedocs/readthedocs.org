@@ -9,7 +9,7 @@ pillow==7.0.0
 # local debugging tools
 watchdog==0.10.2
 datadiff==2.0.0
-ipdb==0.12.2
+ipdb==0.13.2
 pdbpp==0.10.2
 
 # run tests
