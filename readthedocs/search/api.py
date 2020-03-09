@@ -120,6 +120,10 @@ class PageSearchAPIView(generics.ListAPIView):
         kwargs = {'filter_by_user': False, 'filters': {}}
         kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
         kwargs['filters']['version'] = self._get_version().slug
+        # Check to avoid searching all projects in case project is empty.
+        if not kwargs['filters']['project']:
+            log.info("Unable to find a project to search")
+            return HTMLFile.objects.none()
         user = self.request.user
         queryset = PageSearch(
             query=query, user=user, **kwargs
