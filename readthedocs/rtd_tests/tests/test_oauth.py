@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import mock
+from unittest import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase

@@ -73,7 +73,6 @@ django-gravatar2==1.4.2
 pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
-mock==3.0.5
 stripe==2.38.0
 regex==2019.11.1
 

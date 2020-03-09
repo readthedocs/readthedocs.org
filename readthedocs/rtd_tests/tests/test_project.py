@@ -6,7 +6,7 @@ from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (

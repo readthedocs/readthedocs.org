@@ -1,7 +1,7 @@
 from functools import partial
 from unittest import TestCase
 
-from mock import Mock
+from unittest.mock import Mock
 
 from readthedocs.api.v2.permissions import APIRestrictedPermission
 
