@@ -93,7 +93,7 @@ textblob==0.15.3
 django-annoying==0.10.6
 django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
-django-taggit==1.1.0
+django-taggit==1.2.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
