@@ -153,7 +153,7 @@ class PageSearchAPIView(generics.ListAPIView):
 
     def get_all_projects(self):
         """
-        Return a list containing the project itself and all its subprojects.
+        Return a list containing the project itself and all its subprojects the user has permissions over.
 
         :rtype: list
         """
