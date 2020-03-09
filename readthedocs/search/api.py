@@ -166,7 +166,7 @@ class PageSearchAPIView(generics.ListAPIView):
         all_projects = []
         for project in list(subprojects) + [main_project]:
             version = (
-                Version.objects
+                Version.internal
                 .public(user=self.request.user, project=project)
                 .filter(slug=main_version.slug)
                 .first()
