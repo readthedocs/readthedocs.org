@@ -124,6 +124,9 @@ class PageSearchAPIView(generics.ListAPIView):
         if not kwargs['filters']['project']:
             log.info("Unable to find a project to search")
             return HTMLFile.objects.none()
+        if not kwargs['filters']['version']:
+            log.info("Unable to find a version to search")
+            return HTMLFile.objects.none()
         user = self.request.user
         queryset = PageSearch(
             query=query, user=user, **kwargs
@@ -157,7 +160,7 @@ class PageSearchAPIView(generics.ListAPIView):
 
     def get_all_projects(self):
         """
-        Return a list containing the project itself and all its subprojects the user has permissions over.
+        Return a list of the project itself and all its subprojects the user has permissions over.
 
         :rtype: list
         """
