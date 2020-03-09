@@ -11,6 +11,7 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.utils import create_user
 
 
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 @pytest.mark.proxito
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 

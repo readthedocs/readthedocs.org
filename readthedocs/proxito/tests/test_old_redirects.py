@@ -22,6 +22,7 @@ from .base import BaseDocServing
 from .mixins import MockStorageMixin
 
 
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 class InternalRedirectTests(BaseDocServing):
 
     """
@@ -159,6 +160,7 @@ class InternalRedirectTests(BaseDocServing):
 # 404 directly and avoid using PYTHON_MEDIA.
 @override_settings(
     PYTHON_MEDIA=True,
+    PUBLIC_DOMAIN='dev.readthedocs.io',
     ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
