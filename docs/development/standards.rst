@@ -72,8 +72,8 @@ Search enabled by default
     Besides, all the documentation indexes are updated after a build is finished.
 
 
-Setup your environment
-----------------------
+Set up your environment
+-----------------------
 
 After cloning ``readthedocs.org`` repository, you need to
 
