@@ -3,7 +3,7 @@ import pytest
 from readthedocs.search.tests.test_api import BaseTestDocumentSearch
 
 
-@pytest.mark.urls('readthedocs.proxito.urls')
+@pytest.mark.proxito
 @pytest.mark.search
 class TestProxiedSearchAPI(BaseTestDocumentSearch):
 

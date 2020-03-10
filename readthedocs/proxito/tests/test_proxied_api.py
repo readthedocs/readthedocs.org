@@ -3,10 +3,7 @@ from django.test import TestCase, override_settings
 from readthedocs.rtd_tests.tests.test_footer import BaseTestFooterHTML
 
 
-@override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    ROOT_URLCONF='readthedocs.proxito.urls',
-)
+@override_settings(PUBLIC_DOMAIN='readthedocs.io')
 class TestProxiedFooterHTML(BaseTestFooterHTML, TestCase):
 
     def setUp(self):
