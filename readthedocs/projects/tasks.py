@@ -124,8 +124,8 @@ class CachedEnvironmentMixin:
             with open(tmp_filename, mode='wb') as local_fd:
                     local_fd.write(remote_fd.read())
 
-            tar = tarfile.TarFile(tmp_filename)
-            tar.extractall(self.version.project.doc_path)
+            with tarfile.open(tmp_filename) as tar:
+                tar.extractall(self.version.project.doc_path)
 
             # Cleanup the temporary file
             if os.path.exists(tmp_filename):
