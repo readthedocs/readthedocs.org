@@ -127,6 +127,9 @@ class CachedEnvironmentMixin:
             tar = tarfile.TarFile(tmp_filename)
             tar.extractall(self.version.project.doc_path)
 
+            # Cleanup the temporary file
+            if os.path.exists(tmp_filename):
+                os.remove(tmp_filename)
 
     def push_cached_environment(self):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
@@ -168,6 +171,10 @@ class CachedEnvironmentMixin:
                 self.version.get_storage_environment_cache_path(),
                 fd,
             )
+
+        # Cleanup the temporary file
+        if os.path.exists(tmp_filename):
+            os.remove(tmp_filename)
 
 
 class SyncRepositoryMixin:
