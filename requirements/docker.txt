@@ -4,7 +4,7 @@ psycopg2-binary==2.8.3
 django-redis-cache==2.1.0
 
 # For resizing images
-pillow==6.2.0
+pillow==7.0.0
 
 # local debugging tools
 watchdog==0.9.0
