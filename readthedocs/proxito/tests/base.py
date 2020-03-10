@@ -1,6 +1,7 @@
 # Copied from .org
 
 
+import pytest
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -10,19 +11,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
-@override_settings(
-    PUBLIC_DOMAIN='dev.readthedocs.io',
-    ROOT_URLCONF='readthedocs.proxito.urls',
-    MIDDLEWARE=[
-        # Auth middleware is required since some views uses ``request.user``
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-        'readthedocs.proxito.middleware.ProxitoMiddleware',
-    ],
-    USE_SUBDOMAIN=True,
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
-)
+@pytest.mark.proxito
 class BaseDocServing(TestCase):
 
     def setUp(self):

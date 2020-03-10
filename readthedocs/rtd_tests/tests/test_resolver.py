@@ -1,5 +1,5 @@
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.test import TestCase, override_settings
 
 from readthedocs.core.resolver import (

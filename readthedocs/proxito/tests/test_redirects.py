@@ -6,7 +6,10 @@ from django.test import override_settings
 from .base import BaseDocServing
 
 
-@override_settings(PUBLIC_DOMAIN_USES_HTTPS=True)
+@override_settings(
+    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN_USES_HTTPS=True,
+)
 class RedirectTests(BaseDocServing):
 
     def test_root_url(self):

@@ -3,7 +3,7 @@
 import os
 
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.conf import settings
 from django.http import HttpResponse
 from django.test.utils import override_settings
@@ -213,6 +213,7 @@ class TestDocServingBackends(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
 )
 class TestAdditionalDocViews(BaseDocServing):
     # Test that robots.txt and sitemap.xml work

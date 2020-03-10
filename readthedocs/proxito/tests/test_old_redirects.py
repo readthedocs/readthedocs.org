@@ -11,8 +11,9 @@ and adapted to use:
 
 import django_dynamic_fixture as fixture
 import pytest
-from django.urls import reverse
+from django.http import Http404
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from readthedocs.builds.models import Version
 from readthedocs.redirects.models import Redirect
@@ -21,9 +22,7 @@ from .base import BaseDocServing
 from .mixins import MockStorageMixin
 
 
-@override_settings(
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.proxito.tests.storage.BuildMediaStorageTest',
-)
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 class InternalRedirectTests(BaseDocServing):
 
     """
@@ -161,8 +160,8 @@ class InternalRedirectTests(BaseDocServing):
 # 404 directly and avoid using PYTHON_MEDIA.
 @override_settings(
     PYTHON_MEDIA=True,
+    PUBLIC_DOMAIN='dev.readthedocs.io',
     ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.proxito.tests.storage.BuildMediaStorageTest',
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
@@ -201,11 +200,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/redirect/',
         )
 
-        r = self.client.get(
-            '/en/latest/redirect/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 404)
+        with self.assertRaises(Http404):
+            r = self.client.get(
+                '/en/latest/redirect/',
+                HTTP_HOST='project.dev.readthedocs.io',
+            )
 
 
     def test_redirect_root(self):
@@ -461,12 +460,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
         with override_settings(PYTHON_MEDIA=True):
-            # File does not exist in storage media
-            r = self.client.get(
-                '/en/latest/',
-                HTTP_HOST='project.dev.readthedocs.io',
-            )
-            self.assertEqual(r.status_code, 404)
+            with self.assertRaises(Http404):
+                # File does not exist in storage media
+                r = self.client.get(
+                    '/en/latest/',
+                    HTTP_HOST='project.dev.readthedocs.io',
+                )
 
     def test_redirect_html_index(self):
         fixture.get(
@@ -526,20 +525,12 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url='/',
         )
 
-        # Use ``proxito_404_handler`` URL here to emulate the internal redirect
-        # that happens on NGINX (URL path will be
-        # http://project.dev.readthedocs.io/_proxito_404_/en/latest/section/file-not-found
-        # when the view receives it)
-        r = self.client.get(
-            reverse(
-                'proxito_404_handler',
-                kwargs={
-                    'proxito_path': '/en/latest/section/file-not-found',
-                }),
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        # Avoid infinite redirect
-        self.assertEqual(r.status_code, 404)
+        with self.assertRaises(Http404):
+            # Avoid infinite redirect
+            r = self.client.get(
+                '/en/latest/section/file-not-found',
+                HTTP_HOST='project.dev.readthedocs.io',
+            )
 
 
 # FIXME: these tests are valid, but the problem I'm facing is that the request

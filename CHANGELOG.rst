@@ -1,3 +1,36 @@
+Version 4.0.3
+-------------
+
+:Date: March 10, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Document usage or pytest marks (`#6764 <https://github.com/readthedocs/readthedocs.org/pull/6764>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update some dependencies (`#6762 <https://github.com/readthedocs/readthedocs.org/pull/6762>`__)
+* `@stsewd <https://github.com/stsewd>`__: Refactor search view to make use of permission_classes (`#6761 <https://github.com/readthedocs/readthedocs.org/pull/6761>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Merge pull request #6739 from readthedocs/agj/docs-tos-pdf" (`#6760 <https://github.com/readthedocs/readthedocs.org/pull/6760>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Expand the logic in our proxito mixin. (`#6759 <https://github.com/readthedocs/readthedocs.org/pull/6759>`__)
+* `@comradekingu <https://github.com/comradekingu>`__: Spelling: "Set up your environment" (`#6752 <https://github.com/readthedocs/readthedocs.org/pull/6752>`__)
+* `@humitos <https://github.com/humitos>`__: Use `storage.exists` on HEAD method (`#6751 <https://github.com/readthedocs/readthedocs.org/pull/6751>`__)
+* `@humitos <https://github.com/humitos>`__: Pull only latest image for development (`#6750 <https://github.com/readthedocs/readthedocs.org/pull/6750>`__)
+* `@humitos <https://github.com/humitos>`__: Update common submodule (`#6749 <https://github.com/readthedocs/readthedocs.org/pull/6749>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.2 (`#6741 <https://github.com/readthedocs/readthedocs.org/pull/6741>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add TOS PDF output (`#6739 <https://github.com/readthedocs/readthedocs.org/pull/6739>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't call virtualenv with `--no-site-packages` (`#6738 <https://github.com/readthedocs/readthedocs.org/pull/6738>`__)
+* `@GallowayJ <https://github.com/GallowayJ>`__: Drop mock dependency (`#6723 <https://github.com/readthedocs/readthedocs.org/pull/6723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Run proxito tests with proxito (`#6714 <https://github.com/readthedocs/readthedocs.org/pull/6714>`__)
+* `@humitos <https://github.com/humitos>`__: New block on footer template to override from corporate (`#6702 <https://github.com/readthedocs/readthedocs.org/pull/6702>`__)
+* `@humitos <https://github.com/humitos>`__: Point users to support email instead asking to open an issue (`#6650 <https://github.com/readthedocs/readthedocs.org/pull/6650>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxy footer api on docs' domains (`#6630 <https://github.com/readthedocs/readthedocs.org/pull/6630>`__)
+
+Version 4.0.2
+-------------
+
+:Date: March 04, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Don't call virtualenv with `--no-site-packages` (`#6738 <https://github.com/readthedocs/readthedocs.org/pull/6738>`__)
+* `@stsewd <https://github.com/stsewd>`__: Catch ConnectionError from request on api timing out (`#6735 <https://github.com/readthedocs/readthedocs.org/pull/6735>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.1 (`#6733 <https://github.com/readthedocs/readthedocs.org/pull/6733>`__)
+* `@humitos <https://github.com/humitos>`__: Improve Proxito 404 handler to render user-facing Maze when needed (`#6726 <https://github.com/readthedocs/readthedocs.org/pull/6726>`__)
+
 Version 4.0.1
 -------------
 

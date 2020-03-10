@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -17,7 +17,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
-class TestFooterHTML(TestCase):
+class BaseTestFooterHTML:
 
     def setUp(self):
         self.pip = get(
@@ -27,6 +27,8 @@ class TestFooterHTML(TestCase):
             privacy_level=PUBLIC,
             main_language_project=None,
         )
+        self.pip.versions.update(privacy_level=PUBLIC)
+
         self.latest = self.pip.versions.get(slug=LATEST)
         self.url = (
             reverse('footer_html') +
@@ -140,6 +142,11 @@ class TestFooterHTML(TestCase):
         self.assertIn('On GitHub', response.data['html'])
         self.assertIn('View', response.data['html'])
         self.assertNotIn('Edit', response.data['html'])
+
+
+class TestFooterHTML(BaseTestFooterHTML, TestCase):
+
+    pass
 
 
 @override_settings(

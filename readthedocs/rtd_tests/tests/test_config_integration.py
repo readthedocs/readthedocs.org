@@ -1,12 +1,12 @@
 import tempfile
 from os import path
 
-import mock
+from unittest import mock
 import pytest
 import yaml
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, EXTERNAL
 from readthedocs.builds.models import Version
