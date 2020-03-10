@@ -119,7 +119,7 @@ class CachedEnvironmentMixin:
                     'msg': msg,
                 }
             )
-            tmp_filename = tempfile.mktemp(suffix='.tar')
+            tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
             with open(tmp_filename, mode='wb') as local_fd:
                     local_fd.write(remote_fd.read())
@@ -140,7 +140,7 @@ class CachedEnvironmentMixin:
             os.path.join(project_path, '.cache'),
         ]
 
-        tmp_filename = tempfile.mktemp(suffix='.tar')
+        tmp_filename = tempfile.mkstemp(suffix='.tar')
         # open just with 'w', to not compress and waste CPU cycles
         with tarfile.open(tmp_filename, 'w') as tar:
             for path in paths:
