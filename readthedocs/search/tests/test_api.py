@@ -1,4 +1,5 @@
 import re
+from unittest import mock
 
 import pytest
 from django.urls import reverse
@@ -7,6 +8,7 @@ from django_dynamic_fixture import G
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
     DOMAIN_FIELDS,
@@ -199,11 +201,17 @@ class BaseTestDocumentSearch:
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
-        """Hitting Document Search endpoint without query parameters should return error"""
+        """Hitting Document Search endpoint without project and version should return 404."""
         resp = self.get_search(api_client, {})
+        assert resp.status_code == 404
+
+    def test_doc_search_without_query(self, api_client, project):
+        """Hitting Document Search endpoint without a query should return error."""
+        resp = self.get_search(
+            api_client, {'project': project.slug, 'version': project.versions.first().slug})
         assert resp.status_code == 400
         # Check error message is there
-        assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
+        assert 'q' in resp.data.keys()
 
     def test_doc_search_subprojects(self, api_client, all_projects):
         """Test Document search return results from subprojects also"""
@@ -253,6 +261,20 @@ class BaseTestDocumentSearch:
             'q': 'documentation',
             'project': project.slug,
             'version': version,
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 404
+
+    @mock.patch.object(PageSearchAPIView, 'get_all_projects', list)
+    def test_get_all_projects_returns_empty_results(self, api_client, project):
+        """If there is a case where `get_all_projects` returns empty, we could be querying all projects."""
+
+        # `documentation` word is present both in `kuma` and `docs` files
+        # and not in `pipeline`, so search with this phrase but filter through project
+        search_params = {
+            'q': 'documentation',
+            'project': 'docs',
+            'version': 'latest'
         }
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
