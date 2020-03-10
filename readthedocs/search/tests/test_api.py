@@ -17,14 +17,13 @@ from readthedocs.search.tests.utils import (
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestDocumentSearch:
+class BaseTestDocumentSearch:
 
-    @classmethod
-    def setup_class(cls):
-        # This reverse needs to be inside the ``setup_class`` method because from
+    def setup_method(self, method):
+        # This reverse needs to be inside the ``setup_method`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        cls.url = reverse('doc_search')
+        self.url = reverse('doc_search')
 
     def get_search(self, api_client, search_params):
         return api_client.get(self.url, search_params)
@@ -260,3 +259,8 @@ class TestDocumentSearch:
 
         data = resp.data['results']
         assert len(data) == 0
+
+
+class TestDocumentSearch(BaseTestDocumentSearch):
+
+    pass

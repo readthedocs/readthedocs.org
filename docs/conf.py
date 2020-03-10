@@ -62,8 +62,6 @@ htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
     ('index', 'ReadTheDocs.tex', u'Read the Docs Documentation',
      u'Eric Holscher, Charlie Leifer, Bobby Grace', 'manual'),
-    ('terms-of-service', 'readthedocs-tos.tex', u'Read the Docs - Terms of Service',
-     u'Read the Docs, Inc', 'manual'),
 ]
 man_pages = [
     ('index', 'read-the-docs', u'Read the Docs Documentation',
