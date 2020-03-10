@@ -59,6 +59,9 @@ function get() {
 
     $.extend(config, defaults, window.READTHEDOCS_DATA);
 
+    // Force to use new settings
+    config.proxied_api_host = '/_';
+
     return config;
 }
 

@@ -237,7 +237,6 @@ class BaseMkdocs(BaseBuilder):
             'docroot': docs_dir,
             'source_suffix': '.md',
             'api_host': settings.PUBLIC_API_URL,
-            'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'ad_free': not self.project.show_advertising,
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
