@@ -1,3 +1,5 @@
+"""Organizations querysets."""
+
 from datetime import timedelta
 
 from django.db import models
@@ -8,6 +10,8 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 class BaseOrganizationQuerySet(models.QuerySet):
+
+    """Organizations queryset."""
 
     def for_user(self, user=None):
         # Never list all for membership

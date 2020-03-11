@@ -1,3 +1,5 @@
+"""Organizations managers."""
+
 from django.db import models
 
 from .constants import ADMIN_ACCESS, READ_ONLY_ACCESS
@@ -5,6 +7,9 @@ from .constants import ADMIN_ACCESS, READ_ONLY_ACCESS
 
 class RelatedOrganizationManager(models.Manager):
 
+    """Manager to control access."""
+
+    # pylint: disable=unused-argument
     def _add_user_repos(self, queryset, user=None, admin=False, member=False):
         from .models import Organization  # pylint: disable=cyclic-import
         organizations = Organization.objects.for_user(user)
@@ -42,6 +47,9 @@ class RelatedOrganizationManager(models.Manager):
 
 class TeamManager(models.Manager):
 
+    """Manager to control team's access."""
+
+    # pylint: disable=no-self-use
     def teams_for_user(self, user, organization, admin, member):
         from .models import Team  # pylint: disable=cyclic-import
         teams = Team.objects.none()
@@ -62,6 +70,7 @@ class TeamManager(models.Manager):
 
         return teams.distinct()
 
+    # pylint: disable=unused-argument
     def public(self, user=None, organization=None, only_active=True):
         queryset = self.get_queryset().all()
         if only_active:

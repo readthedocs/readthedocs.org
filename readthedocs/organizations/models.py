@@ -1,12 +1,10 @@
-import logging
-from datetime import timedelta
+"""Organizations models."""
 
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,8 +14,6 @@ from . import constants
 from .managers import TeamManager, TeamMemberManager
 from .querysets import OrganizationQuerySet
 from .utils import send_team_add_email, send_team_invite_email
-
-log = logging.getLogger(__name__)
 
 
 class Organization(models.Model):
@@ -112,6 +108,7 @@ class Organization(models.Model):
 
         super().save(*args, **kwargs)
 
+    # pylint: disable=no-self-use
     def add_member(self, user, team):
         """
         Add member to organization team.
@@ -147,6 +144,9 @@ class OrganizationOwner(models.Model):
 
 
 class Team(models.Model):
+
+    """Team model."""
+
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -214,6 +214,9 @@ class Team(models.Model):
 
 
 class TeamInvite(models.Model):
+
+    """Model to keep track of invitations to an organization."""
+
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
