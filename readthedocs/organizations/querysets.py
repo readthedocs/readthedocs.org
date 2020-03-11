@@ -4,8 +4,10 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
-class OrganizationQuerySetBase(models.QuerySet):
+
+class BaseOrganizationQuerySet(models.QuerySet):
 
     def for_user(self, user=None):
         # Never list all for membership
@@ -31,3 +33,8 @@ class OrganizationQuerySetBase(models.QuerySet):
         query_filter[field + '__month'] = when.month
         query_filter[field + '__day'] = when.day
         return self.filter(**query_filter)
+
+
+class OrganizationQuerySet(SettingsOverrideObject):
+
+    _default_class = BaseOrganizationQuerySet
