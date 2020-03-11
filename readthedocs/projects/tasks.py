@@ -122,7 +122,7 @@ class CachedEnvironmentMixin:
             tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
             with open(tmp_filename, mode='wb') as local_fd:
-                    local_fd.write(remote_fd.read())
+                local_fd.write(remote_fd.read())
 
             with tarfile.open(tmp_filename) as tar:
                 tar.extractall(self.version.project.doc_path)
@@ -158,7 +158,7 @@ class CachedEnvironmentMixin:
 
         storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
         with open(tmp_filename, 'rb') as fd:
-            msg = 'Pushing up cached environment to storage',
+            msg = 'Pushing up cached environment to storage'
             log.info(
                 LOG_TEMPLATE,
                 {
