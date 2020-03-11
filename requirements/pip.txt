@@ -6,6 +6,7 @@ virtualenv==16.7.7
 django==2.2.11  # pyup: <2.3
 django-extensions==2.2.5
 django_polymorphic==2.1.2
+django-autoslug==1.9.6
 
 djangorestframework==3.10.3
 
