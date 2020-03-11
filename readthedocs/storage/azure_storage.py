@@ -20,6 +20,16 @@ class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, Azur
     azure_container = getattr(settings, 'AZURE_MEDIA_STORAGE_CONTAINER', None) or 'media'
     override_hostname = getattr(settings, 'AZURE_MEDIA_STORAGE_HOSTNAME', None)
 
+    def url(self, name, expire=None, http_method=None):  # noqa
+        """
+        Override to accept ``http_method`` and ignore it.
+
+        This method helps us to bring compatibility between Azure Blob Storage
+        (which does not use the HTTP method) and Amazon S3 (who requires HTTP
+        method to build the signed URL).
+        """
+        return super().url(name, expire)
+
 
 class AzureBuildStorage(AzureStorage):
 
