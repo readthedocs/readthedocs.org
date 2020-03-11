@@ -143,6 +143,7 @@ class CommunityBaseSettings(Settings):
 
             # our apps
             'readthedocs.projects',
+            'readthedocs.organizations',
             'readthedocs.builds',
             'readthedocs.core',
             'readthedocs.doc_builder',
