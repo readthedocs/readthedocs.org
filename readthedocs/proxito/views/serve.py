@@ -133,18 +133,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             # Signature and Expire time is calculated per file.
             path += 'index.html'
 
-        if request.method == 'HEAD':
-            # When request method is HEAD we can't use ``storage.url`` because
-            # the signature calculated will consider GET as method.
-            # django-storages does not support passing the HTTP method into
-            # ``storage.url`` yet. Because of this, the response won't be
-            # exactly the same between GET and HEAD since we are not passing
-            # the headers returned by the storage itself.
-            if storage.exists(path):
-                return HttpResponse()
-            raise Http404
-
-        storage_url = storage.url(path)  # this will remove the trailing slash
+        storage_url = storage.url(path, http_method=request.method)  # this will remove the trailing slash
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
         final_url = parsed_url.geturl()

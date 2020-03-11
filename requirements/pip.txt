@@ -106,9 +106,10 @@ django-cors-middleware==1.4.0
 user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
-django-storages[azure]==1.7.2
-azure-storage-blob==1.5.0
-azure-storage-common==1.4.2
+# django-storages is pinned to this particular commit because it
+# supports generating URLs with other method than GET when using
+# private buckets
+git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
 django-debug-toolbar==2.0
