@@ -136,25 +136,28 @@ class CachedEnvironmentMixin:
             return
 
         project_path = self.project.doc_path
-        paths = [
-            os.path.join(project_path, 'checkouts', self.version.slug),
-            os.path.join(project_path, 'envs', self.version.slug),
-            os.path.join(project_path, 'conda', self.version.slug),
-            os.path.join(project_path, '.cache'),
+        directories = [
+            'checkouts',
+            'envs',
+            'conda',
         ]
 
         _, tmp_filename = tempfile.mkstemp(suffix='.tar')
         # open just with 'w', to not compress and waste CPU cycles
         with tarfile.open(tmp_filename, 'w') as tar:
-            for path in paths:
+            for directory in directories:
+                path = os.path.join(
+                    project_path,
+                    directory,
+                    self.version.slug,
+                )
+                arcname = os.path.join(directory, self.version.slug)
                 if os.path.exists(path):
-                    tar.add(
-                        path,
-                        arcname=os.path.join(
-                            os.path.basename(os.path.dirname(path)),
-                            self.version.slug,
-                        )
-                    )
+                    tar.add(path, arcname=arcname)
+
+            # Special handling for .cache directory because it's per-project
+            path = os.path.join(project_path, '.cache')
+            tar.add(path, arcname='.cache')
 
         storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
         with open(tmp_filename, 'rb') as fd:
