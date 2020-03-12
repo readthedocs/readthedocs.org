@@ -259,6 +259,7 @@ class CommunityBaseSettings(Settings):
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
