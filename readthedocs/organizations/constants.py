@@ -9,4 +9,3 @@ ACCESS_LEVELS = (
     (READ_ONLY_ACCESS, _('Read-only')),
     (ADMIN_ACCESS, _('Admin')),
 )
-
