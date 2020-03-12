@@ -361,6 +361,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
                 with self.project.repo_nonblockinglock(version=self.version):
+                    # When syncing we are only pulling the cached environment
+                    # (without pushing it after it's updated). We only clone the
+                    # repository in this step, and pushing it back will delete
+                    # all the other cached things (Python packages, Sphinx,
+                    # virtualenv, etc)
                     self.pull_cached_environment()
                     self.sync_repo(environment)
             return True
