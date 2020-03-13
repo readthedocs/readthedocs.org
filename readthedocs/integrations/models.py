@@ -11,10 +11,10 @@ from django.contrib.contenttypes.fields import (
     GenericRelation,
 )
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from jsonfield import JSONField
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import JsonLexer

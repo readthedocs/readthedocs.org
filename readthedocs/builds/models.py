@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
@@ -16,7 +17,6 @@ from django.utils import timezone
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
