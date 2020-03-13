@@ -41,6 +41,14 @@ when using multiple channels.
    That is, to build the documentation is probably that you need fewer Python packages than to use your library itself.
    So, in this case, you could use ``pip`` to install those fewer packages instead of creating a big environment with ``conda``.
 
+Document Python modules API statically
+--------------------------------------
+
+If you are installing a lot of Python dependencies just to document your Python modules API using ``sphinx.ext.autodoc``,
+you can give a try to `sphinx-autoapi`_ Sphinx's extension instead which should produce the exact same output but running statically.
+This could drastically reduce the memory and bandwidth required to build your docs.
+
+.. _sphinx-autoapi: https://sphinx-autoapi.readthedocs.io/
 
 Requests more resources
 -----------------------
