@@ -2,9 +2,8 @@
 
 import logging
 
-from django.db import models, DataError
-from django.db.models import Value, CharField, IntegerField, Q, F, ExpressionWrapper
-from django.db.models.functions import Substr, Length
+from django.db import models
+from django.db.models import Value, CharField, Q, F
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
@@ -42,27 +41,6 @@ class RedirectQuerySetBase(models.QuerySet):
                 full_path,
                 output_field=CharField(),
             ),
-
-            from_url_length=ExpressionWrapper(
-                Length('from_url'),
-                output_field=IntegerField(),
-            ),
-
-            # 1-indexed
-            from_url_without_rest=Substr(
-                'from_url',
-                1,
-                F('from_url_length') - 5,  # Strip "$rest"
-                output_field=CharField(),
-            ),
-
-            # 1-indexed
-            full_path_without_rest=Substr(
-                'full_path',
-                1,
-                F('from_url_length') - 5,  # Strip "$rest"
-                output_field=CharField(),
-            ),
         )
         prefix = Q(
             redirect_type='prefix',
@@ -76,10 +54,7 @@ class RedirectQuerySetBase(models.QuerySet):
             Q(
                 redirect_type='exact',
                 from_url__endswith='$rest',
-                # This works around a bug in Django doing a substr and an endswith,
-                # so instead we do 2 substrs and an exact
-                # https://code.djangoproject.com/ticket/29155
-                full_path_without_rest=F('from_url_without_rest'),
+                full_path__startswith=F('from_url_without_rest'),
             ) | Q(
                 redirect_type='exact',
                 full_path__iexact=F('from_url'),
@@ -99,20 +74,7 @@ class RedirectQuerySetBase(models.QuerySet):
             path__endswith='.html',
         )
 
-        try:
-            # Using the ``exact`` Q object we created here could cause an
-            # execption because it uses ``from_url_without_rest`` and
-            # ``full_path_without_rest`` which could produce a database error
-            # ("negative substring length not allowed") when ``from_url``'s
-            # length is less than 5 ('$rest' string substracted from it). We
-            # perform a query using ``exact`` here and if it fail we catch it
-            # and just ignore these redirects for this project.
-            queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
-            queryset.select_related('project').count()
-        except DataError:
-            # Fallback to the query without using ``exact`` on it
-            log.warning('Failing Exact Redirects on this project. Ignoring them.')
-            queryset = queryset.filter(prefix | page | sphinx_html | sphinx_htmldir)
+        queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
 
         # There should be one and only one redirect returned by this query. I
         # can't think in a case where there can be more at this point. I'm
