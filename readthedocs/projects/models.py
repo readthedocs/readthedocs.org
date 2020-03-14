@@ -1514,7 +1514,6 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
-    SKIP_SYNC = 'skip_sync'
     CACHED_ENVIRONMENT = 'cached_environment'
 
     FEATURES = (
@@ -1573,10 +1572,6 @@ class Feature(models.Model):
                 'Pass all versions (including private) into the html context '
                 'when building with Sphinx'
             ),
-        ),
-        (
-            SKIP_SYNC_TAGS,
-            _('Skip syncing tags'),
         ),
         (
             SKIP_SYNC_BRANCHES,
