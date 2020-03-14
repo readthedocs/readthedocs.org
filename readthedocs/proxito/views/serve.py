@@ -143,6 +143,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         return self._serve_docs(
             request,
             final_project=final_project,
+            version_slug=version_slug,
             path=final_url,
         )
 
