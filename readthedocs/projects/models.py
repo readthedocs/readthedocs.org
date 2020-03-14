@@ -1578,8 +1578,8 @@ class Feature(models.Model):
             _('Skip syncing branches'),
         ),
         (
-            SKIP_SYNC,
-            _('Skip symlinking and file syncing to webs'),
+            SKIP_SYNC_TAGS,
+            _('Skip syncing tags'),
         ),
         (
             CACHED_ENVIRONMENT,
