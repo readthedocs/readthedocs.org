@@ -1,10 +1,14 @@
 """Queryset for the redirects app."""
 
-from django.db import models
+import logging
+
+from django.db import models, DataError
 from django.db.models import Value, CharField, IntegerField, Q, F, ExpressionWrapper
 from django.db.models.functions import Substr, Length
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
+
+log = logging.getLogger(__name__)
 
 
 class RedirectQuerySetBase(models.QuerySet):
@@ -95,10 +99,24 @@ class RedirectQuerySetBase(models.QuerySet):
             path__endswith='.html',
         )
 
+        try:
+            # Using the ``exact`` Q object we created here could cause an
+            # execption because it uses ``from_url_without_rest`` and
+            # ``full_path_without_rest`` which could produce a database error
+            # ("negative substring length not allowed") when ``from_url``'s
+            # length is less than 5 ('$rest' string substracted from it). We
+            # perform a query using ``exact`` here and if it fail we catch it
+            # and just ignore these redirects for this project.
+            queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
+            queryset.select_related('project').count()
+        except DataError:
+            # Fallback to the query without using ``exact`` on it
+            log.warning('Failing Exact Redirects on this project. Ignoring them.')
+            queryset = queryset.filter(prefix | page | sphinx_html | sphinx_htmldir)
+
         # There should be one and only one redirect returned by this query. I
         # can't think in a case where there can be more at this point. I'm
         # leaving the loop just in case for now
-        queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
         for redirect in queryset.select_related('project'):
             new_path = redirect.get_redirect_path(
                 path=path,
