@@ -22,7 +22,9 @@ class DockerBaseSettings(CommunityDevSettings):
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
-    STATIC_URL = f'http://{PRODUCTION_DOMAIN}/devstoreaccount1/static/'
+    # storage:10000 is running the Azure Blob Storage and it's exposed to the
+    # host on the same port that user's can access via localhost
+    STATIC_URL = f'http://localhost:10000/devstoreaccount1/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
