@@ -187,6 +187,16 @@ class BaseTestFooterHTML:
         self.assertNotIn('/en/latest/foo/bar.html', response.data['html'])
         self.assertNotIn('/en/latest/foo/bar/index.html', response.data['html'])
 
+        # A page with slug 'foo/index/bar' should render like /en/latest/foo/index/bar/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=foo/index/bar&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/foo/index/bar/', response.data['html'])
+        self.assertNotIn('/en/latest/foo/index/bar.html', response.data['html'])
+        self.assertNotIn('/en/latest/foo/index/bar/index.html', response.data['html'])
+
 
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
 
