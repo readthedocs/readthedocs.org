@@ -124,7 +124,8 @@ class ServeDocsMixin:
         response['X-RTD-Domain'] = request.get_host()
         response['X-RTD-Project'] = final_project.slug
         response['X-RTD-Version'] = version_slug
-        response['X-RTD-Path'] = path
+        # Needed to strip any GET args, etc.
+        response['X-RTD-Path'] = urlparse(path).path
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Version-Method'] = 'rtdheader'
         if hasattr(request, 'subdomain'):
