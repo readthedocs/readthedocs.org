@@ -1514,7 +1514,6 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
-    SKIP_SYNC = 'skip_sync'
     CACHED_ENVIRONMENT = 'cached_environment'
 
     FEATURES = (
@@ -1575,16 +1574,12 @@ class Feature(models.Model):
             ),
         ),
         (
-            SKIP_SYNC_TAGS,
-            _('Skip syncing tags'),
-        ),
-        (
             SKIP_SYNC_BRANCHES,
             _('Skip syncing branches'),
         ),
         (
-            SKIP_SYNC,
-            _('Skip symlinking and file syncing to webs'),
+            SKIP_SYNC_TAGS,
+            _('Skip syncing tags'),
         ),
         (
             CACHED_ENVIRONMENT,
