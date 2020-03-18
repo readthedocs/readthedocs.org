@@ -24,7 +24,7 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None, only_active=True):
+    def public(self, user=None, project=None, only_active=True, include_hidden=True):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -32,6 +32,8 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
+        if not include_hidden:
+            queryset = queryset.filter(hidden=False)
         return queryset.distinct()
 
     def protected(self, user=None, project=None, only_active=True):
