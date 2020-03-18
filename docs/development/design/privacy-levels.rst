@@ -36,7 +36,7 @@ and for the commercial site, the dashboard would be always hidden.
 
 The project privacy level is also used to serve the ``404.html`` page,
 show ``robots.txt``, and show  ``sitemap.xml``.
-The privacy level of the default version should be used instead.
+The privacy level from versions should be used instead.
 
 Some other ideas about keeping the privacy level is to dictate the default version level of new versions,
 but removing all other logic related to this privacy level.
@@ -99,7 +99,7 @@ For the commercial site:
 - Only versions with ``hidden = False`` are listed on the footer and appear on search results.
 - If a project has a ``404.html`` file on the default version, it's served if the user has permission over that version.
 - If a project has a ``robots.txt`` file on the default version, it's served if the user has permission over that version.
-- A ``sitemap.xml`` file is served if the user has at least on public version.
+- A ``sitemap.xml`` file is served if the user has at least one public version.
   And it will only list public versions.
 
 Migration
