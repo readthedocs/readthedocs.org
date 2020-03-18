@@ -22,7 +22,7 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     class Meta:
         model = Version
-        fields = ['active', 'privacy_level']
+        fields = ['active', 'hidden', 'privacy_level']
 
     def clean_active(self):
         active = self.cleaned_data['active']
