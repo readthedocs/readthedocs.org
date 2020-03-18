@@ -282,6 +282,47 @@ class BaseTestDocumentSearch:
         data = resp.data['results']
         assert len(data) == 0
 
+    def test_doc_search_hidden_versions(self, api_client, all_projects):
+        """Test Document search return results from subprojects also"""
+        project = all_projects[0]
+        subproject = all_projects[1]
+        version = project.versions.all()[0]
+        # Add another project as subproject of the project
+        project.add_subproject(subproject)
+
+        version_subproject = subproject.versions.first()
+        version_subproject.hidden = True
+        version_subproject.save()
+
+        # Now search with subproject content but explicitly filter by the parent project
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # The version from the subproject is hidden, so isn't show on the results.
+        data = resp.data['results']
+        assert len(data) == 0
+
+        # Now search on the subproject with hidden version
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': subproject.slug,
+            'version': version_subproject.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        # We can still search inside the hidden version
+        data = resp.data['results']
+        assert len(data) == 1
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
+
 
 class TestDocumentSearch(BaseTestDocumentSearch):
 
