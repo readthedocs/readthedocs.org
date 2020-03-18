@@ -157,7 +157,8 @@ class CachedEnvironmentMixin:
 
             # Special handling for .cache directory because it's per-project
             path = os.path.join(project_path, '.cache')
-            tar.add(path, arcname='.cache')
+            if os.path.exists(path):
+                tar.add(path, arcname='.cache')
 
         storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
         with open(tmp_filename, 'rb') as fd:
