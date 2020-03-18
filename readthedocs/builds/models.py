@@ -136,6 +136,11 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
+    hidden = models.BooleanField(
+        _('Hidden'),
+        default=False,
+        help_text=_('Hide this version from the footer and search results?')
+    )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     # Whether the latest successful build for this version contains certain media types
