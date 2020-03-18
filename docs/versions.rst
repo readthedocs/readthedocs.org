@@ -58,6 +58,43 @@ they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
 
+States
+------
+
+You can change the states from a version from the :guilabel:`Versions` tab of your project.
+
+Active
+~~~~~~
+
+- **Active**
+
+  - Docs for this version are visible
+  - Builds can be triggered for this version
+
+- **Inactive**
+
+  - Docs for this version aren't visible
+  - Builds can't be triggered for this version
+
+When you inactivate a version, its docs are removed.
+
+Hidden
+~~~~~~
+
+- **Not hidden**
+
+  - This version is listed on the footer
+  - This version is show in search results
+
+- **Hidden**
+
+  - This version isn't listed on the footer
+  - This version isn't show in search results from another version
+    (like on search results from a superproject)
+
+Hidden a version is useful when you no longer support a version,
+but you don't want to remove its docs.
+
 Version warning
 ---------------
 
