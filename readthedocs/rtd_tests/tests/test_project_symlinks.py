@@ -4,7 +4,7 @@ import os
 import shutil
 import tempfile
 
-import mock
+from unittest import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -832,7 +832,7 @@ class BaseSymlinkSingleVersion:
         self.assertFilesystem(filesystem)
 
     def test_symlink_single_version_missing(self):
-        self.project.versions = []
+        self.project.versions.set([])
         self.project.save()
         self.symlink = self.symlink_class(self.project)
         self.symlink.symlink_single_version()

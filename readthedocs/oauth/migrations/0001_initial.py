@@ -71,14 +71,14 @@ class Migration(migrations.Migration):
                 ('html_url', models.URLField(null=True, verbose_name='HTML URL', blank=True)),
                 ('active', models.BooleanField(default=False, verbose_name='Active')),
                 ('json', models.TextField(verbose_name=b'JSON')),
-                ('organization', models.ForeignKey(related_name='projects', verbose_name='Organization', blank=True, to='oauth.GithubOrganization', null=True)),
+                ('organization', models.ForeignKey(related_name='projects', verbose_name='Organization', blank=True, to='oauth.GithubOrganization', null=True, on_delete=models.CASCADE)),
                 ('users', models.ManyToManyField(related_name='github_projects', verbose_name='Users', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.AddField(
             model_name='bitbucketproject',
             name='organization',
-            field=models.ForeignKey(related_name='projects', verbose_name='Organization', blank=True, to='oauth.BitbucketTeam', null=True),
+            field=models.ForeignKey(related_name='projects', verbose_name='Organization', blank=True, to='oauth.BitbucketTeam', null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='bitbucketproject',

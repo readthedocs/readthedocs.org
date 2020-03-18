@@ -1,6 +1,6 @@
 import re
 
-import mock
+from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -111,6 +111,11 @@ class URLAccessMixin:
             }
 
         for (view, regex, namespace, name) in deconstructed_urls:
+
+            # Skip URL and views that are not named
+            if not name:
+                continue
+
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
                 if key in list(request_data.keys()):

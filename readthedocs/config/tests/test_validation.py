@@ -1,6 +1,6 @@
 import os
 
-from mock import patch
+from unittest.mock import patch
 from pytest import raises
 
 from readthedocs.config.validation import (

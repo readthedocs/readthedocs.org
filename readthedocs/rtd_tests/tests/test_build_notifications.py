@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """Notifications sent after build is completed."""
 
+import json
+
 import django_dynamic_fixture as fixture
 from django.core import mail
 from django.test import TestCase
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.forms import WebHookForm
@@ -37,6 +39,28 @@ class BuildNotificationsTests(TestCase):
             mock.assert_called_once()
 
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_send_webhook_notification_has_content_type_header(self):
+        hook = fixture.get(WebHook, project=self.project)
+        data = json.dumps({
+            'name': self.project.name,
+            'slug': self.project.slug,
+            'build': {
+                'id': self.build.id,
+                'commit': self.build.commit,
+                'state': self.build.state,
+                'success': self.build.success,
+                'date': self.build.date.strftime('%Y-%m-%d %H:%M:%S'),
+            },
+        })
+        with patch('readthedocs.projects.tasks.requests.post') as mock:
+            mock.return_value = None
+            send_notifications(self.version.pk, self.build.pk)
+            mock.assert_called_once_with(
+                hook.url,
+                data=data,
+                headers={'content-type': 'application/json'}
+            )
 
     def test_send_email_notification(self):
         fixture.get(EmailHook, project=self.project)

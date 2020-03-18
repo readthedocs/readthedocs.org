@@ -11,7 +11,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
-from mock import patch
+from unittest.mock import patch
 
 
 log = logging.getLogger(__name__)

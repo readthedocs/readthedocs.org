@@ -246,13 +246,17 @@ class Integration(models.Model):
 
     INTEGRATIONS = WEBHOOK_INTEGRATIONS
 
-    project = models.ForeignKey(Project, related_name='integrations')
+    project = models.ForeignKey(
+        Project,
+        related_name='integrations',
+        on_delete=models.CASCADE,
+    )
     integration_type = models.CharField(
         _('Integration type'),
         max_length=32,
         choices=INTEGRATIONS,
     )
-    provider_data = JSONField(_('Provider data'))
+    provider_data = JSONField(_('Provider data'), default=dict)
     exchanges = GenericRelation(
         'HttpExchange',
         related_query_name='integrations',

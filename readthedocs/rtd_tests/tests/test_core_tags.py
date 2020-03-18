@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 import pytest
 from django.conf import settings
 from django.test import TestCase
@@ -9,14 +9,12 @@ from readthedocs.core.templatetags import core_tags
 from readthedocs.projects.models import Project
 
 
-@pytest.mark.usefixtures("url_scheme")
 @override_settings(USE_SUBDOMAIN=False, PRODUCTION_DOMAIN='readthedocs.org')
 class CoreTagsTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        url_base = '{scheme}://{domain}/docs/pip{{version}}'.format(
-            scheme=self.url_scheme,
+        url_base = 'http://{domain}/docs/pip{{version}}'.format(
             domain=settings.PRODUCTION_DOMAIN,
         )
 

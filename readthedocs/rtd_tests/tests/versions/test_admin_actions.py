@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import os
-import mock
+from unittest import mock
 
-from mock import call
+from unittest.mock import call
 import django_dynamic_fixture as fixture
 from django.test import TestCase
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME

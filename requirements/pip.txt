@@ -3,7 +3,7 @@ pip==19.3.1
 appdirs==1.4.3
 virtualenv==16.7.7
 
-django==1.11.27  # pyup: <1.12
+django==2.2.11  # pyup: <2.3
 django-extensions==2.2.5
 django_polymorphic==2.1.2
 
@@ -40,9 +40,9 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.40.0
+django-allauth==0.41.0
 
-GitPython==3.0.4
+GitPython==3.0.8
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
@@ -73,7 +73,6 @@ django-gravatar2==1.4.2
 pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
-mock==3.0.5
 stripe==2.38.0
 regex==2019.11.1
 
@@ -92,7 +91,8 @@ nltk==3.4.5
 textblob==0.15.3
 
 django-annoying==0.10.5
-django-messages-extends==0.6.0
+# Messages-extends needs a fix for Django 2.2 which isn't released (0.6.1 isn't out yet)
+git+https://github.com/AliLozano/django-messages-extends.git@b1e4f4c#egg=django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
 django-taggit==1.1.0
 dj-pagination==2.4.0
@@ -107,9 +107,13 @@ django-cors-middleware==1.4.0
 user-agents==2.0
 
 # Utilities used to upload build media to cloud storage
-django-storages[azure]==1.7.2
-azure-storage-blob==1.5.0
-azure-storage-common==1.4.2
+# django-storages is pinned to this particular commit because it
+# supports generating URLs with other method than GET when using
+# private buckets
+git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
 django-debug-toolbar==2.0
+
+# For enabling content-security-policy
+django-csp==3.6

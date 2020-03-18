@@ -27,30 +27,73 @@ pip.rtfd.io/<lang>/
 * Can't have subprojects (pip.rtfd.io/en/projects/foo/en/latestindex.html)
     * This would stop us from detaching translations from Project modeling
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
+
+## Proxied API
+
+pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
+    ServePageRedirect,
     ServeRobotsTXT,
     ServeSitemapXML,
 )
-from readthedocs.proxito.views.redirects import redirect_page_with_filename
-from readthedocs.proxito.views.utils import fast_404
+from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
 
+DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 urlpatterns = [
+    # Serve project downloads
+    # /_/downloads/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+    # Serve subproject downloads
+    # /_/downloads/<alias>/<lang>/<ver>/<type>/
+    url(
+        (
+            r'^{DOC_PATH_PREFIX}downloads/'
+            r'(?P<subproject_slug>{project_slug})/'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})/'
+            r'(?P<type_>[-\w]+)/$'.format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+                **pattern_opts)
+        ),
+        ProjectDownloadMedia.as_view(same_domain_url=True),
+        name='project_download_media',
+    ),
+
+    # Serve proxied API
+    url(
+        r'^{DOC_PATH_PREFIX}api/v2/'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
+        include('readthedocs.api.v2.proxied_urls'),
+    ),
+
     # Serve custom 404 pages
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',
         ServeError404.as_view(),
-        name='serve_error_404',
+        name='proxito_404_handler',
     ),
     url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
     url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
@@ -60,7 +103,7 @@ urlpatterns = [
     url(
         r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
         r'page/(?P<filename>.*)$'.format(**pattern_opts),
-        redirect_page_with_filename,
+        ServePageRedirect.as_view(),
         name='redirect_page_with_filename',
     ),
 
@@ -76,6 +119,19 @@ urlpatterns = [
         name='docs_detail',
     ),
 
+    # Hack /en/latest so it redirects properly
+    # We don't want to serve the docs here,
+    # because it's at a different level of serving so relative links break.
+    url(
+        (
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            r'(?P<lang_slug>{lang_slug})/'
+            r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
+        ),
+        fast_404,
+        name='docs_detail_directory_indexing',
+    ),
+
     # # TODO: Support this?
     # # (Sub)project translation and single version
     # url(
@@ -87,21 +143,6 @@ urlpatterns = [
     #     serve_docs,
     #     name='docs_detail',
     # ),
-
-    # External versions
-    # (RTD_EXTERNAL_VERSION_DOMAIN/html/<project-slug>/<version-slug>/<filename>)
-    # NOTE: requires to be before single version
-    url(
-        (
-            r'^html/(?P<project_slug>{project_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<filename>{filename_slug})'.format(
-                **pattern_opts,
-            )
-        ),
-        ServeDocs.as_view(version_type=EXTERNAL),
-        name='docs_detail_external_version',
-    ),
 
     # (Sub)project single version
     url(
@@ -115,5 +156,5 @@ urlpatterns = [
 ]
 
 # Use Django default error handlers to make things simpler
-handler404 = fast_404
+handler404 = proxito_404_page_handler
 handler500 = defaults.server_error

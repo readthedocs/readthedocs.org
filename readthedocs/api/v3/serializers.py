@@ -3,7 +3,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -236,7 +236,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
         data = {}
 
         for k, v in downloads.items():
-            if k in ('htmlzip', 'pdf', 'epub'):
+            if k in ('html', 'pdf', 'epub'):
+
+                # Keep backward compatibility
+                if k == 'html':
+                    k = 'htmlzip'
+
                 data[k] = ('http:' if settings.DEBUG else 'https:') + v
 
         return data
