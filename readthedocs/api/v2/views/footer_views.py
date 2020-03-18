@@ -127,6 +127,7 @@ class BaseFooterHTML(APIView):
         project = self._get_project()
         versions = project.ordered_active_versions(
             user=self.request.user,
+            include_hidden=False,
         )
         return versions
 
