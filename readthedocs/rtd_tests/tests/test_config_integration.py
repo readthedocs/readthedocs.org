@@ -781,9 +781,6 @@ class TestLoadConfigV2:
 
         get_builder_class.assert_called_with(result)
 
-    @pytest.mark.skip(
-        'This test is not compatible with the new validation around doctype.',
-    )
     @patch('readthedocs.projects.tasks.get_builder_class')
     def test_sphinx_builder_default(
             self, get_builder_class, checkout_path, tmpdir,
