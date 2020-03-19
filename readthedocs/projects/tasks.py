@@ -33,6 +33,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_PULLING_CACHE,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
     LATEST,
@@ -93,9 +94,11 @@ class CachedEnvironmentMixin:
 
     """Mixin that pull/push cached environment to storage."""
 
-    def pull_cached_environment(self):
+    def pull_cached_environment(self, environment):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
             return
+
+        environment.update_build(state=BUILD_STATE_PULLING_CACHE)
 
         storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
         filename = self.version.get_storage_environment_cache_path()
@@ -370,7 +373,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # repository in this step, and pushing it back will delete
                     # all the other cached things (Python packages, Sphinx,
                     # virtualenv, etc)
-                    self.pull_cached_environment()
+                    self.pull_cached_environment(environment)
                     self.sync_repo(environment)
             return True
         except RepositoryError:
@@ -594,7 +597,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     raise ProjectBuildsSkippedError
                 try:
                     with self.project.repo_nonblockinglock(version=self.version):
-                        self.pull_cached_environment()
+                        self.pull_cached_environment(environment)
                         self.setup_vcs(environment)
                 except vcs_support_utils.LockTimeout as e:
                     self.task.retry(exc=e, throw=False)

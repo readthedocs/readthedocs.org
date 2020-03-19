@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 BUILD_STATE_TRIGGERED = 'triggered'
+BUILD_STATE_PULLING_CACHE = 'pulling-cache'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
@@ -12,6 +13,7 @@ BUILD_STATE_FINISHED = 'finished'
 
 BUILD_STATE = (
     (BUILD_STATE_TRIGGERED, _('Triggered')),
+    (BUILD_STATE_PULLING_CACHE, _('Pulling cache')),
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
