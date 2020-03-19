@@ -48,7 +48,7 @@ class RedirectQuerySetBase(models.QuerySet):
         )
         page = Q(
             redirect_type='page',
-            path__iexact=F('from_url'),
+            path__exact=F('from_url'),
         )
         exact = (
             Q(
@@ -57,7 +57,7 @@ class RedirectQuerySetBase(models.QuerySet):
                 full_path__startswith=F('from_url_without_rest'),
             ) | Q(
                 redirect_type='exact',
-                full_path__iexact=F('from_url'),
+                full_path__exact=F('from_url'),
             )
         )
         sphinx_html = (
