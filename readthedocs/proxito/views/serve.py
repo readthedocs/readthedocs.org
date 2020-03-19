@@ -6,6 +6,7 @@ import os
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -187,6 +188,59 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
+        # Cache checks if cached,
+        # 1. dirhtml response for this path
+        # 2. redirect response for this path
+        # 3. custom 404 response for this version
+        # 4. default 404 response for this version
+
+        dirhtml_response = cache.get(f'dirhtml_404+{proxito_path}')
+        if dirhtml_response:
+            log.info(
+                'Returning cached dirhtml response. project=%s version=%s',
+                final_project.slug,
+                version_slug,
+            )
+            return dirhtml_response
+
+        redirect_response = cache.get(f'user_redirect_on_404+{proxito_path}')
+        if redirect_response:
+            log.info(
+                'Returning cached redirect response. project=%s version=%s',
+                final_project.slug,
+                version_slug,
+            )
+            return redirect_response
+
+        # The only way to get an improvement here is to use the ``project.slug``
+        # and ``version.slug`` as ``cache_key``; that way all the 404s pages for
+        # a specific version will return the same page. Using default
+        # ``cache_page`` won't help on a scanning, since the URL will be
+        # different on each request. We can do this because the 404 page is
+        # exactly the same per-version.
+        custom_404_response = cache.get(f'custom_404_{final_project.slug}+{version_slug}')
+        if custom_404_response:
+            log.info(
+                'Returning cached custom 404 page. project=%s version=%s',
+                final_project.slug,
+                version_slug,
+            )
+            return custom_404_response
+
+        if cache.get(f'default_404_{final_project.slug}+{version_slug}'):
+            default_404_response = cache.get(f'default_404_page')
+            if default_404_response:
+                log.info(
+                    'Returning cached default 404 page. project=%s version=%s',
+                    final_project.slug,
+                    version_slug,
+                )
+                return default_404_response
+        log.debug(
+            'Cached 404 responses missed. project=%s version=%s',
+            final_project.slug,
+            version_slug,
+        )
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
@@ -225,7 +279,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
                 # TODO: decide if we need to check for infinite redirect here
                 # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+                response = HttpResponseRedirect(redirect_url)
+                cache.set(f'dirhtml_404+{proxito_path}', response, 60)
+                return response
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
@@ -253,7 +309,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         )
         if redirect_path and http_status:
             try:
-                return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+                redirect_response = self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+                cache.set(f'user_redirect_on_404+{proxito_path}', redirect_response, 60)
+                return redirect_response
             except InfiniteRedirectException:
                 # Continue with our normal 404 handling in this case
                 pass
@@ -278,8 +336,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(storage.open(storage_filename_path).read())
                     resp.status_code = 404
+                    cache.set(f'custom_404_{final_project.slug}+{version_slug}', resp, 60)
                     return resp
 
+        cache.set(f'default_404_{final_project.slug}+{version_slug}', True, 60)
         raise Http404('No custom 404 page found.')
 
 

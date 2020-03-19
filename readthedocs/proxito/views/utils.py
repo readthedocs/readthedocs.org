@@ -1,6 +1,7 @@
 import os
 import logging
 
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
@@ -34,6 +35,7 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
 
     resp = render(request, template_name)
     resp.status_code = 404
+    cache.set('default_404_page', resp, 60)
     return resp
 
 
