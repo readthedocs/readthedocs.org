@@ -128,7 +128,8 @@ class CachedEnvironmentMixin:
             _, tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
             with open(tmp_filename, mode='wb') as local_fd:
-                local_fd.write(remote_fd.read())
+                for chunk in remote_fd.chunks():
+                    local_fd.write(chunk)
 
             safe_makedirs(self.version.project.doc_path)
             # Using ``tar`` command because ``tarfile`` has a memory leak when
