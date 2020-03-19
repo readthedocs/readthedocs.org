@@ -111,7 +111,7 @@ class Redirect(models.Model):
         ordering = ('-update_dt',)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        if '$rest' in self.from_url:
+        if self.redirect_type == 'exact' and '$rest' in self.from_url:
             self.from_url_without_rest = self.from_url.replace('$rest', '')
         super().save(*args, **kwargs)
 
