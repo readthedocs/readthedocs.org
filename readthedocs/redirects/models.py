@@ -77,6 +77,8 @@ class Redirect(models.Model):
         blank=True,
     )
 
+    # We are denormalizing the database here to easily query for Exact Redirects
+    # with ``$rest`` on them from El Proxito
     from_url_without_rest = models.CharField(
         max_length=255,
         db_index=True,
