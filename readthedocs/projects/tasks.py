@@ -119,17 +119,9 @@ class CachedEnvironmentMixin:
                     'msg': msg,
                 }
             )
-            _, tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
-            with open(tmp_filename, mode='wb') as local_fd:
-                local_fd.write(remote_fd.read())
-
-            with tarfile.open(tmp_filename) as tar:
-                tar.extractall(self.version.project.doc_path)
-
-            # Cleanup the temporary file
-            if os.path.exists(tmp_filename):
-                os.remove(tmp_filename)
+            with tarfile.open(fileobj=remote_fd) as tar:
+                tar.extractall(self.project.doc_path)
 
     def push_cached_environment(self):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
