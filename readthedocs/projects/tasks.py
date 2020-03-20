@@ -14,7 +14,6 @@ import shutil
 import socket
 import tarfile
 import tempfile
-import subprocess
 from collections import Counter, defaultdict
 
 import requests
@@ -48,12 +47,7 @@ from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import (
-    broadcast,
-    safe_makedirs,
-    safe_unlink,
-    send_email,
-)
+from readthedocs.core.utils import broadcast, safe_unlink, send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -128,27 +122,9 @@ class CachedEnvironmentMixin:
                     'msg': msg,
                 }
             )
-            _, tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
-            with open(tmp_filename, mode='wb') as local_fd:
-                for chunk in remote_fd.chunks():
-                    local_fd.write(chunk)
-
-            safe_makedirs(self.version.project.doc_path)
-            # Using ``tar`` command because ``tarfile`` has a memory leak when
-            # extracting big files (2.5Gb)
-            command = [
-                'tar',
-                'xvf',
-                tmp_filename,
-                '--directory',
-                self.version.project.doc_path,
-            ]
-            subprocess.run(command)
-
-            # Cleanup the temporary file
-            if os.path.exists(tmp_filename):
-                os.remove(tmp_filename)
+            with tarfile.open(fileobj=remote_fd) as tar:
+                tar.extracall(self.project.doc_path)
 
     def push_cached_environment(self):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
