@@ -171,9 +171,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # pylint: disable=too-many-locals
         log.info('Executing 404 handler. proxito_path=%s', proxito_path)
 
-        # Disable 404 handling while we're getting DDOS'd
-        raise Http404('No custom 404 page found.')
-
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
             proxito_path,
