@@ -13,4 +13,4 @@ ipdb==0.13.2
 pdbpp==0.10.2
 
 # run tests
-tox==3.14.1
+tox==3.14.5
