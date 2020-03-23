@@ -259,7 +259,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        for version_slug_404 in set([version_slug, final_project.get_default_version()]):
+        versions = [version_slug]
+        default_version_slug = final_project.get_default_version()
+        if default_version_slug != version_slug:
+            versions.append(default_version_slug)
+        for version_slug_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
                 continue
 
