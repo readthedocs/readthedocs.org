@@ -479,18 +479,37 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
-        self.build_env.run(
-            'conda',
-            'env',
-            'create',
-            '--quiet',
-            '--name',
-            self.version.slug,
-            '--file',
-            self.config.conda.environment,
-            bin_path=None,  # Don't use conda bin that doesn't exist yet
-            cwd=self.checkout_path,
-        )
+        if self.project.has_feature(Feature.CONDA_UPDATE_ENVIRONMENT):
+            # ``conda env update`` will create the environment or update the
+            # requirements from an environment already created and cached,
+            # prunning the requirements that are not in the environment file
+            # anymore
+            self.build_env.run(
+                'conda',
+                'env',
+                'update',
+                '--quiet',
+                '--name',
+                self.version.slug,
+                '--file',
+                self.config.conda.environment,
+                '--prune',
+                bin_path=None,  # Don't use conda bin that doesn't exist yet
+                cwd=self.checkout_path,
+            )
+        else:
+            self.build_env.run(
+                'conda',
+                'env',
+                'create',
+                '--quiet',
+                '--name',
+                self.version.slug,
+                '--file',
+                self.config.conda.environment,
+                bin_path=None,  # Don't use conda bin that doesn't exist yet
+                cwd=self.checkout_path,
+            )
 
     def _show_environment_yaml(self):
         """Show ``environment.yml`` file in the Build output."""

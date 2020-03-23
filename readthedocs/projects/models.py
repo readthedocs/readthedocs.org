@@ -1515,6 +1515,7 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
+    CONDA_UPDATE_ENVIRONMENT = 'conda_update_environment'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1584,6 +1585,10 @@ class Feature(models.Model):
         (
             CACHED_ENVIRONMENT,
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            CONDA_UPDATE_ENVIRONMENT,
+            _('Use `conda env update --prune` instead of `conda env create` to re-use the environment'),
         ),
     )
 
