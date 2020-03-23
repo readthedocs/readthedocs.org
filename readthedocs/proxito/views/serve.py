@@ -18,6 +18,7 @@ from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.projects.models import Feature, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
@@ -98,6 +99,18 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 'Invalid URL for project with versions. url=%s, project=%s',
                 filename, final_project.slug
             )
+            if final_project.has_feature(Feature.PROXITO_SUBPROJECT_PATH):
+                new_subproject_slug, rest = filename.split('/', 1)
+                sub = ProjectRelationship.objects.filter(
+                    parent=final_project, alias=new_subproject_slug)
+                if sub.exists():
+                    new_url = f'/projects/{new_subproject_slug}/{rest}'
+                    _, __, kwargs = url_resolve(
+                        new_url,
+                        urlconf='readthedocs.proxito.urls',
+                    )
+                    log.info('Internal Redirect for subproject without /projects/: %s', new_url)
+                    return ServeDocs.as_view()(self.request, **kwargs)
             raise Http404('Invalid URL for project with versions')
 
         # TODO: un-comment when ready to perform redirect here

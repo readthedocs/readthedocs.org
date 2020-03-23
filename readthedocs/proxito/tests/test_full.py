@@ -12,7 +12,7 @@ from django.urls import reverse
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 from .base import BaseDocServing
 
@@ -466,3 +466,29 @@ class TestAdditionalDocViews(BaseDocServing):
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
+
+    def test_subproject_internal_proxy(self):
+        self.project.versions.update(active=True, built=True)
+        self.subproject.versions.update(active=True, built=True)
+        feat = Feature.objects.create(feature_id=Feature.PROXITO_SUBPROJECT_PATH)
+        feat.projects.add(self.project)
+        # Confirm we've serving from storage for the `index-exists/index.html` file
+        response = self.client.get('/subproject/en/latest/t.html',
+                                   HTTP_HOST='project.readthedocs.io',
+                                   )
+        self.assertEqual(
+            response['x-accel-redirect'], '/proxito/media/html/subproject/latest/t.html',
+        )
+
+    def test_subproject_internal_proxy_invalid_subproject(self):
+        self.project.versions.update(active=True, built=True)
+        self.subproject.versions.update(active=True, built=True)
+        feat = Feature.objects.create(feature_id=Feature.PROXITO_SUBPROJECT_PATH)
+        feat.projects.add(self.project)
+        # Confirm we've serving from storage for the `index-exists/index.html` file
+        response = self.client.get('/invalid_subproject/en/latest/t.html',
+                                   HTTP_HOST='project.readthedocs.io',
+                                   )
+        self.assertEqual(
+            response.status_code, 404
+        )
