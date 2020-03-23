@@ -16,7 +16,10 @@ from readthedocs.search.tests.utils import (
 @pytest.mark.django_db
 @pytest.mark.search
 class TestProjectSearch:
-    url = reverse('search')
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.url =  reverse('search')
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
@@ -84,7 +87,10 @@ class TestProjectSearch:
 @pytest.mark.django_db
 @pytest.mark.search
 class TestPageSearch:
-    url = reverse('search')
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.url =  reverse('search')
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)

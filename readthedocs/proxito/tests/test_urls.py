@@ -1,13 +1,13 @@
 # Copied from .com codebase
 
-# -*- coding: utf-8 -*-
 """Test URL config."""
 
-from django.urls import resolve
+import pytest
 from django.test import TestCase, override_settings
+from django.urls import resolve
 
 
-@override_settings(ROOT_URLCONF='readthedocs.proxito.urls')
+@pytest.mark.proxito
 class TestSingleVersionURLs(TestCase):
 
     def test_root(self):

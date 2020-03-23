@@ -6,10 +6,20 @@ but currently we have them to be able to run the site with the old middleware fo
 a staged rollout of the proxito code.
 """
 
+
 class CommunityProxitoSettingsMixin:
 
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
+
+    @property
+    def DATABASES(self):
+        # This keeps connections to the DB alive,
+        # which reduces latency with connecting to postgres
+        dbs = getattr(super(), 'DATABASES', {})
+        for db in dbs.keys():
+            dbs[db]['CONN_MAX_AGE'] = 86400
+        return dbs
 
     @property
     def MIDDLEWARE(self):  # noqa

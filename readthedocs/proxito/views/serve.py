@@ -133,7 +133,9 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             # Signature and Expire time is calculated per file.
             path += 'index.html'
 
-        storage_url = storage.url(path)  # this will remove the trailing slash
+        # NOTE: calling ``.url`` will remove the trailing slash
+        storage_url = storage.url(path, http_method=request.method)
+
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
         final_url = parsed_url.geturl()
@@ -141,6 +143,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         return self._serve_docs(
             request,
             final_project=final_project,
+            version_slug=version_slug,
             path=final_url,
         )
 

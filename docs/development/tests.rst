@@ -59,6 +59,33 @@ docs
 .. _`pyflakes`: https://github.com/pyflakes/pyflakes
 .. _`pep8`: https://pep8.readthedocs.io/en/latest/index.html
 
+
+Pytest marks
+------------
+
+The Read the Docs code base is deployed as three instances:
+
+- Main: where you can see the dashboard.
+- Build: where the builds happen.
+- Serve/proxito: It is in charge of serving the documentation pages.
+
+Each instance has its own settings.
+To make sure we test each part as close as possible to its real settings,
+we use `pytest marks <https://docs.pytest.org/en/latest/mark.html>`__.
+This allow us to run each set of tests with different settings files,
+or skip some (like search tests)::
+
+
+  DJANGO_SETTINGS_MODULE=custom.settings.file pytest -m mark
+  DJANGO_SETTINGS_MODULE=another.settings.file pytest -m "not mark"
+
+Current marks are:
+
+- search (tests that require Elastic Search)
+- proxito (tests from the serve/proxito instance)
+
+Tests without mark are from the main instance.
+
 Continuous Integration
 ----------------------
 

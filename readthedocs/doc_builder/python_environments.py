@@ -129,12 +129,15 @@ class PythonEnvironment:
 
         The decision is made considering if the directories are going to be
         cleaned after the build (``RTD_CLEAN_AFTER_BUILD=True`` or project has
-        the ``CLEAN_AFTER_BUILD`` feature enabled). In this case, there is no
-        need to cache anything.
+        the ``CLEAN_AFTER_BUILD`` feature enabled) and project has not the
+        feature ``CACHED_ENVIRONMENT``. In this case, there is no need to cache
+        anything.
         """
         if (
-            settings.RTD_CLEAN_AFTER_BUILD or
-            self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+            (
+                settings.RTD_CLEAN_AFTER_BUILD or
+                self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+            ) and not self.project.has_feature(Feature.CACHED_ENVIRONMENT)
         ):
             return [
                 '--no-cache-dir',
