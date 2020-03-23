@@ -7,7 +7,7 @@ django==2.2.11  # pyup: <2.3
 django-extensions==2.2.8
 django_polymorphic==2.1.2
 
-djangorestframework==3.10.3
+djangorestframework==3.11.0
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
