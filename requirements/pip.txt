@@ -90,7 +90,7 @@ django-textclassifier==1.0
 nltk==3.4.5
 textblob==0.15.3
 
-django-annoying==0.10.5
+django-annoying==0.10.6
 # Messages-extends needs a fix for Django 2.2 which isn't released (0.6.1 isn't out yet)
 git+https://github.com/AliLozano/django-messages-extends.git@b1e4f4c#egg=django-messages-extends==0.6.0
 djangorestframework-jsonp==1.0.2
