@@ -1,3 +1,157 @@
+Version 4.1.0
+-------------
+
+:Date: March 17, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Properly proxy the Proxito headers via nginx/sendfile (`#6782 <https://github.com/readthedocs/readthedocs.org/pull/6782>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Add feature flag to just completely skip sync and symlink operations (#6689)" (`#6781 <https://github.com/readthedocs/readthedocs.org/pull/6781>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade django-storages to support URLs with more http methods (`#6771 <https://github.com/readthedocs/readthedocs.org/pull/6771>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use the hotfixed version of django-messages-extends (`#6767 <https://github.com/readthedocs/readthedocs.org/pull/6767>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.3 (`#6766 <https://github.com/readthedocs/readthedocs.org/pull/6766>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document usage or pytest marks (`#6764 <https://github.com/readthedocs/readthedocs.org/pull/6764>`__)
+* `@humitos <https://github.com/humitos>`__: Pull/Push cached environment using storage (`#6763 <https://github.com/readthedocs/readthedocs.org/pull/6763>`__)
+* `@stsewd <https://github.com/stsewd>`__: Refactor search view to make use of permission_classes (`#6761 <https://github.com/readthedocs/readthedocs.org/pull/6761>`__)
+* `@stsewd <https://github.com/stsewd>`__: Run proxito tests with proxito (`#6714 <https://github.com/readthedocs/readthedocs.org/pull/6714>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxy footer api on docs' domains (`#6630 <https://github.com/readthedocs/readthedocs.org/pull/6630>`__)
+
+Version 4.0.3
+-------------
+
+:Date: March 10, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Document usage or pytest marks (`#6764 <https://github.com/readthedocs/readthedocs.org/pull/6764>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update some dependencies (`#6762 <https://github.com/readthedocs/readthedocs.org/pull/6762>`__)
+* `@stsewd <https://github.com/stsewd>`__: Refactor search view to make use of permission_classes (`#6761 <https://github.com/readthedocs/readthedocs.org/pull/6761>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Merge pull request #6739 from readthedocs/agj/docs-tos-pdf" (`#6760 <https://github.com/readthedocs/readthedocs.org/pull/6760>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Expand the logic in our proxito mixin. (`#6759 <https://github.com/readthedocs/readthedocs.org/pull/6759>`__)
+* `@comradekingu <https://github.com/comradekingu>`__: Spelling: "Set up your environment" (`#6752 <https://github.com/readthedocs/readthedocs.org/pull/6752>`__)
+* `@humitos <https://github.com/humitos>`__: Use `storage.exists` on HEAD method (`#6751 <https://github.com/readthedocs/readthedocs.org/pull/6751>`__)
+* `@humitos <https://github.com/humitos>`__: Pull only latest image for development (`#6750 <https://github.com/readthedocs/readthedocs.org/pull/6750>`__)
+* `@humitos <https://github.com/humitos>`__: Update common submodule (`#6749 <https://github.com/readthedocs/readthedocs.org/pull/6749>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.2 (`#6741 <https://github.com/readthedocs/readthedocs.org/pull/6741>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add TOS PDF output (`#6739 <https://github.com/readthedocs/readthedocs.org/pull/6739>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't call virtualenv with `--no-site-packages` (`#6738 <https://github.com/readthedocs/readthedocs.org/pull/6738>`__)
+* `@GallowayJ <https://github.com/GallowayJ>`__: Drop mock dependency (`#6723 <https://github.com/readthedocs/readthedocs.org/pull/6723>`__)
+* `@stsewd <https://github.com/stsewd>`__: Run proxito tests with proxito (`#6714 <https://github.com/readthedocs/readthedocs.org/pull/6714>`__)
+* `@humitos <https://github.com/humitos>`__: New block on footer template to override from corporate (`#6702 <https://github.com/readthedocs/readthedocs.org/pull/6702>`__)
+* `@humitos <https://github.com/humitos>`__: Point users to support email instead asking to open an issue (`#6650 <https://github.com/readthedocs/readthedocs.org/pull/6650>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxy footer api on docs' domains (`#6630 <https://github.com/readthedocs/readthedocs.org/pull/6630>`__)
+
+Version 4.0.2
+-------------
+
+:Date: March 04, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Don't call virtualenv with `--no-site-packages` (`#6738 <https://github.com/readthedocs/readthedocs.org/pull/6738>`__)
+* `@stsewd <https://github.com/stsewd>`__: Catch ConnectionError from request on api timing out (`#6735 <https://github.com/readthedocs/readthedocs.org/pull/6735>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.1 (`#6733 <https://github.com/readthedocs/readthedocs.org/pull/6733>`__)
+* `@humitos <https://github.com/humitos>`__: Improve Proxito 404 handler to render user-facing Maze when needed (`#6726 <https://github.com/readthedocs/readthedocs.org/pull/6726>`__)
+
+Version 4.0.1
+-------------
+
+:Date: March 03, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add feature flag for branch & tag syncing to API. (`#6729 <https://github.com/readthedocs/readthedocs.org/pull/6729>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't fail a build on api timing out (`#6719 <https://github.com/readthedocs/readthedocs.org/pull/6719>`__)
+* `@stsewd <https://github.com/stsewd>`__: Be explicit on privacy level for search tests (`#6713 <https://github.com/readthedocs/readthedocs.org/pull/6713>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make easy to run search tests in docker compose (`#6711 <https://github.com/readthedocs/readthedocs.org/pull/6711>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Docker settings improvements (`#6709 <https://github.com/readthedocs/readthedocs.org/pull/6709>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Workaround SameSite cookies (`#6708 <https://github.com/readthedocs/readthedocs.org/pull/6708>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Figure out the host IP when using Docker (`#6707 <https://github.com/readthedocs/readthedocs.org/pull/6707>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Pin the version of Azurite for docker-compose development (`#6706 <https://github.com/readthedocs/readthedocs.org/pull/6706>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.0 (`#6704 <https://github.com/readthedocs/readthedocs.org/pull/6704>`__)
+* `@humitos <https://github.com/humitos>`__: Rename docker settings to fix local environment (`#6703 <https://github.com/readthedocs/readthedocs.org/pull/6703>`__)
+* `@sduthil <https://github.com/sduthil>`__: API v3 doc: fix typos in URL for PATCH /versions/slug/ (`#6698 <https://github.com/readthedocs/readthedocs.org/pull/6698>`__)
+* `@humitos <https://github.com/humitos>`__: Sort vesions in-place to help performance (`#6696 <https://github.com/readthedocs/readthedocs.org/pull/6696>`__)
+* `@humitos <https://github.com/humitos>`__: Use .iterator when sorting versions (`#6694 <https://github.com/readthedocs/readthedocs.org/pull/6694>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just completely skip sync and symlink operations (`#6689 <https://github.com/readthedocs/readthedocs.org/pull/6689>`__)
+* `@humitos <https://github.com/humitos>`__: Disable more loggings in development environment (`#6683 <https://github.com/readthedocs/readthedocs.org/pull/6683>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use x-forwarded-host in local docker environment (`#6679 <https://github.com/readthedocs/readthedocs.org/pull/6679>`__)
+* `@humitos <https://github.com/humitos>`__: Allow user to set `build.image: testing` in the config file (`#6676 <https://github.com/readthedocs/readthedocs.org/pull/6676>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add azurite --loose option (`#6669 <https://github.com/readthedocs/readthedocs.org/pull/6669>`__)
+* `@stsewd <https://github.com/stsewd>`__: Have more control over search tests (`#6644 <https://github.com/readthedocs/readthedocs.org/pull/6644>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Enable content security policy in report-only mode (`#6642 <https://github.com/readthedocs/readthedocs.org/pull/6642>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add test settings file for proxito (`#6623 <https://github.com/readthedocs/readthedocs.org/pull/6623>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: using private submodules in rtd.com (`#6527 <https://github.com/readthedocs/readthedocs.org/pull/6527>`__)
+
+Version 4.0.0
+-------------
+
+:Date: February 25, 2020
+
+**This release upgrades our codebase to run on Django 2.2**.
+This is a breaking change,
+so we have released it as our 4th major version.
+
+* `@stsewd <https://github.com/stsewd>`__: Data migration for old integration models (`#6675 <https://github.com/readthedocs/readthedocs.org/pull/6675>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 3.12.0 (`#6674 <https://github.com/readthedocs/readthedocs.org/pull/6674>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade to Django 2.2.9 (`#6494 <https://github.com/readthedocs/readthedocs.org/pull/6494>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Show message if version list truncated (`#6276 <https://github.com/readthedocs/readthedocs.org/pull/6276>`__)
+
+Version 3.12.0
+--------------
+
+:Date: February 18, 2020
+
+This version has two major changes:
+
+* It updates our default docker images to stable=5.0 and latest=6.0.
+* It changes our PR builder domain to `readthedocs.build`
+
+* `@humitos <https://github.com/humitos>`__: Use PUBLIC_DOMAIN_USES_HTTPS for resolver tests (`#6673 <https://github.com/readthedocs/readthedocs.org/pull/6673>`__)
+* `@stsewd <https://github.com/stsewd>`__: Always run CoreTagsTests with http (`#6671 <https://github.com/readthedocs/readthedocs.org/pull/6671>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old docker settings (`#6670 <https://github.com/readthedocs/readthedocs.org/pull/6670>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update gitpython and django (`#6667 <https://github.com/readthedocs/readthedocs.org/pull/6667>`__)
+* `@humitos <https://github.com/humitos>`__: New docker release (6.0 and testing) (`#6654 <https://github.com/readthedocs/readthedocs.org/pull/6654>`__)
+* `@humitos <https://github.com/humitos>`__: Default python version per Docker image (`#6653 <https://github.com/readthedocs/readthedocs.org/pull/6653>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add pytest-custom_exit_code (`#6648 <https://github.com/readthedocs/readthedocs.org/pull/6648>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial attempt to serve PR builds at `readthedocs.build` (`#6629 <https://github.com/readthedocs/readthedocs.org/pull/6629>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove re-authing of users on downloads. (`#6619 <https://github.com/readthedocs/readthedocs.org/pull/6619>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't trigger a sync twice on creation/deletion for GitHub (`#6614 <https://github.com/readthedocs/readthedocs.org/pull/6614>`__)
+* `@s-weigand <https://github.com/s-weigand>`__: Add linkcheck test for the docs (`#6543 <https://github.com/readthedocs/readthedocs.org/pull/6543>`__)
+
+Version 3.11.6
+--------------
+
+:Date: February 04, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Note we aren't doing GSOC in 2020 (`#6618 <https://github.com/readthedocs/readthedocs.org/pull/6618>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: only serve x-rtd-slug project if it exists (`#6617 <https://github.com/readthedocs/readthedocs.org/pull/6617>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add check for a single_version project having a version_slug for PR builds (`#6615 <https://github.com/readthedocs/readthedocs.org/pull/6615>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#6613 <https://github.com/readthedocs/readthedocs.org/pull/6613>`__)
+* `@stsewd <https://github.com/stsewd>`__: Create unique container per sync (`#6612 <https://github.com/readthedocs/readthedocs.org/pull/6612>`__)
+* `@stsewd <https://github.com/stsewd>`__: Check for None before assignment (`#6611 <https://github.com/readthedocs/readthedocs.org/pull/6611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Raise exception when we get an InfiniteRedirect (`#6609 <https://github.com/readthedocs/readthedocs.org/pull/6609>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 3.11.5 (`#6608 <https://github.com/readthedocs/readthedocs.org/pull/6608>`__)
+* `@humitos <https://github.com/humitos>`__: Avoid infinite redirect on El Proxito on 404 (`#6606 <https://github.com/readthedocs/readthedocs.org/pull/6606>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't error when killing/removing non-existent cotainer (`#6605 <https://github.com/readthedocs/readthedocs.org/pull/6605>`__)
+* `@humitos <https://github.com/humitos>`__: Use proper path to download/install readthedocs-ext (`#6603 <https://github.com/readthedocs/readthedocs.org/pull/6603>`__)
+* `@humitos <https://github.com/humitos>`__: Use timeout on internal API calls (`#6602 <https://github.com/readthedocs/readthedocs.org/pull/6602>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't assume build isn't None in a docker build env (`#6599 <https://github.com/readthedocs/readthedocs.org/pull/6599>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with pip 20.0 breaking on install (`#6598 <https://github.com/readthedocs/readthedocs.org/pull/6598>`__)
+* `@stsewd <https://github.com/stsewd>`__: More protection against None (`#6597 <https://github.com/readthedocs/readthedocs.org/pull/6597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Revert "Update celery requirements to its latest version" (`#6596 <https://github.com/readthedocs/readthedocs.org/pull/6596>`__)
+* `@Blackcipher101 <https://github.com/Blackcipher101>`__: Changed documentation of Api v3 (`#6574 <https://github.com/readthedocs/readthedocs.org/pull/6574>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
+* `@humitos <https://github.com/humitos>`__: Move common docker compose configs to common repository (`#6539 <https://github.com/readthedocs/readthedocs.org/pull/6539>`__)
+
+Version 3.11.5
+--------------
+
+:Date: January 29, 2020
+
+* `@humitos <https://github.com/humitos>`__: Avoid infinite redirect on El Proxito on 404 (`#6606 <https://github.com/readthedocs/readthedocs.org/pull/6606>`__)
+* `@humitos <https://github.com/humitos>`__: Use proper path to download/install readthedocs-ext (`#6603 <https://github.com/readthedocs/readthedocs.org/pull/6603>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't assume build isn't None in a docker build env (`#6599 <https://github.com/readthedocs/readthedocs.org/pull/6599>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with pip 20.0 breaking on install (`#6598 <https://github.com/readthedocs/readthedocs.org/pull/6598>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Revert "Update celery requirements to its latest version" (`#6596 <https://github.com/readthedocs/readthedocs.org/pull/6596>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove .cache from parent dir (`#6595 <https://github.com/readthedocs/readthedocs.org/pull/6595>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 3.11.4 again (`#6594 <https://github.com/readthedocs/readthedocs.org/pull/6594>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 3.11.4 (`#6593 <https://github.com/readthedocs/readthedocs.org/pull/6593>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use our standard auth mixin for proxito downloads (`#6572 <https://github.com/readthedocs/readthedocs.org/pull/6572>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate doctype from project to version (`#6523 <https://github.com/readthedocs/readthedocs.org/pull/6523>`__)
+
 Version 3.11.4
 --------------
 
@@ -877,7 +1031,7 @@ Version 3.2.2
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pytest-cov to latest version 2.6.1 (`#5276 <https://github.com/readthedocs/readthedocs.org/pull/5276>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Pin pillow to latest version 5.4.1 (`#5275 <https://github.com/readthedocs/readthedocs.org/pull/5275>`__)
 * `@pyup-bot <https://github.com/pyup-bot>`__: Update elasticsearch to 6.3.1 (`#5274 <https://github.com/readthedocs/readthedocs.org/pull/5274>`__)
-* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs https:// prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
+* `@discdiver <https://github.com/discdiver>`__: clarify github integration needs ``https://`` prepended (`#5273 <https://github.com/readthedocs/readthedocs.org/pull/5273>`__)
 * `@humitos <https://github.com/humitos>`__: Setup and configure pyup.io (`#5272 <https://github.com/readthedocs/readthedocs.org/pull/5272>`__)
 * `@humitos <https://github.com/humitos>`__: Update all Python dependencies (`#5269 <https://github.com/readthedocs/readthedocs.org/pull/5269>`__)
 * `@davidfischer <https://github.com/davidfischer>`__: Add note about security issue (`#5263 <https://github.com/readthedocs/readthedocs.org/pull/5263>`__)

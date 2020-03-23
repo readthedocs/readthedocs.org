@@ -37,6 +37,7 @@ var configMethods = {
     show_promo: function () {
         return (
             this.api_host === 'https://readthedocs.org' ||
+            this.api_host === 'http://community.dev.readthedocs.io' ||
             this.api_host === 'http://127.0.0.1:8000'
         );
     }

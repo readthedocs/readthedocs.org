@@ -3,7 +3,7 @@ import os
 import shutil
 import unittest
 
-import mock
+from unittest import mock
 
 from readthedocs.vcs_support import utils
 

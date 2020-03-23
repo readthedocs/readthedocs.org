@@ -7,7 +7,7 @@ import textwrap
 
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version

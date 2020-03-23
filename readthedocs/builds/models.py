@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -92,6 +93,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -160,11 +162,6 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            #              version
-            ('view_version', _('View Version')),
-        )
 
     def __str__(self):
         return ugettext(
@@ -302,27 +299,6 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         """Get absolute url to the docs of the version."""
-        # Hack external versions for now.
-        # TODO: We can integrate them into the resolver
-        # but this is much simpler to handle since we only link them a couple places for now
-        if self.type == EXTERNAL:
-            # Django's static file serving doesn't automatically append index.html
-            scheme = 'https' if settings.PUBLIC_DOMAIN_USES_HTTPS else 'http'
-            path = self.project.get_storage_path(
-                type_='html',
-                version_slug=self.slug,
-                version_type=self.type,
-                include_file=False,
-            )
-
-            # We don't want the `external/` part in the user-facing URL
-            if path.startswith(EXTERNAL):
-                path = path.replace(f'{EXTERNAL}/', '', 1)
-
-            domain = settings.RTD_EXTERNAL_VERSION_DOMAIN
-            url = f'{scheme}://{domain}/{path}/index.html'
-            return url
-
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -332,9 +308,11 @@ class Version(models.Model):
                 },
             )
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             private=private,
+            external=external,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -387,10 +365,12 @@ class Version(models.Model):
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
             private=private,
+            external=external,
         )
 
     def get_downloads(self, pretty=False):
@@ -467,6 +447,11 @@ class Version(models.Model):
             )
 
         return paths
+
+    def get_storage_environment_cache_path(self):
+        """Return the path of the cached environment tar file."""
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        return storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -646,12 +631,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -941,6 +928,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))

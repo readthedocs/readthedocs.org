@@ -2,7 +2,7 @@
 import json
 from contextlib import contextmanager
 
-import mock
+from unittest import mock
 
 
 # Mock tastypi API.

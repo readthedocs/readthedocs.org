@@ -103,6 +103,18 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 ''',
 }
+linkcheck_ignore = [
+    r'http://127\.0\.0\.1',
+    r'http://localhost',
+    r'https://yourproject\.readthedocs\.io',
+    r'https?://docs\.example\.com',
+    r'https://foo\.readthedocs\.io/projects',
+    r'https://github\.com.+?#L\d+',
+    r'https://github\.com/readthedocs/readthedocs\.org/issues',
+    r'https://github\.com/readthedocs/readthedocs\.org/pull',
+    r'https://docs\.readthedocs\.io/\?rtd_search',
+    r'https://readthedocs\.org/search',
+]
 
 
 def setup(app):

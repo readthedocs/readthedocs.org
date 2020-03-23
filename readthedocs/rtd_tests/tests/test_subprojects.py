@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings

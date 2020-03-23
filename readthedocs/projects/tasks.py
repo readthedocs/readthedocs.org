@@ -12,6 +12,8 @@ import logging
 import os
 import shutil
 import socket
+import tarfile
+import tempfile
 from collections import Counter, defaultdict
 
 import requests
@@ -87,6 +89,98 @@ from .signals import (
 log = logging.getLogger(__name__)
 
 
+class CachedEnvironmentMixin:
+
+    """Mixin that pull/push cached environment to storage."""
+
+    def pull_cached_environment(self):
+        if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
+            return
+
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        filename = self.version.get_storage_environment_cache_path()
+
+        msg = 'Checking for cached environment'
+        log.debug(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        if storage.exists(filename):
+            msg = 'Pulling down cached environment from storage'
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            _, tmp_filename = tempfile.mkstemp(suffix='.tar')
+            remote_fd = storage.open(filename, mode='rb')
+            with open(tmp_filename, mode='wb') as local_fd:
+                local_fd.write(remote_fd.read())
+
+            with tarfile.open(tmp_filename) as tar:
+                tar.extractall(self.version.project.doc_path)
+
+            # Cleanup the temporary file
+            if os.path.exists(tmp_filename):
+                os.remove(tmp_filename)
+
+    def push_cached_environment(self):
+        if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
+            return
+
+        project_path = self.project.doc_path
+        directories = [
+            'checkouts',
+            'envs',
+            'conda',
+        ]
+
+        _, tmp_filename = tempfile.mkstemp(suffix='.tar')
+        # open just with 'w', to not compress and waste CPU cycles
+        with tarfile.open(tmp_filename, 'w') as tar:
+            for directory in directories:
+                path = os.path.join(
+                    project_path,
+                    directory,
+                    self.version.slug,
+                )
+                arcname = os.path.join(directory, self.version.slug)
+                if os.path.exists(path):
+                    tar.add(path, arcname=arcname)
+
+            # Special handling for .cache directory because it's per-project
+            path = os.path.join(project_path, '.cache')
+            if os.path.exists(path):
+                tar.add(path, arcname='.cache')
+
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        with open(tmp_filename, 'rb') as fd:
+            msg = 'Pushing up cached environment to storage'
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            storage.save(
+                self.version.get_storage_environment_cache_path(),
+                fd,
+            )
+
+        # Cleanup the temporary file
+        if os.path.exists(tmp_filename):
+            os.remove(tmp_filename)
+
+
 class SyncRepositoryMixin:
 
     """Mixin that handles the VCS sync/update."""
@@ -154,18 +248,24 @@ class SyncRepositoryMixin:
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build to the stable version when hittig the
+        It may trigger a new build to the stable version when hitting the
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
 
-        if version_repo.supports_tags:
+        if all([
+            version_repo.supports_tags,
+            not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
+        ]):
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
             } for v in version_repo.tags]
 
-        if version_repo.supports_branches:
+        if all([
+            version_repo.supports_branches,
+            not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+        ]):
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
@@ -224,7 +324,7 @@ def sync_repository_task(version_pk):
         clean_build(version_pk)
 
 
-class SyncRepositoryTaskStep(SyncRepositoryMixin):
+class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     """
     Entry point to synchronize the VCS documentation.
@@ -265,6 +365,12 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
                 with self.project.repo_nonblockinglock(version=self.version):
+                    # When syncing we are only pulling the cached environment
+                    # (without pushing it after it's updated). We only clone the
+                    # repository in this step, and pushing it back will delete
+                    # all the other cached things (Python packages, Sphinx,
+                    # virtualenv, etc)
+                    self.pull_cached_environment()
                     self.sync_repo(environment)
             return True
         except RepositoryError:
@@ -283,8 +389,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 extra={
                     'stack': True,
                     'tags': {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        'project': self.project.slug if self.project else '',
+                        'version': self.version.slug if self.version else '',
                     },
                 },
             )
@@ -323,7 +429,7 @@ def update_docs_task(self, version_pk, *args, **kwargs):
         clean_build(version_pk)
 
 
-class UpdateDocsTaskStep(SyncRepositoryMixin):
+class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     """
     The main entry point for updating documentation.
@@ -368,6 +474,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if config is not None:
             self.config = config
         self.task = task
+        self.build_start_time = None
         # TODO: remove this
         self.setup_env = None
 
@@ -472,6 +579,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             update_on_success=False,
             environment=self.get_rtd_env_vars(),
         )
+        self.build_start_time = environment.start_time
 
         # TODO: Remove.
         # There is code that still depends of this attribute
@@ -486,6 +594,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     raise ProjectBuildsSkippedError
                 try:
                     with self.project.repo_nonblockinglock(version=self.version):
+                        self.pull_cached_environment()
                         self.setup_vcs(environment)
                 except vcs_support_utils.LockTimeout as e:
                     self.task.retry(exc=e, throw=False)
@@ -561,6 +670,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=self.build,
             record=record,
             environment=env_vars,
+
+            # Pass ``start_time`` here to not reset the timer
+            start_time=self.build_start_time,
         )
 
         # Environment used for building code, usually with Docker
@@ -639,6 +751,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         elif self.build_env.successful:
             # Send Webhook notification for build success.
             self.send_notifications(self.version.pk, self.build['id'], email=False)
+
+            # Push cached environment on success for next build
+            self.push_cached_environment()
 
             if self.commit:
                 send_external_build_status(
@@ -810,6 +925,23 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
+        # TODO: Remove this logic from `update_app_instances`
+        # It's in both places to make sure it runs.
+        try:
+            if html:
+                version = api_v2.version(self.version.pk)
+                version.patch({
+                    'built': True,
+                    'documentation_type': self.config.doctype,
+                    'has_pdf': pdf,
+                    'has_epub': epub,
+                    'has_htmlzip': localmedia,
+                })
+        except HttpClientError:
+            log.exception(
+                'Updating version failed, skipping file sync: version=%s',
+                self.version,
+            )
         if not settings.RTD_BUILD_MEDIA_STORAGE:
             # Note: this check can be removed once corporate build servers use storage
             log.warning(
@@ -1800,7 +1932,11 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(
+            hook_url,
+            data=data,
+            headers={'content-type': 'application/json'}
+        )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
 

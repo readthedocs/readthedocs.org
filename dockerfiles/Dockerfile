@@ -34,6 +34,9 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 RUN pip3 install --no-cache-dir --upgrade pip
 
+# Ensure that ``python`` is in the PATH so that ``./manage.py`` works
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 WORKDIR /tmp
 
 RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/pip.txt
