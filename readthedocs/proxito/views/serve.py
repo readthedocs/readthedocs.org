@@ -155,6 +155,8 @@ class ServeDocs(SettingsOverrideObject):
 
 class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
+    CACHE_404_PAGE = 60  # seconds
+
     def get(self, request, proxito_path, template_name='404.html'):
         """
         Handler for 404 pages on subdomains.
@@ -280,7 +282,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # TODO: decide if we need to check for infinite redirect here
                 # (from URL == to URL)
                 response = HttpResponseRedirect(redirect_url)
-                cache.set(f'dirhtml_404+{proxito_path}', response, 60)
+                cache.set(f'dirhtml_404+{proxito_path}', response, self.CACHE_404_PAGE)
                 return response
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
@@ -310,7 +312,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         if redirect_path and http_status:
             try:
                 redirect_response = self.get_redirect_response(request, redirect_path, proxito_path, http_status)
-                cache.set(f'user_redirect_on_404+{proxito_path}', redirect_response, 60)
+                cache.set(f'user_redirect_on_404+{proxito_path}', redirect_response, self.CACHE_404_PAGE)
                 return redirect_response
             except InfiniteRedirectException:
                 # Continue with our normal 404 handling in this case
@@ -336,10 +338,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(storage.open(storage_filename_path).read())
                     resp.status_code = 404
-                    cache.set(f'custom_404_{final_project.slug}+{version_slug}', resp, 60)
+                    cache.set(f'custom_404_{final_project.slug}+{version_slug}', resp, self.CACHE_404_PAGE)
                     return resp
 
-        cache.set(f'default_404_{final_project.slug}+{version_slug}', True, 60)
+        cache.set(f'default_404_{final_project.slug}+{version_slug}', True, self.CACHE_404_PAGE)
         raise Http404('No custom 404 page found.')
 
 
