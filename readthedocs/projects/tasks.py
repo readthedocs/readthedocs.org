@@ -33,6 +33,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_UPLOADING,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
     LATEST,
@@ -707,6 +708,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 if build_id:
                     # Store build artifacts to storage (local or cloud storage)
                     self.store_build_artifacts(
+                        self.build_env,
                         html=bool(outcomes['html']),
                         search=bool(outcomes['search']),
                         localmedia=bool(outcomes['localmedia']),
@@ -895,6 +897,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def store_build_artifacts(
             self,
+            environment,
             html=False,
             localmedia=False,
             search=False,
@@ -949,6 +952,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             )
             return
 
+        environment.update_build(BUILD_STATE_UPLOADING)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
