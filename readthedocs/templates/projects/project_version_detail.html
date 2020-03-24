@@ -1,5 +1,6 @@
 {% extends "projects/base_project.html" %}
 
+{% load crispy_forms_tags %}
 {% load i18n %}
 {% load privacy_tags %}
 
@@ -32,14 +33,6 @@
       {% endif %}
     {% endif %}
 
+    {% crispy form %}
 
-    <form method="post" action=".">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <p>
-        <input style="display: inline;" type="submit" value="{% trans "Save" %}">
-        {% trans "or" %}
-        <a href="{% url "wipe_version" version.project.slug version.slug %}">{% trans "wipe "%}</a>
-      </p>
-    </form>
 {% endblock %}
