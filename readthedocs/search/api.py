@@ -175,9 +175,8 @@ class PageSearchAPIView(generics.ListAPIView):
         for project in subprojects:
             version = (
                 Version.internal
-                .public(user=self.request.user, project=project)
+                .public(user=self.request.user, project=project, include_hidden=False)
                 .filter(slug=main_version.slug)
-                .filter(hidden=False)
                 .first()
             )
             if version:
