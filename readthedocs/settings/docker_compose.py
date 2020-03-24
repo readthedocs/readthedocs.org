@@ -97,6 +97,8 @@ class DockerBaseSettings(CommunityDevSettings):
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ALWAYS_EAGER = False
     CELERY_TASK_IGNORE_RESULT = False
+    # Allow us to reload celery task modules remotely
+    CELERYD_POOL_RESTARTS = True
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
