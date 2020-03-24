@@ -33,6 +33,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
+    BUILD_STATE_UPLOADING,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
     LATEST,
@@ -119,17 +120,9 @@ class CachedEnvironmentMixin:
                     'msg': msg,
                 }
             )
-            _, tmp_filename = tempfile.mkstemp(suffix='.tar')
             remote_fd = storage.open(filename, mode='rb')
-            with open(tmp_filename, mode='wb') as local_fd:
-                local_fd.write(remote_fd.read())
-
-            with tarfile.open(tmp_filename) as tar:
-                tar.extractall(self.version.project.doc_path)
-
-            # Cleanup the temporary file
-            if os.path.exists(tmp_filename):
-                os.remove(tmp_filename)
+            with tarfile.open(fileobj=remote_fd) as tar:
+                tar.extractall(self.project.doc_path)
 
     def push_cached_environment(self):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
@@ -157,7 +150,8 @@ class CachedEnvironmentMixin:
 
             # Special handling for .cache directory because it's per-project
             path = os.path.join(project_path, '.cache')
-            tar.add(path, arcname='.cache')
+            if os.path.exists(path):
+                tar.add(path, arcname='.cache')
 
         storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
         with open(tmp_filename, 'rb') as fd:
@@ -473,6 +467,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         if config is not None:
             self.config = config
         self.task = task
+        self.build_start_time = None
         # TODO: remove this
         self.setup_env = None
 
@@ -577,6 +572,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             update_on_success=False,
             environment=self.get_rtd_env_vars(),
         )
+        self.build_start_time = environment.start_time
 
         # TODO: Remove.
         # There is code that still depends of this attribute
@@ -667,6 +663,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             environment=env_vars,
+
+            # Pass ``start_time`` here to not reset the timer
+            start_time=self.build_start_time,
         )
 
         # Environment used for building code, usually with Docker
@@ -709,6 +708,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 if build_id:
                     # Store build artifacts to storage (local or cloud storage)
                     self.store_build_artifacts(
+                        self.build_env,
                         html=bool(outcomes['html']),
                         search=bool(outcomes['search']),
                         localmedia=bool(outcomes['localmedia']),
@@ -897,6 +897,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def store_build_artifacts(
             self,
+            environment,
             html=False,
             localmedia=False,
             search=False,
@@ -951,6 +952,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             )
             return
 
+        environment.update_build(BUILD_STATE_UPLOADING)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,

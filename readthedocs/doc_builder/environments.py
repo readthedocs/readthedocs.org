@@ -548,6 +548,7 @@ class BuildEnvironment(BaseEnvironment):
             record=True,
             environment=None,
             update_on_success=True,
+            start_time=None,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -557,7 +558,7 @@ class BuildEnvironment(BaseEnvironment):
         self.update_on_success = update_on_success
 
         self.failure = None
-        self.start_time = datetime.utcnow()
+        self.start_time = start_time or datetime.utcnow()
 
     def __enter__(self):
         return self
