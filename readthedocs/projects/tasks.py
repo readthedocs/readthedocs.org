@@ -34,6 +34,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
     BUILD_STATE_PULLING_CACHE,
+    BUILD_STATE_PUSHING_CACHE,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
     LATEST,
@@ -134,9 +135,11 @@ class CachedEnvironmentMixin:
             if os.path.exists(tmp_filename):
                 os.remove(tmp_filename)
 
-    def push_cached_environment(self):
+    def push_cached_environment(self, environment):
         if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
             return
+
+        environment.update_build(state=BUILD_STATE_PUSHING_CACHE)
 
         project_path = self.project.doc_path
         directories = [
@@ -673,6 +676,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             build=self.build,
             record=record,
             environment=env_vars,
+            update_on_success=False,
 
             # Pass ``start_time`` here to not reset the timer
             start_time=self.build_start_time,
@@ -756,7 +760,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.send_notifications(self.version.pk, self.build['id'], email=False)
 
             # Push cached environment on success for next build
-            self.push_cached_environment()
+            self.push_cached_environment(self.build_env)
 
             if self.commit:
                 send_external_build_status(
@@ -783,6 +787,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     }
                 )
 
+        self.build_env.update_build(BUILD_STATE_FINISHED, force=True)
         build_complete.send(sender=Build, build=self.build_env.build)
 
     @staticmethod

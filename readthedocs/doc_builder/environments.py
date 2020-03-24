@@ -662,7 +662,7 @@ class BuildEnvironment(BaseEnvironment):
             self.build['state'] == BUILD_STATE_FINISHED
         )
 
-    def update_build(self, state=None):
+    def update_build(self, state=None, force=False):
         """
         Record a build by hitting the API.
 
@@ -747,6 +747,8 @@ class BuildEnvironment(BaseEnvironment):
             or (self.done and not self.successful)
             # Otherwise, are we explicitly to not update?
             or self.update_on_success
+            # Explicit force the update
+            or force
         )
         if update_build:
             try:
