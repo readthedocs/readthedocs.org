@@ -438,6 +438,23 @@ class Conda(PythonEnvironment):
     def venv_path(self):
         return os.path.join(self.project.doc_path, 'conda', self.version.slug)
 
+    def conda_bin_name(self):
+        """
+        Decide whether use ``mamba`` or ``conda`` to create the environment.
+
+        Return ``mamba`` if the project has ``CONDA_USES_MAMBA`` feature and
+        ``conda`` otherwise. This will be the executable name to be used when
+        creating the conda environment.
+
+        ``mamba`` is really fast to solve dependencies and download channel
+        metadata on startup.
+
+        See https://github.com/QuantStack/mamba
+        """
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            return 'mamba'
+        return 'conda'
+
     def _update_conda_startup(self):
         """
         Update ``conda`` before use it for the first time.
@@ -446,13 +463,25 @@ class Conda(PythonEnvironment):
         independently the version of Miniconda that it has installed.
         """
         self.build_env.run(
-            'conda',
+            self.conda_bin_name(),
             'update',
             '--yes',
             '--quiet',
             '--name=base',
             '--channel=defaults',
             'conda',
+            cwd=self.checkout_path,
+        )
+
+    def _install_mamba(self):
+        self.build_env.run(
+            'conda',
+            'install',
+            '--yes',
+            '--quiet',
+            '--name=base',
+            '--channel=conda-forge',
+            'mamba',
             cwd=self.checkout_path,
         )
 
@@ -479,8 +508,11 @@ class Conda(PythonEnvironment):
             self._append_core_requirements()
             self._show_environment_yaml()
 
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            self._install_mamba()
+
         self.build_env.run(
-            'conda',
+            self.conda_bin_name(),
             'env',
             'create',
             '--quiet',
@@ -566,6 +598,9 @@ class Conda(PythonEnvironment):
             'pillow',
         ]
 
+        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
+            conda_requirements.append('pip')
+
         # Install pip-only things.
         pip_requirements = [
             'recommonmark',
@@ -592,7 +627,7 @@ class Conda(PythonEnvironment):
         # Install requirements via ``conda install`` command if they were
         # not appended to the ``environment.yml`` file.
         cmd = [
-            'conda',
+            self.conda_bin_name(),
             'install',
             '--yes',
             '--quiet',
