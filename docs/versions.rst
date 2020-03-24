@@ -81,15 +81,15 @@ When you inactivate a version, its docs are removed.
 Hidden
 ~~~~~~
 
-- **Not hidden**
+- **Not hidden and Active**
 
-  - This version is listed on the footer
-  - This version is shown in search results
+  - This version is listed on the version (flyout) menu on the docs site
+  - This version is shown in search results on the docs site
 
-- **Hidden**
+- **Hidden and Active**
 
-  - This version isn't listed on the footer
-  - This version isn't show in search results from another version
+  - This version isn't listed on the version (flyout) menu on the docs site
+  - This version isn't show in search results from another version on the docs site
     (like on search results from a superproject)
 
 Hiding a version is useful when you no longer support a version,
