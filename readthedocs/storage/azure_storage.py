@@ -38,6 +38,11 @@ class AzureBuildStorage(AzureStorage):
     azure_container = getattr(settings, 'AZURE_BUILD_STORAGE_CONTAINER', None) or 'builds'
 
 
+class AzureBuildEnvironmentStorage(BuildMediaStorageMixin, AzureStorage):
+
+    azure_container = getattr(settings, 'AZURE_BUILD_ENVIRONMENT_STORAGE_CONTAINER', None) or 'envs'
+
+
 class AzureStaticStorage(OverrideHostnameMixin, ManifestFilesMixin, AzureStorage):
 
     """

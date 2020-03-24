@@ -1,3 +1,36 @@
+Version 4.1.1
+-------------
+
+:Date: March 24, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@humitos <https://github.com/humitos>`__: Show uploading state (`#6816 <https://github.com/readthedocs/readthedocs.org/pull/6816>`__)
+* `@stsewd <https://github.com/stsewd>`__: Respect order when serving 404 (version -> default_version) (`#6805 <https://github.com/readthedocs/readthedocs.org/pull/6805>`__)
+* `@humitos <https://github.com/humitos>`__: Use storage.open API correctly for tar files (build cached envs) (`#6799 <https://github.com/readthedocs/readthedocs.org/pull/6799>`__)
+* `@humitos <https://github.com/humitos>`__: Check 404 page once when slug and default_version is the same (`#6796 <https://github.com/readthedocs/readthedocs.org/pull/6796>`__)
+* `@humitos <https://github.com/humitos>`__: Do not reset the build start time when running build env (`#6794 <https://github.com/readthedocs/readthedocs.org/pull/6794>`__)
+* `@humitos <https://github.com/humitos>`__: Skip .cache directory for cached builds if it does not exist (`#6791 <https://github.com/readthedocs/readthedocs.org/pull/6791>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove GET args from the path passed via proxito header (`#6790 <https://github.com/readthedocs/readthedocs.org/pull/6790>`__)
+* `@stsewd <https://github.com/stsewd>`__: Check for /index on pages' slug (`#6789 <https://github.com/readthedocs/readthedocs.org/pull/6789>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.0 (`#6788 <https://github.com/readthedocs/readthedocs.org/pull/6788>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Add feature flag to just completely skip sync and symlink operations (#6689)" (`#6781 <https://github.com/readthedocs/readthedocs.org/pull/6781>`__)
+
+Version 4.1.0
+-------------
+
+:Date: March 17, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Properly proxy the Proxito headers via nginx/sendfile (`#6782 <https://github.com/readthedocs/readthedocs.org/pull/6782>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Add feature flag to just completely skip sync and symlink operations (#6689)" (`#6781 <https://github.com/readthedocs/readthedocs.org/pull/6781>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade django-storages to support URLs with more http methods (`#6771 <https://github.com/readthedocs/readthedocs.org/pull/6771>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use the hotfixed version of django-messages-extends (`#6767 <https://github.com/readthedocs/readthedocs.org/pull/6767>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.0.3 (`#6766 <https://github.com/readthedocs/readthedocs.org/pull/6766>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document usage or pytest marks (`#6764 <https://github.com/readthedocs/readthedocs.org/pull/6764>`__)
+* `@humitos <https://github.com/humitos>`__: Pull/Push cached environment using storage (`#6763 <https://github.com/readthedocs/readthedocs.org/pull/6763>`__)
+* `@stsewd <https://github.com/stsewd>`__: Refactor search view to make use of permission_classes (`#6761 <https://github.com/readthedocs/readthedocs.org/pull/6761>`__)
+* `@stsewd <https://github.com/stsewd>`__: Run proxito tests with proxito (`#6714 <https://github.com/readthedocs/readthedocs.org/pull/6714>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxy footer api on docs' domains (`#6630 <https://github.com/readthedocs/readthedocs.org/pull/6630>`__)
+
 Version 4.0.3
 -------------
 
