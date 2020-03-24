@@ -4,6 +4,7 @@ import re
 import textwrap
 
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.constants import (
@@ -23,6 +24,12 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
     class Meta:
         model = Version
         fields = ['active', 'privacy_level']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not settings.RTD_ALLOW_PRIVATE_PROJECTS:
+            self.fields.pop('privacy_level')
 
     def clean_active(self):
         active = self.cleaned_data['active']
