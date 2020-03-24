@@ -61,7 +61,8 @@ but could also point to your latest released version.
 States
 ------
 
-You can change the states from a version from the :guilabel:`Versions` tab of your project.
+States define the visibility of a version across the site.
+You can change the states of a version from the :guilabel:`Versions` tab of your project.
 
 Active
 ~~~~~~
@@ -76,7 +77,7 @@ Active
   - Docs for this version aren't visible
   - Builds can't be triggered for this version
 
-When you inactivate a version, its docs are removed.
+When you deactivate a version, its docs are removed.
 
 Hidden
 ~~~~~~
@@ -92,8 +93,12 @@ Hidden
   - This version isn't show in search results from another version on the docs site
     (like on search results from a superproject)
 
-Hiding a version is useful when you no longer support a version,
-but you don't want to remove its docs.
+Hiding a version doesn't make it private,
+any user with a link to its docs would be able to see it.
+This is useful when:
+
+- You no longer support a version, but you don't want to remove its docs.
+- You have a work in progress version and don't want to show its docs just yet. 
 
 Version warning
 ---------------

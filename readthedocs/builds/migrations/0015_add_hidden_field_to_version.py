@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='version',
             name='hidden',
-            field=models.BooleanField(default=False, help_text='Hide this version from the footer and search results?', verbose_name='Hidden'),
+            field=models.BooleanField(default=False, help_text='Hide this version from the version (flyout) menu and search results?', verbose_name='Hidden'),
         ),
     ]

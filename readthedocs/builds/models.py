@@ -139,7 +139,7 @@ class Version(models.Model):
     hidden = models.BooleanField(
         _('Hidden'),
         default=False,
-        help_text=_('Hide this version from the footer and search results?')
+        help_text=_('Hide this version from the version (flyout) menu and search results?')
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
