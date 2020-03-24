@@ -84,7 +84,7 @@ Hidden
 - **Not hidden**
 
   - This version is listed on the footer
-  - This version is show in search results
+  - This version is shown in search results
 
 - **Hidden**
 
@@ -92,7 +92,7 @@ Hidden
   - This version isn't show in search results from another version
     (like on search results from a superproject)
 
-Hidden a version is useful when you no longer support a version,
+Hiding a version is useful when you no longer support a version,
 but you don't want to remove its docs.
 
 Version warning
