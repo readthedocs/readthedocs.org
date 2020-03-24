@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0014_migrate-doctype-from-project-to-version'),
+        ('builds', '0015_uploading_build_state'),
     ]
 
     operations = [

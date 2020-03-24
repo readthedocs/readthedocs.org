@@ -12,7 +12,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0015_add_hidden_field_to_version'),
+        ('builds', '0016_add_hidden_field_to_version'),
     ]
 
     operations = [
