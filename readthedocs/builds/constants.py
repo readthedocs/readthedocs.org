@@ -9,6 +9,7 @@ BUILD_STATE_PULLING_CACHE = 'pulling-cache'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_UPLOADING = 'uploading'
 BUILD_STATE_PUSHING_CACHE = 'pushing-cache'
 BUILD_STATE_FINISHED = 'finished'
 
@@ -18,6 +19,7 @@ BUILD_STATE = (
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_UPLOADING, _('Uploading')),
     (BUILD_STATE_PUSHING_CACHE, _('Pushing cache')),
     (BUILD_STATE_FINISHED, _('Finished')),
 )

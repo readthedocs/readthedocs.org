@@ -35,6 +35,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_INSTALLING,
     BUILD_STATE_PULLING_CACHE,
     BUILD_STATE_PUSHING_CACHE,
+    BUILD_STATE_UPLOADING,
     BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
     LATEST,
@@ -719,6 +720,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         localmedia=bool(outcomes['localmedia']),
                         pdf=bool(outcomes['pdf']),
                         epub=bool(outcomes['epub']),
+                        environment=self.build_env,
                     )
 
                     # Finalize build and update web servers
@@ -957,6 +959,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             )
             return
 
+        environment.update_build(BUILD_STATE_UPLOADING)
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
