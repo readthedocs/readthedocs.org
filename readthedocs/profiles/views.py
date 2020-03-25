@@ -14,7 +14,7 @@ from vanilla import (
     DetailView,
     FormView,
     ListView,
-    UpdateView
+    UpdateView,
 )
 
 from readthedocs.core.forms import (
@@ -24,6 +24,7 @@ from readthedocs.core.forms import (
 )
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
+from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 class ProfileEdit(PrivateViewMixin, UpdateView):
@@ -67,7 +68,7 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         return reverse('homepage')
 
 
-class ProfileDetail(DetailView):
+class BaseProfileDetail(DetailView):
 
     model = User
     template_name = 'profiles/public/profile_detail.html'
@@ -77,6 +78,11 @@ class ProfileDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context['profile'] = self.get_object().profile
         return context
+
+
+class ProfileDetail(SettingsOverrideObject):
+
+    _default_class = BaseProfileDetail
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
