@@ -566,7 +566,11 @@ class Project(models.Model):
         # accessed from Web instance
 
         main_project = self.main_language_project or self
-        if main_project.is_subproject:
+        if not settings.USE_SUBDOMAIN:
+            # example.com/media/pdf/<project>/<ver>/<filename>
+            storage_path = self.get_storage_path(type_=type_, version_slug=version_slug, include_file=True)  # noqa
+            path = f'//{domain}{settings.MEDIA_URL}{storage_path}'
+        elif main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
