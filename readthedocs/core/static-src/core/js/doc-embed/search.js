@@ -81,7 +81,7 @@ function attach_elastic_search_query(data) {
                         // Since sphinx 2.2.1 FILE_SUFFIX is .html for all builders,
                         // and there is a new BUILDER option.
                         if ('BUILDER' in DOCUMENTATION_OPTIONS && DOCUMENTATION_OPTIONS.BUILDER === 'readthedocsdirhtml') {
-                          var suffix = '';
+                          suffix = '';
                         }
                         var link = doc.link + suffix;
 
