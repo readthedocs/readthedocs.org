@@ -1104,11 +1104,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 epub=epub,
                 delete_unsynced_media=delete_unsynced_media,
             ),
-            callback=sync_callback.s(
-                version_pk=self.version.pk,
-                commit=self.build['commit'],
-                build=self.build['id'],
-            ),
+        )
+
+        # All the JSON files are uploaded to storage prior to syncing
+        # so we should be fine to index the files without waiting
+        sync_callback.delay(
+            version_pk=self.version.pk,
+            commit=self.build['commit'],
+            build=self.build['id'],
         )
 
     def setup_python_environment(self):
