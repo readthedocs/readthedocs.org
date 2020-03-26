@@ -67,6 +67,7 @@ class BuildAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'pretty_config',  # required to be read-only because it's a @property
+        'builder',
     )
     list_display = (
         'id',
