@@ -68,7 +68,7 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         return reverse('homepage')
 
 
-class BaseProfileDetail(DetailView):
+class ProfileDetailBase(DetailView):
 
     model = User
     template_name = 'profiles/public/profile_detail.html'
@@ -82,7 +82,7 @@ class BaseProfileDetail(DetailView):
 
 class ProfileDetail(SettingsOverrideObject):
 
-    _default_class = BaseProfileDetail
+    _default_class = ProfileDetailBase
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):
