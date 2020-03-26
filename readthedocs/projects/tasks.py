@@ -716,6 +716,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         epub=bool(outcomes['epub']),
                     )
 
+                    # All the JSON files are uploaded to storage prior to syncing
+                    # so we should be fine to index the files without waiting
+                    sync_callback.delay(
+                        version_pk=self.version.pk,
+                        commit=self.build['commit'],
+                        build=self.build['id'],
+                    )
+
                     # Finalize build and update web servers
                     # We upload EXTERNAL version media files to blob storage
                     # We should have this check here to make sure
@@ -1106,13 +1114,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             ),
         )
 
-        # All the JSON files are uploaded to storage prior to syncing
-        # so we should be fine to index the files without waiting
-        sync_callback.delay(
-            version_pk=self.version.pk,
-            commit=self.build['commit'],
-            build=self.build['id'],
-        )
 
     def setup_python_environment(self):
         """
@@ -2063,7 +2064,7 @@ def clean_project_resources(project, version=None):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, build, *args, **kwargs):
+def sync_callback(version_pk, commit, build, *args, **kwargs):
     """
     Called once the sync_files tasks are done.
 
