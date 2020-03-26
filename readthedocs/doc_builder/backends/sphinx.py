@@ -143,6 +143,14 @@ class BaseSphinx(BaseBuilder):
                     self.project.slug, self.version.slug,
                 )
 
+        if settings.USE_SUBDOMAIN:
+            version_urls = [
+                (v.slug, f"/{v.project.language}/{v.slug}/")
+                for v in versions
+            ]
+        else:
+            version_urls = [(v.slug, v.get_absolute_url()) for v in versions]
+
         build_id = self.build_env.build.get('id')
         build_url = None
         if build_id:
@@ -170,7 +178,7 @@ class BaseSphinx(BaseBuilder):
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
-            'versions': versions,
+            'versions': version_urls,
             'downloads': downloads,
             'subproject_urls': subproject_urls,
             'build_url': build_url,
