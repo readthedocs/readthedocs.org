@@ -1106,7 +1106,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             ),
         )
 
-        # Mostly used for search indexing
+        # All the JSON files are uploaded to storage prior to syncing
+        # so we should be fine to index the files without waiting
         sync_callback.delay(
             version_pk=self.version.pk,
             commit=self.build['commit'],
