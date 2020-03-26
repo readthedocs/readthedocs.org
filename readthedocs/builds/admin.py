@@ -77,6 +77,7 @@ class BuildAdmin(admin.ModelAdmin):
         'type',
         'state',
         'date',
+        'builder',
         'length'
     )
     list_filter = ('type', 'state', 'success')
