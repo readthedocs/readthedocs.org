@@ -1087,29 +1087,37 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
-        broadcast(
-            type='app',
-            task=sync_files,
-            args=[
-                self.project.pk,
-                self.version.pk,
-                self.config.doctype,
-            ],
-            kwargs=dict(
-                hostname=hostname,
-                html=html,
-                localmedia=localmedia,
-                search=search,
-                pdf=pdf,
-                epub=epub,
-                delete_unsynced_media=delete_unsynced_media,
-            ),
-            callback=sync_callback.s(
+        if not settings.MULTIPLE_APP_SERVERS:
+            sync_callback.delay(
                 version_pk=self.version.pk,
                 commit=self.build['commit'],
                 build=self.build['id'],
-            ),
-        )
+            )
+
+        else:
+            broadcast(
+                type='app',
+                task=sync_files,
+                args=[
+                    self.project.pk,
+                    self.version.pk,
+                    self.config.doctype,
+                ],
+                kwargs=dict(
+                    hostname=hostname,
+                    html=html,
+                    localmedia=localmedia,
+                    search=search,
+                    pdf=pdf,
+                    epub=epub,
+                    delete_unsynced_media=delete_unsynced_media,
+                ),
+                callback=sync_callback.s(
+                    version_pk=self.version.pk,
+                    commit=self.build['commit'],
+                    build=self.build['id'],
+                ),
+            )
 
     def setup_python_environment(self):
         """
