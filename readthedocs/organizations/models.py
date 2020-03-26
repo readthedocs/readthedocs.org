@@ -93,7 +93,7 @@ class Organization(models.Model):
 
     @property
     def users(self):
-        return self.members.all() | self.owners.all()
+        return (self.members.all() | self.owners.all().distinct()).distinct()
 
     @property
     def members(self):
