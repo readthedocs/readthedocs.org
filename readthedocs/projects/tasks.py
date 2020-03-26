@@ -2063,12 +2063,8 @@ def clean_project_resources(project, version=None):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, build, *args, **kwargs):
-    """
-    Called once the sync_files tasks are done.
-
-    The first argument is the result from previous tasks, which we discard.
-    """
+def sync_callback(version_pk, commit, build, *args, **kwargs):
+    """Called once the sync_files tasks are done."""
     try:
         fileify(version_pk, commit=commit, build=build)
     except Exception:
