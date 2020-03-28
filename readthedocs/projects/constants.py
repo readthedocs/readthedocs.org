@@ -227,6 +227,7 @@ LANGUAGES = (
     ('so', 'Somali'),
     ('sq', 'Albanian'),
     ('sr', 'Serbian'),
+    ('sr_RS', 'Cyrillic Serbian'),
     ('ss', 'Swati'),
     ('st', 'Southern Sotho'),
     ('su', 'Sudanese'),
