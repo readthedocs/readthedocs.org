@@ -1104,11 +1104,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 epub=epub,
                 delete_unsynced_media=delete_unsynced_media,
             ),
-            callback=sync_callback.s(
-                version_pk=self.version.pk,
-                commit=self.build['commit'],
-                build=self.build['id'],
-            ),
+        )
+
+        # All the JSON files are uploaded to storage prior to syncing
+        # so we should be fine to index the files without waiting
+        sync_callback.delay(
+            version_pk=self.version.pk,
+            commit=self.build['commit'],
+            build=self.build['id'],
         )
 
     def setup_python_environment(self):
@@ -2060,12 +2063,8 @@ def clean_project_resources(project, version=None):
 
 
 @app.task(queue='web')
-def sync_callback(_, version_pk, commit, build, *args, **kwargs):
-    """
-    Called once the sync_files tasks are done.
-
-    The first argument is the result from previous tasks, which we discard.
-    """
+def sync_callback(version_pk, commit, build, *args, **kwargs):
+    """Called once the sync_files tasks are done."""
     try:
         fileify(version_pk, commit=commit, build=build)
     except Exception:
