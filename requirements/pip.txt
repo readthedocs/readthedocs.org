@@ -80,7 +80,7 @@ regex==2020.2.20
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
 
 django-formtools==2.2
-django-crispy-forms==1.8.0
+django-crispy-forms==1.9.0
 
 docker==4.1.0
 
