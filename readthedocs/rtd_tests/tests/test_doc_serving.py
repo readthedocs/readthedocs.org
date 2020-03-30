@@ -1,14 +1,14 @@
 import os
 
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from mock import mock_open, patch
+from unittest.mock import mock_open, patch
 
 from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version

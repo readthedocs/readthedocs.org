@@ -12,13 +12,13 @@ import re
 import tempfile
 import uuid
 
-import mock
+from unittest import mock
 import pytest
 from django.test import TestCase
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
-from mock import Mock, PropertyMock, mock_open, patch
+from unittest.mock import Mock, PropertyMock, mock_open, patch
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version
@@ -45,7 +45,7 @@ SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 class TestLocalBuildEnvironment(TestCase):
 
     """Test execution and exception handling in environment."""
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -363,7 +363,7 @@ class TestDockerBuildEnvironment(TestCase):
 
     """Test docker build environment."""
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -1448,7 +1448,7 @@ class TestPythonEnvironment(TestCase):
 
 
 class AutoWipeEnvironmentBase:
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
     build_env_class = None
 
     def setUp(self):

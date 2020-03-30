@@ -47,6 +47,7 @@ These guides will help you customize or tune aspects of Read the Docs.
     specifying-dependencies
     wipe-environment
 
+
 Read the Docs for Business how-to guides
 ----------------------------------------
 
@@ -56,3 +57,4 @@ These guides are specific to :doc:`/commercial/index`.
    :maxdepth: 1
 
    private-python-packages
+   private-submodules

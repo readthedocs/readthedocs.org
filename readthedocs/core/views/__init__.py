@@ -45,21 +45,6 @@ class HomepageView(TemplateView):
         return context
 
 
-class SupportView(TemplateView):
-    template_name = 'support.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        support_email = settings.SUPPORT_EMAIL
-        if not support_email:
-            support_email = 'support@{domain}'.format(
-                domain=settings.PRODUCTION_DOMAIN
-            )
-
-        context['support_email'] = support_email
-        return context
-
-
 def wipe_version(request, project_slug, version_slug):
     version = get_object_or_404(
         Version.internal.all(),

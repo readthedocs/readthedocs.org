@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 import pytest
 from django_dynamic_fixture import get
 

@@ -436,7 +436,7 @@ Version update
 
             $ curl \
               -X PATCH \
-              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/version/0.23/ \
+              -H "Authorization: Token <token>" https://readthedocs.org/api/v3/projects/pip/versions/0.23/ \
               -H "Content-Type: application/json" \
               -d @body.json
 
@@ -444,7 +444,7 @@ Version update
 
             import requests
             import json
-            URL = 'https://readthedocs.org/api/v3/projects/pip/ersion/0.23/'
+            URL = 'https://readthedocs.org/api/v3/projects/pip/versions/0.23/'
             TOKEN = '<token>'
             HEADERS = {'Authorization': f'token {TOKEN}'}
             data = json.load(open('body.json', 'rb'))

@@ -67,11 +67,13 @@ class ProjectRelationship(models.Model):
         'Project',
         verbose_name=_('Parent'),
         related_name='subprojects',
+        on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
         'Project',
         verbose_name=_('Child'),
         related_name='superprojects',
+        on_delete=models.CASCADE,
     )
     alias = models.SlugField(
         _('Alias'),
@@ -404,11 +406,6 @@ class Project(models.Model):
 
     class Meta:
         ordering = ('slug',)
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            # project
-            ('view_project', _('View Project')),
-        )
 
     def __str__(self):
         return self.name
@@ -1281,12 +1278,14 @@ class ImportedFile(models.Model):
         'Project',
         verbose_name=_('Project'),
         related_name='imported_files',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         'builds.Version',
         verbose_name=_('Version'),
         related_name='imported_files',
         null=True,
+        on_delete=models.CASCADE,
     )
     name = models.CharField(_('Name'), max_length=255)
     slug = models.SlugField(_('Slug'))
@@ -1376,7 +1375,11 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(models.Model):
-    project = models.ForeignKey(Project, related_name='%(class)s_notifications')
+    project = models.ForeignKey(
+        Project,
+        related_name='%(class)s_notifications',
+        on_delete=models.CASCADE,
+    )
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
@@ -1405,7 +1408,11 @@ class Domain(models.Model):
 
     """A custom domain name for a project."""
 
-    project = models.ForeignKey(Project, related_name='domains')
+    project = models.ForeignKey(
+        Project,
+        related_name='domains',
+        on_delete=models.CASCADE,
+    )
     domain = models.CharField(
         _('Domain'),
         unique=True,
@@ -1505,6 +1512,9 @@ class Feature(models.Model):
     UPDATE_CONDA_STARTUP = 'update_conda_startup'
     CONDA_APPEND_CORE_REQUIREMENTS = 'conda_append_core_requirements'
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
+    SKIP_SYNC_TAGS = 'skip_sync_tags'
+    SKIP_SYNC_BRANCHES = 'skip_sync_branches'
+    CACHED_ENVIRONMENT = 'cached_environment'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1562,6 +1572,18 @@ class Feature(models.Model):
                 'Pass all versions (including private) into the html context '
                 'when building with Sphinx'
             ),
+        ),
+        (
+            SKIP_SYNC_BRANCHES,
+            _('Skip syncing branches'),
+        ),
+        (
+            SKIP_SYNC_TAGS,
+            _('Skip syncing tags'),
+        ),
+        (
+            CACHED_ENVIRONMENT,
+            _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
         ),
     )
 

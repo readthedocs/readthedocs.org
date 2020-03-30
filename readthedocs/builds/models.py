@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -92,6 +93,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -160,11 +162,6 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            #              version
-            ('view_version', _('View Version')),
-        )
 
     def __str__(self):
         return ugettext(
@@ -451,6 +448,11 @@ class Version(models.Model):
 
         return paths
 
+    def get_storage_environment_cache_path(self):
+        """Return the path of the cached environment tar file."""
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        return storage.join(self.project.slug, f'{self.slug}.tar')
+
     def clean_build_path(self):
         """
         Clean build path for project version.
@@ -629,12 +631,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -924,6 +928,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))

@@ -21,6 +21,7 @@ class UserProfile(models.Model):
         'auth.User',
         verbose_name=_('User'),
         related_name='profile',
+        on_delete=models.CASCADE,
     )
     whitelisted = models.BooleanField(_('Whitelisted'), default=False)
     banned = models.BooleanField(_('Banned'), default=False)
