@@ -1,9 +1,9 @@
 # Copied from .org
 
 import os
+from unittest import mock
 
 import django_dynamic_fixture as fixture
-from unittest import mock
 from django.conf import settings
 from django.http import HttpResponse
 from django.test.utils import override_settings
@@ -232,6 +232,16 @@ class TestAdditionalDocViews(BaseDocServing):
             b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
         )
 
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_default_robots_txt_private_version(self, storage_mock):
+        storage_mock()().exists.return_value = False
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_custom_robots_txt(self):
         self.project.versions.update(active=True, built=True)
         response = self.client.get(
@@ -241,6 +251,14 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(
             response['x-accel-redirect'], '/proxito/media/html/project/latest/robots.txt',
         )
+
+    def test_custom_robots_txt_private_version(self):
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_directory_indexes(self):
         self.project.versions.update(active=True, built=True)
@@ -303,6 +321,14 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_404_storage_serves_404(self, storage_mock):
         self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+        )
 
         storage_mock()().exists.side_effect = [False, False, True]
         response = self.client.get(
@@ -323,6 +349,15 @@ class TestAdditionalDocViews(BaseDocServing):
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_404_storage_paths_checked(self, storage_mock):
         self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+        )
+
         storage_mock()().exists.return_value = False
         self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
@@ -466,3 +501,11 @@ class TestAdditionalDocViews(BaseDocServing):
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')
+
+    def test_sitemap_all_private_versions(self):
+        self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
+        response = self.client.get(
+            reverse('sitemap_xml'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
