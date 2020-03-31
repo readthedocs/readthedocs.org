@@ -14,18 +14,16 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
-from .mixins import ServeDocsMixin, ServeRedirectMixin
-
 from .decorators import map_project_slug
+from .mixins import ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
-
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -266,14 +264,17 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         if default_version_slug != version_slug:
             versions.append(default_version_slug)
         for version_slug_404 in versions:
+            if not self.allowed_user(request, final_project, version_slug_404):
+                continue
+
+            storage_root_path = final_project.get_storage_path(
+                type_='html',
+                version_slug=version_slug_404,
+                include_file=False,
+                version_type=self.version_type,
+            )
             for tryfile in ('404.html', '404/index.html'):
-                storage_root_path = final_project.get_storage_path(
-                    type_='html',
-                    version_slug=version_slug_404,
-                    include_file=False,
-                    version_type=self.version_type,
-                )
-                storage_filename_path = os.path.join(storage_root_path, tryfile)
+                storage_filename_path = f'{storage_root_path}/{tryfile}'
                 if storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
@@ -307,9 +308,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         version = project.versions.get(slug=version_slug)
 
         no_serve_robots_txt = any([
-            # If project is private or,
-            project.privacy_level == constants.PRIVATE,
-            # default version is private or,
+            # If the default version is private or,
             version.privacy_level == constants.PRIVATE,
             # default version is not active or,
             not version.active,
@@ -327,7 +326,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             include_file=False,
             version_type=self.version_type,
         )
-        path = os.path.join(storage_path, 'robots.txt')
+        path = f'{storage_path}/robots.txt'
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         if storage.exists(path):
@@ -369,9 +368,7 @@ class ServeSitemapXMLBase(View):
         frequency. Starting from 1 and decreasing by 0.1 for priorities and starting
         from daily, weekly to monthly for change frequency.
 
-        If the project is private, the view raises ``Http404``. On the other hand,
-        if the project is public but a version is private, this one is not included
-        in the sitemap.
+        If the project doesn't have any public version, the view raises ``Http404``.
 
         :param request: Django request object
         :param project: Project instance to generate the sitemap
@@ -417,15 +414,14 @@ class ServeSitemapXMLBase(View):
             changefreqs = ['weekly', 'daily']
             yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
-        if project.privacy_level == constants.PRIVATE:
+        public_versions = Version.internal.public(
+            project=project,
+            only_active=True,
+        )
+        if not public_versions.exists():
             raise Http404
 
-        sorted_versions = sort_version_aware(
-            Version.internal.public(
-                project=project,
-                only_active=True,
-            ),
-        )
+        sorted_versions = sort_version_aware(public_versions)
 
         # This is a hack to swap the latest version with
         # stable version to get the stable version first in the sitemap.
