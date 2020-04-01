@@ -2,7 +2,6 @@
 
 import itertools
 import logging
-import os
 from urllib.parse import urlparse
 
 from django.conf import settings
