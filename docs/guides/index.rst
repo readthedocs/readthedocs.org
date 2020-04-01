@@ -46,3 +46,14 @@ These guides will help you customize or tune aspects of Read the Docs.
     sitemaps
     specifying-dependencies
     wipe-environment
+
+
+Read the Docs for Business how-to guides
+----------------------------------------
+
+These guides are specific to :doc:`/commercial/index`.
+
+.. toctree::
+   :maxdepth: 1
+
+   private-submodules

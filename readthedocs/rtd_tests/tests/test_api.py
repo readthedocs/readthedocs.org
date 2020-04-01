@@ -2,7 +2,7 @@ import base64
 import datetime
 import json
 
-import mock
+from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict

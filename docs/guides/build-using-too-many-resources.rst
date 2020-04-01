@@ -41,17 +41,14 @@ when using multiple channels.
    That is, to build the documentation is probably that you need fewer Python packages than to use your library itself.
    So, in this case, you could use ``pip`` to install those fewer packages instead of creating a big environment with ``conda``.
 
+Document Python modules API statically
+--------------------------------------
 
-Use system site-packages for pre-installed libs
------------------------------------------------
+If you are installing a lot of Python dependencies just to document your Python modules API using ``sphinx.ext.autodoc``,
+you can give a try to `sphinx-autoapi`_ Sphinx's extension instead which should produce the exact same output but running statically.
+This could drastically reduce the memory and bandwidth required to build your docs.
 
-There are a few libraries that Read the Docs has already installed (scipy, numpy, matplotlib, pandas, etc)
-in the Docker image used to build your docs. You can check the updated list of pre-installed libraries in the `Docker image repository`_.
-
-To use these pre-installed libraries and avoid consuming time re-downloading/compiling them,
-you can use the :ref:`config-file/v2:python.system_packages` option to have access to them.
-
-.. _Docker image repository: https://github.com/readthedocs/readthedocs-docker-images
+.. _sphinx-autoapi: https://sphinx-autoapi.readthedocs.io/
 
 Requests more resources
 -----------------------

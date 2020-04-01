@@ -4,7 +4,7 @@ import os
 import shutil
 import tempfile
 
-import mock
+from unittest import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse

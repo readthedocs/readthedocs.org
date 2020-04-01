@@ -1,5 +1,7 @@
 """Endpoint to generate footer HTML."""
 
+import re
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template import loader as template_loader
@@ -142,13 +144,12 @@ class BaseFooterHTML(APIView):
         version = self._get_version()
 
         page_slug = self.request.GET.get('page', '')
+        path = ''
         if page_slug and page_slug != 'index':
-            if main_project.documentation_type == 'sphinx_htmldir':
-                path = page_slug + '/'
+            if version.documentation_type == 'sphinx_htmldir':
+                path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
-        else:
-            path = ''
 
         context = {
             'project': project,

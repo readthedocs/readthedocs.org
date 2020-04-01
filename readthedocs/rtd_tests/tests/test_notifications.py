@@ -3,7 +3,7 @@
 
 
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 from django.test import TestCase

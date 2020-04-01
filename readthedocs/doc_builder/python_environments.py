@@ -129,12 +129,17 @@ class PythonEnvironment:
 
         The decision is made considering if the directories are going to be
         cleaned after the build (``RTD_CLEAN_AFTER_BUILD=True`` or project has
-        the ``CLEAN_AFTER_BUILD`` feature enabled). In this case, there is no
-        need to cache anything.
+        the ``CLEAN_AFTER_BUILD`` feature enabled) or project has the feature
+        ``CACHED_ENVIRONMENT``. In this case, there is no need to cache
+        anything.
         """
         if (
+            # Cache is going to be removed anyways
             settings.RTD_CLEAN_AFTER_BUILD or
-            self.project.has_feature(Feature.CLEAN_AFTER_BUILD)
+            self.project.has_feature(Feature.CLEAN_AFTER_BUILD) or
+            # Cache will be pushed/pulled each time and won't be used because
+            # packages are already installed in the environment
+            self.project.has_feature(Feature.CACHED_ENVIRONMENT)
         ):
             return [
                 '--no-cache-dir',
@@ -290,7 +295,7 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        site_packages = '--no-site-packages'
+        site_packages = ''
         if self.config.python.use_system_site_packages:
             site_packages = '--system-site-packages'
         env_path = self.venv_path()
