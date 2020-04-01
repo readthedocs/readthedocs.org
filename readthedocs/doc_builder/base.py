@@ -53,7 +53,7 @@ class BaseBuilder:
 
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
-        self.config.doctype
+        return self.config.doctype
 
     def force(self, **__):
         """An optional step to force a build even when nothing has changed."""
