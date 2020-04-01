@@ -56,7 +56,8 @@ def send_email_task(
             get_template(template_html).render(context),
             'text/html',
         )
-    except TemplateDoesNotExist:
+    except (TypeError, TemplateDoesNotExist):
+        # TypeError is raised when ``template_html`` is ``None``
         pass
     msg.send()
     log.info('Sent email to recipient: %s', recipient)

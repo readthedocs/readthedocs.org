@@ -2137,62 +2137,89 @@ def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
+    It tries using these services' account in order:
+
+    1. user's account that imported the project
+    2. each user's account from the project's maintainers
+
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
+    # TODO: Send build status for BitBucket.
+    service = None
+    success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+
+        # First, try using user who imported the project's account
         try:
             service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-            # Send status report using the API.
-            service.send_build_status(build, commit, status)
-
         except RemoteRepository.DoesNotExist:
-            users = build.project.users.all()
-
-            # Try to loop through all project users to get their social accounts
-            for user in users:
-                user_accounts = service_class.for_user(user)
-                # Try to loop through users all social accounts to send a successful request
-                for account in user_accounts:
-                    # Currently we only support GitHub Status API
-                    if account.provider_name == provider_name:
-                        success = account.send_build_status(build, commit, status)
-                        if success:
-                            return True
-
-            for user in users:
-                # Send Site notification about Build status reporting failure
-                # to all the users of the project.
-                notification = GitBuildStatusFailureNotification(
-                    context_object=build.project,
-                    extra_context={'provider_name': provider_name},
-                    user=user,
-                    success=False,
-                )
-                notification.send()
-
-            log.info(
-                'No social account or repository permission available for %s',
-                build.project.slug
+            log.warning(
+                'Project does not have a RemoteRepository. project= %s',
+                build.project.slug,
             )
-            return False
 
-        except Exception:
-            log.exception('Send build status task failed for %s', build.project.slug)
-            return False
+        if service is not None:
+            # Send status report using the API.
+            success = service.send_build_status(build, commit, status)
 
-    return False
+        if success:
+            log.info(
+                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
+                build.project.slug,
+                build.pk,
+                status,
+                commit,
+            )
+            return True
 
-    # TODO: Send build status for BitBucket.
+        # Try using any of the users' maintainer accounts
+        # Try to loop through all project users to get their social accounts
+        users = build.project.users.all()
+        for user in users:
+            user_accounts = service_class.for_user(user)
+            # Try to loop through users all social accounts to send a successful request
+            for account in user_accounts:
+                # Currently we only support GitHub Status API
+                if account.provider_name == provider_name:
+                    success = account.send_build_status(build, commit, status)
+                    if success:
+                        log.info(
+                            'Build status report sent correctly using an user account. '
+                            'project=%s build=%s status=%s commit=%s user=%s',
+                            build.project.slug,
+                            build.pk,
+                            status,
+                            commit,
+                            user.username,
+                        )
+                        return True
+
+        for user in users:
+            # Send Site notification about Build status reporting failure
+            # to all the users of the project.
+            notification = GitBuildStatusFailureNotification(
+                context_object=build.project,
+                extra_context={'provider_name': provider_name},
+                user=user,
+                success=False,
+            )
+            notification.send()
+
+        log.info(
+            'No social account or repository permission available for %s',
+            build.project.slug
+        )
+        return False
 
 
 def send_external_build_status(version_type, build_pk, commit, status):
