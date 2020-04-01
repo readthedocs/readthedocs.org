@@ -115,32 +115,22 @@ class BaseSphinx(BaseBuilder):
         downloads = []
         subproject_urls = []
         # Avoid hitting database and API if using Docker build environment
-        if settings.DONT_HIT_API:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+        if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+            if settings.DONT_HIT_API:
                 versions = self.project.active_versions()
-            else:
-                versions = self.project.active_versions().filter(
-                    privacy_level=PUBLIC,
-                )
-            downloads = self.version.get_downloads(pretty=True)
-            subproject_urls = self.project.get_subproject_urls()
-        else:
-            try:
-                versions = self.project.api_versions()
-                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                    versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
-                    ]
-                downloads = api.version(self.version.pk).get()['downloads']
+                downloads = self.version.get_downloads(pretty=True)
                 subproject_urls = self.project.get_subproject_urls()
-            except ConnectionError:
-                log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
-                    'project: %s version: %s',
-                    self.project.slug, self.version.slug,
-                )
+            else:
+                try:
+                    versions = self.project.api_versions()
+                    downloads = api.version(self.version.pk).get()['downloads']
+                    subproject_urls = self.project.get_subproject_urls()
+                except ConnectionError:
+                    log.exception(
+                        'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
+                        'project: %s version: %s',
+                        self.project.slug, self.version.slug,
+                    )
 
         data = {
             'html_theme': 'sphinx_rtd_theme',
