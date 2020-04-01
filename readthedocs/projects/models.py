@@ -1515,6 +1515,7 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
+    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1584,6 +1585,10 @@ class Feature(models.Model):
         (
             CACHED_ENVIRONMENT,
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            LIMIT_CONCURRENT_BUILDS,
+            _('Limit the amount of concurrent builds'),
         ),
     )
 

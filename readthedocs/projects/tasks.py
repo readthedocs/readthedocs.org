@@ -29,6 +29,7 @@ from sphinx.ext import intersphinx
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
+    BUILD_STATE_QUEUED,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -57,6 +58,7 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
+    BuildMaxConcurrencyError,
     BuildTimeoutError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
@@ -509,6 +511,26 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.build_force = force
             self.commit = commit
             self.config = None
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                response = api_v2.build.running.get(project__slug=self.project.slug)
+                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                    log.warning(
+                        'Delaying tasks due to concurrency limit. project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+
+                    # This is done automatically on the environment context, but
+                    # we are executing this code before creating one
+                    api_v2.build(self.build['id']).patch({
+                        'error': BuildMaxConcurrencyError.message.format(
+                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                        ),
+                        'state': BUILD_STATE_QUEUED,
+                    })
+                    self.task.retry(exc=BuildMaxConcurrencyError, throw=False)
+                    return False
 
             # Build process starts here
             setup_successful = self.run_setup(record=record)

@@ -10,7 +10,13 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BRANCH, TAG, INTERNAL
+from readthedocs.builds.constants import (
+    BRANCH,
+    TAG,
+    INTERNAL,
+    BUILD_STATE_QUEUED,
+    BUILD_STATE_FINISHED,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -276,6 +282,19 @@ class BuildViewSetBase(UserSelectViewSet):
     model = Build
     filterset_fields = ('project__slug', 'commit')
 
+    @decorators.action(
+        detail=False,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['get'],
+    )
+    def running(self, request, **kwargs):
+        project_slug = request.GET.get('project__slug')
+        queryset = (
+            self.get_queryset()
+            .filter(project__slug=project_slug)
+            .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_QUEUED])
+        )
+        return Response({'count': queryset.count()})
 
 class BuildViewSet(SettingsOverrideObject):
 
