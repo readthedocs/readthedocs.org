@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Project constants.
 
@@ -12,11 +10,15 @@ import re
 from django.utils.translation import ugettext_lazy as _
 
 
+SPHINX = 'sphinx'
+MKDOCS = 'mkdocs'
+SPHINX_HTMLDIR = 'sphinx_htmldir'
+SPHINX_SINGLEHTML = 'sphinx_singlehtml'
 DOCUMENTATION_CHOICES = (
-    ('sphinx', _('Sphinx Html')),
-    ('mkdocs', _('Mkdocs (Markdown)')),
-    ('sphinx_htmldir', _('Sphinx HtmlDir')),
-    ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
+    (SPHINX, _('Sphinx Html')),
+    (MKDOCS, _('Mkdocs (Markdown)')),
+    (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
+    (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
 
 MEDIA_TYPE_HTML = 'html'

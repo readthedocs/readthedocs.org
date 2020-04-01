@@ -9,9 +9,15 @@ from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.projects import constants
+from readthedocs.projects.constants import (
+    MKDOCS,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
+)
 from readthedocs.projects.models import Project
 
 from .base import BaseDocServing
@@ -90,6 +96,15 @@ class TestFullDocServing(BaseDocServing):
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/project/latest/en/stable/awesome.html',
         )
+
+    def test_index_serving(self):
+        host = 'project.dev.readthedocs.io'
+        urls = ('/en/latest/awesome/', '/en/latest/awesome/index.html')
+        for url in urls:
+            resp = self.client.get(url, HTTP_HOST=host)
+            self.assertEqual(
+                resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome/index.html',
+            )
 
     @override_settings(
         RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
@@ -261,7 +276,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
 
     def test_directory_indexes(self):
-        self.project.versions.update(active=True, built=True)
+        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest/index-exists'}),
@@ -275,7 +290,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_versioned_no_slash(self):
-        self.project.versions.update(active=True, built=True)
+        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest'}),
             HTTP_HOST='project.readthedocs.io',
@@ -289,7 +304,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_readme_serving(self, storage_mock):
-        self.project.versions.update(active=True, built=True)
+        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
 
         storage_mock()().exists.side_effect = [False, True]
         # Confirm we've serving from storage for the `index-exists/index.html` file
@@ -305,7 +320,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_directory_indexes_get_args(self):
-        self.project.versions.update(active=True, built=True)
+        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest/index-exists?foo=bar'}),
@@ -319,7 +334,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
-    def test_404_storage_serves_404(self, storage_mock):
+    def test_404_storage_serves_custom_404_sphinx(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
@@ -328,6 +343,57 @@ class TestAdditionalDocViews(BaseDocServing):
             active=True,
             built=True,
             project=self.project,
+            documentation_type=SPHINX,
+        )
+
+        storage_mock()().exists.side_effect = [True]
+        response = self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/404.html'),
+            ]
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_storage_serves_custom_404_sphinx_single_html(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX_SINGLEHTML,
+        )
+
+        storage_mock()().exists.side_effect = [True]
+        response = self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/404.html'),
+            ]
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_storage_serves_custom_404_sphinx_htmldir(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX_HTMLDIR,
         )
 
         storage_mock()().exists.side_effect = [False, False, True]
@@ -339,15 +405,13 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/fancy-version/404/index.html'),
             ]
         )
-        self.assertEqual(
-            response.status_code, 404
-        )
+        self.assertEqual(response.status_code, 404)
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
-    def test_404_storage_paths_checked(self, storage_mock):
+    def test_404_storage_serves_custom_404_mkdocs(self, storage_mock):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
             Version,
@@ -356,7 +420,94 @@ class TestAdditionalDocViews(BaseDocServing):
             active=True,
             built=True,
             project=self.project,
+            documentation_type=MKDOCS,
         )
+
+        storage_mock()().exists.side_effect = [False, False, True]
+        response = self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
+                mock.call('html/project/fancy-version/404/index.html'),
+            ]
+        )
+        self.assertEqual(response.status_code, 404)
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_all_paths_checked_sphinx(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX,
+        )
+        latest = self.project.versions.get(slug=LATEST)
+        latest.documentation_type = SPHINX
+        latest.save()
+
+        storage_mock()().exists.return_value = False
+        self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/latest/404.html'),
+            ]
+        )
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_all_paths_checked_sphinx_single_html(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX_SINGLEHTML,
+        )
+        latest = self.project.versions.get(slug=LATEST)
+        latest.documentation_type = SPHINX_SINGLEHTML
+        latest.save()
+
+        storage_mock()().exists.return_value = False
+        self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/latest/404.html'),
+            ]
+        )
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_all_paths_checked_sphinx_html_dir(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX_HTMLDIR,
+        )
+        latest = self.project.versions.get(slug=LATEST)
+        latest.documentation_type = SPHINX_HTMLDIR
+        latest.save()
 
         storage_mock()().exists.return_value = False
         self.client.get(
@@ -367,10 +518,66 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
                 mock.call('html/project/fancy-version/404/index.html'),
-                mock.call('html/project/latest/404.html'),
                 mock.call('html/project/latest/404/index.html')
+            ]
+        )
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_all_paths_checked_mkdocs(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=MKDOCS,
+        )
+        latest = self.project.versions.get(slug=LATEST)
+        latest.documentation_type = MKDOCS
+        latest.save()
+
+        storage_mock()().exists.return_value = False
+        self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
+                mock.call('html/project/fancy-version/404/index.html'),
+                mock.call('html/project/latest/404/index.html')
+            ]
+        )
+
+    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
+    def test_404_all_paths_checked_default_version_different_doc_type(self, storage_mock):
+        self.project.versions.update(active=True, built=True)
+        fancy_version = fixture.get(
+            Version,
+            slug='fancy-version',
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX,
+        )
+        latest = self.project.versions.get(slug=LATEST)
+        latest.documentation_type = SPHINX_HTMLDIR
+        latest.save()
+
+        storage_mock()().exists.return_value = False
+        self.client.get(
+            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        storage_mock()().exists.assert_has_calls(
+            [
+                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/latest/404/index.html'),
             ]
         )
 
