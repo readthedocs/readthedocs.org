@@ -307,7 +307,10 @@ class SyncRepositoryMixin:
         return env
 
 
-@app.task(max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    max_retries=5,
+    default_retry_delay=7 * 60,
+)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
     try:
@@ -394,25 +397,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return False
 
 
-# Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective (the build failed and can continue) but as a WARNING for the
-# application itself (RTD code didn't failed). These exception are logged as
-# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
     default_retry_delay=7 * 60,
-    throws=(
-        VersionLockedError,
-        ProjectBuildsSkippedError,
-        YAMLParseError,
-        BuildTimeoutError,
-        BuildEnvironmentWarning,
-        RepositoryError,
-        ProjectConfigurationError,
-        ProjectBuildsSkippedError,
-        MkDocsYAMLParseError,
-    ),
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
     try:
