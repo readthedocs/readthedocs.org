@@ -267,14 +267,14 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
-            doc_type = (
+            default_version_doc_type = (
                 Version.objects.filter(project=final_project, slug=default_version_slug)
                 .values_list('documentation_type', flat=True)
                 .first()
             )
-            versions.append((default_version_slug, doc_type))
+            versions.append((default_version_slug, default_version_doc_type))
 
-        for version_slug_404, doc_type in versions:
+        for version_slug_404, doc_type_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
                 continue
 
@@ -284,7 +284,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 include_file=False,
                 version_type=self.version_type,
             )
-            is_htmldir_type = doc_type in (SPHINX_HTMLDIR, MKDOCS)
+            is_htmldir_type = doc_type_404 in (SPHINX_HTMLDIR, MKDOCS)
             tryfile = '404/index.html' if is_htmldir_type else '404.html'
             storage_filename_path = f'{storage_root_path}/{tryfile}'
             if storage.exists(storage_filename_path):
