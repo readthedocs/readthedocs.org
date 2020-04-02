@@ -296,6 +296,7 @@ class BuildViewSetBase(UserSelectViewSet):
         )
         return Response({'count': queryset.count()})
 
+
 class BuildViewSet(SettingsOverrideObject):
 
     """A pluggable class to allow for build cold storage."""
