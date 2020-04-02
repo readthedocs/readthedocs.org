@@ -1907,6 +1907,18 @@ def webhook_notification(version, build, hook_url):
     :param build: Build instance that failed
     :param hook_url: Hook URL to send to
     """
+
+    if not hook_url:
+        log.debug(
+            LOG_TEMPLATE,
+            {
+                'project': project.slug,
+                'version': '',
+                'msg': 'Skipping webhook notification. Empty URL.'
+            }
+        )
+        return
+
     project = version.project
 
     data = json.dumps({
