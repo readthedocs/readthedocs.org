@@ -54,7 +54,7 @@ class BuildTimeoutError(BuildEnvironmentError):
 
 
 class BuildMaxConcurrencyError(BuildEnvironmentError):
-    message = ugettext_noop('Concurrent limit reached ({limit}), retrying in 5 minutes.')
+    message = ugettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
 
 
 class BuildEnvironmentWarning(BuildEnvironmentException):
