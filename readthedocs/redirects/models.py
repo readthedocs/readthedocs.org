@@ -59,6 +59,7 @@ class Redirect(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='redirects',
+        on_delete=models.CASCADE,
     )
 
     redirect_type = models.CharField(

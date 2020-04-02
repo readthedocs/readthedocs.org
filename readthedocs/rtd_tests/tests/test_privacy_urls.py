@@ -1,6 +1,6 @@
 import re
 
-import mock
+from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase

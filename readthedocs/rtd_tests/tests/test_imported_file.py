@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import mock
+from unittest import mock
 
 from django.conf import settings
 from django.core.files.storage import get_storage_class

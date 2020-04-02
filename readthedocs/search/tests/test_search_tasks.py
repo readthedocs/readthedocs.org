@@ -1,6 +1,6 @@
 """Tests for search tasks."""
 
-import mock
+from unittest import mock
 import pytest
 
 from django.urls import reverse

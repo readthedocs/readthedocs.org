@@ -2,14 +2,14 @@ import os
 import tempfile
 from collections import namedtuple
 
-import mock
+from unittest import mock
 import py
 import pytest
 import yaml
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
@@ -23,7 +23,7 @@ from readthedocs.projects.models import Feature, Project
 
 class SphinxBuilderTest(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')

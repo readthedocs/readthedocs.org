@@ -34,6 +34,9 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 
 RUN pip3 install --no-cache-dir --upgrade pip
 
+# Ensure that ``python`` is in the PATH so that ``./manage.py`` works
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 WORKDIR /tmp
 
 RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/pip.txt
@@ -47,5 +50,16 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
         fi
+
+# Use watchman for Django ``runserver`` command
+# (this is new in Django 2.2 and could help to reduce CPU usage)
+ENV DJANGO_WATCHMAN_TIMEOUT 15
+RUN apt-get install -y libssl-dev autoconf automake libtool
+RUN git clone https://github.com/facebook/watchman.git -b v4.9.0 --depth 1; \
+        cd watchman; \
+        ./autogen.sh; \
+        ./configure; \
+        make; \
+        make install
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org

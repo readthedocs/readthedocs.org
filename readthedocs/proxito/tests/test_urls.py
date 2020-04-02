@@ -1,13 +1,13 @@
 # Copied from .com codebase
 
-# -*- coding: utf-8 -*-
 """Test URL config."""
 
-from django.core.urlresolvers import resolve
+import pytest
 from django.test import TestCase, override_settings
+from django.urls import resolve
 
 
-@override_settings(ROOT_URLCONF='readthedocs.proxito.urls')
+@pytest.mark.proxito
 class TestSingleVersionURLs(TestCase):
 
     def test_root(self):
@@ -103,17 +103,5 @@ class TestSingleVersionURLs(TestCase):
             match.kwargs, {
                 'subproject_slug': None,
                 'filename': 'some/path/index.html',
-            },
-        )
-
-    def test_external_version(self):
-        match = resolve('/html/project/version/path/index.html')
-        self.assertEqual(match.url_name, 'docs_detail_external_version')
-        self.assertEqual(match.args, ())
-        self.assertEqual(
-            match.kwargs, {
-                'project_slug': 'project',
-                'version_slug': 'version',
-                'filename': 'path/index.html',
             },
         )

@@ -2,6 +2,7 @@
 
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
+from django.forms import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.models import Version
@@ -53,11 +54,26 @@ class ProjectRelationshipInline(admin.TabularInline):
     raw_id_fields = ('child',)
 
 
+class VersionInlineFormSet(BaseInlineFormSet):
+
+    """Limit the number of versions displayed in the inline."""
+
+    LIMIT = 200
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.queryset = self.queryset[:self.LIMIT]
+
+
 class VersionInline(admin.TabularInline):
 
     """Version inline relationship view for :py:class:`ProjectAdmin`."""
 
+    formset = VersionInlineFormSet
     model = Version
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("project")
 
 
 class RedirectInline(admin.TabularInline):

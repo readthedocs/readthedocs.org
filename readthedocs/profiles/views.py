@@ -85,7 +85,7 @@ class AccountDelete(SettingsOverrideObject):
     _default_class = AccountDeleteBase
 
 
-class ProfileDetail(DetailView):
+class ProfileDetailBase(DetailView):
 
     model = User
     template_name = 'profiles/public/profile_detail.html'
@@ -95,6 +95,11 @@ class ProfileDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context['profile'] = self.get_object().profile
         return context
+
+
+class ProfileDetail(SettingsOverrideObject):
+
+    _default_class = ProfileDetailBase
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):

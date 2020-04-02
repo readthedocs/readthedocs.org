@@ -16,7 +16,7 @@ from readthedocs.projects.models import Domain, Project
 log = logging.getLogger(__name__)  # noqa
 
 
-def map_host_to_project_slug(request):
+def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
     """
     Take the request and map the host to the proper project slug.
 
@@ -32,8 +32,11 @@ def map_host_to_project_slug(request):
 
     host = request.get_host().lower().split(':')[0]
     public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+    external_domain = settings.RTD_EXTERNAL_VERSION_DOMAIN.lower().split(':')[0]
+
     host_parts = host.split('.')
     public_domain_parts = public_domain.split('.')
+    external_domain_parts = external_domain.split('.')
 
     project_slug = None
 
@@ -58,6 +61,21 @@ def map_host_to_project_slug(request):
         return render(
             request, 'core/dns-404.html', context={'host': host}, status=400
         )
+
+    if external_domain in host:
+        # Serve custom versions on external-host-domain
+        if external_domain_parts == host_parts[1:]:
+            try:
+                project_slug, version_slug = host_parts[0].split('--', 1)
+                request.external_domain = True
+                request.host_version_slug = version_slug
+                log.debug('Proxito External Version Domain: host=%s', host)
+                return project_slug
+            except ValueError:
+                log.warning('Weird variation on our hostname: host=%s', host)
+                return render(
+                    request, 'core/dns-404.html', context={'host': host}, status=400
+                )
 
     # Serve CNAMEs
     domain = Domain.objects.filter(domain=host).first()
