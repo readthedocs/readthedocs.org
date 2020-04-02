@@ -334,7 +334,7 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    CELERY_DEFAULT_QUEUE = 'celery'
+    CELERY_DEFAULT_QUEUE = 'build:default'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
         'hourly-remove-orphan-symlinks': {
