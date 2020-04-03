@@ -560,6 +560,11 @@ class CommunityBaseSettings(Settings):
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
 
+    # Advertising configuration defaults
+    ADSERVER_API_BASE = None
+    ADSERVER_API_KEY = None
+    ADSERVER_API_TIMEOUT = 0.35  # seconds
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
