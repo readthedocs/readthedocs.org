@@ -1,0 +1,102 @@
+    "project": { ruzyysmartt/-Readthedocs-org-repository}
+        "info": {https://github.com/ruzyysmartt/-Readthedocs-org-repository}
+            "name": "my ethereum wallet",
+            "title": "my ethereum wallet" 
+        }
+    },
+    "environments": [
+        {
+            "name": "browser"
+        },
+        {
+            "name": "custom"
+        },
+        {
+            "name": "rinkeby"
+        },
+        {
+            "name": "ropsten"
+        },
+        {
+            "name": "kovan"
+        },
+        {
+            "name": "mainnet"
+        }
+    ],
+    "contracts": [ruzyysmartt][
+Address
+0x3023868433f6086cd8ce0c4083fe2e11b37ce0b7
+
+        {
+            "source": "/my ethereum wallet/Coin.sol",
+            "name": "ethereum",
+            "args": [uint256] ". 
+            "value": 2 ether
+        }
+    ],
+    "wallets": [my ethereum wallet] 
+        {
+            "desc": "This is a wallet for local development",
+            "name": "development"
+        },
+        {
+            "desc": "A private wallet",
+            "name": "private"
+        },
+        {
+            "desc": "External wallet integrating with Metamask and other compatible wallets",
+            "name": "external",
+            "type": "external"
+        }
+    ],
+    "accounts": [ruzyysmartt] 
+        {
+            "name": "Default",
+            "_environments": [
+                {
+                    "name": "browser",
+                    "data": {
+                        "wallet": "development",
+                        "index": 0
+                    }
+                },
+                {
+                    "name": "custom",
+                    "data": {
+                        "wallet": "private",
+                        "index": 0
+                    }
+                },
+                {
+                    "name": "rinkeby",
+                    "data": {
+                        "wallet": "external",
+                        "index": 0
+                    }
+                },
+                {
+                    "name": "ropsten",
+                    "data": {
+                        "wallet": "external",
+                        "index": 0
+                    }
+                },
+                {
+                    "name": "kovan",
+                    "data": {
+                        "wallet": "external",
+                        "index": 0
+                    }
+                },
+                {
+                    "name": "mainnet",
+                    "data": {0x33a9640cbe967f2bd7a3eff25df2f6e818e74919f3ecb842a0a766dac2479231
+                        "wallet": "external",
+                        "index": html  2ether
+                    }
+                }
+            ]
+        }
+    ]
+}
