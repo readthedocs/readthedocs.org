@@ -465,6 +465,7 @@ class CommunityBaseSettings(Settings):
                 'read_user',
             ],
         },
+        # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
     }
 
     # CORS
