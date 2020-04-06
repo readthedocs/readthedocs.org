@@ -230,7 +230,7 @@ class ResolverBase:
           this is docs-es.docs.com/projects/api-es/es/.
 
         In summary: If the project is a subproject,
-        we don't care if the superproject has a translation,
+        we don't care if the superproject is a translation,
         we always serve from the domain of the superproject.
         If the project is a translation,
         we need to check if the main translation is a subproject.
