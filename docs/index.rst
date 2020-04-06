@@ -163,7 +163,6 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Contributing <contribute>` |
   :doc:`Docker development setup </development/standards>` |
   :doc:`roadmap` |
-  :doc:`gsoc` |
   :doc:`Code of conduct <code-of-conduct>`
 
 * **Policies & Process**:
@@ -195,8 +194,8 @@ of Read the Docs and the larger software documentation ecosystem.
    :hidden:
    :caption: About Read the Docs
 
-   development/index
    contribute
+   development/index
    roadmap
    gsoc
    code-of-conduct
