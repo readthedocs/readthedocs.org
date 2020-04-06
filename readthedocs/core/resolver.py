@@ -103,7 +103,6 @@ class ResolverBase:
             private=None,
     ):
         """Resolve a URL with a subset of fields defined."""
-        cname = cname or project.get_canonical_custom_domain()
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
@@ -112,28 +111,13 @@ class ResolverBase:
 
         filename = self._fix_filename(project, filename)
 
-        current_project = project
-        project_slug = project.slug
-        subproject_slug = None
-        # We currently support more than 2 levels of nesting subprojects and
-        # translations, only loop twice to avoid sticking in the loop
-        for _ in range(0, 2):
-            main_language_project = current_project.main_language_project
-            relation = current_project.get_parent_relationship()
-
-            if main_language_project:
-                current_project = main_language_project
-                project_slug = main_language_project.slug
-                language = project.language
-                subproject_slug = None
-            elif relation:
-                current_project = relation.parent
-                project_slug = relation.parent.slug
-                subproject_slug = relation.alias
-                cname = relation.parent.domains.filter(canonical=True).first()
-            else:
-                break
-
+        main_project, subproject_slug = self._get_canonical_project_data(project)
+        project_slug = main_project.slug
+        cname = (
+            cname
+            or self._use_subdomain()
+            or main_project.get_canonical_custom_domain()
+        )
         single_version = bool(project.single_version or single_version)
 
         return self.base_resolve_path(
@@ -203,6 +187,61 @@ class ResolverBase:
             project, filename=filename, private=private, **kwargs
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
+
+    def _get_canonical_project_data(self, project):
+        """
+        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+
+        We currently support more than 2 levels of nesting subprojects and translations,
+        but we only serve 2 levels to avoid sticking in the loop.
+        This means, we can have the following cases:
+
+        - The project isn't a translation or subproject
+
+          We serve the documentation from the domain of the project itself
+          (main.docs.com/).
+
+        - The project is a translation of a project
+
+          We serve the documentation from the domain of the main translation
+          (main.docs.com/es/).
+
+        - The project is a subproject of a project
+
+          We serve the documentation from the domain of the super project
+          (main.docs.com/projects/subproject/).
+
+        - The project is a translation, and the main translation is a subproject of a project, like:
+
+          - docs.docs.com
+          - api.docs.com (subproject of ``docs``)
+          - api-es.docs.com (translation of ``api``, and current project to be served)
+
+          We serve the documentation from the domain of the super project
+          (docs.docs.com/projects/api/es/).
+
+        - The project is a subproject, and the superproject is a translation of a project, like:
+
+          - docs.docs.com/
+          - docs-es.docs.com/ (translation of ``docs``)
+          - api-es.docs.com/ (subproject of ``docs-es``, and current project to be served)
+
+          We serve the documentation from the domain of the super project (the translation),
+          this is docs-es.docs.com/projects/api-es/es/.
+        """
+        main_project = project
+        subproject_slug = None
+
+        main_language_project = main_project.main_language_project
+        if main_language_project:
+            main_project = main_language_project
+
+        relation = main_project.get_parent_relationship()
+        if relation:
+            main_project = relation.parent
+            subproject_slug = relation.alias
+
+        return (main_project, subproject_slug)
 
     def _get_canonical_project(self, project, projects=None):
         """
