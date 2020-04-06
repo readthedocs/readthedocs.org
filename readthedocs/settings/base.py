@@ -98,6 +98,7 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_MAX_CONCURRENT_BUILDS = 4
 
     # Database and API hitting settings
     DONT_HIT_API = False
