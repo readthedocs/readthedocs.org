@@ -76,7 +76,7 @@ class TaskRouterTests(TestCase):
     def test_non_build_task(self):
         self.assertEqual(
             self.router.route_for_task('non_build_task', self.args, self.kwargs),
-            settings.CELERY_DEFAULT_QUEUE,
+            None,
         )
 
     def test_no_build_pk(self):
