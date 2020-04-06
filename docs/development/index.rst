@@ -1,12 +1,26 @@
-:orphan:
+Developer documentation
+-----------------------
 
-Developer Guide
----------------
-
-If you are developing Read the Docs, then these are the docs for you.
+These are guides and helpful documentation to running your own local version of Read the Docs
+for development or taking the open source Read the Docs codebase
+for your own :doc:`custom installation <custom_installs/index>`.
 
 .. toctree::
-    :maxdepth: 2
-    :glob:
+   :maxdepth: 1
 
-    *
+   standards
+   search
+   architecture
+   tests
+   docs
+   front-end
+   design/index
+   buildenvironments
+   symlinks
+   settings
+   install
+   i18n
+   issue-labels
+   design
+   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
+
