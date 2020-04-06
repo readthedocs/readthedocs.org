@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
 import pytest
-from django.conf import settings
 from rest_framework.test import APIClient
+
 
 try:
     # TODO: this file is read/executed even when called from ``readthedocsinc``,
@@ -15,30 +14,10 @@ except ImportError:
         ('community', True),
         ('corporate', False),
         ('environment', 'readthedocs'),
-
-        ('url_scheme', 'http'),
-    )
-
-
-def pytest_addoption(parser):
-    parser.addoption(
-        '--including-search',
-        action='store_true',
-        dest='searchtests',
-        default=False, help='enable search tests',
     )
 
 
 def pytest_configure(config):
-    if not config.option.searchtests:
-        # Include ``not search``` to parameters so search tests do not perform
-        markexpr = getattr(config.option, 'markexpr')
-        if markexpr:
-            markexpr += ' and not search'
-        else:
-            markexpr = 'not search'
-        setattr(config.option, 'markexpr', markexpr.strip())
-
     for option, value in PYTEST_OPTIONS:
         setattr(config.option, option, value)
 
@@ -51,8 +30,3 @@ def settings_modification(settings):
 @pytest.fixture
 def api_client():
     return APIClient()
-
-
-@pytest.fixture(scope="class")
-def url_scheme(request):
-    request.cls.url_scheme = request.config.option.url_scheme

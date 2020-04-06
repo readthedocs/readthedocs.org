@@ -16,6 +16,8 @@
       <ul>
         <li class="{% block project-edit-active %}{% endblock %}"><a href="{% url "projects_edit" project.slug %}">{% trans "Settings" %} </a></li>
         <li class="{% block project-advanced-active %}{% endblock %}"><a href="{% url "projects_advanced" project.slug %}">{% trans "Advanced Settings" %} </a></li>
+        <!-- Add a link to the dashboard versions page so users can find it -->
+        <li><a href="{% url "project_version_list" project.slug %}">{% trans "Edit Versions" %}</a></li>
         <li class="{% block project-domains-active %}{% endblock %}"><a href="{% url "projects_domains" project.slug %}">{% trans "Domains" %}</a></li>
         <li class="{% block project-users-active %}{% endblock %}"><a href="{% url "projects_users" project.slug %}">{% trans "Maintainers" %}</a></li>
         <li class="{% block project-redirects-active %}{% endblock %}"><a href="{% url "projects_redirects" project.slug %}">{% trans "Redirects" %}</a></li>
@@ -23,6 +25,7 @@
         <li class="{% block project-subprojects-active %}{% endblock %}"><a href="{% url "projects_subprojects" project.slug %}">{% trans "Subprojects" %}</a></li>
         <li class="{% block project-integrations-active %}{% endblock %}"><a href="{% url "projects_integrations" project.slug %}">{% trans "Integrations" %}</a></li>
         <li class="{% block project-environment-variables-active %}{% endblock %}"><a href="{% url "projects_environmentvariables" project.slug %}">{% trans "Environment Variables" %}</a></li>
+        <li class="{% block project-automation-rules-active %}{% endblock %}"><a href="{% url "projects_automation_rule_list" project.slug %}">{% trans "Automation Rules" %}</a></li>
         <li class="{% block project-notifications-active %}{% endblock %}"><a href="{% url "projects_notifications" project.slug %}">{% trans "Notifications" %}</a></li>
         <li class="{% block project-search-analytics-active %}{% endblock %}"><a href="{% url "projects_search_analytics" project.slug %}">{% trans "Search Analytics" %}</a></li>
         {% if USE_PROMOS %}

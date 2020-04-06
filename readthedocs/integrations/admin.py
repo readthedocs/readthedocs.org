@@ -89,6 +89,7 @@ class IntegrationAdmin(admin.ModelAdmin):
     instead just links to the queryset.
     """
 
+    raw_id_fields = ('project',)
     search_fields = ('project__slug', 'project__name')
     readonly_fields = ['exchanges']
 

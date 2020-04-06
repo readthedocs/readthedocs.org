@@ -12,7 +12,7 @@ Bazaar_, Git_, and Mercurial_ repositories.
 Then we build documentation and host it for you.
 Think of it as *Continuous Documentation*.
 
-.. _Read the docs: http://readthedocs.org/
+.. _Read the docs: https://readthedocs.org/
 .. _Sphinx: http://www.sphinx-doc.org/
 .. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _Subversion: http://subversion.tigris.org/
@@ -36,7 +36,7 @@ You can find information about getting in touch with Read the Docs at our `Contr
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_.
+You can find information about contributing to Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------

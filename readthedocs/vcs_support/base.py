@@ -1,9 +1,10 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for VCS backends."""
 import logging
 import os
 import shutil
+
+from readthedocs.doc_builder.exceptions import BuildEnvironmentWarning
+from readthedocs.projects.exceptions import RepositoryError
 
 
 log = logging.getLogger(__name__)
@@ -63,8 +64,10 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(project)
+        # TODO: always pass an explict environment
+        # This is only used in tests #6546
+        from readthedocs.doc_builder.environments import LocalBuildEnvironment
+        self.environment = environment or LocalBuildEnvironment(record=False)
 
         # Update the env variables with the proper VCS env variables
         self.environment.environment.update(self.env)
@@ -80,12 +83,7 @@ class BaseVCS:
 
     @property
     def env(self):
-        environment = os.environ.copy()
-
-        # TODO: kind of a hack
-        del environment['PATH']
-
-        return environment
+        return {}
 
     def update(self):
         """
@@ -102,7 +100,13 @@ class BaseVCS:
             'shell': False,
         })
 
-        build_cmd = self.environment.run(*cmd, **kwargs)
+        try:
+            build_cmd = self.environment.run(*cmd, **kwargs)
+        except BuildEnvironmentWarning as e:
+            # Re raise as RepositoryError,
+            # so isn't logged as ERROR.
+            raise RepositoryError(str(e))
+
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
 

@@ -2,8 +2,7 @@
 
 """Common mixin classes for views."""
 
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.translation import ugettext_lazy as _
 from vanilla import ListView
 
@@ -20,11 +19,9 @@ class ListViewWithForm(ListView):
         return context
 
 
-class LoginRequiredMixin:
+class PrivateViewMixin(LoginRequiredMixin):
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
+    pass
 
 
 class HideProtectedLevelMixin:

@@ -3,7 +3,7 @@
 form.payment input#id_cc_number {
     height: 23px;
     margin: 3px 0px 10px;
-    background: url('/static/donate/img/creditcard.png');
+    background: url('/static/payments/img/creditcard.png');
     background-repeat: no-repeat;
     background-position: -0px -128px;
     padding-left: 40px;

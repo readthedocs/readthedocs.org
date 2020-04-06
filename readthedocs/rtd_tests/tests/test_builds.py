@@ -2,7 +2,7 @@
 import datetime
 import os
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
@@ -349,7 +349,7 @@ class BuildEnvironmentTests(TestCase):
         task.config = mock.Mock(conda=None)
 
         env = {
-            'READTHEDOCS': True,
+            'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': version.slug,
             'READTHEDOCS_PROJECT': project.slug,
             'READTHEDOCS_LANGUAGE': project.language,
@@ -380,10 +380,10 @@ class BuildEnvironmentTests(TestCase):
 
 class BuildModelTests(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
-        self.eric = User(username='eric')
+        self.eric = User.objects.get(username='eric')
         self.eric.set_password('test')
         self.eric.save()
 

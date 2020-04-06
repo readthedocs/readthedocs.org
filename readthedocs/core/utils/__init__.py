@@ -14,6 +14,7 @@ from django.utils.text import slugify as slugify_base
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
+    EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 
@@ -86,6 +87,7 @@ def prepare_build(
     from readthedocs.projects.tasks import (
         update_docs_task,
         send_external_build_status,
+        send_notifications,
     )
 
     build = None
@@ -141,6 +143,10 @@ def prepare_build(
             version_type=version.type, build_pk=build.id,
             commit=commit, status=BUILD_STATUS_PENDING
         )
+
+    if build and version.type != EXTERNAL:
+        # Send Webhook notification for build triggered.
+        send_notifications.delay(version.pk, build_pk=build.pk, email=False)
 
     return (
         update_docs_task.signature(

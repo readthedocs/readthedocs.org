@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Django admin configuration for the Gold Membership app."""
+"""Django admin configuration for the Gold membership app."""
 
 from django.contrib import admin
 

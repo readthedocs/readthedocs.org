@@ -41,7 +41,11 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
-    EXTERNAL_VERSION_URL = None  # for pull request builds
+    # Some endpoints from the API can be proxied on other domain
+    # or use the same domain where the docs are being served
+    # (omit the host if that's the case).
+    RTD_PROXIED_API_URL = PUBLIC_API_URL
+    RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
     MKDOCS_BACKEND = 'readthedocs.doc_builder.backends.mkdocs'
@@ -62,6 +66,8 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
+    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
+    SESSION_COOKIE_SAMESITE = None
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -73,12 +79,25 @@ class CommunityBaseSettings(Settings):
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_BLOCK_ALL_MIXED_CONTENT = True
+    CSP_DEFAULT_SRC = None  # This could be improved
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_OBJECT_SRC = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_EXCLUDE_URL_PREFIXES = (
+        "/admin/",
+    )
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
     RTD_LATEST_VERBOSE_NAME = 'latest'
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
+    RTD_CLEAN_AFTER_BUILD = False
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -90,6 +109,8 @@ class CommunityBaseSettings(Settings):
 
     # override classes
     CLASS_OVERRIDES = {}
+
+    DOC_PATH_PREFIX = '_/'
 
     # Application classes
     @property
@@ -153,6 +174,7 @@ class CommunityBaseSettings(Settings):
             apps.append('django_countries')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
+            apps.append('readthedocsext.spamfighting')
         return apps
 
     @property
@@ -160,7 +182,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.FooterNoSessionMiddleware',
+        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
@@ -172,6 +194,7 @@ class CommunityBaseSettings(Settings):
         'readthedocs.core.middleware.SubdomainMiddleware',
         'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
+        'csp.middleware.CSPMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -236,6 +259,7 @@ class CommunityBaseSettings(Settings):
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
@@ -269,7 +293,6 @@ class CommunityBaseSettings(Settings):
         }
     }
     CACHE_MIDDLEWARE_SECONDS = 60
-    GLOBAL_PIP_CACHE = False
 
     # I18n
     TIME_ZONE = 'UTC'
@@ -305,6 +328,8 @@ class CommunityBaseSettings(Settings):
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
     CELERYD_HIJACK_ROOT_LOGGER = False
+    # This stops us from pre-fetching a task that then sits around on the builder
+    CELERY_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
@@ -345,32 +370,76 @@ class CommunityBaseSettings(Settings):
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
     DOCKER_LIMITS = {'memory': '200m', 'time': 600}
+
+    # User used to create the container.
+    # In production we use the same user than the one defined by the
+    # ``USER docs`` instruction inside the Dockerfile.
+    # In development, we can use the "UID:GID" of the current user running the
+    # instance to avoid file permissions issues.
+    # https://docs.docker.com/engine/reference/run/#user
+    RTD_DOCKER_USER = 'docs:docs'
+
+    RTD_DOCKER_COMPOSE = False
+
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
-        'readthedocs/build:1.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-        },
+        # A large number of users still have this pinned in their config file.
+        # We must have documented it at some point.
         'readthedocs/build:2.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-        },
-        'readthedocs/build:3.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
         },
         'readthedocs/build:4.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
+        'readthedocs/build:6.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
+        'readthedocs/build:7.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
     }
 
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
+        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
 
     # All auth
@@ -423,27 +492,38 @@ class CommunityBaseSettings(Settings):
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
-    ES_HOSTS = ['127.0.0.1:9200']
+    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': 'search:9200'
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
     ES_TASK_CHUNK_SIZE = 100
 
+    # Info from Honza about this:
+    # The key to determine shard number is actually usually not the node count,
+    # but the size of your data.
+    # There are advantages to just having a single shard in an index since
+    # you don't have to do the distribute/collect steps when executing a search.
+    # If your data will allow it (not significantly larger than 40GB)
+    # I would recommend going to a single shard and one replica meaning
+    # any of the two nodes will be able to serve any search without talking to the other one.
+    # Scaling to more searches will then just mean adding a third node
+    # and a second replica resulting in immediate 50% bump in max search throughput.
+
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 2,
-                         'number_of_replicas': 0
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
                          }
         },
         'page': {
             'name': 'page_index',
             'settings': {
-                'number_of_shards': 2,
-                'number_of_replicas': 0,
+                'number_of_shards': 1,
+                'number_of_replicas': 1,
             }
         },
     }

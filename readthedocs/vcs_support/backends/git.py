@@ -148,8 +148,10 @@ class Backend(BaseVCS):
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def fetch(self):
+        # --force lets us checkout branches that are not fast-forwarded
+        # https://github.com/readthedocs/readthedocs.org/issues/6097
         cmd = ['git', 'fetch', 'origin',
-               '--tags', '--prune', '--prune-tags']
+               '--force', '--tags', '--prune', '--prune-tags']
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
@@ -201,16 +203,28 @@ class Backend(BaseVCS):
     def tags(self):
         versions = []
         repo = git.Repo(self.working_dir)
+
+        # Build a cache of tag -> commit
+        # GitPython is not very optimized for reading large numbers of tags
+        ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
+        for hexsha, ref in git.TagReference._iter_packed_refs(repo):
+            ref_cache[ref] = hexsha
+
         for tag in repo.tags:
-            try:
-                versions.append(VCSVersion(self, str(tag.commit), str(tag)))
-            except ValueError:
-                # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                # blob object - use the `.object` property instead to access it
-                # This is not a real tag for us, so we skip it
-                # https://github.com/rtfd/readthedocs.org/issues/4440
-                log.warning('Git tag skipped: %s', tag, exc_info=True)
-                continue
+            if tag.path in ref_cache:
+                hexsha = ref_cache[tag.path]
+            else:
+                try:
+                    hexsha = str(tag.commit)
+                except ValueError:
+                    # ValueError: Cannot resolve commit as tag TAGNAME points to a
+                    # blob object - use the `.object` property instead to access it
+                    # This is not a real tag for us, so we skip it
+                    # https://github.com/rtfd/readthedocs.org/issues/4440
+                    log.warning('Git tag skipped: %s', tag, exc_info=True)
+                    continue
+
+            versions.append(VCSVersion(self, hexsha, str(tag)))
         return versions
 
     @property

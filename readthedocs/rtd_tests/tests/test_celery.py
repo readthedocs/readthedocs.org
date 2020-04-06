@@ -3,19 +3,23 @@ import shutil
 from os.path import exists
 from tempfile import mkdtemp
 
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-from allauth.socialaccount.models import SocialAccount
-
-from readthedocs.builds.constants import LATEST, BUILD_STATUS_SUCCESS, EXTERNAL
-from readthedocs.builds.models import Build
+from readthedocs.builds.constants import (
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
+    LATEST,
+)
+from readthedocs.builds.models import Build, Version
+from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import VersionLockedError
-from readthedocs.projects import tasks
-from readthedocs.builds.models import Version
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RTDTestCase
@@ -50,6 +54,22 @@ class TestCeleryBuilding(RTDTestCase):
             repo=repo,
         )
         self.project.users.add(self.eric)
+
+    def get_update_docs_task(self, version):
+        build_env = LocalBuildEnvironment(
+            version.project, version, record=False,
+        )
+
+        update_docs = tasks.UpdateDocsTaskStep(
+            build_env=build_env,
+            project=version.project,
+            version=version,
+            build={
+                'id': 99,
+                'state': BUILD_STATE_TRIGGERED,
+            },
+        )
+        return update_docs
 
     def tearDown(self):
         shutil.rmtree(self.repo)
@@ -201,11 +221,20 @@ class TestCeleryBuilding(RTDTestCase):
             )
         clean_build.assert_called_with(version.pk)
 
-    def test_sync_repository(self):
+    @patch('readthedocs.projects.tasks.api_v2')
+    @patch('readthedocs.projects.tasks.SyncRepositoryMixin.get_version')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_sync_repository(self, checkout_path, get_version, api_v2):
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
         version = self.project.versions.get(slug=LATEST)
-        with mock_api(self.repo):
-            result = tasks.sync_repository_task.delay(version.pk)
-        self.assertTrue(result.successful())
+        get_version.return_value = version
+
+        result = tasks.sync_repository_task(version.pk)
+        self.assertTrue(result)
 
     @patch('readthedocs.projects.tasks.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
@@ -236,18 +265,16 @@ class TestCeleryBuilding(RTDTestCase):
         checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
-        sync_repository = tasks.UpdateDocsTaskStep()
-        sync_repository.version = version
-        sync_repository.project = self.project
+        sync_repository = self.get_update_docs_task(version)
         with self.assertRaises(RepositoryError) as e:
-            sync_repository.sync_repo()
+            sync_repository.sync_repo(sync_repository.build_env)
         self.assertEqual(
             str(e.exception),
             RepositoryError.DUPLICATED_RESERVED_VERSIONS,
         )
 
         delete_git_branch(self.repo, 'latest')
-        sync_repository.sync_repo()
+        sync_repository.sync_repo(sync_repository.build_env)
         api_v2.project().sync_versions.post.assert_called()
 
     @patch('readthedocs.projects.tasks.api_v2')
@@ -262,11 +289,9 @@ class TestCeleryBuilding(RTDTestCase):
         checkout_path.return_value = local_repo
 
         version = self.project.versions.get(slug=LATEST)
-        sync_repository = tasks.UpdateDocsTaskStep()
-        sync_repository.version = version
-        sync_repository.project = self.project
+        sync_repository = self.get_update_docs_task(version)
         with self.assertRaises(RepositoryError) as e:
-            sync_repository.sync_repo()
+            sync_repository.sync_repo(sync_repository.build_env)
         self.assertEqual(
             str(e.exception),
             RepositoryError.DUPLICATED_RESERVED_VERSIONS,
@@ -281,11 +306,10 @@ class TestCeleryBuilding(RTDTestCase):
         create_git_tag(self.repo, 'no-reserved')
 
         version = self.project.versions.get(slug=LATEST)
-        sync_repository = tasks.UpdateDocsTaskStep()
-        sync_repository.version = version
-        sync_repository.project = self.project
-        sync_repository.sync_repo()
 
+        sync_repository = self.get_update_docs_task(version)
+
+        sync_repository.sync_repo(sync_repository.build_env)
         api_v2.project().sync_versions.post.assert_called()
 
     def test_public_task_exception(self):
@@ -334,8 +358,8 @@ class TestCeleryBuilding(RTDTestCase):
         tasks.fileify(version_pk=345343, commit=None, build=1)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
-    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task_with_remote_repo(self, send_build_status):
+    @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
+    def test_send_build_status_with_remote_repo_github(self, send_build_status):
         self.project.repo = 'https://github.com/test/test/'
         self.project.save()
 
@@ -356,8 +380,8 @@ class TestCeleryBuilding(RTDTestCase):
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
-    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task_with_social_account(self, send_build_status):
+    @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
+    def test_send_build_status_with_social_account_github(self, send_build_status):
         social_account = get(SocialAccount, user=self.eric, provider='github')
 
         self.project.repo = 'https://github.com/test/test/'
@@ -376,9 +400,66 @@ class TestCeleryBuilding(RTDTestCase):
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
-    @patch('readthedocs.projects.tasks.GitHubService.send_build_status')
-    def test_send_build_status_task_without_remote_repo_or_social_account(self, send_build_status):
+    @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
+    def test_send_build_status_no_remote_repo_or_social_account_github(self, send_build_status):
         self.project.repo = 'https://github.com/test/test/'
+        self.project.save()
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_not_called()
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
+
+    @patch('readthedocs.oauth.services.gitlab.GitLabService.send_build_status')
+    def test_send_build_status_with_remote_repo_gitlab(self, send_build_status):
+        self.project.repo = 'https://gitlab.com/test/test/'
+        self.project.save()
+
+        social_account = get(SocialAccount, provider='gitlab')
+        remote_repo = get(RemoteRepository, account=social_account, project=self.project)
+        remote_repo.users.add(self.eric)
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_called_once_with(
+            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+
+    @patch('readthedocs.oauth.services.gitlab.GitLabService.send_build_status')
+    def test_send_build_status_with_social_account_gitlab(self, send_build_status):
+        social_account = get(SocialAccount, user=self.eric, provider='gitlab')
+
+        self.project.repo = 'https://gitlab.com/test/test/'
+        self.project.save()
+
+        external_version = get(Version, project=self.project, type=EXTERNAL)
+        external_build = get(
+            Build, project=self.project, version=external_version
+        )
+        tasks.send_build_status(
+            external_build.id, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+
+        send_build_status.assert_called_once_with(
+            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+        )
+        self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
+
+    @patch('readthedocs.oauth.services.gitlab.GitLabService.send_build_status')
+    def test_send_build_status_no_remote_repo_or_social_account_gitlab(self, send_build_status):
+        self.project.repo = 'https://gitlab.com/test/test/'
         self.project.save()
         external_version = get(Version, project=self.project, type=EXTERNAL)
         external_build = get(

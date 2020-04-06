@@ -292,15 +292,6 @@ class BuildCommandViewSet(UserSelectViewSet):
     model = BuildCommandResult
 
 
-class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = (permissions.IsAuthenticated, RelatedProjectIsOwner)
-    renderer_classes = (JSONRenderer,)
-    model = EmailHook
-
-    def get_queryset(self):
-        return self.model.objects.api(self.request.user)
-
-
 class DomainViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)

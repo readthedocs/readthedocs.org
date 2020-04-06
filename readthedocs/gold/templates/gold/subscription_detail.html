@@ -4,7 +4,7 @@
 
 {% block profile-admin-gold-edit %}active{% endblock %}
 
-{% block title %}{% trans "Gold Subscription" %}{% endblock %}
+{% block title %}{% trans "Gold Membership" %}{% endblock %}
 
 {% block extra_scripts %}
   <script src="https://js.stripe.com/v2/" type="text/javascript"></script>
@@ -28,7 +28,7 @@ $(document).ready(function () {
 
 {% block edit_content %}
   <div class="gold-subscription">
-    <h2>{% trans "Gold Subscription" %}</h2>
+    <h2>{% trans "Gold Membership" %}</h2>
 
     <p>
       {% blocktrans trimmed %}
@@ -47,26 +47,18 @@ $(document).ready(function () {
     </p>
 
     <form method="get" action="{% url "gold_subscription" %}" class="subscription-update">
-      <button>{% trans "Update Subscription" %}</button>
+      <button>{% trans "Update membership" %}</button>
     </form>
 
     <form method="get" action="{% url "gold_cancel" %}" class="subscription-cancel">
-      <button>{% trans "Cancel Subscription" %}</button>
+      <button>{% trans "Cancel membership" %}</button>
     </form>
 
-    {% if golduser.can_sponsor_projects %}
-      <h3>{% trans "Projects" %}</h3>
-      <p class="subscription-projects">
-        {% blocktrans trimmed count projects=golduser.num_supported_projects %}
-          You can adopt one project with your subscription.
-        {% plural %}
-          You can adopt {{ projects }} projects with your subscription.
-        {% endblocktrans %}
-      </p>
+    <h3>{% trans "Gold projects" %}</h3>
+    <p class="subscription-projects">{% trans 'Choose projects you would like to make ad-free.' %}</p>
 
-      <form method="get" action="{% url "gold_projects" %}" class="subscription-projects">
-        <button>{% trans "Select Projects" %}</button>
-      </form>
-    {% endif %}
+    <form method="get" action="{% url "gold_projects" %}" class="subscription-projects">
+      <button>{% trans "Select Projects" %}</button>
+    </form>
   </div>
 {% endblock %}

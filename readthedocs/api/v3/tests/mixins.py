@@ -6,6 +6,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils.timezone import make_aware
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -16,6 +17,12 @@ from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
 
+@override_settings(
+    PUBLIC_DOMAIN='readthedocs.io',
+    PRODUCTION_DOMAIN='readthedocs.org',
+    USE_SUBDOMAIN=True,
+    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
+)
 class APIEndpointMixin(TestCase):
 
     fixtures = []
@@ -60,22 +67,6 @@ class APIEndpointMixin(TestCase):
             project=self.project,
         )
 
-        self.subproject = fixture.get(
-            Project,
-            pub_date=self.created,
-            modified_date=self.modified,
-            description='SubProject description',
-            repo='https://github.com/rtfd/subproject',
-            project_url='http://subproject.com',
-            name='subproject',
-            slug='subproject',
-            related_projects=[],
-            main_language_project=None,
-            users=[],
-            versions=[],
-        )
-        self.project.add_subproject(self.subproject)
-
         self.version = fixture.get(
             Version,
             slug='v1.0',
@@ -106,11 +97,18 @@ class APIEndpointMixin(TestCase):
         self.others_token = fixture.get(Token, key='other', user=self.other)
         self.others_project = fixture.get(
             Project,
-            slug='others_project',
+            slug='others-project',
             related_projects=[],
             main_language_project=None,
             users=[self.other],
             versions=[],
+        )
+
+        # Make all non-html true so responses are complete
+        self.project.versions.update(
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
         )
 
         self.client = APIClient()
@@ -118,6 +116,41 @@ class APIEndpointMixin(TestCase):
     def tearDown(self):
         # Cleanup cache to avoid throttling on tests
         cache.clear()
+
+    def _create_new_project(self):
+        """Helper to create a project with all the fields set."""
+        return fixture.get(
+            Project,
+            pub_date=self.created,
+            modified_date=self.modified,
+            description='Project description',
+            repo='https://github.com/rtfd/project',
+            project_url='http://project.com',
+            name='new-project',
+            slug='new-project',
+            related_projects=[],
+            main_language_project=None,
+            users=[self.me],
+            versions=[],
+        )
+
+    def _create_subproject(self):
+        """Helper to create a sub-project with all the fields set."""
+        self.subproject = fixture.get(
+            Project,
+            pub_date=self.created,
+            modified_date=self.modified,
+            description='SubProject description',
+            repo='https://github.com/rtfd/subproject',
+            project_url='http://subproject.com',
+            name='subproject',
+            slug='subproject',
+            related_projects=[],
+            main_language_project=None,
+            users=[self.me],
+            versions=[],
+        )
+        self.project_relationship = self.project.add_subproject(self.subproject)
 
     def _get_response_dict(self, view_name):
         filename = Path(__file__).absolute().parent / 'responses' / f'{view_name}.json'

@@ -6,7 +6,7 @@ from django.conf.urls import url
 from readthedocs.constants import pattern_opts
 from readthedocs.core import views
 from readthedocs.core.views import serve
-from readthedocs.projects.feeds import LatestProjectsFeed, NewProjectsFeed
+
 
 docs_urls = [
     url(
@@ -49,18 +49,5 @@ core_urls = [
         ),
         views.wipe_version,
         name='wipe_version',
-    ),
-]
-
-deprecated_urls = [
-    url(
-        r'^feeds/new/$',
-        NewProjectsFeed(),
-        name='new_feed',
-    ),
-    url(
-        r'^feeds/latest/$',
-        LatestProjectsFeed(),
-        name='latest_feed',
     ),
 ]

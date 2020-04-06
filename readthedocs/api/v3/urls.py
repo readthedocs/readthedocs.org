@@ -27,7 +27,7 @@ subprojects = projects.register(
     r'subprojects',
     SubprojectRelationshipViewSet,
     basename='projects-subprojects',
-    parents_query_lookups=['superprojects__parent__slug'],
+    parents_query_lookups=['parent__slug'],
 )
 
 # allows /api/v3/projects/pip/translations/

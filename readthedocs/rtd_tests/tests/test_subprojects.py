@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -148,6 +148,57 @@ class SubprojectFormTests(TestCase):
         self.assertEqual(
             [proj_id for (proj_id, __) in form.fields['child'].choices],
             [''],
+        )
+
+    def test_subproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+    def test_superproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': project.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
         )
 
     def test_exclude_self_project_as_subproject(self):

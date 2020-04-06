@@ -92,4 +92,4 @@ class Command(BaseCommand):
             if user1:
                 project.users.add(user1)
 
-            call_command('update_repos', project.slug, version='all')
+            call_command('update_repos', slugs=[project.slug], version='all')

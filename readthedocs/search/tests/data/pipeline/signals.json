@@ -20,22 +20,20 @@
     ],
     "domains": [
         {
-            "role_name": "py:method",
-            "doc_name": "autoapi/notfound/extension/index.html",
-            "anchor": "notfound.extension.OrphanMetadataCollector.process_doc",
-            "type_display": "method",
-            "doc_display": "notfound.extension",
-            "name": "notfound.extension.OrphanMetadataCollector.process_doc",
-            "display_name": ""
+            "role_name": "py:class",
+            "anchor": "celery.worker.control.Panel",
+            "type_display": "class",
+            "name": "celery.worker.control.Panel"
         },
         {
             "role_name": "py:method",
-            "doc_name": "autoapi/notfound/extension/index.html",
-            "anchor": "notfound.extension.OrphanMetadataCollector.clear_doc",
+            "anchor": "celery.platforms.Pidfile.remove_if_stale",
             "type_display": "method",
-            "doc_display": "notfound.extension",
-            "name": "notfound.extension.OrphanMetadataCollector.clear_doc",
-            "display_name": ""
+            "name": "celery.platforms.Pidfile.remove_if_stale"
         }
-    ]
+    ],
+    "domain_data": {
+        "celery.worker.control.Panel": "Global registry of remote control commands",
+        "celery.platforms.Pidfile.remove_if_stale": "Remove the lock if the process isn’t running. I.e. process does not respons to signal"
+    }
 }

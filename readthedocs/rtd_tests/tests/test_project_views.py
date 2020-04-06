@@ -9,16 +9,18 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
 from readthedocs.projects.views.mixins import ProjectRelationMixin
+from readthedocs.projects.views.public import ProjectBadgeView
 from readthedocs.projects.views.private import ImportWizardView
 from readthedocs.rtd_tests.base import (
     MockBuildTestCase,
@@ -401,11 +403,6 @@ class TestPublicViews(MockBuildTestCase):
             type=EXTERNAL
         )
 
-    def test_project_download_media(self):
-        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
-
     def test_project_detail_view_only_shows_internal_versons(self):
         url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)
@@ -497,6 +494,44 @@ class TestPrivateViews(MockBuildTestCase):
                 args=[project.pk],
             )
 
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GitHubWebhook.GITHUB_WEBHOOK
+            },
+        )
+        integration = GitHubWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_called_once_with(
+            project_pk=project.pk,
+            user_pk=self.user.pk,
+            integration=integration.first()
+        )
+
+    @patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create_generic_webhook(self, attach_webhook):
+        project = get(Project, slug='pip', users=[self.user])
+
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[project.slug]),
+            data={
+                'project': project.pk,
+                'integration_type': GenericAPIWebhook.API_WEBHOOK
+            },
+        )
+        integration = GenericAPIWebhook.objects.filter(project=project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_not_called()
+
 
 class TestPrivateMixins(MockBuildTestCase):
 
@@ -539,6 +574,15 @@ class TestBadges(TestCase):
         res = self.client.get(unknown_project_url, {'version': 'latest'})
         self.assertContains(res, 'unknown')
 
+        # Unknown version
+        res = self.client.get(self.badge_url, {'version': 'fake-version'})
+        self.assertContains(res, 'unknown')
+
+    def test_badge_caching(self):
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertTrue('must-revalidate' in res['Cache-Control'])
+        self.assertTrue('no-cache' in res['Cache-Control'])
+
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
         res = self.client.get(self.badge_url, {'version': self.version.slug})
@@ -572,6 +616,36 @@ class TestBadges(TestCase):
         resp = self.client.get(badge_url, {'version': 'latest'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue('project-slug' in resp['location'])
+
+    def test_private_version(self):
+        # Set version to private
+        self.version.privacy_level = 'private'
+        self.version.save()
+
+        # Without a token, badge is unknown
+        get(Build, project=self.project, version=self.version, success=True)
+        res = self.client.get(self.badge_url, {'version': self.version.slug})
+        self.assertContains(res, 'unknown')
+
+        # With an invalid token, the badge is unknown
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token('invalid-project'),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'unknown')
+
+        # With a valid token, the badge should work correctly
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token(self.project.slug),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'passing')
 
 
 class TestTags(TestCase):

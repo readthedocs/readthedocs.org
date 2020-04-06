@@ -70,10 +70,6 @@ Version 1
 
 The first implementation of APIv3 will cover the following aspects:
 
-.. note::
-
-   This is currently implemented and live. Although, it's only for internal testing.
-
 * Authentication
 
   * all endpoints require authentication via ``Authorization:`` request header
@@ -109,6 +105,10 @@ The first implementation of APIv3 will cover the following aspects:
 Version 2
 +++++++++
 
+.. note::
+
+   This is currently implemented and live.
+
 Second iteration will polish issues found from the first step,
 and add new endpoints to allow *import a project and configure it*
 without the needed of using the WebUI as a main goal.
@@ -124,6 +124,7 @@ This iteration will include:
 * Edit Project attributes ("Settings" and "Advanced settings-Global settings" in the WebUI)
 * Trigger Build for default version
 * Allow CRUD for Redirect, Environment Variables and Notifications (``WebHook`` and ``EmailHook``)
+* Create/Delete a Project as subproject of another Project
 * Documentation
 
 

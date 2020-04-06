@@ -54,9 +54,9 @@ release = version
 exclude_patterns = ['_build']
 default_role = 'obj'
 intersphinx_mapping = {
-    'python': ('https://python.readthedocs.io/en/latest/', None),
-    'django': ('https://django.readthedocs.io/en/1.11.x/', None),
-    'sphinx': ('https://sphinx.readthedocs.io/en/latest/', None),
+    'python': ('https://docs.python.org/3.6/', None),
+    'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
@@ -103,6 +103,18 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 ''',
 }
+linkcheck_ignore = [
+    r'http://127\.0\.0\.1',
+    r'http://localhost',
+    r'https://yourproject\.readthedocs\.io',
+    r'https?://docs\.example\.com',
+    r'https://foo\.readthedocs\.io/projects',
+    r'https://github\.com.+?#L\d+',
+    r'https://github\.com/readthedocs/readthedocs\.org/issues',
+    r'https://github\.com/readthedocs/readthedocs\.org/pull',
+    r'https://docs\.readthedocs\.io/\?rtd_search',
+    r'https://readthedocs\.org/search',
+]
 
 
 def setup(app):

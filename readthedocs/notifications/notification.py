@@ -31,6 +31,7 @@ class Notification:
 
     name = None
     context_object_name = 'object'
+    app_templates = None
     level = constants.INFO
     subject = None
     user = None
@@ -64,7 +65,7 @@ class Notification:
             meta = self.object._meta  # pylint: disable=protected-access
             names.append(
                 '{app}/notifications/{name}_{backend}.{source_format}'.format(
-                    app=meta.app_label,
+                    app=self.app_templates or meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,

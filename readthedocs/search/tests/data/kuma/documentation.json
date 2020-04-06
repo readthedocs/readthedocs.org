@@ -15,22 +15,20 @@
     ],
     "domains": [
         {
-            "role_name": "py:module",
-            "doc_name": "autoapi/notfound/index.html",
-            "anchor": "module-notfound",
-            "type_display": "module",
-            "doc_display": "notfound",
-            "name": "notfound",
-            "display_name": ""
+            "role_name": "py:method",
+            "anchor": "celery.worker.components.Hub.include_if",
+            "type_display": "method",
+            "name": "celery.worker.components.Hub.include_if"
         },
         {
-            "role_name": "py:data",
-            "doc_name": "autoapi/notfound/index.html",
-            "anchor": "notfound.version",
-            "type_display": "data",
-            "doc_display": "notfound",
-            "name": "notfound.version",
-            "display_name": ""
+            "role_name": "py:function",
+            "anchor": "celery.utils.text.fill_paragraphs",
+            "type_display": "function",
+            "name": "celery.utils.text.fill_paragraphs"
         }
-    ]
+    ],
+    "domain_data": {
+        "celery.worker.components.Hub.include_if": "Return true if bootstep should be included. You can define this as an optional predicate that decides whether this step should be created",
+        "celery.utils.text.fill_paragraphs": "Fill paragraphs with newlines (or custom separator)"
+    }
 }

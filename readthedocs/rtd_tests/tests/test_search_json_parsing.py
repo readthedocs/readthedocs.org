@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 
 from django.test import TestCase
@@ -13,6 +12,7 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 class TestHacks(TestCase):
 
     @override_settings(MEDIA_ROOT=base_dir)
+    @override_settings(PRODUCTION_MEDIA_ARTIFACTS=base_dir)
     def test_h2_parsing(self):
         data = process_file('files/api.fjson')
 

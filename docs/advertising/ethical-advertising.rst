@@ -103,7 +103,7 @@ Additional details
 * We have gone into more detail about our views in our
   `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
 * Eric Holscher, one of our co-founders
-  `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
+  `talks a bit more <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
   about funding open source this way on his blog.
 
 .. _advertising FAQ: https://readthedocs.org/sustainability/advertising/faq/
@@ -115,7 +115,7 @@ We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  `talk to your marketing folks <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
+  `talk to your marketing folks <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
   `Get more information <https://readthedocs.org/sustainability/advertising/>`_ on what we offer.
@@ -156,8 +156,9 @@ Opting Out
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
 1. You can go completely ad-free
-   by becoming a `Gold Member <https://readthedocs.org/accounts/gold/>`_
+   by becoming a `Gold member <https://readthedocs.org/accounts/gold/>`_
    or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
+   Additionally, Gold members may remove advertising from their projects for all visitors.
 
 2. You can opt out of seeing paid advertisements on documentation pages:
 
@@ -182,5 +183,4 @@ We have added multiple ways to opt out of the advertising on Read the Docs.
    but our commercial plans don't seem like the right fit,
    please `get in touch`_ to discuss alternatives to advertising.
 
-.. _paid plans: https://readthedocs.com/pricing/
 .. _get in touch: mailto:ads@readthedocs.org?subject=Alternatives%20to%20advertising

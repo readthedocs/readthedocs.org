@@ -19,10 +19,6 @@
     },
     "modified": "2019-04-29T12:00:00Z",
     "name": "project",
-    "privacy_level": {
-        "code": "public",
-        "name": "Public"
-    },
     "programming_language": {
         "code": "words",
         "name": "Only Words"
@@ -42,7 +38,7 @@
     "translation_of": null,
     "urls": {
         "builds": "https://readthedocs.org/projects/project/builds/",
-        "documentation": "http://readthedocs.org/docs/project/en/latest/",
+        "documentation": "http://project.readthedocs.io/en/latest/",
         "home": "https://readthedocs.org/projects/project/",
         "versions": "https://readthedocs.org/projects/project/versions/"
     },

@@ -206,21 +206,90 @@ class BitbucketService(Service):
             'events': ['repo:push'],
         })
 
-    def setup_webhook(self, project):
+    def get_provider_data(self, project, integration):
+        """
+        Gets provider data from BitBucket Webhooks API.
+
+        :param project: project
+        :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
+        :returns: Dictionary containing provider data from the API or None
+        :rtype: dict
+        """
+
+        if integration.provider_data:
+            return integration.provider_data
+
+        session = self.get_session()
+        owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
+
+        rtd_webhook_url = 'https://{domain}{path}'.format(
+            domain=settings.PRODUCTION_DOMAIN,
+            path=reverse(
+                'api_webhook',
+                kwargs={
+                    'project_slug': project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+
+        try:
+            resp = session.get(
+                (
+                    'https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks'
+                    .format(owner=owner, repo=repo)
+                ),
+            )
+
+            if resp.status_code == 200:
+                recv_data = resp.json()
+
+                for webhook_data in recv_data["values"]:
+                    if webhook_data["url"] == rtd_webhook_url:
+                        integration.provider_data = webhook_data
+                        integration.save()
+
+                        log.info(
+                            'Bitbucket integration updated with provider data for project: %s',
+                            project,
+                        )
+                        break
+            else:
+                log.info(
+                    'Bitbucket project does not exist or user does not have '
+                    'permissions: project=%s',
+                    project,
+                )
+
+        except Exception:
+            log.exception(
+                'Bitbucket webhook Listing failed for project: %s',
+                project,
+            )
+
+        return integration.provider_data
+
+    def setup_webhook(self, project, integration=None):
         """
         Set up Bitbucket project webhook for project.
 
         :param project: project to set up webhook for
         :type project: Project
+        :param integration: Integration for the project
+        :type integration: Integration
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
         session = self.get_session()
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
-        integration, _ = Integration.objects.get_or_create(
-            project=project,
-            integration_type=Integration.BITBUCKET_WEBHOOK,
-        )
+
+        if not integration:
+            integration, _ = Integration.objects.get_or_create(
+                project=project,
+                integration_type=Integration.BITBUCKET_WEBHOOK,
+            )
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
@@ -248,7 +317,6 @@ class BitbucketService(Service):
                     'permissions: project=%s',
                     project,
                 )
-                return (False, resp)
 
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
@@ -268,7 +336,8 @@ class BitbucketService(Service):
                 )
             except ValueError:
                 pass
-            return (False, resp)
+
+        return (False, resp)
 
     def update_webhook(self, project, integration):
         """
@@ -281,17 +350,25 @@ class BitbucketService(Service):
         :returns: boolean based on webhook set up success, and requests Response object
         :rtype: (Bool, Response)
         """
+        provider_data = self.get_provider_data(project, integration)
+
+        # Handle the case where we don't have a proper provider_data set
+        # This happens with a user-managed webhook previously
+        if not provider_data:
+            return self.setup_webhook(project, integration)
+
         session = self.get_session()
         data = self.get_webhook_data(project, integration)
         resp = None
         try:
             # Expect to throw KeyError here if provider_data is invalid
-            url = integration.provider_data['links']['self']['href']
+            url = provider_data['links']['self']['href']
             resp = session.put(
                 url,
                 data=data,
                 headers={'content-type': 'application/json'},
             )
+
             if resp.status_code == 200:
                 recv_data = resp.json()
                 integration.provider_data = recv_data
@@ -305,10 +382,10 @@ class BitbucketService(Service):
             # Bitbucket returns 404 when the webhook doesn't exist. In this
             # case, we call ``setup_webhook`` to re-configure it from scratch
             if resp.status_code == 404:
-                return self.setup_webhook(project)
+                return self.setup_webhook(project, integration)
 
         # Catch exceptions with request or deserializing JSON
-        except (KeyError, RequestException, ValueError):
+        except (KeyError, RequestException, TypeError, ValueError):
             log.exception(
                 'Bitbucket webhook update failed for project: %s',
                 project,
@@ -327,4 +404,5 @@ class BitbucketService(Service):
                 'Bitbucket webhook update failure response: %s',
                 debug_data,
             )
-            return (False, resp)
+
+        return (False, resp)

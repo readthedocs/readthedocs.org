@@ -12,6 +12,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.models import UserProfile
 from readthedocs.projects.models import Project
+from rest_framework.authtoken.admin import TokenAdmin
+
+
+# Monkeypatch raw_id_fields onto the TokenAdmin
+# https://www.django-rest-framework.org/api-guide/authentication/#with-django-admin
+TokenAdmin.raw_id_fields = ['user']
 
 
 class UserProjectInline(admin.TabularInline):

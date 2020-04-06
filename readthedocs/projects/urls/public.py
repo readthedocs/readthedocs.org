@@ -1,19 +1,20 @@
 """Project URLS for public users."""
 
 from django.conf.urls import url
+from django.views.generic.base import RedirectView
 
 from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
-from readthedocs.projects.views.public import ProjectDetailView, ProjectIndex
+from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
 from readthedocs.search import views as search_views
 
 
 urlpatterns = [
     url(
         r'^$',
-        ProjectIndex.as_view(),
-        name='projects_list',
+        RedirectView.as_view(pattern_name='projects_dashboard', permanent=True),
+        name='projects_dashboard_redirect',
     ),
     url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
@@ -30,14 +31,19 @@ urlpatterns = [
         public.project_downloads,
         name='project_downloads',
     ),
+
+    # NOTE: this URL is kept here only for backward compatibility to serve
+    # non-html files from the dashboard. The ``name=`` is removed to avoid
+    # generating an invalid URL by mistake (we should manually generate it
+    # pointing to the right place: "docs.domain.org/_/downloads/")
     url(
         (
             r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
             r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
         ),
-        public.project_download_media,
-        name='project_download_media',
+        public.ProjectDownloadMedia.as_view(),
     ),
+
     url(
         r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
         public.project_badge,
@@ -78,7 +84,7 @@ urlpatterns = [
     ),
     url(
         r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectIndex.as_view(),
+        ProjectTagIndex.as_view(),
         name='projects_tag_detail',
     ),
 ]

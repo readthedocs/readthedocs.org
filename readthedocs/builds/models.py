@@ -6,8 +6,11 @@ import os.path
 import re
 from shutil import rmtree
 
+import regex
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import models
+from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext
@@ -17,52 +20,33 @@ from jsonfield import JSONField
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import broadcast
-from readthedocs.projects.constants import (
-    BITBUCKET_COMMIT_URL,
-    BITBUCKET_URL,
-    GITHUB_BRAND,
-    GITHUB_COMMIT_URL,
-    GITHUB_URL,
-    GITHUB_PULL_REQUEST_URL,
-    GITHUB_PULL_REQUEST_COMMIT_URL,
-    GITLAB_BRAND,
-    GITLAB_COMMIT_URL,
-    GITLAB_MERGE_REQUEST_URL,
-    GITLAB_MERGE_REQUEST_COMMIT_URL,
-    GITLAB_URL,
-    PRIVACY_CHOICES,
-    PRIVATE,
-    MEDIA_TYPES,
-)
-from readthedocs.projects.models import APIProject, Project
-from readthedocs.projects.version_handling import determine_stable_version
-
 from readthedocs.builds.constants import (
     BRANCH,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
     GITLAB_EXTERNAL_VERSION_NAME,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
-    EXTERNAL,
+    PREDEFINED_MATCH_ARGS,
+    PREDEFINED_MATCH_ARGS_VALUES,
     STABLE,
     TAG,
     VERSION_TYPES,
 )
 from readthedocs.builds.managers import (
-    VersionManager,
-    InternalVersionManager,
-    ExternalVersionManager,
     BuildManager,
-    InternalBuildManager,
     ExternalBuildManager,
+    ExternalVersionManager,
+    InternalBuildManager,
+    InternalVersionManager,
+    VersionAutomationRuleManager,
+    VersionManager,
 )
 from readthedocs.builds.querysets import (
     BuildQuerySet,
@@ -75,8 +59,28 @@ from readthedocs.builds.utils import (
     get_gitlab_username_repo,
 )
 from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.oauth.models import RemoteRepository
-
+from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import broadcast
+from readthedocs.projects.constants import (
+    BITBUCKET_COMMIT_URL,
+    BITBUCKET_URL,
+    GITHUB_BRAND,
+    GITHUB_COMMIT_URL,
+    GITHUB_PULL_REQUEST_COMMIT_URL,
+    GITHUB_PULL_REQUEST_URL,
+    GITHUB_URL,
+    GITLAB_BRAND,
+    GITLAB_COMMIT_URL,
+    DOCUMENTATION_CHOICES,
+    GITLAB_MERGE_REQUEST_COMMIT_URL,
+    GITLAB_MERGE_REQUEST_URL,
+    GITLAB_URL,
+    MEDIA_TYPES,
+    PRIVACY_CHOICES,
+    PRIVATE,
+)
+from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.version_handling import determine_stable_version
 
 log = logging.getLogger(__name__)
 
@@ -89,6 +93,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -133,6 +138,21 @@ class Version(models.Model):
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
+    # Whether the latest successful build for this version contains certain media types
+    has_pdf = models.BooleanField(_('Has PDF'), default=False)
+    has_epub = models.BooleanField(_('Has ePub'), default=False)
+    has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
+
+    documentation_type = models.CharField(
+        _('Documentation type'),
+        max_length=20,
+        choices=DOCUMENTATION_CHOICES,
+        default='sphinx',
+        help_text=_(
+            'Type of documentation the version was built with.'
+        ),
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
@@ -142,11 +162,6 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            #              version
-            ('view_version', _('View Version')),
-        )
 
     def __str__(self):
         return ugettext(
@@ -196,7 +211,7 @@ class Version(models.Model):
         if self.slug == STABLE:
             slug_url = self.ref
         elif self.slug == LATEST:
-            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+            slug_url = self.project.get_default_branch()
         else:
             slug_url = self.slug
 
@@ -243,9 +258,7 @@ class Version(models.Model):
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
         if self.slug == LATEST:
-            if self.project.default_branch:
-                return self.project.default_branch
-            return self.project.vcs_repo().fallback_branch
+            return self.project.get_default_branch()
 
         if self.slug == STABLE:
             if self.type == BRANCH:
@@ -285,15 +298,7 @@ class Version(models.Model):
         return self.identifier
 
     def get_absolute_url(self):
-        # Hack external versions for now.
-        # TODO: We can integrate them into the resolver
-        # but this is much simpler to handle since we only link them a couple places for now
-        if self.type == EXTERNAL:
-            # Django's static file serving doesn't automatically append index.html
-            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
-                f'{self.project.slug}/{self.slug}/index.html'
-            return url
-
+        """Get absolute url to the docs of the version."""
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -303,9 +308,11 @@ class Version(models.Model):
                 },
             )
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             private=private,
+            external=external,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -328,10 +335,9 @@ class Version(models.Model):
             args=[self.get_artifact_paths()],
         )
 
-        # Remove build artifacts from storage if the version is not external
+        # Remove resources if the version is not external
         if self.type != EXTERNAL:
-            storage_paths = self.get_storage_paths()
-            tasks.remove_build_storage_paths.delay(storage_paths)
+            tasks.clean_project_resources(self.project, self)
 
         project_pk = self.project.pk
         super().delete(*args, **kwargs)
@@ -359,10 +365,12 @@ class Version(models.Model):
 
     def get_subdomain_url(self):
         private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
             private=private,
+            external=external,
         )
 
     def get_downloads(self, pretty=False):
@@ -372,17 +380,18 @@ class Version(models.Model):
         def prettify(k):
             return k if pretty else k.lower()
 
-        if project.has_pdf(self.slug, version_type=self.type):
+        if self.has_pdf:
             data[prettify('PDF')] = project.get_production_media_url(
                 'pdf',
                 self.slug,
             )
-        if project.has_htmlzip(self.slug, version_type=self.type):
+
+        if self.has_htmlzip:
             data[prettify('HTML')] = project.get_production_media_url(
                 'htmlzip',
                 self.slug,
             )
-        if project.has_epub(self.slug, version_type=self.type):
+        if self.has_epub:
             data[prettify('Epub')] = project.get_production_media_url(
                 'epub',
                 self.slug,
@@ -438,6 +447,11 @@ class Version(models.Model):
             )
 
         return paths
+
+    def get_storage_environment_cache_path(self):
+        """Return the path of the cached environment tar file."""
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        return storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -617,12 +631,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -912,6 +928,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))
@@ -949,8 +966,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     ACTIVATE_VERSION_ACTION = 'activate-version'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version on match')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set as default version on match')),
+        (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
     project = models.ForeignKey(
@@ -962,13 +979,32 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
     )
+    description = models.CharField(
+        _('Description'),
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     match_arg = models.CharField(
         _('Match argument'),
         help_text=_('Value used for the rule to match the version'),
         max_length=255,
     )
+    predefined_match_arg = models.CharField(
+        _('Predefined match argument'),
+        help_text=_(
+            'Match argument defined by us, it is used if is not None, '
+            'otherwise match_arg will be used.'
+        ),
+        max_length=255,
+        choices=PREDEFINED_MATCH_ARGS,
+        null=True,
+        blank=True,
+        default=None,
+    )
     action = models.CharField(
         _('Action'),
+        help_text=_('Action to apply to matching versions'),
         max_length=32,
         choices=ACTIONS,
     )
@@ -981,13 +1017,23 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     )
     version_type = models.CharField(
         _('Version type'),
+        help_text=_('Type of version the rule should be applied to'),
         max_length=32,
         choices=VERSION_TYPES,
     )
 
+    objects = VersionAutomationRuleManager()
+
     class Meta:
         unique_together = (('project', 'priority'),)
         ordering = ('priority', '-modified', '-created')
+
+    def get_match_arg(self):
+        """Get the match arg defined for `predefined_match_arg` or the match from user."""
+        match_arg = PREDEFINED_MATCH_ARGS_VALUES.get(
+            self.predefined_match_arg,
+        )
+        return match_arg or self.match_arg
 
     def run(self, version, *args, **kwargs):
         """
@@ -997,7 +1043,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         :returns: True if the action was performed
         """
         if version.type == self.version_type:
-            match, result = self.match(version, self.match_arg)
+            match, result = self.match(version, self.get_match_arg())
             if match:
                 self.apply_action(version, result)
                 return True
@@ -1028,6 +1074,95 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             raise NotImplementedError
         action(version, match_result, self.action_arg)
 
+    def move(self, steps):
+        """
+        Change the priority of this Automation Rule.
+
+        This is done by moving it ``n`` steps,
+        relative to the other priority rules.
+        The priority from the other rules are updated too.
+
+        :param steps: Number of steps to be moved
+                      (it can be negative)
+        :returns: True if the priority was changed
+        """
+        total = self.project.automation_rules.count()
+        current_priority = self.priority
+        new_priority = (current_priority + steps) % total
+
+        if current_priority == new_priority:
+            return False
+
+        # Move other's priority
+        if new_priority > current_priority:
+            # It was moved down
+            rules = (
+                self.project.automation_rules
+                .filter(priority__gt=current_priority, priority__lte=new_priority)
+                # We sort the queryset in asc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('priority')
+            )
+            expression = F('priority') - 1
+        else:
+            # It was moved up
+            rules = (
+                self.project.automation_rules
+                .filter(priority__lt=current_priority, priority__gte=new_priority)
+                .exclude(pk=self.pk)
+                # We sort the queryset in desc order
+                # to be updated in that order
+                # to avoid hitting the unique constraint (project, priority).
+                .order_by('-priority')
+            )
+            expression = F('priority') + 1
+
+        # Put an imposible priority to avoid
+        # the unique constraint (project, priority)
+        # while updating.
+        self.priority = total + 99
+        self.save()
+
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = expression
+            rule.save()
+
+        # Put back new priority
+        self.priority = new_priority
+        self.save()
+        return True
+
+    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """Override method to update the other priorities after delete."""
+        current_priority = self.priority
+        project = self.project
+        super().delete(*args, **kwargs)
+
+        rules = (
+            project.automation_rules
+            .filter(priority__gte=current_priority)
+            # We sort the queryset in asc order
+            # to be updated in that order
+            # to avoid hitting the unique constraint (project, priority).
+            .order_by('priority')
+        )
+        # We update each object one by one to
+        # avoid hitting the unique constraint (project, priority).
+        for rule in rules:
+            rule.priority = F('priority') - 1
+            rule.save()
+
+    def get_description(self):
+        if self.description:
+            return self.description
+        return f'{self.get_action_display()}'
+
+    def get_edit_url(self):
+        raise NotImplementedError
+
     def __str__(self):
         class_name = self.__class__.__name__
         return (
@@ -1039,6 +1174,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
+    TIMEOUT = 1  # timeout in seconds
+
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
@@ -1048,11 +1185,37 @@ class RegexAutomationRule(VersionAutomationRule):
         proxy = True
 
     def match(self, version, match_arg):
+        """
+        Find a match using regex.search.
+
+        .. note::
+
+           We use the regex module with the timeout
+           arg to avoid ReDoS.
+
+           We could use a finite state machine type of regex too,
+           but there isn't a stable library at the time of writting this code.
+        """
         try:
-            match = re.search(
-                match_arg, version.verbose_name
+            match = regex.search(
+                match_arg,
+                version.verbose_name,
+                # Compatible with the re module
+                flags=regex.VERSION0,
+                timeout=self.TIMEOUT,
             )
             return bool(match), match
+        except TimeoutError:
+            log.warning(
+                'Timeout while parsing regex. pattern=%s, input=%s',
+                match_arg, version.verbose_name,
+            )
         except Exception as e:
             log.info('Error parsing regex: %s', e)
-            return False, None
+        return False, None
+
+    def get_edit_url(self):
+        return reverse(
+            'projects_automation_rule_regex_edit',
+            args=[self.project.slug, self.pk],
+        )

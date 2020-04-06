@@ -6,7 +6,7 @@ from readthedocs.projects.models import HTMLFile
 
 
 SECTION_FIELDS = [ 'sections.title', 'sections.content' ]
-DOMAIN_FIELDS = [ 'domains.type_display', 'domains.name' ]
+DOMAIN_FIELDS = [ 'domains.name', 'domains.docstrings' ]
 DATA_TYPES_VALUES = ['title'] + SECTION_FIELDS + DOMAIN_FIELDS
 
 
@@ -42,18 +42,13 @@ def get_search_query_from_project_file(project_slug, page_num=0, data_type='titl
         query_data = query_data[0]['content'].split()
         start = random.randint(0, 6)
 
-        # 3 words to generate query to make sure that
+        # 5 words to generate query to make sure that
         # query does not only contains 'is', 'and', 'the'
         # and other stop words
-        end = start + 3
+        end = start + 5
 
         query = query_data[start:end]
         query = ' '.join(query)
-
-    elif data_type == 'domains.type_display':
-
-        # uses first word of domains.type_display as query
-        query = query_data[0]['type_display'].split()[0]
 
     elif data_type == 'domains.name':
         # test data contains domains.name
@@ -79,5 +74,21 @@ def get_search_query_from_project_file(project_slug, page_num=0, data_type='titl
             query = '/'.join(query_data[start:end])
         else:
             query = query_data[0]['name'].split()[0]
+
+    elif data_type == 'domains.docstrings':
+
+        # generates query from domain docstrings
+        anchor = query_data[0]['anchor']
+        docstrings = file_data['domain_data'][anchor]
+        query_data = docstrings.split()
+        start = random.randint(0, 1)
+
+        # 5 words to generate query to make sure that
+        # query does not only contains 'is', 'and', 'the'
+        # and other stop words
+        end = start + 5
+
+        query = query_data[start:end]
+        query = ' '.join(query)
 
     return query

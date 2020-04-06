@@ -17,10 +17,20 @@ environments by running::
 
     tox
 
-In order to run all test including the search tests, include `"'--including-search'"`
-argument::
+By default, tox won't run tests from search,
+in order to run all test including the search tests,
+you need to override tox's posargs.
+If you don't have any additional arguments to pass,
+you can also set the ``TOX_POSARGS`` environment variable to an empty string::
 
-    tox "'--including-search'"
+    TOX_POSARGS='' tox
+
+.. note::
+
+   If you need to override tox's posargs, but you still don't want to run the search tests,
+   you need to include ``-m 'not search'`` to your command::
+
+       tox -- -m 'not search' -x
 
 .. warning::
 
@@ -43,11 +53,38 @@ lint
 docs
     Test documentation compilation with Sphinx.
 
-.. _`Tox`: http://tox.readthedocs.io/en/latest/index.html
-.. _`Prospector`: http://prospector.readthedocs.io/en/master/
-.. _`pylint`: http://docs.pylint.org/
+.. _`Tox`: https://tox.readthedocs.io/en/latest/index.html
+.. _`Prospector`: https://prospector.readthedocs.io/en/master/
+.. _`pylint`: https://pylint.readthedocs.io/
 .. _`pyflakes`: https://github.com/pyflakes/pyflakes
-.. _`pep8`: http://pep8.readthedocs.io/en/latest/index.html
+.. _`pep8`: https://pep8.readthedocs.io/en/latest/index.html
+
+
+Pytest marks
+------------
+
+The Read the Docs code base is deployed as three instances:
+
+- Main: where you can see the dashboard.
+- Build: where the builds happen.
+- Serve/proxito: It is in charge of serving the documentation pages.
+
+Each instance has its own settings.
+To make sure we test each part as close as possible to its real settings,
+we use `pytest marks <https://docs.pytest.org/en/latest/mark.html>`__.
+This allow us to run each set of tests with different settings files,
+or skip some (like search tests)::
+
+
+  DJANGO_SETTINGS_MODULE=custom.settings.file pytest -m mark
+  DJANGO_SETTINGS_MODULE=another.settings.file pytest -m "not mark"
+
+Current marks are:
+
+- search (tests that require Elastic Search)
+- proxito (tests from the serve/proxito instance)
+
+Tests without mark are from the main instance.
 
 Continuous Integration
 ----------------------

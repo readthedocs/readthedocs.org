@@ -104,9 +104,8 @@ class PageSearchBase(RTDFacetedSearch):
     _outer_fields = ['title^4']
     _section_fields = ['sections.title^3', 'sections.content']
     _domain_fields = [
-        'domains.type_display',
         'domains.name^2',
-        'domains.display_name',
+        'domains.docstrings',
     ]
     _common_highlight_options = {
         'encoder': 'html',
@@ -134,8 +133,17 @@ class PageSearchBase(RTDFacetedSearch):
         """Manipulates query to support nested query."""
         search = search.highlight_options(**self._common_highlight_options)
 
+        all_queries = []
+
         # match query for the title (of the page) field.
-        match_title_query = Match(title=query)
+        for operator in self.operators:
+            all_queries.append(
+                SimpleQueryString(
+                    query=query,
+                    fields=self.fields,
+                    default_operator=operator
+                )
+            )
 
         # nested query for search in sections
         sections_nested_query = self.generate_nested_query(
@@ -162,21 +170,17 @@ class PageSearchBase(RTDFacetedSearch):
                 'highlight': dict(
                     self._common_highlight_options,
                     fields={
-                        'domains.type_display': {},
                         'domains.name': {},
-                        'domains.display_name': {},
+                        'domains.docstrings': {},
                     }
                 )
             }
         )
 
-        final_query = Bool(should=[
-            match_title_query,
-            sections_nested_query,
-            domains_nested_query,
-        ])
-
+        all_queries.extend([sections_nested_query, domains_nested_query])
+        final_query = Bool(should=all_queries)
         search = search.query(final_query)
+
         return search
 
     def generate_nested_query(self, query, path, fields, inner_hits):

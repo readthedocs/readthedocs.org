@@ -3,13 +3,14 @@ from django.conf import settings
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.http import Http404
+from django.http import HttpResponse
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 from django.urls.base import get_urlconf, set_urlconf
 from django_dynamic_fixture import get
 
-from readthedocs.core.middleware import SubdomainMiddleware
+from readthedocs.core.middleware import SubdomainMiddleware, ReadTheDocsSessionMiddleware
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 
@@ -244,3 +245,32 @@ class TestCORSMiddleware(TestCase):
         )
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
+
+
+class TestSessionMiddleware(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = ReadTheDocsSessionMiddleware()
+
+        self.user = create_user(username='owner', password='test')
+
+    def test_fallback_cookie(self):
+        request = self.factory.get('/')
+        response = HttpResponse()
+        self.middleware.process_request(request)
+        request.session['test'] = 'value'
+        response = self.middleware.process_response(request, response)
+
+        self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
+        self.assertTrue(self.middleware.cookie_name_fallback in response.cookies)
+
+    def test_main_cookie_samesite_none(self):
+        request = self.factory.get('/')
+        response = HttpResponse()
+        self.middleware.process_request(request)
+        request.session['test'] = 'value'
+        response = self.middleware.process_response(request, response)
+
+        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'None')
+        self.assertEqual(response.cookies[self.middleware.cookie_name_fallback]['samesite'], '')

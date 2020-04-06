@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Constants for the builds app."""
 
 from django.conf import settings
@@ -10,6 +8,7 @@ BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_UPLOADING = 'uploading'
 BUILD_STATE_FINISHED = 'finished'
 
 BUILD_STATE = (
@@ -17,6 +16,7 @@ BUILD_STATE = (
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_UPLOADING, _('Uploading')),
     (BUILD_STATE_FINISHED, _('Finished')),
 )
 
@@ -37,16 +37,20 @@ INTERNAL = 'internal'
 # Manager name for External Versions or Builds.
 # ie: Only pull request/merge request Versions and Builds.
 EXTERNAL = 'external'
+EXTERNAL_TEXT = _('External')
 
 BRANCH = 'branch'
+BRANCH_TEXT = _('Branch')
 TAG = 'tag'
+TAG_TEXT = _('Tag')
 UNKNOWN = 'unknown'
+UNKNOWN_TEXT = _('Unknown')
 
 VERSION_TYPES = (
-    (BRANCH, _('Branch')),
-    (TAG, _('Tag')),
-    (EXTERNAL, _('External')),
-    (UNKNOWN, _('Unknown')),
+    (BRANCH, BRANCH_TEXT),
+    (TAG, TAG_TEXT),
+    (EXTERNAL, EXTERNAL_TEXT),
+    (UNKNOWN, UNKNOWN_TEXT),
 )
 
 LATEST = settings.RTD_LATEST
@@ -72,18 +76,26 @@ GITHUB_BUILD_STATUS_FAILURE = 'failure'
 GITHUB_BUILD_STATUS_PENDING = 'pending'
 GITHUB_BUILD_STATUS_SUCCESS = 'success'
 
+# GitLab Build Statuses
+GITLAB_BUILD_STATUS_FAILURE = 'failed'
+GITLAB_BUILD_STATUS_PENDING = 'pending'
+GITLAB_BUILD_STATUS_SUCCESS = 'success'
+
 # Used to select correct Build status and description to be sent to each service API
 SELECT_BUILD_STATUS = {
     BUILD_STATUS_FAILURE: {
         'github': GITHUB_BUILD_STATUS_FAILURE,
+        'gitlab': GITLAB_BUILD_STATUS_FAILURE,
         'description': 'Read the Docs build failed!',
     },
     BUILD_STATUS_PENDING: {
         'github': GITHUB_BUILD_STATUS_PENDING,
+        'gitlab': GITLAB_BUILD_STATUS_PENDING,
         'description': 'Read the Docs build is in progress!',
     },
     BUILD_STATUS_SUCCESS: {
         'github': GITHUB_BUILD_STATUS_SUCCESS,
+        'gitlab': GITLAB_BUILD_STATUS_SUCCESS,
         'description': 'Read the Docs build succeeded!',
     },
 }
@@ -93,3 +105,26 @@ RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
+
+
+# Automation rules
+
+ALL_VERSIONS = 'all-versions'
+ALL_VERSIONS_REGEX = r'.*'
+SEMVER_VERSIONS = 'semver-versions'
+
+# Pattern referred from
+# https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+SEMVER_VERSIONS_REGEX = r'^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa
+
+
+PREDEFINED_MATCH_ARGS = (
+    (ALL_VERSIONS, _('Any version')),
+    (SEMVER_VERSIONS, _('SemVer versions')),
+    (None, _('Custom match')),
+)
+
+PREDEFINED_MATCH_ARGS_VALUES = {
+    ALL_VERSIONS: ALL_VERSIONS_REGEX,
+    SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
+}

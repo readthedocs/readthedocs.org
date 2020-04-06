@@ -11,3 +11,4 @@ from Read the Docs.
     :maxdepth: 3
 
     v2
+    v3

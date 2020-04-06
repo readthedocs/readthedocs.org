@@ -17,6 +17,7 @@ whether that is Sphinx or MkDocs.
 
     adding-custom-css
     custom-404-page
+    intersphinx
     manage-translations
     mkdocs-old-versions
     pdf-non-ascii-languages
@@ -27,18 +28,32 @@ whether that is Sphinx or MkDocs.
 Read the Docs how-to guides
 ---------------------------
 
-These guides will help you customize or tune aspects of the Read the Docs build environment.
+These guides will help you customize or tune aspects of Read the Docs.
 
 .. toctree::
     :maxdepth: 1
 
+    autobuild-docs-for-pull-requests
     build-notifications
     build-using-too-many-resources
+    technical-docs-seo-guide
     canonical
     conda
     environment-variables
     feature-flags
     google-analytics
+    searching-with-readthedocs
     sitemaps
     specifying-dependencies
     wipe-environment
+
+
+Read the Docs for Business how-to guides
+----------------------------------------
+
+These guides are specific to :doc:`/commercial/index`.
+
+.. toctree::
+   :maxdepth: 1
+
+   private-submodules
