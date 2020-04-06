@@ -25,7 +25,7 @@ Contributing to development
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:doc:`Installation Guide <development/install>`. After that is done we
+:doc:`Installation Guide </development/install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -40,9 +40,7 @@ They are simply things that are explained.
 If you still didn't find something to work on, search for the `Sprintable`_ label.
 Those tickets are meant to be standalone and can be worked on ad-hoc.
 
-When contributing code, then please follow the standard Contribution
-Guidelines set forth at `contribution-guide.org`_.
-
+You can read all of our :doc:`/development/index` to understand more the development of Read the Docs. When contributing code, then please follow the standard Contribution Guidelines set forth at `contribution-guide.org`_.
 
 .. _Feature: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _Improvement: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
@@ -59,34 +57,6 @@ Documentation for Read the Docs itself is hosted by Read the Docs at https://doc
 
 There are guidelines around writing and formatting documentation for the project.
 For full details, including how to build it, see :doc:`/development/docs`.
-
-
-Developer documentation
------------------------
-
-These are guides and helpful documentation to running your own local version of Read the Docs
-for development or taking the open source Read the Docs codebase
-for your own :doc:`custom installation <custom_installs/index>`.
-
-.. toctree::
-   :maxdepth: 1
-
-   development/standards
-   development/search
-   development/architecture
-   development/tests
-   development/docs
-   development/front-end
-   development/design/index
-   development/buildenvironments
-   development/symlinks
-   development/settings
-   development/install
-   development/i18n
-   development/issue-labels
-   development/design
-   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
-
 
 
 Triaging tickets
