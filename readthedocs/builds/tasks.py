@@ -8,6 +8,7 @@ from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
+
 class TaskRouter:
 
     """
@@ -32,7 +33,6 @@ class TaskRouter:
 
     BUILD_DEFAULT_QUEUE = 'build:default'
     BUILD_LARGE_QUEUE = 'build:large'
-
 
     def route_for_task(self, task, args, kwargs, **__):
         log.info('Executing TaskRouter. task=%s', task)
