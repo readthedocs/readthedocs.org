@@ -66,7 +66,6 @@ class ResolverBase:
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        # pylint: disable=unused-argument
         if subdomain or cname or (self._use_subdomain()):
             url = '/'
         else:
@@ -142,7 +141,6 @@ class ResolverBase:
         )
 
     def resolve_domain(self, project):
-        # pylint: disable=unused-argument
         canonical_project = self._get_canonical_project(project)
         domain = canonical_project.get_canonical_custom_domain()
         if domain:
