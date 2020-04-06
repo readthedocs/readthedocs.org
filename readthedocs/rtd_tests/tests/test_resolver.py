@@ -577,7 +577,7 @@ class ResolverTests(ResolverBase):
             )
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_resolver_nestesd_subproject_and_translation(self):
+    def test_resolver_nested_subproject_and_translation(self):
         """The project is a subproject, and the superproject is a translation of a project."""
         project = fixture.get(
             Project,
@@ -600,14 +600,14 @@ class ResolverTests(ResolverBase):
             users=[self.owner],
             main_language_project=None,
         )
-        self.translation.add_subproject(subproject)
+        translation.add_subproject(subproject)
 
         with override_settings(USE_SUBDOMAIN=False):
-            url = resolve(project=self.translation)
-            self.assertEqual(url, 'http://readthedocs.org/docs/pip/ja/latest/')
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://readthedocs.org/docs/docs-es/projects/api-es/es/latest/')
         with override_settings(USE_SUBDOMAIN=True):
-            url = resolve(project=self.translation)
-            self.assertEqual(url, 'http://pip.readthedocs.org/ja/latest/')
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://docs-es.readthedocs.org/projects/api-es/es/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_single_version(self):
