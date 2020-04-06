@@ -14,7 +14,6 @@ from readthedocs.builds.constants import (
     BRANCH,
     TAG,
     INTERNAL,
-    BUILD_STATE_QUEUED,
     BUILD_STATE_FINISHED,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -292,7 +291,7 @@ class BuildViewSetBase(UserSelectViewSet):
         queryset = (
             self.get_queryset()
             .filter(project__slug=project_slug)
-            .exclude(state__in=[BUILD_STATE_FINISHED, BUILD_STATE_QUEUED])
+            .exclude(state__in=[BUILD_STATE_FINISHED])
         )
         return Response({'count': queryset.count()})
 

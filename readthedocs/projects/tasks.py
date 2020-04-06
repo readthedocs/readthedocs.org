@@ -29,7 +29,6 @@ from sphinx.ext import intersphinx
 
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.constants import (
-    BUILD_STATE_QUEUED,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -527,7 +526,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         'error': BuildMaxConcurrencyError.message.format(
                             limit=settings.RTD_MAX_CONCURRENT_BUILDS,
                         ),
-                        'state': BUILD_STATE_QUEUED,
                     })
                     self.task.retry(exc=BuildMaxConcurrencyError, throw=False)
                     return False
