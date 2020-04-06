@@ -6,7 +6,7 @@ import json
 import django_dynamic_fixture as fixture
 from django.core import mail
 from django.test import TestCase
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.forms import WebHookForm

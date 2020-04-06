@@ -2,11 +2,11 @@
 
 import os
 
-import mock
+from unittest import mock
 from django.http import Http404
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import call
+from unittest.mock import call
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version

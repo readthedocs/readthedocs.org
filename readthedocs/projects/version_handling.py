@@ -103,19 +103,20 @@ def sort_versions(version_list):
             packaging.version.Version))
     """
     versions = []
-    for version_obj in version_list:
+    # use ``.iterator()`` to avoid fetching all the versions at once (this may
+    # have an impact when the project has lot of tags)
+    for version_obj in version_list.iterator():
         version_slug = version_obj.verbose_name
         comparable_version = parse_version_failsafe(version_slug)
         if comparable_version:
             versions.append((version_obj, comparable_version))
 
-    return list(
-        sorted(
-            versions,
-            key=lambda version_info: version_info[1],
-            reverse=True,
-        ),
+    # sort in-place to avoid leaking memory on projects with lot of versions
+    versions.sort(
+        key=lambda version_info: version_info[1],
+        reverse=True,
     )
+    return versions
 
 
 def highest_version(version_list):

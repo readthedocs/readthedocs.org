@@ -11,6 +11,7 @@ Local Development Configuration
 
 Installing and running Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You need to install and run Elasticsearch_ version 6.3 on your local development machine.
 You can get the installation instructions
 `here <https://www.elastic.co/guide/en/elasticsearch/reference/6.3/install-elasticsearch.html>`_.
@@ -19,6 +20,8 @@ Otherwise, you can also start an Elasticsearch Docker container by running the f
     docker run -p 9200:9200 -p 9300:9300 \
            -e "discovery.type=single-node" \
            docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+
+You need to override the ``ES_HOSTS`` and ``ELASTICSEARCH_DSL`` settings to point to ``127.0.0.1:9200``.
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

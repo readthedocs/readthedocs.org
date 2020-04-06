@@ -12,13 +12,13 @@ import re
 import tempfile
 import uuid
 
-import mock
+from unittest import mock
 import pytest
 from django.test import TestCase
 from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
-from mock import Mock, PropertyMock, mock_open, patch
+from unittest.mock import Mock, PropertyMock, mock_open, patch
 
 from readthedocs.builds.constants import BUILD_STATE_CLONING
 from readthedocs.builds.models import Version

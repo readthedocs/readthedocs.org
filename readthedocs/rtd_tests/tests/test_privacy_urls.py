@@ -1,6 +1,6 @@
 import re
 
-import mock
+from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -374,6 +374,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
+            'build-running': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
