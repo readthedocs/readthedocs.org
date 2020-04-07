@@ -475,7 +475,6 @@ class ServeSitemapXMLBase(View):
                         href = project.get_docs_url(
                             version_slug=version.slug,
                             lang_slug=translation.language,
-                            private=False,
                         )
                         element['languages'].append({
                             'hreflang': hreflang_formatter(translation.language),

@@ -64,6 +64,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    DOCTYPE_CHOICES,
     GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
@@ -71,13 +72,12 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
-    DOCUMENTATION_CHOICES,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
-    PRIVATE,
+    SPHINX,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -146,8 +146,8 @@ class Version(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'),
         max_length=20,
-        choices=DOCUMENTATION_CHOICES,
-        default='sphinx',
+        choices=DOCTYPE_CHOICES,
+        default=SPHINX,
         help_text=_(
             'Type of documentation the version was built with.'
         ),
@@ -307,11 +307,9 @@ class Version(models.Model):
                     'version_slug': self.slug,
                 },
             )
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
-            private=private,
             external=external,
         )
 
@@ -364,12 +362,10 @@ class Version(models.Model):
         return not self.type == EXTERNAL
 
     def get_subdomain_url(self):
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
-            private=private,
             external=external,
         )
 

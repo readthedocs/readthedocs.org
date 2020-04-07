@@ -657,7 +657,6 @@ class TestAdditionalDocViews(BaseDocServing):
                 self.project.get_docs_url(
                     version_slug=version.slug,
                     lang_slug=self.project.language,
-                    private=False,
                 ),
             )
 
@@ -667,7 +666,6 @@ class TestAdditionalDocViews(BaseDocServing):
             self.project.get_docs_url(
                 version_slug=private_version.slug,
                 lang_slug=self.project.language,
-                private=True,
             ),
         )
         # The `translation` project doesn't have a version named `not-translated-version`
@@ -679,7 +677,6 @@ class TestAdditionalDocViews(BaseDocServing):
             self.project.get_docs_url(
                 version_slug=not_translated_public_version.slug,
                 lang_slug=translation.language,
-                private=False,
             ),
         )
         # hreflang should use hyphen instead of underscore
@@ -692,7 +689,6 @@ class TestAdditionalDocViews(BaseDocServing):
             self.project.get_docs_url(
                 version_slug=external_version.slug,
                 lang_slug=self.project.language,
-                private=True,
             ),
         )
 
@@ -702,7 +698,6 @@ class TestAdditionalDocViews(BaseDocServing):
             self.project.get_docs_url(
                 version_slug=stable_version.slug,
                 lang_slug=self.project.language,
-                private=False,
             ),)
         self.assertEqual(response.context['versions'][0]['priority'], 1)
         self.assertEqual(response.context['versions'][0]['changefreq'], 'weekly')
@@ -713,7 +708,6 @@ class TestAdditionalDocViews(BaseDocServing):
             self.project.get_docs_url(
                 version_slug='latest',
                 lang_slug=self.project.language,
-                private=False,
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')

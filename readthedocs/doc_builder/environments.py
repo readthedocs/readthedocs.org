@@ -26,6 +26,10 @@ from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+from readthedocs.projects.exceptions import (
+    RepositoryError,
+    ProjectConfigurationError,
+)
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -528,15 +532,18 @@ class BuildEnvironment(BaseEnvironment):
                               successful
     """
 
-    # Exceptions considered ERROR from a Build perspective but as a WARNING for
-    # the application itself. These exception are logged as warning and not sent
-    # to Sentry.
+    # These exceptions are considered ERROR from a Build perspective (the build
+    # failed and can continue) but as a WARNING for the application itself (RTD
+    # code didn't failed). These exception are logged as ``WARNING`` and they
+    # are not sent to Sentry.
     WARNING_EXCEPTIONS = (
         VersionLockedError,
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
         MkDocsYAMLParseError,
+        RepositoryError,
+        ProjectConfigurationError,
     )
 
     def __init__(

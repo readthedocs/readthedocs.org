@@ -6,7 +6,6 @@ from urllib.parse import urlunparse
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.constants import PRIVATE
 from readthedocs.builds.constants import EXTERNAL
 
 log = logging.getLogger(__name__)
@@ -59,7 +58,6 @@ class ResolverBase:
             filename,
             version_slug=None,
             language=None,
-            private=False,
             single_version=None,
             subproject_slug=None,
             subdomain=None,
@@ -68,7 +66,6 @@ class ResolverBase:
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        # pylint: disable=unused-argument
         if subdomain or cname or (self._use_subdomain()):
             url = '/'
         else:
@@ -100,15 +97,11 @@ class ResolverBase:
             single_version=None,
             subdomain=None,
             cname=None,
-            private=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         cname = cname or project.get_canonical_custom_domain()
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
-
-        if private is None:
-            private, _ = self._get_private_and_external(project, version_slug)
 
         filename = self._fix_filename(project, filename)
 
@@ -144,12 +137,10 @@ class ResolverBase:
             single_version=single_version,
             subproject_slug=subproject_slug,
             cname=cname,
-            private=private,
             subdomain=subdomain,
         )
 
-    def resolve_domain(self, project, private=None):
-        # pylint: disable=unused-argument
+    def resolve_domain(self, project):
         canonical_project = self._get_canonical_project(project)
         domain = canonical_project.get_canonical_custom_domain()
         if domain:
@@ -162,14 +153,14 @@ class ResolverBase:
 
     def resolve(
             self, project, require_https=False, filename='', query_params='',
-            private=None, external=None, **kwargs
+            external=None, **kwargs
     ):
         version_slug = kwargs.get('version_slug')
 
-        if private is None or external is None:
-            if version_slug is None:
-                version_slug = project.get_default_version()
-            private, external = self._get_private_and_external(project, version_slug)
+        if version_slug is None:
+            version_slug = project.get_default_version()
+        if external is None:
+            external = self._is_external(project, version_slug)
 
         canonical_project = self._get_canonical_project(project)
         custom_domain = canonical_project.get_canonical_custom_domain()
@@ -200,7 +191,7 @@ class ResolverBase:
         protocol = 'https' if use_https_protocol else 'http'
 
         path = self.resolve_path(
-            project, filename=filename, private=private, **kwargs
+            project, filename=filename, **kwargs
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
 
@@ -219,16 +210,18 @@ class ResolverBase:
         # recursion. We can't determine a root project well here, so you get
         # what you get if you have configured your project in a strange manner
         if projects is None:
-            projects = [project]
+            projects = {project}
         else:
-            projects.append(project)
+            projects.add(project)
 
         next_project = None
-        relation = project.get_parent_relationship()
         if project.main_language_project:
             next_project = project.main_language_project
-        elif relation:
-            next_project = relation.parent
+        else:
+            relation = project.get_parent_relationship()
+            if relation:
+                next_project = relation.parent
+
         if next_project and next_project not in projects:
             return self._get_canonical_project(next_project, projects)
         return project
@@ -245,16 +238,14 @@ class ResolverBase:
         subdomain_slug = project.slug.replace('_', '-')
         return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
-    def _get_private_and_external(self, project, version_slug):
-        from readthedocs.builds.models import Version
-        try:
-            version = project.versions.get(slug=version_slug)
-            private = version.privacy_level == PRIVATE
-            external = version.type == EXTERNAL
-        except Version.DoesNotExist:
-            private = settings.DEFAULT_PRIVACY_LEVEL == PRIVATE
-            external = False
-        return private, external
+    def _is_external(self, project, version_slug):
+        type_ = (
+            project.versions
+            .values_list('type', flat=True)
+            .filter(slug=version_slug)
+            .first()
+        )
+        return type_ == EXTERNAL
 
     def _fix_filename(self, project, filename):
         """
