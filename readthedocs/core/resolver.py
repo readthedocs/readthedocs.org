@@ -219,16 +219,18 @@ class ResolverBase:
         # recursion. We can't determine a root project well here, so you get
         # what you get if you have configured your project in a strange manner
         if projects is None:
-            projects = [project]
+            projects = {project}
         else:
-            projects.append(project)
+            projects.add(project)
 
         next_project = None
-        relation = project.get_parent_relationship()
         if project.main_language_project:
             next_project = project.main_language_project
-        elif relation:
-            next_project = relation.parent
+        else:
+            relation = project.get_parent_relationship()
+            if relation:
+                next_project = relation.parent
+
         if next_project and next_project not in projects:
             return self._get_canonical_project(next_project, projects)
         return project
