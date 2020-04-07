@@ -34,12 +34,12 @@ You can also host your documentation from your own domain.
 
    .. tab:: Read the Docs Community
       
-In order to setup your custom domain, follow these steps:
+      In order to setup your custom domain, follow these steps:
 
-      - Add a CNAME record in your DNS that points the domain to ``readthedocs.io``
-      - Go the :guilabel:`Admin` tab of your project
-      - Click on :guilabel:`Domains`
-      - Enter your domain and click on :guilabel:`Add`
+      #. Add a CNAME record in your DNS that points the domain to ``readthedocs.io``
+      #. Go the :guilabel:`Admin` tab of your project
+      #. Click on :guilabel:`Domains`
+      #. Enter your domain and click on :guilabel:`Add`
 
       By default, we provide a validated SSL certificate for the domain.
       This service is generously provided by Cloudflare.
@@ -63,29 +63,31 @@ In order to setup your custom domain, follow these steps:
          they do not yet allow us to acquire SSL certificates for those domains.
          Follow the new setup to have a SSL certificate.
 
-      **Notes for Cloudflare users**
+      .. warning:: Notes for Cloudflare users
 
-      - If your domain has configured CAA records, please do not forget to include
-        Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
-        FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`__.
+         - If your domain has configured CAA records, please do not forget to include
+           Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
+           FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`__.
 
-      - Due to a limitation,
-        a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-        This results in a "CNAME Cross-User Banned" error.
-        In order to do SSL termination, we must proxy this connection.
-        If you don't want us to do SSL termination for your domain —
-        **which means you are responsible for the SSL certificate** —
-        then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-        For more details, see `this previous issue`_.
+         - Due to a limitation,
+           a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
+           This results in a "CNAME Cross-User Banned" error.
+           In order to do SSL termination, we must proxy this connection.
+           If you don't want us to do SSL termination for your domain —
+           **which means you are responsible for the SSL certificate** —
+           then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
+           For more details, see `this previous issue`_.
 
-        .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+           .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
    .. tab:: Read the Docs for Business
 
-      - Go the :guilabel:`Admin` tab of your project
-      - Click on :guilabel:`Domains`
-      - Enter your domain and click on :guilabel:`Add`
-      - Follow the steps shown on the domain page. This will require adding 2 DNS records, one pointing your custom domain to our servers, and another allowing us to provision an SSL certificate. 
+      In order to setup your custom domain, follow these steps:
+
+      #. Go the :guilabel:`Admin` tab of your project
+      #. Click on :guilabel:`Domains`
+      #. Enter your domain and click on :guilabel:`Add`
+      #. Follow the steps shown on the domain page. This will require adding 2 DNS records, one pointing your custom domain to our servers, and another allowing us to provision an SSL certificate. 
 
       By default, we provide a validated SSL certificate for the domain.
       The SSL certificate issuance can take a few days,
@@ -129,12 +131,3 @@ An example nginx configuration for pip would look like:
             proxy_read_timeout 20s;
         }
     }
-
-Other domains
--------------
-
-You can also use ``rtfd.io`` and ``rtfd.org`` for short URLs for projects hosted on the community version of Read the Docs.
-For example:
-
-- https://pip.rtfd.io redirects to pip's documentation page
-- https://rtfd.io/projects/pip redirects to pip's dashboard page
