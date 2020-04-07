@@ -218,8 +218,10 @@ class ResolverBase:
         # Track what projects have already been traversed to avoid infinite
         # recursion. We can't determine a root project well here, so you get
         # what you get if you have configured your project in a strange manner
-        projects = projects or set()
-        projects.add(project)
+        if projects is None:
+            projects = {project}
+        else:
+            projects.add(project)
 
         next_project = None
         if project.main_language_project:
