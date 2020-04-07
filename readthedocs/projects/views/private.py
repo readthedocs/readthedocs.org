@@ -472,8 +472,8 @@ class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
         Get a tuple of subprojects and its absolute URls.
 
         All subprojects share the domain from the parent,
-        so instead of resolving the domain and path of each subproject,
-        we only resolve the path of each one.
+        so instead of resolving the domain and path for each subproject,
+        we resolve only the path of each one.
         """
         subprojects_and_urls = []
 
