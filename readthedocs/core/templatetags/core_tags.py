@@ -37,10 +37,20 @@ def gravatar(email, size=48):
 
 
 @register.simple_tag(name='doc_url')
-def make_document_url(project, version=None, page=''):
+def make_document_url(project, version=None, page='', path=''):
+    """
+    Create a URL for a Project, Version and page (and/or path).
+
+    :param page: is the name of the document as Sphinx call it (e.g.
+        /config-file/v1) (note that the extension is not present)
+    :param path: is the full path of the page (e.g. /section/configuration.html)
+
+    :returns: URL to the page (e.g. https://docs.domain.com/en/latest/section/configuration.html)
+    """
     if not project:
         return ''
-    return resolve(project=project, version_slug=version, filename=page)
+    filename = path or page
+    return resolve(project=project, version_slug=version, filename=filename)
 
 
 @register.filter(is_safe=True)
