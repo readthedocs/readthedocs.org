@@ -27,9 +27,9 @@ class TaskRouter:
     https://docs.celeryproject.org/en/stable/userguide/configuration.html#std:setting-task_routes
     """
 
-    n_builds = 5
-    n_last_builds = 15
-    time_average = 350
+    N_BUILDS = 5
+    N_LAST_BUILDS = 15
+    TIME_AVERAGE = 350
 
     BUILD_DEFAULT_QUEUE = 'build:default'
     BUILD_LARGE_QUEUE = 'build:large'
@@ -62,7 +62,7 @@ class TaskRouter:
             return version.project.build_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
-        last_builds = queryset[:self.n_last_builds]
+        last_builds = queryset[:self.N_LAST_BUILDS]
 
         # Version has used conda in previous builds
         for build in last_builds.iterator():
@@ -74,7 +74,7 @@ class TaskRouter:
                 return self.BUILD_LARGE_QUEUE
 
         # We do not have enough builds for this version yet
-        if queryset.count() < self.n_builds:
+        if queryset.count() < self.N_BUILDS:
             log.info(
                 'Routing task because it does not have enough success builds yet. queue=%s',
                 self.BUILD_LARGE_QUEUE,
@@ -83,7 +83,7 @@ class TaskRouter:
 
         # Build time average is high
         length_avg = queryset.filter(pk__in=last_builds).aggregate(Avg('length')).get('length__avg')
-        if length_avg > self.time_average:
+        if length_avg > self.TIME_AVERAGE:
             log.info(
                 'Routing task because project has high time average. queue=%s',
                 self.BUILD_LARGE_QUEUE,
