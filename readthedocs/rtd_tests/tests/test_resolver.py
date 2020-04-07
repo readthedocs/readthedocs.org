@@ -593,6 +593,9 @@ class ResolverTests(ResolverBase):
             users=[self.owner],
             main_language_project=None,
         )
+        translation.main_language_project = project
+        translation.save()
+
         subproject = fixture.get(
             Project,
             slug='api-es',
