@@ -3,7 +3,6 @@
 import csv
 import logging
 from urllib.parse import urlparse
-from readthedocs.core.resolver import resolve, resolve_path
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -46,6 +45,7 @@ from readthedocs.core.mixins import (
     LoginRequiredMixin,
     PrivateViewMixin,
 )
+from readthedocs.core.resolver import resolve, resolve_path
 from readthedocs.core.utils import broadcast, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
