@@ -11,6 +11,7 @@ import os
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
+from readthedocs.projects.constants import MKDOCS_HTML, MKDOCS
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
@@ -66,6 +67,17 @@ class BaseMkdocs(BaseBuilder):
             )
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
+
+    def get_final_doctype(self):
+        """
+        Select a doctype based on the ``use_directory_urls`` setting.
+
+        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+        """
+        with open(self.yaml_file, 'r') as f:
+            config = yaml.safe_load(f)
+            use_directory_urls = config.get('use_directory_urls', True)
+            return MKDOCS if use_directory_urls else MKDOCS_HTML
 
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""

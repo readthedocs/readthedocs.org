@@ -25,7 +25,7 @@ Contributing to development
 
 If you want to deep dive and help out with development on Read the Docs, then
 first get the project installed locally according to the
-:doc:`Installation Guide <development/install>`. After that is done we
+:doc:`Installation Guide </development/install>`. After that is done we
 suggest you have a look at tickets in our issue tracker that are labelled `Good
 First Issue`_. These are meant to be a great way to get a smooth start and
 won't put you in front of the most complex parts of the system.
@@ -40,46 +40,7 @@ They are simply things that are explained.
 If you still didn't find something to work on, search for the `Sprintable`_ label.
 Those tickets are meant to be standalone and can be worked on ad-hoc.
 
-When contributing code, then please follow the standard Contribution
-Guidelines set forth at `contribution-guide.org`_.
-
-We have a strict code style that is easy to follow since you just have to
-install `pre-commit`_ and it will automatically run different linting tools
-(`autoflake`_, `autopep8`_, `docformatter`_, `isort`_, `prospector`_, `unify`_
-and `yapf`_) to check your changes before you commit them. `pre-commit` will let
-you know if there were any problems that it wasn't able to fix automatically.
-
-To run the `pre-commit` command and check your changes:
-
-.. prompt:: bash $
-
-    pip install -U pre-commit
-    git add <your-modified-files>
-    pre-commit run
-
-or to run against a specific file:
-
-.. prompt:: bash $
-
-    pre-commit run --files <file.py>
-
-`pre-commit` can also be run as a git pre-commit hook. You can set this up
-with:
-
-.. prompt:: bash $
-
-    pre-commit install
-
-After this installation, the next time you run `git commit` the `pre-commit run`
-command will be run immediately and will inform you of the changes and errors.
-
-.. note::
-
-    Our code base is still maturing and the core team doesn't yet recommend
-    running this as a pre-commit hook due to the number of changes this will
-    cause while constructing a pull request. Independent pull requests with
-    linting changes would be a great help to making this possible.
-
+You can read all of our :doc:`/development/index` to understand more the development of Read the Docs. When contributing code, then please follow the standard Contribution Guidelines set forth at `contribution-guide.org`_.
 
 .. _Feature: https://github.com/readthedocs/readthedocs.org/issues?direction=desc&labels=Feature&page=1&sort=updated&state=open
 .. _Improvement: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3AImprovement
@@ -88,14 +49,6 @@ command will be run immediately and will inform you of the changes and errors.
 .. _Sprintable: https://github.com/readthedocs/readthedocs.org/issues?q=is%3Aopen+is%3Aissue+label%3ASprintable
 .. _contribution-guide.org: http://www.contribution-guide.org/#submitting-bugs
 
-.. _pre-commit: https://github.com/pre-commit/pre-commit
-.. _autoflake: https://github.com/myint/autoflake
-.. _autopep8: https://github.com/hhatto/autopep8
-.. _docformatter: https://github.com/myint/docformatter
-.. _isort: https://github.com/timothycrosley/isort
-.. _prospector: https://prospector.landscape.io/en/master
-.. _unify: https://github.com/myint/unify
-.. _yapf: https://github.com/google/yapf
 
 Contributing to documentation
 -----------------------------
@@ -104,34 +57,6 @@ Documentation for Read the Docs itself is hosted by Read the Docs at https://doc
 
 There are guidelines around writing and formatting documentation for the project.
 For full details, including how to build it, see :doc:`/development/docs`.
-
-
-Developer documentation
------------------------
-
-These are guides and helpful documentation to running your own local version of Read the Docs
-for development or taking the open source Read the Docs codebase
-for your own :doc:`custom installation <custom_installs/index>`.
-
-.. toctree::
-   :maxdepth: 1
-
-   development/install
-   development/standards
-   development/search
-   development/architecture
-   development/tests
-   development/docs
-   development/front-end
-   development/design/index
-   development/buildenvironments
-   development/symlinks
-   development/settings
-   development/i18n
-   development/issue-labels
-   development/design
-   RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
-
 
 
 Triaging tickets
