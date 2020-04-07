@@ -34,6 +34,8 @@ You can also host your documentation from your own domain.
 
    .. tab:: Read the Docs Community
       
+In order to setup your custom domain, follow these steps:
+
       - Add a CNAME record in your DNS that points the domain to ``readthedocs.io``
       - Go the :guilabel:`Admin` tab of your project
       - Click on :guilabel:`Domains`
@@ -83,7 +85,7 @@ You can also host your documentation from your own domain.
       - Go the :guilabel:`Admin` tab of your project
       - Click on :guilabel:`Domains`
       - Enter your domain and click on :guilabel:`Add`
-      - Follow the steps shown on the domain page
+      - Follow the steps shown on the domain page. This will require adding 2 DNS records, one pointing your custom domain to our servers, and another allowing us to provision an SSL certificate. 
 
       By default, we provide a validated SSL certificate for the domain.
       The SSL certificate issuance can take a few days,
