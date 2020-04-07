@@ -259,32 +259,6 @@ class ResolverPathOverrideTests(ResolverBase):
             )
             self.assertEqual(url, '/cz/foo/index.html')
 
-    def test_resolver_no_force_translation(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/docs/pip/ja/latest/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/ja/latest/index.html')
-
-    def test_resolver_no_force_translation_with_version(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/docs/pip/ja/foo/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/ja/foo/index.html')
-
 
 class ResolverCanonicalProject(TestCase):
 
