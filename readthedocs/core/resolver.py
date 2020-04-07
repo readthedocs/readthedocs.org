@@ -213,23 +213,22 @@ class ResolverBase:
 
         - The project is a translation, and the main translation is a subproject of a project, like:
 
-          - docs.docs.com
-          - api.docs.com (subproject of ``docs``)
-          - api-es.docs.com (translation of ``api``, and current project to be served)
+          - docs
+          - api (subproject of ``docs``)
+          - api-es (translation of ``api``, and current project to be served)
 
           We serve the documentation from the domain of the super project
           (docs.docs.com/projects/api/es/).
 
         - The project is a subproject, and the superproject is a translation of a project, like:
 
-          - docs.docs.com/
-          - docs-es.docs.com/ (translation of ``docs``)
-          - api-es.docs.com/ (subproject of ``docs-es``, and current project to be served)
+          - docs
+          - docs-es (translation of ``docs``)
+          - api-es (subproject of ``docs-es``, and current project to be served)
 
           We serve the documentation from the domain of the super project (the translation),
           this is docs-es.docs.com/projects/api-es/es/.
-
-          Note: we aren't going to support this case for now.
+          We aren't going to support this case for now.
 
         In summary: If the project is a subproject,
         we don't care if the superproject is a translation,
