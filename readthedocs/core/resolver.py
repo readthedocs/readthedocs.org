@@ -229,6 +229,8 @@ class ResolverBase:
           We serve the documentation from the domain of the super project (the translation),
           this is docs-es.docs.com/projects/api-es/es/.
 
+          Note: we aren't going to support this case for now.
+
         In summary: If the project is a subproject,
         we don't care if the superproject is a translation,
         we always serve from the domain of the superproject.

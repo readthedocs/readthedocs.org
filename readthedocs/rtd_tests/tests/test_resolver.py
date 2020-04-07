@@ -1,14 +1,16 @@
-import django_dynamic_fixture as fixture
 from unittest import mock
+
+import django_dynamic_fixture as fixture
+import pytest
 from django.test import TestCase, override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import (
     Resolver,
     resolve,
     resolve_domain,
     resolve_path,
 )
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -555,7 +557,7 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://pip.readthedocs.org/ja/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_resolver_nested_translation_and_subproject(self):
+    def test_resolver_nested_translation_of_a_subproject(self):
         """The project is a translation, and the main translation is a subproject of a project."""
         translation = fixture.get(
             Project,
@@ -576,8 +578,9 @@ class ResolverTests(ResolverBase):
                 url, 'http://pip.readthedocs.org/projects/sub/es/latest/',
             )
 
+    @pytest.mark.xfail('We do not support this for now', strict=True)
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_resolver_nested_subproject_and_translation(self):
+    def test_resolver_nested_subproject_of_a_translation(self):
         """The project is a subproject, and the superproject is a translation of a project."""
         project = fixture.get(
             Project,
@@ -591,10 +594,8 @@ class ResolverTests(ResolverBase):
             slug='docs-es',
             language='es',
             users=[self.owner],
-            main_language_project=None,
+            main_language_project=project,
         )
-        translation.main_language_project = project
-        translation.save()
 
         subproject = fixture.get(
             Project,
