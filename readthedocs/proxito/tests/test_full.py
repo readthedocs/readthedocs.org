@@ -276,7 +276,7 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
 
     def test_directory_indexes(self):
-        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
+        self.project.versions.update(active=True, built=True)
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest/index-exists'}),
@@ -290,7 +290,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_versioned_no_slash(self):
-        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
+        self.project.versions.update(active=True, built=True)
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest'}),
             HTTP_HOST='project.readthedocs.io',
@@ -304,7 +304,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_readme_serving(self, storage_mock):
-        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
+        self.project.versions.update(active=True, built=True)
 
         storage_mock()().exists.side_effect = [False, True]
         # Confirm we've serving from storage for the `index-exists/index.html` file
@@ -320,7 +320,7 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     def test_directory_indexes_get_args(self):
-        self.project.versions.update(active=True, built=True, documentation_type=SPHINX_HTMLDIR)
+        self.project.versions.update(active=True, built=True)
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest/index-exists?foo=bar'}),
@@ -346,13 +346,15 @@ class TestAdditionalDocViews(BaseDocServing):
             documentation_type=SPHINX,
         )
 
-        storage_mock()().exists.side_effect = [True]
+        storage_mock()().exists.side_effect = [False, False, True]
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
             HTTP_HOST='project.readthedocs.io',
         )
         storage_mock()().exists.assert_has_calls(
             [
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
                 mock.call('html/project/fancy-version/404.html'),
             ]
         )
@@ -371,13 +373,15 @@ class TestAdditionalDocViews(BaseDocServing):
             documentation_type=SPHINX_SINGLEHTML,
         )
 
-        storage_mock()().exists.side_effect = [True]
+        storage_mock()().exists.side_effect = [False, False, True]
         response = self.client.get(
             reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found'}),
             HTTP_HOST='project.readthedocs.io',
         )
         storage_mock()().exists.assert_has_calls(
             [
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
                 mock.call('html/project/fancy-version/404.html'),
             ]
         )
@@ -405,7 +409,7 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404/index.html'),
+                mock.call('html/project/fancy-version/404.html'),
             ]
         )
         self.assertEqual(response.status_code, 404)
@@ -432,7 +436,7 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404/index.html'),
+                mock.call('html/project/fancy-version/404.html'),
             ]
         )
         self.assertEqual(response.status_code, 404)
@@ -518,8 +522,10 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
+                mock.call('html/project/fancy-version/404.html'),
                 mock.call('html/project/fancy-version/404/index.html'),
-                mock.call('html/project/latest/404/index.html')
+                mock.call('html/project/latest/404.html'),
+                mock.call('html/project/latest/404/index.html'),
             ]
         )
 
@@ -548,8 +554,8 @@ class TestAdditionalDocViews(BaseDocServing):
             [
                 mock.call('html/project/fancy-version/not-found/index.html'),
                 mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404/index.html'),
-                mock.call('html/project/latest/404/index.html')
+                mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/latest/404.html')
             ]
         )
 
@@ -576,7 +582,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_mock()().exists.assert_has_calls(
             [
+                mock.call('html/project/fancy-version/not-found/index.html'),
+                mock.call('html/project/fancy-version/not-found/README.html'),
                 mock.call('html/project/fancy-version/404.html'),
+                mock.call('html/project/latest/404.html'),
                 mock.call('html/project/latest/404/index.html'),
             ]
         )

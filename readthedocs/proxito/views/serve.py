@@ -17,7 +17,7 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
+from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
@@ -195,40 +195,33 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         # First, check for dirhtml with slash
-        doc_type = (
-            Version.objects.filter(project=final_project, slug=version_slug)
-            .values_list('documentation_type', flat=True)
-            .first()
-        )
-        is_htmldir_type = doc_type in (SPHINX_HTMLDIR, MKDOCS)
-        if is_htmldir_type:
-            for tryfile in ('index.html', 'README.html'):
-                storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
-                log.debug(
-                    'Trying index filename: project=%s version=%s, file=%s',
+        for tryfile in ('index.html', 'README.html'):
+            storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
+            log.debug(
+                'Trying index filename: project=%s version=%s, file=%s',
+                final_project.slug,
+                version_slug,
+                storage_filename_path,
+            )
+            if storage.exists(storage_filename_path):
+                log.info(
+                    'Redirecting to index file: project=%s version=%s, storage_path=%s',
                     final_project.slug,
                     version_slug,
                     storage_filename_path,
                 )
-                if storage.exists(storage_filename_path):
-                    log.info(
-                        'Redirecting to index file: project=%s version=%s, storage_path=%s',
-                        final_project.slug,
-                        version_slug,
-                        storage_filename_path,
-                    )
-                    # Use urlparse so that we maintain GET args in our redirect
-                    parts = urlparse(proxito_path)
-                    if tryfile == 'README.html':
-                        new_path = f'{parts.path}/{tryfile}'
-                    else:
-                        new_path = parts.path.rstrip('/') + '/'
-                    new_parts = parts._replace(path=new_path)
-                    redirect_url = new_parts.geturl()
+                # Use urlparse so that we maintain GET args in our redirect
+                parts = urlparse(proxito_path)
+                if tryfile == 'README.html':
+                    new_path = f'{parts.path}/{tryfile}'
+                else:
+                    new_path = parts.path.rstrip('/') + '/'
+                new_parts = parts._replace(path=new_path)
+                redirect_url = new_parts.geturl()
 
-                    # TODO: decide if we need to check for infinite redirect here
-                    # (from URL == to URL)
-                    return HttpResponseRedirect(redirect_url)
+                # TODO: decide if we need to check for infinite redirect here
+                # (from URL == to URL)
+                return HttpResponseRedirect(redirect_url)
 
         # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
         # without query, starting with a ``/``. This matches our old logic:
@@ -264,6 +257,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
+        doc_type = (
+            Version.objects.filter(project=final_project, slug=version_slug)
+            .values_list('documentation_type', flat=True)
+            .first()
+        )
         versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
@@ -284,18 +282,22 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 include_file=False,
                 version_type=self.version_type,
             )
-            is_htmldir_type = doc_type_404 in (SPHINX_HTMLDIR, MKDOCS)
-            tryfile = '404/index.html' if is_htmldir_type else '404.html'
-            storage_filename_path = f'{storage_root_path}/{tryfile}'
-            if storage.exists(storage_filename_path):
-                log.info(
-                    'Serving custom 404.html page: [project: %s] [version: %s]',
-                    final_project.slug,
-                    version_slug_404,
-                )
-                resp = HttpResponse(storage.open(storage_filename_path).read())
-                resp.status_code = 404
-                return resp
+            tryfiles = ['404.html']
+            # SPHINX_HTMLDIR is the only builder
+            # that could output a 404/index.html file.
+            if doc_type_404 == SPHINX_HTMLDIR:
+                tryfiles.append('404/index.html')
+            for tryfile in tryfiles:
+                storage_filename_path = f'{storage_root_path}/{tryfile}'
+                if storage.exists(storage_filename_path):
+                    log.info(
+                        'Serving custom 404.html page: [project: %s] [version: %s]',
+                        final_project.slug,
+                        version_slug_404,
+                    )
+                    resp = HttpResponse(storage.open(storage_filename_path).read())
+                    resp.status_code = 404
+                    return resp
 
         raise Http404('No custom 404 page found.')
 
