@@ -44,6 +44,8 @@ class DockerBaseSettings(CommunityDevSettings):
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
 
+    ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
+
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
 
