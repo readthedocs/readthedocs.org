@@ -20,7 +20,11 @@ def docurl(request):
 
     Example::
 
-        GET https://readthedocs.org/api/v2/docurl/?project=requests&version=latest&doc=index&path=index.html
+        GET https://readthedocs.org/api/v2/docurl/?
+          project=requests&
+          version=latest&
+          doc=index&
+          path=index.html
     """
     project = request.GET.get('project')
     version = request.GET.get('version', LATEST)
