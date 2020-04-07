@@ -25,8 +25,8 @@ class CoreTagsTests(TestCase):
         self.pip_abc_url_index = url_base.format(version='/en/abc/index.html')
         self.pip_abc_fr_url = url_base.format(version='/fr/abc/')
         self.pip_abc_fr_url_index = url_base.format(version='/fr/abc/index.html')
-        self.pip_abc_xyz_page_url = url_base.format(version='/en/abc/xyz.html')
-        self.pip_abc_xyz_fr_page_url = url_base.format(version='/fr/abc/xyz.html')
+        self.pip_abc_xyz_page_url = url_base.format(version='/en/abc/xyz')
+        self.pip_abc_xyz_fr_page_url = url_base.format(version='/fr/abc/xyz')
         self.pip_latest_document_url = url_base.format(version='/en/latest/document')
         self.pip_latest_document_page_url = url_base.format(version='/en/latest/document.html')
 
@@ -67,47 +67,29 @@ class CoreTagsTests(TestCase):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
         self.assertEqual(url, self.pip_abc_xyz_page_url)
-        url = core_tags.make_document_url(proj, 'abc', 'index.html')
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
         self.assertEqual(url, self.pip_abc_url_index)
 
     def test_translation_project_and_version_and_page(self):
         proj = Project.objects.get(slug='pip-fr')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
         self.assertEqual(url, self.pip_abc_xyz_fr_page_url)
-        url = core_tags.make_document_url(proj, 'abc', 'index.html')
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
         self.assertEqual(url, self.pip_abc_fr_url_index)
-
-    def test_sphinx_project_documentation_type(self):
-        proj = Project.objects.get(slug='pip')
-
-        proj.documentation_type = 'sphinx'
-        url = core_tags.make_document_url(proj, LATEST, 'document')
-        self.assertEqual(url, self.pip_latest_document_page_url)
-
-        proj.documentation_type = 'sphinx_htmldir'
-        url = core_tags.make_document_url(proj, LATEST, 'document')
-        self.assertEqual(url, self.pip_latest_document_url)
-
-        proj.documentation_type = 'sphinx_singlehtml'
-        url = core_tags.make_document_url(proj, LATEST, 'document')
-        self.assertEqual(url, self.pip_latest_document_url)
 
     def test_mkdocs(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'document')
-        self.assertEqual(url, self.pip_latest_document_page_url)
+        self.assertEqual(url, self.pip_latest_document_url)
 
     def test_mkdocs_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'document.html')
+        url = core_tags.make_document_url(proj, LATEST, 'document', 'document.html')
         self.assertEqual(url, self.pip_latest_document_page_url)
 
     def test_mkdocs_index_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'index.html')
+        url = core_tags.make_document_url(proj, LATEST, 'index', 'index.html')
         self.assertEqual(url, self.pip_latest_url_index)
 
     def test_restructured_text(self):
