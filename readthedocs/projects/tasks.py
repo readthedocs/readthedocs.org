@@ -57,6 +57,7 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
+    BuildMaxConcurrencyError,
     BuildTimeoutError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
@@ -307,7 +308,10 @@ class SyncRepositoryMixin:
         return env
 
 
-@app.task(max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    max_retries=5,
+    default_retry_delay=7 * 60,
+)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
     try:
@@ -394,25 +398,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return False
 
 
-# Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective (the build failed and can continue) but as a WARNING for the
-# application itself (RTD code didn't failed). These exception are logged as
-# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
     default_retry_delay=7 * 60,
-    throws=(
-        VersionLockedError,
-        ProjectBuildsSkippedError,
-        YAMLParseError,
-        BuildTimeoutError,
-        BuildEnvironmentWarning,
-        RepositoryError,
-        ProjectConfigurationError,
-        ProjectBuildsSkippedError,
-        MkDocsYAMLParseError,
-    ),
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
     try:
@@ -509,6 +498,30 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.build_force = force
             self.commit = commit
             self.config = None
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                response = api_v2.build.running.get(project__slug=self.project.slug)
+                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                    log.warning(
+                        'Delaying tasks due to concurrency limit. project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+
+                    # This is done automatically on the environment context, but
+                    # we are executing this code before creating one
+                    api_v2.build(self.build['id']).patch({
+                        'error': BuildMaxConcurrencyError.message.format(
+                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                        ),
+                    })
+                    self.task.retry(
+                        exc=BuildMaxConcurrencyError,
+                        throw=False,
+                        # We want to retry this build more times
+                        max_retries=25,
+                    )
+                    return False
 
             # Build process starts here
             setup_successful = self.run_setup(record=record)
