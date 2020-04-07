@@ -578,7 +578,7 @@ class ResolverTests(ResolverBase):
                 url, 'http://pip.readthedocs.org/projects/sub/es/latest/',
             )
 
-    @pytest.mark.xfail('We do not support this for now', strict=True)
+    @pytest.mark.xfail(reason='We do not support this for now', strict=True)
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_nested_subproject_of_a_translation(self):
         """The project is a subproject, and the superproject is a translation of a project."""
