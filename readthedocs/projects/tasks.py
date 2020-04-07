@@ -1611,7 +1611,7 @@ def _create_intersphinx_data(version, commit, build):
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
-        domain, _type = key.split(':')
+        domain, _type = key.split(':', 1)
         for name, einfo in sorted(value.items()):
             # project, version, url, display_name
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
