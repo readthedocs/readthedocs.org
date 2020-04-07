@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.db.models import Avg
 
 from readthedocs.builds.models import Build, Version
@@ -46,12 +45,12 @@ class TaskRouter:
         version = self._get_version(task, args, kwargs)
         if not version:
             log.info('No Build/Version found. No routing task. task=%s', task)
-            return settings.CELERY_DEFAULT_QUEUE
+            return
 
         # Do no route tasks for projects without the feature flag
         if not version.project.has_feature(Feature.CELERY_ROUTER):
             log.info('Project does not have the feature flag. No routing task. task=%s', task)
-            return version.project.build_queue or settings.CELERY_DEFAULT_QUEUE
+            return version.project.build_queue or None
 
         # Do not override the queue defined in the project itself
         if version.project.build_queue:
@@ -90,11 +89,8 @@ class TaskRouter:
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info(
-            'Routing task to default queue because no conditions were met. queue=%s',
-            settings.CELERY_DEFAULT_QUEUE,
-        )
-        return settings.CELERY_DEFAULT_QUEUE
+        log.info('No routing task because no conditions were met.')
+        return
 
     def _get_version(self, task, args, kwargs):
         if task == 'readthedocs.projects.tasks.update_docs_task':
@@ -104,9 +100,8 @@ class TaskRouter:
                 version = build.version
             except Build.DoesNotExist:
                 log.info(
-                    'Build does not exist. Routing task to default queue. build_pk=%s queue=%s',
+                    'Build does not exist. Routing task to default queue. build_pk=%s',
                     build_pk,
-                    settings.CELERY_DEFAULT_QUEUE,
                 )
                 return
 
@@ -116,9 +111,8 @@ class TaskRouter:
                 version = Version.objects.get(pk=version_pk)
             except Version.DoesNotExist:
                 log.info(
-                    'Version does not exist. Routing task to default queue. version_pk=%s queue=%s',
+                    'Version does not exist. Routing task to default queue. version_pk=%s',
                     version_pk,
-                    settings.CELERY_DEFAULT_QUEUE,
                 )
                 return
         return version
