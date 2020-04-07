@@ -67,32 +67,29 @@ class CoreTagsTests(TestCase):
         proj = Project.objects.get(slug='pip')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
         self.assertEqual(url, self.pip_abc_xyz_page_url)
-        url = core_tags.make_document_url(proj, 'abc', 'index.html')
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
         self.assertEqual(url, self.pip_abc_url_index)
 
     def test_translation_project_and_version_and_page(self):
         proj = Project.objects.get(slug='pip-fr')
         url = core_tags.make_document_url(proj, 'abc', 'xyz')
         self.assertEqual(url, self.pip_abc_xyz_fr_page_url)
-        url = core_tags.make_document_url(proj, 'abc', 'index.html')
+        url = core_tags.make_document_url(proj, 'abc', 'index', 'index.html')
         self.assertEqual(url, self.pip_abc_fr_url_index)
 
     def test_mkdocs(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
         url = core_tags.make_document_url(proj, LATEST, 'document')
         self.assertEqual(url, self.pip_latest_document_url)
 
     def test_mkdocs_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'document.html')
+        url = core_tags.make_document_url(proj, LATEST, 'document', 'document.html')
         self.assertEqual(url, self.pip_latest_document_page_url)
 
     def test_mkdocs_index_no_directory_urls(self):
         proj = Project.objects.get(slug='pip')
-        proj.documentation_type = 'mkdocs'
-        url = core_tags.make_document_url(proj, LATEST, 'index.html')
+        url = core_tags.make_document_url(proj, LATEST, 'index', 'index.html')
         self.assertEqual(url, self.pip_latest_url_index)
 
     def test_restructured_text(self):

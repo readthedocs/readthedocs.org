@@ -77,7 +77,6 @@ from readthedocs.projects.constants import (
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
-    PRIVATE,
     SPHINX,
 )
 from readthedocs.projects.models import APIProject, Project
@@ -308,11 +307,9 @@ class Version(models.Model):
                     'version_slug': self.slug,
                 },
             )
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
-            private=private,
             external=external,
         )
 
@@ -365,12 +362,10 @@ class Version(models.Model):
         return not self.type == EXTERNAL
 
     def get_subdomain_url(self):
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
-            private=private,
             external=external,
         )
 

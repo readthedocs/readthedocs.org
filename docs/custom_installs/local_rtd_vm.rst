@@ -1,5 +1,17 @@
-Local VM Install
-================
+Local Install
+=============
+
+Before proceeding to setup your own local Read the Docs instance,
+it may be worth familiarizing yourself with the Read the Docs
+:doc:`development setup and standards </development/standards>`,
+which details the local development setup with Docker,
+and the :doc:`installation guide </development/install>`.
+
+Again, if your primary reasons for considering a private installation
+are to connect to private repositories or to have fine grained access control over your documentation,
+please consider :doc:`Read the Docs for Business </commercial/index>`.
+It has those features and many more and helps support Read the Docs!
+
 
 Assumptions and Prerequisites
 -----------------------------
