@@ -34,12 +34,12 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
     BUILD_STATE_UPLOADING,
-    BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
-    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -68,7 +68,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
+from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, MKDOCS
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -940,7 +940,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
-                    'documentation_type': self.config.doctype,
+                    'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -1085,7 +1085,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
-                    'documentation_type': self.config.doctype,
+                    'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -1205,6 +1205,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
+
+    def get_final_doctype(self):
+        html_builder = get_builder_class(self.config.doctype)(
+            build_env=self.build_env,
+            python_env=self.python_env,
+        )
+        return html_builder.get_final_doctype()
 
     def build_docs_search(self):
         """Build search data."""
@@ -1611,7 +1618,7 @@ def _create_intersphinx_data(version, commit, build):
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
-        domain, _type = key.split(':')
+        domain, _type = key.split(':', 1)
         for name, einfo in sorted(value.items()):
             # project, version, url, display_name
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
