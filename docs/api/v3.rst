@@ -103,7 +103,11 @@ Projects list
             "count": 25,
             "next": "/api/v3/projects/?limit=10&offset=10",
             "previous": null,
-            "results": ["PROJECT"]
+            "results": [{
+                "id": 12345,
+                "name": "Pip",
+                ...
+            }]
         }
 
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
@@ -861,7 +865,11 @@ Translations listing
             "count": 25,
             "next": "/api/v3/projects/pip/translations/?limit=10&offset=10",
             "previous": null,
-            "results": ["PROJECT"]
+            "results": [{
+                "id": 12345,
+                "name": "Pip",
+                ...
+            }]
         }
 
 
