@@ -23,7 +23,10 @@ from readthedocs.projects.models import Project
 from .base import BaseDocServing
 
 
-@override_settings(PYTHON_MEDIA=False)
+@override_settings(
+    PYTHON_MEDIA=False,
+    PUBLIC_DOMAIN='dev.readthedocs.io',
+)
 class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
 
