@@ -81,7 +81,12 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailView(ProjectRelationListMixin, BuildTriggerMixin, ProjectOnboardMixin, DetailView):
+class ProjectDetailView(
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView
+):
 
     """Display project onboard steps."""
 
