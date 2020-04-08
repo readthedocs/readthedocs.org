@@ -30,7 +30,9 @@ pyyaml==5.1.2
 Pygments==2.4.2
 
 # Basic tools
-redis==3.4.1
+# redis==3.4.1 makes the celery workers to randomly get killed
+redis==3.2.1 # pyup: <3.3
+
 kombu==4.6.8
 celery==4.4.2
 
