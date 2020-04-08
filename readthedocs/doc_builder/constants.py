@@ -32,23 +32,24 @@ DOCKER_LIMITS = {
 }
 
 # Set docker limits dynamically based on system memory
-free_memory = int(subprocess.check_output("free -m | awk '/^Mem:/{print $2}'", shell=True))
-if free_memory > 14000:
+# This assumes 1-builder per server
+total_memory = int(subprocess.check_output("free -m | awk '/^Mem:/{print $2}'", shell=True))
+if total_memory > 14000:
     DOCKER_LIMITS.update({
         'memory': '13g',
         'time': 2400,
     })
-elif free_memory > 8000:
+elif total_memory > 8000:
     DOCKER_LIMITS.update({
         'memory': '7g',
         'time': 1800,
     })
-elif free_memory > 4000:
+elif total_memory > 4000:
     DOCKER_LIMITS.update({
         'memory': '3g',
         'time': 900,
     })
-elif free_memory > 2000:
+elif total_memory > 2000:
     DOCKER_LIMITS.update({
         'memory': '1g',
         'time': 600,
