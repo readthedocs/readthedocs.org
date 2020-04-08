@@ -6,8 +6,8 @@ import logging
 import mimetypes
 import operator
 import os
-from urllib.parse import urlparse
 from collections import OrderedDict
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -16,13 +16,13 @@ from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare
+from django.utils.encoding import force_bytes
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
-from django.utils.crypto import constant_time_compare
-from django.utils.encoding import force_bytes
 from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
@@ -33,12 +33,12 @@ from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
 
-from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
-
+from .base import ProjectOnboardMixin
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
@@ -81,7 +81,12 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
+class ProjectDetailView(
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView
+):
 
     """Display project onboard steps."""
 
@@ -90,6 +95,9 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
 
     def get_queryset(self):
         return Project.objects.protected(self.request.user)
+
+    def get_project(self):
+        return self.get_object()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
