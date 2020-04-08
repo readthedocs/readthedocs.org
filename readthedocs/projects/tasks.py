@@ -34,12 +34,12 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
     BUILD_STATE_UPLOADING,
-    BUILD_STATUS_SUCCESS,
     BUILD_STATUS_FAILURE,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
-    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
@@ -57,6 +57,7 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
+    BuildMaxConcurrencyError,
     BuildTimeoutError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
@@ -67,7 +68,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.notifications import GitBuildStatusFailureNotification
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
+from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, MKDOCS
 from readthedocs.projects.models import APIProject, Feature
 from readthedocs.search.utils import index_new_files, remove_indexed_files
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -307,7 +308,10 @@ class SyncRepositoryMixin:
         return env
 
 
-@app.task(max_retries=5, default_retry_delay=7 * 60)
+@app.task(
+    max_retries=5,
+    default_retry_delay=7 * 60,
+)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
     try:
@@ -394,25 +398,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return False
 
 
-# Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective (the build failed and can continue) but as a WARNING for the
-# application itself (RTD code didn't failed). These exception are logged as
-# ``INFO`` and they are not sent to Sentry.
 @app.task(
     bind=True,
     max_retries=5,
     default_retry_delay=7 * 60,
-    throws=(
-        VersionLockedError,
-        ProjectBuildsSkippedError,
-        YAMLParseError,
-        BuildTimeoutError,
-        BuildEnvironmentWarning,
-        RepositoryError,
-        ProjectConfigurationError,
-        ProjectBuildsSkippedError,
-        MkDocsYAMLParseError,
-    ),
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
     try:
@@ -509,6 +498,30 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.build_force = force
             self.commit = commit
             self.config = None
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                response = api_v2.build.running.get(project__slug=self.project.slug)
+                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                    log.warning(
+                        'Delaying tasks due to concurrency limit. project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+
+                    # This is done automatically on the environment context, but
+                    # we are executing this code before creating one
+                    api_v2.build(self.build['id']).patch({
+                        'error': BuildMaxConcurrencyError.message.format(
+                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                        ),
+                    })
+                    self.task.retry(
+                        exc=BuildMaxConcurrencyError,
+                        throw=False,
+                        # We want to retry this build more times
+                        max_retries=25,
+                    )
+                    return False
 
             # Build process starts here
             setup_successful = self.run_setup(record=record)
@@ -927,7 +940,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
-                    'documentation_type': self.config.doctype,
+                    'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -1072,7 +1085,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
-                    'documentation_type': self.config.doctype,
+                    'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -1192,6 +1205,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             log.exception('move_files task has failed on socket error.')
 
         return success
+
+    def get_final_doctype(self):
+        html_builder = get_builder_class(self.config.doctype)(
+            build_env=self.build_env,
+            python_env=self.python_env,
+        )
+        return html_builder.get_final_doctype()
 
     def build_docs_search(self):
         """Build search data."""
@@ -1598,7 +1618,7 @@ def _create_intersphinx_data(version, commit, build):
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
-        domain, _type = key.split(':')
+        domain, _type = key.split(':', 1)
         for name, einfo in sorted(value.items()):
             # project, version, url, display_name
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
@@ -2137,62 +2157,89 @@ def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
+    It tries using these services' account in order:
+
+    1. user's account that imported the project
+    2. each user's account from the project's maintainers
+
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
+    # TODO: Send build status for BitBucket.
+    service = None
+    success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+
+        # First, try using user who imported the project's account
         try:
             service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-            # Send status report using the API.
-            service.send_build_status(build, commit, status)
-
         except RemoteRepository.DoesNotExist:
-            users = build.project.users.all()
-
-            # Try to loop through all project users to get their social accounts
-            for user in users:
-                user_accounts = service_class.for_user(user)
-                # Try to loop through users all social accounts to send a successful request
-                for account in user_accounts:
-                    # Currently we only support GitHub Status API
-                    if account.provider_name == provider_name:
-                        success = account.send_build_status(build, commit, status)
-                        if success:
-                            return True
-
-            for user in users:
-                # Send Site notification about Build status reporting failure
-                # to all the users of the project.
-                notification = GitBuildStatusFailureNotification(
-                    context_object=build.project,
-                    extra_context={'provider_name': provider_name},
-                    user=user,
-                    success=False,
-                )
-                notification.send()
-
-            log.info(
-                'No social account or repository permission available for %s',
-                build.project.slug
+            log.warning(
+                'Project does not have a RemoteRepository. project= %s',
+                build.project.slug,
             )
-            return False
 
-        except Exception:
-            log.exception('Send build status task failed for %s', build.project.slug)
-            return False
+        if service is not None:
+            # Send status report using the API.
+            success = service.send_build_status(build, commit, status)
 
-    return False
+        if success:
+            log.info(
+                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
+                build.project.slug,
+                build.pk,
+                status,
+                commit,
+            )
+            return True
 
-    # TODO: Send build status for BitBucket.
+        # Try using any of the users' maintainer accounts
+        # Try to loop through all project users to get their social accounts
+        users = build.project.users.all()
+        for user in users:
+            user_accounts = service_class.for_user(user)
+            # Try to loop through users all social accounts to send a successful request
+            for account in user_accounts:
+                # Currently we only support GitHub Status API
+                if account.provider_name == provider_name:
+                    success = account.send_build_status(build, commit, status)
+                    if success:
+                        log.info(
+                            'Build status report sent correctly using an user account. '
+                            'project=%s build=%s status=%s commit=%s user=%s',
+                            build.project.slug,
+                            build.pk,
+                            status,
+                            commit,
+                            user.username,
+                        )
+                        return True
+
+        for user in users:
+            # Send Site notification about Build status reporting failure
+            # to all the users of the project.
+            notification = GitBuildStatusFailureNotification(
+                context_object=build.project,
+                extra_context={'provider_name': provider_name},
+                user=user,
+                success=False,
+            )
+            notification.send()
+
+        log.info(
+            'No social account or repository permission available for %s',
+            build.project.slug
+        )
+        return False
 
 
 def send_external_build_status(version_type, build_pk, commit, status):

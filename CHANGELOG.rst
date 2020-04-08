@@ -1,3 +1,49 @@
+Version 4.1.3
+-------------
+
+:Date: April 07, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Don't do unnecessary queries when listing subprojects (`#6869 <https://github.com/readthedocs/readthedocs.org/pull/6869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do extra query if the project is a translation (`#6865 <https://github.com/readthedocs/readthedocs.org/pull/6865>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove private argument from resolver (`#6864 <https://github.com/readthedocs/readthedocs.org/pull/6864>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make development docs a bit easier to find (`#6861 <https://github.com/readthedocs/readthedocs.org/pull/6861>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add an advertising API timeout (`#6856 <https://github.com/readthedocs/readthedocs.org/pull/6856>`__)
+* `@humitos <https://github.com/humitos>`__: Add more exceptions as WARNING log level (`#6851 <https://github.com/readthedocs/readthedocs.org/pull/6851>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrent builds (`#6847 <https://github.com/readthedocs/readthedocs.org/pull/6847>`__)
+* `@humitos <https://github.com/humitos>`__: Release 4.1.2 (`#6840 <https://github.com/readthedocs/readthedocs.org/pull/6840>`__)
+* `@humitos <https://github.com/humitos>`__: Report build status in a smarter way (`#6839 <https://github.com/readthedocs/readthedocs.org/pull/6839>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update messages-extends to latest version (`#6838 <https://github.com/readthedocs/readthedocs.org/pull/6838>`__)
+* `@humitos <https://github.com/humitos>`__: Do not save pip cache when using CACHED_ENVIRONMENT (`#6820 <https://github.com/readthedocs/readthedocs.org/pull/6820>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Denormalize from_url_without_rest onto the redirects model (`#6780 <https://github.com/readthedocs/readthedocs.org/pull/6780>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Developer docs emphasize the Docker setup (`#6682 <https://github.com/readthedocs/readthedocs.org/pull/6682>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document setting up connected accounts in dev (`#6681 <https://github.com/readthedocs/readthedocs.org/pull/6681>`__)
+* `@humitos <https://github.com/humitos>`__: Return full path URL (including `.html`) on `/api/v2/docurl/` endpoint (`#6082 <https://github.com/readthedocs/readthedocs.org/pull/6082>`__)
+
+Version 4.1.2
+-------------
+
+:Date: March 31, 2020
+
+* `@humitos <https://github.com/humitos>`__: Report build status in a smarter way (`#6839 <https://github.com/readthedocs/readthedocs.org/pull/6839>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update messages-extends to latest version (`#6838 <https://github.com/readthedocs/readthedocs.org/pull/6838>`__)
+* `@humitos <https://github.com/humitos>`__: Allow receiving `None` for `template_html` when sending emails (`#6834 <https://github.com/readthedocs/readthedocs.org/pull/6834>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix silly issue with sync_callback (`#6830 <https://github.com/readthedocs/readthedocs.org/pull/6830>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Show the builder in the Build admin (`#6826 <https://github.com/readthedocs/readthedocs.org/pull/6826>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Properly call sync_callback when there aren't any MULTIPLE_APP_SERVERS settings (`#6823 <https://github.com/readthedocs/readthedocs.org/pull/6823>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override app from where to read templates (`#6821 <https://github.com/readthedocs/readthedocs.org/pull/6821>`__)
+* `@humitos <https://github.com/humitos>`__: Do not save pip cache when using CACHED_ENVIRONMENT (`#6820 <https://github.com/readthedocs/readthedocs.org/pull/6820>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override ProfileDetail view (`#6819 <https://github.com/readthedocs/readthedocs.org/pull/6819>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.1 (`#6818 <https://github.com/readthedocs/readthedocs.org/pull/6818>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@humitos <https://github.com/humitos>`__: Show uploading state (`#6816 <https://github.com/readthedocs/readthedocs.org/pull/6816>`__)
+* `@humitos <https://github.com/humitos>`__: Use watchman when calling `runserver` in local development (`#6813 <https://github.com/readthedocs/readthedocs.org/pull/6813>`__)
+* `@humitos <https://github.com/humitos>`__: Call proper handler (`#6811 <https://github.com/readthedocs/readthedocs.org/pull/6811>`__)
+* `@humitos <https://github.com/humitos>`__: Show "Uploading" build state when uploading artifacts into storage (`#6810 <https://github.com/readthedocs/readthedocs.org/pull/6810>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make search compatible with sphinx 2.2.1 (`#6804 <https://github.com/readthedocs/readthedocs.org/pull/6804>`__)
+* `@stsewd <https://github.com/stsewd>`__: Changes on 404, robots, and sitemap (`#6798 <https://github.com/readthedocs/readthedocs.org/pull/6798>`__)
+* `@humitos <https://github.com/humitos>`__: Update guide about building consuming too much resources (`#6778 <https://github.com/readthedocs/readthedocs.org/pull/6778>`__)
+
 Version 4.1.1
 -------------
 

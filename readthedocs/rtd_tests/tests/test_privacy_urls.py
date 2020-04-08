@@ -374,6 +374,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
+            'build-running': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
