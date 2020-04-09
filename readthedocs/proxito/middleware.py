@@ -8,7 +8,7 @@ Additional processing is done to get the project from the URL in the ``views.py`
 import logging
 
 from django.conf import settings
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project
@@ -83,6 +83,12 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         project_slug = domain.project.slug
         request.cname = True
         log.debug('Proxito CNAME: host=%s', host)
+
+        if domain.https and not request.is_secure():
+            # Redirect HTTP -> HTTPS (302) for this custom domain
+            log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
+            return redirect('https://%s%s' % (host, request.get_full_path()))
+
         return project_slug
 
     # Some person is CNAMEing to us without configuring a domain - 404.

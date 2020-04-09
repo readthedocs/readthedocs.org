@@ -38,6 +38,20 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(request.cname, True)
         self.assertEqual(request.host_project_slug, 'pip')
 
+    def test_proper_cname_https_upgrade(self):
+        domain = 'docs.random.com'
+        get(Domain, project=self.pip, domain=domain, https=True)
+
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST=domain)
+            res = self.run_middleware(request)
+            self.assertIsNotNone(res)
+            self.assertEqual(res.status_code, 302)
+            self.assertEqual(
+                res['Location'],
+                f'https://{domain}{url}',
+            )
+
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')
         request = self.request(self.url, HTTP_HOST='docs.RANDOM.COM')
