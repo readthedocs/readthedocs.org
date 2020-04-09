@@ -162,7 +162,7 @@ class ProjectMixin(URLAccessMixin):
             response_headers='{"foo": "bar"}',
             status_code=200,
         )
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.automation_rule = RegexAutomationRule.objects.create(
             project=self.pip,
@@ -349,8 +349,8 @@ class APIMixin(URLAccessMixin):
     def setUp(self):
         super().setUp()
         self.build = get(Build, project=self.pip)
-        self.build_command_result = get(BuildCommandResult, project=self.pip)
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.build_command_result = get(BuildCommandResult, build=self.build)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
