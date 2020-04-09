@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import shutil
 import tempfile
@@ -147,7 +145,7 @@ class BaseSymlinkCnames:
     def test_symlink_cname(self):
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
         filesystem = {
@@ -181,7 +179,7 @@ class BaseSymlinkCnames:
     def test_symlink_remove_orphan_symlinks(self):
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
 
@@ -267,7 +265,7 @@ class BaseSymlinkCnames:
         """Domains should be relinked after deletion."""
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
         filesystem = {
