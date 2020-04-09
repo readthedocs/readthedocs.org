@@ -60,7 +60,8 @@ elif total_memory > 2000:
         'time': 600,
     })
 
-DOCKER_LIMITS.update(settings.DOCKER_LIMITS)
+if hasattr(settings, 'DOCKER_LIMITS'):
+    DOCKER_LIMITS.update(settings.DOCKER_LIMITS)
 
 
 DOCKER_TIMEOUT_EXIT_CODE = 42
