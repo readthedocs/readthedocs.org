@@ -11,7 +11,6 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
-    RTD_BUILD_STATUS_API_NAME,
     SELECT_BUILD_STATUS,
 )
 from readthedocs.builds import utils as build_utils
@@ -524,7 +523,7 @@ class GitLabService(Service):
             'state': gitlab_build_state,
             'target_url': target_url,
             'description': description,
-            'context': RTD_BUILD_STATUS_API_NAME
+            'context': settings.RTD_BUILD_STATUS_API_NAME
         }
         url = self.adapter.provider_base_url
 
