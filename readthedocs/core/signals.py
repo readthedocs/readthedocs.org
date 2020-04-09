@@ -15,7 +15,6 @@ from rest_framework.permissions import SAFE_METHODS
 from readthedocs.oauth.models import RemoteOrganization
 from readthedocs.projects.models import Domain, Project
 
-
 log = logging.getLogger(__name__)
 
 WHITELIST_URLS = [
@@ -37,6 +36,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     This checks that:
     * The URL is whitelisted against our CORS-allowed domains
     * The Domain exists in our database, and belongs to the project being queried.
+    * It's our Domain for external versions and API endpoint is /api/v2/embed/
 
     Returns True when a request should be given CORS access.
     """
@@ -48,10 +48,17 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     if request.path_info.startswith('/api/v2/sustainability'):
         return True
 
-    # Don't do domain checking for APIv2 when the Domain is known
     if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
+        # Don't do domain checking for APIv2 when the Domain is known
         domain = Domain.objects.filter(domain__icontains=host)
         if domain.exists():
+            return True
+
+        # Check if it's our domain for external versions and embed endpoint
+        if all([
+                request.path_info.startswith('/api/v2/embed/'),
+                host == settings.RTD_EXTERNAL_VERSION_DOMAIN,
+        ]):
             return True
 
     valid_url = False
