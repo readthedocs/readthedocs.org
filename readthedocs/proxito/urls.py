@@ -147,7 +147,7 @@ urlpatterns = [
     # (Sub)project single version
     url(
         (
-            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            r'^(?:projects/(?P<subproject_slug>{project_slug})/?)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         ServeDocs.as_view(),

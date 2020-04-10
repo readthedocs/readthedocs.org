@@ -287,6 +287,7 @@ class TestAdditionalDocViews(BaseDocServing):
             response['location'], '/en/latest/',
         )
 
+
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_readme_serving(self, storage_mock):
         self.project.versions.update(active=True, built=True)

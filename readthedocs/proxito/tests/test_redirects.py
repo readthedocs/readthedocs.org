@@ -12,6 +12,13 @@ from .base import BaseDocServing
 )
 class RedirectTests(BaseDocServing):
 
+    def test_root_url_no_slash(self):
+        r = self.client.get('', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
+        )
+
     def test_root_url(self):
         r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
@@ -21,6 +28,13 @@ class RedirectTests(BaseDocServing):
 
     def test_subproject_root_url(self):
         r = self.client.get('/projects/subproject/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+        )
+
+    def test_subproject_root_url_no_slash(self):
+        r = self.client.get('/projects/subproject', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
