@@ -288,21 +288,6 @@ class TestAdditionalDocViews(BaseDocServing):
         )
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
-    def test_subproject_no_slash(self, storage_mock):
-        self.subproject.versions.update(active=True, built=True)
-        storage_mock()().exists.return_value = False
-        response = self.client.get(
-            reverse('proxito_404_handler', kwargs={'proxito_path': '/projects/subproject'}),
-            HTTP_HOST='project.readthedocs.io',
-        )
-        self.assertEqual(
-            response.status_code, 302
-        )
-        self.assertEqual(
-            response['location'], '/projects/subproject/',
-        )
-
-    @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_directory_indexes_readme_serving(self, storage_mock):
         self.project.versions.update(active=True, built=True)
 
