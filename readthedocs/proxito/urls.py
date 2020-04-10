@@ -147,6 +147,8 @@ urlpatterns = [
     # (Sub)project single version
     url(
         (
+            # the /? at the end of this regex is for ``/projects/subproject``
+            # so that it will get captured here and redirect properly.
             r'^(?:projects/(?P<subproject_slug>{project_slug})/?)?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
