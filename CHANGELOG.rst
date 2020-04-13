@@ -1,3 +1,25 @@
+Version 4.1.3
+-------------
+
+:Date: April 07, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Don't do unnecessary queries when listing subprojects (`#6869 <https://github.com/readthedocs/readthedocs.org/pull/6869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do extra query if the project is a translation (`#6865 <https://github.com/readthedocs/readthedocs.org/pull/6865>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove private argument from resolver (`#6864 <https://github.com/readthedocs/readthedocs.org/pull/6864>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make development docs a bit easier to find (`#6861 <https://github.com/readthedocs/readthedocs.org/pull/6861>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add an advertising API timeout (`#6856 <https://github.com/readthedocs/readthedocs.org/pull/6856>`__)
+* `@humitos <https://github.com/humitos>`__: Add more exceptions as WARNING log level (`#6851 <https://github.com/readthedocs/readthedocs.org/pull/6851>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrent builds (`#6847 <https://github.com/readthedocs/readthedocs.org/pull/6847>`__)
+* `@humitos <https://github.com/humitos>`__: Release 4.1.2 (`#6840 <https://github.com/readthedocs/readthedocs.org/pull/6840>`__)
+* `@humitos <https://github.com/humitos>`__: Report build status in a smarter way (`#6839 <https://github.com/readthedocs/readthedocs.org/pull/6839>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update messages-extends to latest version (`#6838 <https://github.com/readthedocs/readthedocs.org/pull/6838>`__)
+* `@humitos <https://github.com/humitos>`__: Do not save pip cache when using CACHED_ENVIRONMENT (`#6820 <https://github.com/readthedocs/readthedocs.org/pull/6820>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to reinstall package (`#6817 <https://github.com/readthedocs/readthedocs.org/pull/6817>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Denormalize from_url_without_rest onto the redirects model (`#6780 <https://github.com/readthedocs/readthedocs.org/pull/6780>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Developer docs emphasize the Docker setup (`#6682 <https://github.com/readthedocs/readthedocs.org/pull/6682>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document setting up connected accounts in dev (`#6681 <https://github.com/readthedocs/readthedocs.org/pull/6681>`__)
+* `@humitos <https://github.com/humitos>`__: Return full path URL (including `.html`) on `/api/v2/docurl/` endpoint (`#6082 <https://github.com/readthedocs/readthedocs.org/pull/6082>`__)
+
 Version 4.1.2
 -------------
 

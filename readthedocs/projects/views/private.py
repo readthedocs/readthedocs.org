@@ -79,7 +79,10 @@ from readthedocs.projects.models import (
 from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.utils import Echo
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.projects.views.mixins import (
+    ProjectImportMixin,
+    ProjectRelationListMixin,
+)
 from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
@@ -457,7 +460,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse('projects_subprojects', args=[self.get_project().slug])
 
 
-class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
+class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
