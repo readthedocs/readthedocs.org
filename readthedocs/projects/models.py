@@ -486,7 +486,7 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
-    def get_docs_url(self, version_slug=None, lang_slug=None, private=None, external=False):
+    def get_docs_url(self, version_slug=None, lang_slug=None, external=False):
         """
         Return a URL for the docs.
 
@@ -496,7 +496,6 @@ class Project(models.Model):
             project=self,
             version_slug=version_slug,
             language=lang_slug,
-            private=private,
             external=external,
         )
 
@@ -1516,6 +1515,7 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
+    LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1589,6 +1589,10 @@ class Feature(models.Model):
         (
             CELERY_ROUTER,
             _('Route tasks using our custom task router'),
+        ),
+        (
+            LIMIT_CONCURRENT_BUILDS,
+            _('Limit the amount of concurrent builds'),
         ),
     )
 
