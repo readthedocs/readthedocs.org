@@ -1,14 +1,16 @@
-import django_dynamic_fixture as fixture
 from unittest import mock
+
+import django_dynamic_fixture as fixture
+import pytest
 from django.test import TestCase, override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import (
     Resolver,
     resolve,
     resolve_domain,
     resolve_path,
 )
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -256,32 +258,6 @@ class ResolverPathOverrideTests(ResolverBase):
                 version_slug='foo',
             )
             self.assertEqual(url, '/cz/foo/index.html')
-
-    def test_resolver_no_force_translation(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/docs/pip/ja/latest/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/ja/latest/index.html')
-
-    def test_resolver_no_force_translation_with_version(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/docs/pip/ja/foo/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/ja/foo/index.html')
 
 
 class ResolverCanonicalProject(TestCase):
@@ -546,6 +522,63 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.translation)
             self.assertEqual(url, 'http://pip.readthedocs.org/ja/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_nested_translation_of_a_subproject(self):
+        """The project is a translation, and the main translation is a subproject of a project."""
+        translation = fixture.get(
+            Project,
+            slug='api-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=self.subproject,
+        )
+
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=translation)
+            self.assertEqual(
+                url, 'http://readthedocs.org/docs/pip/projects/sub/es/latest/',
+            )
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=translation)
+            self.assertEqual(
+                url, 'http://pip.readthedocs.org/projects/sub/es/latest/',
+            )
+
+    @pytest.mark.xfail(reason='We do not support this for now', strict=True)
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_nested_subproject_of_a_translation(self):
+        """The project is a subproject, and the superproject is a translation of a project."""
+        project = fixture.get(
+            Project,
+            slug='all-docs',
+            language='en',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        translation = fixture.get(
+            Project,
+            slug='docs-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=project,
+        )
+
+        subproject = fixture.get(
+            Project,
+            slug='api-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        translation.add_subproject(subproject)
+
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://readthedocs.org/docs/docs-es/projects/api-es/es/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://docs-es.readthedocs.org/projects/api-es/es/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_single_version(self):
