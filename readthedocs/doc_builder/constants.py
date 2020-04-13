@@ -35,7 +35,8 @@ DOCKER_LIMITS = {
 # This assumes 1-builder per server
 try:
     total_memory = int(subprocess.check_output("free -m | awk '/^Mem:/{print $2}'", shell=True))
-except Exception:
+except ValueError:
+    # On systems without a `free` command it will return a string to int and raise a ValueError
     log.exception('Failed to get memory size. Using defaults docker limits')
     total_memory = 0
 
