@@ -5,6 +5,7 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -232,14 +233,14 @@ class TestDocServingBackends(BaseDocServing):
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
     RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
-    CACHES={
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
 )
 class TestAdditionalDocViews(BaseDocServing):
     # Test that robots.txt and sitemap.xml work
+
+    def tearDown(self):
+        super().tearDown()
+        # Cleanup cache to avoid throttling on tests
+        cache.clear()
 
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_default_robots_txt(self, storage_mock):
