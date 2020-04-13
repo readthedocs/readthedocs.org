@@ -103,6 +103,10 @@ You can also host your documentation from your own domain.
 Proxy SSL
 ---------
 
+.. note::
+
+   This is only available for the community version
+
 If you would prefer to do your own SSL termination
 on a server you own and control,
 you can do that although the setup is a bit more complex.
