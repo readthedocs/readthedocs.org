@@ -26,7 +26,7 @@ class TaskRouterTests(TestCase):
             Build,
             version=self.version,
         )
-        for _ in range(TaskRouter.n_builds + 5):
+        for _ in range(TaskRouter.N_BUILDS + 5):
             fixture.get(
                 Build,
                 version=self.version,
