@@ -89,15 +89,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 # because it is taken from the host name
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
-                not final_project.single_version,
-        ]):
-            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
-
-        # Handle `/projects/subproject` URL redirection
-        if all([
-                final_project.single_version,
-                filename == '',
-                not subproject_slash,
+                # Handle `/projects/subproject` and `/projects/subproject/` URL redirects
+                not final_project.single_version or not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
