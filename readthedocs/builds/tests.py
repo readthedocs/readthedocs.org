@@ -86,7 +86,7 @@ class TaskRouterTests(TestCase):
         )
 
     def test_build_length_high_average(self):
-        high_length = TaskRouter.time_average + 50
+        high_length = TaskRouter.TIME_AVERAGE + 50
         self.version.builds.update(length=high_length)
         self.assertEqual(
             self.router.route_for_task(self.task, self.args, self.kwargs),
