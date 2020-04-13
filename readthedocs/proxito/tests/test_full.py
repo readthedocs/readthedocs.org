@@ -5,6 +5,7 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -236,6 +237,11 @@ class TestDocServingBackends(BaseDocServing):
 class TestAdditionalDocViews(BaseDocServing):
     # Test that robots.txt and sitemap.xml work
 
+    def tearDown(self):
+        super().tearDown()
+        # Cleanup cache to avoid throttling on tests
+        cache.clear()
+
     @mock.patch('readthedocs.proxito.views.serve.get_storage_class')
     def test_default_robots_txt(self, storage_mock):
         storage_mock()().exists.return_value = False
@@ -326,7 +332,8 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True)
         # Confirm we've serving from storage for the `index-exists/index.html` file
         response = self.client.get(
-            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/latest/index-exists?foo=bar'}),
+            reverse('proxito_404_handler', kwargs={
+                    'proxito_path': '/en/latest/index-exists?foo=bar'}),
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(

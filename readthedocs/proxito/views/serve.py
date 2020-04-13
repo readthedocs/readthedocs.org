@@ -309,6 +309,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -369,7 +370,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
 class ServeSitemapXMLBase(View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 24 * 3))  # 3 days
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
