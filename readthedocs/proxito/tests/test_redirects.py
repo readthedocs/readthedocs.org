@@ -40,6 +40,15 @@ class RedirectTests(BaseDocServing):
             r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
         )
 
+    def test_single_version_subproject_root_url_no_slash(self):
+        self.subproject.single_version = True
+        self.subproject.save()
+        r = self.client.get('/projects/subproject', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
+        )
+
     def test_root_redirect_with_query_params(self):
         r = self.client.get('/?foo=bar', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)

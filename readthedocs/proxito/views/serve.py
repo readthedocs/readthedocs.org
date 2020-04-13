@@ -55,11 +55,17 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             request,
             project_slug=None,
             subproject_slug=None,
+            subproject_slash=None,
             lang_slug=None,
             version_slug=None,
             filename='',
     ):  # noqa
-        """Take the incoming parsed URL's and figure out what file to serve."""
+        """
+        Take the incoming parsed URL's and figure out what file to serve.
+
+        ``subproject_slash`` is used to determine if the subproject URL has a slash,
+        so that we can decide if we need to serve docs or add a /.
+        """
 
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
@@ -84,6 +90,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
+        ]):
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+        # Handle `/projects/subproject` URL redirection
+        if all([
+                final_project.single_version,
+                filename == '',
+                not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
