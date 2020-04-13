@@ -13,6 +13,7 @@ from django.conf import settings
 from django.template import loader as template_loader
 from readthedocs.projects.constants import MKDOCS_HTML, MKDOCS
 
+from readthedocs.config.utils import yaml_load_safely
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.models import Feature
@@ -75,7 +76,7 @@ class BaseMkdocs(BaseBuilder):
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
         with open(self.yaml_file, 'r') as f:
-            config = yaml.safe_load(f)
+            config = yaml_load_safely(f)
             use_directory_urls = config.get('use_directory_urls', True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
 
@@ -96,7 +97,7 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml.safe_load(open(self.yaml_file, 'r'))
+            config = yaml_load_safely(open(self.yaml_file, 'r'))
 
             if not config:
                 raise MkDocsYAMLParseError(
