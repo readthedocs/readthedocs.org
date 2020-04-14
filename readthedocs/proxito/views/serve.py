@@ -97,7 +97,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         if all([
                 final_project.single_version,
                 filename == '',
-                not subproject_slash,
+                subproject_slug and not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
