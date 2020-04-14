@@ -34,7 +34,7 @@ class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, Azur
         """
         return super().url(name, expire)
 
-    def exists(self, name, timeout=None):
+    def exists(self, name):
         """Override to catch timeout exception and return False."""
         try:
             return super().exists(name)
