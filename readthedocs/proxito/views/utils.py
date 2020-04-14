@@ -58,7 +58,7 @@ def _get_project_data_from_request(
     # Handle single-version projects that have URLs like a real project
     if current_project.single_version:
         if lang_slug and version_slug:
-            filename = os.path.join(lang_slug, version_slug, filename)
+            filename = f'{lang_slug}/{version_slug}/{filename}'
             log.warning(
                 'URL looks like versioned on a single version project.'
                 'Changing filename to match. filename=%s',
@@ -85,4 +85,5 @@ def _get_project_data_from_request(
     # * Subproject
     # * Translations
 
+    filename = filename.rstrip('/')
     return final_project, lang_slug, version_slug, filename
