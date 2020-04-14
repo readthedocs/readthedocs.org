@@ -1,7 +1,5 @@
 """Shared functions for the config module."""
 
-import yaml
-
 
 def to_dict(value):
     """Recursively transform a class from `config.models` to a dict."""
