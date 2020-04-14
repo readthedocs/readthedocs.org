@@ -228,10 +228,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 )
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
+                path = parts.path.rstrip('/')
                 if tryfile == 'README.html':
-                    new_path = f'{parts.path}/{tryfile}'
+                    new_path = f'{path}/{tryfile}'
                 else:
-                    new_path = parts.path.rstrip('/') + '/'
+                    new_path = path + '/'
                 new_parts = parts._replace(path=new_path)
                 redirect_url = new_parts.geturl()
 
