@@ -37,7 +37,7 @@ class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-many-ance
     Borrowed from https://stackoverflow.com/a/57121993
     """
 
-    def ignore_unknown(self, node):  # pylint: disable=no-self-use disable=unused-argument
+    def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
         return None
 
 
