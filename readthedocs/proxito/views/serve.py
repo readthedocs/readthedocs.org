@@ -93,11 +93,13 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
-        # Handle `/projects/subproject` URL redirection
+        # Handle `/projects/subproject` URL redirection:
+        # when there _is_ a subproject_slug but not a subproject_slash
         if all([
                 final_project.single_version,
                 filename == '',
-                subproject_slug and not subproject_slash,
+                subproject_slug,
+                not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
