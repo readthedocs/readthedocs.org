@@ -15,7 +15,6 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
-    RTD_BUILD_STATUS_API_NAME
 )
 from readthedocs.integrations.models import Integration
 
@@ -438,7 +437,7 @@ class GitHubService(Service):
             'state': github_build_state,
             'target_url': target_url,
             'description': description,
-            'context': RTD_BUILD_STATUS_API_NAME
+            'context': settings.RTD_BUILD_STATUS_API_NAME
         }
 
         resp = None
