@@ -3,6 +3,7 @@
 
 """Django storage classes to use with Azure Blob storage service."""
 
+import logging
 from azure.common import AzureMissingResourceHttpError
 from django.conf import settings
 from django.contrib.staticfiles.storage import ManifestFilesMixin
@@ -11,6 +12,9 @@ from storages.backends.azure_storage import AzureStorage
 from readthedocs.builds.storage import BuildMediaStorageMixin
 
 from .mixins import OverrideHostnameMixin
+
+
+log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, AzureStorage):
@@ -29,6 +33,14 @@ class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, Azur
         method to build the signed URL).
         """
         return super().url(name, expire)
+
+    def exists(self, name):
+        """Override to catch timeout exception and return False."""
+        try:
+            return super().exists(name)
+        except Exception:  # pylint: disable=broad-except
+            log.exception('Timeout calling Azure .exists. name=%s', name)
+            return False
 
 
 class AzureBuildStorage(AzureStorage):
