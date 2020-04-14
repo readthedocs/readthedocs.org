@@ -51,6 +51,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
                 res['Location'],
                 f'https://{domain}{url}',
             )
+            self.assertEqual(
+                res['X-RTD-Redirect'],
+                'https',
+            )
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')

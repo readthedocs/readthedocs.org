@@ -87,7 +87,9 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            return redirect('https://{}{}'.format(host, request.get_full_path()))
+            resp = redirect('https://{}{}'.format(host, request.get_full_path()))
+            resp['X-RTD-Redirect'] = 'https'
+            return resp
 
         return project_slug
 
