@@ -1,5 +1,5 @@
 import textwrap
-from readthedocs.config.utils import yaml_load_safely
+from readthedocs.doc_builder.backends.mkdocs import yaml_load_safely
 
 
 def test_yaml_load_safely():

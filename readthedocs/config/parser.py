@@ -4,8 +4,6 @@
 
 import yaml
 
-from .utils import yaml_load_safely
-
 __all__ = ('parse', 'ParseError')
 
 
@@ -22,7 +20,7 @@ def parse(stream):
     Everything else raises a ``ParseError``.
     """
     try:
-        config = yaml_load_safely(stream)
+        config = yaml.safe_load(stream)
     except yaml.YAMLError as error:
         raise ParseError('YAML: {message}'.format(message=error))
     if not isinstance(config, dict):
