@@ -54,6 +54,14 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
         if domain.exists():
             return True
 
+    if all([
+            request.path_info.startswith('/api/v2/embed/'),
+            request.method in SAFE_METHODS,
+            host == settings.RTD_EXTERNAL_VERSION_DOMAIN,
+    ]):
+        # Allow CORS for embed API in our PR builds
+        return True
+
     valid_url = False
     for url in WHITELIST_URLS:
         if request.path_info.startswith(url):
