@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Models for the core app."""
 import logging
 
@@ -30,6 +28,10 @@ class UserProfile(models.Model):
         _('See paid advertising'),
         help_text=_('If unchecked, you will still see community ads.'),
         default=True,
+    )
+    last_login = models.DateTimeField(
+        _('Last login date.'),
+        null=True,
     )
 
     def __str__(self):
