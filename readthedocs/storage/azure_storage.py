@@ -14,7 +14,7 @@ from readthedocs.builds.storage import BuildMediaStorageMixin
 from .mixins import OverrideHostnameMixin
 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, AzureStorage):
@@ -38,7 +38,7 @@ class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, Azur
         """Override to catch timeout exception and return False."""
         try:
             return super().exists(name)
-        except:
+        except Exception:  # pylint: disable=broad-except
             log.exception('Timeout calling Azure .exists. name=%s', name)
             return False
 
