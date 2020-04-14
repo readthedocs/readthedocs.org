@@ -433,11 +433,13 @@ class GitHubService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': github_build_state,
             'target_url': target_url,
             'description': description,
-            'context': settings.RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
 
         resp = None

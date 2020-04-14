@@ -519,11 +519,13 @@ class GitLabService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': gitlab_build_state,
             'target_url': target_url,
             'description': description,
-            'context': settings.RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
         url = self.adapter.provider_base_url
 
