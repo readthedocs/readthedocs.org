@@ -176,7 +176,26 @@ class ServeRedirectMixin:
         )
         log.info('System Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-System-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'system'
+        return resp
+
+    def canonical_redirect(self, request, final_project, version_slug, filename):
+        """
+        Return a redirect to the canonical domain including scheme.
+
+        This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
+        """
+        urlparse_result = urlparse(request.get_full_path())
+        to = resolve(
+            project=final_project,
+            version_slug=version_slug,
+            filename=filename,
+            query_params=urlparse_result.query,
+            external=hasattr(request, 'external_domain'),
+        )
+        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        resp = HttpResponseRedirect(to)
+        resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
     def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
@@ -230,5 +249,5 @@ class ServeRedirectMixin:
             resp = HttpResponseRedirect(new_path)
 
         # Add a user-visible header to make debugging easier
-        resp['X-RTD-User-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'user'
         return resp

@@ -8,7 +8,7 @@ Additional processing is done to get the project from the URL in the ``views.py`
 import logging
 
 from django.conf import settings
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project
@@ -28,6 +28,8 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         - This sets ``request.subdomain`` True
     * The hostname without port information, which maps to ``Domain`` objects
         - This sets ``request.cname`` True
+    * The domain is the canonical one and using HTTPS if supported
+        - This sets ``request.canonicalize`` with the value as the reason
     """
 
     host = request.get_host().lower().split(':')[0]
@@ -54,7 +56,11 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
+            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+                log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
+                request.canonicalize = 'canonical-cname'
             return project_slug
+
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
         # But these feel like they might be phishing, etc. so let's block them for now.
         log.warning('Weird variation on our hostname: host=%s', host)
@@ -87,9 +93,12 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         if domain.https and not request.is_secure():
             # Redirect HTTP -> HTTPS (302) for this custom domain
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            resp = redirect('https://{}{}'.format(host, request.get_full_path()))
-            resp['X-RTD-Redirect'] = 'https'
-            return resp
+            request.canonicalize = 'https'
+
+        if not domain.canonical:
+            # This should redirect to the canonical CNAME
+            log.debug('Proxito CNAME Non-Canonical Redirect: host=%s', host)
+            request.canonicalize = 'noncanonical-cname'
 
         return project_slug
 

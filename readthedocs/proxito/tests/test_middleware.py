@@ -39,22 +39,55 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_proper_cname_https_upgrade(self):
-        domain = 'docs.random.com'
-        get(Domain, project=self.pip, domain=domain, https=True)
+        cname = 'docs.random.com'
+        get(Domain, project=self.pip, domain=cname, canonical=True, https=True)
 
         for url in (self.url, '/subdir/'):
-            request = self.request(url, HTTP_HOST=domain)
+            request = self.request(url, HTTP_HOST=cname)
             res = self.run_middleware(request)
-            self.assertIsNotNone(res)
-            self.assertEqual(res.status_code, 302)
-            self.assertEqual(
-                res['Location'],
-                f'https://{domain}{url}',
-            )
-            self.assertEqual(
-                res['X-RTD-Redirect'],
-                'https',
-            )
+            self.assertIsNone(res)
+            self.assertTrue(hasattr(request, 'canonicalize'))
+            self.assertEqual(request.canonicalize, 'https')
+
+    def test_canonical_cname_redirect(self):
+        """Requests to the public domain URL should redirect to the custom domain only if the domain is canonical."""
+        cname = 'docs.random.com'
+        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
+
+        request = self.request(self.url, HTTP_HOST='pip.dev.readthedocs.io')
+        res = self.run_middleware(request)
+        self.assertIsNone(res)
+        self.assertFalse(hasattr(request, 'canonicalize'))
+
+        # Make the domain canonical and make sure we redirect
+        domain.canonical = True
+        domain.save()
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST='pip.dev.readthedocs.io')
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertTrue(hasattr(request, 'canonicalize'))
+            self.assertEqual(request.canonicalize, 'canonical-cname')
+
+    def test_canonical_cname_redirect_public_domain(self):
+        """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
+        cname = 'docs.random.com'
+        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
+
+        request = self.request(self.url, HTTP_HOST=cname)
+        res = self.run_middleware(request)
+        self.assertIsNone(res)
+        self.assertTrue(hasattr(request, 'canonicalize'))
+        self.assertEqual(request.canonicalize, 'noncanonical-cname')
+
+        # Make the domain canonical and make sure we don't redirect
+        domain.canonical = True
+        domain.save()
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST=cname)
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertFalse(hasattr(request, 'canonicalize'))
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')

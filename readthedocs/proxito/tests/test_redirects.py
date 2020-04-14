@@ -34,6 +34,63 @@ class RedirectTests(BaseDocServing):
             'https://project.dev.readthedocs.io/en/latest/?foo=bar'
         )
 
+    def test_canonicalize_https_redirect(self):
+        self.domain.canonical = True
+        self.domain.save()
+
+        r = self.client.get('/', HTTP_HOST=self.domain.domain)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'https')
+
+        # We should redirect before 404ing
+        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain.domain)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'https')
+
+    def test_canonicalize_public_domain_to_cname_redirect(self):
+        """Redirect to the CNAME if it is canonical."""
+        self.domain.canonical = True
+        self.domain.save()
+
+        r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
+
+        # We should redirect before 404ing
+        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain2.domain)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
+        )
+        # Ensure this redirects a noncanonical CNAME to the canonical one
+        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
+
+    def test_canonicalize_cname_to_public_domain_redirect(self):
+        """Redirect to the public domain if the CNAME is not canonical."""
+        r = self.client.get('/', HTTP_HOST=self.domain.domain)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
+
+        # We should redirect before 404ing
+        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain2.domain)
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r['Location'], 'https://project.dev.readthedocs.io/en/latest/404after302',
+        )
+        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
+
     # Specific Page Redirects
     def test_proper_page_on_subdomain(self):
         r = self.client.get('/page/test.html', HTTP_HOST='project.dev.readthedocs.io')
