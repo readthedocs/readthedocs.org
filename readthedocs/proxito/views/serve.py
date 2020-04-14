@@ -2,7 +2,6 @@
 
 import itertools
 import logging
-import os
 from urllib.parse import urlparse
 
 from django.conf import settings
@@ -18,6 +17,7 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 
@@ -55,11 +55,17 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             request,
             project_slug=None,
             subproject_slug=None,
+            subproject_slash=None,
             lang_slug=None,
             version_slug=None,
             filename='',
     ):  # noqa
-        """Take the incoming parsed URL's and figure out what file to serve."""
+        """
+        Take the incoming parsed URL's and figure out what file to serve.
+
+        ``subproject_slash`` is used to determine if the subproject URL has a slash,
+        so that we can decide if we need to serve docs or add a /.
+        """
 
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
@@ -84,6 +90,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
+        ]):
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+        # Handle `/projects/subproject` URL redirection
+        if all([
+                final_project.single_version,
+                filename == '',
+                not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
@@ -122,8 +136,8 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
-        # If ``filename`` is ``''`` it leaves a trailing slash
-        path = os.path.join(storage_path, filename)
+        # If ``filename`` is empty, serve from ``/``
+        path = f'{storage_path}/{filename}'
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
@@ -196,9 +210,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = os.path.join(
-                storage_root_path, filename, tryfile
-            )
+            storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
             log.debug(
                 'Trying index filename: project=%s version=%s, file=%s',
                 final_project.slug,
@@ -215,7 +227,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
-                    new_path = os.path.join(parts.path, tryfile)
+                    new_path = f'{parts.path}/{tryfile}'
                 else:
                     new_path = parts.path.rstrip('/') + '/'
                 new_parts = parts._replace(path=new_path)
@@ -259,11 +271,22 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        versions = [version_slug]
+        doc_type = (
+            Version.objects.filter(project=final_project, slug=version_slug)
+            .values_list('documentation_type', flat=True)
+            .first()
+        )
+        versions = [(version_slug, doc_type)]
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
-            versions.append(default_version_slug)
-        for version_slug_404 in versions:
+            default_version_doc_type = (
+                Version.objects.filter(project=final_project, slug=default_version_slug)
+                .values_list('documentation_type', flat=True)
+                .first()
+            )
+            versions.append((default_version_slug, default_version_doc_type))
+
+        for version_slug_404, doc_type_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
                 continue
 
@@ -273,7 +296,12 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 include_file=False,
                 version_type=self.version_type,
             )
-            for tryfile in ('404.html', '404/index.html'):
+            tryfiles = ['404.html']
+            # SPHINX_HTMLDIR is the only builder
+            # that could output a 404/index.html file.
+            if doc_type_404 == SPHINX_HTMLDIR:
+                tryfiles.append('404/index.html')
+            for tryfile in tryfiles:
                 storage_filename_path = f'{storage_root_path}/{tryfile}'
                 if storage.exists(storage_filename_path):
                     log.info(
@@ -295,6 +323,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -355,7 +384,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
 class ServeSitemapXMLBase(View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 24 * 3))  # 3 days
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
