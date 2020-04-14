@@ -11,9 +11,8 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 from unittest.mock import patch
 
-from readthedocs.config.utils import yaml_load_safely
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
