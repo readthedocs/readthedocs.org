@@ -26,6 +26,12 @@ class RedirectTests(BaseDocServing):
             r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
         )
 
+    def test_single_version_root_url_doesnt_redirect(self):
+        self.project.single_version = True
+        self.project.save()
+        r = self.client.get('/', HTTP_HOST='project.dev.readthedocs.io')
+        self.assertEqual(r.status_code, 200)
+
     def test_subproject_root_url(self):
         r = self.client.get('/projects/subproject/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
