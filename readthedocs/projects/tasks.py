@@ -1837,6 +1837,7 @@ def _sync_imported_files(version, build, changed_files):
     files_changed.send(
         sender=Project,
         project=version.project,
+        version=version,
         files=changed_files,
     )
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -16,23 +15,23 @@ class VersionConfigTests(TestCase):
         build_old = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         build_new = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 2},
+            _config={'version': 2},
         )
         build_new_error = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 3},
+            _config={'version': 3},
             success=False,
         )
         build_new_unfinish = Build.objects.create(
             project=self.project,
             version=self.version,
-            config={'version': 4},
+            _config={'version': 4},
             state='building',
         )
         self.assertEqual(self.version.config, {'version': 2})
@@ -42,7 +41,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
+            _config={},
         )
         build_old.config = {'version': 1}
         build_old.save()
@@ -51,7 +50,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
+            _config={},
         )
         build_new.config = {'version': 1}
         build_new.save()
@@ -60,7 +59,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
+            _config={},
             success=False,
         )
         build_new_error.config = {'version': 3}
@@ -70,7 +69,7 @@ class VersionConfigTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={},
+            _config={},
             state='building',
         )
         build_new_unfinish.config = {'version': 1}

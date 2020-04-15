@@ -81,7 +81,7 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailView(
+class ProjectDetailViewBase(
         ProjectRelationListMixin,
         BuildTriggerMixin,
         ProjectOnboardMixin,
@@ -122,6 +122,11 @@ class ProjectDetailView(
         )
 
         return context
+
+
+class ProjectDetailView(SettingsOverrideObject):
+
+    _default_class = ProjectDetailViewBase
 
 
 class ProjectBadgeView(View):

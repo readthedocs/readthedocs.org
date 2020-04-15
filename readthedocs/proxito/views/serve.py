@@ -55,11 +55,17 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             request,
             project_slug=None,
             subproject_slug=None,
+            subproject_slash=None,
             lang_slug=None,
             version_slug=None,
             filename='',
     ):  # noqa
-        """Take the incoming parsed URL's and figure out what file to serve."""
+        """
+        Take the incoming parsed URL's and figure out what file to serve.
+
+        ``subproject_slash`` is used to determine if the subproject URL has a slash,
+        so that we can decide if we need to serve docs or add a /.
+        """
 
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
@@ -84,6 +90,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
                 version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
+        ]):
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+        # Handle `/projects/subproject` URL redirection
+        if all([
+                final_project.single_version,
+                filename == '',
+                not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
@@ -196,7 +210,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
+            storage_filename_path = f'{storage_root_path}/' + filename.strip('/') + f'/{tryfile}'
             log.debug(
                 'Trying index filename: project=%s version=%s, file=%s',
                 final_project.slug,
@@ -213,7 +227,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
-                    new_path = f'{parts.path}/{tryfile}'
+                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
                     new_path = parts.path.rstrip('/') + '/'
                 new_parts = parts._replace(path=new_path)
@@ -309,6 +323,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -369,7 +384,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
 class ServeSitemapXMLBase(View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 24 * 3))  # 3 days
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.

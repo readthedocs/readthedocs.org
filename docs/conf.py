@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import sys
 from configparser import RawConfigParser
@@ -81,6 +77,7 @@ gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {
