@@ -212,7 +212,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
+            storage_filename_path = f'{storage_root_path}/' + filename.strip('/') + f'/{tryfile}'
             log.debug(
                 'Trying index filename: project=%s version=%s, file=%s',
                 final_project.slug,
@@ -228,11 +228,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 )
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
-                path = parts.path.rstrip('/')
                 if tryfile == 'README.html':
-                    new_path = f'{path}/{tryfile}'
+                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
-                    new_path = path + '/'
+                    new_path = parts.path.rstrip('/') + '/'
                 new_parts = parts._replace(path=new_path)
                 redirect_url = new_parts.geturl()
 
