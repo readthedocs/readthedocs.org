@@ -83,7 +83,7 @@ function attach_elastic_search_query(data) {
                         if ('BUILDER' in DOCUMENTATION_OPTIONS && DOCUMENTATION_OPTIONS.BUILDER === 'readthedocsdirhtml') {
                           suffix = '';
                         }
-                        var link = doc.link + suffix;
+                        var link = doc.link + suffix + "?highlight=" + $.urlencode(query);
 
                         var item = $('<a>', {'href': link});
 
