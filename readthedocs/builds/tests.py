@@ -44,9 +44,8 @@ class TaskRouterTests(TestCase):
 
     def test_not_under_feature_flag(self):
         self.feature.projects.remove(self.project)
-        self.assertEqual(
+        self.assertIsNone(
             self.router.route_for_task(self.task, self.args, self.kwargs),
-            settings.CELERY_DEFAULT_QUEUE,
         )
 
     def test_project_custom_queue(self):
@@ -68,21 +67,18 @@ class TaskRouterTests(TestCase):
         )
 
     def test_more_than_n_builds(self):
-        self.assertEqual(
+        self.assertIsNone(
             self.router.route_for_task(self.task, self.args, self.kwargs),
-            settings.CELERY_DEFAULT_QUEUE,
         )
 
     def test_non_build_task(self):
-        self.assertEqual(
+        self.assertIsNoneEqual(
             self.router.route_for_task('non_build_task', self.args, self.kwargs),
-            None,
         )
 
     def test_no_build_pk(self):
-        self.assertEqual(
+        self.assertIsNone(
             self.router.route_for_task(self.task, self.args, {}),
-            settings.CELERY_DEFAULT_QUEUE,
         )
 
     def test_build_length_high_average(self):
