@@ -72,7 +72,7 @@ class TaskRouterTests(TestCase):
         )
 
     def test_non_build_task(self):
-        self.assertIsNoneEqual(
+        self.assertIsNone(
             self.router.route_for_task('non_build_task', self.args, self.kwargs),
         )
 
