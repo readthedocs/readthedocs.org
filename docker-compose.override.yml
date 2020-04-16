@@ -91,3 +91,5 @@ services:
     networks:
       readthedocs:
     command: ["/usr/local/bin/create-containers.sh"]
+    environment:
+      - INIT=${INIT:-}
