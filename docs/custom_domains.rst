@@ -13,13 +13,6 @@ If you go to ``<slug>.readthedocs.io``, it should show you the latest version of
 A good example is https://pip.readthedocs.io
 For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
 
-.. note::
-
-   If you have an old project that has an underscore (_) in the name,
-   it will use a subdomain with a hyphen (-).
-   `RFC 1035 <https://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.
-
-
 Custom domain support
 ---------------------
 
