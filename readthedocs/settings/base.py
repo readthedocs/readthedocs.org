@@ -6,6 +6,7 @@ import os
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -336,12 +337,11 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    CELERY_DEFAULT_PRIORITY = 1
+    CELERY_DEFAULT_PRIORITY = CELERY_MEDIUM
 
     BROKER_TRANSPORT_OPTIONS = {
         'queue_order_strategy': 'priority',
-        # Only 2 priorities for now
-        'priority_steps': [1, 2],
+        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
     }
 
     CELERY_DEFAULT_QUEUE = 'celery'

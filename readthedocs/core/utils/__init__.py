@@ -17,6 +17,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.projects.constants import CELERY_LOW
 
 
 log = logging.getLogger(__name__)
@@ -150,8 +151,7 @@ def prepare_build(
 
     if version.type == EXTERNAL:
         # External builds should be lower priority.
-        # We only support [1,2] currently, so set it to 2 (higher number being higher priority)
-        options['priority'] = 1
+        options['priority'] = CELERY_LOW
 
     return (
         update_docs_task.signature(
