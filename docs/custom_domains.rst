@@ -63,22 +63,26 @@ You can also host your documentation from your own domain.
          they do not yet allow us to acquire SSL certificates for those domains.
          Follow the new setup to have a SSL certificate.
 
-      .. warning:: Notes for Cloudflare users
+      .. admonition:: Certificate Authority Authorization (CAA)
 
-         - If your domain has configured CAA records, please do not forget to include
-           Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
-           FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`__.
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include Cloudflare CAA entries to allow them to issue an SSL certificate for the domain.
+         See their `CAA FAQ`_ for details.
 
-         - Due to a limitation,
-           a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-           This results in a "CNAME Cross-User Banned" error.
-           In order to do SSL termination, we must proxy this connection.
-           If you don't want us to do SSL termination for your domain —
-           **which means you are responsible for the SSL certificate** —
-           then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-           For more details, see `this previous issue`_.
+         .. _CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 
-           .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+      .. admonition:: Notes for Cloudflare users
+
+         Due to a limitation,
+         a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
+         This results in a "CNAME Cross-User Banned" error.
+         In order to do SSL termination, we must proxy this connection.
+         If you don't want us to do SSL termination for your domain —
+         **which means you are responsible for the SSL certificate** —
+         then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
+         For more details, see `this previous issue`_.
+
+         .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
    .. tab:: Read the Docs for Business
 
