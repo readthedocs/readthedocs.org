@@ -339,7 +339,7 @@ class CommunityBaseSettings(Settings):
     BROKER_TRANSPORT_OPTIONS = {
         'queue_order_strategy': 'priority',
         # Only 2 priorities for now
-        'priority_steps': list(range(2)),
+        'priority_steps': [0, 5],
     }
 
     CELERY_DEFAULT_QUEUE = 'celery'
