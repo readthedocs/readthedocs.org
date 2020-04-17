@@ -27,8 +27,8 @@ You can also host your documentation from your own domain.
 
 .. note::
 
-   We don't currently support pointing subdomains or naked domains to a project using ``A`` records.
-   It's best to point a subdomain, ``docs.example.com`` for example, using a CNAME record.
+   We don't currently support pointing subdomains or root domains to a project using A records.
+   DNS A records require a static IP address and our IPs may change without notice.
 
 .. tabs::
 
@@ -36,7 +36,8 @@ You can also host your documentation from your own domain.
       
       In order to setup your custom domain, follow these steps:
 
-      #. Add a CNAME record in your DNS that points the domain to ``readthedocs.io``
+      #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
+         For a root domain like ``example.com`` use an ANAME or ALIAS record pointing to ``readthedocs.io``.
       #. Go the :guilabel:`Admin` tab of your project
       #. Click on :guilabel:`Domains`
       #. Enter your domain and click on :guilabel:`Add`
