@@ -985,7 +985,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Search media (JSON)
         if search:
-            types_to_copy.append(('json', 'sphinx_search'))
+            if self.config.doctype == MKDOCS:
+                types_to_copy.append(('json', 'mkdocs_search'))
+            else:
+                types_to_copy.append(('json', 'sphinx_search'))
 
         if localmedia:
             types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
@@ -1215,11 +1218,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def build_docs_search(self):
         """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        # Search is always run in mkdocs,
+        # and in sphinx is run using the rtd-sphinx-extension.
+        return self.version.type != EXTERNAL
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1571,6 +1572,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1804,6 +1808,7 @@ def _sync_imported_files(version, build, changed_files):
     """
 
     # Index new HTMLFiles to ElasticSearch
+    log.info('Sync imported files!')
     index_new_files(model=HTMLFile, version=version, build=build)
 
     # Remove old HTMLFiles from ElasticSearch

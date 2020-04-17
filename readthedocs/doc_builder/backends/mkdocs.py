@@ -7,14 +7,16 @@ MkDocs_ backend for building docs.
 import json
 import logging
 import os
+import shutil
+from pathlib import Path
 
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
-from readthedocs.projects.constants import MKDOCS_HTML, MKDOCS
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
 
@@ -315,9 +317,32 @@ class BaseMkdocs(BaseBuilder):
 
 
 class MkdocsHTML(BaseMkdocs):
+
     type = 'mkdocs'
     builder = 'build'
     build_dir = '_build/html'
+
+    def move(self, **__):
+        super().move()
+        # Copy json search index to its own directory
+        json_file = (Path(self.old_artifact_path) / 'search/search_index.json').resolve()
+        json_path_target = Path(
+            self.project.artifact_path(
+                version=self.version.slug,
+                type_='mkdocs_search',
+            )
+        )
+        if json_file.exists():
+            if json_path_target.exists():
+                shutil.rmtree(json_path_target)
+            json_path_target.mkdir(parents=True, exist_ok=True)
+            log.info('Copying json on the local filesystem')
+            shutil.copy(
+                json_file,
+                json_path_target,
+            )
+        else:
+            log.warning('Not moving json because the build dir is unknown.',)
 
 
 class MkdocsJSON(BaseMkdocs):

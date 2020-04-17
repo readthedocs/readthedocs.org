@@ -1,6 +1,7 @@
 """Functions related to converting content into dict/JSON structures."""
 
 import logging
+from urllib.parse import urlparse
 import orjson as json
 
 from django.conf import settings
@@ -197,3 +198,46 @@ def parse_content(content, remove_first_line=False):
     # converting newlines to ". "
     content = ' '.join([text.strip() for text in content if text])
     return content
+
+
+def process_mkdocs_index_file(json_storage_path):
+    """Read the fjson file from disk and parse it into a structured dict."""
+    log.debug('Processing JSON index file: %s', json_storage_path)
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    try:
+        with storage.open(json_storage_path, mode='r') as f:
+            file_contents = f.read()
+    except IOError:
+        log.info('Unable to read file: %s', json_storage_path)
+        raise
+
+    data = json.loads(file_contents)
+    pages = {}
+
+    for section in data.get('docs', []):
+        parsed_path = urlparse(section.get('location', ''))
+        fragment = parsed_path.fragment
+        path = parsed_path.path
+
+        if path == '' or path.endswith('/'):
+            path += 'index.html'
+
+        title = section.get('title')
+        content = section.get('text')
+
+        pages.setdefault(path, {})
+        if not fragment:
+            pages[path].update({
+                'path': path,
+                'title': title,
+                'domain_data': {},
+            })
+        else:
+            pages[path].setdefault('sections', []).append({
+                'id': fragment,
+                'title': title,
+                'content': content,
+            })
+
+    return pages
