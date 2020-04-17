@@ -97,6 +97,14 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Set the default search to search files instead of projects
+        # when we're hosting private docs
+        if settings.ALLOW_PRIVATE_REPOS:
+            context['type'] = 'file'
+        return context
+
     def validate_primary_email(self, user):
         """
         Sends a persistent error notification.
