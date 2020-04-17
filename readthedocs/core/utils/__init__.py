@@ -148,6 +148,11 @@ def prepare_build(
         # Send Webhook notification for build triggered.
         send_notifications.delay(version.pk, build_pk=build.pk, email=False)
 
+    if version.type == EXTERNAL:
+        # External builds should be lower priority.
+        # 0 is the highest priority, so lets set it to the lowest at 9
+        options['priority'] = 9
+
     return (
         update_docs_task.signature(
             args=(version.pk,),
