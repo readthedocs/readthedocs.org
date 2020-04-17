@@ -22,7 +22,7 @@ class DockerBaseSettings(CommunityDevSettings):
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
-    STATIC_URL = f'http://{PRODUCTION_DOMAIN}/devstoreaccount1/static/'
+    STATIC_URL = '/devstoreaccount1/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
@@ -117,7 +117,7 @@ class DockerBaseSettings(CommunityDevSettings):
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
+    AZURE_STATIC_STORAGE_HOSTNAME = 'assets.community.dev.readthedocs.io:10000'
 
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildEnvironmentStorage'
