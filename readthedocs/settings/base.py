@@ -336,10 +336,12 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    CELERY_DEFAULT_PRIORITY = 1
+
     BROKER_TRANSPORT_OPTIONS = {
         'queue_order_strategy': 'priority',
         # Only 2 priorities for now
-        'priority_steps': [0, 5],
+        'priority_steps': [1, 2],
     }
 
     CELERY_DEFAULT_QUEUE = 'celery'

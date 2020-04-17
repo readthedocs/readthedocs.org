@@ -150,8 +150,8 @@ def prepare_build(
 
     if version.type == EXTERNAL:
         # External builds should be lower priority.
-        # 0 is the highest priority, so lets set it to the lowest at 9
-        options['priority'] = 9
+        # We only support [1,2] currently, so set it to 2 (higher number being higher priority)
+        options['priority'] = 1
 
     return (
         update_docs_task.signature(
