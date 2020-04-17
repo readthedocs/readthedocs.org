@@ -48,7 +48,7 @@
       <div class="module-list">
         <div class="module-list-wrapper">
           <ul class="subprojects">
-            {% for subproject in object_list %}
+            {% for subproject, absolute_url in subprojects_and_urls %}
               <li class="module-item subproject">
                 <div class="module-title">
                   <a
@@ -58,8 +58,8 @@
                   </a>
                   <span>
                     <a class="module-info subproject-url"
-                      href="{{ subproject.get_absolute_url }}">
-                      {{ subproject.get_absolute_url }}
+                      href="{{ absolute_url }}">
+                      {{ absolute_url }}
                     </a>
                   </span>
                 </div>

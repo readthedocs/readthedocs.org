@@ -171,13 +171,13 @@ class TestCORSMiddleware(TestCase):
         self.project = get(
             Project, slug='pip',
             users=[self.owner], privacy_level='public',
-            mail_language_project=None,
+            main_language_project=None,
         )
         self.subproject = get(
             Project,
             users=[self.owner],
             privacy_level='public',
-            mail_language_project=None,
+            main_language_project=None,
         )
         self.relationship = get(
             ProjectRelationship,
