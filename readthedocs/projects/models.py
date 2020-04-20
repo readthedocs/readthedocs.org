@@ -241,6 +241,11 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    max_concurrent_builds = models.IntegerField(
+        _('Maximum concurrent builds allowed for this project'),
+        null=True,
+        blank=True,
+    )
     allow_promos = models.BooleanField(
         _('Allow paid advertising'),
         default=True,
