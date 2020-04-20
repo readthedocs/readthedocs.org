@@ -8,6 +8,7 @@ BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_UPLOADING = 'uploading'
 BUILD_STATE_FINISHED = 'finished'
 
 BUILD_STATE = (
@@ -15,6 +16,7 @@ BUILD_STATE = (
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_UPLOADING, _('Uploading')),
     (BUILD_STATE_FINISHED, _('Finished')),
 )
 
@@ -97,8 +99,6 @@ SELECT_BUILD_STATUS = {
         'description': 'Read the Docs build succeeded!',
     },
 }
-
-RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
 
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'

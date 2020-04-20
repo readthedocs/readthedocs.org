@@ -53,6 +53,10 @@ class BuildTimeoutError(BuildEnvironmentError):
     message = ugettext_noop('Build exited due to time out')
 
 
+class BuildMaxConcurrencyError(BuildEnvironmentError):
+    message = ugettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
+
+
 class BuildEnvironmentWarning(BuildEnvironmentException):
     pass
 

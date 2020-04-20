@@ -147,7 +147,9 @@ urlpatterns = [
     # (Sub)project single version
     url(
         (
-            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            # subproject_slash variable at the end of this regex is for ``/projects/subproject``
+            # so that it will get captured here and redirect properly.
+            r'^(?:projects/(?P<subproject_slug>{project_slug})(?P<subproject_slash>/?))?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         ServeDocs.as_view(),
