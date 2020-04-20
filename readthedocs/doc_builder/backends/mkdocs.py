@@ -11,6 +11,7 @@ import os
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
+from readthedocs.projects.constants import MKDOCS_HTML, MKDOCS
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
@@ -67,6 +68,17 @@ class BaseMkdocs(BaseBuilder):
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
 
+    def get_final_doctype(self):
+        """
+        Select a doctype based on the ``use_directory_urls`` setting.
+
+        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+        """
+        with open(self.yaml_file, 'r') as f:
+            config = yaml_load_safely(f)
+            use_directory_urls = config.get('use_directory_urls', True)
+            return MKDOCS if use_directory_urls else MKDOCS_HTML
+
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
         mkdocs_path = self.config.mkdocs.configuration
@@ -84,7 +96,7 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml.safe_load(open(self.yaml_file, 'r'))
+            config = yaml_load_safely(open(self.yaml_file, 'r'))
 
             if not config:
                 raise MkDocsYAMLParseError(
@@ -312,3 +324,29 @@ class MkdocsJSON(BaseMkdocs):
     type = 'mkdocs_json'
     builder = 'json'
     build_dir = '_build/json'
+
+
+class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+
+    """
+    YAML loader to ignore unknown tags.
+
+    Borrowed from https://stackoverflow.com/a/57121993
+    """
+
+    def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
+        return None
+
+
+SafeLoaderIgnoreUnknown.add_constructor(None, SafeLoaderIgnoreUnknown.ignore_unknown)
+
+
+def yaml_load_safely(content):
+    """
+    Uses ``SafeLoaderIgnoreUnknown`` loader to skip unknown tags.
+
+    When a YAML contains ``!!python/name:int`` it will complete ignore it an
+    return ``None`` for those fields instead of failing. We need this to avoid
+    executing random code, but still support these YAML files.
+    """
+    return yaml.load(content, Loader=SafeLoaderIgnoreUnknown)

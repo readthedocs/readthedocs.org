@@ -4,7 +4,6 @@
 
 import yaml
 
-
 __all__ = ('parse', 'ParseError')
 
 

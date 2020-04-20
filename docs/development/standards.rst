@@ -1,16 +1,9 @@
-Development Standards
-=====================
+Development Setup and Standards
+===============================
 
-These are build standards that are adhered to by the core development team while
-developing Read the Docs and related services. If you are a new contributor to
-Read the Docs, it might a be a good idea to follow these guidelines as well. The
-:doc:`standard installation instructions <install>` do cover what it takes to
-get started with a local installation of Read the Docs and can be used for local
-development by non-core team.
-
-.. warning::
-
-   Take into account that Core team does not offer support on this setup currently.
+These are development setup and standards that are adhered to by the core development team while
+developing Read the Docs and related services. If you are a contributor to Read the Docs,
+it might a be a good idea to follow these guidelines as well.
 
 
 Core team standards
@@ -69,7 +62,7 @@ Serve documentation via El Proxito
 
 Search enabled by default
     Elasticsearch is properly configured and enabled by default.
-    Besides, all the documentation indexes are updated after a build is finished.
+    All the documentation indexes are updated after a build is finished.
 
 
 Set up your environment
@@ -216,3 +209,33 @@ to connect to the debug process port:
 
 The ``rdb`` debugger is similar to ``pdb``, there is no ``ipdb`` for remote
 debugging currently.
+
+
+Configuring connected accounts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These are optional steps to setup the :doc:`connected accounts </connected-accounts>`
+(GitHub, GitLab, and BitBucket) in your development environment.
+This will allow you to login to your local development instance
+using your GitHub, Bitbucket, or GitLab credentials
+and this makes the process of importing repositories easier.
+
+However, because these services will not be able to connect back to your local development instance,
+:doc:`webhooks </webhooks>` will not function correctly.
+For some services, the webhooks will fail to be added when the repository is imported.
+For others, the webhook will simply fail to connect when there are new commits to the repository.
+
+.. figure:: ../_static/images/development/bitbucket-oauth-setup.png
+    :align: center
+    :figwidth: 80%
+    :target: ../_static/images/development/bitbucket-oauth-setup.png
+
+    Configuring an OAuth consumer for local development on Bitbucket
+
+* Configure the applications on GitHub, Bitbucket, and GitLab.
+  For each of these, the callback URI is ``http://community.dev.readthedocs.io/accounts/<provider>/login/callback/``
+  where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
+  When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
+* Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
+  ``http://community.dev.readthedocs.io/admin/socialaccount/socialapp/``.
+  Make sure to apply it to the "Site".
