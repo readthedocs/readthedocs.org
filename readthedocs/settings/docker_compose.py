@@ -18,7 +18,6 @@ class DockerBaseSettings(CommunityDevSettings):
     PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
@@ -110,7 +109,6 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
 
     # We want to replace files for the same version built
     AZURE_OVERWRITE_FILES = True
