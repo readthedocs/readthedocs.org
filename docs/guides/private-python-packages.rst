@@ -17,13 +17,13 @@ Pip supports installing packages from a :ref:`Git repository <pip:vcs support>` 
 
 .. code::
 
-   git+https://gitprovider.com/user/project.git@{version}#egg={package-name}
+   git+https://gitprovider.com/user/project.git@{version}
 
 Or if your repository is private:
 
 .. code::
 
-   git+https://{token}@gitprovider.com/user/project.git@{version}#egg={package-name}
+   git+https://{token}@gitprovider.com/user/project.git@{version}
 
 Where ``version`` can be a tag, a branch, or a commit.
 And ``token`` is a personal access token with read only permissions from your provider.
@@ -50,7 +50,7 @@ URI example:
 
 .. code::
 
-   git+https://${GITHUB_TOKEN}@github.com/user/project.git@{version}#egg={package-name}
+   git+https://${GITHUB_TOKEN}@github.com/user/project.git@{version}
 
 .. warning::
 
@@ -70,7 +70,7 @@ URI example:
 
 .. code::
 
-   git+https://${GITLAB_TOKEN_USER}:${GITLAB_TOKEN}@gitlab.com/user/project.git@{version}#egg={package-name}
+   git+https://${GITLAB_TOKEN_USER}:${GITLAB_TOKEN}@gitlab.com/user/project.git@{version}
 
 Here ``GITLAB_TOKEN_USER`` is the user from the deploy token you created, not your GitLab user.
 
@@ -85,7 +85,7 @@ URI example:
 
 .. code::
 
-   git+https://${BITBUCKET_USER}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/user/project.git@{version}#egg={package-name}'
+   git+https://${BITBUCKET_USER}:${BITBUCKET_APP_PASSWORD}@bitbucket.org/user/project.git@{version}'
 
 Here ``BITBUCKET_USER`` is your Bitbucket user.
 
