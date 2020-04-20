@@ -11,7 +11,7 @@ the version (flyout) menu of your docs can be easily overwhelmed and hard to nav
 
 You can deactivate the version to remove its docs,
 but removing its docs isn't always an option.
-To don't list a version in the flyout menu while keeping its docs online, you can mark it as hidden.
+To not list a version in the flyout menu while keeping its docs online, you can mark it as hidden.
 Go to the :guilabel:`Versions` tab of your project, click on :guilabel:`Edit` and mark the ``Hidden`` option.
 
 Users that have a link to your old version will still be able to see your docs.
