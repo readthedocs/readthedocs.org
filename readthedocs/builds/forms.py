@@ -35,6 +35,10 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # TODO: remove when this field is no-nullable
+        self.fields['hidden'].widget = forms.CheckboxInput()
+        self.fields['hidden'].empty_value = False
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
