@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0015_uploading_build_state'),
+        ('builds', '0016_add_mkdocs_html_doctype'),
     ]
 
     operations = [
