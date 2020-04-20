@@ -28,13 +28,13 @@ Or if your repository is private:
 Where ``version`` can be a tag, a branch, or a commit.
 And ``token`` is a personal access token with read only permissions from your provider.
 
-.. We should add the git+ssh form when we support running the ssh-agent in the build step.
+.. TODO: We should add the git+ssh form when we support running the ssh-agent in the build step.
 
 To install the package,
 you need to add the URI in your :ref:`requirements file <config-file/v2:Requirements file>`.
 Pip will automatically expand environment variables in your URI,
 so you don't have to hard code the token in the URI.
-See :doc:`using environment variables in Read the Docs </guides/environment-variables>`.
+See :doc:`using environment variables in Read the Docs </guides/environment-variables>` for more information.
 
 Bellow you can find how to get a personal access token from our supported providers.
 We will be using environment variables for the token.
