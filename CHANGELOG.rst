@@ -1,3 +1,44 @@
+Version 4.1.5
+-------------
+
+:Date: April 15, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Cache-Tag header name (`#6908 <https://github.com/readthedocs/readthedocs.org/pull/6908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Handle paths with trailing `/` (`#6906 <https://github.com/readthedocs/readthedocs.org/pull/6906>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.4 (`#6899 <https://github.com/readthedocs/readthedocs.org/pull/6899>`__)
+* `@humitos <https://github.com/humitos>`__: On Azure .exists blob timeout, log the exception and return False (`#6895 <https://github.com/readthedocs/readthedocs.org/pull/6895>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix URLs like `/projects/subproject` from 404ing when they don't end with a slash (`#6888 <https://github.com/readthedocs/readthedocs.org/pull/6888>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allocate docker limits based on server size. (`#6879 <https://github.com/readthedocs/readthedocs.org/pull/6879>`__)
+
+Version 4.1.4
+-------------
+
+:Date: April 14, 2020
+
+* `@humitos <https://github.com/humitos>`__: On Azure .exists blob timeout, log the exception and return False (`#6895 <https://github.com/readthedocs/readthedocs.org/pull/6895>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix URLs like `/projects/subproject` from 404ing when they don't end with a slash (`#6888 <https://github.com/readthedocs/readthedocs.org/pull/6888>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CloudFlare Cache tags support (`#6887 <https://github.com/readthedocs/readthedocs.org/pull/6887>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update requirements (`#6885 <https://github.com/readthedocs/readthedocs.org/pull/6885>`__)
+* `@stsewd <https://github.com/stsewd>`__: Be explicit with PUBLIC_DOMAIN setting (`#6881 <https://github.com/readthedocs/readthedocs.org/pull/6881>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override project detail view (`#6880 <https://github.com/readthedocs/readthedocs.org/pull/6880>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allocate docker limits based on server size. (`#6879 <https://github.com/readthedocs/readthedocs.org/pull/6879>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make the status name in CI configurable via setting (`#6877 <https://github.com/readthedocs/readthedocs.org/pull/6877>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add 12 hour caching to our robots.txt serving (`#6876 <https://github.com/readthedocs/readthedocs.org/pull/6876>`__)
+* `@humitos <https://github.com/humitos>`__: Filter triggered builds when checking concurrency (`#6875 <https://github.com/readthedocs/readthedocs.org/pull/6875>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix issue with sphinx domain types with `:` in them: (`#6874 <https://github.com/readthedocs/readthedocs.org/pull/6874>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make dashboard faster for projects with a lot of subprojects (`#6873 <https://github.com/readthedocs/readthedocs.org/pull/6873>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.3 (`#6872 <https://github.com/readthedocs/readthedocs.org/pull/6872>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do unnecessary queries when listing subprojects (`#6869 <https://github.com/readthedocs/readthedocs.org/pull/6869>`__)
+* `@stsewd <https://github.com/stsewd>`__: Optimize resolve_path (`#6867 <https://github.com/readthedocs/readthedocs.org/pull/6867>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't do extra query if the project is a translation (`#6865 <https://github.com/readthedocs/readthedocs.org/pull/6865>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove private argument from resolver (`#6864 <https://github.com/readthedocs/readthedocs.org/pull/6864>`__)
+* `@stsewd <https://github.com/stsewd>`__: Support mkdocs html pages as doctype (`#6846 <https://github.com/readthedocs/readthedocs.org/pull/6846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Reduce queries to storage to serve 404 pages (`#6845 <https://github.com/readthedocs/readthedocs.org/pull/6845>`__)
+* `@stsewd <https://github.com/stsewd>`__: Rework custom domains docs (`#6844 <https://github.com/readthedocs/readthedocs.org/pull/6844>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add checking the github oauth app in the troubleshooting page (`#6827 <https://github.com/readthedocs/readthedocs.org/pull/6827>`__)
+* `@humitos <https://github.com/humitos>`__: Return full path URL (including `.html`) on `/api/v2/docurl/` endpoint (`#6082 <https://github.com/readthedocs/readthedocs.org/pull/6082>`__)
+
 Version 4.1.3
 -------------
 

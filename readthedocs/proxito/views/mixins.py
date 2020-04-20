@@ -126,6 +126,8 @@ class ServeDocsMixin:
         response['X-RTD-Version'] = version_slug
         # Needed to strip any GET args, etc.
         response['X-RTD-Path'] = urlparse(path).path
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Version-Method'] = 'rtdheader'
         if hasattr(request, 'subdomain'):

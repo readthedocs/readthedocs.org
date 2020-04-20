@@ -99,6 +99,7 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
+    RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -631,7 +632,7 @@ class CommunityBaseSettings(Settings):
             '': {  # root logger
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
-                'level': 'DEBUG',
+                'level': 'INFO',
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],
