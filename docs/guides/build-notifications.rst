@@ -1,6 +1,11 @@
 Enabling Build Notifications
 ============================
 
+.. note::
+
+   Currently we don't send notifications when
+   a :doc:`build from a pull/merge request fails </guides/autobuild-docs-for-pull-requests>`.
+
 Using email
 -----------
 
