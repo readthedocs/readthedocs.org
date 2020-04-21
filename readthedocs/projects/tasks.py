@@ -501,7 +501,11 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 response = api_v2.build.running.get(project__slug=self.project.slug)
-                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                max_concurrent_builds = (
+                    self.project.max_concurrent_builds or
+                    settings.RTD_MAX_CONCURRENT_BUILDS
+                )
+                if response.get('count', 0) >= max_concurrent_builds:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,
@@ -512,7 +516,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # we are executing this code before creating one
                     api_v2.build(self.build['id']).patch({
                         'error': BuildMaxConcurrencyError.message.format(
-                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                            limit=max_concurrent_builds,
                         ),
                     })
                     self.task.retry(
@@ -1269,7 +1273,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
-        if self.version.type != EXTERNAL:
+        # Try to infer the version type if we can
+        # before creating a task.
+        if not self.version or self.version.type != EXTERNAL:
             send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
@@ -1846,7 +1852,7 @@ def _sync_imported_files(version, build, changed_files):
 def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
-    if not version:
+    if not version or version.type == EXTERNAL:
         return
 
     build = Build.objects.get(pk=build_pk)

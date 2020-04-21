@@ -2,11 +2,12 @@ Searching with Read the Docs
 ============================
 
 Read the Docs uses Elasticsearch to provide a better search experience.
-This guide is intended to show that how to add "search as you type" feature to your documentation,
-how to use advanced query syntax to get more accurate results and
-many other search features that Read the Docs supports with example searches.
+This guide explains how to add a "search as you type" feature to your documentation, 
+how to use advanced query syntax to get more accurate results, 
+and how to use other search features that Read the Docs supports. 
+Where appropriate, example searches are provided.
 
-You can find information on the search architecture and how we index document on our
+You can find information on the search architecture and how we index document in our
 :doc:`Search <../development/search>` docs.
 
 
@@ -19,16 +20,13 @@ You can find information on the search architecture and how we index document on
 Improvements over Sphinx search
 -------------------------------
 
-Sphinx is designed to create a self-contained webpage and
-all search indexing is done when the documentation is built.
-As a result, it would be impossible for Sphinx to add features like searching translations
-or subprojects or having analytics on common searches.
-Read the Docs supports a powerful documentation search unlike
-Sphinx which only have a basic search support.
+Sphinx is designed to create a self-contained webpage and all search indexing is performed at the time when the documentation is built.
+This means that it is not possible for Sphinx to add features such as searching translations or subprojects or providing analytics on common searches.
+Read the Docs supports a powerful documentation search, unlike Sphinx, which has support only for a basic search function.
 
 Features of Read the Docs documentation search are:
 
-- Search as you type feature supported.
+- Search-as-you-type feature supported.
 - Search analytics.
 - Search across multiple projects.
 - Search inside subprojects.
@@ -46,12 +44,12 @@ Search features for project admins
 Enable "search as you type" in your documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`readthedocs-sphinx-search`_ is a Sphinx extension which integrates your
-documentation more closely with Read the Docs' search implementation.
-It adds a clean and minimal full page search UI which supports **search as you type** feature.
+`readthedocs-sphinx-search`_ is a Sphinx extension that integrates your
+documentation more closely with the search implementation of Read the Docs.
+It adds a clean and minimal full-page search UI that supports a **search as you type** feature.
 
-To get a glimpse of it, you can press :guilabel:`/` (forward slash) and start typing
-or just visit these URLs:
+To try this feature, 
+you can press :guilabel:`/` (forward slash) and start typing or just visit these URLs:
 
 - https://docs.readthedocs.io/?rtd_search=contributing
 - https://docs.readthedocs.io/?rtd_search=api/v3/projects/
@@ -60,16 +58,16 @@ or just visit these URLs:
 Search analytics
 ~~~~~~~~~~~~~~~~
 
-Search queries are recorded and are stored in database to provide valuable analytics to the project admins.
-These analytics makes it easy to know what your users are looking for in your documentation.
+Search queries are recorded and stored in a database in order to provide analytics to the project admins.
+These analytics make it easy to know what your users are looking for in your documentation.
 You can see these analytics in your project admin dashboard.
 
 .. note::
 
-    Currently, this feature is in beta state and is available under a
+    Currently, this feature is in beta and is available under a
     :ref:`feature flag <guides/feature-flags:Available Flags>`.
     We plan to make this available for everyone soon.
-    If you want to test this feature out and help giving us feedback,
+    If you want to test this feature and help the project by providing feedback,
     please contact us via `GitHub issues`_.
 
 .. figure:: /_static/images/guides/search-analytics-demo.png
@@ -86,8 +84,7 @@ Search features for readers
 Search across all projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Our `main site search`_ supports searching for projects and
-searching across all projects.
+Our `main site search`_ supports searching for projects and searching across all projects.
 You can also use it to select the specific project and version to narrow down the search results.
 
 Example queries:
@@ -101,27 +98,25 @@ Example queries:
 Search inside subprojects
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We allow projects to configured as subprojects of another project.
+We allow projects to be configured as subprojects of another project.
 You can read more about this in our :doc:`Subprojects <../subprojects>` documentation.
 
-If a search is made in a project which have one or more subprojects under it,
-the search results then also includes the results from subprojects because
-they share a search index with their parent and sibling projects.
-For example: `Kombu`_ is one of the subprojects of `Celery`_,
-so if you search in Celery docs, then the results from Kombu will also be there.
+If a search is made in a project which has one or more subprojects under it,
+the search results include the results from those subprojects: projects share search indexes with their parent- and sibling-projects.
+For example: If `Kombu`_ is a subproject of `Celery`_ and you search in Celery docs, then the results from Kombu will also be there.
 Example: https://docs.celeryproject.org/en/master/search.html?q=utilities&check_keywords=yes&area=default
 
 
 Search query syntax
 ~~~~~~~~~~~~~~~~~~~
 
-Read the Docs uses `Simple Query String`_ feature of `Elasticsearch`_,
-hence the search query can be made complex to get more accurate results.
+Read the Docs uses the `Simple Query String`_ feature of `Elasticsearch`_.
+This means that as the search query becomes more complex, the results yielded become more specific.
 
 Exact phrase search
 +++++++++++++++++++
 
-If a query is wrapped in ``"``,
+If a query is wrapped in ``"`` (double quotes),
 then only those results where the phrase is exactly matched will be returned.
 
 Example queries:
@@ -133,8 +128,8 @@ Example queries:
 Exact phrase search with slop value
 +++++++++++++++++++++++++++++++++++
 
-``~N`` after a phrase signifies slop amount.
-It can be used to match words which are near one another.
+``~N`` (tilde N) after a phrase signifies slop amount.
+It can be used to match words that are near one another.
 
 Example queries:
 
@@ -145,7 +140,7 @@ Example queries:
 Prefix query
 ++++++++++++
 
-``*`` at the end of any term signifies a prefix query.
+``*`` (asterisk) at the end of any term signifies a prefix query.
 It returns the results containg the words with specific prefix.
 
 Example queries:
@@ -158,9 +153,8 @@ Fuzzy query
 +++++++++++
 
 ``~N`` after a word signifies edit distance (fuzziness).
-This type of query is helpful when spelling of the actual keyword is unsure.
-It returns results that contain terms similar to the search term,
-as measured by a `Levenshtein edit distance`_.
+This type of query is helpful when the exact spelling of the keyword is unknown.
+It returns results that contain terms similar to the search term as measured by a `Levenshtein edit distance`_.
 
 Example queries:
 
@@ -172,8 +166,7 @@ Example queries:
 Using the search query syntax to build complex queries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The search query syntaxes described in the previous section
-can be used with one another to build complex queries.
+The search query syntaxes described in the previous section can be used with one another to build complex queries.
 
 Example queries:
 
