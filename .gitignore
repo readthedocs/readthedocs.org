@@ -67,6 +67,7 @@ env.bak/
 venv.bak/
 
 dev.db-journal
-/readthedocs/settings/build.py
-/readthedocs/settings/celery.py
-/readthedocs/settings/web.py
+/readthedocs/settings/build_docker.py
+/readthedocs/settings/celery_docker.py
+/readthedocs/settings/proxito_docker.py
+/readthedocs/settings/web_docker.py

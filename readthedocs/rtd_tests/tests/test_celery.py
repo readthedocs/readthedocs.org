@@ -7,7 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
@@ -221,11 +221,20 @@ class TestCeleryBuilding(RTDTestCase):
             )
         clean_build.assert_called_with(version.pk)
 
-    def test_sync_repository(self):
+    @patch('readthedocs.projects.tasks.api_v2')
+    @patch('readthedocs.projects.tasks.SyncRepositoryMixin.get_version')
+    @patch('readthedocs.projects.models.Project.checkout_path')
+    def test_sync_repository(self, checkout_path, get_version, api_v2):
+        # Create dir where to clone the repo
+        local_repo = os.path.join(mkdtemp(), 'local')
+        os.mkdir(local_repo)
+        checkout_path.return_value = local_repo
+
         version = self.project.versions.get(slug=LATEST)
-        with mock_api(self.repo):
-            result = tasks.sync_repository_task.delay(version.pk)
-        self.assertTrue(result.successful())
+        get_version.return_value = version
+
+        result = tasks.sync_repository_task(version.pk)
+        self.assertTrue(result)
 
     @patch('readthedocs.projects.tasks.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):

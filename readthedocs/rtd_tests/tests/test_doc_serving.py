@@ -1,14 +1,14 @@
 import os
 
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from mock import mock_open, patch
+from unittest.mock import mock_open, patch
 
 from readthedocs.builds.constants import LATEST, EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
@@ -284,7 +284,6 @@ class TestPublicDocs(BaseDocServing):
                 self.public.get_docs_url(
                     version_slug=version.slug,
                     lang_slug=self.public.language,
-                    private=False,
                 ),
             )
 
@@ -294,7 +293,6 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug=private_version.slug,
                 lang_slug=self.public.language,
-                private=True,
             ),
         )
         # The `translation` project doesn't have a version named `not-translated-version`
@@ -306,7 +304,6 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug=not_translated_public_version.slug,
                 lang_slug=translation.language,
-                private=False,
             ),
         )
         # hreflang should use hyphen instead of underscore
@@ -319,7 +316,6 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug=external_version.slug,
                 lang_slug=self.public.language,
-                private=True,
             ),
         )
 
@@ -329,7 +325,6 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug=stable_version.slug,
                 lang_slug=self.public.language,
-                private=False,
             ),)
         self.assertEqual(response.context['versions'][0]['priority'], 1)
         self.assertEqual(response.context['versions'][0]['changefreq'], 'weekly')
@@ -340,7 +335,6 @@ class TestPublicDocs(BaseDocServing):
             self.public.get_docs_url(
                 version_slug='latest',
                 lang_slug=self.public.language,
-                private=False,
             ),)
         self.assertEqual(response.context['versions'][1]['priority'], 0.9)
         self.assertEqual(response.context['versions'][1]['changefreq'], 'daily')

@@ -12,7 +12,6 @@ from django.views.generic.base import RedirectView, TemplateView
 from readthedocs.core.urls import core_urls, docs_urls
 from readthedocs.core.views import (
     HomepageView,
-    SupportView,
     do_not_track,
     server_error_404,
     server_error_500,
@@ -28,7 +27,7 @@ handler500 = server_error_500
 
 basic_urls = [
     url(r'^$', HomepageView.as_view(), name='homepage'),
-    url(r'^support/', SupportView.as_view(), name='support'),
+    url(r'^support/', TemplateView.as_view(template_name='support.html'), name='support'),
     url(r'^security/', TemplateView.as_view(template_name='security.html')),
     url(
         r'^\.well-known/security.txt$',

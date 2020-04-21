@@ -21,7 +21,7 @@ If you develop on a branch that is different than the default for your VCS,
 you should set the **Default Branch** to that branch.
 
 You should push a **tag** for each version of your project.
-These tags should be numbered in a way that is consistent with `semantic versioning <http://semver.org/>`_.
+These tags should be numbered in a way that is consistent with `semantic versioning <https://semver.org/>`_.
 This will map to your ``stable`` branch by default.
 
 .. note::

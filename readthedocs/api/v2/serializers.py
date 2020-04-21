@@ -94,6 +94,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_pdf',
             'has_epub',
             'has_htmlzip',
+            'documentation_type',
         )
 
 

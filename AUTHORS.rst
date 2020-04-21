@@ -1,7 +1,7 @@
 Read the Docs Team
 ==================
 
-The core Read the Docs team is described at http://docs.readthedocs.io/en/latest/team.html
+The core Read the Docs team is described at https://docs.readthedocs.io/en/latest/team.html
 
 Original Authors
 ===============

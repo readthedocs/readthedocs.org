@@ -1,6 +1,6 @@
 import re
 
-import mock
+from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -111,6 +111,11 @@ class URLAccessMixin:
             }
 
         for (view, regex, namespace, name) in deconstructed_urls:
+
+            # Skip URL and views that are not named
+            if not name:
+                continue
+
             request_data = self.request_data.get(name, {}).copy()
             for key in list(re.compile(regex).groupindex.keys()):
                 if key in list(request_data.keys()):
@@ -157,7 +162,7 @@ class ProjectMixin(URLAccessMixin):
             response_headers='{"foo": "bar"}',
             status_code=200,
         )
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.environment_variable = get(EnvironmentVariable, project=self.pip)
         self.automation_rule = RegexAutomationRule.objects.create(
             project=self.pip,
@@ -344,8 +349,8 @@ class APIMixin(URLAccessMixin):
     def setUp(self):
         super().setUp()
         self.build = get(Build, project=self.pip)
-        self.build_command_result = get(BuildCommandResult, project=self.pip)
-        self.domain = get(Domain, url='http://docs.foobar.com', project=self.pip)
+        self.build_command_result = get(BuildCommandResult, build=self.build)
+        self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.social_account = get(SocialAccount)
         self.remote_org = get(RemoteOrganization)
         self.remote_repo = get(RemoteRepository, organization=self.remote_org)
@@ -369,6 +374,7 @@ class APIMixin(URLAccessMixin):
             'api_webhook': {'integration_pk': self.integration.pk},
         }
         self.response_data = {
+            'build-running': {'status_code': 403},
             'project-sync-versions': {'status_code': 403},
             'project-token': {'status_code': 403},
             'emailhook-list': {'status_code': 403},
