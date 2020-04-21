@@ -62,14 +62,6 @@ Search queries are recorded and stored in a database in order to provide analyti
 These analytics make it easy to know what your users are looking for in your documentation.
 You can see these analytics in your project admin dashboard.
 
-.. note::
-
-    Currently, this feature is in beta and is available under a
-    :ref:`feature flag <guides/feature-flags:Available Flags>`.
-    We plan to make this available for everyone soon.
-    If you want to test this feature and help the project by providing feedback,
-    please contact us via `GitHub issues`_.
-
 .. figure:: /_static/images/guides/search-analytics-demo.png
     :width: 40%
     :align: center
@@ -141,7 +133,7 @@ Prefix query
 ++++++++++++
 
 ``*`` (asterisk) at the end of any term signifies a prefix query.
-It returns the results containg the words with specific prefix.
+It returns the results containing the words with specific prefix.
 
 Example queries:
 
