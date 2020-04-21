@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import division, print_function, unicode_literals
-
 import os
 import sys
 from configparser import RawConfigParser
@@ -38,10 +34,11 @@ extensions = [
     'sphinx-prompt',
     'recommonmark',
     'notfound.extension',
+    'hoverxref.extension',
     'sphinx_search.extension',
 ]
-templates_path = ['_templates']
 
+templates_path = ['_templates']
 source_suffix = ['.rst', '.md']
 
 master_doc = 'index'
@@ -57,6 +54,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3.6/', None),
     'django': ('https://docs.djangoproject.com/en/1.11/', 'https://docs.djangoproject.com/en/1.11/_objects/'),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    'pip': ('https://pip.pypa.io/en/stable/', None),
 }
 htmlhelp_basename = 'ReadTheDocsdoc'
 latex_documents = [
@@ -81,12 +79,28 @@ gettext_compact = False
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_js_files = ['js/expand_tabs.js']
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_logo = 'img/logo.svg'
 html_theme_options = {
     'logo_only': True,
     'display_version': False,
 }
+
+hoverxref_auto_ref = True
+hoverxref_domains = ['py']
+hoverxref_roles = [
+    'option',
+    'doc',
+]
+hoverxref_role_types = {
+    'mod': 'modal',  # for Python Sphinx Domain
+    'doc': 'modal',  # for whole docs
+    'class': 'tooltip',  # for Python Sphinx Domain
+    'ref': 'tooltip',  # for hoverxref_auto_ref config
+    'confval': 'tooltip',  # for custom object
+}
+
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True

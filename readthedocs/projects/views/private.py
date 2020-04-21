@@ -79,7 +79,10 @@ from readthedocs.projects.models import (
 from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.utils import Echo
 from readthedocs.projects.views.base import ProjectAdminMixin, ProjectSpamMixin
-from readthedocs.projects.views.mixins import ProjectImportMixin
+from readthedocs.projects.views.mixins import (
+    ProjectImportMixin,
+    ProjectRelationListMixin,
+)
 from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
@@ -109,7 +112,10 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        sort = self.request.GET.get('sort')
+        if sort not in ['modified_date', '-modified_date', 'slug', '-slug']:
+            sort = 'slug'
+        return Project.objects.dashboard(self.request.user).order_by(sort)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
@@ -457,7 +463,7 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
         return reverse('projects_subprojects', args=[self.get_project().slug])
 
 
-class ProjectRelationshipList(ProjectRelationshipMixin, ListView):
+class ProjectRelationshipList(ProjectRelationListMixin, ProjectRelationshipMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
