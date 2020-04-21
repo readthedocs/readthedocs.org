@@ -1814,7 +1814,6 @@ def _sync_imported_files(version, build, changed_files):
     """
 
     # Index new HTMLFiles to ElasticSearch
-    log.info('Sync imported files!')
     index_new_files(model=HTMLFile, version=version, build=build)
 
     # Remove old HTMLFiles from ElasticSearch

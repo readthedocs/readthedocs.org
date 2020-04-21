@@ -1408,7 +1408,7 @@ class HTMLFile(ImportedFile):
                 {
                     'id': 'section-anchor',
                     'title': 'Section title',
-                    'content': 'Secntion content',
+                    'content': 'Section content',
                 },
             ],
             'domain_data': {},
