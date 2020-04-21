@@ -76,9 +76,11 @@ If you get an error like::
 
    RequestError(400, 'search_phase_execution_exception', 'failed to create query: ...
 
-You can fix this by deleting the page index::
+You can fix this by deleting the page index:
 
-   inv docker.compose 'exec search curl -X DELETE search:9200/page_index'
+.. prompt:: bash
+
+   inv docker.manage 'search_index --delete'
 
 .. note::
 
