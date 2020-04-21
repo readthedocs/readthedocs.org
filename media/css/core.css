@@ -478,6 +478,9 @@ div.module.search-dashboard input {
 /* Admin project Translation */
 .module-translation { padding-bottom: 25px; }
 
+/* Accounts Gold Projects */
+.module-gold-projects { padding-bottom: 25px; }
+
 /* project bar */
 
 #project_bar { background: #E8ECEF url(../images/project-bar-bg.png) top left repeat; border-bottom: 1px solid #DAE1E5; overflow:hidden; position:relative; }
@@ -1293,7 +1296,6 @@ div.httpexchange div.highlight pre {
 
 
 /* Subprojects */
-
 div.module.project-subprojects li.subproject a.subproject-url:before {
     padding-right: .5em;
     font-family: FontAwesome;
@@ -1306,14 +1308,6 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     font-weight: normal;
     content: "\f044";
 }
-
-/* Automation Rules */
-
-li.automation-rule input[type="submit"] {
-    font-family: FontAwesome;
-    font-weight: normal;
-}
-
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }

@@ -108,7 +108,7 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 400)
         self.assertIn(
             'Project can not be subproject of itself',
-            response.json()['non_field_errors'],
+            response.json()['child'],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
 

@@ -131,7 +131,7 @@ A command like the one above could be called from a cron job or from a hook
 inside Git_, Subversion_, Mercurial_, or Bazaar_.
 
 .. _Git: http://www.kernel.org/pub/software/scm/git/docs/githooks.html
-.. _Subversion: http://mikewest.org/2006/06/subversion-post-commit-hooks-101
+.. _Subversion: https://www.mikewest.org/2006/06/subversion-post-commit-hooks-101
 .. _Mercurial: http://hgbook.red-bean.com/read/handling-repository-events-with-hooks.html
 .. _Bazaar: http://wiki.bazaar.canonical.com/BzrHooks
 
@@ -169,6 +169,16 @@ offer a way to check this.
 
 Troubleshooting
 ---------------
+
+Webhook activation failed. Make sure you have the necessary permissions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you find this error,
+make sure your user has permissions over the repository.
+In case of GitHub,
+check that you have granted access to the Read the Docs `OAuth App`_ to your organization.
+
+.. _OAuth App: https://github.com/settings/applications
 
 My project isn't automatically building
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

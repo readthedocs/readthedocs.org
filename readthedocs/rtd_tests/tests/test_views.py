@@ -1,7 +1,7 @@
 import csv
 from urllib.parse import urlsplit
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -278,7 +278,7 @@ class TestSearchAnalyticsView(TestCase):
         test_time = timezone.datetime(2019, 8, 2, 12, 0)
         self.test_time = timezone.make_aware(test_time)
 
-        get(Feature, projects=[self.pip], feature_id=Feature.SEARCH_ANALYTICS)
+        get(Feature, projects=[self.pip])
 
     def test_top_queries(self):
         with mock.patch('django.utils.timezone.now') as test_time:

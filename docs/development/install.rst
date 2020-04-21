@@ -8,6 +8,14 @@ Installation
 Here is a step by step guide on how to install Read the Docs.
 It will get you to a point of having a local running instance.
 
+.. note::
+
+    It may be worth familiarizing yourself with the Read the Docs
+    :doc:`development setup and standards </development/standards>`.
+    That document details the local setup with Docker which may be useful
+    for setting up your own instance.
+
+
 Requirements
 ------------
 
@@ -76,12 +84,12 @@ you need these libraries.
       or you need to find the proper equivalent libraries.
 
 
-.. _Python 3.6: http://www.python.org/
+.. _Python 3.6: https://www.python.org/
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
-.. _Git: http://git-scm.com/
+.. _Git: https://git-scm.com/
 .. _Mercurial: https://www.mercurial-scm.org/
 .. _Pip: https://pip.pypa.io/en/stable/
-.. _Homebrew: http://brew.sh/
+.. _Homebrew: https://brew.sh/
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 .. _Redis: https://redis.io/
 .. _bug: https://code.djangoproject.com/ticket/29182

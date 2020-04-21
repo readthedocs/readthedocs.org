@@ -8,6 +8,7 @@ BUILD_STATE_TRIGGERED = 'triggered'
 BUILD_STATE_CLONING = 'cloning'
 BUILD_STATE_INSTALLING = 'installing'
 BUILD_STATE_BUILDING = 'building'
+BUILD_STATE_UPLOADING = 'uploading'
 BUILD_STATE_FINISHED = 'finished'
 
 BUILD_STATE = (
@@ -15,6 +16,7 @@ BUILD_STATE = (
     (BUILD_STATE_CLONING, _('Cloning')),
     (BUILD_STATE_INSTALLING, _('Installing')),
     (BUILD_STATE_BUILDING, _('Building')),
+    (BUILD_STATE_UPLOADING, _('Uploading')),
     (BUILD_STATE_FINISHED, _('Finished')),
 )
 
@@ -98,8 +100,6 @@ SELECT_BUILD_STATUS = {
     },
 }
 
-RTD_BUILD_STATUS_API_NAME = 'continuous-documentation/read-the-docs'
-
 GITHUB_EXTERNAL_VERSION_NAME = 'Pull Request'
 GITLAB_EXTERNAL_VERSION_NAME = 'Merge Request'
 GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
@@ -110,7 +110,10 @@ GENERIC_EXTERNAL_VERSION_NAME = 'External Version'
 ALL_VERSIONS = 'all-versions'
 ALL_VERSIONS_REGEX = r'.*'
 SEMVER_VERSIONS = 'semver-versions'
-SEMVER_VERSIONS_REGEX = r'^v?(\d+\.)(\d+\.)(\d+)(-.+)?$'
+
+# Pattern referred from
+# https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+SEMVER_VERSIONS_REGEX = r'^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa
 
 
 PREDEFINED_MATCH_ARGS = (

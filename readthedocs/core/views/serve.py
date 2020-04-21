@@ -175,7 +175,7 @@ def _serve_file(request, filename, basepath):
     :raises: ``Http404`` on ``UnicodeEncodeError``
     """
     # Serve the file from the proper location
-    if settings.DEBUG or settings.PYTHON_MEDIA:
+    if (settings.DEBUG or settings.PYTHON_MEDIA) and not settings.RTD_DOCKER_COMPOSE:
         # Serve from Python
         return serve(request, filename, basepath)
 
@@ -451,7 +451,6 @@ def sitemap_xml(request, project):
                     href = project.get_docs_url(
                         version_slug=version.slug,
                         lang_slug=translation.language,
-                        private=False,
                     )
                     element['languages'].append({
                         'hreflang': hreflang_formatter(translation.language),

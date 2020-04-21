@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import os
 import shutil
 import tempfile
 
-import mock
+from unittest import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -147,7 +145,7 @@ class BaseSymlinkCnames:
     def test_symlink_cname(self):
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
         filesystem = {
@@ -181,7 +179,7 @@ class BaseSymlinkCnames:
     def test_symlink_remove_orphan_symlinks(self):
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
 
@@ -267,7 +265,7 @@ class BaseSymlinkCnames:
         """Domains should be relinked after deletion."""
         self.domain = get(
             Domain, project=self.project, domain='woot.com',
-            url='http://woot.com', cname=True,
+            cname=True,
         )
         self.symlink.symlink_cnames()
         filesystem = {
@@ -832,7 +830,7 @@ class BaseSymlinkSingleVersion:
         self.assertFilesystem(filesystem)
 
     def test_symlink_single_version_missing(self):
-        self.project.versions = []
+        self.project.versions.set([])
         self.project.save()
         self.symlink = self.symlink_class(self.project)
         self.symlink.symlink_single_version()

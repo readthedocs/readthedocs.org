@@ -1,7 +1,9 @@
-import mock
+from unittest import mock
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
+from django_dynamic_fixture import get
 from rest_framework.test import APIRequestFactory, APITestCase
 
 from readthedocs.api.v2.views.footer_views import (
@@ -10,33 +12,41 @@ from readthedocs.api.v2.views.footer_views import (
 )
 from readthedocs.builds.constants import BRANCH, LATEST, TAG
 from readthedocs.builds.models import Version
-from readthedocs.core.middleware import FooterNoSessionMiddleware
+from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
-class Testmaker(APITestCase):
-    fixtures = ['test_data']
-    url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
-    factory = APIRequestFactory()
+class BaseTestFooterHTML:
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.pip = Project.objects.get(slug='pip')
-        cls.latest = cls.pip.versions.create_latest()
+    def setUp(self):
+        self.pip = get(
+            Project,
+            slug='pip',
+            repo='https://github.com/rtfd/readthedocs.org',
+            privacy_level=PUBLIC,
+            main_language_project=None,
+        )
+        self.pip.versions.update(privacy_level=PUBLIC)
+
+        self.latest = self.pip.versions.get(slug=LATEST)
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+
+        self.factory = APIRequestFactory()
 
     def render(self):
-        request = self.factory.get(self.url)
-        response = FooterHTML.as_view()(request)
-        response.render()
-        return response
+        r = self.client.get(self.url)
+        return r
 
     def test_footer(self):
         pip = Project.objects.get(slug='pip')
         pip.show_version_warning = True
         pip.save()
 
-        r = self.client.get(self.url)
+        r = self.render()
         self.assertTrue(r.data['version_active'])
         self.assertTrue(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
@@ -55,7 +65,7 @@ class Testmaker(APITestCase):
         pip.show_version_warning = False
         pip.save()
 
-        r = self.client.get(self.url)
+        r = self.render()
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.data['version_active'])
         self.assertFalse(r.data['version_compare']['is_highest'])
@@ -74,27 +84,29 @@ class Testmaker(APITestCase):
             self.assertEqual(r.data['version_compare'], {'MOCKED': True})
 
     def test_pdf_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.pdf$'):
-            response = self.render()
+        self.latest.has_pdf = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('pdf', response.data['html'])
 
     def test_pdf_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('pdf', response.data['html'])
 
     def test_epub_build_mentioned_in_footer(self):
-        with fake_paths_by_regex(r'\.epub$'):
-            response = self.render()
+        self.latest.has_epub = True
+        self.latest.save()
+
+        response = self.render()
         self.assertIn('epub', response.data['html'])
 
     def test_epub_not_mentioned_in_footer_when_doesnt_exists(self):
-        with fake_paths_by_regex(r'\.epub$', exists=False):
-            response = self.render()
+        response = self.render()
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
-        mid = FooterNoSessionMiddleware()
+        mid = ReadTheDocsSessionMiddleware()
 
         # Null session here
         request = self.factory.get('/api/v2/footer_html/')
@@ -131,6 +143,65 @@ class Testmaker(APITestCase):
         self.assertIn('View', response.data['html'])
         self.assertNotIn('Edit', response.data['html'])
 
+    def test_index_pages_sphinx_htmldir(self):
+        version = self.pip.versions.get(slug=LATEST)
+        version.documentation_type = 'sphinx_htmldir'
+        version.save()
+
+        # A page with slug 'index' should render like /en/latest/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertNotIn('/en/latest/index.html', response.data['html'])
+
+        # A page with slug 'foo/index' should render like /en/latest/foo/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=foo/index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/foo/', response.data['html'])
+        self.assertNotIn('/en/latest/foo.html', response.data['html'])
+        self.assertNotIn('/en/latest/foo/index.html', response.data['html'])
+
+        # A page with slug 'foo/bar' should render like /en/latest/foo/bar/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=foo/bar&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/foo/bar/', response.data['html'])
+        self.assertNotIn('/en/latest/foo/bar.html', response.data['html'])
+        self.assertNotIn('/en/latest/foo/bar/index.html', response.data['html'])
+
+        # A page with slug 'foo/bar/index' should render like /en/latest/foo/bar/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=foo/bar/index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/foo/bar/', response.data['html'])
+        self.assertNotIn('/en/latest/foo/bar.html', response.data['html'])
+        self.assertNotIn('/en/latest/foo/bar/index.html', response.data['html'])
+
+        # A page with slug 'foo/index/bar' should render like /en/latest/foo/index/bar/
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=foo/index/bar&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/foo/index/bar/', response.data['html'])
+        self.assertNotIn('/en/latest/foo/index/bar.html', response.data['html'])
+        self.assertNotIn('/en/latest/foo/index/bar/index.html', response.data['html'])
+
+
+class TestFooterHTML(BaseTestFooterHTML, TestCase):
+
+    pass
+
 
 @override_settings(
     USE_SUBDOMAIN=True,
@@ -138,7 +209,8 @@ class Testmaker(APITestCase):
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class TestVersionCompareFooter(TestCase):
-    fixtures = ['test_data']
+
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
@@ -257,7 +329,7 @@ class TestVersionCompareFooter(TestCase):
 
 
 class TestFooterPerformance(APITestCase):
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
     url = '/api/v2/footer_html/?project=pip&version=latest&page=index&docroot=/'
     factory = APIRequestFactory()
 

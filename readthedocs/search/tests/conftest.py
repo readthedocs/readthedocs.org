@@ -6,8 +6,9 @@ import pytest
 from django.core.management import call_command
 from django_dynamic_fixture import G
 
-from readthedocs.builds.constants import LATEST, STABLE
+from readthedocs.builds.constants import STABLE
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
 from readthedocs.sphinx_domains.models import SphinxDomain
@@ -29,8 +30,16 @@ def all_projects(es_index, mock_processed_json, db, settings):
     settings.ELASTICSEARCH_DSL_AUTOSYNC = True
     projects_list = []
     for project_slug in ALL_PROJECTS:
-        project = G(Project, slug=project_slug, name=project_slug, versions=[])
+        project = G(
+            Project,
+            slug=project_slug,
+            name=project_slug,
+            main_language_project=None,
+            privacy_level=PUBLIC,
+            versions=[],
+        )
         G(Version, project=project, slug=STABLE, active=True, built=True)
+        project.versions.update(privacy_level=PUBLIC)
 
         for file_basename in PROJECT_DATA_FILES[project.slug]:
             # file_basename in config are without extension so add html extension

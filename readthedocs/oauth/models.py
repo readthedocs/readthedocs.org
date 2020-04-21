@@ -41,6 +41,7 @@ class RemoteOrganization(models.Model):
         related_name='remote_organizations',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     active = models.BooleanField(_('Active'), default=False)
 
@@ -96,6 +97,7 @@ class RemoteRepository(models.Model):
         related_name='remote_repositories',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     organization = models.ForeignKey(
         RemoteOrganization,
@@ -103,6 +105,7 @@ class RemoteRepository(models.Model):
         related_name='repositories',
         null=True,
         blank=True,
+        on_delete=models.CASCADE,
     )
     active = models.BooleanField(_('Active'), default=False)
 

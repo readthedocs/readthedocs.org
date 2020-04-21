@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -63,6 +64,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    DOCTYPE_CHOICES,
     GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
@@ -75,7 +77,7 @@ from readthedocs.projects.constants import (
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
-    PRIVATE,
+    SPHINX,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -91,6 +93,7 @@ class Version(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='versions',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -140,6 +143,16 @@ class Version(models.Model):
     has_epub = models.BooleanField(_('Has ePub'), default=False)
     has_htmlzip = models.BooleanField(_('Has HTML Zip'), default=False)
 
+    documentation_type = models.CharField(
+        _('Documentation type'),
+        max_length=20,
+        choices=DOCTYPE_CHOICES,
+        default=SPHINX,
+        help_text=_(
+            'Type of documentation the version was built with.'
+        ),
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(VersionQuerySet)()
@@ -149,11 +162,6 @@ class Version(models.Model):
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
-        permissions = (
-            # Translators: Permission around whether a user can view the
-            #              version
-            ('view_version', _('View Version')),
-        )
 
     def __str__(self):
         return ugettext(
@@ -203,7 +211,7 @@ class Version(models.Model):
         if self.slug == STABLE:
             slug_url = self.ref
         elif self.slug == LATEST:
-            slug_url = self.project.default_branch or self.project.vcs_repo().fallback_branch
+            slug_url = self.project.get_default_branch()
         else:
             slug_url = self.slug
 
@@ -250,9 +258,7 @@ class Version(models.Model):
         # LATEST is special as it is usually a branch but does not contain the
         # name in verbose_name.
         if self.slug == LATEST:
-            if self.project.default_branch:
-                return self.project.default_branch
-            return self.project.vcs_repo().fallback_branch
+            return self.project.get_default_branch()
 
         if self.slug == STABLE:
             if self.type == BRANCH:
@@ -293,15 +299,6 @@ class Version(models.Model):
 
     def get_absolute_url(self):
         """Get absolute url to the docs of the version."""
-        # Hack external versions for now.
-        # TODO: We can integrate them into the resolver
-        # but this is much simpler to handle since we only link them a couple places for now
-        if self.type == EXTERNAL:
-            # Django's static file serving doesn't automatically append index.html
-            url = f'{settings.EXTERNAL_VERSION_URL}/html/' \
-                f'{self.project.slug}/{self.slug}/index.html'
-            return url
-
         if not self.built and not self.uploaded:
             return reverse(
                 'project_version_detail',
@@ -310,10 +307,10 @@ class Version(models.Model):
                     'version_slug': self.slug,
                 },
             )
-        private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
-            private=private,
+            external=external,
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -365,11 +362,11 @@ class Version(models.Model):
         return not self.type == EXTERNAL
 
     def get_subdomain_url(self):
-        private = self.privacy_level == PRIVATE
+        external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
-            private=private,
+            external=external,
         )
 
     def get_downloads(self, pretty=False):
@@ -379,17 +376,18 @@ class Version(models.Model):
         def prettify(k):
             return k if pretty else k.lower()
 
-        if project.has_pdf(self.slug, version_type=self.type):
+        if self.has_pdf:
             data[prettify('PDF')] = project.get_production_media_url(
                 'pdf',
                 self.slug,
             )
-        if project.has_htmlzip(self.slug, version_type=self.type):
+
+        if self.has_htmlzip:
             data[prettify('HTML')] = project.get_production_media_url(
                 'htmlzip',
                 self.slug,
             )
-        if project.has_epub(self.slug, version_type=self.type):
+        if self.has_epub:
             data[prettify('Epub')] = project.get_production_media_url(
                 'epub',
                 self.slug,
@@ -445,6 +443,11 @@ class Version(models.Model):
             )
 
         return paths
+
+    def get_storage_environment_cache_path(self):
+        """Return the path of the cached environment tar file."""
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        return storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -624,12 +627,14 @@ class Build(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
         verbose_name=_('Version'),
         null=True,
         related_name='builds',
+        on_delete=models.CASCADE,
     )
     type = models.CharField(
         _('Type'),
@@ -919,6 +924,7 @@ class BuildCommandResult(BuildCommandResultMixin, models.Model):
         Build,
         verbose_name=_('Build'),
         related_name='commands',
+        on_delete=models.CASCADE,
     )
 
     command = models.TextField(_('Command'))

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
@@ -402,11 +402,6 @@ class TestPublicViews(MockBuildTestCase):
             active=True,
             type=EXTERNAL
         )
-
-    def test_project_download_media(self):
-        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
 
     def test_project_detail_view_only_shows_internal_versons(self):
         url = reverse('projects_detail', args=[self.pip.slug])

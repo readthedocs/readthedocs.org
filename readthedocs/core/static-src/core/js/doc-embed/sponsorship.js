@@ -251,7 +251,7 @@ function adblock_admonition() {
     console.log(' - never let advertisers run 3rd party JavaScript');
     console.log(' - never sell user data to advertisers or other 3rd parties');
     console.log(' - only show advertisements of interest to developers');
-    console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/ethical-advertising.html');
+    console.log('Read more about our approach to advertising here: https://docs.readthedocs.io/en/latest/advertising/ethical-advertising.html');
     console.log('%cPlease allow our Ethical Ads or go ad-free:', 'font-size: 2em');
     console.log('https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html');
     console.log('--------------------------------------------------------------------------------------');

@@ -22,6 +22,8 @@ contrib/supervisord.pid
 celerybeat-schedule.*
 deploy/.vagrant
 dist/*
+docker/azurite
+docker/search
 local_settings.py
 locks/**
 logs/*
@@ -65,3 +67,7 @@ env.bak/
 venv.bak/
 
 dev.db-journal
+/readthedocs/settings/build_docker.py
+/readthedocs/settings/celery_docker.py
+/readthedocs/settings/proxito_docker.py
+/readthedocs/settings/web_docker.py

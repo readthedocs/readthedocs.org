@@ -190,6 +190,7 @@ Version detail
             "active": true,
             "type": "tag",
             "identifier": "3a6b3995c141c0888af6591a59240ba5db7d9914",
+            "privacy_level": "public",
             "downloads": {
                 "pdf": "//readthedocs.org/projects/pip/downloads/pdf/stable/",
                 "htmlzip": "//readthedocs.org/projects/pip/downloads/htmlzip/stable/",

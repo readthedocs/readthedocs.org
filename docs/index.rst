@@ -25,7 +25,7 @@ Free and open source
     for nearly 100,000 large and small open source projects
     in almost every human and computer language.
 
-.. _Read the docs: http://readthedocs.org/
+.. _Read the docs: https://readthedocs.org/
 
 
 First steps
@@ -121,6 +121,9 @@ out of your documentation and Read the Docs.
   :doc:`User defined redirects <user-defined-redirects>` |
   :doc:`Automatic redirects <automatic-redirects>`
 
+* **Versions**
+  :doc:`Automation rules <automation-rules>`
+
 * **Topic specific guides**:
   :doc:`How-to guides <guides/index>`
 
@@ -142,6 +145,8 @@ out of your documentation and Read the Docs.
    user-defined-redirects
    automatic-redirects
 
+   automation-rules
+
    guides/index
 
    api/index
@@ -156,8 +161,8 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`Contributing <contribute>` |
+  :doc:`Development setup </development/standards>` |
   :doc:`roadmap` |
-  :doc:`gsoc` |
   :doc:`Code of conduct <code-of-conduct>`
 
 * **Policies & Process**:
@@ -190,6 +195,7 @@ of Read the Docs and the larger software documentation ecosystem.
    :caption: About Read the Docs
 
    contribute
+   development/index
    roadmap
    gsoc
    code-of-conduct
@@ -211,4 +217,3 @@ of Read the Docs and the larger software documentation ecosystem.
    commercial/index
 
    custom_installs/index
-

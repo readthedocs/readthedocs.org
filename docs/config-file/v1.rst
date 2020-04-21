@@ -285,5 +285,5 @@ Behind the scene the following Pip command will be run:
 
 
 .. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
-.. _extra requirements: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
-.. _package default dependencies: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
+.. _extra requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+.. _package default dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
