@@ -1,7 +1,7 @@
 import time
 
 import pytest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST, STABLE
 from readthedocs.projects.models import HTMLFile, Project
