@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from django.core.urlresolvers import reverse
 
@@ -43,6 +45,10 @@ class TestSearchUtils:
             HTMLFile,
             project_slug=project,
         )
+
+        # Deletion of indices from ES happens async,
+        # so we need to wait a little before checking for results.
+        time.sleep(0.5)
 
         assert not self.has_results(api_client, project, LATEST)
         assert not self.has_results(api_client, project, STABLE)
