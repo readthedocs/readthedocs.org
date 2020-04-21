@@ -69,6 +69,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.assertTrue(hasattr(request, 'canonicalize'))
             self.assertEqual(request.canonicalize, 'canonical-cname')
 
+    # We are not canonicalizing custom domains -> public domain for now
+    @pytest.mark.xfail(strict=True)
     def test_canonical_cname_redirect_public_domain(self):
         """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
         cname = 'docs.random.com'

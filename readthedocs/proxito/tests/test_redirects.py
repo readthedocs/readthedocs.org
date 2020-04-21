@@ -1,6 +1,6 @@
 # Copied from .org test_redirects
 
-
+import pytest
 from django.test import override_settings
 
 from .base import BaseDocServing
@@ -66,14 +66,15 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
 
         # We should redirect before 404ing
-        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain2.domain)
+        r = self.client.get('/en/latest/404after302', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
         )
-        # Ensure this redirects a noncanonical CNAME to the canonical one
-        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
+        self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
 
+    # We are not canonicalizing custom domains -> public domain for now
+    @pytest.mark.xfail(strict=True)
     def test_canonicalize_cname_to_public_domain_redirect(self):
         """Redirect to the public domain if the CNAME is not canonical."""
         r = self.client.get('/', HTTP_HOST=self.domain.domain)

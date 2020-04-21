@@ -95,10 +95,8 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
             request.canonicalize = 'https'
 
-        if not domain.canonical:
-            # This should redirect to the canonical CNAME
-            log.debug('Proxito CNAME Non-Canonical Redirect: host=%s', host)
-            request.canonicalize = 'noncanonical-cname'
+        # NOTE: consider redirecting non-canonical custom domains to the canonical one
+        # Whether that is another custom domain or the public domain
 
         return project_slug
 
