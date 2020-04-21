@@ -220,6 +220,10 @@ def process_mkdocs_index_file(json_storage_path):
         fragment = parsed_path.fragment
         path = parsed_path.path
 
+        # Some old versions of mkdocs
+        # index the pages as ``/page.html`` insted of ``page.html``.
+        path = path.lstrip('/')
+
         if path == '' or path.endswith('/'):
             path += 'index.html'
 
