@@ -38,6 +38,8 @@ services:
       - ${PWD}/dockerfiles/settings/proxito.py:/usr/src/app/checkouts/readthedocs.org/readthedocs/settings/proxito_docker.py
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.proxito_docker
+    extra_hosts:
+      - "community.dev.readthedocs.io:10.10.0.100"
 
   web:
     image: community_server:latest
@@ -84,6 +86,8 @@ services:
     image: microsoft/azure-cli
     volumes:
       - ${PWD}/common/dockerfiles/scripts/create-containers.sh:/usr/local/bin/create-containers.sh
+    environment:
+      - INIT=${INIT:-}
     links:
       - storage
     depends_on:

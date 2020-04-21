@@ -1,3 +1,47 @@
+Version 4.1.6
+-------------
+
+:Date: April 21, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Revert usage of watchman (`#6934 <https://github.com/readthedocs/readthedocs.org/pull/6934>`__)
+* `@Mariatta <https://github.com/Mariatta>`__: Fix typo: you -> your (`#6931 <https://github.com/readthedocs/readthedocs.org/pull/6931>`__)
+* `@humitos <https://github.com/humitos>`__: Do not override the domain of Azure Storage (`#6928 <https://github.com/readthedocs/readthedocs.org/pull/6928>`__)
+* `@humitos <https://github.com/humitos>`__: Per-project concurrency and check before triggering the build (`#6927 <https://github.com/readthedocs/readthedocs.org/pull/6927>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Remove note about underscore in domain (`#6924 <https://github.com/readthedocs/readthedocs.org/pull/6924>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pass INIT to azurite (`#6918 <https://github.com/readthedocs/readthedocs.org/pull/6918>`__)
+* `@humitos <https://github.com/humitos>`__: Use requests.head to query storage.exists (`#6917 <https://github.com/readthedocs/readthedocs.org/pull/6917>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bring back search highlight (`#6914 <https://github.com/readthedocs/readthedocs.org/pull/6914>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Improve logging around status setting on PR builds (`#6912 <https://github.com/readthedocs/readthedocs.org/pull/6912>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add hoverxref to our docs (`#6911 <https://github.com/readthedocs/readthedocs.org/pull/6911>`__)
+* `@stsewd <https://github.com/stsewd>`__: Safely join storage paths (`#6910 <https://github.com/readthedocs/readthedocs.org/pull/6910>`__)
+* `@humitos <https://github.com/humitos>`__: Release 4.1.5 (`#6909 <https://github.com/readthedocs/readthedocs.org/pull/6909>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Cache-Tag header name (`#6908 <https://github.com/readthedocs/readthedocs.org/pull/6908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Handle paths with trailing `/` (`#6906 <https://github.com/readthedocs/readthedocs.org/pull/6906>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Include the project slug in the PR context (`#6904 <https://github.com/readthedocs/readthedocs.org/pull/6904>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
+* `@humitos <https://github.com/humitos>`__: Load YAML files safely (`#6897 <https://github.com/readthedocs/readthedocs.org/pull/6897>`__)
+* `@humitos <https://github.com/humitos>`__: Use a custom Task Router to route tasks dynamically (`#6849 <https://github.com/readthedocs/readthedocs.org/pull/6849>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+* `@humitos <https://github.com/humitos>`__: Add CORS headers to Azurite (`#6784 <https://github.com/readthedocs/readthedocs.org/pull/6784>`__)
+* `@stsewd <https://github.com/stsewd>`__: Force to use proxied API for footer and search (`#6768 <https://github.com/readthedocs/readthedocs.org/pull/6768>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Only output debug logging from RTD app (`#6717 <https://github.com/readthedocs/readthedocs.org/pull/6717>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability to sort dashboard by modified date (`#6680 <https://github.com/readthedocs/readthedocs.org/pull/6680>`__)
+* `@stsewd <https://github.com/stsewd>`__: Protection against None when sending notifications (`#6610 <https://github.com/readthedocs/readthedocs.org/pull/6610>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: private python packages in .com (`#6530 <https://github.com/readthedocs/readthedocs.org/pull/6530>`__)
+
+Version 4.1.5
+-------------
+
+:Date: April 15, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Cache-Tag header name (`#6908 <https://github.com/readthedocs/readthedocs.org/pull/6908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Handle paths with trailing `/` (`#6906 <https://github.com/readthedocs/readthedocs.org/pull/6906>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix single version infinite redirect (`#6900 <https://github.com/readthedocs/readthedocs.org/pull/6900>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.4 (`#6899 <https://github.com/readthedocs/readthedocs.org/pull/6899>`__)
+* `@humitos <https://github.com/humitos>`__: On Azure .exists blob timeout, log the exception and return False (`#6895 <https://github.com/readthedocs/readthedocs.org/pull/6895>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix URLs like `/projects/subproject` from 404ing when they don't end with a slash (`#6888 <https://github.com/readthedocs/readthedocs.org/pull/6888>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allocate docker limits based on server size. (`#6879 <https://github.com/readthedocs/readthedocs.org/pull/6879>`__)
+
 Version 4.1.4
 -------------
 

@@ -433,11 +433,13 @@ class GitHubService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': github_build_state,
             'target_url': target_url,
             'description': description,
-            'context': settings.RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
 
         resp = None
@@ -459,11 +461,18 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s',
+                    'permissions: project=%s, user=%s',
                     project,
+                    self.user,
                 )
                 return False
 
+            log.warning(
+                'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
+                project,
+                self.user,
+                resp.status_code
+            )
             return False
 
         # Catch exceptions with request or deserializing JSON

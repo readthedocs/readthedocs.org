@@ -2,8 +2,9 @@
 # Disable: Method 'path' is abstract in class 'Storage' but is not overridden
 
 """Django storage classes to use with Azure Blob storage service."""
-
 import logging
+import requests
+
 from azure.common import AzureMissingResourceHttpError
 from django.conf import settings
 from django.contrib.staticfiles.storage import ManifestFilesMixin
@@ -35,9 +36,14 @@ class AzureBuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, Azur
         return super().url(name, expire)
 
     def exists(self, name):
-        """Override to catch timeout exception and return False."""
+        """
+        Override to use ``requests.head`` instead.
+
+        Azure's API gives us up to 20s timeout on these requests sometimes.
+        """
+        url = self.url(name)
         try:
-            return super().exists(name)
+            return requests.head(url, timeout=self.timeout).ok
         except Exception:  # pylint: disable=broad-except
             log.exception('Timeout calling Azure .exists. name=%s', name)
             return False
