@@ -17,8 +17,8 @@ class TestXSS:
 
         hits = results.hits.hits
         assert len(hits) == 2
-        assert hits[0]['_source']['version'] == 'stable'
-        assert hits[1]['_source']['version'] == 'latest'
+        assert hits[0]['_source']['version'] == 'latest'
+        assert hits[1]['_source']['version'] == 'stable'
 
         for hit in hits:
             inner_hits = hit['inner_hits']

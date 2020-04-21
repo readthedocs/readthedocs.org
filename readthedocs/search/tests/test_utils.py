@@ -48,7 +48,7 @@ class TestSearchUtils:
 
         # Deletion of indices from ES happens async,
         # so we need to wait a little before checking for results.
-        time.sleep(0.5)
+        time.sleep(1)
 
         assert not self.has_results(api_client, project, LATEST)
         assert not self.has_results(api_client, project, STABLE)
