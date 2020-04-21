@@ -58,7 +58,7 @@ you can press :guilabel:`/` (forward slash) and start typing or just visit these
 Search analytics
 ~~~~~~~~~~~~~~~~
 
-Search queries are recorded are stored in a database in order to provide analytics to the project admins.
+Search queries are recorded and stored in a database in order to provide analytics to the project admins.
 These analytics make it easy to know what your users are looking for in your documentation.
 You can see these analytics in your project admin dashboard.
 
