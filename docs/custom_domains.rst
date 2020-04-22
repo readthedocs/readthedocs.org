@@ -66,10 +66,10 @@ You can also host your documentation from your own domain.
       .. admonition:: Certificate Authority Authorization (CAA)
 
          If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
-         please do not forget to include Cloudflare CAA entries to allow them to issue an SSL certificate for the domain.
-         See their `CAA FAQ`_ for details.
+         please do not forget to include Cloudflare CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Cloudflare CAA FAQ`_ for details.
 
-         .. _CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
+         .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 
       .. admonition:: Notes for Cloudflare users
 
@@ -103,6 +103,14 @@ You can also host your documentation from your own domain.
 
          Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
          These domains will continue to resolve.
+
+      .. admonition:: Certificate Authority Authorization (CAA)
+
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include AWS Certificate Manager CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Amazon CAA guide`_ for details.
+
+         .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
 Proxy SSL
 ---------
