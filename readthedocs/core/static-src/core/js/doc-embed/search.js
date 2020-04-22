@@ -40,7 +40,7 @@ function append_html_to_contents(contents, template, data) {
  * Sphinx indexer. This will fall back to the standard indexer on an API
  * failure,
  */
-function attach_elastic_search_query(data) {
+function attach_elastic_search_query_sphinx(data) {
     var project = data.project;
     var version = data.version;
     var language = data.language || 'en';
@@ -288,9 +288,138 @@ function attach_elastic_search_query(data) {
 }
 
 
+function attach_elastic_search_query_mkdocs(data) {
+    var project = data.project;
+    var version = data.version;
+    var language = data.language || 'en';
+
+    var fallbackSearch = function() {
+        if (typeof window.doSearchFallback !== 'undefined') {
+            window.doSearchFallback();
+        } else {
+          console.log('Unable to fallback to original MkDocs search.');
+        }
+    };
+
+    var doSearch = function () {
+        var query = document.getElementById('mkdocs-search-query').value;
+
+        var search_def = $.Deferred();
+
+        var search_url = document.createElement('a');
+        search_url.href = data.proxied_api_host + '/api/v2/docsearch/';
+        search_url.search = '?q=' + encodeURIComponent(query) + '&project=' + project +
+                            '&version=' + version + '&language=' + language;
+
+        search_def
+            .then(function (data) {
+                var hit_list = data.results || [];
+                
+                if (hit_list.length) {
+                    var searchResults = $('#mkdocs-search-results');
+                    searchResults.empty();
+
+                    for (var i = 0; i < hit_list.length; i += 1) {
+                        var doc = hit_list[i];
+                        var inner_hits = doc.inner_hits || [];
+
+                        var result = $('<article>');
+                        result.append(
+                            $('<h3>').append($('<a>', {'href': doc.link, 'text': doc.title}))
+                        );
+
+                        if (doc.project !== project) {
+                            var text = ' (from project ' + doc.project + ')';
+                            result.append($('<span>', {'text': text}));
+                        }
+
+                        for (var j = 0; j < inner_hits.length; j += 1) {
+                            var section = inner_hits[j];
+                            if (section.type !== 'sections') {
+                                continue;
+                            }
+                            var section_link = doc.link + '#' + section._source.id;
+                            var section_title = section._source.title;
+                            var section_content = section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+
+                            result.append(
+                                $('<h4>').append($('<a>', {'href': section_link, 'text': section_title}))
+                            )
+                            result.append(
+                                $('<p>', {'text': section_content})
+                            );
+                            searchResults.append(result);
+                        }
+                    }
+                } else {
+                    console.log('Read the Docs search returned 0 result. Falling back to MkDocs search.');
+                    fallbackSearch();
+                }         
+            })
+            .fail(function (error) {
+                console.log('Read the Docs search failed. Falling back to MkDocs search.');
+                fallbackSearch();
+            })
+
+        $.ajax({
+            url: search_url.href,
+            crossDomain: true,
+            xhrFields: {
+                withCredentials: true,
+            },
+            complete: function (resp, status_code) {
+                if (
+                    status_code !== 'success' ||
+                    typeof (resp.responseJSON) === 'undefined' ||
+                    resp.responseJSON.count === 0
+                ) {
+                    return search_def.reject();
+                }
+                return search_def.resolve(resp.responseJSON);
+            }
+        })
+        .fail(function (resp, status_code, error) {
+              return search_def.reject();
+        });
+    };
+
+    var initSearch = function () {
+        var search_input = document.getElementById('mkdocs-search-query');
+        if (search_input) {
+          search_input.addEventListener('keyup', doSearch);
+        }
+
+        var term = window.getSearchTermFromLocation();
+        if (term) {
+          search_input.value = term;
+          doSearch();
+        }
+    };
+
+    $(document).ready(function () {
+        // We can't override the search completely,
+        // because we can't delete the original event listener,
+        // and MkDocs includes its search functions after ours.
+        // If MkDocs is loaded before, this will trigger a double search
+        // (but ours will have precendece).
+
+        // Note: this function is only available on Mkdocs >=1.x
+        window.doSearchFallback = window.doSearch;
+
+        window.doSearch = doSearch;
+        window.initSearch = initSearch;
+        initSearch();
+    });
+}
+
+
 function init() {
     var data = rtddata.get();
-    attach_elastic_search_query(data);
+    if (data.builder === 'mkdocs') {
+      attach_elastic_search_query_mkdocs(data);
+    } else {
+      attach_elastic_search_query_sphinx(data);
+    }
 }
 
 module.exports = {
