@@ -329,7 +329,7 @@ function attach_elastic_search_query_mkdocs(data) {
                         );
 
                         if (doc.project !== project) {
-                            var text = ' (from project ' + doc.project + ')';
+                            var text = '(from project ' + doc.project + ')';
                             result.append($('<span>', {'text': text}));
                         }
 
