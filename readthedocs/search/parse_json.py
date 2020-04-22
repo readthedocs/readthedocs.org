@@ -230,8 +230,10 @@ def process_mkdocs_index_file(json_storage_path, page):
         if page != path:
             continue
 
-        title = section.get('title')
-        content = parse_content(section.get('text'))
+        title = HTMLParser(section.get('title')).text()
+        content = parse_content(
+            HTMLParser(section.get('text')).text()
+        )
 
         if not fragment:
             page_data.update({
