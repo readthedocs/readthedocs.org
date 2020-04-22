@@ -19,6 +19,7 @@ from readthedocs.search.tests.utils import (
 
 @pytest.mark.django_db
 @pytest.mark.search
+@pytest.mark.usefixtures("all_projects")
 class BaseTestDocumentSearch:
 
     def setup_method(self, method):
