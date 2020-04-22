@@ -1382,10 +1382,9 @@ class HTMLFile(ImportedFile):
         try:
             file_path = storage.join(storage_path, 'search_index.json')
             if storage.exists(file_path):
-                # TODO: see how to cache this,
-                # so it doesn't run for each page.
-                index_data = process_mkdocs_index_file(file_path)
-                return index_data[self.path]
+                index_data = process_mkdocs_index_file(file_path, page=self.path)
+                if index_data:
+                    return index_data
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',

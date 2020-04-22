@@ -200,8 +200,8 @@ def parse_content(content, remove_first_line=False):
     return content
 
 
-def process_mkdocs_index_file(json_storage_path):
-    """Read the fjson file from disk and parse it into a structured dict."""
+def process_mkdocs_index_file(json_storage_path, page):
+    """Reads the json index file and parses it into a structured dict."""
     log.debug('Processing JSON index file: %s', json_storage_path)
 
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
@@ -213,7 +213,7 @@ def process_mkdocs_index_file(json_storage_path):
         raise
 
     data = json.loads(file_contents)
-    pages = {}
+    page_data = {}
 
     for section in data.get('docs', []):
         parsed_path = urlparse(section.get('location', ''))
@@ -227,21 +227,23 @@ def process_mkdocs_index_file(json_storage_path):
         if path == '' or path.endswith('/'):
             path += 'index.html'
 
+        if page != path:
+            continue
+
         title = section.get('title')
         content = section.get('text')
 
-        pages.setdefault(path, {})
         if not fragment:
-            pages[path].update({
+            page_data.update({
                 'path': path,
                 'title': title,
                 'domain_data': {},
             })
         else:
-            pages[path].setdefault('sections', []).append({
+            page_data.setdefault('sections', []).append({
                 'id': fragment,
                 'title': title,
                 'content': content,
             })
 
-    return pages
+    return page_data
