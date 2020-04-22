@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Read the Docs MkDocs Test Project",
+    "path": "index.html",
+    "sections": [
+      {
+        "id": "read-the-docs-mkdocs-test-project",
+        "title": "Read the Docs MkDocs Test Project",
+        "content": "Read the Docs MkDocs Test Project\n\n\nThis is a test of \nMkDocs\n as it appears on \nRead the Docs\n." 
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "title": "Versions & Themes",
+    "path": "versions/index.html",
+    "sections": [
+      {
+        "id": "versions-themes",
+        "title": "Versions &amp; Themes",
+        "content": "Versions & Themes\n\n\nThere are a number of versions and themes for mkdocs"
+      }
+    ],
+    "domain_data": {}
+  }
+]
