@@ -6,7 +6,7 @@
       {
         "id": "read-the-docs-mkdocs-test-project",
         "title": "Read the Docs MkDocs Test Project",
-        "content": "Read the Docs MkDocs Test Project\n\n\nThis is a test of \nMkDocs\n as it appears on \nRead the Docs\n." 
+        "content": "Read the Docs MkDocs Test Project This is a test of MkDocs as it appears on Read the Docs ."
       }
     ],
     "domain_data": {}
@@ -18,7 +18,7 @@
       {
         "id": "versions-themes",
         "title": "Versions &amp; Themes",
-        "content": "Versions & Themes\n\n\nThere are a number of versions and themes for mkdocs"
+        "content": "Versions & Themes There are a number of versions and themes for mkdocs."
       }
     ],
     "domain_data": {}

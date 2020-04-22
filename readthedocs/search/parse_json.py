@@ -196,7 +196,7 @@ def parse_content(content, remove_first_line=False):
         content = content[1:]
 
     # converting newlines to ". "
-    content = ' '.join([text.strip() for text in content if text])
+    content = ' '.join(text.strip() for text in content if text)
     return content
 
 
@@ -231,7 +231,7 @@ def process_mkdocs_index_file(json_storage_path, page):
             continue
 
         title = section.get('title')
-        content = section.get('text')
+        content = parse_content(section.get('text'))
 
         if not fragment:
             page_data.update({
