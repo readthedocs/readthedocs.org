@@ -56,7 +56,6 @@ function attach_elastic_search_query_sphinx(data) {
         search_def
             .then(function (data) {
                 var hit_list = data.results || [];
-                var total_count = data.count || 0;
 
                 if (hit_list.length) {
                     for (var i = 0; i < hit_list.length; i += 1) {
@@ -293,7 +292,7 @@ function attach_elastic_search_query_mkdocs(data) {
     var version = data.version;
     var language = data.language || 'en';
 
-    var fallbackSearch = function() {
+    var fallbackSearch = function () {
         if (typeof window.doSearchFallback !== 'undefined') {
             window.doSearchFallback();
         } else {
@@ -314,7 +313,7 @@ function attach_elastic_search_query_mkdocs(data) {
         search_def
             .then(function (data) {
                 var hit_list = data.results || [];
-                
+
                 if (hit_list.length) {
                     var searchResults = $('#mkdocs-search-results');
                     searchResults.empty();
@@ -335,31 +334,31 @@ function attach_elastic_search_query_mkdocs(data) {
 
                         for (var j = 0; j < inner_hits.length; j += 1) {
                             var section = inner_hits[j];
-                            if (section.type !== 'sections') {
-                                continue;
-                            }
-                            var section_link = doc.link + '#' + section._source.id;
-                            var section_title = section._source.title;
-                            var section_content = section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
 
-                            result.append(
-                                $('<h4>').append($('<a>', {'href': section_link, 'text': section_title}))
-                            )
-                            result.append(
-                                $('<p>', {'text': section_content})
-                            );
-                            searchResults.append(result);
+                            if (section.type === 'sections') {
+                                var section_link = doc.link + '#' + section._source.id;
+                                var section_title = section._source.title;
+                                var section_content = section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+
+                                result.append(
+                                    $('<h4>').append($('<a>', {'href': section_link, 'text': section_title}))
+                                );
+                                result.append(
+                                    $('<p>', {'text': section_content})
+                                );
+                                searchResults.append(result);
+                            }
                         }
                     }
                 } else {
                     console.log('Read the Docs search returned 0 result. Falling back to MkDocs search.');
                     fallbackSearch();
-                }         
+                }
             })
             .fail(function (error) {
                 console.log('Read the Docs search failed. Falling back to MkDocs search.');
                 fallbackSearch();
-            })
+            });
 
         $.ajax({
             url: search_url.href,
