@@ -25,7 +25,7 @@ def map_proxito_path(view_func):
         return view_func(
             request,
             *args,
-            proxito_path=request.get_full_path(),
+            proxito_path=request.path,
             **kwargs,
         )
     return inner_view
