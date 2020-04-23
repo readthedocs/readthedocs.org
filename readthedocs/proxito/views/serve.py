@@ -235,7 +235,13 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
                     new_path = parts.path.rstrip('/') + '/'
-                new_parts = parts._replace(path=new_path)
+
+                # `proxito_path` doesn't include query params.`
+                query = urlparse(request.get_full_path()).query
+                new_parts = parts._replace(
+                    path=new_path,
+                    query=query,
+                )
                 redirect_url = new_parts.geturl()
 
                 # TODO: decide if we need to check for infinite redirect here
