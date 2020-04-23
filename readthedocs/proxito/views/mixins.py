@@ -205,6 +205,8 @@ class ServeRedirectMixin:
         """
 
         schema, netloc, path, params, query, fragments = urlparse(proxito_path)
+        # `proxito_path` doesn't include query params.
+        query = urlparse(request.get_full_path()).query
         new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
 
         # Re-use the domain and protocol used in the current request.
