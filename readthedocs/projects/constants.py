@@ -312,6 +312,8 @@ PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
     re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
     re.compile(r'github.com/(.+)/(.+)'),
     re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
@@ -323,6 +325,8 @@ BITBUCKET_REGEXS = [
 ]
 GITLAB_REGEXS = [
     re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/?'),
     re.compile(r'gitlab.com/(.+)/(.+)'),
     re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]

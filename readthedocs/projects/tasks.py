@@ -2179,6 +2179,8 @@ def send_build_status(build_pk, commit, status):
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
 
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
+
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()

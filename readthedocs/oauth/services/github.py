@@ -461,9 +461,10 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s, user=%s',
+                    'permissions: project=%s, user=%s, status=%s',
                     project,
                     self.user,
+                    resp.status_code,
                 )
                 return False
 
