@@ -498,6 +498,7 @@ class Version(models.Model):
         if not user and not repo:
             return ''
 
+        repo = repo.rstrip('/')
         if not filename:
             # If there isn't a filename, we don't need a suffix
             source_suffix = ''
@@ -538,6 +539,7 @@ class Version(models.Model):
         if not user and not repo:
             return ''
 
+        repo = repo.rstrip('/')
         if not filename:
             # If there isn't a filename, we don't need a suffix
             source_suffix = ''
