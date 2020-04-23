@@ -466,7 +466,7 @@ class GitHubService(Service):
                     project,
                     self.user,
                     resp.status_code,
-                    url=statuses_url
+                    statuses_url,
                 )
                 return False
 
