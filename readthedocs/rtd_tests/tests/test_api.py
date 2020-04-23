@@ -2288,6 +2288,7 @@ class APIVersionTests(TestCase):
                 'id': 6,
                 'install_project': False,
                 'language': 'en',
+                'max_concurrent_builds': None,
                 'name': 'Pip',
                 'programming_language': 'words',
                 'python_interpreter': 'python3',
