@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Git-related utilities."""
 
 import logging
@@ -201,6 +199,7 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
+        from gitdb.util import hex_to_bin
         versions = []
         repo = git.Repo(self.working_dir)
 
@@ -208,7 +207,11 @@ class Backend(BaseVCS):
         # GitPython is not very optimized for reading large numbers of tags
         ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
         for hexsha, ref in git.TagReference._iter_packed_refs(repo):
-            ref_cache[ref] = hexsha
+            gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
+            if gitobject.type == 'commit':
+                ref_cache[ref] = str(gitobject)
+            elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
+                ref_cache[ref] == str(gitobject.object)
 
         for tag in repo.tags:
             if tag.path in ref_cache:
