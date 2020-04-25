@@ -651,6 +651,7 @@ class Project(models.Model):
         """
         to_convert = self.urlconf
 
+        # We should standardize these names so we can loop over them easier
         to_convert = to_convert.replace(
             '$version',
             '(?P<version_slug>%s)' % pattern_opts['version_slug']
