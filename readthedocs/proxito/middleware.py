@@ -6,12 +6,16 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
+import time
 
+from django.urls import path, re_path
 from django.conf import settings
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, Feature
+from readthedocs.proxito.views.serve import ServeDocs
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -112,5 +116,30 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
+
+        project = Project.objects.get(slug=request.host_project_slug)
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.has_feature(Feature.PROJECT_URL_ROUTES) and project.urlconf:
+            class fakeurlconf:
+                urlpatterns = [
+                    re_path(project.real_urlconf, ServeDocs.as_view()),
+                    re_path('^' + project.real_urlconf, ServeDocs.as_view()),
+                    re_path('^/' + project.real_urlconf, ServeDocs.as_view()),
+                ]
+
+            log.info(
+                'Setting URLConf: project=%s, urlconf=%s, real_urlconf=%s',
+                project, project.urlconf, project.real_urlconf
+            )
+
+            # Stop Django from caching URLs
+            ns = time.mktime(time.gmtime())
+
+            url_key = f'rtd.urls.fake.{project.slug}.{ns}'
+
+            sys.modules[url_key] = fakeurlconf
+            request.urlconf = url_key
 
         return None

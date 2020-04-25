@@ -23,6 +23,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
+from readthedocs.constants import pattern_opts
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -198,6 +199,18 @@ class Project(models.Model):
             'Type of documentation you are building. <a href="'
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
+        ),
+    )
+    urlconf = models.CharField(
+        _('Documentation URL Configuration'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=False,
+        help_text=_(
+            'Supports the following keys: $language, $version, $subproject, $filename. '
+            'An example `$language/$version/$filename`.'
+            'https://docs.djangoproject.com/en/2.2/topics/http/urls/#path-converters'
         ),
     )
 
@@ -628,6 +641,38 @@ class Project(models.Model):
             path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
 
         return path
+
+    @property
+    def real_urlconf(self):
+        """
+        Convert User's URLConf into a proper django URLConf.
+
+        This replaces the user-facing syntax with the regex syntax.
+        """
+        to_convert = self.urlconf
+
+        to_convert = to_convert.replace(
+            '$version',
+            '(?P<version_slug>%s)' % pattern_opts['version_slug']
+        )
+        to_convert = to_convert.replace(
+            '$language',
+            '(?P<lang_slug>%s)' % pattern_opts['lang_slug']
+        )
+        to_convert = to_convert.replace(
+            '$filename',
+            '(?P<filename>%s)' % pattern_opts['filename_slug']
+        )
+        to_convert = to_convert.replace(
+            '$subproject',
+            '(?P<subproject_slug>%s)' % pattern_opts['project_slug']
+        )
+
+        if '$' in to_convert:
+            log.warning(
+                'Looks like an unconverted variable in a project URLConf: to_convert=%s', to_convert
+            )
+        return to_convert
 
     @property
     def is_subproject(self):
@@ -1521,6 +1566,7 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    PROJECT_URL_ROUTES = 'project_url_routes'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1598,6 +1644,10 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            PROJECT_URL_ROUTES,
+            _('Route projects by their own urlconf'),
         ),
     )
 
