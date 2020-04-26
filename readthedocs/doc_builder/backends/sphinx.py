@@ -232,9 +232,7 @@ class BaseSphinx(BaseBuilder):
         self.clean()
         project = self.project
         build_command = [
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
-            '-T',
+            'python', '-m', 'sphinx', '-T',
         ]
         if self._force:
             build_command.append('-E')
@@ -435,7 +433,8 @@ class PdfBuilder(BaseSphinx):
         # Default to this so we can return it always.
         self.run(
             'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            '-m',
+            'sphinx',
             '-b',
             'latex',
             '-D',
