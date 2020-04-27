@@ -3,6 +3,7 @@
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -289,9 +290,26 @@ class BuildViewSetBase(UserSelectViewSet):
     )
     def running(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
+        query = Q(project__slug=project_slug)
+
+        project = get_object_or_404(Project, slug=project_slug)
+        # Limit concurrency for translations as a whole (projects using the
+        # same repository for all their translations projects will trigger a
+        # build per translation on each commit)
+        if project.main_language_project:
+            query = (
+                Q(project__main_language_project=project.main_language_project) |
+                Q(project=project.main_language_project)
+            )
+        elif project.translations.count():
+            query = (
+                Q(project__in=project.translations.all()) |
+                Q(project__slug=project_slug)
+            )
+
         queryset = (
             self.get_queryset()
-            .filter(project__slug=project_slug)
+            .filter(query)
             .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
         )
         return Response({'count': queryset.count()})
