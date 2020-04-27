@@ -18,6 +18,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 
 
@@ -149,6 +150,14 @@ def prepare_build(
     if build and version.type != EXTERNAL:
         # Send Webhook notification for build triggered.
         send_notifications.delay(version.pk, build_pk=build.pk, email=False)
+
+    options['priority'] = CELERY_HIGH
+    if project.main_language_project:
+        # Translations should be medium priority
+        options['priority'] = CELERY_MEDIUM
+    if version.type == EXTERNAL:
+        # External builds should be lower priority.
+        options['priority'] = CELERY_LOW
 
     # Start the build in X minutes and mark it as limited
     if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
