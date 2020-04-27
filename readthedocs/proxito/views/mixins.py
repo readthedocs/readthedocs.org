@@ -233,8 +233,7 @@ class ServeRedirectMixin:
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
         log.info(
-            'Redirecting: proxito_path=%s, from=%s to=%s http_status=%s',
-            proxito_path,
+            'Redirecting: from=%s to=%s http_status=%s',
             request.build_absolute_uri(proxito_path),
             new_path,
             http_status,
