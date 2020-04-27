@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import shutil
+import signal
 import socket
 import tarfile
 import tempfile
@@ -404,7 +405,6 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
     default_retry_delay=7 * 60,
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
-    import signal
 
     def sigterm_received(*args, **kwargs):
         log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
