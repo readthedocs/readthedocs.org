@@ -288,31 +288,16 @@ class BuildViewSetBase(UserSelectViewSet):
         permission_classes=[permissions.IsAdminUser],
         methods=['get'],
     )
-    def running(self, request, **kwargs):
+    def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
-        query = Q(project__slug=project_slug)
-
         project = get_object_or_404(Project, slug=project_slug)
-        # Limit concurrency for translations as a whole (projects using the
-        # same repository for all their translations projects will trigger a
-        # build per translation on each commit)
-        if project.main_language_project:
-            query = (
-                Q(project__main_language_project=project.main_language_project) |
-                Q(project=project.main_language_project)
-            )
-        elif project.translations.count():
-            query = (
-                Q(project__in=project.translations.all()) |
-                Q(project__slug=project_slug)
-            )
-
-        queryset = (
-            self.get_queryset()
-            .filter(query)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        )
-        return Response({'count': queryset.count()})
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        data = {
+            'limit_reached': limit_reached,
+            'concurrent': concurrent,
+            'max_concurrent': max_concurrent,
+        }
+        return Response(data)
 
 
 class BuildViewSet(SettingsOverrideObject):

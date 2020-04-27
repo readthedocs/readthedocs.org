@@ -152,13 +152,8 @@ def prepare_build(
 
     # Start the build in X minutes and mark it as limited
     if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-        running_builds = (
-            Build.objects
-            .filter(project__slug=project.slug)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        )
-        max_concurrent_builds = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
-        if running_builds.count() >= max_concurrent_builds:
+        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+        if limit_reached:
             log.warning(
                 'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
                 project.slug,

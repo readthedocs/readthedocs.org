@@ -500,19 +500,15 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.config = None
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-                response = api_v2.build.running.get(project__slug=self.project.slug)
-                builds_running = response.get('count', 0)
-                max_concurrent_builds = (
-                    self.project.max_concurrent_builds or
-                    settings.RTD_MAX_CONCURRENT_BUILDS
-                )
-                log.info(
-                    'Concurrent builds: max=%s running=%s project=%s',
-                    max_concurrent_builds,
-                    builds_running,
-                    self.project.slug,
-                )
-                if builds_running >= max_concurrent_builds:
+                try:
+                    response = api_v2.build.concurrent_limit.get(project__slug=self.project.slug)
+                    concurrency_limit_reached = response.get('limit_reached', False)
+                    max_concurrent_builds = response.get('max_concurrent', settings.RTD_MAX_CONCURRENT_BUILDS)
+                except Exception:
+                    concurrency_limit_reached = False
+                    max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
+
+                if concurrency_limit_reached:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,

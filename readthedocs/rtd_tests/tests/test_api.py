@@ -705,52 +705,31 @@ class APITests(TestCase):
         self.assertFalse(api_project.show_advertising)
         self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
 
-
-    def test_running_builds(self):
+    def test_concurrent_builds(self):
+        expected = {
+            'limit_reached': False,
+            'concurrent': 2,
+            'max_concurrent': 4,
+        }
         user = get(User, is_staff=True)
-        project = get(Project, main_language_project=None)
-        for state in ('triggered', 'building', 'cloning', 'finished'):
-            get(
-                Build,
-                project=project,
-                state=state,
-            )
-
-        client = APIClient()
-        client.force_authenticate(user=user)
-
-        resp = client.get(f'/api/v2/build/running/', data={'project__slug': project.slug})
-        self.assertEqual(resp.status_code, 200)
-        self.assertDictEqual({'count': 2}, resp.data)
-
-    def test_running_builds_translations(self):
-        user = get(User, is_staff=True)
-        project = get(Project, main_language_project=None)
-        for state in ('triggered', 'building', 'cloning', 'finished'):
-            get(
-                Build,
-                project=project,
-                state=state,
-            )
-
-        translation = get(Project, main_language_project=project)
-        get(
-            Build,
-            project=translation,
-            state='building',
+        project = get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
         )
+        for state in ('triggered', 'building', 'cloning', 'finished'):
+            get(
+                Build,
+                project=project,
+                state=state,
+            )
 
         client = APIClient()
         client.force_authenticate(user=user)
 
-        resp = client.get(f'/api/v2/build/running/', data={'project__slug': translation.slug})
+        resp = client.get(f'/api/v2/build/concurrent/', data={'project__slug': project.slug})
         self.assertEqual(resp.status_code, 200)
-        self.assertDictEqual({'count': 3}, resp.data)
-
-        resp = client.get(f'/api/v2/build/running/', data={'project__slug': translation.slug})
-        self.assertEqual(resp.status_code, 200)
-        self.assertDictEqual({'count': 3}, resp.data)
-
+        self.assertDictEqual(expected, resp.data)
 
 
 class APIImportTests(TestCase):
