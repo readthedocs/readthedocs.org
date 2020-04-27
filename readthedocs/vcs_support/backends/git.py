@@ -5,6 +5,7 @@ import os
 import re
 
 import git
+from gitdb.util import hex_to_bin
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
@@ -199,13 +200,14 @@ class Backend(BaseVCS):
 
     @property
     def tags(self):
-        from gitdb.util import hex_to_bin
         versions = []
         repo = git.Repo(self.working_dir)
 
         # Build a cache of tag -> commit
         # GitPython is not very optimized for reading large numbers of tags
         ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
+        # This code is the same that is executed for each tag in gitpython,
+        # we excute it only once for all tags.
         for hexsha, ref in git.TagReference._iter_packed_refs(repo):
             gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
             if gitobject.type == 'commit':
