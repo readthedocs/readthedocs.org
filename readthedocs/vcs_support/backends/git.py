@@ -213,7 +213,7 @@ class Backend(BaseVCS):
             if gitobject.type == 'commit':
                 ref_cache[ref] = str(gitobject)
             elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
-                ref_cache[ref] == str(gitobject.object)
+                ref_cache[ref] = str(gitobject.object)
 
         for tag in repo.tags:
             if tag.path in ref_cache:
