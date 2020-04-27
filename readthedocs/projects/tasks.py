@@ -2198,7 +2198,7 @@ def send_build_status(build_pk, commit, status):
             )
         except RemoteRepository.DoesNotExist:
             log.warning(
-                'Project does not have a RemoteRepository. project= %s',
+                'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
             )
 
