@@ -77,10 +77,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.info(
+        log.debug(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
+
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        if hasattr(request, 'canonicalize'):
+            return self.canonical_redirect(request, final_project, version_slug, filename)
 
         # Handle a / redirect when we aren't a single version
         if all([
