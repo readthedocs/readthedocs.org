@@ -1062,8 +1062,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         client = self.get_client()
         try:
             log.info(
-                'Creating Docker container: image=%s',
+                'Creating Docker container: image=%s id=%s',
                 self.container_image,
+                self.container_id,
             )
             self.container = client.create_container(
                 image=self.container_image,
