@@ -503,7 +503,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 try:
                     response = api_v2.build.concurrent_limit.get(project__slug=self.project.slug)
                     concurrency_limit_reached = response.get('limit_reached', False)
-                    max_concurrent_builds = response.get('max_concurrent', settings.RTD_MAX_CONCURRENT_BUILDS)
+                    max_concurrent_builds = response.get(
+                        'max_concurrent',
+                        settings.RTD_MAX_CONCURRENT_BUILDS,
+                    )
                 except Exception:
                     concurrency_limit_reached = False
                     max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
