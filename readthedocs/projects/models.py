@@ -241,6 +241,11 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    max_concurrent_builds = models.IntegerField(
+        _('Maximum concurrent builds allowed for this project'),
+        null=True,
+        blank=True,
+    )
     allow_promos = models.BooleanField(
         _('Allow paid advertising'),
         default=True,
@@ -1514,6 +1519,7 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
+    CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
 
     FEATURES = (
@@ -1584,6 +1590,10 @@ class Feature(models.Model):
         (
             CACHED_ENVIRONMENT,
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            CELERY_ROUTER,
+            _('Route tasks using our custom task router'),
         ),
         (
             LIMIT_CONCURRENT_BUILDS,

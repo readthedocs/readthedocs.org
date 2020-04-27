@@ -37,7 +37,7 @@ you might hit one of these issues:
 
 #. **Pull Requests builds are not triggering**.
    We only support GitHub and GitLab currently. You need to make sure
-   that you Read the Docs account is connected with that providers social account.
+   that your Read the Docs account is connected with that providers social account.
    You can check this by going to your `profile settings`_.
 
 #. **Build status is not being reported on your Pull/Merge Request**.
