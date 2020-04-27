@@ -8,7 +8,6 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project, Feature
 
 
-
 class TaskRouterTests(TestCase):
 
     def setUp(self):
