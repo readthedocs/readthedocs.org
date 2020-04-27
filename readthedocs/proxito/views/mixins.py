@@ -70,7 +70,7 @@ class ServeDocsMixin:
 
         .. warning:: Don't do this in production!
         """
-        log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
+        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
@@ -91,8 +91,8 @@ class ServeDocsMixin:
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.info('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                 original_path, path, final_project.slug)
+        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
+                  original_path, path, final_project.slug)
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -233,7 +233,8 @@ class ServeRedirectMixin:
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
         log.info(
-            'Redirecting: from=%s to=%s http_status=%s',
+            'Redirecting: proxito_path=%s, from=%s to=%s http_status=%s',
+            proxito_path,
             request.build_absolute_uri(proxito_path),
             new_path,
             http_status,
