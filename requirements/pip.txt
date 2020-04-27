@@ -97,7 +97,7 @@ django-taggit==1.2.0
 dj-pagination==2.4.0
 
 # Version comparison stuff
-packaging==19.2
+packaging==20.3
 
 # Commenting stuff
 django-cors-middleware==1.4.0
