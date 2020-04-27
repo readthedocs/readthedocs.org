@@ -72,7 +72,7 @@ class BuildEnvironmentTests(TestCase):
         cmd = self.mocks.popen.call_args_list[2][0]
         self.assertRegex(cmd[0][0], r'python')
         self.assertRegex(cmd[0][1], r'-m')
-        self.assertRegex(cmd[0][1], r'sphinx')
+        self.assertRegex(cmd[0][2], r'sphinx')
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_build_respects_pdf_flag(self, load_config):
