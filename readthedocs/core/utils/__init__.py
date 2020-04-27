@@ -197,6 +197,12 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    log.info(
+        'Triggering build. project=%s version=%s commit=%s',
+        project.slug,
+        version.slug if version else None,
+        commit,
+    )
     update_docs_task, build = prepare_build(
         project,
         version,
