@@ -13,6 +13,7 @@ from readthedocs.builds.models import Version, Build
 from readthedocs.core.utils import slugify, trigger_build, prepare_build
 from readthedocs.core.utils.general import wipe_version_via_slugs
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.tasks import remove_dirs
 
@@ -146,6 +147,7 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 720,
             'soft_time_limit': 600,
+            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -169,6 +171,7 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 3,
             'soft_time_limit': 3,
+            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
