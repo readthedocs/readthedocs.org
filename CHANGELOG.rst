@@ -3,6 +3,21 @@ Version 4.1.7
 
 :Date: April 28, 2020
 
+As of this release, most documentation on Read the Docs Community is now behind Cloudflare's CDN.
+It should be much faster for people further from US East.
+Please report any issues you experience with stale cached documentation (especially CSS/JS).
+
+Another change in this release related to how custom domains are handled.
+Custom domains will now redirect HTTP -> HTTPS if the Domain's "HTTPS" flag is set.
+Also, the subdomain URL (eg. ``<project>.readthedocs.io/...``) should redirect to the custom domain
+if the Domain's "canonical" flag is set.
+These flags are configurable in your project dashboard under :guilabel:`Admin` > :guilabel:`Domains`.
+
+Many of the other changes related to improvements for our infrastructure
+to allow us to have autoscaling build and web servers.
+There were bug fixes for projects using versions tied to annotated git tags
+and custom user redirects will now send query parameters.
+
 * `@ericholscher <https://github.com/ericholscher>`__: Reduce proxito logging (`#6970 <https://github.com/readthedocs/readthedocs.org/pull/6970>`__)
 * `@humitos <https://github.com/humitos>`__: Log build/sync tasks when triggered (`#6967 <https://github.com/readthedocs/readthedocs.org/pull/6967>`__)
 * `@humitos <https://github.com/humitos>`__: Stop builders gracefully on SIGTERM (`#6960 <https://github.com/readthedocs/readthedocs.org/pull/6960>`__)
