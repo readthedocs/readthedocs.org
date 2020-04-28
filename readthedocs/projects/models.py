@@ -1377,10 +1377,10 @@ class HTMLFile(ImportedFile):
         log.debug('Processing mkdocs index')
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.project.get_storage_path(
-            type_='json', version_slug=self.version.slug, include_file=False
+            type_='html', version_slug=self.version.slug, include_file=False
         )
         try:
-            file_path = storage.join(storage_path, 'search_index.json')
+            file_path = storage.join(storage_path, 'search/search_index.json')
             if storage.exists(file_path):
                 index_data = process_mkdocs_index_file(file_path, page=self.path)
                 if index_data:

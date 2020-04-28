@@ -1005,10 +1005,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Search media (JSON)
         if search:
-            if self.config.doctype == MKDOCS:
-                types_to_copy.append(('json', 'mkdocs_search'))
-            else:
-                types_to_copy.append(('json', 'sphinx_search'))
+            types_to_copy.append(('json', 'sphinx_search'))
 
         if localmedia:
             types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
@@ -1237,10 +1234,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return html_builder.get_final_doctype()
 
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in mkdocs,
-        # and in sphinx is run using the rtd-sphinx-extension.
-        return self.version.type != EXTERNAL
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx() and self.version.type != EXTERNAL
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
