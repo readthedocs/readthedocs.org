@@ -292,7 +292,7 @@ class TestAdditionalDocViews(BaseDocServing):
             """
             User-agent: *
 
-            Disallow:
+            Disallow: # Allow everything
 
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
@@ -345,9 +345,9 @@ class TestAdditionalDocViews(BaseDocServing):
             """
             User-agent: *
 
-            Disallow: /en/hidden-2/
+            Disallow: /en/hidden-2/ # Hidden version
 
-            Disallow: /en/hidden/
+            Disallow: /en/hidden/ # Hidden version
 
             Sitemap: https://project.readthedocs.io/sitemap.xml
             """
