@@ -100,6 +100,11 @@ This is useful when:
 - You no longer support a version, but you don't want to remove its docs.
 - You have a work in progress version and don't want to publish its docs just yet. 
 
+.. note::
+
+   Active versions that are hidden will be listed as ``Disallow: /path/to/version/``
+   in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
+
 Version warning
 ---------------
 
