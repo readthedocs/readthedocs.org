@@ -85,7 +85,11 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         if hasattr(request, 'canonicalize'):
-            return self.canonical_redirect(request, final_project, version_slug, filename)
+            try:
+                return self.canonical_redirect(request, final_project, version_slug, filename)
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
 
         # Handle a / redirect when we aren't a single version
         if all([
