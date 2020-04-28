@@ -690,7 +690,10 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
-        index_together = [['version', 'state', 'type']]
+        index_together = [
+            ['version', 'state', 'type'],
+            ['date', 'id'],
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

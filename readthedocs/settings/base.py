@@ -6,6 +6,7 @@ import os
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -331,6 +332,12 @@ class CommunityBaseSettings(Settings):
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
+
+
+    BROKER_TRANSPORT_OPTIONS = {
+        'queue_order_strategy': 'priority',
+        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+    }
 
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
