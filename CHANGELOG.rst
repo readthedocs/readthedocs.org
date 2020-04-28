@@ -1,3 +1,32 @@
+Version 4.1.7
+-------------
+
+:Date: April 28, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Reduce proxito logging (`#6970 <https://github.com/readthedocs/readthedocs.org/pull/6970>`__)
+* `@humitos <https://github.com/humitos>`__: Log build/sync tasks when triggered (`#6967 <https://github.com/readthedocs/readthedocs.org/pull/6967>`__)
+* `@humitos <https://github.com/humitos>`__: Stop builders gracefully on SIGTERM (`#6960 <https://github.com/readthedocs/readthedocs.org/pull/6960>`__)
+* `@stsewd <https://github.com/stsewd>`__: Try to fix annotated tags (`#6959 <https://github.com/readthedocs/readthedocs.org/pull/6959>`__)
+* `@stsewd <https://github.com/stsewd>`__: Include query params in 404 redirects (`#6957 <https://github.com/readthedocs/readthedocs.org/pull/6957>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the trailing slash in our repo regexs (`#6956 <https://github.com/readthedocs/readthedocs.org/pull/6956>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add canonical to the Domain listview in the admin (`#6954 <https://github.com/readthedocs/readthedocs.org/pull/6954>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow setting HSTS on a per domain basis (`#6953 <https://github.com/readthedocs/readthedocs.org/pull/6953>`__)
+* `@humitos <https://github.com/humitos>`__: Refactor how we handle GitHub webhook events (`#6949 <https://github.com/readthedocs/readthedocs.org/pull/6949>`__)
+* `@humitos <https://github.com/humitos>`__: Return 400 when importing an already existing project (`#6948 <https://github.com/readthedocs/readthedocs.org/pull/6948>`__)
+* `@humitos <https://github.com/humitos>`__: Return max_concurrent_builds in ProjectAdminSerializer (`#6946 <https://github.com/readthedocs/readthedocs.org/pull/6946>`__)
+* `@tom-doerr <https://github.com/tom-doerr>`__: Update year (`#6945 <https://github.com/readthedocs/readthedocs.org/pull/6945>`__)
+* `@humitos <https://github.com/humitos>`__: Revert "Use requests.head to query storage.exists" (`#6941 <https://github.com/readthedocs/readthedocs.org/pull/6941>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.6 (`#6940 <https://github.com/readthedocs/readthedocs.org/pull/6940>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove note about search analytics being beta (`#6939 <https://github.com/readthedocs/readthedocs.org/pull/6939>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add troubleshooting section for dev search docs (`#6933 <https://github.com/readthedocs/readthedocs.org/pull/6933>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Index date and ID together on builds (`#6926 <https://github.com/readthedocs/readthedocs.org/pull/6926>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: CAA records are not only for users of Cloudflare DNS (`#6925 <https://github.com/readthedocs/readthedocs.org/pull/6925>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Docs on supporting root domains (`#6923 <https://github.com/readthedocs/readthedocs.org/pull/6923>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add basic support for lower priority PR builds (`#6921 <https://github.com/readthedocs/readthedocs.org/pull/6921>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change the dashboard search to default to searching files (`#6920 <https://github.com/readthedocs/readthedocs.org/pull/6920>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonicalize domains and redirect in proxito (`#6905 <https://github.com/readthedocs/readthedocs.org/pull/6905>`__)
+* `@zdover23 <https://github.com/zdover23>`__: Made syntactical improvments and fixed some vocabulary issues. (`#6825 <https://github.com/readthedocs/readthedocs.org/pull/6825>`__)
+
 Version 4.1.6
 -------------
 
