@@ -8,7 +8,7 @@ import re
 
 import git
 from django.core.exceptions import ValidationError
-from git.exc import BadName, InvalidGitRepositoryError
+from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -74,7 +74,7 @@ class Backend(BaseVCS):
     def repo_exists(self):
         try:
             git.Repo(self.working_dir)
-        except InvalidGitRepositoryError:
+        except (InvalidGitRepositoryError, NoSuchPathError):
             return False
         return True
 
@@ -209,6 +209,7 @@ class Backend(BaseVCS):
         """
         cmd = ['git', 'ls-remote', self.repo_url]
 
+        self.check_working_dir()
         code, stdout, stderr = self.run(*cmd)
         if code != 0:
             raise RepositoryError

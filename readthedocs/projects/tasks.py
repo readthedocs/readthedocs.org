@@ -251,7 +251,7 @@ class SyncRepositoryMixin:
         if all([
                 version_repo.supports_lsremote,
                 not version_repo.repo_exists(),
-                project.has_feature(Feature.VCS_REMOTE_LISTING),
+                self.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
@@ -409,6 +409,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Always return False for any exceptions
         return False
+
+    def sync_repo(self, environment):
+        """
+        Sync a repository doing a full clone (calling super()) or only listing its branches/tags.
+
+        Depending if the VCS backend supports remote listing, we just list its branches/tags
+        remotely or we do a full clone and local listing of branches/tags.
+        """
+        version_repo = self.get_vcs_repo(environment)
+        if any([
+                not version_repo.supports_lsremote,
+                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            log.info('Syncing repository via full clone. project=%s', self.projec.slug)
+            super().sync_repo(environment)
+        else:
+            log.info('Syncing repository via remote listing. project=%s', self.projec.slug)
+            self.sync_versions(version_repo)
 
 
 @app.task(
