@@ -71,6 +71,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_webhook',
             'show_advertising',
             'environment_variables',
+            'max_concurrent_builds',
         )
 
 
