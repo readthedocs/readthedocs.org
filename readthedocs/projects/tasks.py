@@ -381,7 +381,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # all the other cached things (Python packages, Sphinx,
                     # virtualenv, etc)
                     self.pull_cached_environment()
-                    self.sync_repo(environment)
+                    self.update_versions_from_repository(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -410,9 +410,9 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Always return False for any exceptions
         return False
 
-    def sync_repo(self, environment):
+    def update_versions_from_repository(self, environment):
         """
-        Sync a repository doing a full clone (calling super()) or only listing its branches/tags.
+        Update Read the Docs versions from VCS repository.
 
         Depending if the VCS backend supports remote listing, we just list its branches/tags
         remotely or we do a full clone and local listing of branches/tags.
@@ -423,7 +423,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
             log.info('Syncing repository via full clone. project=%s', self.projec.slug)
-            super().sync_repo(environment)
+            self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.projec.slug)
             self.sync_versions(version_repo)
