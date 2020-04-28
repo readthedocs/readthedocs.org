@@ -1,28 +1,16 @@
 # Copied from .org
 
 
+import pytest
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 
-@override_settings(
-    PUBLIC_DOMAIN='dev.readthedocs.io',
-    ROOT_URLCONF='readthedocs.proxito.urls',
-    MIDDLEWARE=[
-        # Auth middleware is required since some views uses ``request.user``
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-
-        'readthedocs.proxito.middleware.ProxitoMiddleware',
-    ],
-    USE_SUBDOMAIN=True,
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
-)
+@pytest.mark.proxito
 class BaseDocServing(TestCase):
 
     def setUp(self):
@@ -77,3 +65,7 @@ class BaseDocServing(TestCase):
         )
         self.subproject_alias.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')
+
+        # These can be set to canonical as needed in specific tests
+        self.domain = fixture.get(Domain, project=self.project, domain='docs1.example.com', https=True)
+        self.domain2 = fixture.get(Domain, project=self.project, domain='docs2.example.com', https=True)

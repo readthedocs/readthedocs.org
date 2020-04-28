@@ -59,6 +59,7 @@ class Redirect(models.Model):
         Project,
         verbose_name=_('Project'),
         related_name='redirects',
+        on_delete=models.CASCADE,
     )
 
     redirect_type = models.CharField(
@@ -74,6 +75,16 @@ class Redirect(models.Model):
         db_index=True,
         help_text=from_url_helptext,
         blank=True,
+    )
+
+    # We are denormalizing the database here to easily query for Exact Redirects
+    # with ``$rest`` on them from El Proxito
+    from_url_without_rest = models.CharField(
+        max_length=255,
+        db_index=True,
+        help_text='Only for internal querying use',
+        blank=True,
+        null=True,
     )
 
     to_url = models.CharField(
@@ -100,6 +111,11 @@ class Redirect(models.Model):
         verbose_name = _('redirect')
         verbose_name_plural = _('redirects')
         ordering = ('-update_dt',)
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        if self.redirect_type == 'exact' and '$rest' in self.from_url:
+            self.from_url_without_rest = self.from_url.replace('$rest', '')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         redirect_text = '{type}: {from_to_url}'

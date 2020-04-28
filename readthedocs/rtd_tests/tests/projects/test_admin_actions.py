@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django import urls
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.models import User

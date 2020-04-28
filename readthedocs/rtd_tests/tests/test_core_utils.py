@@ -2,24 +2,26 @@
 
 import os
 
-import mock
+from unittest import mock
 from django.http import Http404
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import call
+from unittest.mock import call
 
-from readthedocs.builds.constants import LATEST
-from readthedocs.builds.models import Version
-from readthedocs.core.utils import slugify, trigger_build
+from readthedocs.builds.constants import LATEST, BUILD_STATE_BUILDING
+from readthedocs.builds.models import Version, Build
+from readthedocs.core.utils import slugify, trigger_build, prepare_build
 from readthedocs.core.utils.general import wipe_version_via_slugs
-from readthedocs.projects.models import Project
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.tasks import remove_dirs
 
 
 class CoreUtilTests(TestCase):
 
     def setUp(self):
-        self.project = get(Project, container_time_limit=None)
+        self.project = get(Project, container_time_limit=None, main_language_project=None)
         self.version = get(Version, project=self.project)
 
     @mock.patch('readthedocs.projects.tasks.update_docs_task')
@@ -100,6 +102,7 @@ class CoreUtilTests(TestCase):
             'queue': 'build03',
             'time_limit': 720,
             'soft_time_limit': 600,
+            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -122,6 +125,7 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 720,
             'soft_time_limit': 600,
+            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -145,6 +149,7 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 720,
             'soft_time_limit': 600,
+            'priority': CELERY_HIGH,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),
@@ -168,6 +173,98 @@ class CoreUtilTests(TestCase):
             'queue': mock.ANY,
             'time_limit': 3,
             'soft_time_limit': 3,
+            'priority': CELERY_HIGH,
+        }
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
+
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_max_concurrency_reached(self, update_docs):
+        get(
+            Feature,
+            feature_id=Feature.LIMIT_CONCURRENT_BUILDS,
+            projects=[self.project],
+        )
+        max_concurrent_builds = 2
+        for _ in range(max_concurrent_builds):
+            get(
+                Build,
+                state=BUILD_STATE_BUILDING,
+                project=self.project,
+                version=self.version,
+            )
+        self.project.max_concurrent_builds = max_concurrent_builds
+        self.project.save()
+
+        trigger_build(project=self.project, version=self.version)
+        kwargs = {
+            'record': True,
+            'force': False,
+            'build_pk': mock.ANY,
+            'commit': None
+        }
+        options = {
+            'queue': mock.ANY,
+            'time_limit': 720,
+            'soft_time_limit': 600,
+            'countdown': 5 * 60,
+            'max_retries': 25,
+            'priority': CELERY_HIGH,
+        }
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
+        build = self.project.builds.first()
+        self.assertEqual(build.error, BuildMaxConcurrencyError.message.format(limit=max_concurrent_builds))
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_external_build_low_priority(self, update_docs):
+        """Time limit should round down."""
+        self.version.type = 'external'
+        trigger_build(project=self.project, version=self.version)
+        kwargs = {
+            'record': True,
+            'force': False,
+            'build_pk': mock.ANY,
+            'commit': None
+        }
+        options = {
+            'queue': mock.ANY,
+            'time_limit': mock.ANY,
+            'soft_time_limit': mock.ANY,
+            'priority': CELERY_LOW,
+        }
+        update_docs.signature.assert_called_with(
+            args=(self.version.pk,),
+            kwargs=kwargs,
+            options=options,
+            immutable=True,
+        )
+
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_trigger_build_translation_medium_priority(self, update_docs):
+        """Time limit should round down."""
+        self.project.main_language_project = get(Project, slug='main')
+        trigger_build(project=self.project, version=self.version)
+        kwargs = {
+            'record': True,
+            'force': False,
+            'build_pk': mock.ANY,
+            'commit': None
+        }
+        options = {
+            'queue': mock.ANY,
+            'time_limit': mock.ANY,
+            'soft_time_limit': mock.ANY,
+            'priority': CELERY_MEDIUM,
         }
         update_docs.signature.assert_called_with(
             args=(self.version.pk,),

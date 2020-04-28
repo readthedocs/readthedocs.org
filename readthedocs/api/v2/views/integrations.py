@@ -196,13 +196,20 @@ class WebhookMixin:
             'versions': list(to_build),
         }
 
-    def sync_versions(self, project):
-        version = sync_versions(project)
+    def sync_versions(self, project, sync=True):
+        """
+        Trigger a sync and returns a response indicating if the build was triggered or not.
+
+        If `sync` is False, the sync isn't triggered and a response indicating so is returned.
+        """
+        version = None
+        if sync:
+            version = sync_versions(project)
         return {
             'build_triggered': False,
             'project': project.slug,
-            'versions': [version],
-            'versions_synced': True,
+            'versions': [version] if version else [],
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -379,6 +386,18 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required')
         # Sync versions on other PUSH events that create or delete
         elif event in (GITHUB_CREATE, GITHUB_DELETE, GITHUB_PUSH):
+            if event == GITHUB_PUSH:
+                # GitHub will send push and create/delete events on a creation/deletion.
+                # If we receive a push event we need to check if the webhook doesn't
+                # already have the create/delete events. So we don't trigger the sync twice.
+                # We listen to push events for creation/deletion for old webhooks only.
+                integration = self.get_integration()
+                events = integration.provider_data.get('events', [])
+                if (
+                    (created and GITHUB_CREATE in events) or
+                    (deleted and GITHUB_DELETE in events)
+                ):
+                    return self.sync_versions(self.project, sync=False)
             return self.sync_versions(self.project)
 
         elif (

@@ -2,17 +2,17 @@ import os
 import tempfile
 from collections import namedtuple
 
-import mock
+from unittest import mock
 import py
 import pytest
 import yaml
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
 from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
@@ -23,7 +23,7 @@ from readthedocs.projects.models import Feature, Project
 
 class SphinxBuilderTest(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -355,7 +355,7 @@ class MkdocsBuilderTest(TestCase):
         # There is a mkdocs.yml file created
         generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
         self.assertTrue(os.path.exists(generated_yaml))
-        config = yaml.safe_load(open(generated_yaml))
+        config = yaml_load_safely(open(generated_yaml))
         self.assertEqual(
             config['docs_dir'],
             os.path.join(tmpdir, 'docs'),
@@ -412,7 +412,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
         self.assertEqual(
             config['docs_dir'],
             'docs',
@@ -502,7 +502,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
         self.assertEqual(
             config['theme_dir'],
             'not-readthedocs',
@@ -606,7 +606,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
 
         self.assertEqual(
             config['extra_css'],

@@ -29,5 +29,5 @@ and for users of the documentation that we host.
 .. _look back at 2013: https://www.ericholscher.com/blog/2013/dec/23/read-the-docs-2013-stats/
 
 .. _`Django`: https://docs.djangoproject.com/
-.. _`SQLAlchemy`: http://docs.sqlalchemy.org/
-.. _`Mozilla`: http://mozilla.org
+.. _`SQLAlchemy`: https://docs.sqlalchemy.org/
+.. _`Mozilla`: https://www.mozilla.org

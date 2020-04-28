@@ -87,7 +87,7 @@ class BuildTriggerMixin:
 
 class BuildList(BuildBase, BuildTriggerMixin, ListView):
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
 
         active_builds = self.get_queryset().exclude(

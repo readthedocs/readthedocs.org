@@ -5,4 +5,4 @@ gunicorn==19.9.0
 django-redis-cache==2.1.0
 
 #For resizing images
-pillow==6.2.1
+pillow==7.0.0

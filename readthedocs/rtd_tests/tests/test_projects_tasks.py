@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.constants import EXTERNAL, BUILD_STATUS_SUCCESS
 from readthedocs.builds.models import Version, Build

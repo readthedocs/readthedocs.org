@@ -71,6 +71,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_webhook',
             'show_advertising',
             'environment_variables',
+            'max_concurrent_builds',
         )
 
 
@@ -94,6 +95,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_pdf',
             'has_epub',
             'has_htmlzip',
+            'documentation_type',
         )
 
 

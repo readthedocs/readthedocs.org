@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Git-related utilities."""
 
 import logging
@@ -7,6 +5,7 @@ import os
 import re
 
 import git
+from gitdb.util import hex_to_bin
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError
 
@@ -203,16 +202,34 @@ class Backend(BaseVCS):
     def tags(self):
         versions = []
         repo = git.Repo(self.working_dir)
+
+        # Build a cache of tag -> commit
+        # GitPython is not very optimized for reading large numbers of tags
+        ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
+        # This code is the same that is executed for each tag in gitpython,
+        # we excute it only once for all tags.
+        for hexsha, ref in git.TagReference._iter_packed_refs(repo):
+            gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
+            if gitobject.type == 'commit':
+                ref_cache[ref] = str(gitobject)
+            elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
+                ref_cache[ref] = str(gitobject.object)
+
         for tag in repo.tags:
-            try:
-                versions.append(VCSVersion(self, str(tag.commit), str(tag)))
-            except ValueError:
-                # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                # blob object - use the `.object` property instead to access it
-                # This is not a real tag for us, so we skip it
-                # https://github.com/rtfd/readthedocs.org/issues/4440
-                log.warning('Git tag skipped: %s', tag, exc_info=True)
-                continue
+            if tag.path in ref_cache:
+                hexsha = ref_cache[tag.path]
+            else:
+                try:
+                    hexsha = str(tag.commit)
+                except ValueError:
+                    # ValueError: Cannot resolve commit as tag TAGNAME points to a
+                    # blob object - use the `.object` property instead to access it
+                    # This is not a real tag for us, so we skip it
+                    # https://github.com/rtfd/readthedocs.org/issues/4440
+                    log.warning('Git tag skipped: %s', tag, exc_info=True)
+                    continue
+
+            versions.append(VCSVersion(self, hexsha, str(tag)))
         return versions
 
     @property

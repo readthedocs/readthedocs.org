@@ -1,15 +1,14 @@
+from readthedocs.settings.proxito.base import CommunityProxitoSettingsMixin
+
 from .docker_compose import DockerBaseSettings
 
 
-class ProxitoDevSettings(DockerBaseSettings):
-    ROOT_URLCONF = 'readthedocs.proxito.urls'
+class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
 
-    @property
-    def MIDDLEWARE(self):  # noqa
-        classes = list(super().MIDDLEWARE)
-        classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
-        classes.remove('django.middleware.locale.LocaleMiddleware')
+    # El Proxito does not have django-debug-toolbar installed
+    DEBUG_TOOLBAR_CONFIG = {
+        'SHOW_TOOLBAR_CALLBACK': lambda request: False,
+    }
 
-        return tuple(classes)
 
 ProxitoDevSettings.load_settings(__name__)
