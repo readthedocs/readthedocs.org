@@ -1,0 +1,7 @@
+User-agent: *
+{% for path in hidden_paths %}
+Disallow: {{ path }}
+{% empty %}
+Disallow:
+{% endfor %}
+Sitemap: {{ sitemap_url }}

@@ -5,6 +5,7 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
+from textwrap import dedent
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
@@ -18,6 +19,8 @@ from readthedocs.projects.constants import (
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
+    PUBLIC,
+    PRIVATE,
 )
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
@@ -285,10 +288,71 @@ class TestAdditionalDocViews(BaseDocServing):
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.content,
-            b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow:
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        self.assertEqual(response.content.decode(), expected)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
+    def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden',
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
         )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-2',
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-and-inactive',
+            active=False,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-and-private',
+            active=False,
+            hidden=True,
+            privacy_level=PRIVATE,
+        )
+
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: /en/hidden-2/
+
+            Disallow: /en/hidden/
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        self.assertEqual(response.content.decode(), expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
     def test_default_robots_txt_private_version(self, storage_exists):
