@@ -23,6 +23,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -896,7 +897,7 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                settings.DOCKER_LIMITS.get('time') or
+                DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
