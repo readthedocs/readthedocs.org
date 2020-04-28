@@ -13,10 +13,13 @@ from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_FINISHED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 
 
 log = logging.getLogger(__name__)
@@ -83,7 +86,7 @@ def prepare_build(
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Project
+    from readthedocs.projects.models import Project, Feature
     from readthedocs.projects.tasks import (
         update_docs_task,
         send_external_build_status,
@@ -148,6 +151,35 @@ def prepare_build(
         # Send Webhook notification for build triggered.
         send_notifications.delay(version.pk, build_pk=build.pk, email=False)
 
+    options['priority'] = CELERY_HIGH
+    if project.main_language_project:
+        # Translations should be medium priority
+        options['priority'] = CELERY_MEDIUM
+    if version.type == EXTERNAL:
+        # External builds should be lower priority.
+        options['priority'] = CELERY_LOW
+
+    # Start the build in X minutes and mark it as limited
+    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+        running_builds = (
+            Build.objects
+            .filter(project__slug=project.slug)
+            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
+        )
+        max_concurrent_builds = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
+        if running_builds.count() >= max_concurrent_builds:
+            log.warning(
+                'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
+                project.slug,
+                version.slug,
+            )
+            options['countdown'] = 5 * 60
+            options['max_retries'] = 25
+            build.error = BuildMaxConcurrencyError.message.format(
+                limit=max_concurrent_builds,
+            )
+            build.save()
+
     return (
         update_docs_task.signature(
             args=(version.pk,),
@@ -174,6 +206,12 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    log.info(
+        'Triggering build. project=%s version=%s commit=%s',
+        project.slug,
+        version.slug if version else None,
+        commit,
+    )
     update_docs_task, build = prepare_build(
         project,
         version,

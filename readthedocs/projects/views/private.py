@@ -97,6 +97,13 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    # pylint: disable=arguments-differ
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Set the default search to search files instead of projects
+        context['type'] = 'file'
+        return context
+
     def validate_primary_email(self, user):
         """
         Sends a persistent error notification.
@@ -112,7 +119,10 @@ class ProjectDashboard(PrivateViewMixin, ListView):
             notification.send()
 
     def get_queryset(self):
-        return Project.objects.dashboard(self.request.user)
+        sort = self.request.GET.get('sort')
+        if sort not in ['modified_date', '-modified_date', 'slug', '-slug']:
+            sort = 'slug'
+        return Project.objects.dashboard(self.request.user).order_by(sort)
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)

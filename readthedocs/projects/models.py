@@ -241,6 +241,11 @@ class Project(models.Model):
         null=True,
         blank=True,
     )
+    max_concurrent_builds = models.IntegerField(
+        _('Maximum concurrent builds allowed for this project'),
+        null=True,
+        blank=True,
+    )
     allow_promos = models.BooleanField(
         _('Allow paid advertising'),
         default=True,
@@ -1443,6 +1448,22 @@ class Domain(models.Model):
         help_text=_('Number of times this domain has been hit'),
     )
 
+    # Strict-Transport-Security header options
+    # These are not exposed to users because it's easy to misconfigure things
+    # and hard to back out changes cleanly
+    hsts_max_age = models.PositiveIntegerField(
+        default=0,
+        help_text=_('Set a custom max-age (eg. 31536000) for the HSTS header')
+    )
+    hsts_include_subdomains = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header')
+    )
+    hsts_preload = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
+    )
+
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
@@ -1514,6 +1535,7 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
+    CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
 
     FEATURES = (
@@ -1584,6 +1606,10 @@ class Feature(models.Model):
         (
             CACHED_ENVIRONMENT,
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
+        ),
+        (
+            CELERY_ROUTER,
+            _('Route tasks using our custom task router'),
         ),
         (
             LIMIT_CONCURRENT_BUILDS,

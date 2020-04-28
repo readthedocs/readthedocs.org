@@ -51,15 +51,4 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
         fi
 
-# Use watchman for Django ``runserver`` command
-# (this is new in Django 2.2 and could help to reduce CPU usage)
-ENV DJANGO_WATCHMAN_TIMEOUT 15
-RUN apt-get install -y libssl-dev autoconf automake libtool
-RUN git clone https://github.com/facebook/watchman.git -b v4.9.0 --depth 1; \
-        cd watchman; \
-        ./autogen.sh; \
-        ./configure; \
-        make; \
-        make install
-
 WORKDIR /usr/src/app/checkouts/readthedocs.org

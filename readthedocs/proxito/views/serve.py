@@ -77,10 +77,14 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.info(
+        log.debug(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
+
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        if hasattr(request, 'canonicalize'):
+            return self.canonical_redirect(request, final_project, version_slug, filename)
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -93,10 +97,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
-        # Handle `/projects/subproject` URL redirection
+        # Handle `/projects/subproject` URL redirection:
+        # when there _is_ a subproject_slug but not a subproject_slash
         if all([
                 final_project.single_version,
                 filename == '',
+                subproject_slug,
                 not subproject_slash,
         ]):
             return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
@@ -137,7 +143,7 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         # If ``filename`` is empty, serve from ``/``
-        path = f'{storage_path}/{filename}'
+        path = storage.join(storage_path, filename.lstrip('/'))
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
@@ -210,7 +216,10 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = f'{storage_root_path}/{filename}/{tryfile}'
+            storage_filename_path = storage.join(
+                storage_root_path,
+                f'{filename}/{tryfile}'.lstrip('/'),
+            )
             log.debug(
                 'Trying index filename: project=%s version=%s, file=%s',
                 final_project.slug,
@@ -227,10 +236,16 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
-                    new_path = f'{parts.path}/{tryfile}'
+                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
                     new_path = parts.path.rstrip('/') + '/'
-                new_parts = parts._replace(path=new_path)
+
+                # `proxito_path` doesn't include query params.`
+                query = urlparse(request.get_full_path()).query
+                new_parts = parts._replace(
+                    path=new_path,
+                    query=query,
+                )
                 redirect_url = new_parts.geturl()
 
                 # TODO: decide if we need to check for infinite redirect here
@@ -302,7 +317,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             if doc_type_404 == SPHINX_HTMLDIR:
                 tryfiles.append('404/index.html')
             for tryfile in tryfiles:
-                storage_filename_path = f'{storage_root_path}/{tryfile}'
+                storage_filename_path = storage.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
                     log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
@@ -349,15 +364,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             # ... we do return a 404
             raise Http404()
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
         storage_path = project.get_storage_path(
             type_='html',
             version_slug=version_slug,
             include_file=False,
             version_type=self.version_type,
         )
-        path = f'{storage_path}/robots.txt'
+        path = storage.join(storage_path, 'robots.txt')
 
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         if storage.exists(path):
             url = storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()

@@ -70,7 +70,7 @@ class ServeDocsMixin:
 
         .. warning:: Don't do this in production!
         """
-        log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
+        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
@@ -91,8 +91,8 @@ class ServeDocsMixin:
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.info('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                 original_path, path, final_project.slug)
+        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
+                  original_path, path, final_project.slug)
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -127,7 +127,7 @@ class ServeDocsMixin:
         # Needed to strip any GET args, etc.
         response['X-RTD-Path'] = urlparse(path).path
         # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tags'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
+        response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
         if hasattr(request, 'rtdheader'):
             response['X-RTD-Project-Method'] = 'rtdheader'
         if hasattr(request, 'subdomain'):
@@ -180,7 +180,26 @@ class ServeRedirectMixin:
         )
         log.info('System Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-System-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'system'
+        return resp
+
+    def canonical_redirect(self, request, final_project, version_slug, filename):
+        """
+        Return a redirect to the canonical domain including scheme.
+
+        This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
+        """
+        urlparse_result = urlparse(request.get_full_path())
+        to = resolve(
+            project=final_project,
+            version_slug=version_slug,
+            filename=filename,
+            query_params=urlparse_result.query,
+            external=hasattr(request, 'external_domain'),
+        )
+        log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
+        resp = HttpResponseRedirect(to)
+        resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
         return resp
 
     def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
@@ -207,6 +226,8 @@ class ServeRedirectMixin:
         """
 
         schema, netloc, path, params, query, fragments = urlparse(proxito_path)
+        # `proxito_path` doesn't include query params.
+        query = urlparse(request.get_full_path()).query
         new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
 
         # Re-use the domain and protocol used in the current request.
@@ -234,5 +255,5 @@ class ServeRedirectMixin:
             resp = HttpResponseRedirect(new_path)
 
         # Add a user-visible header to make debugging easier
-        resp['X-RTD-User-Redirect'] = True
+        resp['X-RTD-Redirect'] = 'user'
         return resp
