@@ -1494,6 +1494,22 @@ class Domain(models.Model):
         help_text=_('Number of times this domain has been hit'),
     )
 
+    # Strict-Transport-Security header options
+    # These are not exposed to users because it's easy to misconfigure things
+    # and hard to back out changes cleanly
+    hsts_max_age = models.PositiveIntegerField(
+        default=0,
+        help_text=_('Set a custom max-age (eg. 31536000) for the HSTS header')
+    )
+    hsts_include_subdomains = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header')
+    )
+    hsts_preload = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
+    )
+
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:

@@ -503,7 +503,6 @@ class Version(models.Model):
         user, repo = get_github_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -544,7 +543,6 @@ class Version(models.Model):
         user, repo = get_gitlab_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -573,7 +571,6 @@ class Version(models.Model):
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -696,7 +693,10 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
-        index_together = [['version', 'state', 'type']]
+        index_together = [
+            ['version', 'state', 'type'],
+            ['date', 'id'],
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -809,7 +809,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -821,7 +820,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -835,7 +833,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -846,7 +843,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -857,7 +853,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return BITBUCKET_COMMIT_URL.format(
                     user=user,
                     repo=repo,
