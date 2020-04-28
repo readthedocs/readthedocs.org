@@ -188,7 +188,7 @@ class ServeRedirectMixin:
         This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
         """
         full_path = request.get_full_path()
-        urlparse_result = urlparse()
+        urlparse_result = urlparse(full_path)
         to = resolve(
             project=final_project,
             version_slug=version_slug,
