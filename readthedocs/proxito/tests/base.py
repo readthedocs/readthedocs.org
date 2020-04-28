@@ -5,10 +5,9 @@ import pytest
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 
 
 @pytest.mark.proxito
@@ -66,3 +65,7 @@ class BaseDocServing(TestCase):
         )
         self.subproject_alias.versions.update(privacy_level=PUBLIC)
         self.project.add_subproject(self.subproject_alias, alias='this-is-an-alias')
+
+        # These can be set to canonical as needed in specific tests
+        self.domain = fixture.get(Domain, project=self.project, domain='docs1.example.com', https=True)
+        self.domain2 = fixture.get(Domain, project=self.project, domain='docs2.example.com', https=True)

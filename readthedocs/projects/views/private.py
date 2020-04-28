@@ -97,6 +97,13 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
+    # pylint: disable=arguments-differ
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Set the default search to search files instead of projects
+        context['type'] = 'file'
+        return context
+
     def validate_primary_email(self, user):
         """
         Sends a persistent error notification.
