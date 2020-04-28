@@ -6,6 +6,7 @@ import os
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -41,10 +42,6 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
-    # Some endpoints from the API can be proxied on other domain
-    # or use the same domain where the docs are being served
-    # (omit the host if that's the case).
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
@@ -335,6 +332,12 @@ class CommunityBaseSettings(Settings):
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
+
+
+    BROKER_TRANSPORT_OPTIONS = {
+        'queue_order_strategy': 'priority',
+        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+    }
 
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {

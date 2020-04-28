@@ -1,7 +1,9 @@
-from .mixins import APIEndpointMixin
+import django_dynamic_fixture as fixture
 from django.urls import reverse
 
 from readthedocs.projects.models import Project
+
+from .mixins import APIEndpointMixin
 
 
 class ProjectsEndpointTests(APIEndpointMixin):
@@ -142,6 +144,26 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response_json,
             self._get_response_dict('projects-list_POST'),
         )
+
+    def test_import_existing_project(self):
+        fixture.get(
+            Project,
+            slug='test-project',
+            name='Test Project',
+        )
+        data = {
+            'name': 'Test Project',
+            'repository': {
+                'url': 'https://github.com/rtfd/template',
+                'type': 'git',
+            },
+            'homepage': 'http://template.readthedocs.io/',
+            'programming_language': 'py',
+        }
+
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.post(reverse('projects-list'), data)
+        self.assertContains(response, 'Project with slug \\"test-project\\" already exists.', status_code=400)
 
     def test_import_project_with_extra_fields(self):
         data = {

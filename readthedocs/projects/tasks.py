@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import shutil
+import signal
 import socket
 import tarfile
 import tempfile
@@ -404,6 +405,14 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
     default_retry_delay=7 * 60,
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
+
+    def sigterm_received(*args, **kwargs):
+        log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+
+    # Do not send the SIGTERM signal to childs (pip is automatically killed when
+    # receives SIGTERM and make the build to fail one command and stop build)
+    signal.signal(signal.SIGTERM, sigterm_received)
+
     try:
         step = UpdateDocsTaskStep(task=self)
         return step.run(version_pk, *args, **kwargs)
@@ -501,7 +510,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 response = api_v2.build.running.get(project__slug=self.project.slug)
-                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                builds_running = response.get('count', 0)
+                max_concurrent_builds = (
+                    self.project.max_concurrent_builds or
+                    settings.RTD_MAX_CONCURRENT_BUILDS
+                )
+                log.info(
+                    'Concurrent builds: max=%s running=%s project=%s',
+                    max_concurrent_builds,
+                    builds_running,
+                    self.project.slug,
+                )
+                if builds_running >= max_concurrent_builds:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,
@@ -512,7 +532,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # we are executing this code before creating one
                     api_v2.build(self.build['id']).patch({
                         'error': BuildMaxConcurrencyError.message.format(
-                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                            limit=max_concurrent_builds,
                         ),
                     })
                     self.task.retry(
@@ -1269,7 +1289,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
-        if self.version.type != EXTERNAL:
+        # Try to infer the version type if we can
+        # before creating a task.
+        if not self.version or self.version.type != EXTERNAL:
             send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
@@ -1846,7 +1868,7 @@ def _sync_imported_files(version, build, changed_files):
 def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
-    if not version:
+    if not version or version.type == EXTERNAL:
         return
 
     build = Build.objects.get(pk=build_pk)
@@ -2172,6 +2194,8 @@ def send_build_status(build_pk, commit, status):
     success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
+
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.

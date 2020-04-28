@@ -100,6 +100,11 @@ def sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
+        log.info(
+            'Triggering sync repository. project=%s version=%s',
+            version.project.slug,
+            version.slug,
+        )
         sync_repository_task.apply_async(
             (version.pk,),
             **options,
