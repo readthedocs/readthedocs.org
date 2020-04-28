@@ -50,6 +50,12 @@ elif total_memory > 8000:
         'memory': '7g',
         'time': 1800,
     })
+elif total_memory > 7000:
+    # This is to catch AWS instances that actually only have 7.5G memory
+    DOCKER_LIMITS.update({
+        'memory': '6g',
+        'time': 1800,
+    })
 elif total_memory > 4000:
     DOCKER_LIMITS.update({
         'memory': '3g',
