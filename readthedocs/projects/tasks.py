@@ -882,6 +882,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         """Get bash environment variables used for all builder commands."""
         env = self.get_rtd_env_vars()
 
+        # https://no-color.org/
+        env['NO_COLOR'] = '1'
+
         if self.config.conda is not None:
             env.update({
                 'CONDA_ENVS_PATH': os.path.join(self.project.doc_path, 'conda'),
