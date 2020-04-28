@@ -19,7 +19,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
 from .base import BaseDocServing
@@ -194,6 +194,39 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
+
+    def test_response_hsts(self):
+        hostname = 'docs.random.com'
+        domain = fixture.get(
+            Domain,
+            project=self.project,
+            domain=hostname,
+            hsts_max_age=0,
+            hsts_include_subdomains=False,
+            hsts_preload=False,
+        )
+
+        response = self.client.get("/", HTTP_HOST=hostname)
+        self.assertFalse('strict-transport-security' in response)
+
+        domain.hsts_max_age = 3600
+        domain.save()
+
+        response = self.client.get("/", HTTP_HOST=hostname)
+        self.assertTrue('strict-transport-security' in response)
+        self.assertEqual(
+            response['strict-transport-security'], 'max-age=3600',
+        )
+
+        domain.hsts_include_subdomains = True
+        domain.hsts_preload = True
+        domain.save()
+
+        response = self.client.get("/", HTTP_HOST=hostname)
+        self.assertTrue('strict-transport-security' in response)
+        self.assertEqual(
+            response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',
+        )
 
 
 class TestDocServingBackends(BaseDocServing):
