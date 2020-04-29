@@ -60,7 +60,7 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if not settings.RTD_ALLOW_PRIVATE_PROJECTS:
+        if not settings.ALLOW_PRIVATE_REPOS:
             self.fields.pop('privacy_level')
 
     def clean_active(self):

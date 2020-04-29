@@ -17,7 +17,7 @@ class TestVersionForm(TestCase):
         self.user = get(User)
         self.project = get(Project, users=(self.user,))
 
-    @override_settings(RTD_ALLOW_PRIVATE_PROJECTS=False)
+    @override_settings(ALLOW_PRIVATE_PROJECTS=False)
     def test_default_version_is_active(self):
         version = get(
             Version,
@@ -53,7 +53,7 @@ class TestVersionForm(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('active', form.errors)
 
-    @override_settings(RTD_ALLOW_PRIVATE_PROJECTS=False)
+    @override_settings(ALLOW_PRIVATE_PROJECTS=False)
     def test_cant_update_privacy_level(self):
         version = get(
             Version,
@@ -72,7 +72,7 @@ class TestVersionForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(version.privacy_level, PUBLIC)
 
-    @override_settings(RTD_ALLOW_PRIVATE_PROJECTS=True)
+    @override_settings(ALLOW_PRIVATE_PROJECTS=True)
     def test_can_update_privacy_level(self):
         version = get(
             Version,

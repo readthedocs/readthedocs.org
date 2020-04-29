@@ -490,7 +490,6 @@ class CommunityBaseSettings(Settings):
     # RTD Settings
     REPO_LOCK_SECONDS = 30
     ALLOW_PRIVATE_REPOS = False
-    RTD_ALLOW_PRIVATE_PROJECTS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
