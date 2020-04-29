@@ -36,15 +36,16 @@ These guides will help you customize or tune aspects of Read the Docs.
     autobuild-docs-for-pull-requests
     build-notifications
     build-using-too-many-resources
-    technical-docs-seo-guide
     canonical
     conda
     environment-variables
     feature-flags
     google-analytics
+    hiding-a-version
     searching-with-readthedocs
     sitemaps
     specifying-dependencies
+    technical-docs-seo-guide
     wipe-environment
 
 

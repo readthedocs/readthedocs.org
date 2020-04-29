@@ -109,8 +109,10 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
-        all_domains = []
+        if not html_file.version.is_sphinx_type:
+            return []
 
+        all_domains = []
         try:
             domains_qs = html_file.sphinx_domains.exclude(
                 domain='std',
@@ -172,11 +174,8 @@ class PageDocument(RTDDocTypeMixin, DocType):
         """Overwrite default queryset to filter certain files to index."""
         queryset = super().get_queryset()
 
-        # Do not index files that belong to non sphinx project
-        # Also do not index certain files
-        queryset = queryset.internal().filter(
-            project__documentation_type__contains='sphinx'
-        )
+        # Do not index files from external versions
+        queryset = queryset.internal().all()
 
         # TODO: Make this smarter
         # This was causing issues excluding some valid user documentation pages
