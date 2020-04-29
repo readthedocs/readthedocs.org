@@ -449,13 +449,15 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.models.clean_project_resources') as clean_project_resources:
+        # Mocked like this because the function is imported inside a class method
+        # https://stackoverflow.com/a/22201798
+        with patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            clean_project_resources.assert_called_with(
-                project=project,
-            )
+            clean_project_resources.assert_called_once()
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, project.slug)
+
 
     def test_delete_superproject(self):
         super_proj = get(Project, slug='pip', users=[self.user])
