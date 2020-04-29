@@ -1087,7 +1087,7 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
         self.subproject.versions.update(privacy_level='public')
         self.subproject.save()
 
-    @override_settings(ALLOW_PRIVATE_PROJECTS=True)
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_change_subproject_privacy(self):
         """
         Change subproject's ``privacy_level`` creates proper symlinks.

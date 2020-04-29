@@ -40,7 +40,6 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
         self.fields['hidden'].widget = forms.CheckboxInput()
         self.fields['hidden'].empty_value = False
 
-
         field_sets = [
             Fieldset(
                 _('States'),
