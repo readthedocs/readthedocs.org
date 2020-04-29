@@ -1843,8 +1843,6 @@ def send_build_status(build_pk, commit, status):
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-            # Send status report using the API.
-            service.send_build_status(build, commit, status)
 
         except RemoteRepository.DoesNotExist:
             log.warning(
