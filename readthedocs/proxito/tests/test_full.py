@@ -198,7 +198,25 @@ class TestFullDocServing(BaseDocServing):
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
 
-    def test_response_hsts(self):
+    def test_public_domain_hsts(self):
+        host = 'project.dev.readthedocs.io'
+        response = self.client.get('/', HTTP_HOST=host)
+        self.assertFalse('strict-transport-security' in response)
+
+        response = self.client.get("/", HTTP_HOST=host, secure=True)
+        self.assertFalse('strict-transport-security' in response)
+
+        with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
+            response = self.client.get('/', HTTP_HOST=host)
+            self.assertFalse('strict-transport-security' in response)
+
+            response = self.client.get("/", HTTP_HOST=host, secure=True)
+            self.assertEqual(
+                response['strict-transport-security'],
+                'max-age=31536000; includeSubDomains; preload',
+            )
+
+    def test_custom_domain_response_hsts(self):
         hostname = 'docs.random.com'
         domain = fixture.get(
             Domain,
@@ -212,10 +230,16 @@ class TestFullDocServing(BaseDocServing):
         response = self.client.get("/", HTTP_HOST=hostname)
         self.assertFalse('strict-transport-security' in response)
 
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
+        self.assertFalse('strict-transport-security' in response)
+
         domain.hsts_max_age = 3600
         domain.save()
 
         response = self.client.get("/", HTTP_HOST=hostname)
+        self.assertFalse('strict-transport-security' in response)
+
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600',
@@ -225,7 +249,7 @@ class TestFullDocServing(BaseDocServing):
         domain.hsts_preload = True
         domain.save()
 
-        response = self.client.get("/", HTTP_HOST=hostname)
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',
