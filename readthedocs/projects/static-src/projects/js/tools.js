@@ -135,7 +135,7 @@ function EmbedView(config) {
     self.show_help = function () {
         var embed = new rtd.Embed(self.config);
         embed.section(
-            'docs', 'latest', 'features/embed', 'Content Embedding',
+            'docs', 'latest', 'guides/embedding-content', 'Embedding content from your docs online',
             _show_modal
         );
     };
