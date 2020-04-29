@@ -140,8 +140,6 @@ class Version(models.Model):
     )
     hidden = models.BooleanField(
         _('Hidden'),
-        # To avoid downtime during deploy, remove later.
-        null=True,
         default=False,
         help_text=_('Hide this version from the version (flyout) menu and search results?')
     )
