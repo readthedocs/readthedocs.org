@@ -5,7 +5,7 @@ Every documentation build has limited resources.
 Our current build limits are:
 
 * 15 minutes of CPU
-* 1GB of RAM memory
+* 3GB of RAM memory
 * 2 concurrent builds
 
 We can increase build limits on a per-project basis,
