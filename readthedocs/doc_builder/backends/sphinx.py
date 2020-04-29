@@ -232,9 +232,7 @@ class BaseSphinx(BaseBuilder):
         self.clean()
         project = self.project
         build_command = [
-            self.python_env.venv_bin(filename='python'),
-            '-m',
-            'sphinx',
+            *self.get_sphinx_cmd(),
             '-T',
         ]
         if self._force:
@@ -259,6 +257,18 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
+
+    def get_sphinx_cmd(self):
+        if self.project.has_feature(Feature.FORCE_SPHINX_FROM_VENV):
+            return (
+                self.python_env.venv_bin(filename='python'),
+                '-m',
+                'sphinx',
+            )
+        return (
+            'python',
+            self.python_env.venv_bin(filename='sphinx-build'),
+        )
 
     def venv_sphinx_supports_latexmk(self):
         """
@@ -435,9 +445,7 @@ class PdfBuilder(BaseSphinx):
 
         # Default to this so we can return it always.
         self.run(
-            self.python_env.venv_bin(filename='python'),
-            '-m',
-            'sphinx',
+            *self.get_sphinx_cmd(),
             '-b',
             'latex',
             '-D',
