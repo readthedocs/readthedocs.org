@@ -360,7 +360,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 environment=self.get_rtd_env_vars(),
             )
             log.info(
-                'Running sync_repository_task: project=%s, version=%s',
+                'Running sync_repository_task: project=%s version=%s',
                 self.project.slug,
                 self.version.slug,
             )
