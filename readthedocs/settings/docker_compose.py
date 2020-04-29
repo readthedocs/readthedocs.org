@@ -18,11 +18,10 @@ class DockerBaseSettings(CommunityDevSettings):
     PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     SLUMBER_API_HOST = 'http://web:8000'
     RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
 
-    STATIC_URL = f'http://{PRODUCTION_DOMAIN}/devstoreaccount1/static/'
+    STATIC_URL = '/devstoreaccount1/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
@@ -43,6 +42,8 @@ class DockerBaseSettings(CommunityDevSettings):
 
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
+
+    ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
@@ -108,14 +109,13 @@ class DockerBaseSettings(CommunityDevSettings):
     AZURE_ACCOUNT_KEY = 'Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=='
     AZURE_CONTAINER = 'static'
     AZURE_STATIC_STORAGE_CONTAINER = AZURE_CONTAINER
-    AZURE_MEDIA_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
 
     # We want to replace files for the same version built
     AZURE_OVERWRITE_FILES = True
 
     # Storage backend for build media artifacts (PDF, HTML, ePub, etc.)
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
-    AZURE_STATIC_STORAGE_HOSTNAME = PRODUCTION_DOMAIN
+    AZURE_STATIC_STORAGE_HOSTNAME = 'assets.community.dev.readthedocs.io:10000'
 
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildEnvironmentStorage'

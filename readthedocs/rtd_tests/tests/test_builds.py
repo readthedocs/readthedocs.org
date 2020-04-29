@@ -416,19 +416,19 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         build_two = get(
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 2},
+            _config={'version': 2},
         )
         build_three = get(
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 3},
+            _config={'version': 3},
             success=False,
         )
 
@@ -631,7 +631,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertTrue(external_build.is_external)
@@ -641,7 +641,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertFalse(build.is_external)
@@ -651,7 +651,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertEqual(build.external_version_name, None)
@@ -693,7 +693,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertEqual(
@@ -709,7 +709,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = 'https://github.com/pypa/pip/pull/{number}/commits/{sha}'.format(
             number=self.external_version.verbose_name,
@@ -725,7 +725,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = (
             'https://gitlab.com/pypa/pip/commit/'
@@ -741,7 +741,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.pip_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = 'https://github.com/pypa/pip/commit/{sha}'.format(
             sha=build.commit

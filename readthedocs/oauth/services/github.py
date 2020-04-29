@@ -15,7 +15,6 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
-    RTD_BUILD_STATUS_API_NAME
 )
 from readthedocs.integrations.models import Integration
 
@@ -434,18 +433,21 @@ class GitHubService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': github_build_state,
             'target_url': target_url,
             'description': description,
-            'context': RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
 
         resp = None
 
         try:
+            statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
             resp = session.post(
-                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -460,11 +462,20 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s',
+                    'permissions: project=%s, user=%s, status=%s, url=%s',
                     project,
+                    self.user,
+                    resp.status_code,
+                    statuses_url,
                 )
                 return False
 
+            log.warning(
+                'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
+                project,
+                self.user,
+                resp.status_code
+            )
             return False
 
         # Catch exceptions with request or deserializing JSON

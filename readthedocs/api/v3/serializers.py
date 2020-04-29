@@ -11,6 +11,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
@@ -219,6 +220,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
+            'hidden',
             'type',
             'downloads',
             'urls',
@@ -419,6 +421,14 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
             'repository',
             'homepage',
         )
+
+    def validate_name(self, value):
+        potential_slug = slugify(value)
+        if Project.objects.filter(slug=potential_slug).exists():
+            raise serializers.ValidationError(
+                _('Project with slug "{0}" already exists.').format(potential_slug),
+            )
+        return value
 
 
 class ProjectUpdateSerializer(FlexFieldsModelSerializer):

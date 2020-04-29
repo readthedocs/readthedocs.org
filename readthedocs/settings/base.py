@@ -6,6 +6,7 @@ import os
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -41,10 +42,6 @@ class CommunityBaseSettings(Settings):
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
-    # Some endpoints from the API can be proxied on other domain
-    # or use the same domain where the docs are being served
-    # (omit the host if that's the case).
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
@@ -98,6 +95,8 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_MAX_CONCURRENT_BUILDS = 4
+    RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
 
     # Database and API hitting settings
     DONT_HIT_API = False
@@ -334,6 +333,12 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+
+    BROKER_TRANSPORT_OPTIONS = {
+        'queue_order_strategy': 'priority',
+        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+    }
+
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
@@ -369,7 +374,6 @@ class CommunityBaseSettings(Settings):
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
-    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -464,6 +468,7 @@ class CommunityBaseSettings(Settings):
                 'read_user',
             ],
         },
+        # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
     }
 
     # CORS
@@ -561,6 +566,11 @@ class CommunityBaseSettings(Settings):
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
 
+    # Advertising configuration defaults
+    ADSERVER_API_BASE = None
+    ADSERVER_API_KEY = None
+    ADSERVER_API_TIMEOUT = 0.35  # seconds
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
@@ -625,7 +635,7 @@ class CommunityBaseSettings(Settings):
             '': {  # root logger
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
-                'level': 'DEBUG',
+                'level': 'INFO',
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],

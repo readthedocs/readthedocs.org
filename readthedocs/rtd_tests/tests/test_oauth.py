@@ -201,8 +201,11 @@ class GitHubOAuthTests(TestCase):
         self.assertFalse(success)
         mock_logger.info.assert_called_with(
             'GitHub project does not exist or user does not have '
-            'permissions: project=%s',
-            self.project
+            'permissions: project=%s, user=%s, status=%s, url=%s',
+            self.project,
+            self.user,
+            404,
+            'https://api.github.com/repos/pypa/pip/statuses/297'
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
