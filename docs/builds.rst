@@ -11,6 +11,7 @@ Our current build limits are:
 
 * 15 minutes of CPU
 * 1GB of RAM memory
+* 2 concurrent builds
 
 We can increase build limits on a per-project basis,
 sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
