@@ -30,8 +30,8 @@ from readthedocs.projects.views.private import (
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
-    ProjectNotications,
-    ProjectNoticationsDelete,
+    ProjectNotifications,
+    ProjectNotificationsDelete,
     ProjectRedirects,
     ProjectRedirectsDelete,
     ProjectTranslationsDelete,
@@ -102,12 +102,12 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/$',
-        ProjectNotications.as_view(),
+        ProjectNotifications.as_view(),
         name='projects_notifications',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
-        ProjectNoticationsDelete.as_view(),
+        ProjectNotificationsDelete.as_view(),
         name='projects_notification_delete',
     ),
     url(
