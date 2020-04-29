@@ -56,7 +56,6 @@ function attach_elastic_search_query_sphinx(data) {
         search_def
             .then(function (data) {
                 var hit_list = data.results || [];
-                var total_count = data.count || 0;
 
                 if (hit_list.length) {
                     for (var i = 0; i < hit_list.length; i += 1) {
@@ -272,9 +271,14 @@ function attach_elastic_search_query_sphinx(data) {
     };
 
     if (typeof Search !== 'undefined' && project && version) {
-        var query_fallback = Search.query;
-        Search.query_fallback = query_fallback;
-        Search.query = query_override;
+        // Do not replace the built-in search if RTD's docsearch is disabled
+        if (!data.features || !data.features.docsearch_disabled) {
+            var query_fallback = Search.query;
+            Search.query_fallback = query_fallback;
+            Search.query = query_override;
+        } else {
+            console.log('Server side search is disabled.');
+        }
     }
     $(document).ready(function () {
         if (typeof Search !== 'undefined') {
@@ -409,19 +413,18 @@ function attach_elastic_search_query_mkdocs(data) {
 }
 
 
-
 function init() {
     var data = rtddata.get();
-    // Do not replace the built-in search if RTD's docsearch is disabled
-    if (!data.features || !data.features.docsearch_disabled) {
-      if (data.is_sphinx_builder()) {
-        attach_elastic_search_query_sphinx(data);
-      } else {
-        // MkDocs projects should have this flag explicitly for now.
-        if (data.features && !data.features.docsearch_disabled) {
-          attach_elastic_search_query_mkdocs(data);
-        }
-      }
+    if (data.is_sphinx_builder()) {
+      // Check for disabled server side search for sphinx
+      // happens inside the function, because we still need to call Search.init().
+      attach_elastic_search_query_sphinx(data);
+    }
+    // MkDocs projects should have this flag explicitly for now.
+    else if (data.features && !data.features.docsearch_disabled) {
+      attach_elastic_search_query_mkdocs(data);
+    } else {
+      console.log('Server side search is disabled.');
     }
 }
 
