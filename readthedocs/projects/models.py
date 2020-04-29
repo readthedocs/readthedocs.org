@@ -1537,6 +1537,7 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1614,6 +1615,10 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            LIST_PACKAGES_INSTALLED_ENV,
+            _('List packages installed in the environment ("pip list" or "conda list") on build\'s output'),
         ),
     )
 
