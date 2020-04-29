@@ -119,6 +119,21 @@ $(document).ready(function () {
             style="display: none;">
         {% trans "Build failed" %}
       </span>
+
+      {% if request.user|is_admin:project %}
+      <span>
+        <div data-bind="visible: finished()">
+          <form method="post" action="{% url "builds_project_list" project.slug %}">
+            {% csrf_token %}
+              <input type="submit" value="{% trans "Rebuild" %}">
+              <input type="hidden" name="version_slug" value="{{ build.version.slug }}">
+              <input type="hidden" name="commit" value="{{ build.commit }}">
+              <input type="hidden" name="build_pk" value="{{ build.pk }}">
+          </form>
+        </div>
+      </span>
+      {% endif %}
+
     </div>
 
     {% if request.user|is_admin:project %}
