@@ -135,9 +135,9 @@ class ServeDocsMixin:
         elif hasattr(request, 'cname'):
             response['X-RTD-Project-Method'] = 'cname'
         if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
+            response['X-RTD-Version-Method'] = 'domain'
         else:
-            response['X-RTD-Version-Method'] = 'url'
+            response['X-RTD-Version-Method'] = 'path'
 
         return response
 
