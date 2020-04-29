@@ -357,6 +357,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 update_on_success=False,
                 environment=self.get_rtd_env_vars(),
             )
+            log.info(
+                'Running sync_repository_task: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
 
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
@@ -1158,12 +1163,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return html_builder.get_final_doctype()
 
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx() and self.version.type != EXTERNAL
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1282,6 +1289,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1820,6 +1830,8 @@ def send_build_status(build_pk, commit, status):
     success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
+
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.

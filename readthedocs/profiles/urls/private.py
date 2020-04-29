@@ -12,6 +12,16 @@ urlpatterns = []
 
 account_urls = [
     url(
+        r'^login',
+        views.LoginView.as_view(),
+        name='account_login',
+    ),
+    url(
+        r'^logout/',
+        views.LogoutView.as_view(),
+        name='account_logout',
+    ),
+    url(
         r'^edit/',
         views.ProfileEdit.as_view(),
         name='profiles_profile_edit',

@@ -78,6 +78,8 @@ from readthedocs.projects.constants import (
     MEDIA_TYPES,
     PRIVACY_CHOICES,
     SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -135,6 +137,13 @@ class Version(models.Model):
         choices=PRIVACY_CHOICES,
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
+    )
+    hidden = models.BooleanField(
+        _('Hidden'),
+        # To avoid downtime during deploy, remove later.
+        null=True,
+        default=False,
+        help_text=_('Hide this version from the version (flyout) menu and search results?')
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
@@ -337,6 +346,10 @@ class Version(models.Model):
         """Return True if version is not external."""
         return not self.type == EXTERNAL
 
+    @property
+    def is_sphinx_type(self):
+        return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+
     def get_subdomain_url(self):
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
@@ -473,7 +486,6 @@ class Version(models.Model):
         user, repo = get_github_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -514,7 +526,6 @@ class Version(models.Model):
         user, repo = get_gitlab_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -543,7 +554,6 @@ class Version(models.Model):
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -782,7 +792,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -794,7 +803,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -808,7 +816,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -819,7 +826,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -830,7 +836,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return BITBUCKET_COMMIT_URL.format(
                     user=user,
                     repo=repo,

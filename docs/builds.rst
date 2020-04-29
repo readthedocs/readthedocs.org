@@ -1,16 +1,12 @@
 Build Process
 =============
 
-Files: `tasks.py`_ - `doc_builder/`_
-
-.. _tasks.py: https://github.com/readthedocs/readthedocs.org/blob/master/readthedocs/projects/tasks.py
-.. _doc_builder/: https://github.com/rtfd/readthedocs.org/tree/master/readthedocs/doc_builder
-
 Every documentation build has limited resources.
 Our current build limits are:
 
 * 15 minutes of CPU
-* 1GB of RAM memory
+* 3GB of RAM memory
+* 2 concurrent builds
 
 We can increase build limits on a per-project basis,
 sending an email to support@readthedocs.org providing a good reason why your documentation needs more resources.
@@ -50,13 +46,13 @@ we will first look for a ``mkdocs.yml`` file in the root of your repository.
 If we don't find one,
 we will generate one for you.
 
-Then MkDocs will build any files with a ``.md`` extension within the directory specified as ``docs_dir`` in the ``mkdocs.yml``. 
+Then MkDocs will build any files with a ``.md`` extension within the directory specified as ``docs_dir`` in the ``mkdocs.yml``.
 
-If no ``mkdocs.yml`` was found in the root of your repository and we generated one for you, 
-Read the Docs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory. 
+If no ``mkdocs.yml`` was found in the root of your repository and we generated one for you,
+Read the Docs will attempt to set ``docs_dir`` by sequentially searching for a  ``docs``, ``doc``, ``Doc``, or ``book`` directory.
 The first of these directories that exists and contains files with a ``.md`` extension will be set to ``docs_dir`` within ``mkdocs.yml``,
-and MkDocs will build the ``.md`` files in that directory. 
-As MkDocs doesn't support automatic PDF generation, 
+and MkDocs will build the ``.md`` files in that directory.
+As MkDocs doesn't support automatic PDF generation,
 Read the Docs cannot create a PDF version of your documentation with the *Mkdocs* option.
 
 .. warning::
@@ -86,7 +82,7 @@ We also create pdf's and ePub's automatically based on your project.
 For MkDocs, we run ``mkdocs build``.
 
 Then these files are copied across to our application servers from the build server.
-Once on the application servers, they are served from nginx. 
+Once on the application servers, they are served from nginx.
 
 An example in code:
 
@@ -130,14 +126,14 @@ by default the image used is ``readthedocs/build:latest``,
 but you can change that using a :doc:`config-file/index`.
 
 .. note::
-   
+
    The Docker images have a select number of C libraries installed,
    because they are used across a wide array of python projects.
    We can't install every C library out there,
    but we try and support the major ones.
 
 .. tip::
-   
+
    If you want to know the specific version of a package that is installed in the image
    you can check the `Ubuntu package search page <https://packages.ubuntu.com/>`__.
 
@@ -177,9 +173,9 @@ The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment va
 .. csv-table::
    :header-rows: 1
 
- Environment variable, Description, Example value  
- ``READTHEDOCS``, Whether the build is running inside RTD, ``True``   
- ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``   
+ Environment variable, Description, Example value
+ ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
+ ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``
  ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
  ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
