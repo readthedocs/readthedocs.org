@@ -148,7 +148,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Only set the HSTS header if the request is over HTTPS
             return response
 
-        if settings.PUBLIC_DOMAIN_USES_HTTPS and (public_domain in host or host == 'proxito'):
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
             hsts_header_values = [
                 'max-age=31536000',
                 'includeSubDomains',
