@@ -113,6 +113,7 @@ context = {
     'new_theme': (html_theme == "sphinx_rtd_theme"),
     'source_suffix': SUFFIX,
     'ad_free': {% if project.show_advertising %}False{% else %}True{% endif %},
+    'docsearch_disabled': {{ docsearch_disabled }},
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
     'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
     'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},

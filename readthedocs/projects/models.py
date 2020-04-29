@@ -1584,6 +1584,8 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
+    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1662,7 +1664,15 @@ class Feature(models.Model):
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
-    )
+        (
+            DISABLE_SERVER_SIDE_SEARCH,
+            _('Disable server side search'),
+        ),
+        (
+            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
+            _('Enable server side search for MkDocs projects'),
+        ),
+    ),
 
     projects = models.ManyToManyField(
         Project,
