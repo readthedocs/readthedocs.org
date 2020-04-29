@@ -1,6 +1,6 @@
 import re
-
 from unittest import mock
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.admindocs.views import extract_views_from_urlpatterns
 from django.test import TestCase
@@ -9,13 +9,17 @@ from django_dynamic_fixture import get
 from taggit.models import Tag
 
 from readthedocs.builds.constants import BRANCH
-from readthedocs.builds.models import Build, BuildCommandResult
+from readthedocs.builds.models import (
+    Build,
+    BuildCommandResult,
+    RegexAutomationRule,
+    VersionAutomationRule,
+)
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project
 from readthedocs.rtd_tests.utils import create_user
-from readthedocs.builds.models import RegexAutomationRule, VersionAutomationRule
 
 
 class URLAccessMixin:
@@ -479,6 +483,12 @@ class PrivateUserProfileMixin(URLAccessMixin):
 
 class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.response_data.update({
+            '/accounts/login/': {'status_code': 302},
+        })
+
     def login(self):
         return self.client.login(username='owner', password='test')
 
@@ -487,6 +497,12 @@ class PrivateUserProfileAdminAccessTest(PrivateUserProfileMixin, TestCase):
 
 
 class PrivateUserProfileUserAccessTest(PrivateUserProfileMixin, TestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.response_data.update({
+            '/accounts/login/': {'status_code': 302},
+        })
 
     def login(self):
         return self.client.login(username='tester', password='test')
@@ -506,6 +522,7 @@ class PrivateUserProfileUnauthAccessTest(PrivateUserProfileMixin, TestCase):
         self.response_data.update({
             '/accounts/tokens/create/': {'status_code': 302},
             '/accounts/tokens/delete/': {'status_code': 302},
+            '/accounts/login/': {'status_code': 200},
         })
 
     def login(self):
