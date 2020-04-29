@@ -78,6 +78,8 @@ from readthedocs.projects.constants import (
     MEDIA_TYPES,
     PRIVACY_CHOICES,
     SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -135,6 +137,13 @@ class Version(models.Model):
         choices=PRIVACY_CHOICES,
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
+    )
+    hidden = models.BooleanField(
+        _('Hidden'),
+        # To avoid downtime during deploy, remove later.
+        null=True,
+        default=False,
+        help_text=_('Hide this version from the version (flyout) menu and search results?')
     )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
@@ -360,6 +369,10 @@ class Version(models.Model):
     def supports_wipe(self):
         """Return True if version is not external."""
         return not self.type == EXTERNAL
+
+    @property
+    def is_sphinx_type(self):
+        return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
 
     def get_subdomain_url(self):
         external = self.type == EXTERNAL

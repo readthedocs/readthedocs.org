@@ -220,6 +220,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
+            'hidden',
             'type',
             'downloads',
             'urls',

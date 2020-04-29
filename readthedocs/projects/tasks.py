@@ -1236,12 +1236,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return html_builder.get_final_doctype()
 
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx() and self.version.type != EXTERNAL
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1595,6 +1597,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
