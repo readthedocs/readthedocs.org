@@ -14,7 +14,7 @@ from readthedocs.sphinx_domains.models import SphinxDomain
 from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
 
 
-@pytest.fixture()
+@pytest.fixture
 def es_index():
     call_command('search_index', '--delete', '-f')
     call_command('search_index', '--create')
@@ -23,7 +23,7 @@ def es_index():
     call_command('search_index', '--delete', '-f')
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def all_projects(es_index, mock_processed_json, db, settings):
     settings.ELASTICSEARCH_DSL_AUTOSYNC = True
     projects_list = []
@@ -95,7 +95,7 @@ def get_dummy_processed_json(instance):
             return json.load(f)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def mock_processed_json(mocker):
     mocked_function = mocker.patch.object(HTMLFile, 'get_processed_json', autospec=True)
     mocked_function.side_effect = get_dummy_processed_json

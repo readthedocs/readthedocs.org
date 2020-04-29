@@ -1,6 +1,7 @@
 """Functions related to converting content into dict/JSON structures."""
 
 import logging
+from urllib.parse import urlparse
 import orjson as json
 
 from django.conf import settings
@@ -195,5 +196,56 @@ def parse_content(content, remove_first_line=False):
         content = content[1:]
 
     # converting newlines to ". "
-    content = ' '.join([text.strip() for text in content if text])
+    content = ' '.join(text.strip() for text in content if text)
     return content
+
+
+def process_mkdocs_index_file(json_storage_path, page):
+    """Reads the json index file and parses it into a structured dict."""
+    log.debug('Processing JSON index file: %s', json_storage_path)
+
+    storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+    try:
+        with storage.open(json_storage_path, mode='r') as f:
+            file_contents = f.read()
+    except IOError:
+        log.info('Unable to read file: %s', json_storage_path)
+        raise
+
+    data = json.loads(file_contents)
+    page_data = {}
+
+    for section in data.get('docs', []):
+        parsed_path = urlparse(section.get('location', ''))
+        fragment = parsed_path.fragment
+        path = parsed_path.path
+
+        # Some old versions of mkdocs
+        # index the pages as ``/page.html`` insted of ``page.html``.
+        path = path.lstrip('/')
+
+        if path == '' or path.endswith('/'):
+            path += 'index.html'
+
+        if page != path:
+            continue
+
+        title = HTMLParser(section.get('title')).text()
+        content = parse_content(
+            HTMLParser(section.get('text')).text()
+        )
+
+        if not fragment:
+            page_data.update({
+                'path': path,
+                'title': title,
+                'domain_data': {},
+            })
+        else:
+            page_data.setdefault('sections', []).append({
+                'id': fragment,
+                'title': title,
+                'content': content,
+            })
+
+    return page_data

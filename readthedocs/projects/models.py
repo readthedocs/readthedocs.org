@@ -23,6 +23,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -39,7 +40,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file
+from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -896,7 +897,7 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                settings.DOCKER_LIMITS.get('time') or
+                DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
@@ -1329,7 +1330,7 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
-    def get_processed_json(self):
+    def get_processed_json_sphinx(self):
         """
         Get the parsed JSON for search indexing.
 
@@ -1372,6 +1373,52 @@ class HTMLFile(ImportedFile):
             'sections': [],
             'domain_data': {},
         }
+
+    def get_processed_json_mkdocs(self):
+        log.debug('Processing mkdocs index')
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.project.get_storage_path(
+            type_='html', version_slug=self.version.slug, include_file=False
+        )
+        try:
+            file_path = storage.join(storage_path, 'search/search_index.json')
+            if storage.exists(file_path):
+                index_data = process_mkdocs_index_file(file_path, page=self.path)
+                if index_data:
+                    return index_data
+        except Exception:
+            log.warning(
+                'Unhandled exception during search processing file: %s',
+                file_path,
+            )
+        return {
+            'path': self.path,
+            'title': '',
+            'sections': [],
+            'domain_data': {},
+        }
+
+    def get_processed_json(self):
+        """
+        Get the parsed JSON for search indexing.
+
+        Returns a dictionary with the following structure.
+        {
+            'path': 'file path',
+            'title': 'Title',
+            'sections': [
+                {
+                    'id': 'section-anchor',
+                    'title': 'Section title',
+                    'content': 'Section content',
+                },
+            ],
+            'domain_data': {},
+        }
+        """
+        if self.version.is_sphinx_type:
+            return self.get_processed_json_sphinx()
+        return self.get_processed_json_mkdocs()
 
     @cached_property
     def processed_json(self):
@@ -1446,6 +1493,22 @@ class Domain(models.Model):
     count = models.IntegerField(
         default=0,
         help_text=_('Number of times this domain has been hit'),
+    )
+
+    # Strict-Transport-Security header options
+    # These are not exposed to users because it's easy to misconfigure things
+    # and hard to back out changes cleanly
+    hsts_max_age = models.PositiveIntegerField(
+        default=0,
+        help_text=_('Set a custom max-age (eg. 31536000) for the HSTS header')
+    )
+    hsts_include_subdomains = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header')
+    )
+    hsts_preload = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
     )
 
     objects = RelatedProjectQuerySet.as_manager()

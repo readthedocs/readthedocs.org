@@ -70,7 +70,7 @@ class ServeDocsMixin:
 
         .. warning:: Don't do this in production!
         """
-        log.info('[Django serve] path=%s, project=%s', path, final_project.slug)
+        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
@@ -91,8 +91,8 @@ class ServeDocsMixin:
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.info('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                 original_path, path, final_project.slug)
+        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
+                  original_path, path, final_project.slug)
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -187,7 +187,8 @@ class ServeRedirectMixin:
 
         This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
         """
-        urlparse_result = urlparse(request.get_full_path())
+        full_path = request.get_full_path()
+        urlparse_result = urlparse(full_path)
         to = resolve(
             project=final_project,
             version_slug=version_slug,
@@ -195,6 +196,15 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
+
+        if full_path == to:
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                to,
+            )
+            raise InfiniteRedirectException()
+
         log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')

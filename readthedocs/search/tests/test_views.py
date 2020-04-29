@@ -86,6 +86,7 @@ class TestProjectSearch:
 
 @pytest.mark.django_db
 @pytest.mark.search
+@pytest.mark.usefixtures("all_projects")
 class TestPageSearch:
 
     @pytest.fixture(autouse=True)

@@ -3,7 +3,11 @@
 import re
 import textwrap
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Fieldset, Layout
 from django import forms
+from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.builds.constants import (
@@ -22,7 +26,47 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     class Meta:
         model = Version
-        fields = ['active', 'privacy_level']
+        states_fields = ['active', 'hidden']
+        privacy_fields = ['privacy_level']
+        fields = (
+            *states_fields,
+            *privacy_fields,
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # TODO: remove when this field is no-nullable
+        self.fields['hidden'].widget = forms.CheckboxInput()
+        self.fields['hidden'].empty_value = False
+
+        field_sets = [
+            Fieldset(
+                _('States'),
+                HTML(render_to_string('projects/project_version_states_help_text.html')),
+                *self.Meta.states_fields,
+            ),
+        ]
+
+        if settings.ALLOW_PRIVATE_REPOS:
+            field_sets.append(
+                Fieldset(
+                    _('Privacy'),
+                    *self.Meta.privacy_fields,
+                )
+            )
+        else:
+            self.fields.pop('privacy_level')
+
+        field_sets.append(
+            HTML(render_to_string(
+                'projects/project_version_submit.html',
+                context={'version': self.instance},
+            ))
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(*field_sets)
 
     def clean_active(self):
         active = self.cleaned_data['active']

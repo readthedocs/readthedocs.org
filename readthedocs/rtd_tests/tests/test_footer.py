@@ -197,6 +197,33 @@ class BaseTestFooterHTML:
         self.assertNotIn('/en/latest/foo/index/bar.html', response.data['html'])
         self.assertNotIn('/en/latest/foo/index/bar/index.html', response.data['html'])
 
+    def test_hidden_versions(self):
+        hidden_version = get(
+            Version,
+            slug='2.0',
+            hidden=True,
+            privacy_level=PUBLIC,
+            project=self.pip,
+        )
+
+        # The hidden version doesn't appear on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertNotIn('/en/2.0/', response.data['html'])
+
+        # We can access the hidden version, but it doesn't appear on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={hidden_version.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertNotIn('/en/2.0/', response.data['html'])
+
 
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
 
