@@ -1,8 +1,8 @@
 import os
 import shutil
 import tempfile
-
 from unittest import mock
+
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -1087,6 +1087,7 @@ class TestPublicPrivateSymlink(TempSiteRootTestCase):
         self.subproject.versions.update(privacy_level='public')
         self.subproject.save()
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_change_subproject_privacy(self):
         """
         Change subproject's ``privacy_level`` creates proper symlinks.
