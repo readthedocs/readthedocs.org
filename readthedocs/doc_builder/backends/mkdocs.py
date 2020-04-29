@@ -11,10 +11,10 @@ import os
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
-from readthedocs.projects.constants import MKDOCS_HTML, MKDOCS
 
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
 
@@ -314,15 +314,10 @@ class BaseMkdocs(BaseBuilder):
 
 
 class MkdocsHTML(BaseMkdocs):
+
     type = 'mkdocs'
     builder = 'build'
     build_dir = '_build/html'
-
-
-class MkdocsJSON(BaseMkdocs):
-    type = 'mkdocs_json'
-    builder = 'json'
-    build_dir = '_build/json'
 
 
 class SafeLoaderIgnoreUnknown(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
