@@ -1672,7 +1672,7 @@ class Feature(models.Model):
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _('Enable server side search for MkDocs projects'),
         ),
-    ),
+    )
 
     projects = models.ManyToManyField(
         Project,
