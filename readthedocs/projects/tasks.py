@@ -359,6 +359,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 update_on_success=False,
                 environment=self.get_rtd_env_vars(),
             )
+            log.info(
+                'Running sync_repository_task: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
 
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
