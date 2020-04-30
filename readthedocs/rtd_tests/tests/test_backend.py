@@ -306,6 +306,7 @@ class TestHgBackend(TestCase):
 
     def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
+        repo.make_clean_working_dir()
         code, _, _ = repo.update()
         self.assertEqual(code, 0)
         code, _, _ = repo.checkout()
