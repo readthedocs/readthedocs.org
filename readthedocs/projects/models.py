@@ -1666,8 +1666,12 @@ class Feature(models.Model):
         ),
         (
             LIST_PACKAGES_INSTALLED_ENV,
-            _('List packages installed in the environment ("pip list" or "conda list") on build\'s output'),
+            _(
+                'List packages installed in the environment ("pip list" or "conda list") '
+                'on build\'s output',
+            ),
         ),
+        (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
