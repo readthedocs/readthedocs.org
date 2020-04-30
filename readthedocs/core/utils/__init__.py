@@ -224,7 +224,7 @@ def trigger_build(project, version=None, build=None, commit=None, record=True, f
         project.slug,
         version.slug if version else None,
         commit,
-        build.pk
+        build.pk if build else None
     )
     update_docs_task, build = prepare_build(
         project=project,
