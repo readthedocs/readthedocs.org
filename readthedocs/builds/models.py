@@ -601,7 +601,7 @@ class APIVersion(Version):
                 pass
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
 
 
