@@ -1585,6 +1585,7 @@ class Feature(models.Model):
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
+    VCS_REMOTE_LISTING = 'vcs_remote_listing'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1666,6 +1667,9 @@ class Feature(models.Model):
         (
             LIST_PACKAGES_INSTALLED_ENV,
             _('List packages installed in the environment ("pip list" or "conda list") on build\'s output'),
+        ),
+            VCS_REMOTE_LISTING,
+            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
     )
 
