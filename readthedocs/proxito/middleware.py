@@ -159,7 +159,6 @@ class ProxitoMiddleware(MiddlewareMixin, ProxitoHeaderMixin):
             ]
         elif hasattr(request, 'domain'):
             domain = request.domain
-            hsts_header_values = []
             if domain.hsts_max_age:
                 hsts_header_values.append(f'max-age={domain.hsts_max_age}')
                 # These other options don't make sense without max_age > 0
@@ -168,6 +167,8 @@ class ProxitoMiddleware(MiddlewareMixin, ProxitoHeaderMixin):
                 if domain.hsts_preload:
                     hsts_header_values.append('preload')
 
-                # See https://tools.ietf.org/html/rfc6797
-                response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
         return response

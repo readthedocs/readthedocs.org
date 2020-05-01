@@ -1205,6 +1205,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.save_environment_json()
         self.python_env.install_core_requirements()
         self.python_env.install_requirements()
+        if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.python_env.list_packages_installed()
 
     def build_docs(self):
         """
@@ -1277,7 +1279,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
            For MkDocs search is indexed from its ``html`` artifacts.
            And in sphinx is run using the rtd-sphinx-extension.
         """
-        return self.is_type_sphinx() and self.version.type != EXTERNAL
+        return self.is_type_sphinx()
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
