@@ -48,13 +48,15 @@ class ProxitoHeaderMixin:
             response['Cache-Tag'] += f',{project_slug}-{version_slug}'
         # Larger debug headers
         if hasattr(request, 'rtdheader'):
-            response['X-RTD-Version-Method'] = 'rtdheader'
-        if hasattr(request, 'subdomain'):
-            response['X-RTD-Version-Method'] = 'subdomain'
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
         if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
-        if hasattr(request, 'cname'):
-            response['X-RTD-Version-Method'] = 'cname'
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
 
 
 class ServeDocsMixin:
