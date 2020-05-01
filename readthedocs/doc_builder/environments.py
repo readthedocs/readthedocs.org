@@ -50,6 +50,7 @@ from .exceptions import (
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
+    BuildKilled,
 )
 
 
@@ -356,7 +357,7 @@ class DockerBuildCommand(BuildCommand):
                         '\n\nCommand killed due to excessive memory consumption\n',
                     ),
                 )
-        except DockerAPIError:
+        except (DockerAPIError, BuildKilled):
             self.exit_code = -1
             if self.output is None or not self.output:
                 self.output = _('Command exited abnormally')
@@ -605,6 +606,13 @@ class BuildEnvironment(BaseEnvironment):
             elif exc_type in self.WARNING_EXCEPTIONS:
                 log_level_function = log.warning
                 self.failure = exc_value
+            elif exc_type is BuildKilled:
+                log.warning('KILLED FROM handle_exception')
+                log_level_function = log.warning
+                self.failure = 'Killed!'
+                self.build['state'] = BUILD_STATE_FINISHED
+                # self.done = True
+                # self.successful = False
             else:
                 log_level_function = log.error
                 self.failure = exc_value

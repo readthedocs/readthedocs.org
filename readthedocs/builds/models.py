@@ -687,6 +687,12 @@ class Build(models.Model):
         _('Cold Storage'),
         help_text='Build steps stored outside the database.',
     )
+    task_id = models.CharField(
+        _('Celery task id'),
+        max_length=36,
+        null=True,
+        blank=True,
+    )
 
     # Managers
     objects = BuildManager.from_queryset(BuildQuerySet)()

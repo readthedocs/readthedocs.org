@@ -153,3 +153,19 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = urlparse(issue_url).geturl()
         context['issue_url'] = issue_url
         return context
+
+    @method_decorator(login_required)
+    def post(self, request, project_slug, build_pk):
+        project = get_object_or_404(Project, slug=project_slug)
+        build = get_object_or_404(Build, pk=build_pk)
+
+        if not AdminPermission.is_admin(request.user, project):
+            return HttpResponseForbidden()
+
+        import signal
+        from celery.task.control import revoke
+        revoke(build.task_id, signal=signal.SIGINT, terminate=True)
+
+        return HttpResponseRedirect(
+            reverse('builds_detail', args=[project.slug, build.pk]),
+        )

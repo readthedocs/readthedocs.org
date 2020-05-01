@@ -64,6 +64,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     VersionLockedError,
     YAMLParseError,
+    BuildKilled,
 )
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
@@ -536,7 +537,32 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         :rtype: bool
         """
+
         try:
+            def sigstop_received(*args, **kwargs):
+                log.warning('SIGSTOP received. Killing the current building.')
+                env_cls = DockerBuildEnvironment
+                # environment = env_cls(
+                #     project=self.project,
+                #     version=self.version,
+                #     build=self.build,
+                #     record=False,
+                #     update_on_success=False,
+                # )
+                # client = environment.get_client()
+                # client.kill(environment.container_id)
+                # client.remove_container(environment.container_id)
+                # api_v2.build(self.build['id']).patch({
+                #     'error': 'Killed!',
+                #     'success': False,
+                #     'state': BUILD_STATE_FINISHED,
+                # })
+                raise BuildKilled
+                return False
+
+            # signal.signal(signal.SIGUSR2, sigstop_received)
+            signal.signal(signal.SIGINT, sigstop_received)
+
             self.version = self.get_version(version_pk)
             self.project = self.version.project
             self.build = self.get_build(build_pk)
@@ -585,6 +611,19 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 return False
             self.run_build(record=record)
             return True
+        except BuildKilled:
+            log.warning(
+                'Build killed by user. project=%s version=%s build=%s',
+                self.project.slug,
+                self.version.slug,
+                build_pk,
+            )
+            api_v2.build(self.build['id']).patch({
+                'error': 'Killed!',
+                'success': False,
+                'state': BUILD_STATE_FINISHED,
+            })
+            return False
         except Exception:
             log.exception(
                 'An unhandled exception was raised during build setup',

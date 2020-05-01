@@ -90,3 +90,7 @@ class MkDocsYAMLParseError(BuildEnvironmentError):
         'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
         'to configure the file properly.',
     )
+
+
+class BuildKilled(Exception):
+    pass
