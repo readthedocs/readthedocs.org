@@ -12,6 +12,7 @@ from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project
+from readthedocs.proxito.views.mixins import ProxitoHeaderMixin
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -108,7 +109,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
     )
 
 
-class ProxitoMiddleware(MiddlewareMixin):
+class ProxitoMiddleware(MiddlewareMixin, ProxitoHeaderMixin):
 
     """The actual middleware we'll be using in prod."""
 
@@ -132,8 +133,31 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def process_response(self, request, response):  # noqa
-        """Set the Strict-Transport-Security (HSTS) header for a custom domain if max-age>0."""
-        if hasattr(request, 'domain'):
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+
+        hsts_header_values = []
+
+        self.add_proxito_headers(request, response)
+
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
             domain = request.domain
             hsts_header_values = []
             if domain.hsts_max_age:

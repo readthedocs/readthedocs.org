@@ -22,6 +22,41 @@ from readthedocs.redirects.exceptions import InfiniteRedirectException
 log = logging.getLogger(__name__)  # noqa
 
 
+class ProxitoHeaderMixin:
+
+    def add_proxito_headers(self, request, response):
+        """Add debugging headers to proxito responses."""
+
+        # Pull data off the request and response
+        project_slug = request.host_project_slug
+        version_slug = request.path_version_slug
+        path = getattr(response, 'proxito_path', '')
+
+        response['X-RTD-Domain'] = request.get_host()
+        response['X-RTD-Project'] = project_slug
+
+        if version_slug:
+            response['X-RTD-Version'] = version_slug
+
+        # Some responses don't have a path like redirects
+        if path:
+            response['X-RTD-Path'] = path
+
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{project_slug}'
+        if version_slug:
+            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+        # Larger debug headers
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Version-Method'] = 'rtdheader'
+        if hasattr(request, 'subdomain'):
+            response['X-RTD-Version-Method'] = 'subdomain'
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'external_domain'
+        if hasattr(request, 'cname'):
+            response['X-RTD-Version-Method'] = 'cname'
+
+
 class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
@@ -120,23 +155,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
-        # Add debugging headers to proxito responses
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = final_project.slug
-        response['X-RTD-Version'] = version_slug
-        # Needed to strip any GET args, etc.
-        response['X-RTD-Path'] = urlparse(path).path
-        # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Version-Method'] = 'rtdheader'
-        if hasattr(request, 'subdomain'):
-            response['X-RTD-Version-Method'] = 'subdomain'
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
-        if hasattr(request, 'cname'):
-            response['X-RTD-Version-Method'] = 'cname'
-
+        response.proxito_path = urlparse(path).path
         return response
 
     def _serve_401(self, request, project):
