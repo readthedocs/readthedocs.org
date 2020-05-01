@@ -19,6 +19,8 @@ class CommunityTestSettings(CommunityDevSettings):
     ELASTICSEARCH_DSL_AUTOSYNC = False
     ELASTICSEARCH_DSL_AUTO_REFRESH = True
 
+    CELERY_ALWAYS_EAGER = True
+
     # Skip automatic detection of Docker limits for testing
     DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 
