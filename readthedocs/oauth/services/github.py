@@ -445,8 +445,9 @@ class GitHubService(Service):
         resp = None
 
         try:
+            statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
             resp = session.post(
-                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -461,9 +462,11 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s, user=%s',
+                    'permissions: project=%s, user=%s, status=%s, url=%s',
                     project,
                     self.user,
+                    resp.status_code,
+                    statuses_url,
                 )
                 return False
 

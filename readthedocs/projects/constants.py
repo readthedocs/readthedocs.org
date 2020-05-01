@@ -312,17 +312,23 @@ PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
     re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
     re.compile(r'github.com/(.+)/(.+)'),
     re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
     re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
     re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile(r'bitbucket.org/(.+)/(.+)/?'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'bitbucket.org/(.+)/(.+)/'),
+    re.compile(r'bitbucket.org/(.+)/(.+)'),
     re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
     re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/'),
     re.compile(r'gitlab.com/(.+)/(.+)'),
     re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]
@@ -374,3 +380,9 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 # Git provider names
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
+
+# Set 3 priorities, [low, medium, high] -- default is medium
+# Leave some space on each side of the set to expand if needed
+CELERY_LOW = 3
+CELERY_MEDIUM = 5
+CELERY_HIGH = 7

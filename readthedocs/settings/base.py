@@ -6,6 +6,7 @@ import os
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -333,6 +334,12 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+
+    BROKER_TRANSPORT_OPTIONS = {
+        'queue_order_strategy': 'priority',
+        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+    }
+
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         # Ran every hour on minute 30
@@ -368,7 +375,6 @@ class CommunityBaseSettings(Settings):
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
-    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 
     # User used to create the container.
     # In production we use the same user than the one defined by the

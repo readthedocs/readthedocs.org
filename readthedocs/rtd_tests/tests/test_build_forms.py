@@ -1,12 +1,13 @@
 from unittest import mock
+
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PRIVATE
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -16,6 +17,7 @@ class TestVersionForm(TestCase):
         self.user = get(User)
         self.project = get(Project, users=(self.user,))
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_default_version_is_active(self):
         version = get(
             Version,
@@ -28,7 +30,6 @@ class TestVersionForm(TestCase):
         form = VersionForm(
             {
                 'active': True,
-                'privacy_level': PRIVATE,
             },
             instance=version,
         )
@@ -46,12 +47,48 @@ class TestVersionForm(TestCase):
         form = VersionForm(
             {
                 'active': False,
-                'privacy_level': PRIVATE,
             },
             instance=version,
         )
         self.assertFalse(form.is_valid())
         self.assertIn('active', form.errors)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cant_update_privacy_level(self):
+        version = get(
+            Version,
+            project=self.project,
+            privacy_level=PUBLIC,
+            active=True,
+        )
+        form = VersionForm(
+            {
+                'active': True,
+                'privacy_level': PRIVATE,
+            },
+            instance=version,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(version.privacy_level, PUBLIC)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_can_update_privacy_level(self):
+        version = get(
+            Version,
+            project=self.project,
+            privacy_level=PUBLIC,
+            active=True,
+        )
+        form = VersionForm(
+            {
+                'active': True,
+                'privacy_level': PRIVATE,
+            },
+            instance=version,
+        )
+        self.assertTrue(form.is_valid())
+        self.assertEqual(version.privacy_level, PRIVATE)
 
     @mock.patch('readthedocs.projects.tasks.clean_project_resources')
     def test_resources_are_deleted_when_version_is_inactive(self, clean_project_resources):

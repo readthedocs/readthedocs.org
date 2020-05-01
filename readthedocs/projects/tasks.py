@@ -247,24 +247,37 @@ class SyncRepositoryMixin:
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
+        tags = None
+        branches = None
+        if all([
+                version_repo.supports_lsremote,
+                not version_repo.repo_exists(),
+                self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            # Do not use ``ls-remote`` if the VCS does not support it or if we
+            # have already cloned the repository locally. The latter happens
+            # when triggering a normal build.
+            branches, tags = version_repo.lsremote
 
         if all([
             version_repo.supports_tags,
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
         ]):
+            tags = tags or version_repo.tags
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.tags]
+            } for v in tags]
 
         if all([
             version_repo.supports_branches,
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
         ]):
+            branches = branches or version_repo.branches
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.branches]
+            } for v in branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
@@ -359,6 +372,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 update_on_success=False,
                 environment=self.get_rtd_env_vars(),
             )
+            log.info(
+                'Running sync_repository_task: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
 
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
@@ -369,7 +387,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # all the other cached things (Python packages, Sphinx,
                     # virtualenv, etc)
                     self.pull_cached_environment()
-                    self.sync_repo(environment)
+                    self.update_versions_from_repository(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -397,6 +415,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
         # Always return False for any exceptions
         return False
+
+    def update_versions_from_repository(self, environment):
+        """
+        Update Read the Docs versions from VCS repository.
+
+        Depending if the VCS backend supports remote listing, we just list its branches/tags
+        remotely or we do a full clone and local listing of branches/tags.
+        """
+        version_repo = self.get_vcs_repo(environment)
+        if any([
+                not version_repo.supports_lsremote,
+                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            log.info('Syncing repository via full clone. project=%s', self.projec.slug)
+            self.sync_repo(environment)
+        else:
+            log.info('Syncing repository via remote listing. project=%s', self.projec.slug)
+            self.sync_versions(version_repo)
 
 
 @app.task(
@@ -1234,12 +1270,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return html_builder.get_final_doctype()
 
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx()
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1593,6 +1631,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -2194,6 +2235,8 @@ def send_build_status(build_pk, commit, status):
     success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
+
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
