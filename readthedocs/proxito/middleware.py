@@ -132,10 +132,30 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def process_response(self, request, response):  # noqa
-        """Set the Strict-Transport-Security (HSTS) header for a custom domain if max-age>0."""
-        if hasattr(request, 'domain'):
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+
+        hsts_header_values = []
+
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
             domain = request.domain
-            hsts_header_values = []
             if domain.hsts_max_age:
                 hsts_header_values.append(f'max-age={domain.hsts_max_age}')
                 # These other options don't make sense without max_age > 0
@@ -144,6 +164,8 @@ class ProxitoMiddleware(MiddlewareMixin):
                 if domain.hsts_preload:
                     hsts_header_values.append('preload')
 
-                # See https://tools.ietf.org/html/rfc6797
-                response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
         return response

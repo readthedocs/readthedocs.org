@@ -7,7 +7,7 @@ import re
 import git
 from gitdb.util import hex_to_bin
 from django.core.exceptions import ValidationError
-from git.exc import BadName, InvalidGitRepositoryError
+from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -32,6 +32,7 @@ class Backend(BaseVCS):
     supports_tags = True
     supports_branches = True
     supports_submodules = True
+    supports_lsremote = True
     fallback_branch = 'master'  # default branch
     repo_depth = 50
 
@@ -72,7 +73,7 @@ class Backend(BaseVCS):
     def repo_exists(self):
         try:
             git.Repo(self.working_dir)
-        except InvalidGitRepositoryError:
+        except (InvalidGitRepositoryError, NoSuchPathError):
             return False
         return True
 
@@ -197,6 +198,36 @@ class Backend(BaseVCS):
         if code != 0:
             raise RepositoryError
         return code, stdout, stderr
+
+    @property
+    def lsremote(self):
+        """
+        Use ``git ls-remote`` to list branches and tags without clonning the repository.
+
+        :returns: tuple containing a list of branch and tags
+        """
+        cmd = ['git', 'ls-remote', self.repo_url]
+
+        self.check_working_dir()
+        code, stdout, stderr = self.run(*cmd)
+        if code != 0:
+            raise RepositoryError
+
+        tags = []
+        branches = []
+        for line in stdout.splitlines()[1:]:  # skip HEAD
+            commit, ref = line.split()
+            if ref.startswith('refs/heads/'):
+                branch = ref.replace('refs/heads/', '')
+                branches.append(VCSVersion(self, branch, branch))
+            if ref.startswith('refs/tags/'):
+                tag = ref.replace('refs/tags/', '')
+                if tag.endswith('^{}'):
+                    # skip annotated tags since they are duplicated
+                    continue
+                tags.append(VCSVersion(self, commit, tag))
+
+        return branches, tags
 
     @property
     def tags(self):

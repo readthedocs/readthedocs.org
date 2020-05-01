@@ -206,7 +206,7 @@ class BaseFooterHTML(APIView):
         docsearch_disabled = project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
         if not version.is_sphinx_type:
             # TODO: Temporal check
-            docsearch_disabled |= not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
+            docsearch_disabled |= not project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
 
         return {
             'docsearch_disabled': docsearch_disabled,

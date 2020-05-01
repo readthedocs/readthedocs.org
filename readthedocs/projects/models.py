@@ -1586,6 +1586,7 @@ class Feature(models.Model):
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
+    VCS_REMOTE_LISTING = 'vcs_remote_listing'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1671,6 +1672,10 @@ class Feature(models.Model):
         (
             ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
             _('Enable server side search for MkDocs projects'),
+        ),
+        (
+            VCS_REMOTE_LISTING,
+            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
     )
 
