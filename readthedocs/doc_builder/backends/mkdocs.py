@@ -253,12 +253,6 @@ class BaseMkdocs(BaseBuilder):
             'commit': self.version.project.vcs_repo(self.version.slug).commit,
             'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
             'user_analytics_code': analytics_code,
-            'features': {
-                'docsearch_disabled': (
-                    self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
-                    and not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
-                )
-            },
         }
 
         data_ctx = {

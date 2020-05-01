@@ -15,7 +15,7 @@ from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -199,6 +199,19 @@ class BaseFooterHTML(APIView):
         }
         return context
 
+    def _get_features(self):
+        project = self._get_project()
+        version = self._get_version()
+
+        docsearch_disabled = project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
+        if not version.is_sphinx_type:
+            # TODO: Temporal check
+            docsearch_disabled |= not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
+
+        return {
+            'docsearch_disabled': docsearch_disabled,
+        }
+
     def get(self, request, format=None):
         project = self._get_project()
         version = self._get_version()
@@ -219,6 +232,7 @@ class BaseFooterHTML(APIView):
             'version_active': version.active,
             'version_compare': version_compare_data,
             'version_supported': version.supported,
+            'features': self._get_features(),
         }
 
         # Allow folks to hook onto the footer response for various information
