@@ -129,13 +129,15 @@ class ServeDocsMixin:
         # Include the project & project-version so we can do larger purges if needed
         response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
         if hasattr(request, 'rtdheader'):
-            response['X-RTD-Version-Method'] = 'rtdheader'
-        if hasattr(request, 'subdomain'):
-            response['X-RTD-Version-Method'] = 'subdomain'
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
         if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
-        if hasattr(request, 'cname'):
-            response['X-RTD-Version-Method'] = 'cname'
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
 
         return response
 
