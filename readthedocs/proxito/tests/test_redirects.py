@@ -130,27 +130,3 @@ class RedirectTests(BaseDocServing):
             'https://project.dev.readthedocs.io/en/latest/test.html',
         )
 
-    def test_redirect_headers(self):
-        r = self.client.get('', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
-        self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
-        )
-        self.assertEqual(r['Cache-Tag'], 'project')
-        self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertIsNone(r.get('X-RTD-Version'))
-        self.assertIsNone(r.get('X-RTD-Path'))
-
-    def test_serve_headers(self):
-        r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project-latest')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
-        self.assertEqual(r['X-RTD-Version'], 'latest')
-        self.assertEqual(r['X-RTD-version-Method'], 'path')
-        self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
