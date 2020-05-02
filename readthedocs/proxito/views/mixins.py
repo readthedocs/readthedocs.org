@@ -28,8 +28,8 @@ class ProxitoHeaderMixin:
         """Add debugging headers to proxito responses."""
 
         # Pull data off the request and response
-        project_slug = request.host_project_slug
-        version_slug = request.path_version_slug
+        project_slug = getattr(request, 'host_project_slug', '')
+        version_slug = getattr(request, 'path_version_slug', '')
         path = getattr(response, 'proxito_path', '')
 
         response['X-RTD-Domain'] = request.get_host()
