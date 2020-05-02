@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import shutil
+import signal
 import socket
 import tarfile
 import tempfile
@@ -246,24 +247,37 @@ class SyncRepositoryMixin:
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
+        tags = None
+        branches = None
+        if all([
+                version_repo.supports_lsremote,
+                not version_repo.repo_exists(),
+                self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            # Do not use ``ls-remote`` if the VCS does not support it or if we
+            # have already cloned the repository locally. The latter happens
+            # when triggering a normal build.
+            branches, tags = version_repo.lsremote
 
         if all([
             version_repo.supports_tags,
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
         ]):
+            tags = tags or version_repo.tags
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.tags]
+            } for v in tags]
 
         if all([
             version_repo.supports_branches,
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
         ]):
+            branches = branches or version_repo.branches
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.branches]
+            } for v in branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
@@ -358,6 +372,11 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 update_on_success=False,
                 environment=self.get_rtd_env_vars(),
             )
+            log.info(
+                'Running sync_repository_task: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
+            )
 
             with environment:
                 before_vcs.send(sender=self.version, environment=environment)
@@ -368,7 +387,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # all the other cached things (Python packages, Sphinx,
                     # virtualenv, etc)
                     self.pull_cached_environment()
-                    self.sync_repo(environment)
+                    self.update_versions_from_repository(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -397,6 +416,24 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         # Always return False for any exceptions
         return False
 
+    def update_versions_from_repository(self, environment):
+        """
+        Update Read the Docs versions from VCS repository.
+
+        Depending if the VCS backend supports remote listing, we just list its branches/tags
+        remotely or we do a full clone and local listing of branches/tags.
+        """
+        version_repo = self.get_vcs_repo(environment)
+        if any([
+                not version_repo.supports_lsremote,
+                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            log.info('Syncing repository via full clone. project=%s', self.projec.slug)
+            self.sync_repo(environment)
+        else:
+            log.info('Syncing repository via remote listing. project=%s', self.projec.slug)
+            self.sync_versions(version_repo)
+
 
 @app.task(
     bind=True,
@@ -404,6 +441,14 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
     default_retry_delay=7 * 60,
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
+
+    def sigterm_received(*args, **kwargs):
+        log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+
+    # Do not send the SIGTERM signal to childs (pip is automatically killed when
+    # receives SIGTERM and make the build to fail one command and stop build)
+    signal.signal(signal.SIGTERM, sigterm_received)
+
     try:
         step = UpdateDocsTaskStep(task=self)
         return step.run(version_pk, *args, **kwargs)
@@ -501,7 +546,18 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 response = api_v2.build.running.get(project__slug=self.project.slug)
-                if response.get('count', 0) >= settings.RTD_MAX_CONCURRENT_BUILDS:
+                builds_running = response.get('count', 0)
+                max_concurrent_builds = (
+                    self.project.max_concurrent_builds or
+                    settings.RTD_MAX_CONCURRENT_BUILDS
+                )
+                log.info(
+                    'Concurrent builds: max=%s running=%s project=%s',
+                    max_concurrent_builds,
+                    builds_running,
+                    self.project.slug,
+                )
+                if builds_running >= max_concurrent_builds:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,
@@ -512,7 +568,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # we are executing this code before creating one
                     api_v2.build(self.build['id']).patch({
                         'error': BuildMaxConcurrencyError.message.format(
-                            limit=settings.RTD_MAX_CONCURRENT_BUILDS,
+                            limit=max_concurrent_builds,
                         ),
                     })
                     self.task.retry(
@@ -1149,6 +1205,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.save_environment_json()
         self.python_env.install_core_requirements()
         self.python_env.install_requirements()
+        if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.python_env.list_packages_installed()
 
     def build_docs(self):
         """
@@ -1214,12 +1272,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         return html_builder.get_final_doctype()
 
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx()
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1269,7 +1329,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
-        if self.version.type != EXTERNAL:
+        # Try to infer the version type if we can
+        # before creating a task.
+        if not self.version or self.version.type != EXTERNAL:
             send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
@@ -1571,6 +1633,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1837,6 +1902,7 @@ def _sync_imported_files(version, build, changed_files):
     files_changed.send(
         sender=Project,
         project=version.project,
+        version=version,
         files=changed_files,
     )
 
@@ -1845,7 +1911,7 @@ def _sync_imported_files(version, build, changed_files):
 def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
-    if not version:
+    if not version or version.type == EXTERNAL:
         return
 
     build = Build.objects.get(pk=build_pk)
@@ -2171,6 +2237,8 @@ def send_build_status(build_pk, commit, status):
     success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
+
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.

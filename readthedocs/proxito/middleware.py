@@ -28,6 +28,8 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
         - This sets ``request.subdomain`` True
     * The hostname without port information, which maps to ``Domain`` objects
         - This sets ``request.cname`` True
+    * The domain is the canonical one and using HTTPS if supported
+        - This sets ``request.canonicalize`` with the value as the reason
     """
 
     host = request.get_host().lower().split(':')[0]
@@ -54,7 +56,11 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
+            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+                log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
+                request.canonicalize = 'canonical-cname'
             return project_slug
+
         # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
         # But these feel like they might be phishing, etc. so let's block them for now.
         log.warning('Weird variation on our hostname: host=%s', host)
@@ -82,7 +88,17 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
     if domain:
         project_slug = domain.project.slug
         request.cname = True
+        request.domain = domain
         log.debug('Proxito CNAME: host=%s', host)
+
+        if domain.https and not request.is_secure():
+            # Redirect HTTP -> HTTPS (302) for this custom domain
+            log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
+            request.canonicalize = 'https'
+
+        # NOTE: consider redirecting non-canonical custom domains to the canonical one
+        # Whether that is another custom domain or the public domain
+
         return project_slug
 
     # Some person is CNAMEing to us without configuring a domain - 404.
@@ -114,3 +130,42 @@ class ProxitoMiddleware(MiddlewareMixin):
         request.host_project_slug = request.slug = ret
 
         return None
+
+    def process_response(self, request, response):  # noqa
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+
+        hsts_header_values = []
+
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
+            domain = request.domain
+            if domain.hsts_max_age:
+                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
+                # These other options don't make sense without max_age > 0
+                if domain.hsts_include_subdomains:
+                    hsts_header_values.append('includeSubDomains')
+                if domain.hsts_preload:
+                    hsts_header_values.append('preload')
+
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
+        return response

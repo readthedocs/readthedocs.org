@@ -1,5 +1,7 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
+from allauth.account.views import LoginView as AllAuthLoginView
+from allauth.account.views import LogoutView as AllAuthLogoutView
 from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
@@ -25,6 +27,26 @@ from readthedocs.core.forms import (
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
+
+
+class LoginViewBase(AllAuthLoginView):
+
+    pass
+
+
+class LoginView(SettingsOverrideObject):
+
+    _default_class = LoginViewBase
+
+
+class LogoutViewBase(AllAuthLogoutView):
+
+    pass
+
+
+class LogoutView(SettingsOverrideObject):
+
+    _default_class = LogoutViewBase
 
 
 class ProfileEdit(PrivateViewMixin, UpdateView):

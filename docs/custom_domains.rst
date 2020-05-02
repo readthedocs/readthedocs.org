@@ -1,88 +1,111 @@
 Custom Domains
 ==============
 
-.. note:: These directions are for projects hosted on our community site.
-          If you want to setup a custom domain on `Read the Docs for Business <https://readthedocs.com/>`_,
-          please read our :doc:`commercial documentation <commercial/custom_domains>`.
+Once a project is imported into Read the Docs,
+by default it's hosted under a subdomain on one of our domains.
+If you need a custom domain, see :ref:`custom_domains:custom domain support`.
 
-Read the Docs supports a number of custom domains for your convenience. Shorter URLs make everyone happy, and we like making people happy!
-
-Subdomain Support
-------------------
-
-Every project has a subdomain that is available to serve its documentation. If you go to ``<slug>.readthedocs.io``, it should show you the latest version of documentation. A good example is https://pip.readthedocs.io
-
-.. note:: If you have an old project that has an underscore (_) in the name, it will use a subdomain with a hyphen (-).
-          `RFC 1035 <https://tools.ietf.org/html/rfc1035>`_ has more information on valid subdomains.
-
-Custom Domain Support
----------------------
-
-You can also host your documentation from your own domain by adding a domain to
-your project:
-
-* Add a CNAME record in your DNS that points the domain to: ``readthedocs.io``
-* Add a project domain in the :guilabel:`Domains` project admin page for your project.
-
-.. note::
-    We don't currently support pointing subdomains or naked domains to a project
-    using ``A`` records. It's best to point a subdomain, ``docs.example.com``
-    for example, using a CNAME record.
-
-Using pip as an example, https://pip.pypa.io resolves, but is hosted on our infrastructure.
-
-As another example, fabric's dig record looks like this::
-
-    -> dig docs.fabfile.org
-    ...
-    ;; ANSWER SECTION:
-    docs.fabfile.org.   7200    IN  CNAME   readthedocs.io.
-
-Custom Domain SSL
+Subdomain support
 -----------------
 
-By default, when you setup a custom domain to host documentation at Read the Docs,
-we will attempt to provision a domain validated SSL certificate for the domain.
-This service is generously provided by Cloudflare.
+Every project has a subdomain that is available to serve its documentation.
+If you go to ``<slug>.readthedocs.io``, it should show you the latest version of your documentation.
+A good example is https://pip.readthedocs.io
+For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
 
-After configuring your custom domain on Read the Docs,
-you can see the status of the certificate on the domain page in your project
-admin dashboard (:guilabel:`Domains` > :guilabel:`Edit Domain`).
+Custom domain support
+---------------------
 
-If your domain has configured CAA records, please do not forget to include
-Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
-FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`_.
+You can also host your documentation from your own domain.
 
 .. note::
 
-    Some older setups configured a CNAME record pointing to ``readthedocs.org``
-    or another variation. While these continue to resolve,
-    they do not yet allow us to acquire SSL certificates for those domains.
-    Point the CNAME to ``readthedocs.io``, with no subdomain, and re-request a certificate
-    by saving the domain in the project admin (:guilabel:`Domains` >
-    :guilabel:`Edit Domain`).
+   We don't currently support pointing subdomains or root domains to a project using A records.
+   DNS A records require a static IP address and our IPs may change without notice.
 
-    If you change the CNAME record, the SSL certificate issuance can take about
-    one hour.
+.. tabs::
 
-.. important::
+   .. tab:: Read the Docs Community
+      
+      In order to setup your custom domain, follow these steps:
 
-    Due to a limitation, a domain cannot be proxied on Cloudflare
-    to another Cloudflare account that also proxies.
-    This results in a "CNAME Cross-User Banned" error.
-    In order to do SSL termination, we must proxy this connection.
-    If you don't want us to do SSL termination for your domain --
-    **which means you are responsible for the SSL certificate** --
-    then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io``
-    instead of ``readthedocs.io``.
+      #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
+         For a root domain like ``example.com`` use an ANAME or ALIAS record pointing to ``readthedocs.io``.
+      #. Go the :guilabel:`Admin` tab of your project
+      #. Click on :guilabel:`Domains`
+      #. Enter your domain and click on :guilabel:`Add`
 
-    For more details, see this `previous issue`_.
+      By default, we provide a validated SSL certificate for the domain.
+      This service is generously provided by Cloudflare.
+      The SSL certificate issuance can take about one hour,
+      you can see the status of the certificate on the domain page in your project.
 
-    .. _previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+      As an example, fabric's dig record looks like this:
 
+      .. prompt:: bash $, auto
+
+         $ dig +short docs.fabfile.org
+         readthedocs.io.
+         104.17.33.82
+         104.17.32.82
+
+      .. admonition:: Certificate Authority Authorization (CAA)
+
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include Cloudflare CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Cloudflare CAA FAQ`_ for details.
+         We need a record that looks like this: ``0 issue "digicert.com"`` in response to ``dig +short CAA <domain>``
+
+         .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
+
+      .. admonition:: Notes for Cloudflare users
+
+         Due to a limitation,
+         a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
+         This results in a "CNAME Cross-User Banned" error.
+         In order to do SSL termination, we must proxy this connection.
+         If you don't want us to do SSL termination for your domain —
+         **which means you are responsible for the SSL certificate** —
+         then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
+         For more details, see `this previous issue`_.
+
+         .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+
+   .. tab:: Read the Docs for Business
+
+      In order to setup your custom domain, follow these steps:
+
+      #. Go the :guilabel:`Admin` tab of your project
+      #. Click on :guilabel:`Domains`
+      #. Enter your domain and click on :guilabel:`Add`
+      #. Follow the steps shown on the domain page.
+         This will require adding 2 DNS records, one pointing your custom domain to our servers,
+         and another allowing us to provision an SSL certificate. 
+
+      By default, we provide a validated SSL certificate for the domain.
+      The SSL certificate issuance can take a few days,
+      you can see the status of the certificate on the domain page in your project.
+
+      .. note::
+
+         Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
+         These domains will continue to resolve.
+
+      .. admonition:: Certificate Authority Authorization (CAA)
+
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include AWS Certificate Manager CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Amazon CAA guide`_ for details.
+
+         .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
 
 Proxy SSL
 ---------
+
+.. warning::
+
+   This option is deprecated,
+   we already issue SSL certificates for all domains.
 
 If you would prefer to do your own SSL termination
 on a server you own and control,
@@ -114,8 +137,3 @@ An example nginx configuration for pip would look like:
             proxy_read_timeout 20s;
         }
     }
-
-rtfd.org
----------
-
-You can also use `rtfd.io` and `rtfd.org` for short URLs for Read the Docs. For example, https://pip.rtfd.io redirects to its documentation page. Any use of `rtfd.io` or `rtfd.org` will simply be redirected to `readthedocs.io`.

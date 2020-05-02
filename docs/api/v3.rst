@@ -398,6 +398,7 @@ Version detail
             "ref": "19.0.2",
             "built": true,
             "active": true,
+            "hidden": false,
             "type": "tag",
             "last_build": "{BUILD}",
             "downloads": {
@@ -464,7 +465,8 @@ Version update
     .. sourcecode:: json
 
         {
-            "active": true
+            "active": true,
+            "hidden": false
         }
 
     :statuscode 204: Updated successfully
