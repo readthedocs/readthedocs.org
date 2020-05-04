@@ -44,6 +44,43 @@ class TestGitBackend(TestCase):
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
 
+    def test_git_lsremote(self):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            'submodule',
+            'invalidsubmodule',
+        ]
+        branches = [
+            'develop',
+            'master',
+            '2.0.X',
+            'release/2.0.0',
+            'release/foo/bar',
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        create_git_tag(repo_path, 'v01')
+        create_git_tag(repo_path, 'v02', annotated=True)
+        create_git_tag(repo_path, 'release-ünîø∂é')
+
+        repo = self.project.vcs_repo()
+        # create the working dir if it not exists. It's required to ``cwd`` to
+        # execute the command
+        repo.check_working_dir()
+        repo_branches, repo_tags = repo.lsremote
+
+        self.assertEqual(
+            set(branches + default_branches),
+            {branch.verbose_name for branch in repo_branches},
+        )
+
+        self.assertEqual(
+            {'v01', 'v02', 'release-ünîø∂é'},
+            {vcs.verbose_name for vcs in repo_tags},
+        )
+
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_git_branches(self, checkout_path):
         repo_path = self.project.repo

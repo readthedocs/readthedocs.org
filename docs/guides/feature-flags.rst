@@ -37,6 +37,8 @@ e.g. python-reno release notes manager is known to do that
 
 ``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
 
+``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
+
 ``SHARE_SPHINX_DOCTREE``: :featureflags:`SHARE_SPHINX_DOCTREE`
 
 By default, when Read the Docs runs Sphinx it passes a different output directory for the generated/parsed doctrees
