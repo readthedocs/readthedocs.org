@@ -539,38 +539,6 @@ class Project(models.Model):
             )
         return folder_path
 
-    def get_production_media_path(self, type_, version_slug, include_file=True):
-        """
-        Used to see if these files exist so we can offer them for download.
-
-        :param type_: Media content type, ie - 'pdf', 'zip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :type include_file: bool
-
-        :returns: Full path to media file or path
-        """
-        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
-            path = os.path.join(
-                settings.MEDIA_ROOT,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        else:
-            path = os.path.join(
-                settings.PRODUCTION_MEDIA_ARTIFACTS,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        if include_file:
-            path = os.path.join(
-                path,
-                '{}.{}'.format(self.slug, type_.replace('htmlzip', 'zip')),
-            )
-        return path
-
     def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
@@ -740,12 +708,6 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        path = self.get_production_media_path(
-            type_=type_, version_slug=version_slug
-        )
-        if os.path.exists(path):
-            return True
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,

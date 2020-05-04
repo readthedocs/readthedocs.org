@@ -396,23 +396,6 @@ class Version(models.Model):
             return path
         return None
 
-    def get_artifact_paths(self):
-        """
-        Return a list of all production artifacts/media path for this version.
-
-        :rtype: list
-        """
-        paths = []
-
-        for type_ in ('pdf', 'epub', 'htmlzip'):
-            paths.append(
-                self.project
-                .get_production_media_path(type_=type_, version_slug=self.slug),
-            )
-        paths.append(self.project.rtd_build_path(version=self.slug))
-
-        return paths
-
     def get_storage_paths(self):
         """
         Return a list of all build artifact storage paths for this version.

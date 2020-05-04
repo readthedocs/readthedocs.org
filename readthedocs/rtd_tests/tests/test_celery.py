@@ -82,22 +82,6 @@ class TestCeleryBuilding(TestCase):
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
-    def test_clear_artifacts(self):
-        version = self.project.versions.all()[0]
-        directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-        directory = version.project.rtd_build_path(version=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_python_environment', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.build_docs', new=MagicMock)
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs', new=MagicMock)
@@ -164,7 +148,7 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
-        
+
         version = self.project.versions.first()
 
         build = get(
