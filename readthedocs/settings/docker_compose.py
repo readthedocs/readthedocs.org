@@ -80,8 +80,12 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    def show_debug_toolbar(request):
+        from django.conf import settings
+        return settings.DEBUG
+
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
     }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
