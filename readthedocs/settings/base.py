@@ -171,6 +171,7 @@ class CommunityBaseSettings(Settings):
         ]
         if ext:
             apps.append('django_countries')
+            apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
