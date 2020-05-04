@@ -1447,7 +1447,6 @@ class EmailHook(Notification):
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
-        blank=True,
         help_text=_('URL to send the webhook to'),
     )
 
