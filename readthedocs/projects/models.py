@@ -1668,6 +1668,8 @@ class Feature(models.Model):
         (
             FORCE_SPHINX_FROM_VENV,
             _('Force to use Sphinx from the current virtual environment'),
+        ),
+        (
             LIST_PACKAGES_INSTALLED_ENV,
             _(
                 'List packages installed in the environment ("pip list" or "conda list") '
