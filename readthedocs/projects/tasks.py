@@ -1205,6 +1205,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
         self.python_env.save_environment_json()
         self.python_env.install_core_requirements()
         self.python_env.install_requirements()
+        if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.python_env.list_packages_installed()
 
     def build_docs(self):
         """

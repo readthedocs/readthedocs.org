@@ -334,10 +334,11 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-
     BROKER_TRANSPORT_OPTIONS = {
         'queue_order_strategy': 'priority',
-        'priority_steps': [CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+        # We use 0 here because some things still put a task in the queue with no priority
+        # I don't fully understand why, but this seems to solve it.
+        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
     }
 
     CELERY_DEFAULT_QUEUE = 'celery'

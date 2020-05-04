@@ -1584,6 +1584,8 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
+    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
 
     FEATURES = (
@@ -1662,6 +1664,17 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            FORCE_SPHINX_FROM_VENV,
+            _('Force to use Sphinx from the current virtual environment'),
+        ),
+        (
+            LIST_PACKAGES_INSTALLED_ENV,
+            _(
+                'List packages installed in the environment ("pip list" or "conda list") '
+                'on build\'s output',
+            ),
         ),
         (
             VCS_REMOTE_LISTING,
