@@ -105,6 +105,26 @@ This is useful when:
    Active versions that are hidden will be listed as ``Disallow: /path/to/version/``
    in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
 
+Privacy levels
+--------------
+
+.. note::
+
+   Privacy levels are only supported on :doc:`Read the Docs for Business </commercial/index>`.
+
+Public
+~~~~~~
+
+This is the easiest and most obvious.
+It means that everything is available to be seen by everyone.
+
+Private
+~~~~~~~
+
+Private objects are available only to people who have permissions to see them.
+They will not display on any list view, and will 404 when you link them to others.
+If you want to share your docs temporary, see :doc:`/commercial/sharing`.
+
 Version warning
 ---------------
 
