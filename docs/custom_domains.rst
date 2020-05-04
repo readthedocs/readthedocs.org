@@ -40,22 +40,14 @@ You can also host your documentation from your own domain.
       The SSL certificate issuance can take about one hour,
       you can see the status of the certificate on the domain page in your project.
 
-      For example, https://pip.pypa.io resolves, but is hosted on our infrastructure.
-      As another example, fabric's dig record looks like this:
+      As an example, fabric's dig record looks like this:
 
       .. prompt:: bash $, auto
 
-         $ dig docs.fabfile.org
-         ...
-         ;; ANSWER SECTION:
-         docs.fabfile.org.   7200    IN  CNAME   readthedocs.io.
-
-      .. note::
-
-         Some older setups configured a CNAME record pointing to ``readthedocs.org`` or another variation.
-         While these continue to resolve,
-         they do not yet allow us to acquire SSL certificates for those domains.
-         Follow the new setup to have a SSL certificate.
+         $ dig +short docs.fabfile.org
+         readthedocs.io.
+         104.17.33.82
+         104.17.32.82
 
       .. admonition:: Certificate Authority Authorization (CAA)
 

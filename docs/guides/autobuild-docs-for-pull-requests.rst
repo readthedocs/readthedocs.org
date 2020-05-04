@@ -42,7 +42,8 @@ you might hit one of these issues:
 
 #. **Build status is not being reported on your Pull/Merge Request**.
    You need to make sure that you have granted access to the Read the Docs
-   `OAuth App`_ to your/organizations GitHub account.
+   `OAuth App`_ to your/organizations GitHub account. If you do not see "Read the Docs"
+   among the `OAuth App`_, you might need to disconnect and reconnect to GitHub service.
    Also make sure your webhook is properly setup
    to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.
