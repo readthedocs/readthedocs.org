@@ -98,7 +98,7 @@ any user with a link to its docs would be able to see it.
 This is useful when:
 
 - You no longer support a version, but you don't want to remove its docs.
-- You have a work in progress version and don't want to publish its docs just yet. 
+- You have a work in progress version and don't want to publish its docs just yet.
 
 .. note::
 
