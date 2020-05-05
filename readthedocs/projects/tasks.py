@@ -428,10 +428,10 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 not version_repo.supports_lsremote,
                 not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
         ]):
-            log.info('Syncing repository via full clone. project=%s', self.projec.slug)
+            log.info('Syncing repository via full clone. project=%s', self.project.slug)
             self.sync_repo(environment)
         else:
-            log.info('Syncing repository via remote listing. project=%s', self.projec.slug)
+            log.info('Syncing repository via remote listing. project=%s', self.project.slug)
             self.sync_versions(version_repo)
 
 
