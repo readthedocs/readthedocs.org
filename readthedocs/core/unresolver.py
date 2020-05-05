@@ -36,7 +36,7 @@ class UnresolverBase:
 
         # Handle returning a response
         if hasattr(project_slug, 'status_code'):
-            return UnresolvedObject(None, None, None, None, None)
+            return None
 
         _, __, kwargs = url_resolve(
             path,
