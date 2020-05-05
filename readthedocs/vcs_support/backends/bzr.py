@@ -19,10 +19,13 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        retcode = self.run('bzr', 'status', record=False)[0]
-        if retcode == 0:
+        if self.repo_exists():
             return self.up()
         return self.clone()
+
+    def repo_exists(self):
+        retcode = self.run('bzr', 'status', record=False)[0]
+        return retcode == 0
 
     def up(self):
         retcode = self.run('bzr', 'revert')[0]
