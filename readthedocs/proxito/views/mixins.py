@@ -120,23 +120,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
-        # Add debugging headers to proxito responses
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = final_project.slug
-        response['X-RTD-Version'] = version_slug
-        # Needed to strip any GET args, etc.
-        response['X-RTD-Path'] = urlparse(path).path
-        # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Version-Method'] = 'rtdheader'
-        if hasattr(request, 'subdomain'):
-            response['X-RTD-Version-Method'] = 'subdomain'
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'external_domain'
-        if hasattr(request, 'cname'):
-            response['X-RTD-Version-Method'] = 'cname'
-
+        response.proxito_path = urlparse(path).path
         return response
 
     def _serve_401(self, request, project):
@@ -187,7 +171,8 @@ class ServeRedirectMixin:
 
         This is normally used HTTP -> HTTPS redirects or redirects to/from custom domains.
         """
-        urlparse_result = urlparse(request.get_full_path())
+        full_path = request.get_full_path()
+        urlparse_result = urlparse(full_path)
         to = resolve(
             project=final_project,
             version_slug=version_slug,
@@ -195,6 +180,15 @@ class ServeRedirectMixin:
             query_params=urlparse_result.query,
             external=hasattr(request, 'external_domain'),
         )
+
+        if full_path == to:
+            # check that we do have a response and avoid infinite redirect
+            log.warning(
+                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
+                to,
+            )
+            raise InfiniteRedirectException()
+
         log.info('Canonical Redirect: host=%s, from=%s, to=%s', request.get_host(), filename, to)
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')

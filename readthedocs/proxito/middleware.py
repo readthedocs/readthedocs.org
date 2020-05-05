@@ -112,6 +112,39 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    def add_proxito_headers(self, request, response):
+        """Add debugging headers to proxito responses."""
+
+        project_slug = getattr(request, 'host_project_slug', '')
+        version_slug = getattr(request, 'path_version_slug', '')
+        path = getattr(response, 'proxito_path', '')
+
+        response['X-RTD-Domain'] = request.get_host()
+        response['X-RTD-Project'] = project_slug
+
+        if version_slug:
+            response['X-RTD-Version'] = version_slug
+
+        if path:
+            response['X-RTD-Path'] = path
+
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{project_slug}'
+        if version_slug:
+            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
+
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
+
     def process_request(self, request):  # noqa
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
@@ -132,10 +165,32 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def process_response(self, request, response):  # noqa
-        """Set the Strict-Transport-Security (HSTS) header for a custom domain if max-age>0."""
-        if hasattr(request, 'domain'):
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+
+        hsts_header_values = []
+
+        self.add_proxito_headers(request, response)
+
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
             domain = request.domain
-            hsts_header_values = []
             if domain.hsts_max_age:
                 hsts_header_values.append(f'max-age={domain.hsts_max_age}')
                 # These other options don't make sense without max_age > 0
@@ -144,6 +199,8 @@ class ProxitoMiddleware(MiddlewareMixin):
                 if domain.hsts_preload:
                     hsts_header_values.append('preload')
 
-                # See https://tools.ietf.org/html/rfc6797
-                response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
         return response

@@ -40,7 +40,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file
+from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -1330,7 +1330,7 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
-    def get_processed_json(self):
+    def get_processed_json_sphinx(self):
         """
         Get the parsed JSON for search indexing.
 
@@ -1374,6 +1374,52 @@ class HTMLFile(ImportedFile):
             'domain_data': {},
         }
 
+    def get_processed_json_mkdocs(self):
+        log.debug('Processing mkdocs index')
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.project.get_storage_path(
+            type_='html', version_slug=self.version.slug, include_file=False
+        )
+        try:
+            file_path = storage.join(storage_path, 'search/search_index.json')
+            if storage.exists(file_path):
+                index_data = process_mkdocs_index_file(file_path, page=self.path)
+                if index_data:
+                    return index_data
+        except Exception:
+            log.warning(
+                'Unhandled exception during search processing file: %s',
+                file_path,
+            )
+        return {
+            'path': self.path,
+            'title': '',
+            'sections': [],
+            'domain_data': {},
+        }
+
+    def get_processed_json(self):
+        """
+        Get the parsed JSON for search indexing.
+
+        Returns a dictionary with the following structure.
+        {
+            'path': 'file path',
+            'title': 'Title',
+            'sections': [
+                {
+                    'id': 'section-anchor',
+                    'title': 'Section title',
+                    'content': 'Section content',
+                },
+            ],
+            'domain_data': {},
+        }
+        """
+        if self.version.is_sphinx_type:
+            return self.get_processed_json_sphinx()
+        return self.get_processed_json_mkdocs()
+
     @cached_property
     def processed_json(self):
         return self.get_processed_json()
@@ -1401,7 +1447,6 @@ class EmailHook(Notification):
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
-        blank=True,
         help_text=_('URL to send the webhook to'),
     )
 
@@ -1538,6 +1583,9 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
+    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
+    VCS_REMOTE_LISTING = 'vcs_remote_listing'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1615,6 +1663,21 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            FORCE_SPHINX_FROM_VENV,
+            _('Force to use Sphinx from the current virtual environment'),
+        ),
+        (
+            LIST_PACKAGES_INSTALLED_ENV,
+            _(
+                'List packages installed in the environment ("pip list" or "conda list") '
+                'on build\'s output',
+            ),
+        ),
+        (
+            VCS_REMOTE_LISTING,
+            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
     )
 

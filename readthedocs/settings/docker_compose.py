@@ -38,11 +38,11 @@ class DockerBaseSettings(CommunityDevSettings):
     if ips and not HOSTIP:
         HOSTIP = ips[0][:-1] + "1"
 
+    # Turn this on to test ads
+    USE_PROMOS = False
     ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
-
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
-
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     # Enable auto syncing elasticsearch documents
@@ -136,3 +136,6 @@ class DockerBaseSettings(CommunityDevSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+    # This allows us to have CORS work well in dev
+    CORS_ORIGIN_ALLOW_ALL = True
