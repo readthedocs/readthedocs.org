@@ -538,7 +538,7 @@ class ProjectUsersDelete(ProjectUsersMixin, GenericView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class ProjecNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
+class ProjectNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
 
     def get_success_url(self):
         return reverse(
@@ -547,7 +547,7 @@ class ProjecNotificationsMixin(ProjectAdminMixin, PrivateViewMixin):
         )
 
 
-class ProjectNotications(ProjecNotificationsMixin, TemplateView):
+class ProjectNotifications(ProjectNotificationsMixin, TemplateView):
 
     """Project notification view and form view."""
 
@@ -598,7 +598,7 @@ class ProjectNotications(ProjecNotificationsMixin, TemplateView):
         return context
 
 
-class ProjectNoticationsDelete(ProjecNotificationsMixin, GenericView):
+class ProjectNotificationsDelete(ProjectNotificationsMixin, GenericView):
 
     http_method_names = ['post']
 
