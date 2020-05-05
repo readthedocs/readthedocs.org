@@ -1447,7 +1447,6 @@ class EmailHook(Notification):
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
-        blank=True,
         help_text=_('URL to send the webhook to'),
     )
 
@@ -1584,6 +1583,9 @@ class Feature(models.Model):
     CACHED_ENVIRONMENT = 'cached_environment'
     CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
+    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
+    VCS_REMOTE_LISTING = 'vcs_remote_listing'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1661,6 +1663,21 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            FORCE_SPHINX_FROM_VENV,
+            _('Force to use Sphinx from the current virtual environment'),
+        ),
+        (
+            LIST_PACKAGES_INSTALLED_ENV,
+            _(
+                'List packages installed in the environment ("pip list" or "conda list") '
+                'on build\'s output',
+            ),
+        ),
+        (
+            VCS_REMOTE_LISTING,
+            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
         ),
     )
 
