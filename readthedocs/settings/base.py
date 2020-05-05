@@ -91,7 +91,6 @@ class CommunityBaseSettings(Settings):
 
     # Read the Docs
     RTD_IS_PRODUCTION = False
-    RTD_SITE = 'community'
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
     RTD_LATEST_VERBOSE_NAME = 'latest'
@@ -462,29 +461,18 @@ class CommunityBaseSettings(Settings):
             # int and raise a ValueError
             log.exception('Failed to get memory size, using defaults Docker limits.')
 
-    def _get_docker_time_limit_coeff(self):
-        """
-        Get Docker time limit as a percentage of memory limit
-
-        Our hard coded time limits were between 0.225 and 0.3 of the memory
-        limit on community, so 0.25 is used. On commercial, we use 2x that by
-        default, 0.5.
-        """
-        coeff = 0.25
-        # This check could be more explicit, and we should probably just have a
-        # base setting with this. Alternatively, we move this method into
-        if self.RTD_SITE == 'commercial':
-            coeff = 0.5
-        return coeff
+    # Coefficient used to determine build time limit, as a percentage of total
+    # memory. Historical values here were 0.225 to 0.3.
+    DOCKER_TIME_LIMIT_COEFF = 0.25
 
     @property
     def DOCKER_LIMITS(self):
         """
         Set docker limits dynamically, if in production, based on system memory.
 
-        We do this to avoid having separate build images defined by Salt pillar
-        data. This assumes 1 build process per server, which will be allowed to
-        consume all available memory.
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
 
         We substract 750MiB for overhead of processes and base system, and set
         the build time as proportional to the memory limit.
@@ -501,7 +489,7 @@ class CommunityBaseSettings(Settings):
                     'memory': f'{memory_limit}m',
                     'time': max(
                         limits['time'],
-                        round(memory_limit * self._get_docker_time_limit_coeff(), -2),
+                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
                     )
                 }
         return limits
