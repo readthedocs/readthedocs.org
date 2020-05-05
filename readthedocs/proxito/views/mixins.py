@@ -120,25 +120,7 @@ class ServeDocsMixin:
                 filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
             response['Content-Disposition'] = f'filename={filename}'
 
-        # Add debugging headers to proxito responses
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = final_project.slug
-        response['X-RTD-Version'] = version_slug
-        # Needed to strip any GET args, etc.
-        response['X-RTD-Path'] = urlparse(path).path
-        # Include the project & project-version so we can do larger purges if needed
-        response['Cache-Tag'] = f'{final_project.slug}-{version_slug},{final_project.slug}'
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Project-Method'] = 'rtdheader'
-        elif hasattr(request, 'subdomain'):
-            response['X-RTD-Project-Method'] = 'subdomain'
-        elif hasattr(request, 'cname'):
-            response['X-RTD-Project-Method'] = 'cname'
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'domain'
-        else:
-            response['X-RTD-Version-Method'] = 'path'
-
+        response.proxito_path = urlparse(path).path
         return response
 
     def _serve_401(self, request, project):

@@ -112,6 +112,39 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    def add_proxito_headers(self, request, response):
+        """Add debugging headers to proxito responses."""
+
+        project_slug = getattr(request, 'host_project_slug', '')
+        version_slug = getattr(request, 'path_version_slug', '')
+        path = getattr(response, 'proxito_path', '')
+
+        response['X-RTD-Domain'] = request.get_host()
+        response['X-RTD-Project'] = project_slug
+
+        if version_slug:
+            response['X-RTD-Version'] = version_slug
+
+        if path:
+            response['X-RTD-Path'] = path
+
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{project_slug}'
+        if version_slug:
+            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
+
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
+
     def process_request(self, request):  # noqa
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
@@ -143,6 +176,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
 
         hsts_header_values = []
+
+        self.add_proxito_headers(request, response)
 
         if not request.is_secure():
             # Only set the HSTS header if the request is over HTTPS
