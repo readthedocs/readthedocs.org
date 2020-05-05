@@ -15,10 +15,13 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        retcode = self.run('hg', 'status', record=False)[0]
-        if retcode == 0:
+        if self.repo_exists():
             return self.pull()
         return self.clone()
+
+    def repo_exists(self):
+        retcode = self.run('hg', 'status', record=False)[0]
+        return retcode == 0
 
     def pull(self):
         (pull_retcode, _, _) = self.run('hg', 'pull')
