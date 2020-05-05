@@ -18,14 +18,14 @@ UnresolvedObject = namedtuple(
 
 class UnresolverBase:
 
-    def unresolve(self, uri):
+    def unresolve(self, url):
         """
         Turn a URL into the component parts that our views would use to process them.
 
         This is useful for lots of places,
         like where we want to figure out exactly what file a URL maps to.
         """
-        parsed = urlparse(uri)
+        parsed = urlparse(url)
         domain = parsed.netloc.split(':', 1)[0]
         path = parsed.path
 
@@ -55,7 +55,11 @@ class UnresolverBase:
             filename=kwargs.get('filename', ''),
         )
 
-        log.info('Unresolved: %s', locals())
+        log.info(
+            'Unresolver parsed:'
+            'url=%s, project=%s lang_slug=%s version_slug=%s filename=%s',
+            url, final_project.slug, lang_slug, version_slug, filename
+        )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
 
 
