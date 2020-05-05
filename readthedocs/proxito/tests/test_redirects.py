@@ -129,3 +129,4 @@ class RedirectTests(BaseDocServing):
             r['Location'],
             'https://project.dev.readthedocs.io/en/latest/test.html',
         )
+

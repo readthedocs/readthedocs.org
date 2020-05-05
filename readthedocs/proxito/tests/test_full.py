@@ -5,6 +5,7 @@ from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
+from textwrap import dedent
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
@@ -18,6 +19,8 @@ from readthedocs.projects.constants import (
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
+    PUBLIC,
+    PRIVATE,
 )
 from readthedocs.projects.models import Project, Domain
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
@@ -195,7 +198,25 @@ class TestFullDocServing(BaseDocServing):
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
 
-    def test_response_hsts(self):
+    def test_public_domain_hsts(self):
+        host = 'project.dev.readthedocs.io'
+        response = self.client.get('/', HTTP_HOST=host)
+        self.assertFalse('strict-transport-security' in response)
+
+        response = self.client.get("/", HTTP_HOST=host, secure=True)
+        self.assertFalse('strict-transport-security' in response)
+
+        with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
+            response = self.client.get('/', HTTP_HOST=host)
+            self.assertFalse('strict-transport-security' in response)
+
+            response = self.client.get("/", HTTP_HOST=host, secure=True)
+            self.assertEqual(
+                response['strict-transport-security'],
+                'max-age=31536000; includeSubDomains; preload',
+            )
+
+    def test_custom_domain_response_hsts(self):
         hostname = 'docs.random.com'
         domain = fixture.get(
             Domain,
@@ -209,10 +230,16 @@ class TestFullDocServing(BaseDocServing):
         response = self.client.get("/", HTTP_HOST=hostname)
         self.assertFalse('strict-transport-security' in response)
 
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
+        self.assertFalse('strict-transport-security' in response)
+
         domain.hsts_max_age = 3600
         domain.save()
 
         response = self.client.get("/", HTTP_HOST=hostname)
+        self.assertFalse('strict-transport-security' in response)
+
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600',
@@ -222,7 +249,7 @@ class TestFullDocServing(BaseDocServing):
         domain.hsts_preload = True
         domain.save()
 
-        response = self.client.get("/", HTTP_HOST=hostname)
+        response = self.client.get("/", HTTP_HOST=hostname, secure=True)
         self.assertTrue('strict-transport-security' in response)
         self.assertEqual(
             response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',
@@ -285,10 +312,71 @@ class TestAdditionalDocViews(BaseDocServing):
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.content,
-            b'User-agent: *\nAllow: /\nSitemap: https://project.readthedocs.io/sitemap.xml\n'
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: # Allow everything
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        self.assertEqual(response.content.decode(), expected)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
+    def test_default_robots_txt_disallow_hidden_versions(self, storage_exists):
+        storage_exists.return_value = False
+        self.project.versions.update(active=True, built=True)
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden',
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
         )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-2',
+            active=True,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-and-inactive',
+            active=False,
+            hidden=True,
+            privacy_level=PUBLIC,
+        )
+        fixture.get(
+            Version,
+            project=self.project,
+            slug='hidden-and-private',
+            active=False,
+            hidden=True,
+            privacy_level=PRIVATE,
+        )
+
+        response = self.client.get(
+            reverse('robots_txt'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = dedent(
+            """
+            User-agent: *
+
+            Disallow: /en/hidden-2/ # Hidden version
+
+            Disallow: /en/hidden/ # Hidden version
+
+            Sitemap: https://project.readthedocs.io/sitemap.xml
+            """
+        ).lstrip()
+        self.assertEqual(response.content.decode(), expected)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
     def test_default_robots_txt_private_version(self, storage_exists):
