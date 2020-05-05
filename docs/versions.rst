@@ -115,7 +115,6 @@ Privacy levels
 Public
 ~~~~~~
 
-This is the easiest and most obvious.
 It means that everything is available to be seen by everyone.
 
 Private
