@@ -20,7 +20,7 @@ git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c
 git+https://github.com/readthedocs/readthedocs-sphinx-search@master
 
 # Test out hoverxref
-git+https://github.com/readthedocs/sphinx-hoverxref@master
+git+https://github.com/readthedocs/sphinx-hoverxref@unresolver
 
 
 Pygments==2.6.1
