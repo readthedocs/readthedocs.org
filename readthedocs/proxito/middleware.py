@@ -112,6 +112,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
         """Add debugging headers to proxito responses."""
 
