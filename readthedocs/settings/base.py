@@ -2,6 +2,7 @@
 
 import getpass
 import os
+import subprocess
 
 from celery.schedules import crontab
 
@@ -89,6 +90,8 @@ class CommunityBaseSettings(Settings):
     )
 
     # Read the Docs
+    RTD_IS_PRODUCTION = False
+    RTD_SITE = 'community'
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
     RTD_LATEST_VERBOSE_NAME = 'latest'
@@ -446,10 +449,62 @@ class CommunityBaseSettings(Settings):
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
         'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
-    DOCKER_LIMITS = {
-        'memory': '1g',
-        'time': 600,
-    }
+
+    def _get_docker_memory_limit(self):
+        try:
+            total_memory = int(subprocess.check_output(
+                "free -m | awk '/^Mem:/{print $2}'",
+                shell=True,
+            ))
+            return round(total_memory - 750, -2)
+        except ValueError:
+            # On systems without a `free` command it will return a string to
+            # int and raise a ValueError
+            log.exception('Failed to get memory size, using defaults Docker limits.')
+
+    def _get_docker_time_limit_coeff(self):
+        """
+        Get Docker time limit as a percentage of memory limit
+
+        Our hard coded time limits were between 0.225 and 0.3 of the memory
+        limit on community, so 0.25 is used. On commercial, we use 2x that by
+        default, 0.5.
+        """
+        coeff = 0.25
+        # This check could be more explicit, and we should probably just have a
+        # base setting with this. Alternatively, we move this method into
+        if self.RTD_SITE == 'commercial':
+            coeff = 0.5
+        return coeff
+
+    @property
+    def DOCKER_LIMITS(self):
+        """
+        Set docker limits dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images defined by Salt pillar
+        data. This assumes 1 build process per server, which will be allowed to
+        consume all available memory.
+
+        We substract 750MiB for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
+        # Our normal default
+        limits = {
+            'memory': '1g',
+            'time': 600,
+        }
+        if self.RTD_IS_PRODUCTION:
+            memory_limit = self._get_docker_memory_limit()
+            if memory_limit:
+                limits = {
+                    'memory': f'{memory_limit}m',
+                    'time': max(
+                        limits['time'],
+                        round(memory_limit * self._get_docker_time_limit_coeff(), -2),
+                    )
+                }
+        return limits
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
