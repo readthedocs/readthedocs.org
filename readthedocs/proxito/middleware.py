@@ -112,7 +112,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
-    def process_request(self, request):  # noqa
+    def process_request(self, request):  # pylint: disable=no-self-use
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
             log.debug('Not processing Proxito middleware')
