@@ -241,11 +241,10 @@ def process_mkdocs_index_file(json_storage_path, page):
                 'title': title,
                 'domain_data': {},
             })
-        else:
-            page_data.setdefault('sections', []).append({
-                'id': fragment,
-                'title': title,
-                'content': content,
-            })
+        page_data.setdefault('sections', []).append({
+            'id': fragment,
+            'title': title,
+            'content': content,
+        })
 
     return page_data

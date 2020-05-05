@@ -26,6 +26,11 @@
       "location": "versions/#versions-themes",
       "text": "Versions & Themes There are a number of versions and themes for mkdocs.",
       "title": "Versions &amp; Themes"
+    },
+    {
+      "location": "no-title/",
+      "text": "No title",
+      "title": "no-title"
     }
   ]
 }
