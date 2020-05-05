@@ -29,12 +29,15 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        # For some reason `svn status` gives me retcode 0 in non-svn
-        # directories that's why I use `svn info` here.
-        retcode, _, _ = self.run('svn', 'info', record=False)
-        if retcode == 0:
+        if self.repo_exists():
             return self.up()
         return self.co()
+
+    def repo_exists(self):
+        # For some reason `svn status` gives me retcode 0 in non-svn
+        # directories that's why I use `svn info` here.
+        retcode, *_ = self.run('svn', 'info', record=False)
+        return retcode == 0
 
     def up(self):
         retcode = self.run('svn', 'revert', '--recursive', '.')[0]

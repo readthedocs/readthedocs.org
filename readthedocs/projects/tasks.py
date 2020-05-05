@@ -249,11 +249,11 @@ class SyncRepositoryMixin:
         version_post_data = {'repo': version_repo.repo_url}
         tags = None
         branches = None
-        if all([
-                version_repo.supports_lsremote,
-                not version_repo.repo_exists(),
-                self.project.has_feature(Feature.VCS_REMOTE_LISTING),
-        ]):
+        if (
+            version_repo.supports_lsremote and
+            not version_repo.repo_exists() and
+            self.project.has_feature(Feature.VCS_REMOTE_LISTING)
+        ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.

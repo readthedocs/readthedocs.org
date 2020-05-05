@@ -160,3 +160,6 @@ class BaseVCS:
         :type config: readthedocs.config.BuildConfigBase
         """
         raise NotImplementedError
+
+    def repo_exists(self):
+        raise NotImplementedError
