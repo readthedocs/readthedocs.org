@@ -1952,7 +1952,7 @@ msgstr "Ritorna"
 
 #: templates/builds/build_list.html:37
 msgid "Build Version:"
-msgstr "Versione di Compilazione:"
+msgstr "Compila versione:"
 
 #: templates/builds/build_list.html:53
 msgid "Recent Builds"
