@@ -2,45 +2,11 @@
 
 import json
 
-from django.core.cache import cache
 from django.test import TestCase
-from django.test.client import RequestFactory
-from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.core.middleware import SubdomainMiddleware
 from readthedocs.projects.forms import DomainForm
 from readthedocs.projects.models import Domain, Project
-
-
-class MiddlewareTests(TestCase):
-
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = SubdomainMiddleware()
-        self.url = '/'
-        self.old_cache_get = cache.get
-
-    def tearDown(self):
-        cache.get = self.old_cache_get
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_no_cname_creation(self):
-        self.assertEqual(Domain.objects.count(), 0)
-        self.project = get(Project, slug='my_slug')
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='my.valid.hostname')
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 0)
-
-    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
-    def test_no_readthedocs_domain(self):
-        self.assertEqual(Domain.objects.count(), 0)
-        self.project = get(Project, slug='pip')
-        cache.get = lambda x: 'my_slug'
-        request = self.factory.get(self.url, HTTP_HOST='pip.readthedocs.org')
-        self.middleware.process_request(request)
-        self.assertEqual(Domain.objects.count(), 0)
 
 
 class ModelTests(TestCase):
