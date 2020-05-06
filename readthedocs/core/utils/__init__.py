@@ -133,7 +133,7 @@ def prepare_build(
     # to dynamic setting of the Docker limits. This sets a failsafe higher
     # limit, but if no builds hit this limit, it should be safe to remove and
     # rely on Docker to terminate things on time.
-    #time_limit = DOCKER_LIMITS['time']
+    # time_limit = DOCKER_LIMITS['time']
     time_limit = 7200
     try:
         if project.container_time_limit:
