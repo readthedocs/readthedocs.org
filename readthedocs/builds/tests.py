@@ -3,10 +3,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from readthedocs.builds.tasks import TaskRouter
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Project, Feature
-
+from readthedocs.builds.tasks import TaskRouter
+from readthedocs.projects.models import Project
 
 
 class TaskRouterTests(TestCase):
@@ -16,11 +15,6 @@ class TaskRouterTests(TestCase):
             Project,
             build_queue=None,
         )
-        self.feature = fixture.get(
-            Feature,
-            feature_id=Feature.CELERY_ROUTER,
-        )
-        self.feature.projects.add(self.project)
         self.version = self.project.versions.first()
         self.build = fixture.get(
             Build,
@@ -41,12 +35,6 @@ class TaskRouterTests(TestCase):
             'build_pk': self.build.pk,
         }
         self.router = TaskRouter()
-
-    def test_not_under_feature_flag(self):
-        self.feature.projects.remove(self.project)
-        self.assertIsNone(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-        )
 
     def test_project_custom_queue(self):
         self.project.build_queue = 'build:custom'
