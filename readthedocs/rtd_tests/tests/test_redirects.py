@@ -91,7 +91,6 @@ class CustomRedirectTests(TestCase):
             'repo': 'https://github.com/fail/sauce',
             'default_version': LATEST,
             'privacy_level': 'public',
-            'version_privacy_level': 'public',
             'description': 'wat',
             'documentation_type': 'sphinx',
         })

@@ -342,16 +342,6 @@ class Project(models.Model):
             'Level of privacy that you want on the repository.',
         ),
     )
-    version_privacy_level = models.CharField(
-        _('Version Privacy Level'),
-        max_length=20,
-        choices=constants.PRIVACY_CHOICES,
-        default=settings.DEFAULT_PRIVACY_LEVEL,
-        help_text=_(
-            'Default level of privacy you want on built '
-            'versions of documentation.',
-        ),
-    )
 
     # Subprojects
     related_projects = models.ManyToManyField(
