@@ -3,7 +3,6 @@ import logging
 from django.db.models import Avg
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
@@ -46,11 +45,6 @@ class TaskRouter:
         if not version:
             log.info('No Build/Version found. No routing task. task=%s', task)
             return
-
-        # Do no route tasks for projects without the feature flag
-        if not version.project.has_feature(Feature.CELERY_ROUTER):
-            log.info('Project does not have the feature flag. No routing task. task=%s', task)
-            return version.project.build_queue or None
 
         # Do not override the queue defined in the project itself
         if version.project.build_queue:
