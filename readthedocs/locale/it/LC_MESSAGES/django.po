@@ -3323,11 +3323,11 @@ msgstr ""
 
 #: templates/projects/project_version_list.html:26
 msgid "Active Versions"
-msgstr "versioni attivati"
+msgstr "versioni attivate"
 
 #: templates/projects/project_version_list.html:81
 msgid "Inactive Versions"
-msgstr "versioni disattivati"
+msgstr "versioni disattivate"
 
 #: templates/projects/project_version_list.html:108
 msgid "Clean"
