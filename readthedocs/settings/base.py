@@ -2,6 +2,7 @@
 
 import getpass
 import os
+import subprocess
 
 from celery.schedules import crontab
 
@@ -440,13 +441,59 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
         'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
+
+    def _get_docker_memory_limit(self):
+        try:
+            total_memory = int(subprocess.check_output(
+                "free -m | awk '/^Mem:/{print $2}'",
+                shell=True,
+            ))
+            return round(total_memory - 750, -2)
+        except ValueError:
+            # On systems without a `free` command it will return a string to
+            # int and raise a ValueError
+            log.exception('Failed to get memory size, using defaults Docker limits.')
+
+    # Coefficient used to determine build time limit, as a percentage of total
+    # memory. Historical values here were 0.225 to 0.3.
+    DOCKER_TIME_LIMIT_COEFF = 0.25
+
+    @property
+    def DOCKER_LIMITS(self):
+        """
+        Set docker limits dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+
+        We substract 750MiB for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
+        # Our normal default
+        limits = {
+            'memory': '1g',
+            'time': 600,
+        }
+
+        # Only run on our servers
+        if self.READ_THE_DOCS_EXTENSIONS:
+            memory_limit = self._get_docker_memory_limit()
+            if memory_limit:
+                limits = {
+                    'memory': f'{memory_limit}m',
+                    'time': max(
+                        limits['time'],
+                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                    )
+                }
+        return limits
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
