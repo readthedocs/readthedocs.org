@@ -138,7 +138,6 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
-   privacy
 
    localization
 
