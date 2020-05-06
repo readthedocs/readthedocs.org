@@ -1,18 +1,13 @@
 import logging
 
+from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.faceted_search import NestedFacet
-from elasticsearch_dsl.query import Bool, SimpleQueryString, Nested, Match
-
-from django.conf import settings
+from elasticsearch_dsl.query import Bool, Match, Nested, SimpleQueryString
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.search.documents import (
-    PageDocument,
-    ProjectDocument,
-)
-
+from readthedocs.search.documents import PageDocument, ProjectDocument
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +16,11 @@ ALL_FACETS = ['project', 'version', 'role_name', 'language', 'index']
 
 class RTDFacetedSearch(FacetedSearch):
 
-    def __init__(self, user, **kwargs):
+    """Custom wrapper around FacetedSearch."""
+
+    operators = []
+
+    def __init__(self, query=None, filters=None, user=None, **kwargs):
         """
         Pass in a user in order to filter search results by privacy.
 
@@ -33,23 +32,14 @@ class RTDFacetedSearch(FacetedSearch):
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', True)
 
-        # Set filters properly
-        for facet in self.facets:
-            if facet in kwargs:
-                kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
-
-        # Don't pass along unnecessary filters
-        for f in ALL_FACETS:
-            if f in kwargs:
-                del kwargs[f]
-
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
         log.info('Hacking Elastic to fix search connection pooling')
         self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
 
-        super().__init__(**kwargs)
+        filters = filters or {}
+        super().__init__(query, filters, **kwargs)
 
     def query(self, search, query):
         """
@@ -57,7 +47,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         Also:
 
-        * Adds SimpleQueryString instead of default query.
+        * Adds SimpleQueryString with `self.operators` instead of default query.
         * Adds HTML encoding of results to avoid XSS issues.
         """
         search = search.highlight_options(encoder='html', number_of_fragments=3)
