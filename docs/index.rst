@@ -111,8 +111,7 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>` |
-  :doc:`Privacy levels <privacy>`
+  :doc:`Single version docs <single_version>`
 
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
