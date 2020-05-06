@@ -90,7 +90,6 @@ class CommunityBaseSettings(Settings):
     )
 
     # Read the Docs
-    RTD_IS_PRODUCTION = False
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
     RTD_LATEST_VERBOSE_NAME = 'latest'
@@ -482,7 +481,9 @@ class CommunityBaseSettings(Settings):
             'memory': '1g',
             'time': 600,
         }
-        if self.RTD_IS_PRODUCTION:
+
+        # Only run on our servers
+        if self.READ_THE_DOCS_EXTENSIONS:
             memory_limit = self._get_docker_memory_limit()
             if memory_limit:
                 limits = {
