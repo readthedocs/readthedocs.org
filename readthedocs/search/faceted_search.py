@@ -39,7 +39,14 @@ class RTDFacetedSearch(FacetedSearch):
         self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
 
         filters = filters or {}
-        super().__init__(query, filters, **kwargs)
+
+        # We may recieve invalid filters
+        valid_filters = {
+            k: v
+            for k, v in filters.items()
+            if k in self.facets
+        }
+        super().__init__(query=query, filters=valid_filters, **kwargs)
 
     def query(self, search, query):
         """
