@@ -36,6 +36,7 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
 
     # Domains and URLs
+    RTD_IS_PRODUCTION = False
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
@@ -468,7 +469,7 @@ class CommunityBaseSettings(Settings):
         }
 
         # Only run on our servers
-        if self.READ_THE_DOCS_EXTENSIONS:
+        if self.RTD_IS_PRODUCTION:
             memory_limit = self._get_docker_memory_limit()
             if memory_limit:
                 limits = {
