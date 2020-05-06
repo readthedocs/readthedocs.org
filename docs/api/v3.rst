@@ -161,7 +161,7 @@ Projects list
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
     :query string programming_language: programming language code as ``py``, ``js``, etc.
 
-    The ``results`` in response is an array of project data, which is same to the `Project API <https://docs.readthedocs.io/en/stable/api/v3.html#get--api-v3-projects-(string-project_slug)->`_.
+    The ``results`` in response is an array of project data, which is same to the `Project API <#get--api-v3-projects-(string-project_slug)->`_.
 
 
 Project details
@@ -972,7 +972,7 @@ Translations listing
             }]
         }
 
-        The ``results`` in response is an array of project data, which is same to the `Project API <https://docs.readthedocs.io/en/stable/api/v3.html#get--api-v3-projects-(string-project_slug)->`_.
+    The ``results`` in response is an array of project data, which is same to the `Project API <#get--api-v3-projects-(string-project_slug)->`_.
 
 
 Redirects
