@@ -132,7 +132,6 @@
         <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
         {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
         {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
-        {% if taxonomy %} <input type="hidden" name="taxonomy" value="{{ taxonomy }}"> {% endif %}
         {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
         {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
         {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
