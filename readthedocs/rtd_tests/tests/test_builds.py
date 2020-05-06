@@ -68,8 +68,8 @@ class BuildEnvironmentTests(TestCase):
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
-        self.assertEqual(self.mocks.popen.call_count, 3)
-        cmd = self.mocks.popen.call_args_list[2][0]
+        self.assertEqual(self.mocks.popen.call_count, 1)
+        cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegex(cmd[0][0], r'python')
         self.assertRegex(cmd[0][1], r'sphinx-build')
 
@@ -248,7 +248,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.failed)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -300,7 +300,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.successful)
 
     @mock.patch('readthedocs.projects.tasks.api_v2')

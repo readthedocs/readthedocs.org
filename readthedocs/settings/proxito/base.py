@@ -26,13 +26,9 @@ class CommunityProxitoSettingsMixin:
         # Use our new middleware instead of the old one
         classes = super().MIDDLEWARE
         classes = list(classes)
-        index = classes.index(
-            'readthedocs.core.middleware.SubdomainMiddleware'
-        )
-        classes[index] = 'readthedocs.proxito.middleware.ProxitoMiddleware'
+        classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
 
         middleware_to_remove = (
-            'readthedocs.core.middleware.SingleVersionMiddleware',
             'csp.middleware.CSPMiddleware',
         )
         for mw in middleware_to_remove:
