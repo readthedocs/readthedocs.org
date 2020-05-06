@@ -1,6 +1,6 @@
 import pytest
 
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.faceted_search import PageSearch
 
 
 @pytest.mark.django_db
@@ -21,7 +21,7 @@ class TestPageSearch:
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        page_search = PageDocument.faceted_search(query=query, user='')
+        page_search = PageSearch(query=query, user='')
         results = page_search.execute()
 
         assert len(results) == 1
@@ -37,7 +37,7 @@ class TestPageSearch:
         - Where `Foo` or `Bar` is present
         """
         query = 'Elasticsearch Query'
-        page_search = PageDocument.faceted_search(query=query, user='')
+        page_search = PageSearch(query=query, user='')
         results = page_search.execute()
         assert len(results) == 3
 
