@@ -44,6 +44,7 @@ class VersionAdminActionsTest(TestCase):
             os.path.join(self.version.project.doc_path, 'checkouts', self.version.slug),
             os.path.join(self.version.project.doc_path, 'envs', self.version.slug),
             os.path.join(self.version.project.doc_path, 'conda', self.version.slug),
+            os.path.join(self.version.project.doc_path, '.cache'),
         ]
 
         remove_dirs.assert_called_with(expected_del_dirs)
