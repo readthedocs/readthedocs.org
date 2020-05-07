@@ -62,7 +62,8 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
-  :doc:`features`
+  :doc:`features` |
+  :doc:`Server side search </server-side-search>`
 
 * **Configure your documentation**:
   :doc:`Configuration reference <config-file/index>` |
@@ -87,6 +88,7 @@ and some of the core features of Read the Docs.
    :caption: Getting started
 
    features
+   server-side-search
 
    config-file/index
    webhooks
