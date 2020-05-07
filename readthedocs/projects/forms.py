@@ -467,14 +467,6 @@ class WebHookForm(forms.ModelForm):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
-    def clean_url(self):
-        url = self.cleaned_data.get('url')
-        if not url:
-            raise forms.ValidationError(
-                _('This field is required.')
-            )
-        return url
-
     class Meta:
         model = WebHook
         fields = ['url']
@@ -563,8 +555,7 @@ class TranslationBaseForm(forms.Form):
             # bulk update.
             self.translation.main_language_project = self.parent
             self.translation.save()
-            # Run symlinking and other sync logic to make sure we are in a good
-            # state.
+            # Run other sync logic to make sure we are in a good state.
             self.parent.save()
         return self.parent
 

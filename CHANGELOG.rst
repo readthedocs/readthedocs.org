@@ -1,3 +1,51 @@
+Version 4.1.8
+-------------
+
+:Date: May 05, 2020
+
+This release adds a few new features and bugfixes.
+The largest change is the addition of ``hidden`` versions,
+which allows docs to be built but not shown to users on the site.
+This will keep old links from breaking but not direct new users there.
+
+We've also expanded the CDN support to make sure we're passing headers on 3xx and 4xx responses.
+This will allow us to expand the timeout on our CDN.
+
+We've also updated and added a good amount of documentation in this release,
+and we're starting a larger refactor of our docs to help users understand the platform better.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup unresolver logging (`#7019 <https://github.com/readthedocs/readthedocs.org/pull/7019>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add CDN to the installed apps (`#7014 <https://github.com/readthedocs/readthedocs.org/pull/7014>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Emit a better error if no feature flag is found (`#7009 <https://github.com/readthedocs/readthedocs.org/pull/7009>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito headers to redirect responses (`#7007 <https://github.com/readthedocs/readthedocs.org/pull/7007>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add Priority 0 to Celery (`#7006 <https://github.com/readthedocs/readthedocs.org/pull/7006>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update conftest (`#7002 <https://github.com/readthedocs/readthedocs.org/pull/7002>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Start storing JSON data for PR builds (`#7001 <https://github.com/readthedocs/readthedocs.org/pull/7001>`__)
+* `@yarikoptic <https://github.com/yarikoptic>`__: Add a note if build status is not being reported (`#6999 <https://github.com/readthedocs/readthedocs.org/pull/6999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#6997 <https://github.com/readthedocs/readthedocs.org/pull/6997>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Exclusively handle proxito HSTS from the backend (`#6994 <https://github.com/readthedocs/readthedocs.org/pull/6994>`__)
+* `@humitos <https://github.com/humitos>`__: Mention concurrent builds limitation in "Build Process" (`#6993 <https://github.com/readthedocs/readthedocs.org/pull/6993>`__)
+* `@humitos <https://github.com/humitos>`__: Show a list of packages installed on environment (`#6992 <https://github.com/readthedocs/readthedocs.org/pull/6992>`__)
+* `@humitos <https://github.com/humitos>`__: Document SHARE_SPHINX_DOCTREE flag (`#6991 <https://github.com/readthedocs/readthedocs.org/pull/6991>`__)
+* `@humitos <https://github.com/humitos>`__: Contact us via email for Feature Flags (`#6990 <https://github.com/readthedocs/readthedocs.org/pull/6990>`__)
+* `@santos22 <https://github.com/santos22>`__: Alter field url on webhook (`#6988 <https://github.com/readthedocs/readthedocs.org/pull/6988>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Log sync_repository_task when we run it (`#6987 <https://github.com/readthedocs/readthedocs.org/pull/6987>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove old SSL cert warning, since they now work. (`#6985 <https://github.com/readthedocs/readthedocs.org/pull/6985>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: More fixes for automatic Docker limits (`#6982 <https://github.com/readthedocs/readthedocs.org/pull/6982>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add details to our changelog for 4.1.7 (`#6978 <https://github.com/readthedocs/readthedocs.org/pull/6978>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.7 (`#6976 <https://github.com/readthedocs/readthedocs.org/pull/6976>`__)
+* `@humitos <https://github.com/humitos>`__: Remove DOCKER_LIMITS (`#6975 <https://github.com/readthedocs/readthedocs.org/pull/6975>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Catch inifinite canonical redirects (`#6973 <https://github.com/readthedocs/readthedocs.org/pull/6973>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Ensure invoked Sphinx matches importable one (`#6965 <https://github.com/readthedocs/readthedocs.org/pull/6965>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an unresolver similar to our resolver (`#6944 <https://github.com/readthedocs/readthedocs.org/pull/6944>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add support for Mkdocs search (`#6937 <https://github.com/readthedocs/readthedocs.org/pull/6937>`__)
+* `@humitos <https://github.com/humitos>`__: Optimization on `sync_versions` to use ls-remote on Git VCS (`#6930 <https://github.com/readthedocs/readthedocs.org/pull/6930>`__)
+* `@humitos <https://github.com/humitos>`__: Split X-RTD-Version-Method header into two HTTP headers. (`#6907 <https://github.com/readthedocs/readthedocs.org/pull/6907>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to override sign in and sign out views (`#6901 <https://github.com/readthedocs/readthedocs.org/pull/6901>`__)
+* `@stsewd <https://github.com/stsewd>`__: Hide version privacy (`#6808 <https://github.com/readthedocs/readthedocs.org/pull/6808>`__)
+* `@stsewd <https://github.com/stsewd>`__: Implement hidden state for versions (`#6792 <https://github.com/readthedocs/readthedocs.org/pull/6792>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc for privacy levels (`#6194 <https://github.com/readthedocs/readthedocs.org/pull/6194>`__)
+
 Version 4.1.7
 -------------
 
