@@ -5,60 +5,26 @@ import logging
 import os
 import re
 
-from celery import chord, group
 from django.conf import settings
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-
+from readthedocs.projects.constants import (
+    CELERY_HIGH,
+    CELERY_LOW,
+    CELERY_MEDIUM,
+)
 
 log = logging.getLogger(__name__)
-
-
-def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
-    """
-    Run a broadcast across our servers.
-
-    Returns a task group that can be checked for results.
-
-    `callback` should be a task signature that will be run once,
-    after all of the broadcast tasks have finished running.
-    """
-    if type not in ['web', 'app', 'build']:
-        raise ValueError('allowed value of `type` are web, app and build.')
-    if kwargs is None:
-        kwargs = {}
-
-    if type in ['web', 'app']:
-        servers = settings.MULTIPLE_APP_SERVERS
-    elif type in ['build']:
-        servers = settings.MULTIPLE_BUILD_SERVERS
-
-    tasks = []
-    for server in servers:
-        task_sig = task.s(*args, **kwargs).set(queue=server)
-        tasks.append(task_sig)
-    if callback:
-        task_promise = chord(tasks, callback).apply_async()
-    else:
-        # Celery's Group class does some special handling when an iterable with
-        # len() == 1 is passed in. This will be hit if there is only one server
-        # defined in the above queue lists
-        if len(tasks) > 1:
-            task_promise = group(*tasks).apply_async()
-        else:
-            task_promise = group(tasks).apply_async()
-    return task_promise
 
 
 def prepare_build(

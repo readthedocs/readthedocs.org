@@ -4,6 +4,7 @@ import fnmatch
 import logging
 import os
 import re
+from shlex import quote
 from urllib.parse import urlparse
 
 from allauth.socialaccount.providers import registry as allauth_registry
@@ -16,13 +17,12 @@ from django.urls import NoReverseMatch, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from shlex import quote
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.utils import slugify
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -30,9 +30,9 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
+    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
-    HTMLFileQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
@@ -40,17 +40,19 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
+from readthedocs.search.parse_json import (
+    process_file,
+    process_mkdocs_index_file,
+)
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
 from .constants import (
-    MEDIA_TYPES,
-    MEDIA_TYPE_PDF,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
 )
-
 
 log = logging.getLogger(__name__)
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
