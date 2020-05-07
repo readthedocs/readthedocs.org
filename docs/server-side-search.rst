@@ -11,6 +11,11 @@ to provide you better results within your project.
 
 .. note::
 
+   We fallback to the default search engine from your project
+   if our search engine doesn't return any results.
+
+.. note::
+
    Currently, we override the default search engine for Sphinx projects only.
    Mkdocs support will be coming soon!
 
