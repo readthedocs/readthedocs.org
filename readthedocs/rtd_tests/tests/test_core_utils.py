@@ -1,18 +1,14 @@
 """Test core util functions."""
 
-import os
 from unittest import mock
-from unittest.mock import call
 
 import pytest
-from django.http import Http404
 from django.test import TestCase
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.utils import prepare_build, slugify, trigger_build
-from readthedocs.core.utils.general import wipe_version_via_slugs
+from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.projects.constants import (
     CELERY_HIGH,
@@ -302,46 +298,3 @@ class CoreUtilTests(TestCase):
             slugify('A title_-_with separated parts', dns_safe=False),
             'a-title_-_with-separated-parts',
         )
-
-    @mock.patch('readthedocs.core.utils.general.remove_dirs')
-    def test_wipe_version_via_slug(self, remove_dirs):
-        wipe_version_via_slugs(
-            version_slug=self.version.slug,
-            project_slug=self.version.project.slug
-        )
-        expected_del_dirs = [
-            os.path.join(self.version.project.doc_path, 'checkouts', self.version.slug),
-            os.path.join(self.version.project.doc_path, 'envs', self.version.slug),
-            os.path.join(self.version.project.doc_path, 'conda', self.version.slug),
-            os.path.join(self.version.project.doc_path, '.cache'),
-        ]
-
-        remove_dirs.assert_called_with(expected_del_dirs)
-
-    @mock.patch('readthedocs.core.utils.general.remove_dirs')
-    def test_wipe_version_via_slug_wrong_param(self, remove_dirs):
-        self.assertFalse(Version.objects.filter(slug='wrong-slug').exists())
-        with self.assertRaises(Http404):
-            wipe_version_via_slugs(
-                version_slug='wrong-slug',
-                project_slug=self.version.project.slug
-            )
-        remove_dirs.assert_not_called()
-
-    @mock.patch('readthedocs.core.utils.general.remove_dirs')
-    def test_wipe_version_via_slugs_same_version_slug_with_diff_proj(self, remove_dirs):
-        project_2 = get(Project)
-        version_2 = get(Version, project=project_2, slug=self.version.slug)
-        wipe_version_via_slugs(
-            version_slug=version_2.slug,
-            project_slug=project_2.slug,
-        )
-
-        expected_del_dirs = [
-            os.path.join(version_2.project.doc_path, 'checkouts', version_2.slug),
-            os.path.join(version_2.project.doc_path, 'envs', version_2.slug),
-            os.path.join(version_2.project.doc_path, 'conda', version_2.slug),
-            os.path.join(version_2.project.doc_path, '.cache'),
-        ]
-
-        remove_dirs.assert_called_with(expected_del_dirs)
