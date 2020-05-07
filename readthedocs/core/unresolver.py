@@ -13,7 +13,7 @@ from readthedocs.proxito.views.mixins import ServeDocsMixin
 log = logging.getLogger(__name__)
 
 UnresolvedObject = namedtuple(
-    'Unresolved', 'project, language_slug, version_slug, filename, fragment')
+    'Unresolved', 'project, language_slug, version_slug, filename, fragment', 'request')
 
 
 class UnresolverBase:
@@ -60,7 +60,9 @@ class UnresolverBase:
             'url=%s, project=%s lang_slug=%s version_slug=%s filename=%s',
             url, final_project.slug, lang_slug, version_slug, filename
         )
-        return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
+        return UnresolvedObject(
+            final_project, lang_slug, version_slug, filename, parsed.fragment, request
+        )
 
 
 class Unresolver(SettingsOverrideObject):
