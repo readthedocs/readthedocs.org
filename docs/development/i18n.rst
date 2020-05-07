@@ -5,7 +5,7 @@ Internationalization
 This document covers the details regarding internationalization and
 localization that are applied in Read the Docs. The guidelines described are
 mostly based on `Kitsune's localization documentation
-<http://kitsune.readthedocs.io/en/latest/localization.html>`_.
+<https://kitsune.readthedocs.io/en/latest/localization.html>`_.
 
 As with most of the Django applications out there, Read the Docs' i18n/l10n
 framework is based on `GNU gettext <http://www.gnu.org/software/gettext/>`_.
@@ -300,18 +300,20 @@ help pages <http://help.transifex.com/features/client/>`_.
 
 .. note::
 
-   For the Read the Docs community site, we use a `fabric script`_ to follow this process:
+   For the Read the Docs community site, we use `Invoke`_
+   with a `tasks.py file`_ to follow this process:
 
-   .. _fabric script: https://github.com/readthedocs/readthedocs.org/blob/master/fabfile.py
+   .. _Invoke: https://www.pyinvoke.org/
+   .. _tasks.py file: https://github.com/readthedocs/readthedocs.org/blob/master/tasks.py
 
    #. Update files and push sources (English) to Transifex:
 
       .. prompt:: bash $
 
-         fab i18n_push_source
+         invoke l10n.push
 
-   #. Pull changes (new translations) from Transifex:
+   #. Pull the updated translations from Transifex:
 
       .. prompt:: bash $
 
-         fab i18n_pull
+         invoke l10n.pull

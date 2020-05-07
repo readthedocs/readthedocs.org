@@ -8,6 +8,9 @@ from readthedocs.projects.models import Project
 class VersionCompareTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
+    def setUp(self):
+        Project.objects.update(show_version_warning=True)
+
     def test_not_highest(self):
         project = Project.objects.get(slug='read-the-docs')
         version = project.versions.get(slug='0.2.1')

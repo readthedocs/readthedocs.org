@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -690,6 +690,14 @@ class TestNotificationForm(TestCase):
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+        data = {
+            'url': 'https://www.example.com/'
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
 
     def test_wrong_inputs_in_webhookform(self):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)

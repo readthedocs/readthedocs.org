@@ -134,8 +134,19 @@ Versions
           </div>
         {% endif %}
 
+
+
       </div>
     </div>
+
+    {% if total_inactive_versions_count > max_inactive_versions %}
+      <p>
+        {% blocktrans trimmed %}
+          Showing the first {{ max_inactive_versions }} of {{ total_inactive_versions_count }} inactive versions.</a>.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
     {% endif %}
 
   </div>

@@ -1,6 +1,6 @@
 """Tests for search tasks."""
 
-import mock
+from unittest import mock
 import pytest
 
 from django.urls import reverse
@@ -14,6 +14,7 @@ from readthedocs.search import tasks
 
 @pytest.mark.django_db
 @pytest.mark.search
+@pytest.mark.usefixtures("all_projects")
 class TestSearchTasks:
 
     @classmethod

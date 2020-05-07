@@ -7,7 +7,7 @@ from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Version
 from readthedocs.oauth.services.base import SyncServiceError

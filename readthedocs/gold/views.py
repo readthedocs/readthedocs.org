@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext_lazy as _
-from vanilla import DeleteView, DetailView, UpdateView
+from vanilla import DeleteView, DetailView, FormView, GenericView, UpdateView
 
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.payments.mixins import StripeMixin
@@ -98,45 +98,57 @@ class DeleteGoldSubscription(GoldSubscriptionMixin, DeleteView):
         return resp
 
 
-@login_required
-def projects(request):
-    gold_user = get_object_or_404(GoldUser, user=request.user)
-    gold_projects = gold_user.projects.all()
+class GoldProjectsMixin(PrivateViewMixin):
 
-    if request.method == 'POST':
-        form = GoldProjectForm(
-            active_user=request.user,
-            data=request.POST,
-            user=gold_user,
-            projects=gold_projects,
+    def get_gold_user(self):
+        return get_object_or_404(GoldUser, user=self.request.user)
+
+    def get_gold_projects(self):
+        return self.get_gold_user().projects.all()
+
+    def get_success_url(self):
+        return reverse('gold_projects')
+
+
+class GoldProjectsListCreate(GoldProjectsMixin, FormView):
+
+    """Gold Project list view and form view."""
+
+    form_class = GoldProjectForm
+    template_name = 'gold/projects.html'
+
+    def form_valid(self, form):
+        to_add = Project.objects.get(slug=form.cleaned_data['project'])
+        gold_user = self.get_gold_user()
+        gold_user.projects.add(to_add)
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['user'] = self.get_gold_user()
+        kwargs['projects'] = self.get_gold_projects()
+        return self.form_class(self.request.user, data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gold_user'] = self.get_gold_user()
+        context['publishable'] = settings.STRIPE_PUBLISHABLE
+        context['user'] = self.request.user
+        context['projects'] = self.get_gold_projects()
+        return context
+
+
+class GoldProjectRemove(GoldProjectsMixin, GenericView):
+
+    http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        # pylint: disable=unused-argument
+        gold_user = self.get_gold_user()
+
+        project = get_object_or_404(
+            Project.objects.all(),
+            slug=self.kwargs.get('project_slug')
         )
-        if form.is_valid():
-            to_add = Project.objects.get(slug=form.cleaned_data['project'])
-            gold_user.projects.add(to_add)
-            return HttpResponseRedirect(reverse('gold_projects'))
-    else:
-        # HACK: active_user=request.user is passed
-        # as argument to get the currently active
-        # user in the GoldProjectForm which is used
-        # to filter the choices based on the user.
-        form = GoldProjectForm(active_user=request.user)
+        gold_user.projects.remove(project)
 
-    return render(
-        request,
-        'gold/projects.html',
-        {
-            'form': form,
-            'gold_user': gold_user,
-            'publishable': settings.STRIPE_PUBLISHABLE,
-            'user': request.user,
-            'projects': gold_projects,
-        },
-    )
-
-
-@login_required
-def projects_remove(request, project_slug):
-    gold_user = get_object_or_404(GoldUser, user=request.user)
-    project = get_object_or_404(Project.objects.all(), slug=project_slug)
-    gold_user.projects.remove(project)
-    return HttpResponseRedirect(reverse('gold_projects'))
+        return HttpResponseRedirect(self.get_success_url())

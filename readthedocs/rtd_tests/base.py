@@ -1,35 +1,16 @@
 # -*- coding: utf-8 -*-
 """Base classes and mixins for unit tests."""
 import logging
-import os
-import shutil
-import tempfile
 from collections import OrderedDict
 
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
-from mock import patch
+from unittest.mock import patch
 
 
 log = logging.getLogger(__name__)
-
-
-class RTDTestCase(TestCase):
-    def setUp(self):
-        self.original_DOCROOT = settings.DOCROOT
-        self.cwd = os.path.dirname(__file__)
-        self.build_dir = tempfile.mkdtemp()
-        log.info('build dir: %s', self.build_dir)
-        if not os.path.exists(self.build_dir):
-            os.makedirs(self.build_dir)
-        settings.DOCROOT = self.build_dir
-
-    def tearDown(self):
-        shutil.rmtree(self.build_dir)
-        settings.DOCROOT = self.original_DOCROOT
 
 
 @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)

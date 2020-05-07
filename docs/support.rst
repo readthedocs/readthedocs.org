@@ -64,7 +64,7 @@ For consulting services around documentation systems,
 you can `contact us <mailto:hello@readthedocs.com?subject=Consulting%20Services%20Inquiry>`_
 or read more at https://readthedocs.com/services/#open-source-support.
 
-.. _Stack Overflow: http://stackoverflow.com/questions/tagged/read-the-docs
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _Github Issue Tracker: https://github.com/readthedocs/readthedocs.org/issues
 .. _Gold: https://readthedocs.org/accounts/gold/
 .. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html

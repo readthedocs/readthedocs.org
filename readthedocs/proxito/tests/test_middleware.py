@@ -1,5 +1,6 @@
 # Copied from test_middleware.py
 
+import pytest
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -10,8 +11,8 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.utils import create_user
 
 
-@override_settings(USE_SUBDOMAIN=True)
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
+@pytest.mark.proxito
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
@@ -36,6 +37,59 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertIsNone(res)
         self.assertEqual(request.cname, True)
         self.assertEqual(request.host_project_slug, 'pip')
+
+    def test_proper_cname_https_upgrade(self):
+        cname = 'docs.random.com'
+        get(Domain, project=self.pip, domain=cname, canonical=True, https=True)
+
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST=cname)
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertTrue(hasattr(request, 'canonicalize'))
+            self.assertEqual(request.canonicalize, 'https')
+
+    def test_canonical_cname_redirect(self):
+        """Requests to the public domain URL should redirect to the custom domain only if the domain is canonical."""
+        cname = 'docs.random.com'
+        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
+
+        request = self.request(self.url, HTTP_HOST='pip.dev.readthedocs.io')
+        res = self.run_middleware(request)
+        self.assertIsNone(res)
+        self.assertFalse(hasattr(request, 'canonicalize'))
+
+        # Make the domain canonical and make sure we redirect
+        domain.canonical = True
+        domain.save()
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST='pip.dev.readthedocs.io')
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertTrue(hasattr(request, 'canonicalize'))
+            self.assertEqual(request.canonicalize, 'canonical-cname')
+
+    # We are not canonicalizing custom domains -> public domain for now
+    @pytest.mark.xfail(strict=True)
+    def test_canonical_cname_redirect_public_domain(self):
+        """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
+        cname = 'docs.random.com'
+        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
+
+        request = self.request(self.url, HTTP_HOST=cname)
+        res = self.run_middleware(request)
+        self.assertIsNone(res)
+        self.assertTrue(hasattr(request, 'canonicalize'))
+        self.assertEqual(request.canonicalize, 'noncanonical-cname')
+
+        # Make the domain canonical and make sure we don't redirect
+        domain.canonical = True
+        domain.save()
+        for url in (self.url, '/subdir/'):
+            request = self.request(url, HTTP_HOST=cname)
+            res = self.run_middleware(request)
+            self.assertIsNone(res)
+            self.assertFalse(hasattr(request, 'canonicalize'))
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')

@@ -32,8 +32,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     SLUMBER_API_HOST = 'http://127.0.0.1:8000'
     PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
-    EXTERNAL_VERSION_URL = 'http://127.0.0.1:8000/static/external'
-
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
@@ -41,7 +39,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
     # For testing locally. Put this in your /etc/hosts:
     # 127.0.0.1 test
@@ -59,6 +56,7 @@ class CommunityDevSettings(CommunityBaseSettings):
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
+        logging['handlers']['console']['level'] = 'DEBUG'
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False

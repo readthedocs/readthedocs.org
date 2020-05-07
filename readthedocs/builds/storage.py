@@ -186,3 +186,16 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         if not self.exists(path):
             return [], []
         return super().listdir(path)
+
+    def url(self, name, *args, **kwargs):  # noqa
+        """
+        Override to accept extra arguments and ignore them all.
+
+        This method helps us to bring compatibility between Azure Blob Storage
+        (which does not use the HTTP method) and Amazon S3 (who requires HTTP
+        method to build the signed URL).
+
+        ``FileSystemStorage`` does not support any other argument than ``name``.
+        https://docs.djangoproject.com/en/2.2/ref/files/storage/#django.core.files.storage.Storage.url
+        """
+        return super().url(name)

@@ -196,12 +196,20 @@ class WebhookMixin:
             'versions': list(to_build),
         }
 
-    def sync_versions(self, project):
-        version = sync_versions(project)
+    def sync_versions(self, project, sync=True):
+        """
+        Trigger a sync and returns a response indicating if the build was triggered or not.
+
+        If `sync` is False, the sync isn't triggered and a response indicating so is returned.
+        """
+        version = None
+        if sync:
+            version = sync_versions(project)
         return {
             'build_triggered': False,
             'project': project.slug,
-            'versions': [version],
+            'versions': [version] if version else [],
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -357,8 +365,38 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return digest.hexdigest()
 
     def handle_webhook(self):
+        """
+        Handle GitHub webhook events.
+
+        It checks for all the events we support currently:
+
+        - PUSH: Triggered on a push to a repository branch. Branch pushes and repository tag pushes
+          also trigger webhook push events.
+
+          .. note::
+
+            ``created`` and ``deleted`` indicate if the push was a branch/tag created or deleted.
+            This is required for old webhook created at Read the Docs that do not register the
+            ``create`` and ``delete`` events.
+
+            Newer webhooks created on Read the Docs, will trigger a PUSH+created=True **and** a
+            CREATE event. We need to handle this in a specific way to not trigger the sync twice.
+
+        - CREATE: Represents a created branch or tag.
+
+        - DELETE: Represents a deleted branch or tag.
+
+        - PULL_REQUEST: Triggered when a pull request is assigned, unassigned, labeled, unlabeled,
+          opened, edited, closed, reopened, synchronize, ready_for_review, locked, unlocked or when
+          a pull request review is requested or removed (``action`` will contain this data)
+
+        See https://developer.github.com/v3/activity/events/types/
+
+        """
         # Get event and trigger other webhook events
         action = self.data.get('action', None)
+        created = self.data.get('created', False)
+        deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -366,20 +404,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
             data=self.data,
             event=event,
         )
-        # Handle push events and trigger builds
-        if event == GITHUB_PUSH:
-            try:
-                branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches)
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
+
+        # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
             return self.sync_versions(self.project)
 
-        if (
-            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
-            event == GITHUB_PULL_REQUEST and action
-        ):
+        # Handle pull request events
+        if all([
+                self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
+                event == GITHUB_PULL_REQUEST,
+                action,
+        ]):
             if (
                 action in
                 [
@@ -388,12 +423,38 @@ class GitHubWebhookView(WebhookMixin, APIView):
                     GITHUB_PULL_REQUEST_SYNC
                 ]
             ):
-                # Handle opened, synchronize, reopened pull_request event.
+                # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
-                # Handle closed pull_request event.
+                # Delete external version when PR is closed
                 return self.get_delete_external_version_response(self.project)
+
+        # Sync versions when push event is created/deleted action
+        if all([
+                event == GITHUB_PUSH,
+                (created or deleted),
+        ]):
+            integration = self.get_integration()
+            events = integration.provider_data.get('events', [])
+            if any([
+                    GITHUB_CREATE in events,
+                    GITHUB_DELETE in events,
+            ]):
+                # GitHub will send PUSH **and** CREATE/DELETE events on a creation/deletion in newer
+                # webhooks. If we receive a PUSH event we need to check if the webhook doesn't
+                # already have the CREATE/DELETE events. So we don't trigger the sync twice.
+                return self.sync_versions(self.project, sync=False)
+
+            return self.sync_versions(self.project)
+
+        # Trigger a build for all branches in the push
+        if event == GITHUB_PUSH:
+            try:
+                branches = [self._normalize_ref(self.data['ref'])]
+                return self.get_response_push(self.project, branches)
+            except KeyError:
+                raise ParseError('Parameter "ref" is required')
 
         return None
 

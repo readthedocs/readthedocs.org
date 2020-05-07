@@ -2,7 +2,7 @@
 import datetime
 import os
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django_dynamic_fixture import fixture, get
@@ -68,8 +68,8 @@ class BuildEnvironmentTests(TestCase):
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
-        self.assertEqual(self.mocks.popen.call_count, 3)
-        cmd = self.mocks.popen.call_args_list[2][0]
+        self.assertEqual(self.mocks.popen.call_count, 1)
+        cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegex(cmd[0][0], r'python')
         self.assertRegex(cmd[0][1], r'sphinx-build')
 
@@ -248,7 +248,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.failed)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -300,7 +300,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.successful)
 
     @mock.patch('readthedocs.projects.tasks.api_v2')
@@ -349,7 +349,7 @@ class BuildEnvironmentTests(TestCase):
         task.config = mock.Mock(conda=None)
 
         env = {
-            'READTHEDOCS': True,
+            'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': version.slug,
             'READTHEDOCS_PROJECT': project.slug,
             'READTHEDOCS_LANGUAGE': project.language,
@@ -380,10 +380,10 @@ class BuildEnvironmentTests(TestCase):
 
 class BuildModelTests(TestCase):
 
-    fixtures = ['test_data']
+    fixtures = ['test_data', 'eric']
 
     def setUp(self):
-        self.eric = User(username='eric')
+        self.eric = User.objects.get(username='eric')
         self.eric.set_password('test')
         self.eric.save()
 
@@ -416,19 +416,19 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         build_two = get(
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 2},
+            _config={'version': 2},
         )
         build_three = get(
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 3},
+            _config={'version': 3},
             success=False,
         )
 
@@ -631,7 +631,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertTrue(external_build.is_external)
@@ -641,7 +641,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertFalse(build.is_external)
@@ -651,7 +651,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertEqual(build.external_version_name, None)
@@ -693,7 +693,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            config={'version': 1},
+            _config={'version': 1},
         )
 
         self.assertEqual(
@@ -709,7 +709,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = 'https://github.com/pypa/pip/pull/{number}/commits/{sha}'.format(
             number=self.external_version.verbose_name,
@@ -725,7 +725,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.external_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = (
             'https://gitlab.com/pypa/pip/commit/'
@@ -741,7 +741,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.pip,
             version=self.pip_version,
-            config={'version': 1},
+            _config={'version': 1},
         )
         expected_url = 'https://github.com/pypa/pip/commit/{sha}'.format(
             sha=build.commit

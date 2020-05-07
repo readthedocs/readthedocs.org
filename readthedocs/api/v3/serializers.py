@@ -3,7 +3,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -11,6 +11,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
@@ -219,6 +220,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
+            'hidden',
             'type',
             'downloads',
             'urls',
@@ -236,7 +238,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
         data = {}
 
         for k, v in downloads.items():
-            if k in ('htmlzip', 'pdf', 'epub'):
+            if k in ('html', 'pdf', 'epub'):
+
+                # Keep backward compatibility
+                if k == 'html':
+                    k = 'htmlzip'
+
                 data[k] = ('http:' if settings.DEBUG else 'https:') + v
 
         return data
@@ -415,6 +422,14 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
             'homepage',
         )
 
+    def validate_name(self, value):
+        potential_slug = slugify(value)
+        if Project.objects.filter(slug=potential_slug).exists():
+            raise serializers.ValidationError(
+                _('Project with slug "{0}" already exists.').format(potential_slug),
+            )
+        return value
+
 
 class ProjectUpdateSerializer(FlexFieldsModelSerializer):
 
@@ -526,7 +541,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     child = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Project.objects.all(),
+        queryset=Project.objects.none(),
     )
 
     class Meta:
@@ -545,6 +560,10 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+        user = self.context['request'].user
+        # TODO: Filter projects using project restrictions for subproject.
+        self.fields['child'].queryset = user.projects.all()
+
     def validate_child(self, value):
         # Check the user is maintainer of the child project
         user = self.context['request'].user
@@ -553,17 +572,9 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
                 _('You do not have permissions on the child project'),
             )
 
-        # Check the child project is not a subproject already
-        if value.superprojects.exists():
-            raise serializers.ValidationError(
-                _('Child is already a subproject of another project'),
-            )
-
-        # Check the child project is already a superproject
-        if value.subprojects.exists():
-            raise serializers.ValidationError(
-                _('Child is already a superproject'),
-            )
+        value.is_valid_as_subproject(
+            self.parent_project, serializers.ValidationError
+        )
         return value
 
     def validate_alias(self, value):
@@ -577,17 +588,9 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     # pylint: disable=arguments-differ
     def validate(self, data):
-        # Check the parent and child are not the same project
-        if data['child'].slug == self.parent_project.slug:
-            raise serializers.ValidationError(
-                _('Project can not be subproject of itself'),
-            )
-
-        # Check the parent project is not a subproject already
-        if self.parent_project.superprojects.exists():
-            raise serializers.ValidationError(
-                _('Subproject nesting is not supported'),
-            )
+        self.parent_project.is_valid_as_superproject(
+            serializers.ValidationError
+        )
         return data
 
 

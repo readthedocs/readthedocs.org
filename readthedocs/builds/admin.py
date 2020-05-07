@@ -61,21 +61,27 @@ class BuildAdmin(admin.ModelAdmin):
         'state',
         'error',
         'success',
-        'length',
         'cold_storage',
+        'date',
+        'builder',
+        'length',
         'pretty_config',
     )
     readonly_fields = (
+        'date',  # required to be read-only because it's a @property
         'pretty_config',  # required to be read-only because it's a @property
+        'builder',
+        'length',
     )
     list_display = (
         'id',
-        'project',
-        'version_name',
+        'project_slug',
+        'version_slug',
         'success',
         'type',
         'state',
         'date',
+        'builder',
         'length'
     )
     list_filter = ('type', 'state', 'success')
@@ -84,8 +90,11 @@ class BuildAdmin(admin.ModelAdmin):
     inlines = (BuildCommandResultInline,)
     search_fields = ('project__slug', 'version__slug')
 
-    def version_name(self, obj):
-        return obj.version.verbose_name
+    def project_slug(self, obj):
+        return obj.project.slug
+
+    def version_slug(self, obj):
+        return obj.version.slug
 
     def pretty_config(self, instance):
         return _pretty_config(instance)
@@ -201,6 +210,7 @@ class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
         'id',
         'project',
         'priority',
+        'predefined_match_arg',
         'match_arg',
         'action',
         'version_type',

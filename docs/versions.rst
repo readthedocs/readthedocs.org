@@ -21,7 +21,7 @@ If you develop on a branch that is different than the default for your VCS,
 you should set the **Default Branch** to that branch.
 
 You should push a **tag** for each version of your project.
-These tags should be numbered in a way that is consistent with `semantic versioning <http://semver.org/>`_.
+These tags should be numbered in a way that is consistent with `semantic versioning <https://semver.org/>`_.
 This will map to your ``stable`` branch by default.
 
 .. note::
@@ -57,6 +57,53 @@ for example ``http://pip.readthedocs.io/``,
 they will be redirected to the **Default version**.
 This defaults to **latest**,
 but could also point to your latest released version.
+
+States
+------
+
+States define the visibility of a version across the site.
+You can change the states of a version from the :guilabel:`Versions` tab of your project.
+
+Active
+~~~~~~
+
+- **Active**
+
+  - Docs for this version are visible
+  - Builds can be triggered for this version
+
+- **Inactive**
+
+  - Docs for this version aren't visible
+  - Builds can't be triggered for this version
+
+When you deactivate a version, its docs are removed.
+
+Hidden
+~~~~~~
+
+- **Not hidden and Active**
+
+  - This version is listed on the version (flyout) menu on the docs site
+  - This version is shown in search results on the docs site
+
+- **Hidden and Active**
+
+  - This version isn't listed on the version (flyout) menu on the docs site
+  - This version isn't show in search results from another version on the docs site
+    (like on search results from a superproject)
+
+Hiding a version doesn't make it private,
+any user with a link to its docs would be able to see it.
+This is useful when:
+
+- You no longer support a version, but you don't want to remove its docs.
+- You have a work in progress version and don't want to publish its docs just yet. 
+
+.. note::
+
+   Active versions that are hidden will be listed as ``Disallow: /path/to/version/``
+   in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
 
 Version warning
 ---------------

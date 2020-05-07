@@ -48,8 +48,9 @@ def feature_flags_role(typ, rawtext, text, lineno, inliner, options=None,
     requested_feature = utils.unescape(text)
     for feature in all_features:
         if requested_feature.lower() == feature[0].lower():
-            desc = nodes.Text(feature[1], feature[1])
-    return [desc], []
+            return [nodes.Text(feature[1], feature[1])], []
+    raise ValueError(
+        "Unknown feature flag {!r}".format(requested_feature))
 
 
 def setup(_):

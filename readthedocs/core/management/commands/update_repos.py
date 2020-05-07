@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Custom management command to rebuild documentation for all projects.
 
@@ -11,11 +9,9 @@ import logging
 from django.core.management.base import BaseCommand
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.builds.models import Build, Version
+from readthedocs.builds.models import Version
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -27,7 +23,7 @@ class Command(BaseCommand):
     help = __doc__
 
     def add_arguments(self, parser):
-        parser.add_argument('slugs', nargs='+', type=str)
+        parser.add_argument('--slugs', nargs='+', type=str)
 
         parser.add_argument(
             '-f',
@@ -47,36 +43,18 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         force = options['force']
         version = options['version']
+        slugs = options.get('slugs', [])
 
-        if options.get('slugs', []):
-            for slug in options['slugs']:
-                if version and version != 'all':
-                    log.info('Updating version %s for %s', version, slug)
-                    for version in Version.objects.filter(
-                            project__slug=slug,
-                            slug=version,
-                    ):
-                        trigger_build(project=version.project, version=version)
-                elif version == 'all':
+        if slugs:
+            for slug in slugs:
+                if version == 'all':
                     log.info('Updating all versions for %s', slug)
                     for version in Version.objects.filter(
                             project__slug=slug,
                             active=True,
                             uploaded=False,
                     ):
-
-                        build = Build.objects.create(
-                            project=version.project,
-                            version=version,
-                            type='html',
-                            state='triggered',
-                        )
-
-                        # pylint: disable=no-value-for-parameter
-                        tasks.update_docs_task(
-                            version.pk,
-                            build_pk=build.pk,
-                        )
+                        trigger_build(project=version.project, version=version)
                 elif version == INTERNAL:
                     log.info('Updating all internal versions for %s', slug)
                     for version in Version.internal.filter(
@@ -84,20 +62,7 @@ class Command(BaseCommand):
                             active=True,
                             uploaded=False,
                     ):
-
-                        build = Build.objects.create(
-                            project=version.project,
-                            version=version,
-                            type='html',
-                            state='triggered',
-                        )
-
-                        # pylint: disable=no-value-for-parameter
-                        tasks.update_docs_task(
-                            version.project_id,
-                            build_pk=build.pk,
-                            version_pk=version.pk,
-                        )
+                        trigger_build(project=version.project, version=version)
                 elif version == EXTERNAL:
                     log.info('Updating all external versions for %s', slug)
                     for version in Version.external.filter(
@@ -105,20 +70,14 @@ class Command(BaseCommand):
                             active=True,
                             uploaded=False,
                     ):
-
-                        build = Build.objects.create(
-                            project=version.project,
-                            version=version,
-                            type='html',
-                            state='triggered',
-                        )
-
-                        # pylint: disable=no-value-for-parameter
-                        tasks.update_docs_task(
-                            version.project_id,
-                            build_pk=build.pk,
-                            version_pk=version.pk,
-                        )
+                        trigger_build(project=version.project, version=version)
+                elif version:
+                    log.info('Updating version %s for %s', version, slug)
+                    for version in Version.objects.filter(
+                            project__slug=slug,
+                            slug=version,
+                    ):
+                        trigger_build(project=version.project, version=version)
                 else:
                     p = Project.all_objects.get(slug=slug)
                     log.info('Building %s', p)
@@ -130,18 +89,32 @@ class Command(BaseCommand):
                         active=True,
                         uploaded=False,
                 ):
-                    # pylint: disable=no-value-for-parameter
-                    tasks.update_docs_task(
-                        version.pk,
-                        force=force,
-                    )
+                    trigger_build(project=version.project, version=version)
+            elif version == INTERNAL:
+                log.info('Updating all internal versions')
+                for version in Version.internal.filter(
+                        active=True,
+                        uploaded=False,
+                ):
+                    trigger_build(project=version.project, version=version)
+            elif version == EXTERNAL:
+                log.info('Updating all external versions')
+                for version in Version.external.filter(
+                        active=True,
+                        uploaded=False,
+                ):
+                    trigger_build(project=version.project, version=version)
+            elif version:
+                log.info('Updating version %s', version)
+                for version in Version.objects.filter(
+                        slug=version,
+                ):
+                    trigger_build(project=version.project, version=version)
+
             else:
                 log.info('Updating all docs')
                 for project in Project.objects.all():
                     # pylint: disable=no-value-for-parameter
                     default_version = project.get_default_version()
                     version = project.versions.get(slug=default_version)
-                    tasks.update_docs_task(
-                        version.pk,
-                        force=force,
-                    )
+                    trigger_build(project=version.project, version=version)

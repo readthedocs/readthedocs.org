@@ -1,6 +1,6 @@
 import logging
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -169,30 +169,6 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/')
         self.assertContains(r, 'test-slug')
 
-    def test_private_doc_serving(self):
-        kong = self._create_kong('public', 'private')
-
-        self.client.login(username='eric', password='test')
-        Version.objects.create(
-            project=kong, identifier='test id',
-            verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True,
-        )
-        self.client.post(
-            '/dashboard/django-kong/versions/',
-            {
-                'version-test-slug': 'on',
-                'privacy-test-slug': 'private',
-            },
-        )
-        r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.client.login(username='eric', password='test')
-        self.assertEqual(r.status_code, 404)
-
-        # Make sure it doesn't show up as tester
-        self.client.login(username='tester', password='test')
-        r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.assertEqual(r.status_code, 401)
-
 # Private download tests
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
@@ -212,7 +188,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
 
     @override_settings(DEFAULT_PRIVACY_LEVEL='private')
     def test_private_public_repo_downloading(self):
@@ -224,7 +200,7 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
 
         # Auth'd user
         self.client.login(username='eric', password='test')
@@ -232,30 +208,38 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
 
-    @override_settings(DEFAULT_PRIVACY_LEVEL='private')
+    @override_settings(
+        DEFAULT_PRIVACY_LEVEL='private',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
     def test_private_download_filename(self):
         self._create_kong('private', 'private')
 
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/pdf/django-kong/latest/django-kong.pdf')
-        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-latest.pdf')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.pdf')
 
         r = self.client.get('/projects/django-kong/downloads/epub/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/epub/django-kong/latest/django-kong.epub')
-        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-latest.epub')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/epub/django-kong/latest/django-kong.epub')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.epub')
 
         r = self.client.get('/projects/django-kong/downloads/htmlzip/latest/')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r._headers['x-accel-redirect'][1], '/prod_artifacts/media/htmlzip/django-kong/latest/django-kong.zip')
-        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-latest.zip')
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/htmlzip/django-kong/latest/django-kong.zip')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.zip')
 
 # Public download tests
-    @override_settings(DEFAULT_PRIVACY_LEVEL='public')
+    @override_settings(
+        DEFAULT_PRIVACY_LEVEL='public',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
     def test_public_repo_downloading(self):
         self._create_kong('public', 'public')
 
@@ -264,18 +248,24 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.pdf')
 
         # Auth'd user
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.pdf')
 
-    @override_settings(DEFAULT_PRIVACY_LEVEL='public')
+    @override_settings(
+        DEFAULT_PRIVACY_LEVEL='public',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
     def test_public_private_repo_downloading(self):
         self._create_kong('private', 'private')
 
@@ -291,25 +281,33 @@ class PrivacyTests(TestCase):
         r = self.client.get('/projects/django-kong/downloads/')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.pdf')
 
-    @override_settings(DEFAULT_PRIVACY_LEVEL='public')
+    @override_settings(
+        DEFAULT_PRIVACY_LEVEL='public',
+        PUBLIC_DOMAIN='readthedocs.io',
+        USE_SUBDOMAIN=True,
+    )
     def test_public_download_filename(self):
         self._create_kong('public', 'public')
 
         self.client.login(username='eric', password='test')
         r = self.client.get('/projects/django-kong/downloads/pdf/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/pdf/django-kong/latest/django-kong.pdf')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.pdf')
 
         r = self.client.get('/projects/django-kong/downloads/epub/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/epub/django-kong/latest/django-kong.epub')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/epub/django-kong/latest/django-kong.epub')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.epub')
 
         r = self.client.get('/projects/django-kong/downloads/htmlzip/latest/')
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r._headers['location'][1], '/media/htmlzip/django-kong/latest/django-kong.zip')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r._headers['x-accel-redirect'][1], '/proxito/media/htmlzip/django-kong/latest/django-kong.zip')
+        self.assertEqual(r._headers['content-disposition'][1], 'filename=django-kong-readthedocs-io-en-latest.zip')
 
 # Build Filtering
 

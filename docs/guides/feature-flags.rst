@@ -4,10 +4,10 @@ Feature Flags
 Read the Docs offers some additional flag settings which can be only be configured by the site admin.
 These are optional settings and you might not need it for every project.
 By default, these flags are disabled for every project.
-A separate request can be made by opening an issue on our `github`_ to enable
+A separate request can be made by `contacting us via email`_ to enable
 or disable one or more of these featured flags for a particular project.
 
-.. _github: https://github.com/readthedocs/readthedocs.org
+.. _contacting us via email: mailto:support@readthedocs.org
 
 Available Flags
 ---------------
@@ -37,4 +37,12 @@ e.g. python-reno release notes manager is known to do that
 
 ``EXTERNAL_VERSION_BUILD``: :featureflags:`EXTERNAL_VERSION_BUILD`
 
-``SEARCH_ANALYTICS``: :featureflags:`SEARCH_ANALYTICS`
+``LIST_PACKAGES_INSTALLED_ENV``: :featureflags:`LIST_PACKAGES_INSTALLED_ENV`
+
+``SHARE_SPHINX_DOCTREE``: :featureflags:`SHARE_SPHINX_DOCTREE`
+
+By default, when Read the Docs runs Sphinx it passes a different output directory for the generated/parsed doctrees
+(the argument ``-d _build/doctrees-{builder}`` is passed to ``sphinx-build``).
+While this is a way to ensure that all the outputs are generated from scratch,
+it may cause your builds to be slow if you have a big set of documentation and builds multiple formats.
+In that case, enabling ``SHARE_SPHINX_DOCTREE`` could help to speed up your builds by sharing the doctree among all the formats.

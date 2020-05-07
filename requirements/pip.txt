@@ -1,10 +1,10 @@
 # Base packages
-pip==19.3.1
+pip==20.0.2
 appdirs==1.4.3
-virtualenv==16.7.7
+virtualenv==20.0.16
 
-django==1.11.25  # pyup: <1.12
-django-extensions==2.2.5
+django==2.2.12  # pyup: <2.3
+django-extensions==2.2.9
 django_polymorphic==2.1.2
 
 djangorestframework==3.10.3
@@ -23,11 +23,11 @@ drf-extensions==0.5.0
 django-vanilla-views==1.0.6
 jsonfield==2.0.2
 
-requests==2.22.0
+requests==2.23.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
-pyyaml==5.1.2
-Pygments==2.4.2
+pyyaml==5.3.1
+Pygments==2.6.1
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
@@ -40,9 +40,9 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
-django-allauth==0.40.0
+django-allauth==0.41.0
 
-GitPython==3.0.4
+GitPython==3.0.8
 
 # Search
 elasticsearch==6.4.0  # pyup: <7.0.0
@@ -69,12 +69,12 @@ selectolax==0.2.1
 orjson==2.0.7  # pyup: ignore
 
 # Utils
-django-gravatar2==1.4.2
+django-gravatar2==1.4.4
 pytz==2019.3
 Unipath==1.1
 django-kombu==0.9.4
-mock==3.0.5
-stripe==2.37.2
+stripe==2.44.0
+regex==2020.4.4
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -91,7 +91,7 @@ nltk==3.4.5
 textblob==0.15.3
 
 django-annoying==0.10.5
-django-messages-extends==0.6.0
+django-messages-extends==0.6.2 
 djangorestframework-jsonp==1.0.2
 django-taggit==1.1.0
 dj-pagination==2.4.0
@@ -103,10 +103,16 @@ packaging==19.2
 django-cors-middleware==1.4.0
 
 # User agent parsing - used for analytics purposes
-user-agents==2.0
+user-agents==2.1
 
 # Utilities used to upload build media to cloud storage
-django-storages==1.7.2
+# django-storages is pinned to this particular commit because it
+# supports generating URLs with other method than GET when using
+# private buckets
+git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c038fa41bf6#egg=django-storages[azure]==1.9.1
 
 # Required only in development and linting
-django-debug-toolbar==2.0
+django-debug-toolbar==2.2
+
+# For enabling content-security-policy
+django-csp==3.6
