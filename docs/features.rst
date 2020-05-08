@@ -64,7 +64,7 @@ Full-Text Search
 
 We provide search across all the projects that we host.
 This actually comes in two different search experiences:
-Dashboard Search on the Read the Docs dashboard and in-doc search on the documentation sites, using your own theming and our search results.
+dashboard search on the Read the Docs dashboard and in-doc search on documentation sites, using your own theme and our search results.
 
 We offer a number of search features:
 

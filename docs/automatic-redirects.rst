@@ -13,8 +13,8 @@ You can reach this page by going to https://docs.readthedocs.io/page/automatic-r
 
 This allows you to create links that are always up to date.
 
-Another way to handle this is the *latest* version.
-You can set your ``latest`` version to a specific version and just always link to latest.
+Another way to handle this is the ``latest`` version.
+You can set your ``latest`` version to a specific version and just always link to ``latest``.
 You can read more about this in our :doc:`versions </versions>` page.
 
 Root URL
@@ -58,4 +58,3 @@ The main challenge of URL routing in Read the Docs is handling redirects correct
 
 The language redirect will work for any of the defined ``LANGUAGE_CODES`` we support.
 The version redirect will work for supported versions.
-

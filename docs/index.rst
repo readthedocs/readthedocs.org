@@ -23,11 +23,11 @@ Multiple versions |:card_index_dividers:|
 
 Open Source and User Focused |:heartbeat:|
     Our code is free and `open source <https://github.com/readthedocs/>`_.
-    :doc:`Our company </about>` is boostrapped and 100% user focused.
-    readthedocs.org hosts documentation for over 100,000 large 
+    :doc:`Our company </about>` is bootstrapped and 100% user focused.
+    |org_brand| hosts documentation for over 100,000 large 
     and small open source projects,
     in almost every human and computer language.
-    readthedocs.com supports hundreds of organizations with product and internal  documentation.
+    |com_brand| supports hundreds of organizations with product and internal documentation.
 
 .. _Read the docs: https://readthedocs.org/
 

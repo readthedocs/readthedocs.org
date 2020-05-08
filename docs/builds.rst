@@ -38,7 +38,7 @@ The first step of the process is that we check out your code from the repository
 If the code is already checked out, we update the copy to the branch that you have specified in your project's configuration.
 
 Then we build the proper backend code for the type of documentation you've selected,
-this is done inside a :ref:`Docker image <builds:Docker images>`.
+this is done inside a :ref:`Docker container <builds:Docker images>`.
 
 At this point, if you need extra requirements,
 or even install your own package in the virtual environment to build your documentation,
@@ -107,4 +107,3 @@ but you can change that using a :doc:`/config-file/index`.
 
 You can see the current Docker build images that we use in our `docker repository <https://github.com/readthedocs/readthedocs-docker-images>`_.
 `Docker Hub <https://hub.docker.com/r/readthedocs/build/>`_ also shows the latest set of images that have been built.
-
