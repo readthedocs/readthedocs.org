@@ -108,6 +108,26 @@ and some of the core features of Read the Docs.
    /faq
 
 
+Step-by-step Guides
+-------------------
+
+These guides will help walk you through specific use cases
+related to Read the Docs itself, documentation tools like Sphinx and MkDocs
+and how to write successful documentation.
+
+* :doc:`/guides/tools`
+* :doc:`/guides/platform`
+* :doc:`/guides/commercial`
+
+.. toctree::
+ :maxdepth: 2
+ :hidden:
+ :caption: Step-by-step Guides
+
+ /guides/tools
+ /guides/platform
+ /guides/commercial
+
 Advanced features of Read the Docs
 ----------------------------------
 
@@ -155,7 +175,6 @@ out of your documentation and Read the Docs.
 
    automation-rules
 
-   guides/index
 
    api/index
 
