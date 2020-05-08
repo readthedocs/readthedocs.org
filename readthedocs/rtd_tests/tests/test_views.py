@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
+from django.core.cache import cache
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
@@ -359,3 +360,36 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(len(body), 23)
             self.assertEqual(body[0][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
+
+
+class TestHomepage(TestCase):
+
+    def setUp(self):
+        self.eric = User(username='eric')
+        self.eric.set_password('test')
+        self.eric.save()
+
+    def tearDown(self):
+        cache.clear()
+
+    def test_homepage_queries_logged_out(self):
+        with self.assertNumQueries(1):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
+
+        # Cache
+        with self.assertNumQueries(0):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
+
+    def test_homepage_queries_logged_in(self):
+        self.client.login(username='eric', password='test')
+
+        with self.assertNumQueries(9):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
+
+        # Cache
+        with self.assertNumQueries(8):
+            r = self.client.get('/')
+            self.assertEqual(r.status_code, 200)
