@@ -1,5 +1,7 @@
 """Search Queries."""
 
+import datetime
+
 from django.db import models
 from django.db.models import Count, Sum
 from django.db.models.functions import TruncDate
@@ -105,11 +107,14 @@ class PageView(models.Model):
         on_delete=models.CASCADE,
     )
     path = models.CharField(max_length=4096)
-    view_count = models.PositiveIntegerField(default=1)
-    date = models.DateField()
+    view_count = models.PositiveIntegerField(default=0)
+    date = models.DateField(default=datetime.date.today, db_index=True)
+
+    class Meta:
+        unique_together = ("project", "version", "path", "date")
 
     def __str__(self):
-        return f'[{self.project.slug}:{self.version.slug}]: {self.path}'
+        return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path}'
 
     @classmethod
     def get_top_viewed_pages(cls, project):
