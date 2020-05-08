@@ -243,44 +243,6 @@ and start suggesting the latest (or newer) one.
 
 To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
 (for example, https://yourproject.readthedocs.io/robots.txt).
+We have documented how to set this up in our :ref:`hosting:Custom robots.txt Pages` docs.
 
 
-Minimal example of ``robots.txt``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-   User-agent: *
-   Disallow: /en/deprecated-version/
-   Disallow: /en/2.0/
-
-.. note::
-
-   See `Google's docs`_ for its full syntax.
-
-This file has to be served as is under ``/robots.txt``.
-
-Setup
-~~~~~
-
-The ``robots.txt`` file will be served from the **default version** of your Project.
-This is because the ``robots.txt`` file is served at the top-level of your domain,
-so we must choose a version to find the file in.
-The **default version** is the best place to look for it.
-
-Sphinx and Mkdocs both have different ways of outputting static files in the build:
-
-Sphinx
-++++++
-
-Sphinx uses `html_extra_path`_ option to add static files to the output.
-You need to create a ``robots.txt`` file and put it under the path defined in ``html_extra_path``.
-
-MkDocs
-++++++
-
-MkDocs needs the ``robots.txt`` to be at the directory defined at `docs_dir`_ config.
-
-.. _Google's docs: https://support.google.com/webmasters/answer/6062608
-.. _html_extra_path: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
-.. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir

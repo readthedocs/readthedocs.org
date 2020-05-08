@@ -73,6 +73,7 @@ and some of the core features of Read the Docs.
   :doc:`/custom_domains` |
   :doc:`/versions` |
   :doc:`/downloadable-formats` |
+  :doc:`/hosting` |
   :doc:`/server-side-search`
 
 * **Connecting with GitHub, BitBucket, or GitLab**:
