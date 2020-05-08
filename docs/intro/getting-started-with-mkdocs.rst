@@ -62,6 +62,11 @@ you can start using Read the Docs by :doc:`importing your docs </intro/import-gu
 
 .. _install MkDocs: https://www.mkdocs.org/#installation
 
+.. warning::
+
+   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   used for your project to build the docs to avoid potential future incompatibilities.
+
 
 External resources
 ------------------

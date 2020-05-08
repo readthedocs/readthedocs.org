@@ -1,8 +1,8 @@
-Versions
-========
+Versioned Documentation
+=======================
 
 Read the Docs supports multiple versions of your repository.
-On the initial import,
+On initial import,
 we will create a ``latest`` version.
 This will point at the default branch for your VCS control: ``master``, ``default``, or ``trunk``.
 
@@ -11,6 +11,9 @@ if your project has any tagged releases.
 ``stable`` will be automatically kept up to date to point at your highest version.
 If you want a custom ``stable`` version,
 create either a tag or branch in your project with that name.
+
+When you have :doc:`/webhooks` configured for your repository,
+we will automatically build each version when you push a commit.
 
 How we envision versions working
 --------------------------------
@@ -48,6 +51,20 @@ Tags and branches
 Read the Docs supports two workflows for versioning: based on tags or branches.
 If you have at least one tag,
 tags will take preference over branches when selecting the stable version.
+
+
+Version Control Support Matrix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+------------+-----------+------------+-----------+
+|            |    Git     |    hg     |   bzr      |     svn   |
++============+============+===========+============+===========+
+| Tags       |    Yes     |    Yes    |   Yes      |    No     |
++------------+------------+-----------+------------+-----------+
+| Branches   |    Yes     |    Yes    |   Yes      |    No     |
++------------+------------+-----------+------------+-----------+
+| Default    |    master  |   default |            |    trunk  |
++------------+------------+-----------+------------+-----------+
 
 Redirects on root URLs
 ----------------------
