@@ -362,34 +362,17 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(body[-1][1], 'hello world')
 
 
-class TestHomepage(TestCase):
-
-    def setUp(self):
-        self.eric = User(username='eric')
-        self.eric.set_password('test')
-        self.eric.save()
+class TestHomepageCache(TestCase):
 
     def tearDown(self):
         cache.clear()
 
-    def test_homepage_queries_logged_out(self):
+    def test_homepage_queries(self):
         with self.assertNumQueries(1):
             r = self.client.get('/')
             self.assertEqual(r.status_code, 200)
 
         # Cache
         with self.assertNumQueries(0):
-            r = self.client.get('/')
-            self.assertEqual(r.status_code, 200)
-
-    def test_homepage_queries_logged_in(self):
-        self.client.login(username='eric', password='test')
-
-        with self.assertNumQueries(9):
-            r = self.client.get('/')
-            self.assertEqual(r.status_code, 200)
-
-        # Cache
-        with self.assertNumQueries(8):
             r = self.client.get('/')
             self.assertEqual(r.status_code, 200)
