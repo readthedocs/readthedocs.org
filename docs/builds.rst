@@ -74,14 +74,16 @@ Build environment
 
 The *Sphinx* and *Mkdocs* builders set the following RTD-specific environment variables when building your documentation:
 
-.. csv-table::
-   :header-rows: 1
+.. csv-table:: Environment Variables
+   :header: Environment variable, Description, Example value
+   :widths: 15, 10, 30
+    
+   ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
+   ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``
+   ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
+   ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
 
- Environment variable, Description, Example value
- ``READTHEDOCS``, Whether the build is running inside RTD, ``True``
- ``READTHEDOCS_VERSION``, The RTD name of the version which is being built, ``latest``
- ``READTHEDOCS_PROJECT``, The RTD slug of the project which is being built, ``my-example-project``
- ``READTHEDOCS_LANGUAGE``, The RTD language slug of the project which is being built, ``en``
+.. Comment to break the table, becuase RST
 
  If you want to learn more about how the build environment works as a low level,
  you can read about it in our :doc:`/development/buildenvironments` docs.
