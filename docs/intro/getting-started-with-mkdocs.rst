@@ -51,7 +51,7 @@ Open up http://127.0.0.1:8000/ in your web browser to see your documentation.
 You can make changes to your Markdown files and your docs will automatically rebuild.
 
 .. figure:: ../_static/images/first-steps/mkdocs-hello-world.png
-    :figwidth: 300px
+    :figwidth: 500px
     :target: ../_static/images/first-steps/mkdocs-hello-world.png
 
     Your MkDocs project is built
