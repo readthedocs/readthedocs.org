@@ -34,7 +34,7 @@ Versioned Documentation
 We support multiple versions of your documentation,
 so that users can find the exact docs for the version they are using.
 We build this on top of the version control system that you're already using.
-Each Version on Read the Docs is just a tag or branch in your repository.
+Each version on Read the Docs is just a tag or branch in your repository.
 
 You don't need to change how you version your code,
 we work with whatever process you are already using.
