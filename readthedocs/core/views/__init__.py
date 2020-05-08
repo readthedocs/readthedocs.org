@@ -7,10 +7,12 @@ and server errors.
 
 import logging
 
-from django.conf import settings
+from django.views.decorators.cache import cache_page
 from django.http import Http404, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+
 
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.general import wipe_version_via_slugs
@@ -23,6 +25,8 @@ class NoProjectException(Exception):
     pass
 
 
+# Cache the homepage queries for an hour
+@method_decorator(cache_page(60 * 60), name='dispatch')
 class HomepageView(TemplateView):
 
     template_name = 'homepage.html'
