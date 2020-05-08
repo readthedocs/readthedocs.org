@@ -4,8 +4,9 @@ Documentation Hosting Features
 The main way that users interact with your documentation is via the hosted HTML that we serve.
 We support a number of important features that you would expect for a documentation host.
 
-.. contents::
+.. contents:: Contents
    :local:
+   :depth: 1
 
 Content Delivery Network (CDN)
 ------------------------------
