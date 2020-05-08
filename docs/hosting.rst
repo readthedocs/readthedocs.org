@@ -44,7 +44,7 @@ as we talk about below.
 Sitemaps
 --------
 
-Sitemaps_ allows us to inform search engines about URLs that are available for crawling
+`Sitemaps <https://www.sitemaps.org/>`__ allows us to inform search engines about URLs that are available for crawling
 and communicate them additional information about each URL of the project:
 
 * when it was last updated,
@@ -56,11 +56,9 @@ Read the Docs automatically generates a sitemap for each project that hosts
 to improve results when performing a search on these search engines.
 This allow us to prioritize results based on the version number, for example
 to show ``stable`` as the top result followed by ``latest`` and then all the project's
-versions sorted following semver_.
+versions sorted following `semantic versioning`_.
 
-.. _semver: https://semver.org/
-.. _Sitemaps: https://www.sitemaps.org/
-
+.. _semantic versioning: https://semver.org/
 
 Custom Not Found (404) Pages
 ----------------------------
