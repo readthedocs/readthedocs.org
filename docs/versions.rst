@@ -45,38 +45,8 @@ which are branches that are maintained over time for a specific release number.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 
-Tags and branches
------------------
-
-Read the Docs supports two workflows for versioning: based on tags or branches.
-If you have at least one tag,
-tags will take preference over branches when selecting the stable version.
-
-
-Version Control Support Matrix
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+------------+------------+-----------+------------+-----------+
-|            |    Git     |    hg     |   bzr      |     svn   |
-+============+============+===========+============+===========+
-| Tags       |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Branches   |    Yes     |    Yes    |   Yes      |    No     |
-+------------+------------+-----------+------------+-----------+
-| Default    |    master  |   default |            |    trunk  |
-+------------+------------+-----------+------------+-----------+
-
-Redirects on root URLs
-----------------------
-
-When a user hits the root URL for your documentation,
-for example ``http://pip.readthedocs.io/``,
-they will be redirected to the **Default version**.
-This defaults to **latest**,
-but could also point to your latest released version.
-
-States
-------
+Version States
+--------------
 
 States define the visibility of a version across the site.
 You can change the states of a version from the :guilabel:`Versions` tab of your project.
@@ -122,6 +92,27 @@ This is useful when:
    Active versions that are hidden will be listed as ``Disallow: /path/to/version/``
    in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
 
+Tags and branches
+-----------------
+
+Read the Docs supports two workflows for versioning: based on tags or branches.
+If you have at least one tag,
+tags will take preference over branches when selecting the stable version.
+
+Version Control Support Matrix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+------------+-----------+------------+-----------+
+|            |    git     |    hg     |   bzr      |     svn   |
++============+============+===========+============+===========+
+| Tags       |    Yes     |    Yes    |   Yes      |    No     |
++------------+------------+-----------+------------+-----------+
+| Branches   |    Yes     |    Yes    |   Yes      |    No     |
++------------+------------+-----------+------------+-----------+
+| Default    |    master  |   default |            |    trunk  |
++------------+------------+-----------+------------+-----------+
+
+
 Version warning
 ---------------
 
@@ -130,3 +121,13 @@ This banner has a text with a link redirecting the users to the latest version o
 
 This feature is disabled by default on new projects,
 you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
+
+
+Redirects on root URLs
+----------------------
+
+When a user hits the root URL for your documentation,
+for example ``http://pip.readthedocs.io/``,
+they will be redirected to the **Default version**.
+This defaults to **latest**,
+but could also point to your latest released version.
