@@ -25,6 +25,9 @@ Our current build limits are:
       * 7GB of memory
       * 4 concurrent builds
 
+      If you are having trouble with your documentation builds,
+      you can reach our support at support@readthedocs.com.
+
 Understanding what's going on
 -----------------------------
 
