@@ -6,7 +6,6 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import (
     Http404,
@@ -41,7 +40,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.mixins import (
     ListViewWithForm,
-    LoginRequiredMixin,
     PrivateViewMixin,
 )
 from readthedocs.core.utils import broadcast, trigger_build
@@ -977,15 +975,6 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-@login_required
-def search_analytics_view(request, project_slug):
-    """View for search analytics."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
@@ -1065,39 +1054,30 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return response
 
 
-class PageViewAdmin(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
-    template_name = 'projects/project_page_views.html'
+    template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
 
-        top_viewed_pages = PageView.get_top_viewed_pages(project)
-        top_viewed_pages_iter = zip(
-            top_viewed_pages['pages'],
-            top_viewed_pages['view_counts']
+        # Count of views for top pages over the month
+        top_pages = PageView.top_viewed_pages(project)
+        top_viewed_pages = zip(
+            top_pages['pages'],
+            top_pages['view_counts']
         )
 
-        all_pages = PageView.objects.filter(project=project).values_list('path', flat=True)
-        if all_pages.exists():
-            all_pages = sorted(list(set(all_pages)))
-            page_path = self.request.GET.get('page', all_pages[0])
-        else:
-            all_pages = []
-            page_path = ''
-
-        page_data = PageView.get_page_view_count_of_one_month(
+        # Aggregate pageviews grouped by day
+        page_data = PageView.page_views_by_date(
             project_slug=project.slug,
-            page_path=page_path
         )
 
         context.update({
-            'top_viewed_pages_iter': top_viewed_pages_iter,
+            'top_viewed_pages': top_viewed_pages,
             'page_data': page_data,
-            'page_path': page_path,
-            'all_pages': all_pages,
         })
 
         return context

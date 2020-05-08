@@ -225,3 +225,14 @@ def increase_page_view_count(project_slug, version_slug, path):
     PageView.objects.filter(pk=page_view.pk).update(
         view_count=F('view_count') + 1
     )
+
+
+@app.task(queue='web')
+def delete_old_page_counts():
+    """
+    Delete page counts older than 30 days.
+
+    This is intended to run from a periodic task daily.
+    """
+    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
+    return PageView.objects.filter(date__lt=thirty_days_ago).delete()

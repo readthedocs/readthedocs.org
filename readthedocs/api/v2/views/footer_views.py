@@ -222,13 +222,14 @@ class BaseFooterHTML(APIView):
             'version_supported': version.supported,
         }
 
-        # increase the page view count
-        page_slug = request.GET.get('page', 'index')
-        increase_page_view_count.delay(
-            project_slug=context['project'].slug,
-            version_slug=context['version'].slug,
-            path=page_slug
-        )
+        # increase the page view count for the given page
+        page_slug = request.GET.get('page', '')
+        if page_slug:
+            increase_page_view_count.delay(
+                project_slug=context['project'].slug,
+                version_slug=context['version'].slug,
+                path=page_slug
+            )
 
         # Allow folks to hook onto the footer response for various information
         # collection, or to modify the resp_data.

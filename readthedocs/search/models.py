@@ -13,7 +13,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
-from readthedocs.search.utils import _get_last_31_days_iter, _get_last_31_days_str
+from readthedocs.search.utils import _last_30_days_iter
 
 
 class SearchQuery(TimeStampedModel):
@@ -61,9 +61,6 @@ class SearchQuery(TimeStampedModel):
         today = timezone.now().date()
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
 
-        # this includes the current day also
-        last_31_days_iter = _get_last_31_days_iter()
-
         qs = cls.objects.filter(
             project__slug=project_slug,
             created__date__lte=today,
@@ -80,14 +77,17 @@ class SearchQuery(TimeStampedModel):
             .values_list('created_date', 'count')
         )
 
-        count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]
+        count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = _get_last_31_days_str(date_format='%d %b')
+        last_30_days_str = [
+            timezone.datetime.strftime(date, '%d %b')
+            for date in _last_30_days_iter()
+        ]
 
         final_data = {
-            'labels': last_31_days_str,
+            'labels': last_30_days_str,
             'int_data': count_data,
         }
 
@@ -114,10 +114,10 @@ class PageView(models.Model):
         unique_together = ("project", "version", "path", "date")
 
     def __str__(self):
-        return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path}'
+        return f'PageView: [{self.project.slug}:{self.version.slug}] - {self.path} for {self.date}'
 
     @classmethod
-    def get_top_viewed_pages(cls, project):
+    def top_viewed_pages(cls, project, since=None):
         """
         Returns top 10 pages according to view counts.
 
@@ -131,9 +131,12 @@ class PageView(models.Model):
         followed by `config-file/v1` and `intro/import-guide` having 120 and
         100 total page views respectively.
         """
+        if since is None:
+            since = timezone.now().date() - timezone.timedelta(days=30)
+
         qs = (
             cls.objects
-            .filter(project=project)
+            .filter(project=project, date__gte=since)
             .values_list('path')
             .annotate(total_views=Sum('view_count'))
             .values_list('path', 'total_views')
@@ -155,9 +158,9 @@ class PageView(models.Model):
         return final_data
 
     @classmethod
-    def get_page_view_count_of_one_month(cls, project_slug, page_path):
+    def page_views_by_date(cls, project_slug, since=None):
         """
-        Returns the total page views count for last 30 days for a particular `page_path`.
+        Returns the total page views count for last 30 days for a particular project.
 
         Structure of returned data is compatible to make graphs.
         Sample returned data::
@@ -166,33 +169,33 @@ class PageView(models.Model):
                 'int_data': [150, 200, 143]
             }
         This data shows that there were 150 page views on 01 July,
-        200 page views on 02 July and 143 page views on 03 July for a particular `page_path`.
+        200 page views on 02 July and 143 page views on 03 July.
         """
-        today = timezone.now().date()
-        last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
-
-        # this includes the current day also
-        last_31_days_iter = _get_last_31_days_iter()
+        if since is None:
+            since = timezone.now().date() - timezone.timedelta(days=30)
 
         qs = cls.objects.filter(
             project__slug=project_slug,
-            path=page_path,
-        ).order_by('-date')
+            date__gt=since,
+        ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
 
         count_dict = dict(
-            qs.values('date')
-            .order_by('date')
-            .values_list('date', 'view_count')
+            qs.order_by('date').values_list('date', 'total_views')
         )
 
-        count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]
+        # This fills in any dates where there is no data
+        # to make sure we have a full 30 days of dates
+        count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = _get_last_31_days_str(date_format='%d %b')
+        last_30_days_str = [
+            timezone.datetime.strftime(date, '%d %b')
+            for date in _last_30_days_iter()
+        ]
 
         final_data = {
-            'labels': last_31_days_str,
+            'labels': last_30_days_str,
             'int_data': count_data,
         }
 

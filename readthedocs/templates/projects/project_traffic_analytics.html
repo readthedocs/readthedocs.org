@@ -3,24 +3,22 @@
 {% load i18n %}
 {% load static %}
 
-{% block title %}{% trans "Page Views" %}{% endblock %}
+{% block title %}{% trans "Traffic Analytics" %}{% endblock %}
 
 {% block nav-dashboard %} class="active"{% endblock %}
 
-{% block project-page-views-active %}active{% endblock %}
-{% block project_edit_content_header %}{% trans "Page Views" %}{% endblock %}
+{% block project-traffic-analytics-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Traffic Analytics" %}{% endblock %}
 
 {% block project_edit_content %}
-	<h3>{% trans "Top Viewed Pages" %}</h3>
-		<div class="module-list">
+  <h3>{% trans "Top viewed pages of the past month" %}</h3>
+    <div class="module-list">
       <div class="module-list-wrapper">
         <ul class="long-list-overflow">
-          {% for page, count in top_viewed_pages_iter %}
+          {% for page, count in top_viewed_pages %}
             <li class="module-item">
               {{ page }}
-              <span class="right quiet">
-                {{ count }} {{ view|pluralize:"s" }}
-              </span>
+              <span class="right quiet">{{ count }}</span>
             </li>
           {% empty %}
             <li class="module-item">
@@ -33,17 +31,10 @@
       </div>
     </div>
 
-	<br/>
+  <br/>
 
-	<h2>{% trans "Page Views Per Page" %}</h2>
-  <form method="GET">
-    <select name="page" onchange="this.form.submit()">
-      {% for option in all_pages %}
-        <option value="{{ option }}" {% if page_path == option %}selected{% endif %}>{{ option }}</option>
-      {% endfor %}
-    </select>
-  </form>
-	<canvas id="page-views-per-page" width="400" height="150"></canvas>
+  <h2>{% trans "Overview of the past month" %}</h2>
+  <canvas id="page-views-per-page" width="400" height="150"></canvas>
 
 {% endblock %}
 
@@ -59,6 +50,8 @@
 
 {% block footerjs %}
   var line_chart = document.getElementById("page-views-per-page").getContext("2d");
+
+  {# Using |safe here is ok since this is just integers and formatted dates #}
   var line_chart_labels = {{ page_data.labels|safe }};
   var line_chart_data = {{ page_data.int_data|safe }};
 
@@ -67,7 +60,7 @@
     data: {
       labels: line_chart_labels,
       datasets: [{
-        label: "# of views for {{ page_path }}",
+        label: "# of views",
         data: line_chart_data,
         fill: false,
         borderColor: "rgba(75, 192, 192, 1)",

@@ -156,21 +156,18 @@ def _get_sorted_results(results, source_key='_source'):
     return sorted_results
 
 
-def _get_last_31_days_iter():
-    """Returns iterator for last 31 days (including today)."""
-    today = timezone.now().date()
-    last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
+def _last_30_days_iter():
+    """Returns iterator for previous 30 days (including today)."""
+    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
 
-    # this includes the current day also
-    last_31_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(31)]
-    return last_31_days_iter
+    # this includes the current day, len() = 31
+    return (thirty_days_ago + timezone.timedelta(days=n) for n in range(31))
 
 
-def _get_last_31_days_str(date_format):
-    """Returns the list of dates in string format for last 31 days (including today)."""
-    last_31_days_iter = _get_last_31_days_iter()
-    last_31_days_str = [
+def _get_last_30_days_str(date_format='%Y-%m-%d'):
+    """Returns the list of dates in string format for previous 30 days (including today)."""
+    last_30_days_str = [
         timezone.datetime.strftime(date, date_format)
-        for date in last_31_days_iter
+        for date in _last_30_days_iter()
     ]
-    return last_31_days_str
+    return last_30_days_str
