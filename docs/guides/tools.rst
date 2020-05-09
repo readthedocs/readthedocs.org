@@ -8,7 +8,6 @@ whether that is Sphinx or MkDocs.
     :maxdepth: 1
 
     adding-custom-css
-    custom-404-page
     intersphinx
     manage-translations
     mkdocs-old-versions

@@ -99,6 +99,8 @@ and some of the core features of Read the Docs.
    /custom_domains
    /versions
    /downloadable-formats
+   /server-side-search
+   /hosting
 
    /connected-accounts
 
@@ -164,7 +166,6 @@ out of your documentation and Read the Docs.
    :glob:
    :caption: Advanced features
 
-   server-side-search
    subprojects
    single_version
    privacy

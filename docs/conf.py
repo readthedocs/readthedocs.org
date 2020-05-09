@@ -137,4 +137,4 @@ linkcheck_ignore = [
 
 
 def setup(app):
-    app.add_stylesheet('css/sphinx_prompt_css.css')
+    app.add_css_file('css/sphinx_prompt_css.css')
