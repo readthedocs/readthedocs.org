@@ -364,6 +364,9 @@ class TestSearchAnalyticsView(TestCase):
 
 class TestHomepageCache(TestCase):
 
+    def setUp(self):
+        cache.clear()
+
     def tearDown(self):
         cache.clear()
 
