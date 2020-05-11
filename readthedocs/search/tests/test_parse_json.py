@@ -57,8 +57,18 @@ class TestParseJSON:
             version=self.version,
             path='versions/index.html',
         )
+        no_title_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='no-title/index.html',
+        )
 
-        parsed_json = [index_file.processed_json, versions_file.processed_json]
+        parsed_json = [
+            index_file.processed_json,
+            versions_file.processed_json,
+            no_title_file.processed_json,
+        ]
         expected_json = json.load(open(data_path / 'mkdocs/out/search_index.json'))
         assert parsed_json == expected_json
 
@@ -87,6 +97,9 @@ class TestParseJSON:
             path='versions/index.html',
         )
 
-        parsed_json = [index_file.processed_json, versions_file.processed_json]
+        parsed_json = [
+            index_file.processed_json,
+            versions_file.processed_json,
+        ]
         expected_json = json.load(open(data_path / 'mkdocs/out/search_index_old.json'))
         assert parsed_json == expected_json
