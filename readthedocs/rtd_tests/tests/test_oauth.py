@@ -34,11 +34,11 @@ class GitHubOAuthTests(TestCase):
         self.user = User.objects.get(pk=1)
         self.project = Project.objects.get(slug='pip')
         self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
-        self.privacy = self.project.version_privacy_level
+        self.privacy = settings.DEFAULT_PRIVACY_LEVEL
         self.service = GitHubService(user=self.user, account=None)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
-            Build, project=self.project, version=self.external_version
+            Build, project=self.project, version=self.external_version, commit='1234',
         )
         self.integration = get(
             GitHubWebhook,
@@ -205,7 +205,7 @@ class GitHubOAuthTests(TestCase):
             self.project,
             self.user,
             404,
-            'https://api.github.com/repos/pypa/pip/statuses/297'
+            'https://api.github.com/repos/pypa/pip/statuses/1234'
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')
@@ -546,7 +546,7 @@ class BitbucketOAuthTests(TestCase):
         self.project.repo = 'https://bitbucket.org/testuser/testrepo/'
         self.project.save()
         self.org = RemoteOrganization.objects.create(slug='rtfd', json='')
-        self.privacy = self.project.version_privacy_level
+        self.privacy = settings.DEFAULT_PRIVACY_LEVEL
         self.service = BitbucketService(user=self.user, account=None)
         self.integration = get(
             GitHubWebhook,
@@ -923,7 +923,7 @@ class GitLabOAuthTests(TestCase):
         self.project.repo = 'https://gitlab.com/testorga/testrepo'
         self.project.save()
         self.org = RemoteOrganization.objects.create(slug='testorga', json='')
-        self.privacy = self.project.version_privacy_level
+        self.privacy = settings.DEFAULT_PRIVACY_LEVEL
         self.service = GitLabService(user=self.user, account=None)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(

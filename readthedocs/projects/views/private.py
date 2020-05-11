@@ -214,11 +214,6 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
-                broadcast(
-                    type='app',
-                    task=tasks.remove_dirs,
-                    args=[version.get_artifact_paths()],
-                )
                 tasks.clean_project_resources(
                     version.project,
                     version,
@@ -237,10 +232,10 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            broadcast(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[version.get_artifact_paths()],
+            log.info('Removing files for version %s', version.slug)
+            tasks.clean_project_resources(
+                version.project,
+                version,
             )
         else:
             return HttpResponseBadRequest(
@@ -457,14 +452,6 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
         return super().get_form(data, files, **kwargs)
-
-    def form_valid(self, form):
-        broadcast(
-            type='app',
-            task=tasks.symlink_subproject,
-            args=[self.get_project().pk],
-        )
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])

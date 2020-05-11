@@ -3,7 +3,6 @@ import logging
 from django.db.models import Avg
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.models import Feature
 
 log = logging.getLogger(__name__)
 
@@ -47,11 +46,6 @@ class TaskRouter:
             log.info('No Build/Version found. No routing task. task=%s', task)
             return
 
-        # Do no route tasks for projects without the feature flag
-        if not version.project.has_feature(Feature.CELERY_ROUTER):
-            log.info('Project does not have the feature flag. No routing task. task=%s', task)
-            return version.project.build_queue or None
-
         # Do not override the queue defined in the project itself
         if version.project.build_queue:
             log.info(
@@ -82,7 +76,7 @@ class TaskRouter:
 
         # Build time average is high
         length_avg = queryset.filter(pk__in=last_builds).aggregate(Avg('length')).get('length__avg')
-        if length_avg > self.TIME_AVERAGE:
+        if length_avg and length_avg > self.TIME_AVERAGE:
             log.info(
                 'Routing task because project has high time average. queue=%s',
                 self.BUILD_LARGE_QUEUE,
