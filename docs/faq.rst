@@ -74,7 +74,7 @@ How do I change behavior when building with Read the Docs?
 ----------------------------------------------------------
 
 When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
-variable to the string `True`. So within your Sphinx :file:`conf.py` file, you
+variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
 can vary the behavior based on this. For example::
 
     import os
@@ -297,7 +297,7 @@ you can request the change sending an email to support@readthedocs.org.
 What commit of Read the Docs is in production?
 ----------------------------------------------
 
-We deploy readthedocs.org from the `rel` branch in our GitHub repository.
+We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
 You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 We also keep an up-to-date :doc:`changelog </changelog>`.

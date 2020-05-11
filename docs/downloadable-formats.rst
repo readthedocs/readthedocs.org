@@ -33,7 +33,7 @@ you can download the Read the Docs documentation in the following formats:
 Use cases
 ---------
 
-This functionality is great for anyone who needs documentation when they aren't connected to the internet
+This functionality is great for anyone who needs documentation when they aren't connected to the internet.
 Users who are about to get on a plane can grab a PDF and have the entire doc set ready for their trip.
 
 The other value is having the entire docset in a single file.

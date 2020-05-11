@@ -24,7 +24,7 @@ Below is an example YAML file which shows the most common configuration options:
     #mkdocs:
     #  configuration: mkdocs.yml
 
-    # Optionally build your docs in additional formats such as PDF and ePub
+    # Optionally build your docs in additional formats such as PDF
     formats: 
       - pdf
 

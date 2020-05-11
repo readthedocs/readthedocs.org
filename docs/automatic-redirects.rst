@@ -8,7 +8,7 @@ Redirecting to a Page
 ---------------------
 
 You can link to a specific page and have it redirect to your default version.
-This is done with the ``/page/`` URL.
+This is done with the ``/page/`` URL prefix.
 You can reach this page by going to https://docs.readthedocs.io/page/automatic-redirects.html.
 
 This allows you to create links that are always up to date.
