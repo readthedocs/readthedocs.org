@@ -6,6 +6,8 @@ import pytest
 from django.core.management import call_command
 from django_dynamic_fixture import G
 
+from readthedocs.builds.constants import STABLE
+from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
@@ -34,37 +36,39 @@ def all_projects(es_index, mock_processed_json, db, settings):
             name=project_slug,
             main_language_project=None,
             privacy_level=PUBLIC,
+            versions=[],
         )
+        G(Version, project=project, slug=STABLE, active=True, built=True)
         project.versions.update(privacy_level=PUBLIC)
 
         for file_basename in PROJECT_DATA_FILES[project.slug]:
             # file_basename in config are without extension so add html extension
             file_name = file_basename + '.html'
-            version = project.versions.all()[0]
-            html_file = G(HTMLFile, project=project, version=version, name=file_name)
+            for version in project.versions.all():
+                html_file = G(HTMLFile, project=project, version=version, name=file_name)
 
-            # creating sphinx domain test objects
-            file_path = get_json_file_path(project.slug, file_basename)
-            if os.path.exists(file_path):
-                with open (file_path) as f:
-                    data = json.load(f)
-                    domains = data['domains']
+                # creating sphinx domain test objects
+                file_path = get_json_file_path(project.slug, file_basename)
+                if os.path.exists(file_path):
+                    with open (file_path) as f:
+                        data = json.load(f)
+                        domains = data['domains']
 
-                    for domain_data in domains:
-                        domain_role_name = domain_data.pop('role_name')
-                        domain, type_ = domain_role_name.split(':')
+                        for domain_data in domains:
+                            domain_role_name = domain_data.pop('role_name')
+                            domain, type_ = domain_role_name.split(':')
 
-                        G(
-                            SphinxDomain,
-                            project=project,
-                            version=version,
-                            html_file=html_file,
-                            domain=domain,
-                            type=type_,
-                            **domain_data
-                        )
+                            G(
+                                SphinxDomain,
+                                project=project,
+                                version=version,
+                                html_file=html_file,
+                                domain=domain,
+                                type=type_,
+                                **domain_data
+                            )
 
-            PageDocument().update(html_file)
+                PageDocument().update(html_file)
 
         projects_list.append(project)
 
