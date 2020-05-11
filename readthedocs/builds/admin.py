@@ -106,8 +106,8 @@ class VersionAdmin(admin.ModelAdmin):
 
     list_display = (
         'slug',
+        'project_slug',
         'type',
-        'project',
         'privacy_level',
         'active',
         'built',
@@ -119,6 +119,9 @@ class VersionAdmin(admin.ModelAdmin):
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
     actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
+
+    def project_slug(self, obj):
+        return obj.project.slug
 
     def wipe_selected_versions(self, request, queryset):
         """Wipes the selected versions."""
