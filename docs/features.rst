@@ -43,8 +43,8 @@ we can recommend one.
 
 Learn more about :doc:`/versions`.
 
-Downloadable Formats 
---------------------
+Downloadable Documentation
+--------------------------
 
 Read the Docs supports building multiple formats for Sphinx-based projects:
 
@@ -57,7 +57,7 @@ This means that every commit that you push will automatically update your PDFs a
 This feature is great for users who are about to get on a plane and want offline docs,
 as well as being able to ship your entire set of documentation as one file.
 
-Learn more about :doc:`/downloadable-formats`.
+Learn more about :doc:`/downloadable-documentation`.
 
 Full-Text Search
 ----------------

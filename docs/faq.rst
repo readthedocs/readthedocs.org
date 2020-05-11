@@ -157,7 +157,7 @@ I want to use the Blue/Default Sphinx theme
 
 We think that our theme is badass,
 and better than the default for many reasons.
-Some people don't like change though :),
+Some people don't like change though |:smile:|,
 so there is a hack that will let you keep using the default theme.
 If you set the ``html_style`` variable in your ``conf.py``,
 it should default to using the default theme.
@@ -301,4 +301,3 @@ We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
 You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 We also keep an up-to-date :doc:`changelog </changelog>`.
->>>>>>> origin/davidfischer/minor-faq-rework

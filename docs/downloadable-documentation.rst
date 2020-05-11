@@ -1,5 +1,5 @@
-Downloadable Formats
-====================
+Downloadable Documentation
+==========================
 
 Read the Docs supports building multiple formats for Sphinx-based projects:
 

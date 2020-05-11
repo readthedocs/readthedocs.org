@@ -10,7 +10,7 @@ We override the default search engine of your project with our search engine
 to provide you better results within your project.
 We fallback to the built-in search engine from your project
 if our search engine doesn't return any results,
-just in case we missed something :)
+just in case we missed something |:smile:|
 
 Search features
 ---------------

@@ -72,7 +72,7 @@ and some of the core features of Read the Docs.
   :doc:`Incoming webhooks </webhooks>` |
   :doc:`/custom_domains` |
   :doc:`/versions` |
-  :doc:`/downloadable-formats` |
+  :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
   :doc:`/server-side-search`
 
@@ -98,7 +98,7 @@ and some of the core features of Read the Docs.
    /webhooks
    /custom_domains
    /versions
-   /downloadable-formats
+   /downloadable-documentation
    /server-side-search
    /hosting
 
