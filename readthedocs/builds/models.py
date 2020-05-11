@@ -320,37 +320,13 @@ class Version(models.Model):
             external=external,
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        """Add permissions to the Version for all owners on save."""
-        from readthedocs.projects import tasks
-        obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
-        return obj
-
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[self.get_artifact_paths()],
-        )
-
         # Remove resources if the version is not external
         if self.type != EXTERNAL:
             tasks.clean_project_resources(self.project, self)
-
-        project_pk = self.project.pk
         super().delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
 
     @property
     def identifier_friendly(self):
@@ -417,23 +393,6 @@ class Version(models.Model):
         if os.path.exists(path):
             return path
         return None
-
-    def get_artifact_paths(self):
-        """
-        Return a list of all production artifacts/media path for this version.
-
-        :rtype: list
-        """
-        paths = []
-
-        for type_ in ('pdf', 'epub', 'htmlzip'):
-            paths.append(
-                self.project
-                .get_production_media_path(type_=type_, version_slug=self.slug),
-            )
-        paths.append(self.project.rtd_build_path(version=self.slug))
-
-        return paths
 
     def get_storage_paths(self):
         """
@@ -623,7 +582,7 @@ class APIVersion(Version):
                 pass
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
 
 
