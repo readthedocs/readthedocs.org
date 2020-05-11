@@ -235,12 +235,17 @@ def process_mkdocs_index_file(json_storage_path, page):
             HTMLParser(section.get('text')).text()
         )
 
+        # If it doesn't have a fragment,
+        # it means is the page itself.
         if not fragment:
             page_data.update({
                 'path': path,
                 'title': title,
                 'domain_data': {},
             })
+        # Content without a fragment need to be indexed as well,
+        # this happens when the page doesn't start with a header,
+        # or if it doesn't contain any headers at all.
         page_data.setdefault('sections', []).append({
             'id': fragment,
             'title': title,
