@@ -205,7 +205,7 @@ def parse_content(content, remove_first_line=False):
     if remove_first_line and len(content) > 1:
         content = content[1:]
 
-    content = map(lambda x: x.strip(), content)
+    content = (text.strip() for text in content)
     content = ' '.join(text for text in content if text)
     return content
 
