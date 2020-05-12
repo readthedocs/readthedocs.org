@@ -20,6 +20,7 @@ Important points:
 * Only supports public VCS repositories
 * All documentation is publicly accessible to the world
 * Less build time and fewer build resources (memory & CPU)
+* Documentation is organized by projects
 
 |com_brand|
 -------------------
@@ -30,9 +31,10 @@ It works well for product documentation as well as internal docs for your develo
 Important points:
 
 * No advertising
-* Allows importing private and public repositories from VCS.
-* Supports private versions that only your organization or people you give access to can see.
+* Allows importing private and public repositories from VCS
+* Supports private versions that only your organization or people you give access to can see
 * More build time and more build resources (memory & CPU)
+* Documentation is organized by organization, giving more control over permissions
 
 
 Questions?
