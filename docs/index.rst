@@ -56,11 +56,12 @@ to help you create fantastic documentation for your project.
    :hidden:
    :caption: First steps
 
-   intro/getting-started-with-sphinx
-   intro/getting-started-with-mkdocs
+   /intro/getting-started-with-sphinx
+   /intro/getting-started-with-mkdocs
 
-   intro/import-guide
-   features
+   /intro/import-guide
+   /features
+   /choosing-a-site
 
 
 Getting started with Read the Docs
