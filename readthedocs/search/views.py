@@ -95,12 +95,10 @@ def elastic_search(request, project_slug=None):
         )
 
     # Make sure our selected facets are displayed even when they return 0 results
-    for avail_facet in ALL_FACETS:
-        value = getattr(user_input, avail_facet, None)
-        if not value or avail_facet not in facets:
-            continue
-        if value not in [val[0] for val in facets[avail_facet]]:
-            facets[avail_facet].insert(0, (value, 0, True))
+    for facet in facets:
+        value = getattr(user_input, facet, None)
+        if value and value not in (val[0] for val in facets[facet]):
+            facets[facet].insert(0, (value, 0, True))
 
     if results:
 
