@@ -787,14 +787,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                     # We upload EXTERNAL version media files to blob storage
                     # We should have this check here to make sure
                     # the files don't get re-uploaded on web.
-                    if self.version.type != EXTERNAL:
-                        self.update_app_instances(
-                            html=bool(outcomes['html']),
-                            search=bool(outcomes['search']),
-                            localmedia=bool(outcomes['localmedia']),
-                            pdf=bool(outcomes['pdf']),
-                            epub=bool(outcomes['epub']),
-                        )
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -1114,9 +1113,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
-        hostname = socket.gethostname()
-
-        delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
         fileify.delay(
@@ -1272,7 +1268,7 @@ def fileify(version_pk, commit, build):
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+    if not version or version.type == EXTERNAL:
         return
     project = version.project
 
