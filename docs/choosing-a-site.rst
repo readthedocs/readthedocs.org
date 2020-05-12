@@ -1,4 +1,4 @@
-Choosing between our two sites
+Choosing Between Our Two Sites
 ==============================
 
 A question our users often have is what the difference is between |org_brand| and |com_brand|.
@@ -30,7 +30,7 @@ It works well for product documentation as well as internal docs for your develo
 Important points:
 
 * No advertising
-* Allows importing *private*and public repositories from VCS.
+* Allows importing private and public repositories from VCS.
 * Supports private versions that only your organization or people you give access to can see.
 * More build time and more build resources (memory & CPU)
 
