@@ -8,13 +8,12 @@ from django.shortcuts import get_object_or_404, render
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
+from readthedocs.search import utils
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
     PageSearch,
     ProjectSearch,
 )
-from readthedocs.search import utils
-
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
@@ -69,15 +68,15 @@ def elastic_search(request, project_slug=None):
     facets = {}
 
     if user_input.query:
-        kwargs = {}
+        filters = {}
 
         for avail_facet in ALL_FACETS:
             value = getattr(user_input, avail_facet, None)
             if value:
-                kwargs[avail_facet] = value
+                filters[avail_facet] = value
 
         search = search_facets[user_input.type](
-            query=user_input.query, user=request.user, **kwargs
+            query=user_input.query, filters=filters, user=request.user,
         )
         results = search[:50].execute()
         facets = results.facets
