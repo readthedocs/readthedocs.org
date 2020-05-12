@@ -29,6 +29,7 @@ mkdocs==1.1
 Markdown==3.2.1
 
 # Docs
+sphinxemoji==0.1.5
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
 sphinx-notfound-page==0.4

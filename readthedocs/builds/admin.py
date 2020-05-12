@@ -61,18 +61,22 @@ class BuildAdmin(admin.ModelAdmin):
         'state',
         'error',
         'success',
-        'length',
         'cold_storage',
+        'date',
+        'builder',
+        'length',
         'pretty_config',
     )
     readonly_fields = (
+        'date',  # required to be read-only because it's a @property
         'pretty_config',  # required to be read-only because it's a @property
         'builder',
+        'length',
     )
     list_display = (
         'id',
-        'project',
-        'version_name',
+        'project_slug',
+        'version_slug',
         'success',
         'type',
         'state',
@@ -86,8 +90,11 @@ class BuildAdmin(admin.ModelAdmin):
     inlines = (BuildCommandResultInline,)
     search_fields = ('project__slug', 'version__slug')
 
-    def version_name(self, obj):
-        return obj.version.verbose_name
+    def project_slug(self, obj):
+        return obj.project.slug
+
+    def version_slug(self, obj):
+        return obj.version.slug
 
     def pretty_config(self, instance):
         return _pretty_config(instance)
@@ -99,8 +106,8 @@ class VersionAdmin(admin.ModelAdmin):
 
     list_display = (
         'slug',
+        'project_slug',
         'type',
-        'project',
         'privacy_level',
         'active',
         'built',
@@ -112,6 +119,9 @@ class VersionAdmin(admin.ModelAdmin):
     search_fields = ('slug', 'project__slug')
     raw_id_fields = ('project',)
     actions = ['build_version', 'reindex_version', 'wipe_version', 'wipe_selected_versions']
+
+    def project_slug(self, obj):
+        return obj.project.slug
 
     def wipe_selected_versions(self, request, queryset):
         """Wipes the selected versions."""

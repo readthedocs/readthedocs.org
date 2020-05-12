@@ -1,5 +1,5 @@
-Custom Domains
-==============
+Custom Domains and White Labeling
+=================================
 
 Once a project is imported into Read the Docs,
 by default it's hosted under a subdomain on one of our domains.

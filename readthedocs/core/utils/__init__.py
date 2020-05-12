@@ -133,7 +133,7 @@ def prepare_build(
     # to dynamic setting of the Docker limits. This sets a failsafe higher
     # limit, but if no builds hit this limit, it should be safe to remove and
     # rely on Docker to terminate things on time.
-    #time_limit = DOCKER_LIMITS['time']
+    # time_limit = DOCKER_LIMITS['time']
     time_limit = 7200
     try:
         if project.container_time_limit:
@@ -288,20 +288,3 @@ def safe_makedirs(directory_name):
     except OSError as e:
         if e.errno != errno.EEXIST:  # 17, FileExistsError
             raise
-
-
-def safe_unlink(path):
-    """
-    Unlink ``path`` symlink using ``os.unlink``.
-
-    This helper handles the exception ``FileNotFoundError`` to avoid logging in
-    cases where the symlink does not exist already and there is nothing to
-    unlink.
-
-    :param path: symlink path to unlink
-    :type path: str
-    """
-    try:
-        os.unlink(path)
-    except FileNotFoundError:
-        log.warning('Unlink failed. Path %s does not exists', path)

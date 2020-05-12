@@ -2,9 +2,10 @@ Configuration File V2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-:doc:`The Read the Docs file <index>` must be in the root directory of your project.
+The :doc:`configuration file <index>` must be in the root directory of your project.
+We recommend the filename ``.readthedocs.yml``.
 
-Below is an example YAML file which may require some changes for your project's configuration:
+Below is an example YAML file which shows the most common configuration options:
 
 .. code:: yaml
 
@@ -23,8 +24,9 @@ Below is an example YAML file which may require some changes for your project's 
     #mkdocs:
     #  configuration: mkdocs.yml
 
-    # Optionally build your docs in additional formats such as PDF and ePub
-    formats: all
+    # Optionally build your docs in additional formats such as PDF
+    formats: 
+      - pdf
 
     # Optionally set the version of Python and requirements required to build your docs
     python:
@@ -36,10 +38,13 @@ Below is an example YAML file which may require some changes for your project's 
 Supported settings
 ------------------
 
-.. note::
+Read the Docs validates every configuration file.
+Any configuration option that isn't supported will make the build fail.
+This is to avoid typos and provide feedback on invalid configurations.
 
-   The presence of any other key that isn't documented here will make the build to fail.
-   This is to avoid typos and provide feedback on invalid configurations.
+.. contents::
+   :local:
+   :depth: 1
 
 version
 ~~~~~~~
@@ -88,15 +93,14 @@ Example:
       # Build all formats
       formats: all
 
-.. note::
+.. warning::
 
-   PDF/epub/htmlzip output is not supported when using MkDocs
+   ``pdf``, ``epub``, and ``htmlzip`` output is not supported when using MkDocs.
 
 python
 ~~~~~~
 
 Configuration of the Python environment to be used.
-Example:
 
 .. code-block:: yaml
 
@@ -223,7 +227,7 @@ Give the virtual environment access to the global site-packages directory.
 Depending on the :ref:`config-file/v2:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
 That you can access to them by enabling this option.
-See :ref:`builds:The build environment` for more details.
+See :doc:`/builds` for more details.
 
 .. warning::
 
@@ -235,7 +239,6 @@ conda
 ~~~~~
 
 Configuration for Conda support.
-Example:
 
 .. code-block:: yaml
 
@@ -254,7 +257,6 @@ build
 ~~~~~
 
 Configuration for the documentation build process.
-Example:
 
 .. code-block:: yaml
 
@@ -285,7 +287,6 @@ sphinx
 
 Configuration for Sphinx documentation
 (this is the default documentation type).
-Example:
 
 .. code-block:: yaml
 
@@ -331,7 +332,6 @@ mkdocs
 ~~~~~~
 
 Configuration for Mkdocs documentation.
-Example:
 
 .. code-block:: yaml
 
@@ -368,11 +368,9 @@ VCS submodules configuration.
 
    Only Git is supported at the moment.
 
-.. note::
+.. warning::
 
    You can't use ``include`` and ``exclude`` settings for submodules at the same time.
-
-Example:
 
 .. code-block:: yaml
 

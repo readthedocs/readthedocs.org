@@ -14,6 +14,11 @@ In order to give Read the Docs access to clone your submodules you'll need to ad
    You can manage which submodules Read the Docs should clone using a configuration file.
    See :ref:`config-file/v2:submodules`.
 
+.. note::
+
+   Make sure you are using ``SSH`` URLs for your submodules
+   (``git@github.com:readthedocs/readthedocs.org.git`` for example)
+   in your ``.gitmodules`` file, not ``http`` URLs.
 
 .. contents:: Table of contents
    :local:
