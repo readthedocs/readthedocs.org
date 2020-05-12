@@ -36,6 +36,7 @@ extensions = [
     'notfound.extension',
     'hoverxref.extension',
     'sphinx_search.extension',
+    'sphinxemoji.sphinxemoji',
 ]
 
 templates_path = ['_templates']
@@ -101,6 +102,10 @@ hoverxref_role_types = {
     'confval': 'tooltip',  # for custom object
 }
 
+rst_epilog = """
+.. |org_brand| replace:: Read the Docs Community
+.. |com_brand| replace:: Read the Docs for Business
+"""
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
@@ -132,4 +137,4 @@ linkcheck_ignore = [
 
 
 def setup(app):
-    app.add_stylesheet('css/sphinx_prompt_css.css')
+    app.add_css_file('css/sphinx_prompt_css.css')

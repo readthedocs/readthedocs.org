@@ -72,8 +72,7 @@ in your documentation output directory (typically ``_build/html/index.html``).
 Open this file in your web browser to see your docs.
 
 .. figure:: ../_static/images/first-steps/sphinx-hello-world.png
-    :align: right
-    :figwidth: 300px
+    :figwidth: 500px
     :target: ../_static/images/first-steps/sphinx-hello-world.png
 
     Your Sphinx project is built
