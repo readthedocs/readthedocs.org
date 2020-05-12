@@ -1,5 +1,5 @@
-Choosing between our two platforms
-==================================
+Choosing between our two sites
+==============================
 
 A question our users often have is what the difference is between |org_brand| and |com_brand|.
 This page will lay out the functional and philosophical differences between the two sites,
