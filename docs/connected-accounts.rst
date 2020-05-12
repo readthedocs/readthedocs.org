@@ -1,5 +1,5 @@
-Connecting Your Account
-=======================
+Connecting Your VCS Account
+===========================
 
 If you are going to import repositories from GitHub, Bitbucket, or GitLab,
 you should connect your Read the Docs account to your repository host first.

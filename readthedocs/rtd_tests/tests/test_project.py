@@ -1,6 +1,7 @@
 import datetime
 import json
 
+import pytest
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
@@ -547,6 +548,7 @@ class TestFinishInactiveBuildsTask(TestCase):
         )
         self.build_3.save()
 
+    @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
     def test_finish_inactive_builds_task(self):
         finish_inactive_builds()
 

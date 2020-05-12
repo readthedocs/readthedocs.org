@@ -342,16 +342,6 @@ class Project(models.Model):
             'Level of privacy that you want on the repository.',
         ),
     )
-    version_privacy_level = models.CharField(
-        _('Version Privacy Level'),
-        max_length=20,
-        choices=constants.PRIVACY_CHOICES,
-        default=settings.DEFAULT_PRIVACY_LEVEL,
-        help_text=_(
-            'Default level of privacy you want on built '
-            'versions of documentation.',
-        ),
-    )
 
     # Subprojects
     related_projects = models.ManyToManyField(
@@ -435,39 +425,6 @@ class Project(models.Model):
             log.exception('Failed to update latest identifier')
 
         try:
-            if not first_save:
-                log.info(
-                    'Re-symlinking project and subprojects: project=%s',
-                    self.slug,
-                )
-                broadcast(
-                    type='app',
-                    task=tasks.symlink_project,
-                    args=[self.pk],
-                )
-                log.info(
-                    'Re-symlinking superprojects: project=%s',
-                    self.slug,
-                )
-                for relationship in self.superprojects.all():
-                    broadcast(
-                        type='app',
-                        task=tasks.symlink_project,
-                        args=[relationship.parent.pk],
-                    )
-
-        except Exception:
-            log.exception('failed to symlink project')
-        try:
-            if not first_save:
-                broadcast(
-                    type='app',
-                    task=tasks.update_static_metadata,
-                    args=[self.pk],
-                )
-        except Exception:
-            log.exception('failed to update static metadata')
-        try:
             branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
@@ -475,17 +432,10 @@ class Project(models.Model):
             log.exception('Error creating default branches')
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-
-        # Remove local FS build artifacts on the web servers
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[(self.doc_path,)],
-        )
+        from readthedocs.projects.tasks import clean_project_resources
 
         # Remove extra resources
-        tasks.clean_project_resources(self)
+        clean_project_resources(self)
 
         super().delete(*args, **kwargs)
 
@@ -579,38 +529,6 @@ class Project(models.Model):
             )
         return folder_path
 
-    def get_production_media_path(self, type_, version_slug, include_file=True):
-        """
-        Used to see if these files exist so we can offer them for download.
-
-        :param type_: Media content type, ie - 'pdf', 'zip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :type include_file: bool
-
-        :returns: Full path to media file or path
-        """
-        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
-            path = os.path.join(
-                settings.MEDIA_ROOT,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        else:
-            path = os.path.join(
-                settings.PRODUCTION_MEDIA_ARTIFACTS,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        if include_file:
-            path = os.path.join(
-                path,
-                '{}.{}'.format(self.slug, type_.replace('htmlzip', 'zip')),
-            )
-        return path
-
     def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
         # Use project domain for full path --same domain as docs
@@ -677,19 +595,6 @@ class Project(models.Model):
     def pip_cache_path(self):
         """Path to pip cache."""
         return os.path.join(self.doc_path, '.cache', 'pip')
-
-    #
-    # Paths for symlinks in project doc_path.
-    #
-    def translations_symlink_path(self, language=None):
-        """Path in the doc_path that we symlink translations."""
-        if not language:
-            language = self.language
-        return os.path.join(self.doc_path, 'translations', language)
-
-    #
-    # End symlink paths
-    #
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project."""
@@ -793,12 +698,6 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        path = self.get_production_media_path(
-            type_=type_, version_slug=version_slug
-        )
-        if os.path.exists(path):
-            return True
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
@@ -1522,27 +1421,12 @@ class Domain(models.Model):
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
         else:
             self.domain = parsed.path
         super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain],
-        )
-
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain, True],
-        )
-        super().delete(*args, **kwargs)
 
 
 class Feature(models.Model):
