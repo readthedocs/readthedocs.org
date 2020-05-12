@@ -2,19 +2,29 @@
 
 import logging
 from urllib.parse import urlparse
-import orjson as json
 
+import orjson as json
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-
 from selectolax.parser import HTMLParser
-
 
 log = logging.getLogger(__name__)
 
 
 def generate_page_sections(page_title, body, fjson_storage_path):
-    """Generate section dicts for each section."""
+    """
+    Generate section dicts for each section for sphinx.
+
+    In Sphinx sub-sections are nested, so they are children of the outer section,
+    and sections with the same level are neighbors.
+    We index the content under a section till before the next one.
+
+    We can have pages that have content before the first title or that don't have a title,
+    we index that content first under the title of the original page (`page_title`).
+
+    Contents that are likely to be a sphinx domain are deleted,
+    since we already index those in another step.
+    """
 
     # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
     nodes_to_be_removed = []
@@ -47,8 +57,7 @@ def generate_page_sections(page_title, body, fjson_storage_path):
             'content': content,
         }
 
-    # sub-sections are nested, so they are children of the outer section.
-    # sections with the same level are neighbors.
+    # Index content from h1 to h6 headers.
     for head_level in range(1, 7):
         tags = body.css(f'.section > h{head_level}')
         for tag in tags:
@@ -63,7 +72,9 @@ def generate_page_sections(page_title, body, fjson_storage_path):
                 'content': _get_content_from_tag(tag.next),
             }
 
+
 def _get_content_from_tag(tag):
+    """Gets the content from tag till before a new section."""
     contents = []
     next_tag = tag
     while next_tag and not _is_section(next_tag):
@@ -75,7 +86,7 @@ def _get_content_from_tag(tag):
 
 
 def _is_section(tag):
-    """Check if the `tag` is a sphinx section (linkeable header)."""
+    """Check if `tag` is a sphinx section (linkeable header)."""
     return (
         tag.tag == 'div' and
         'section' in tag.attributes.get('class', [])
@@ -130,7 +141,7 @@ def process_file(fjson_storage_path):
     return {
         'path': path,
         'title': title,
-        'sections': tuple(sections),
+        'sections': list(sections),
         'domain_data': domain_data,
     }
 
