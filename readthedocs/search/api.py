@@ -42,8 +42,8 @@ class PageSearchSerializer(serializers.Serializer):
         docs_url, doctype = project_data
         path = obj.full_path
 
-        # Generate an appropriate link for the doctype,
-        # And always end it with / so it goes directly to proxito.
+        # Generate an appropriate link for the doctypes that use htmldir,
+        # and always end it with / so it goes directly to proxito.
         if doctype in {SPHINX_HTMLDIR, MKDOCS}:
             new_path = re.sub('(^|/)index.html$', '', path)
             path = path.rstrip('/') + '/'
