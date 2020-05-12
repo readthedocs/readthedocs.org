@@ -1,5 +1,6 @@
 import itertools
 import logging
+import re
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -43,11 +44,9 @@ class PageSearchSerializer(serializers.Serializer):
 
         # Generate an appropriate link for the doctype,
         # And always end it with / so it goes directly to proxito.
-        if (
-            doctype in {SPHINX_HTMLDIR, MKDOCS} and
-            path == 'index.html' or path.endswith('/index.html')
-        ):
-            path = path[:-len('index.html')].rstrip('/') + '/'
+        if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            new_path = re.sub('(^|/)index.html$', '', path)
+            path = path.rstrip('/') + '/'
 
         return docs_url + path
 
@@ -208,8 +207,14 @@ class PageSearchAPIView(generics.ListAPIView):
         from the version. Example:
 
         {
-            "requests": ("https://requests.readthedocs.io/en/latest/", "sphinx"),
-            "requests-oauth": ("https://requests-oauth.readthedocs.io/en/latest/", "sphinx_htmldir"),
+            "requests": (
+                "https://requests.readthedocs.io/en/latest/",
+                "sphinx",
+            ),
+            "requests-oauth": (
+                "https://requests-oauth.readthedocs.io/en/latest/",
+                "sphinx_htmldir",
+            ),
         }
 
         :rtype: dict
