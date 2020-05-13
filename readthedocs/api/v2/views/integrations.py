@@ -340,7 +340,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload validation for project: %s',
+                'Skipping payload signature validation. project=%s',
                 self.project.slug,
             )
             return True
@@ -516,7 +516,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload validation for project: %s',
+                'Skipping payload signature validation. project=%s',
                 self.project.slug,
             )
             return True
