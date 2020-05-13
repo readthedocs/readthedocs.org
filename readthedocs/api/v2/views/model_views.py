@@ -25,7 +25,14 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from .. import utils as api_utils
+from ..utils import (
+    delete_versions_db,
+    sync_versions_db,
+    run_automation_rules,
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+)
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -108,7 +115,7 @@ class ProjectViewSet(UserSelectViewSet):
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
     model = Project
-    pagination_class = api_utils.ProjectPagination
+    pagination_class = ProjectPagination
     filterset_fields = ('slug',)
 
     @decorators.action(detail=True)
@@ -196,20 +203,20 @@ class ProjectViewSet(UserSelectViewSet):
             data = request.data
             added_versions = set()
             if 'tags' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_db(
                     project=project,
                     versions=data['tags'],
                     type=TAG,
                 )
                 added_versions.update(ret_set)
             if 'branches' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_db(
                     project=project,
                     versions=data['branches'],
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions = api_utils.delete_versions(project, data)
+            deleted_versions = delete_versions_db(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -223,7 +230,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            api_utils.run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
@@ -324,7 +331,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
-    pagination_class = api_utils.RemoteOrganizationPagination
+    pagination_class = RemoteOrganizationPagination
 
     def get_queryset(self):
         return (
@@ -341,7 +348,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
-    pagination_class = api_utils.RemoteProjectPagination
+    pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
