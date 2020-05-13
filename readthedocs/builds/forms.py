@@ -20,6 +20,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import RegexAutomationRule, Version
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
+from readthedocs.projects.constants import PUBLIC
 
 
 class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
@@ -82,6 +83,13 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
+
+        # Allow users to make their versions public on save.
+        # TODO: Remove when we dicide to migrate everyone.
+        if not settings.ALLOW_PRIVATE_REPOS and obj.privacy_level != PUBLIC:
+            obj.privacy_level = PUBLIC
+            obj.save()
+
         if obj.active and not obj.built and not obj.uploaded:
             trigger_build(project=obj.project, version=obj)
         return obj
