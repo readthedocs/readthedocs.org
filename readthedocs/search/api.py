@@ -117,21 +117,24 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        kwargs = {'filter_by_user': False, 'filters': {}}
-        kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
-        kwargs['filters']['version'] = self._get_version().slug
+        filters = {}
+        filters['project'] = [p.slug for p in self.get_all_projects()]
+        filters['version'] = self._get_version().slug
 
         # Check to avoid searching all projects in case these filters are empty.
-        if not kwargs['filters']['project']:
+        if not filters['project']:
             log.info("Unable to find a project to search")
             return HTMLFile.objects.none()
-        if not kwargs['filters']['version']:
+        if not filters['version']:
             log.info("Unable to find a version to search")
             return HTMLFile.objects.none()
 
-        user = self.request.user
         queryset = PageSearch(
-            query=query, user=user, **kwargs
+            query=query,
+            filters=filters,
+            user=self.request.user,
+            # We use a permission class to control authorization
+            filter_by_user=False,
         )
         return queryset
 
