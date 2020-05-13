@@ -41,7 +41,13 @@ def all_projects(es_index, mock_processed_json, db, settings):
             # file_basename in config are without extension so add html extension
             file_name = file_basename + '.html'
             version = project.versions.all()[0]
-            html_file = G(HTMLFile, project=project, version=version, name=file_name)
+            html_file = G(
+                HTMLFile,
+                project=project,
+                version=version,
+                name=file_name,
+                path=file_name,
+            )
 
             # creating sphinx domain test objects
             file_path = get_json_file_path(project.slug, file_basename)

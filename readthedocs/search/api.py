@@ -45,8 +45,10 @@ class PageSearchSerializer(serializers.Serializer):
         # Generate an appropriate link for the doctypes that use htmldir,
         # and always end it with / so it goes directly to proxito.
         if doctype in {SPHINX_HTMLDIR, MKDOCS}:
-            new_path = re.sub('(^|/)index.html$', '', path)
-            path = path.rstrip('/') + '/'
+            new_path = re.sub('(^|/)index.html$', '/', path)
+            # docs_url already ends with /,
+            # make sure to not include it twice.
+            path = new_path.lstrip('/')
 
         return docs_url + path
 
@@ -221,17 +223,18 @@ class PageSearchAPIView(generics.ListAPIView):
         """
         all_projects = self.get_all_projects()
         version_slug = self._get_version().slug
-        projects_url = {}
+        project_urls = {}
         for project in all_projects:
-            projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
+            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
 
         versions_doctype = (
             Version.objects
-            .filter(project__slug__in=projects_url.keys(), slug=version_slug)
+            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
             .values_list('project__slug', 'documentation_type')
         )
+
         projects_data = {
-            project_slug: (projects_url[project_slug], doctype)
+            project_slug: (project_urls[project_slug], doctype)
             for project_slug, doctype in versions_doctype
         }
         return projects_data

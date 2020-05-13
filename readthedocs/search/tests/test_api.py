@@ -6,7 +6,14 @@ from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import (
+    MKDOCS,
+    MKDOCS_HTML,
+    PUBLIC,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
+)
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
@@ -323,6 +330,102 @@ class BaseTestDocumentSearch:
         assert len(data) == 1
         first_result = data[0]
         assert first_result['project'] == subproject.slug
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        # Check for a normal page.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+        # Check the main index page.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/index.html')
+
+        # Check the index page of a subdirectory.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/index.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        # Check for a normal page.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+        # Check the main index page.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/')
+
+        # Check the index page of a subdirectory.
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/')
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
