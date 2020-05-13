@@ -7,7 +7,7 @@ import pytest
 from django_dynamic_fixture import get
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
-from readthedocs.projects.constants import MKDOCS
+from readthedocs.projects.constants import MKDOCS, SPHINX
 from readthedocs.projects.models import HTMLFile, Project
 
 data_path = Path(__file__).parent.resolve() / 'data'
@@ -102,4 +102,58 @@ class TestParseJSON:
             versions_file.processed_json,
         ]
         expected_json = json.load(open(data_path / 'mkdocs/out/search_index_old.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_sphinx(self, storage_open, storage_exists):
+        json_file = data_path / 'sphinx/in/page.json'
+        html_content = data_path / 'sphinx/in/page.html'
+
+        json_content = json.load(json_file.open())
+        json_content['body'] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(
+            json.dumps(json_content)
+        )
+        storage_exists.return_value = True
+
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='page.html',
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / 'sphinx/out/page.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_sphinx_page_without_title(self, storage_open, storage_exists):
+        json_file = data_path / 'sphinx/in/no-title.json'
+        html_content = data_path / 'sphinx/in/no-title.html'
+
+        json_content = json.load(json_file.open())
+        json_content['body'] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(
+            json.dumps(json_content)
+        )
+        storage_exists.return_value = True
+
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='no-title.html',
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / 'sphinx/out/no-title.json'))
         assert parsed_json == expected_json
