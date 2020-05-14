@@ -56,8 +56,8 @@ class UnresolverBase:
         )
 
         log.info(
-            'Unresolver parsed:'
-            'url=%s, project=%s lang_slug=%s version_slug=%s filename=%s',
+            'Unresolver parsed: '
+            'url=%s project=%s lang_slug=%s version_slug=%s filename=%s',
             url, final_project.slug, lang_slug, version_slug, filename
         )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
