@@ -171,16 +171,6 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
             partial_query.save()
             return
 
-    # don't record query with zero results.
-    if not total_results:
-        log.debug(
-            'Not recording search query because of zero results. Passed arguments: '
-            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                project_slug, version_slug, query, total_results, time
-            )
-        )
-        return
-
     project = Project.objects.filter(slug=project_slug).first()
     if not project:
         log.debug(
