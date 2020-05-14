@@ -1013,7 +1013,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 qs.values('query')
                 .annotate(count=Count('id'))
                 .order_by('-count', 'query')
-                .values_list('query', 'count')
+                .values_list('query', 'count', 'total_results')
             )
 
             # only show top 100 queries
