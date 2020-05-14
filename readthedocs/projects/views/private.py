@@ -1013,7 +1013,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 qs.values('query')
                 .annotate(count=Count('id'))
                 .order_by('-count', 'query')
-                .values_list('query', 'count')
+                .values_list('query', 'count', 'total_results')
             )
 
             # only show top 100 queries
@@ -1040,7 +1040,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 created__date__lte=now,
             )
             .order_by('-created')
-            .values_list('created', 'query')
+            .values_list('created', 'query', 'total_results')
         )
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
@@ -1052,8 +1052,8 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         file_name = '-'.join([text for text in file_name.split() if text])
 
         csv_data = (
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
-            for time, query in data
+            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
+            for time, query, total_results in data
         )
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
