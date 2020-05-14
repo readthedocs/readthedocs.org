@@ -332,12 +332,11 @@ class BaseTestDocumentSearch:
         assert first_result['project'] == subproject.slug
 
     @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
-    def test_search_correct_link_html_projects(self, api_client, doctype):
+    def test_search_correct_link_for_normal_page_html_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
-        # Check for a normal page.
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -347,11 +346,15 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/support.html')
 
-        # Check the main index page.
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -361,11 +364,15 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/index.html')
 
-        # Check the index page of a subdirectory.
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_subdirectory_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -375,17 +382,15 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/guides/index.html')
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
-    def test_search_correct_link_htmldir_projects(self, api_client, doctype):
+    def test_search_correct_link_for_normal_page_htmldir_projects(self, api_client, doctype):
         project = Project.objects.get(slug='docs')
         project.versions.update(documentation_type=doctype)
         version = project.versions.all().first()
 
-        # Check for a normal page.
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -395,11 +400,15 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/support.html')
 
-        # Check the main index page.
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -409,11 +418,15 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/')
 
-        # Check the index page of a subdirectory.
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
         search_params = {
             'project': project.slug,
             'version': version.slug,
@@ -423,7 +436,6 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
 
         result = resp.data['results'][0]
-
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/guides/')
 

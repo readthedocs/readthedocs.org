@@ -47,7 +47,7 @@ class PageSearchSerializer(serializers.Serializer):
         if doctype in {SPHINX_HTMLDIR, MKDOCS}:
             new_path = re.sub('(^|/)index.html$', '/', path)
             # docs_url already ends with /,
-            # make sure to not include it twice.
+            # so path doesn't need to start with /.
             path = new_path.lstrip('/')
 
         return docs_url + path
