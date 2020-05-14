@@ -881,6 +881,7 @@ class Project(models.Model):
             {
                 'project': self,
                 'only_active': True,
+                'only_built': True,
             },
         )
         versions = (
