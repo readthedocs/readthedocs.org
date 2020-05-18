@@ -11,7 +11,6 @@ This guide will show you some of our favorite integrations:
 .. contents::
    :local:
 
-
 Contextualized tooltips on documentation pages
 ----------------------------------------------
 
@@ -29,7 +28,7 @@ you can install in your project with minimal configuration.
 Here is an example showing a tooltip when you hover with the mouse a reference:
 
 .. figure:: /_static/images/guides/sphinx-hoverxref-example.png
-   :width: 60%
+   :width: 80%
 
    Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
 
@@ -37,13 +36,12 @@ You can find more information about this extension, how to install and configure
 
 .. _hoverxref documentation: https://sphinx-hoverxref.readthedocs.io/
 
-
 Inline help on application website
 ----------------------------------
 
 This allows us to keep the official documentation as the single source of truth,
 while having great inline help in our application website as well.
-On the "Automation Rules" admin page we could embed the content of our :doc:`automation-rules` documentation
+On the "Automation Rules" admin page we could embed the content of our :doc:`/automation-rules` documentation
 page and be sure it will be always up to date.
 
 .. note::
