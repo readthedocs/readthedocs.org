@@ -75,7 +75,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project.slug, 'pip')
         self.assertEqual(parts.language_slug, 'en')
         self.assertEqual(parts.version_slug, '10')
-        self.assertEqual(parts.filename, '')
+        self.assertEqual(parts.filename, 'index.html')
 
     def test_unresolver_unknown_host(self):
         parts = unresolve('http://random.stuff.com/en/latest/')
