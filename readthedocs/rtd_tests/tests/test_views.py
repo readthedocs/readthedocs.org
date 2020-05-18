@@ -263,6 +263,22 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
+    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    def test_build_commit_external_version(self, mock):
+        ver = self.pip.versions.first()
+        ver.commit = 'asd324653546'
+        ver.type = 'external'
+        ver.save()
+        build = get(Build, version=ver, project=self.pip)
+        build.save()
+        r = self.client.post('/projects/pip/builds/',
+            {'version_slug': ver.slug, 'commit': ver.commit, 'build_pk': build.pk}
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r._headers['location'][1],
+            '/projects/pip/builds/%s/' % build.pk,
+        )
 
 class TestSearchAnalyticsView(TestCase):
 

@@ -58,7 +58,8 @@ class BuildTriggerMixin:
         build_pk = request.POST.get('build_pk')
 
         version = get_object_or_404(
-            self._get_versions(project),
+            # Don't filter by internal/external here so we can build all versions
+            Version.objects.public(self.request.user),
             slug=version_slug,
         )
 
