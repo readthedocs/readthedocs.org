@@ -214,11 +214,6 @@ class ProjectVersionDetail(ProjectVersionMixin, UpdateView):
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
                 log.info('Removing files for version %s', version.slug)
-                broadcast(
-                    type='app',
-                    task=tasks.remove_dirs,
-                    args=[version.get_artifact_paths()],
-                )
                 tasks.clean_project_resources(
                     version.project,
                     version,
@@ -237,10 +232,10 @@ class ProjectVersionDeleteHTML(ProjectVersionMixin, GenericModelView):
         if not version.active:
             version.built = False
             version.save()
-            broadcast(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[version.get_artifact_paths()],
+            log.info('Removing files for version %s', version.slug)
+            tasks.clean_project_resources(
+                version.project,
+                version,
             )
         else:
             return HttpResponseBadRequest(
@@ -457,14 +452,6 @@ class ProjectRelationshipMixin(ProjectAdminMixin, PrivateViewMixin):
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['user'] = self.request.user
         return super().get_form(data, files, **kwargs)
-
-    def form_valid(self, form):
-        broadcast(
-            type='app',
-            task=tasks.symlink_subproject,
-            args=[self.get_project().pk],
-        )
-        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('projects_subprojects', args=[self.get_project().slug])
@@ -1026,7 +1013,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 qs.values('query')
                 .annotate(count=Count('id'))
                 .order_by('-count', 'query')
-                .values_list('query', 'count')
+                .values_list('query', 'count', 'total_results')
             )
 
             # only show top 100 queries
@@ -1053,7 +1040,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
                 created__date__lte=now,
             )
             .order_by('-created')
-            .values_list('created', 'query')
+            .values_list('created', 'query', 'total_results')
         )
 
         file_name = '{project_slug}_from_{start}_to_{end}.csv'.format(
@@ -1065,8 +1052,8 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         file_name = '-'.join([text for text in file_name.split() if text])
 
         csv_data = (
-            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query]
-            for time, query in data
+            [timezone.datetime.strftime(time, '%Y-%m-%d %H:%M:%S'), query, total_results]
+            for time, query, total_results in data
         )
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)

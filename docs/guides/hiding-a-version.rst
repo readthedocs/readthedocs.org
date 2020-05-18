@@ -17,4 +17,4 @@ Go to the :guilabel:`Versions` tab of your project, click on :guilabel:`Edit` an
 Users that have a link to your old version will still be able to see your docs.
 And new users can see all your versions (including hidden versions) in the versions tab of your project at ``https://readthedocs.org/projects/<your-project>/versions/``
 
-Check the docs about :ref:`versions' states <versions:States>` for more information.
+Check the docs about :ref:`versions' states <versions:Version States>` for more information.
