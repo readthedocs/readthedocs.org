@@ -29,6 +29,7 @@ Here is an example showing a tooltip when you hover with the mouse a reference:
 
 .. figure:: /_static/images/guides/sphinx-hoverxref-example.png
    :width: 80%
+   :align: center
 
    Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
 
