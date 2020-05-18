@@ -66,13 +66,13 @@ that authors can just install in their project and get the most of it without th
 
 Here is an example showing a tooltip when you hover with the mouse a reference:
 
-.. figure:: sphinx-hoverxref-example.png
+.. figure:: /_static/images/guides/sphinx-hoverxref-example.png
 
    Tooltip shown when hovering on a reference using ``sphinx-hoverxref``.
 
 You can find more information about this extension, how to install and configure it in `its own documentation here`_.
 
-.. _its own documentation here: https://sphinx-hoverxref.readthedocs.io/en/latest/
+.. _its own documentation here: https://sphinx-hoverxref.readthedocs.io/
 
 
 Calling the Embed API
