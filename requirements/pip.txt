@@ -70,7 +70,7 @@ orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.4
-pytz==2019.3
+pytz==2020.1
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.44.0
