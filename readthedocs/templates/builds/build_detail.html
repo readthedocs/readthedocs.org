@@ -76,7 +76,7 @@ $(document).ready(function () {
         <form method="post" name="rebuild_commit" action="{% url "builds_project_list" project.slug %}">
           {% csrf_token %}
             <a href="#" onclick="document.forms['rebuild_commit'].submit();">
-              Rebuild commit
+              Rebuild this build
             </a>
             <input type="hidden" name="version_slug" value="{{ build.version.slug }}">
             <input type="hidden" name="commit" value="{{ build.commit }}">
