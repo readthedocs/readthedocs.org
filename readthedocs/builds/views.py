@@ -63,7 +63,7 @@ class BuildTriggerMixin:
         )
 
         # Set either the build or None
-        build = Build.objects.filter(pk=build_pk).first()
+        build = version.builds.filter(pk=build_pk).first()
 
         if build:
 
