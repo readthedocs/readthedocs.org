@@ -317,6 +317,80 @@ Build detail
 
     Some fields primarily used for UI elements in Read the Docs are omitted.
 
+
+Embed
+~~~~~
+
+.. http:get::  /api/v2/embed/
+
+    Retrieve details of builds ordered by most recent first
+
+    **Example request**:
+
+    .. prompt:: bash $
+
+        curl https://readthedocs.org/api/v2/embed/?project=docs&version=latest&doc=features&path=features.html
+        # or
+        curl https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html
+
+    **Example response**:
+
+    .. sourcecode:: js
+
+        {
+            "content": [
+                "..."
+            ],
+            "headers": [
+                {
+                    "Read the Docs features": "#"
+                },
+                {
+                    "Automatic Documentation Deployment": "#automatic-documentation-deployment"
+                },
+                {
+                    "Custom Domains & White Labeling": "#custom-domains-white-labeling"
+                },
+                {
+                    "Versioned Documentation": "#versioned-documentation"
+                },
+                {
+                    "Downloadable Documentation": "#downloadable-documentation"
+                },
+                {
+                    "Full-Text Search": "#full-text-search"
+                },
+                {
+                    "Open Source and Customer Focused": "#open-source-and-customer-focused"
+                }
+            ],
+            "url": "https://docs.readthedocs.io/en/latest/features",
+            "meta": {
+                "project": "docs",
+                "version": "latest",
+                "doc": "features",
+                "section": "read the docs features"
+            }
+        }
+
+    :>json string content: HTML content of the section.
+    :>json object headers: section's headers in the document.
+    :>json string url: URL of the document.
+    :>json object meta: meta data of the requested section.
+
+    :query string project: Read the Docs project's slug.
+    :query string version: Read the Docs version's slug.
+    :query string doc: document to fetch content from.
+    :query string section: section within the document to fetch.
+    :query string path: full path to the document including extension.
+
+    :query string url: full URL of the document (and section) to fetch content from.
+
+    .. note::
+
+       You can call this endpoint by sending at least ``project`` and ``doc`` *or* ``url`` attribute.
+
+
 Undocumented resources and endpoints
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
