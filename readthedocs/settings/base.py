@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 
-import getpass
 import os
 import subprocess
 
@@ -97,7 +96,6 @@ class CommunityBaseSettings(Settings):
     RTD_CLEAN_AFTER_BUILD = False
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
-    RTD_STORE_PAGEVIEWS = True
 
     # Database and API hitting settings
     DONT_HIT_API = False
