@@ -6,7 +6,6 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count, OuterRef, Subquery
 from django.http import (
     Http404,
