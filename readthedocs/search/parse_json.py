@@ -78,11 +78,27 @@ def _get_content_from_tag(tag):
     contents = []
     next_tag = tag
     while next_tag and not _is_section(next_tag):
-        content = parse_content(next_tag.text())
+        if _is_code_section(next_tag):
+            content = _parse_code_section(next_tag)
+        else:
+            content = parse_content(next_tag.text())
+
         if content:
             contents.append(content)
         next_tag = next_tag.next
     return ' '.join(contents)
+
+
+def _is_code_section(tag):
+    """
+    Check if `tag` is a code section.
+
+    Sphinx codeblocks have a class named ``highlight-{language}``.
+    """
+    for c in tag.attributes.get('class', '').split():
+        if c.startswith('highlight'):
+            return True
+    return False
 
 
 def _is_section(tag):
@@ -91,6 +107,30 @@ def _is_section(tag):
         tag.tag == 'div' and
         'section' in tag.attributes.get('class', [])
     )
+
+
+def _parse_code_section(tag):
+    """
+    Parse a code section to fetch relevant content only.
+
+    Sphinx has ``pre`` tags within a div with a ``highlight`` class.
+    Other ``pre`` tags are used for line numbers (we don't index those).
+    """
+    contents = []
+    for node in tag.css('pre'):
+        parent = node.parent
+        is_code_block = (
+            parent and
+            parent.tag == 'div' and
+            parent.attributes.get('class') == 'highlight'
+        )
+        if is_code_block:
+            # XXX: Don't call to `parse_content`
+            # if we decide to show code results more nicely,
+            # so the indentation isn't lost.
+            content = node.text().strip('\n')
+            contents.append(parse_content(content))
+    return ' '.join(contents)
 
 
 def process_file(fjson_storage_path):
