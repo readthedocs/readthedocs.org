@@ -3,10 +3,15 @@
 """Tasks for Read the Docs' analytics."""
 
 from django.conf import settings
+from django.db.models import F
+from django.utils import timezone
 
 import readthedocs
 from readthedocs.worker import app
+from readthedocs.builds.models import Version
+from readthedocs.projects.models import Project
 
+from .models import PageView
 from .utils import send_to_analytics
 
 
@@ -70,3 +75,30 @@ def analytics_event(
     data.update(DEFAULT_PARAMETERS)
     data.update(kwargs)
     send_to_analytics(data)
+
+
+@app.task(queue='web')
+def increase_page_view_count(project_slug, version_slug, path):
+    """Increase the page view count for the given project."""
+    project = Project.objects.get(slug=project_slug)
+
+    page_view, _ = PageView.objects.get_or_create(
+        project=project,
+        version=Version.objects.get(project=project, slug=version_slug),
+        path=path,
+        date=timezone.now().date(),
+    )
+    PageView.objects.filter(pk=page_view.pk).update(
+        view_count=F('view_count') + 1
+    )
+
+
+@app.task(queue='web')
+def delete_old_page_counts():
+    """
+    Delete page counts older than 30 days.
+
+    This is intended to run from a periodic task daily.
+    """
+    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
+    return PageView.objects.filter(date__lt=thirty_days_ago).delete()

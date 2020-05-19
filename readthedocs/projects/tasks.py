@@ -783,10 +783,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         epub=bool(outcomes['epub']),
                     )
 
-                    # Finalize build and update web servers
-                    # We upload EXTERNAL version media files to blob storage
-                    # We should have this check here to make sure
-                    # the files don't get re-uploaded on web.
+                    # TODO: Remove this function and just update the DB and index search directly
                     self.update_app_instances(
                         html=bool(outcomes['html']),
                         search=bool(outcomes['search']),
@@ -1268,6 +1265,7 @@ def fileify(version_pk, commit, build):
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
+    # Don't index external version builds for now
     if not version or version.type == EXTERNAL:
         return
     project = version.project
