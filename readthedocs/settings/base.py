@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 
-import getpass
 import os
 import subprocess
 
@@ -350,7 +349,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-day-delete-old-page-views': {
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]

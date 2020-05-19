@@ -47,7 +47,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project.slug, 'pip')
         self.assertEqual(parts.language_slug, 'en')
         self.assertEqual(parts.version_slug, 'latest')
-        self.assertEqual(parts.filename, '')
+        self.assertEqual(parts.filename, 'index.html')
 
     def test_unresolver_single_version(self):
         self.pip.single_version = True
@@ -55,7 +55,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project.slug, 'pip')
         self.assertEqual(parts.language_slug, None)
         self.assertEqual(parts.version_slug, None)
-        self.assertEqual(parts.filename, '')
+        self.assertEqual(parts.filename, 'index.html')
 
     def test_unresolver_subproject_alias(self):
         relation = self.pip.subprojects.first()
@@ -65,7 +65,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project.slug, 'sub')
         self.assertEqual(parts.language_slug, 'ja')
         self.assertEqual(parts.version_slug, 'latest')
-        self.assertEqual(parts.filename, '')
+        self.assertEqual(parts.filename, 'index.html')
 
     def test_unresolver_external_version(self):
         ver = self.pip.versions.first()
@@ -75,7 +75,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project.slug, 'pip')
         self.assertEqual(parts.language_slug, 'en')
         self.assertEqual(parts.version_slug, '10')
-        self.assertEqual(parts.filename, '')
+        self.assertEqual(parts.filename, 'index.html')
 
     def test_unresolver_unknown_host(self):
         parts = unresolve('http://random.stuff.com/en/latest/')

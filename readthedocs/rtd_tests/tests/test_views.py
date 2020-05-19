@@ -286,15 +286,15 @@ class TestSearchAnalyticsView(TestCase):
             test_time.return_value = self.test_time
 
             expected_result = [
-                ('hello world', 5),
-                ('documentation', 4),
-                ('read the docs', 4),
-                ('advertising', 3),
-                ('elasticsearch', 2),
-                ('sphinx', 2),
-                ('github', 1),
-                ('hello', 1),
-                ('search', 1),
+                ('hello world', 5, 0),
+                ('documentation', 4, 0),
+                ('read the docs', 4, 0),
+                ('advertising', 3, 0),
+                ('elasticsearch', 2, 0),
+                ('sphinx', 2, 0),
+                ('github', 1, 0),
+                ('hello', 1, 0),
+                ('search', 1, 0),
             ]
 
             resp = self.client.get(self.analyics_page)
