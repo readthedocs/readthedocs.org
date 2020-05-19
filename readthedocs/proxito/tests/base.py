@@ -21,7 +21,6 @@ class BaseDocServing(TestCase):
             Project,
             slug='project',
             privacy_level=PUBLIC,
-            version_privacy_level=PUBLIC,
             users=[self.eric],
             main_language_project=None,
         )
