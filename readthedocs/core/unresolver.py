@@ -55,6 +55,12 @@ class UnresolverBase:
             filename=kwargs.get('filename', ''),
         )
 
+        # Handle our backend storage not supporting directory indexes,
+        # so we need to append index.html when appropriate.
+        if not filename or filename.endswith('/'):
+            # We need to add the index.html to find this actual file
+            filename += 'index.html'
+
         log.info(
             'Unresolver parsed: '
             'url=%s project=%s lang_slug=%s version_slug=%s filename=%s',
