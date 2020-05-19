@@ -73,6 +73,13 @@ from our own docs and will populate the content of it into the ``#help-container
 You can modify this example to subscribe to ``.onclick`` Javascript event,
 and show a modal when the user clicks in a "Help" link.
 
+.. tip::
+
+   You can use a `Sphinx reference`_ as ``section`` argument instead of the slug of the title (i.e. ``creating-an-automation-rule``)
+   to avoid changes in the title breaking you reference.
+
+.. _Sphinx reference: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/roles.html#cross-referencing-arbitrary-locations
+
 Calling the Embed API directly
 ------------------------------
 
