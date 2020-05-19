@@ -82,6 +82,7 @@ urlpatterns = [
     ),
 
     # Serve proxied API
+    # /_/api/v2/
     url(
         r'^{DOC_PATH_PREFIX}api/v2/'.format(
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
