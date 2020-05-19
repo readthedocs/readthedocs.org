@@ -91,4 +91,7 @@ def _get_project_data_from_request(
     # * Subproject
     # * Translations
 
+    # Set the version slug on the request so we can log it in middleware
+    request.path_version_slug = version_slug
+
     return final_project, lang_slug, version_slug, filename

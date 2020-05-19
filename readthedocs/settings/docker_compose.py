@@ -38,11 +38,11 @@ class DockerBaseSettings(CommunityDevSettings):
     if ips and not HOSTIP:
         HOSTIP = ips[0][:-1] + "1"
 
+    # Turn this on to test ads
+    USE_PROMOS = False
     ADSERVER_API_BASE = f'http://{HOSTIP}:5000'
-
     # Create a Token for an admin User and set it here.
     ADSERVER_API_KEY = None
-
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     # Enable auto syncing elasticsearch documents
@@ -80,8 +80,12 @@ class DockerBaseSettings(CommunityDevSettings):
             }
         }
 
+    def show_debug_toolbar(request):
+        from django.conf import settings
+        return settings.DEBUG
+
     DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': lambda request: True,
+        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
     }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
@@ -100,9 +104,6 @@ class DockerBaseSettings(CommunityDevSettings):
     CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-    # Avoid syncing to the web servers
-    FILE_SYNCER = "readthedocs.builds.syncers.NullSyncer"
 
     # https://github.com/Azure/Azurite/blob/master/README.md#default-storage-account
     AZURE_ACCOUNT_NAME = 'devstoreaccount1'
@@ -136,3 +137,6 @@ class DockerBaseSettings(CommunityDevSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+    # This allows us to have CORS work well in dev
+    CORS_ORIGIN_ALLOW_ALL = True

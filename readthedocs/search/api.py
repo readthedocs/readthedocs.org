@@ -1,5 +1,6 @@
 import itertools
 import logging
+import re
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -9,6 +10,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
@@ -27,15 +29,28 @@ class PageSearchSerializer(serializers.Serializer):
     version = serializers.CharField()
     title = serializers.CharField()
     path = serializers.CharField()
+    full_path = serializers.CharField()
     link = serializers.SerializerMethodField()
     highlight = serializers.SerializerMethodField()
     inner_hits = serializers.SerializerMethodField()
 
     def get_link(self, obj):
-        projects_url = self.context.get('projects_url')
-        if projects_url:
-            docs_url = projects_url[obj.project]
-            return docs_url + obj.path
+        project_data = self.context['projects_data'].get(obj.project)
+        if not project_data:
+            return None
+
+        docs_url, doctype = project_data
+        path = obj.full_path
+
+        # Generate an appropriate link for the doctypes that use htmldir,
+        # and always end it with / so it goes directly to proxito.
+        if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+            new_path = re.sub('(^|/)index.html$', '/', path)
+            # docs_url already ends with /,
+            # so path doesn't need to start with /.
+            path = new_path.lstrip('/')
+
+        return docs_url + path
 
     def get_highlight(self, obj):
         highlight = getattr(obj.meta, 'highlight', None)
@@ -117,19 +132,24 @@ class PageSearchAPIView(generics.ListAPIView):
         # Validate all the required params are there
         self.validate_query_params()
         query = self.request.query_params.get('q', '')
-        kwargs = {'filter_by_user': False, 'filters': {}}
-        kwargs['filters']['project'] = [p.slug for p in self.get_all_projects()]
-        kwargs['filters']['version'] = self._get_version().slug
-        # Check to avoid searching all projects in case project is empty.
-        if not kwargs['filters']['project']:
+        filters = {}
+        filters['project'] = [p.slug for p in self.get_all_projects()]
+        filters['version'] = self._get_version().slug
+
+        # Check to avoid searching all projects in case these filters are empty.
+        if not filters['project']:
             log.info("Unable to find a project to search")
             return HTMLFile.objects.none()
-        if not kwargs['filters']['version']:
+        if not filters['version']:
             log.info("Unable to find a version to search")
             return HTMLFile.objects.none()
-        user = self.request.user
+
         queryset = PageSearch(
-            query=query, user=user, **kwargs
+            query=query,
+            filters=filters,
+            user=self.request.user,
+            # We use a permission class to control authorization
+            filter_by_user=False,
         )
         return queryset
 
@@ -155,7 +175,7 @@ class PageSearchAPIView(generics.ListAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['projects_url'] = self.get_all_projects_url()
+        context['projects_data'] = self.get_all_projects_data()
         return context
 
     def get_all_projects(self):
@@ -167,14 +187,15 @@ class PageSearchAPIView(generics.ListAPIView):
         main_version = self._get_version()
         main_project = self._get_project()
 
+        all_projects = [main_project]
+
         subprojects = Project.objects.filter(
             superprojects__parent_id=main_project.id,
         )
-        all_projects = []
-        for project in list(subprojects) + [main_project]:
+        for project in subprojects:
             version = (
                 Version.internal
-                .public(user=self.request.user, project=project)
+                .public(user=self.request.user, project=project, include_hidden=False)
                 .filter(slug=main_version.slug)
                 .first()
             )
@@ -182,29 +203,44 @@ class PageSearchAPIView(generics.ListAPIView):
                 all_projects.append(version.project)
         return all_projects
 
-    def get_all_projects_url(self):
+    def get_all_projects_data(self):
         """
-        Return a dict containing the project slug and its version URL.
+        Return a dict containing the project slug and its version URL and version's doctype.
 
-        The dictionary contains the project and its subprojects . Each project's
-        slug is used as a key and the documentation URL for that project and
-        version as the value.
-
-        Example:
+        The dictionary contains the project and its subprojects. Each project's
+        slug is used as a key and a tuple with the documentation URL and doctype
+        from the version. Example:
 
         {
-            "requests": "https://requests.readthedocs.io/en/latest/",
-            "requests-oauth": "https://requests-oauth.readthedocs.io/en/latest/",
+            "requests": (
+                "https://requests.readthedocs.io/en/latest/",
+                "sphinx",
+            ),
+            "requests-oauth": (
+                "https://requests-oauth.readthedocs.io/en/latest/",
+                "sphinx_htmldir",
+            ),
         }
 
         :rtype: dict
         """
         all_projects = self.get_all_projects()
         version_slug = self._get_version().slug
-        projects_url = {}
+        project_urls = {}
         for project in all_projects:
-            projects_url[project.slug] = project.get_docs_url(version_slug=version_slug)
-        return projects_url
+            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
+
+        versions_doctype = (
+            Version.objects
+            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
+            .values_list('project__slug', 'documentation_type')
+        )
+
+        projects_data = {
+            project_slug: (project_urls[project_slug], doctype)
+            for project_slug, doctype in versions_doctype
+        }
+        return projects_data
 
     def list(self, request, *args, **kwargs):
         """Overriding ``list`` method to record query in database."""

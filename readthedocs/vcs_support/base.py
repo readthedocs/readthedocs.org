@@ -45,6 +45,9 @@ class BaseVCS:
     supports_branches = False  # Whether this VCS supports branches or not.
     supports_submodules = False
 
+    # Whether this VCS supports listing remotes (branches, tags) without clonning
+    supports_lsremote = False
+
     # =========================================================================
     # General methods
     # =========================================================================
@@ -156,4 +159,7 @@ class BaseVCS:
 
         :type config: readthedocs.config.BuildConfigBase
         """
+        raise NotImplementedError
+
+    def repo_exists(self):
         raise NotImplementedError

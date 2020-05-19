@@ -18,6 +18,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 
 
@@ -127,7 +128,13 @@ def prepare_build(
         options['queue'] = project.build_queue
 
     # Set per-task time limit
-    time_limit = DOCKER_LIMITS['time']
+    # TODO remove the use of Docker limits or replace the logic here. This
+    # was pulling the Docker limits that were set on each stack, but we moved
+    # to dynamic setting of the Docker limits. This sets a failsafe higher
+    # limit, but if no builds hit this limit, it should be safe to remove and
+    # rely on Docker to terminate things on time.
+    # time_limit = DOCKER_LIMITS['time']
+    time_limit = 7200
     try:
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
@@ -149,6 +156,14 @@ def prepare_build(
     if build and version.type != EXTERNAL:
         # Send Webhook notification for build triggered.
         send_notifications.delay(version.pk, build_pk=build.pk, email=False)
+
+    options['priority'] = CELERY_HIGH
+    if project.main_language_project:
+        # Translations should be medium priority
+        options['priority'] = CELERY_MEDIUM
+    if version.type == EXTERNAL:
+        # External builds should be lower priority.
+        options['priority'] = CELERY_LOW
 
     # Start the build in X minutes and mark it as limited
     if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
@@ -197,6 +212,12 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    log.info(
+        'Triggering build. project=%s version=%s commit=%s',
+        project.slug,
+        version.slug if version else None,
+        commit,
+    )
     update_docs_task, build = prepare_build(
         project,
         version,
@@ -267,20 +288,3 @@ def safe_makedirs(directory_name):
     except OSError as e:
         if e.errno != errno.EEXIST:  # 17, FileExistsError
             raise
-
-
-def safe_unlink(path):
-    """
-    Unlink ``path`` symlink using ``os.unlink``.
-
-    This helper handles the exception ``FileNotFoundError`` to avoid logging in
-    cases where the symlink does not exist already and there is nothing to
-    unlink.
-
-    :param path: symlink path to unlink
-    :type path: str
-    """
-    try:
-        os.unlink(path)
-    except FileNotFoundError:
-        log.warning('Unlink failed. Path %s does not exists', path)

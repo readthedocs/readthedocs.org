@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 """Tests For SVN."""
 
+from django.test import TestCase
+
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.vcs_support.backends.svn import Backend as SvnBackend
 
 
-class TestSvnBackend(RTDTestCase):
+class TestSvnBackend(TestCase):
 
     def test_get_url(self):
         project = get(Project)

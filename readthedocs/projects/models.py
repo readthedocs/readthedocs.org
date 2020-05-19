@@ -24,6 +24,7 @@ from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
 from readthedocs.constants import pattern_opts
+from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -40,7 +41,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file
+from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -354,16 +355,6 @@ class Project(models.Model):
             'Level of privacy that you want on the repository.',
         ),
     )
-    version_privacy_level = models.CharField(
-        _('Version Privacy Level'),
-        max_length=20,
-        choices=constants.PRIVACY_CHOICES,
-        default=settings.DEFAULT_PRIVACY_LEVEL,
-        help_text=_(
-            'Default level of privacy you want on built '
-            'versions of documentation.',
-        ),
-    )
 
     # Subprojects
     related_projects = models.ManyToManyField(
@@ -447,39 +438,6 @@ class Project(models.Model):
             log.exception('Failed to update latest identifier')
 
         try:
-            if not first_save:
-                log.info(
-                    'Re-symlinking project and subprojects: project=%s',
-                    self.slug,
-                )
-                broadcast(
-                    type='app',
-                    task=tasks.symlink_project,
-                    args=[self.pk],
-                )
-                log.info(
-                    'Re-symlinking superprojects: project=%s',
-                    self.slug,
-                )
-                for relationship in self.superprojects.all():
-                    broadcast(
-                        type='app',
-                        task=tasks.symlink_project,
-                        args=[relationship.parent.pk],
-                    )
-
-        except Exception:
-            log.exception('failed to symlink project')
-        try:
-            if not first_save:
-                broadcast(
-                    type='app',
-                    task=tasks.update_static_metadata,
-                    args=[self.pk],
-                )
-        except Exception:
-            log.exception('failed to update static metadata')
-        try:
             branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest(identifier=branch)
@@ -487,17 +445,10 @@ class Project(models.Model):
             log.exception('Error creating default branches')
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-
-        # Remove local FS build artifacts on the web servers
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[(self.doc_path,)],
-        )
+        from readthedocs.projects.tasks import clean_project_resources
 
         # Remove extra resources
-        tasks.clean_project_resources(self)
+        clean_project_resources(self)
 
         super().delete(*args, **kwargs)
 
@@ -590,38 +541,6 @@ class Project(models.Model):
                 extension,
             )
         return folder_path
-
-    def get_production_media_path(self, type_, version_slug, include_file=True):
-        """
-        Used to see if these files exist so we can offer them for download.
-
-        :param type_: Media content type, ie - 'pdf', 'zip'
-        :param version_slug: Project version slug for lookup
-        :param include_file: Include file name in return
-        :type include_file: bool
-
-        :returns: Full path to media file or path
-        """
-        if settings.DEFAULT_PRIVACY_LEVEL == 'public' or settings.DEBUG:
-            path = os.path.join(
-                settings.MEDIA_ROOT,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        else:
-            path = os.path.join(
-                settings.PRODUCTION_MEDIA_ARTIFACTS,
-                type_,
-                self.slug,
-                version_slug,
-            )
-        if include_file:
-            path = os.path.join(
-                path,
-                '{}.{}'.format(self.slug, type_.replace('htmlzip', 'zip')),
-            )
-        return path
 
     def get_production_media_url(self, type_, version_slug):
         """Get the URL for downloading a specific media file."""
@@ -722,19 +641,6 @@ class Project(models.Model):
     def pip_cache_path(self):
         """Path to pip cache."""
         return os.path.join(self.doc_path, '.cache', 'pip')
-
-    #
-    # Paths for symlinks in project doc_path.
-    #
-    def translations_symlink_path(self, language=None):
-        """Path in the doc_path that we symlink translations."""
-        if not language:
-            language = self.language
-        return os.path.join(self.doc_path, 'translations', language)
-
-    #
-    # End symlink paths
-    #
 
     def full_doc_path(self, version=LATEST):
         """The path to the documentation root in the project."""
@@ -838,12 +744,6 @@ class Project(models.Model):
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
     def has_media(self, type_, version_slug=LATEST, version_type=None):
-        path = self.get_production_media_path(
-            type_=type_, version_slug=version_slug
-        )
-        if os.path.exists(path):
-            return True
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.get_storage_path(
             type_=type_, version_slug=version_slug,
@@ -942,7 +842,7 @@ class Project(models.Model):
         if max_lock_age is None:
             max_lock_age = (
                 self.container_time_limit or
-                settings.DOCKER_LIMITS.get('time') or
+                DOCKER_LIMITS.get('time') or
                 settings.REPO_LOCK_SECONDS
             )
 
@@ -1027,6 +927,7 @@ class Project(models.Model):
             {
                 'project': self,
                 'only_active': True,
+                'only_built': True,
             },
         )
         versions = (
@@ -1375,7 +1276,7 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
-    def get_processed_json(self):
+    def get_processed_json_sphinx(self):
         """
         Get the parsed JSON for search indexing.
 
@@ -1388,9 +1289,6 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        file_path = None
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
         fjson_paths = []
         basename = os.path.splitext(self.path)[0]
         fjson_paths.append(basename + '.fjson')
@@ -1398,26 +1296,73 @@ class HTMLFile(ImportedFile):
             new_basename = re.sub(r'\/index$', '', basename)
             fjson_paths.append(new_basename + '.fjson')
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.project.get_storage_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
+        for fjson_path in fjson_paths:
+            try:
+                fjson_storage_path = storage.join(storage_path, fjson_path)
+                if storage.exists(fjson_storage_path):
+                    return process_file(fjson_storage_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    fjson_path,
+                )
+
+        return {
+            'path': self.path,
+            'title': '',
+            'sections': [],
+            'domain_data': {},
+        }
+
+    def get_processed_json_mkdocs(self):
+        log.debug('Processing mkdocs index')
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        storage_path = self.project.get_storage_path(
+            type_='html', version_slug=self.version.slug, include_file=False
+        )
         try:
-            for fjson_path in fjson_paths:
-                file_path = storage.join(storage_path, fjson_path)
-                if storage.exists(file_path):
-                    return process_file(file_path)
+            file_path = storage.join(storage_path, 'search/search_index.json')
+            if storage.exists(file_path):
+                index_data = process_mkdocs_index_file(file_path, page=self.path)
+                if index_data:
+                    return index_data
         except Exception:
             log.warning(
                 'Unhandled exception during search processing file: %s',
                 file_path,
             )
-
         return {
-            'path': file_path,
+            'path': self.path,
             'title': '',
             'sections': [],
             'domain_data': {},
         }
+
+    def get_processed_json(self):
+        """
+        Get the parsed JSON for search indexing.
+
+        Returns a dictionary with the following structure.
+        {
+            'path': 'file path',
+            'title': 'Title',
+            'sections': [
+                {
+                    'id': 'section-anchor',
+                    'title': 'Section title',
+                    'content': 'Section content',
+                },
+            ],
+            'domain_data': {},
+        }
+        """
+        if self.version.is_sphinx_type:
+            return self.get_processed_json_sphinx()
+        return self.get_processed_json_mkdocs()
 
     @cached_property
     def processed_json(self):
@@ -1446,7 +1391,6 @@ class EmailHook(Notification):
 class WebHook(Notification):
     url = models.URLField(
         max_length=600,
-        blank=True,
         help_text=_('URL to send the webhook to'),
     )
 
@@ -1494,6 +1438,22 @@ class Domain(models.Model):
         help_text=_('Number of times this domain has been hit'),
     )
 
+    # Strict-Transport-Security header options
+    # These are not exposed to users because it's easy to misconfigure things
+    # and hard to back out changes cleanly
+    hsts_max_age = models.PositiveIntegerField(
+        default=0,
+        help_text=_('Set a custom max-age (eg. 31536000) for the HSTS header')
+    )
+    hsts_include_subdomains = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header')
+    )
+    hsts_preload = models.BooleanField(
+        default=False,
+        help_text=_('If hsts_max_age > 0, set the preload flag with the HSTS header')
+    )
+
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
@@ -1506,27 +1466,12 @@ class Domain(models.Model):
         )
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
         else:
             self.domain = parsed.path
         super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain],
-        )
-
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        from readthedocs.projects import tasks
-        broadcast(
-            type='app',
-            task=tasks.symlink_domain,
-            args=[self.project.pk, self.domain, True],
-        )
-        super().delete(*args, **kwargs)
 
 
 class Feature(models.Model):
@@ -1565,9 +1510,12 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
-    CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     PROJECT_URL_ROUTES = 'project_url_routes'
+    FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
+    LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
+    VCS_REMOTE_LISTING = 'vcs_remote_listing'
+    STORE_PAGEVIEWS = 'store_pageviews'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1639,16 +1587,31 @@ class Feature(models.Model):
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
         ),
         (
-            CELERY_ROUTER,
-            _('Route tasks using our custom task router'),
-        ),
-        (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
         ),
         (
             PROJECT_URL_ROUTES,
             _('Route projects by their own urlconf'),
+        ),
+        (
+            FORCE_SPHINX_FROM_VENV,
+            _('Force to use Sphinx from the current virtual environment'),
+        ),
+        (
+            LIST_PACKAGES_INSTALLED_ENV,
+            _(
+                'List packages installed in the environment ("pip list" or "conda list") '
+                'on build\'s output',
+            ),
+        ),
+        (
+            VCS_REMOTE_LISTING,
+            _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
+        ),
+        (
+            STORE_PAGEVIEWS,
+            _('Store pageviews for this project'),
         ),
     )
 

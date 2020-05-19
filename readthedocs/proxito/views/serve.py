@@ -4,6 +4,7 @@ import itertools
 import logging
 from urllib.parse import urlparse
 
+from readthedocs.core.resolver import resolve_path
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -77,10 +78,18 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             filename=filename,
         )
 
-        log.info(
+        log.debug(
             'Serving docs: project=%s, subproject=%s, lang_slug=%s, version_slug=%s, filename=%s',
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
+
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        if hasattr(request, 'canonicalize'):
+            try:
+                return self.canonical_redirect(request, final_project, version_slug, filename)
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -383,10 +392,28 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             scheme='https',
             domain=project.subdomain(),
         )
-        return HttpResponse(
-            'User-agent: *\nAllow: /\nSitemap: {}\n'.format(sitemap_url),
+        context = {
+            'sitemap_url': sitemap_url,
+            'hidden_paths': self._get_hidden_paths(project),
+        }
+        return render(
+            request,
+            'robots.txt',
+            context,
             content_type='text/plain',
         )
+
+    def _get_hidden_paths(self, project):
+        """Get the absolute paths of the public hidden versions of `project`."""
+        hidden_versions = (
+            Version.internal.public(project=project)
+            .filter(hidden=True)
+        )
+        hidden_paths = [
+            resolve_path(project, version_slug=version.slug)
+            for version in hidden_versions
+        ]
+        return hidden_paths
 
 
 class ServeRobotsTXT(SettingsOverrideObject):

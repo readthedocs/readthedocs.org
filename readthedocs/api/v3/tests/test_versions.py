@@ -8,7 +8,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
 
-class VerionsEndpointTests(APIEndpointMixin):
+class VersionsEndpointTests(APIEndpointMixin):
 
     def test_projects_versions_list(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

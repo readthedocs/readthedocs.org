@@ -1,37 +1,17 @@
 Frequently Asked Questions
 ==========================
 
-My project isn't building with autodoc
---------------------------------------
+My project isn't building correctly
+-----------------------------------
 
-First, you should check out the Builds tab of your project. That records all of the build attempts that RTD has made to build your project. If you see ``ImportError`` messages for custom Python modules, you should enable the virtualenv feature in the Admin page of your project, which will install your project into a virtualenv, and allow you to specify a ``requirements.txt`` file for your project.
+First, you should check out the Builds tab of your project.
+That records all of the build attempts that RTD has made to build your project.
+If you see ``ImportError`` messages for custom Python modules,
+see our section on :ref:`faq:My documentation requires additional dependencies`.
 
 If you are still seeing errors because of C library dependencies,
 please see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
-How do I change my project slug (the URL your docs are served at)?
-------------------------------------------------------------------
-
-We don't support allowing folks to change the slug for their project.
-You can update the name which is shown on the site,
-but not the actual URL that documentation is served.
-
-The main reason for this is that all existing URLs to the content will break.
-You can delete and re-create the project with the proper name to get a new slug,
-but you really shouldn't do this if you have existing inbound links,
-as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
-
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
-
-
-How do I change the version slug of my project?
------------------------------------------------
-
-We don't support allowing folks to change the slug for their versions.
-But you can rename the branch/tag to achieve this.
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
 
 Help, my build passed but my documentation page is 404 Not Found!
 -----------------------------------------------------------------
@@ -48,34 +28,30 @@ otherwise we aren't able to serve a "default" index page.
 To test if your docs actually built correctly,
 you can navigate to a specific page (`/en/latest/README.html` for example).
 
-How do I change behavior for Read the Docs?
--------------------------------------------
 
-When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
-variable to the string `True`. So within your Sphinx :file:`conf.py` file, you
-can vary the behavior based on this. For example::
+My documentation requires additional dependencies
+-------------------------------------------------
 
-    import os
-    on_rtd = os.environ.get('READTHEDOCS') == 'True'
-    if on_rtd:
-        html_theme = 'default'
-    else:
-        html_theme = 'nature'
+For most Python dependencies, you can can specify a requirements file
+which details your dependencies. See our guide on :doc:`/guides/specifying-dependencies`.
+You can also set your project documentation to install your project itself
+as a dependency.
 
-The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
-environment, and will be set to ``True`` when building on RTD::
+If your project or its dependencies rely on C libraries,
+see :ref:`faq:I get import errors on libraries that depend on C modules`.
 
-    {% if READTHEDOCS %}
-    Woo
-    {% endif %}
 
-My project requires different settings than those available under Admin
------------------------------------------------------------------------
+My project requires some additional settings
+--------------------------------------------
 
-Read the Docs offers some settings which can be used for a variety of purposes,
-such as to use the latest version of sphinx or pip. To enable these settings,
+If this is just a dependency issue,
+see :ref:`faq:My documentation requires additional dependencies`.
+
+Read the Docs offers some settings which can be used for a variety of purposes.
+To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
 Read more about these settings :doc:`here <guides/feature-flags>`.
+
 
 I get import errors on libraries that depend on C modules
 ---------------------------------------------------------
@@ -92,6 +68,30 @@ With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking.
 If such libraries are installed via ``setup.py``, you also will need to remove all the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
+
+
+How do I change behavior when building with Read the Docs?
+----------------------------------------------------------
+
+When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
+variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
+can vary the behavior based on this. For example::
+
+    import os
+    on_rtd = os.environ.get('READTHEDOCS') == 'True'
+    if on_rtd:
+        html_theme = 'default'
+    else:
+        html_theme = 'nature'
+
+The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
+environment, and will be set to ``True`` when building on RTD::
+
+    {% if READTHEDOCS %}
+    Woo
+    {% endif %}
+
+
 
 `Client Error 401` when building documentation
 ----------------------------------------------
@@ -113,10 +113,12 @@ following settings::
     SLUMBER_USERNAME = 'test'
     SLUMBER_PASSWORD = 'test'
 
+
 Deleting a stale or broken build environment
 --------------------------------------------
 
 See :doc:`guides/wipe-environment`.
+
 
 How do I host multiple projects on one custom domain?
 -----------------------------------------------------
@@ -137,15 +139,30 @@ http://docs.celeryproject.org/projects/kombu/en/latest/
 
 You can add subprojects in the project admin dashboard.
 
+For details on custom domains, see our documentation on :doc:`/custom_domains`.
+
+
 Where do I need to put my docs for RTD to find it?
 --------------------------------------------------
 
-Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``, it will run ``sphinx-build`` in that directory. So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``,
+it will run ``sphinx-build`` in that directory.
+So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+
+You can specify an exact path to your documentation using a Read the Docs :doc:`config-file/index`.
+
 
 I want to use the Blue/Default Sphinx theme
 -------------------------------------------
 
-We think that our theme is badass, and better than the default for many reasons. Some people don't like change though :), so there is a hack that will let you keep using the default theme. If you set the ``html_style`` variable in your ``conf.py``, it should default to using the default theme. The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
+We think that our theme is badass,
+and better than the default for many reasons.
+Some people don't like change though |:smile:|,
+so there is a hack that will let you keep using the default theme.
+If you set the ``html_style`` variable in your ``conf.py``,
+it should default to using the default theme.
+The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
+
 
 I want to use the Read the Docs theme locally
 ---------------------------------------------
@@ -153,23 +170,28 @@ I want to use the Read the Docs theme locally
 There is a repository for that: https://github.com/readthedocs/sphinx_rtd_theme.
 Simply follow the instructions in the README.
 
+
 Image scaling doesn't work in my documentation
 -----------------------------------------------
 
 Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
 
+
 I want comments in my docs
 --------------------------
 
-RTD doesn't have explicit support for this. That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
+RTD doesn't have explicit support for this.
+That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
 
 .. _Disqus: https://disqus.com/
 .. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
+
 
 How do I support multiple languages of documentation?
 -----------------------------------------------------
 
 See the section on :doc:`localization`.
+
 
 Does Read The Docs work well with "legible" docstrings?
 -------------------------------------------------------
@@ -196,6 +218,7 @@ and as a result, it tends to look a bit better with the default theme.
    To use these extensions you need to specify the dependencies on your project
    by following this :doc:`guide <guides/specifying-dependencies>`.
 
+
 Can I document a python package that is not at the root of my repository?
 -------------------------------------------------------------------------
 
@@ -209,29 +232,23 @@ If you want to place your package in a different directory or have multiple
 python packages in the same project, then create a pip requirements file. You
 can specify the relative path to your package inside the file.
 For example you want to keep your python package in the ``src/python``
-directory, then create a ``requirements.readthedocs.txt`` file with the
+directory, then create a ``requirements.txt`` file with the
 following contents::
 
     src/python/
 
 Please note that the path must be relative to the file. So the example path
 above would work if the file is in the root of your repository. If you want to
-put the requirements in a file called ``requirements/readthedocs.txt``, the
+put the requirements in a file called ``requirements/requirements.txt``, the
 contents would look like::
 
     ../python/
 
-After adding the file to your repository, go to the *Advanced Settings* in
-your project's admin panel and add the name of the file to the *Requirements
-file* field.
+You can customize the path to your requirements file and any other installed dependency
+using a Read the Docs :doc:`config-file/index`.
 
 .. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
-
-What commit of Read the Docs is in production?
-----------------------------------------------
-
-We deploy readthedocs.org from the `rel` branch in our GitHub repository. You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
 
 How can I avoid search results having a deprecated version of my docs?
@@ -243,44 +260,44 @@ and start suggesting the latest (or newer) one.
 
 To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
 (for example, https://yourproject.readthedocs.io/robots.txt).
+We have documented how to set this up in our :ref:`hosting:Custom robots.txt Pages` docs.
 
 
-Minimal example of ``robots.txt``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Can I remove advertising from my documentation?
+-----------------------------------------------
 
-::
+See :ref:`Opting out of advertising <advertising/ethical-advertising:Opting Out>`.
 
-   User-agent: *
-   Disallow: /en/deprecated-version/
-   Disallow: /en/2.0/
 
-.. note::
+How do I change my project slug (the URL your docs are served at)?
+------------------------------------------------------------------
 
-   See `Google's docs`_ for its full syntax.
+We don't support allowing folks to change the slug for their project.
+You can update the name which is shown on the site,
+but not the actual URL that documentation is served.
 
-This file has to be served as is under ``/robots.txt``.
+The main reason for this is that all existing URLs to the content will break.
+You can delete and re-create the project with the proper name to get a new slug,
+but you really shouldn't do this if you have existing inbound links,
+as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
 
-Setup
-~~~~~
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
 
-The ``robots.txt`` file will be served from the **default version** of your Project.
-This is because the ``robots.txt`` file is served at the top-level of your domain,
-so we must choose a version to find the file in.
-The **default version** is the best place to look for it.
 
-Sphinx and Mkdocs both have different ways of outputting static files in the build:
+How do I change the version slug of my project?
+-----------------------------------------------
 
-Sphinx
-++++++
+We don't support allowing folks to change the slug for their versions.
+But you can rename the branch/tag to achieve this.
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
 
-Sphinx uses `html_extra_path`_ option to add static files to the output.
-You need to create a ``robots.txt`` file and put it under the path defined in ``html_extra_path``.
 
-MkDocs
-++++++
+What commit of Read the Docs is in production?
+----------------------------------------------
 
-MkDocs needs the ``robots.txt`` to be at the directory defined at `docs_dir`_ config.
+We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
+You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
 
-.. _Google's docs: https://support.google.com/webmasters/answer/6062608
-.. _html_extra_path: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path
-.. _docs_dir: https://www.mkdocs.org/user-guide/configuration/#docs_dir
+We also keep an up-to-date :doc:`changelog </changelog>`.
