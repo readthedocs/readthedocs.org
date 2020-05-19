@@ -1468,6 +1468,7 @@ class Feature(models.Model):
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
+    STORE_PAGEVIEWS = 'store_pageviews'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1556,6 +1557,10 @@ class Feature(models.Model):
         (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
+        ),
+        (
+            STORE_PAGEVIEWS,
+            _('Store pageviews for this project'),
         ),
     )
 

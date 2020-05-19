@@ -16,7 +16,7 @@ from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -225,7 +225,7 @@ class BaseFooterHTML(APIView):
 
         # increase the page view count for the given page
         page_slug = request.GET.get('page', '')
-        if page_slug:
+        if page_slug and project.has_feature(Feature.STORE_PAGEVIEWS):
             increase_page_view_count.delay(
                 project_slug=context['project'].slug,
                 version_slug=context['version'].slug,

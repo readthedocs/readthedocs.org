@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
 
-import getpass
 import os
 import subprocess
 
