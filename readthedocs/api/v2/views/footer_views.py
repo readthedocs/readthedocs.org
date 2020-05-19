@@ -15,6 +15,7 @@ from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 from readthedocs.projects.version_handling import (
     highest_version,
@@ -148,7 +149,7 @@ class BaseFooterHTML(APIView):
         page_slug = self.request.GET.get('page', '')
         path = ''
         if page_slug and page_slug != 'index':
-            if version.documentation_type == 'sphinx_htmldir':
+            if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
