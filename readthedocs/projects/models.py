@@ -54,7 +54,6 @@ from .constants import (
 
 
 log = logging.getLogger(__name__)
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 
 class ProjectRelationship(models.Model):
@@ -554,12 +553,24 @@ class Project(models.Model):
 
         if self.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
-            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'
 
         return path
+
+    @property
+    def proxied_api_host(self):
+        to_convert = self.urlconf
+
+        if to_convert:
+            return '/' + to_convert.split('$', 1)[0].rstrip('/').lstrip('/') + '/_'
+        return getattr(settings, 'DOC_PATH_PREFIX')
+
+    @property
+    def proxied_api_url(self):
+        return self.proxied_api_host + '/'
 
     @property
     def real_urlconf(self):

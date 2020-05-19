@@ -9,13 +9,16 @@ import logging
 import sys
 import time
 
-from django.urls import path, re_path
+from django.urls import re_path
+from django.conf.urls import include, url
 from django.conf import settings
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.models import Domain, Project, Feature
 from readthedocs.proxito.views.serve import ServeDocs
+from readthedocs.projects.views.public import  ProjectDownloadMedia
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -177,6 +180,23 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project.has_feature(Feature.PROJECT_URL_ROUTES) and project.urlconf:
             class fakeurlconf:
                 urlpatterns = [
+                    url(r'{proxied_api_url}api/v2/'.format(
+                        proxied_api_url=project.proxied_api_url,
+                    ),
+                        include('readthedocs.api.v2.proxied_urls'),
+                    ),
+                    url(
+                        (
+                            r'{proxied_api_url}downloads/'
+                            r'(?P<lang_slug>{lang_slug})/'
+                            r'(?P<version_slug>{version_slug})/'
+                            r'(?P<type_>[-\w]+)/$'.format(
+                                proxied_api_url=project.proxied_api_url,
+                                **pattern_opts)
+                        ),
+                        ProjectDownloadMedia.as_view(same_domain_url=True),
+                        name='project_download_media',
+                    ),
                     re_path(project.real_urlconf, ServeDocs.as_view()),
                     re_path('^' + project.real_urlconf, ServeDocs.as_view()),
                     re_path('^/' + project.real_urlconf, ServeDocs.as_view()),
