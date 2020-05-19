@@ -7,7 +7,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
 from django.http import (
     Http404,
     HttpResponseBadRequest,
@@ -1006,18 +1006,21 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             project.slug,
         )
 
-        queries = []
-        qs = SearchQuery.objects.filter(project=project)
-        if qs.exists():
-            qs = (
-                qs.values('query')
-                .annotate(count=Count('id'))
-                .order_by('-count', 'query')
-                .values_list('query', 'count', 'total_results')
+        project_queries = SearchQuery.objects.filter(project=project)
+        last_total_results = (
+            project_queries.filter(query=OuterRef('query'))
+            .order_by('-modified')
+            .values('total_results')
+        )
+        queries = (
+            project_queries.values('query')
+            .annotate(
+                count=Count('id'),
+                total_results=Subquery(last_total_results[:1])
             )
-
-            # only show top 100 queries
-            queries = qs[:100]
+            .order_by('-count', 'query')
+            .values_list('query', 'count', 'total_results')
+        )[:100]
 
         context.update(
             {
