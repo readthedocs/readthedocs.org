@@ -225,7 +225,7 @@ class BaseFooterHTML(APIView):
 
         # increase the page view count for the given page
         page_slug = request.GET.get('page', '')
-        if page_slug:
+        if page_slug and settings.RTD_STORE_PAGEVIEWS:
             increase_page_view_count.delay(
                 project_slug=context['project'].slug,
                 version_slug=context['version'].slug,
