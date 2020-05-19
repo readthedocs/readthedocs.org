@@ -11,6 +11,7 @@ from django_extensions.db.models import TimeStampedModel
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.projects.querysets import RelatedProjectQuerySet
+from readthedocs.search.utils import _last_30_days_iter
 
 
 class SearchQuery(TimeStampedModel):
@@ -64,9 +65,6 @@ class SearchQuery(TimeStampedModel):
         today = timezone.now().date()
         last_30th_day = timezone.now().date() - timezone.timedelta(days=30)
 
-        # this includes the current day also
-        last_31_days_iter = [last_30th_day + timezone.timedelta(days=n) for n in range(31)]
-
         qs = cls.objects.filter(
             project__slug=project_slug,
             created__date__lte=today,
@@ -83,17 +81,17 @@ class SearchQuery(TimeStampedModel):
             .values_list('created_date', 'count')
         )
 
-        count_data = [count_dict.get(date) or 0 for date in last_31_days_iter]
+        count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
 
         # format the date value to a more readable form
         # Eg. `16 Jul`
-        last_31_days_str = [
+        last_30_days_str = [
             timezone.datetime.strftime(date, '%d %b')
-            for date in last_31_days_iter
+            for date in _last_30_days_iter()
         ]
 
         final_data = {
-            'labels': last_31_days_str,
+            'labels': last_30_days_str,
             'int_data': count_data,
         }
 
