@@ -87,8 +87,8 @@ class TestSearchTasks:
             SearchQuery.objects.all().first().query == 'stack overflow'
         ), 'one SearchQuery should be there because partial queries gets updated'
 
-    def test_search_query_not_recorded_when_results_are_zero(self, api_client):
-        """Test that search queries are not recorded when they have zero results."""
+    def test_search_query_recorded_when_results_are_zero(self, api_client):
+        """Test that search queries are recorded when they have zero results."""
 
         assert (
             SearchQuery.objects.all().count() == 0
@@ -102,10 +102,8 @@ class TestSearchTasks:
         }
         resp = api_client.get(self.url, search_params)
 
-        assert (resp.data['count'] == 0)
-        assert (
-            SearchQuery.objects.all().count() == 0
-        ), 'there should be 0 obj since there were no results.'
+        assert resp.data['count'] == 0
+        assert SearchQuery.objects.all().count() == 1
 
     def test_delete_old_search_queries_from_db(self, project):
         """Test that the old search queries are being deleted."""

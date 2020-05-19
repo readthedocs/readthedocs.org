@@ -35,6 +35,12 @@ class SearchQuery(TimeStampedModel):
         _('Query'),
         max_length=4092,
     )
+    total_results = models.IntegerField(
+        _('Total results'),
+        default=0,
+        # TODO: to avoid downtime, remove later.
+        null=True,
+    )
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:

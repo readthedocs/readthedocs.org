@@ -881,6 +881,7 @@ class Project(models.Model):
             {
                 'project': self,
                 'only_active': True,
+                'only_built': True,
             },
         )
         versions = (
@@ -1242,9 +1243,6 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        file_path = None
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
         fjson_paths = []
         basename = os.path.splitext(self.path)[0]
         fjson_paths.append(basename + '.fjson')
@@ -1252,22 +1250,23 @@ class HTMLFile(ImportedFile):
             new_basename = re.sub(r'\/index$', '', basename)
             fjson_paths.append(new_basename + '.fjson')
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.project.get_storage_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
-        try:
-            for fjson_path in fjson_paths:
-                file_path = storage.join(storage_path, fjson_path)
-                if storage.exists(file_path):
-                    return process_file(file_path)
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
-            )
+        for fjson_path in fjson_paths:
+            try:
+                fjson_storage_path = storage.join(storage_path, fjson_path)
+                if storage.exists(fjson_storage_path):
+                    return process_file(fjson_storage_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    fjson_path,
+                )
 
         return {
-            'path': file_path,
+            'path': self.path,
             'title': '',
             'sections': [],
             'domain_data': {},

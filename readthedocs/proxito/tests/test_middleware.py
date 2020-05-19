@@ -50,7 +50,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.assertEqual(request.canonicalize, 'https')
 
     def test_canonical_cname_redirect(self):
-        """Requests to the public domain URL should redirect to the custom domain only if the domain is canonical."""
+        """Requests to the public domain URL should redirect to the custom domain if the domain is canonical/https."""
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
@@ -59,8 +59,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertIsNone(res)
         self.assertFalse(hasattr(request, 'canonicalize'))
 
-        # Make the domain canonical and make sure we redirect
+        # Make the domain canonical/https and make sure we redirect
         domain.canonical = True
+        domain.https = True
         domain.save()
         for url in (self.url, '/subdir/'):
             request = self.request(url, HTTP_HOST='pip.dev.readthedocs.io')

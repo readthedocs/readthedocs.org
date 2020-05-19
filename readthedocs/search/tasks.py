@@ -145,7 +145,7 @@ def delete_old_search_queries_from_db():
 
 @app.task(queue='web')
 def record_search_query(project_slug, version_slug, query, total_results, time_string):
-    """Record/update search query in database."""
+    """Record/update a search query for analytics."""
     if not project_slug or not version_slug or not query:
         log.debug(
             'Not recording the search query. Passed arguments: '
@@ -163,23 +163,14 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         modified__gte=before_10_sec,
     ).order_by('-modified')
 
-    # check if partial query exists,
-    # if yes, then just update the object.
+    # If a partial query exists,
+    # then just update that object.
     for partial_query in partial_query_qs.iterator():
         if query.startswith(partial_query.query):
             partial_query.query = query
+            partial_query.total_results = total_results
             partial_query.save()
             return
-
-    # don't record query with zero results.
-    if not total_results:
-        log.debug(
-            'Not recording search query because of zero results. Passed arguments: '
-            'project_slug: %s, version_slug: %s, query: %s, total_results: %s, time: %s' % (
-                project_slug, version_slug, query, total_results, time
-            )
-        )
-        return
 
     project = Project.objects.filter(slug=project_slug).first()
     if not project:
@@ -191,9 +182,9 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         )
         return
 
-    version_qs = Version.objects.filter(project=project, slug=version_slug)
+    version = Version.objects.filter(project=project, slug=version_slug).first()
 
-    if not version_qs.exists():
+    if not version:
         log.debug(
             'Not recording the search query because version does not exist. '
             'project_slug: %s, version_slug: %s' % (
@@ -202,13 +193,12 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         )
         return
 
-    version = version_qs.first()
-
-    # make a new SearchQuery object.
+    # Create a new SearchQuery object.
     SearchQuery.objects.create(
         project=project,
         version=version,
         query=query,
+        total_results=total_results,
     )
 
 

@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('projects', '0048_remove_version_privacy_field'),
         ('builds', '0019_migrate_protected_versions_to_hidden'),
-        ('search', '0001_initial'),
+        ('search', '0002_add_total_results_field'),
     ]
 
     operations = [

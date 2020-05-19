@@ -16,9 +16,10 @@
   <div class="module-list">
     <div class="module-list-wrapper">
       <ul class="long-list-overflow">
-        {% for query, count in queries %}
+        {% for query, count, total_results in queries %}
           <li class="module-item">
             {{ query }}
+            ({{ total_results }} result{{ total_results|pluralize:"s" }})
             <span class="right quiet">
               {{ count }} search{{ count|pluralize:"es" }}
             </span>

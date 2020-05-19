@@ -56,7 +56,10 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
-            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+            if Domain.objects.filter(project__slug=project_slug).filter(
+                canonical=True,
+                https=True,
+            ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
                 request.canonicalize = 'canonical-cname'
             return project_slug
