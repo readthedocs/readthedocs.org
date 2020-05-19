@@ -32,6 +32,7 @@ from vanilla import (
     UpdateView,
 )
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
     RegexAutomationRule,
@@ -81,7 +82,7 @@ from readthedocs.projects.views.mixins import (
     ProjectImportMixin,
     ProjectRelationListMixin,
 )
-from readthedocs.search.models import SearchQuery, PageView
+from readthedocs.search.models import SearchQuery
 
 from ..tasks import retry_domain_verification
 

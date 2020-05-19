@@ -2,13 +2,12 @@ import logging
 
 from dateutil.parser import parse
 from django.apps import apps
-from django.db.models import F
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
-from readthedocs.search.models import SearchQuery, PageView
+from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
 from .utils import _get_index, _get_document
 
@@ -200,29 +199,3 @@ def record_search_query(project_slug, version_slug, query, total_results, time_s
         query=query,
         total_results=total_results,
     )
-
-
-@app.task(queue='web')
-def increase_page_view_count(project_slug, version_slug, path):
-    project = Project.objects.get(slug=project_slug)
-
-    page_view, _ = PageView.objects.get_or_create(
-        project=project,
-        version=Version.objects.get(project=project, slug=version_slug),
-        path=path,
-        date=timezone.now().date(),
-    )
-    PageView.objects.filter(pk=page_view.pk).update(
-        view_count=F('view_count') + 1
-    )
-
-
-@app.task(queue='web')
-def delete_old_page_counts():
-    """
-    Delete page counts older than 30 days.
-
-    This is intended to run from a periodic task daily.
-    """
-    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
-    return PageView.objects.filter(date__lt=thirty_days_ago).delete()

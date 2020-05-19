@@ -20,7 +20,7 @@ from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
-from readthedocs.search.tasks import increase_page_view_count
+from readthedocs.analytics.tasks import increase_page_view_count
 
 
 def get_version_compare_data(project, base_version=None):

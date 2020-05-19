@@ -352,7 +352,7 @@ class CommunityBaseSettings(Settings):
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-page-views': {
-            'task': 'readthedocs.search.tasks.delete_old_page_counts',
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
