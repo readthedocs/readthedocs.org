@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse, re_path
+from django.conf.urls import include
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
@@ -22,7 +23,7 @@ from taggit.managers import TaggableManager
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import broadcast, slugify
+from readthedocs.core.utils import slugify
 from readthedocs.constants import pattern_opts
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
@@ -44,6 +45,7 @@ from readthedocs.projects.version_handling import determine_stable_version
 from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
+
 
 from .constants import (
     MEDIA_TYPES,
@@ -570,7 +572,7 @@ class Project(models.Model):
 
     @property
     def proxied_api_url(self):
-        return self.proxied_api_host + '/'
+        return self.proxied_api_host.lstrip('/').rstrip('/') + '/'
 
     @property
     def real_urlconf(self):
@@ -604,6 +606,38 @@ class Project(models.Model):
                 'Looks like an unconverted variable in a project URLConf: to_convert=%s', to_convert
             )
         return to_convert
+
+    @property
+    def url_class(self):
+        from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.views.serve import ServeDocs
+
+        class fakeurlconf:
+            urlpatterns = [
+                re_path(r'{proxied_api_url}api/v2/'.format(
+                    proxied_api_url=self.proxied_api_url,
+                    ),
+                    include('readthedocs.api.v2.proxied_urls'),
+                    name='fake_proxied_api'
+                ),
+                re_path(
+                    r'{proxied_api_url}downloads/'
+                    r'(?P<lang_slug>{lang_slug})/'
+                    r'(?P<version_slug>{version_slug})/'
+                    r'(?P<type_>[-\w]+)/$'.format(
+                        proxied_api_url=self.proxied_api_url,
+                        **pattern_opts),
+                    ProjectDownloadMedia.as_view(same_domain_url=True),
+                    name='fake_proxied_downloads'
+                ),
+                re_path(
+                    '^' + self.real_urlconf,
+                    ServeDocs.as_view(),
+                    name='fake_proxied_serve_docs'
+                ),
+            ]
+            log.debug('URLConf: project=%s urlpatterns=%s', self, urlpatterns)
+        return fakeurlconf
 
     @property
     def is_subproject(self):
@@ -1522,7 +1556,6 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
-    PROJECT_URL_ROUTES = 'project_url_routes'
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1600,10 +1633,6 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
-        ),
-        (
-            PROJECT_URL_ROUTES,
-            _('Route projects by their own urlconf'),
         ),
         (
             FORCE_SPHINX_FROM_VENV,

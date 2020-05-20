@@ -1,5 +1,7 @@
 # Copied from test_middleware.py
 
+import sys
+
 import pytest
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -143,3 +145,53 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         request = self.request(self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 400)
+
+
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake')
+@pytest.mark.proxito
+class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
+
+    def setUp(self):
+        self.owner = create_user(username='owner', password='test')
+        self.domain = 'pip.dev.readthedocs.io'
+        self.pip = get(
+            Project,
+            slug='pip',
+            users=[self.owner],
+            privacy_level='public',
+            urlconf='subpath/to/$version/$language/$filename'  # Flipped
+        )
+        sys.modules['fake'] = self.pip.url_class
+
+    def test_middleware_urlconf(self):
+        resp = self.client.get('/subpath/to/testing/en/foodex.html', HTTP_HOST=self.domain)
+        print(resp.resolver_match)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/pip/testing/foodex.html',
+        )
+
+    def test_middleware_urlconf_invalid(self):
+        resp = self.client.get('/subpath/to/latest/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_middleware_urlconf_subpath_downloads(self):
+        # These aren't configurable yet
+        resp = self.client.get('/subpath/to/_/downloads/en/latest/pdf/', HTTP_HOST=self.domain)
+        print(resp.resolver_match)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/pdf/pip/latest/pip.pdf',
+        )
+
+    def test_middleware_urlconf_subpath_api(self):
+        # These aren't configurable yet
+        resp = self.client.get('/subpath/to/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index', HTTP_HOST=self.domain)
+        print(resp.resolver_match)
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            'Inserted RTD Footer',
+        )
