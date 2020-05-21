@@ -1,3 +1,39 @@
+Version 5.1.0
+-------------
+
+:Date: May 19, 2020
+
+This release includes one major new feature which is Pageview Analytics.
+This allows projects to see the pages in their docs that have been viewed in the past 30 days,
+giving them an idea of what pages to focus on when updating them.
+
+This release also has a few small search improvements, doc updates, and other bugfixes as well.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@stsewd <https://github.com/stsewd>`__: Privacy levels: migrate protected versions (`#7092 <https://github.com/readthedocs/readthedocs.org/pull/7092>`__)
+* `@humitos <https://github.com/humitos>`__: Guide for Embed API (`#7089 <https://github.com/readthedocs/readthedocs.org/pull/7089>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document HSTS support (`#7083 <https://github.com/readthedocs/readthedocs.org/pull/7083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: record queries with 0 results (`#7081 <https://github.com/readthedocs/readthedocs.org/pull/7081>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: track total results (`#7080 <https://github.com/readthedocs/readthedocs.org/pull/7080>`__)
+* `@humitos <https://github.com/humitos>`__: Proxy embed URL (`#7079 <https://github.com/readthedocs/readthedocs.org/pull/7079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Little refactor (`#7076 <https://github.com/readthedocs/readthedocs.org/pull/7076>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonical/HTTPS redirect fix (`#7075 <https://github.com/readthedocs/readthedocs.org/pull/7075>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx Search: don't skip indexing if one file fails (`#7071 <https://github.com/readthedocs/readthedocs.org/pull/7071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: generate full link from the server side (`#7070 <https://github.com/readthedocs/readthedocs.org/pull/7070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix PR builds being marked built (`#7069 <https://github.com/readthedocs/readthedocs.org/pull/7069>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a page about choosing between .com/.org (`#7068 <https://github.com/readthedocs/readthedocs.org/pull/7068>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.0.0 (`#7064 <https://github.com/readthedocs/readthedocs.org/pull/7064>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Index more content from sphinx (`#7063 <https://github.com/readthedocs/readthedocs.org/pull/7063>`__)
+* `@santos22 <https://github.com/santos22>`__: Hide unbuilt versions in footer flyout (`#7056 <https://github.com/readthedocs/readthedocs.org/pull/7056>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search Document: remove unused class methods (`#7035 <https://github.com/readthedocs/readthedocs.org/pull/7035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: iterate over valid facets only (`#7034 <https://github.com/readthedocs/readthedocs.org/pull/7034>`__)
+* `@stsewd <https://github.com/stsewd>`__: RTDFacetedSearch: pass filters in one way only (`#7032 <https://github.com/readthedocs/readthedocs.org/pull/7032>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+
 Version 5.0.0
 -------------
 

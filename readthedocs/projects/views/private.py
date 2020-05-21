@@ -6,7 +6,6 @@ import logging
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import (
     Http404,
@@ -33,6 +32,7 @@ from vanilla import (
     UpdateView,
 )
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
     RegexAutomationRule,
@@ -41,7 +41,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.mixins import (
     ListViewWithForm,
-    LoginRequiredMixin,
     PrivateViewMixin,
 )
 from readthedocs.core.utils import broadcast, trigger_build
@@ -977,15 +976,6 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-@login_required
-def search_analytics_view(request, project_slug):
-    """View for search analytics."""
-    project = get_object_or_404(
-        Project.objects.for_admin_user(request.user),
-        slug=project_slug,
-    )
-
-
 class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
@@ -1063,3 +1053,32 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         )
         response['Content-Disposition'] = f'attachment; filename="{file_name}"'
         return response
+
+
+class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+
+    template_name = 'projects/project_traffic_analytics.html'
+    http_method_names = ['get']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_project()
+
+        # Count of views for top pages over the month
+        top_pages = PageView.top_viewed_pages(project)
+        top_viewed_pages = zip(
+            top_pages['pages'],
+            top_pages['view_counts']
+        )
+
+        # Aggregate pageviews grouped by day
+        page_data = PageView.page_views_by_date(
+            project_slug=project.slug,
+        )
+
+        context.update({
+            'top_viewed_pages': top_viewed_pages,
+            'page_data': page_data,
+        })
+
+        return context
