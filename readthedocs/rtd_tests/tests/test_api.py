@@ -2254,6 +2254,7 @@ class IntegrationsTests(TestCase):
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
+    maxDiff = None
 
     def test_get_version_by_id(self):
         """
@@ -2314,6 +2315,7 @@ class APIVersionTests(TestCase):
                 'slug': 'pip',
                 'use_system_packages': False,
                 'users': [1],
+                'urlconf': None,
             },
             'privacy_level': 'public',
             'downloads': {},

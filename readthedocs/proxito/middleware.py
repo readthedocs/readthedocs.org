@@ -7,7 +7,6 @@ Additional processing is done to get the project from the URL in the ``views.py`
 """
 import logging
 import sys
-import time
 
 from django.conf import settings
 from django.shortcuts import render
