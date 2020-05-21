@@ -59,7 +59,7 @@ function get() {
 
     $.extend(config, defaults, window.READTHEDOCS_DATA);
 
-    if (!("proxied_api_host" in config)) {    
+    if (!("proxied_api_host" in config)) {
         // Use direct proxied API host
         config.proxied_api_host = '/_';
     }
