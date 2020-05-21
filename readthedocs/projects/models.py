@@ -555,10 +555,10 @@ class Project(models.Model):
 
         if self.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/' # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/' # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
 
         return path
 
@@ -575,7 +575,7 @@ class Project(models.Model):
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
             url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + default_prefix
+            return '/' + url_prefix.strip('/') + '/' + default_prefix
         return default_prefix
 
     @property

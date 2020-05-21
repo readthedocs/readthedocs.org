@@ -147,7 +147,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(res.status_code, 400)
 
 
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake')
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake_urlconf')
 @pytest.mark.proxito
 class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
@@ -161,7 +161,12 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             privacy_level='public',
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
-        sys.modules['fake'] = self.pip.proxito_urlconf
+        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
+
+    def test_proxied_api_methods(self):
+        # This is mostly a unit test, but useful to make sure the below tests work
+        self.assertEqual(self.pip.proxied_api_url, 'subpath/to/_/')
+        self.assertEqual(self.pip.proxied_api_host, '/subpath/to/_/')
 
     def test_middleware_urlconf(self):
         resp = self.client.get('/subpath/to/testing/en/foodex.html', HTTP_HOST=self.domain)
