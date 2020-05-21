@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 
 
 class PaginatorPage:
+
     """
     Mimics the result from a paginator.
 
@@ -51,6 +52,7 @@ class PaginatorPage:
 
 
 class SearchPagination(PageNumberPagination):
+
     """Paginator for the results of PageSearch."""
 
     page_size = 50
@@ -152,6 +154,7 @@ class PageSearchSerializer(serializers.Serializer):
 
 
 class PageSearchAPIView(GenericAPIView):
+
     """
     Main entry point to perform a search using Elasticsearch.
 
