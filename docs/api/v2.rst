@@ -323,14 +323,18 @@ Embed
 
 .. http:get::  /api/v2/embed/
 
-    Retrieve details of builds ordered by most recent first
+    Retrieve HTML-formatted content from documentation page or section.
 
     **Example request**:
 
     .. prompt:: bash $
 
         curl https://readthedocs.org/api/v2/embed/?project=docs&version=latest&doc=features&path=features.html
-        # or
+
+    or
+
+    .. prompt:: bash $
+
         curl https://readthedocs.org/api/v2/embed/?url=https://docs.readthedocs.io/en/latest/features.html
 
     **Example response**:
