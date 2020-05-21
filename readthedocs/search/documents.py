@@ -65,8 +65,19 @@ class PageDocument(RTDDocTypeMixin, DocType):
         properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
-            'content': fields.TextField(),
-        }
+            'content': fields.TextField(
+                # term_vector='with_positions_offsets_payloads',
+                # index_options='positions',
+            ),
+            'blocks': fields.NestedField(
+                properties={
+                    'start': fields.IntegerField(),
+                    'end': fields.IntegerField(),
+                    'type': fields.TextField(),
+                    'context': fields.TextField(),
+                },
+            ),
+        },
     )
     domains = fields.NestedField(
         properties={

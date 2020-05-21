@@ -105,7 +105,6 @@ class PageSearchBase(RTDFacetedSearch):
         'domains.docstrings',
     ]
     _common_highlight_options = {
-        'encoder': 'html',
         'number_of_fragments': 1,
         'pre_tags': ['<span>'],
         'post_tags': ['</span>'],

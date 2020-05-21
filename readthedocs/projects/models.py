@@ -1309,6 +1309,14 @@ class HTMLFile(ImportedFile):
                     'id': 'section-anchor',
                     'title': 'Section title',
                     'content': 'Section content',
+                    'blocks': [
+                        {
+                            'start': 1,
+                            'end': 5,
+                            'type': 'code-block',
+                            'context': 'python',
+                        }
+                    ]
                 },
             ],
             'domain_data': {},

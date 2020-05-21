@@ -49,12 +49,13 @@ def generate_page_sections(page_title, body, fjson_storage_path):
         node.decompose()
 
     # Index content for pages that don't start with a title.
-    content = _get_content_from_tag(body.body.child)
+    content, blocks = _get_content_from_tag(body.body.child)
     if content:
         yield {
             'id': '',
             'title': page_title,
             'content': content,
+            'blocks': blocks,
         }
 
     # Index content from h1 to h6 headers.
@@ -65,28 +66,47 @@ def generate_page_sections(page_title, body, fjson_storage_path):
 
             div = tag.parent
             section_id = div.attributes.get('id', '')
+            content, blocks = _get_content_from_tag(tag.next)
 
             yield {
                 'id': section_id,
                 'title': title,
-                'content': _get_content_from_tag(tag.next),
+                'content': content,
+                'blocks': blocks,
             }
 
 
 def _get_content_from_tag(tag):
-    """Gets the content from tag till before a new section."""
+    """Gets the content and blocks from `tag` till before a new section."""
     contents = []
+    blocks = []
+
     next_tag = tag
+    char_count = 0
     while next_tag and not _is_section(next_tag):
         if _is_code_section(next_tag):
             content = _parse_code_section(next_tag)
+            if content:
+                content = '\n' + content + '\n'
+                start = char_count + 1
+                end = start + len(content) - 1
+                blocks.append(
+                    {
+                        'start': start,
+                        'end': end,
+                        'type': 'codeblock',
+                        'context': '',
+                    }
+                )
         else:
             content = parse_content(next_tag.text())
 
         if content:
+            char_count += len(content) + 1
             contents.append(content)
+
         next_tag = next_tag.next
-    return ' '.join(contents)
+    return ' '.join(contents), blocks
 
 
 def _is_code_section(tag):
@@ -105,7 +125,7 @@ def _is_section(tag):
     """Check if `tag` is a sphinx section (linkeable header)."""
     return (
         tag.tag == 'div' and
-        'section' in tag.attributes.get('class', [])
+        'section' in tag.attributes.get('class', '').split()
     )
 
 
@@ -125,12 +145,9 @@ def _parse_code_section(tag):
             parent.attributes.get('class') == 'highlight'
         )
         if is_code_block:
-            # XXX: Don't call to `parse_content`
-            # if we decide to show code results more nicely,
-            # so the indentation isn't lost.
-            content = node.text().strip('\n')
-            contents.append(parse_content(content))
-    return ' '.join(contents)
+            content = node.text().strip('\n').rstrip()
+            contents.append(content)
+    return '\n'.join(contents)
 
 
 def process_file(fjson_storage_path):
@@ -301,6 +318,7 @@ def process_mkdocs_index_file(json_storage_path, page):
             'id': fragment,
             'title': title,
             'content': content,
+            'blocks': [],
         })
 
     return page_data
