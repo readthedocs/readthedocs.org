@@ -182,7 +182,8 @@ class ProxitoMiddleware(MiddlewareMixin):
                 'Setting URLConf: project=%s, url_key=%s, urlconf=%s',
                 project, url_key, project.urlconf,
             )
-            sys.modules[url_key] = project.proxito_urlconf
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
             request.urlconf = url_key
 
         return None
