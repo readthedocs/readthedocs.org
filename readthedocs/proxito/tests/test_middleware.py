@@ -161,7 +161,7 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             privacy_level='public',
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
-        sys.modules['fake'] = self.pip.url_class
+        sys.modules['fake'] = self.pip.proxito_urlconf
 
     def test_middleware_urlconf(self):
         resp = self.client.get('/subpath/to/testing/en/foodex.html', HTTP_HOST=self.domain)
@@ -188,7 +188,10 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
     def test_middleware_urlconf_subpath_api(self):
         # These aren't configurable yet
-        resp = self.client.get('/subpath/to/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index', HTTP_HOST=self.domain)
+        resp = self.client.get(
+            '/subpath/to/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index',
+            HTTP_HOST=self.domain
+        )
         print(resp.resolver_match)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(

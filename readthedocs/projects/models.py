@@ -23,7 +23,7 @@ from taggit.managers import TaggableManager
 from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import slugify
+from readthedocs.core.utils import broadcast, slugify
 from readthedocs.constants import pattern_opts
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
@@ -555,24 +555,37 @@ class Project(models.Model):
 
         if self.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/' # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/' # noqa
 
         return path
 
     @property
     def proxied_api_host(self):
-        to_convert = self.urlconf
+        """
+        Used for the proxied_api_host in javascript.
 
-        if to_convert:
-            return '/' + to_convert.split('$', 1)[0].rstrip('/').lstrip('/') + '/_'
-        return getattr(settings, 'DOC_PATH_PREFIX')
+        This needs to start with a slash at the root of the domain,
+        # and end with the DOC_PATH_PREFIX.
+        """
+        default_prefix = getattr(settings, 'DOC_PATH_PREFIX')
+        if self.urlconf:
+            # Add our proxied api host at the first place we have a $variable
+            # This supports both subpaths & normal root hosting
+            url_prefix = self.urlconf.split('$', 1)[0]
+            return '/' + url_prefix.strip('/') + default_prefix
+        return default_prefix
 
     @property
     def proxied_api_url(self):
-        return self.proxied_api_host.lstrip('/').rstrip('/') + '/'
+        """
+        Like the api_host but for use as a URL prefix.
+
+        It can't start with a /, but has to end with one.
+        """
+        return self.proxied_api_host.strip('/') + '/'
 
     @property
     def real_urlconf(self):
@@ -603,20 +616,27 @@ class Project(models.Model):
 
         if '$' in to_convert:
             log.warning(
-                'Looks like an unconverted variable in a project URLConf: to_convert=%s', to_convert
+                'Unconverted variable in a project URLConf: project=%s, to_convert=%s',
+                self, to_convert
             )
         return to_convert
 
     @property
-    def url_class(self):
+    def proxito_urlconf(self):
+        """
+        This is the URLConf that is dynamically inserted via proxito
+
+        It is used for doc serving on projects that have their own URLConf.
+        """
         from readthedocs.projects.views.public import ProjectDownloadMedia
         from readthedocs.proxito.views.serve import ServeDocs
 
-        class fakeurlconf:
+        class ProxitoURLConf:
+            """A URLConf dynamically inserted by Proxito"""
+
             urlpatterns = [
-                re_path(r'{proxied_api_url}api/v2/'.format(
-                    proxied_api_url=self.proxied_api_url,
-                    ),
+                re_path(
+                    r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
                     include('readthedocs.api.v2.proxied_urls'),
                     name='fake_proxied_api'
                 ),
@@ -631,13 +651,13 @@ class Project(models.Model):
                     name='fake_proxied_downloads'
                 ),
                 re_path(
-                    '^' + self.real_urlconf,
+                    '^{real_urlconf}'.format(real_urlconf=self.real_urlconf),
                     ServeDocs.as_view(),
                     name='fake_proxied_serve_docs'
                 ),
             ]
-            log.debug('URLConf: project=%s urlpatterns=%s', self, urlpatterns)
-        return fakeurlconf
+
+        return ProxitoURLConf
 
     @property
     def is_subproject(self):

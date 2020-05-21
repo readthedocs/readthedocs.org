@@ -13,10 +13,7 @@ from django.conf import settings
 from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.constants import pattern_opts
-from readthedocs.projects.models import Domain, Project, Feature
-from readthedocs.proxito.views.serve import ServeDocs
-from readthedocs.projects.views.public import ProjectDownloadMedia
+from readthedocs.projects.models import Domain, Project
 
 log = logging.getLogger(__name__)  # noqa
 
@@ -178,14 +175,14 @@ class ProxitoMiddleware(MiddlewareMixin):
         if project.urlconf:
 
             # Stop Django from caching URLs
-            ns = time.mktime(time.gmtime())
-            url_key = f'rtd.urls.fake.{project.slug}.{ns}'
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S")
+            url_key = f'rtd.urls.fake.{project.slug}.{project_timestamp}'
 
             log.info(
-                'Setting URLConf: project=%s, url_key=%s, urlconf=%s, real_urlconf=%s',
-                project, url_key, project.urlconf, project.real_urlconf,
+                'Setting URLConf: project=%s, url_key=%s, urlconf=%s',
+                project, url_key, project.urlconf,
             )
-            sys.modules[url_key] = project.url_class
+            sys.modules[url_key] = project.proxito_urlconf
             request.urlconf = url_key
 
         return None

@@ -80,6 +80,8 @@ class ResolverBase:
         else:
             url += '{language}/{version_slug}/{filename}'
 
+        # Allow users to override their own URLConf
+        # This logic could be cleaned up with a standard set of variable replacements
         if urlconf:
             url = urlconf
             url = url.replace(
@@ -98,6 +100,10 @@ class ResolverBase:
                 '$subproject',
                 '{subproject_slug}',
             )
+            if '$' in url:
+                log.warning(
+                    'Unconverted variable in a resolver URLConf: url=%s', url
+                )
 
         return url.format(
             project_slug=project_slug,
