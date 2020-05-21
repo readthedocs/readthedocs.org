@@ -17,6 +17,7 @@ from django.conf.urls import include
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from django.views import defaults
 from shlex import quote
 from taggit.managers import TaggableManager
 
@@ -630,6 +631,7 @@ class Project(models.Model):
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
         from readthedocs.proxito.views.serve import ServeDocs
+        from readthedocs.proxito.views.utils import proxito_404_page_handler
 
         class ProxitoURLConf:
             """A URLConf dynamically inserted by Proxito"""
@@ -656,6 +658,8 @@ class Project(models.Model):
                     name='fake_proxied_serve_docs'
                 ),
             ]
+            handler404 = proxito_404_page_handler
+            handler500 = defaults.server_error
 
         return ProxitoURLConf
 
