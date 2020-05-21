@@ -97,7 +97,6 @@ function attach_elastic_search_query(data) {
                             var section_subtitle = "";
                             var section_subtitle_link = "";
                             var section_content = "";
-                            var content = "";
 
                             var domain = "";
                             var domain_role_name = "";
@@ -135,22 +134,82 @@ function attach_elastic_search_query(data) {
                                 section = inner_hits[j];
                                 section_subtitle = section._source.title;
                                 section_subtitle_link = link + "#" + section._source.id;
-                                section_content = [section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ..."];
 
+                                var content = section._source.content;
+                                var blocks = section._source.blocks || [];
+                                if (content.length > MAX_SUBSTRING_LIMIT) {
+                                    content = content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+                                }
+
+                                section_content = [content];
                                 if (section.highlight) {
                                     if (section.highlight["sections.title"]) {
                                         section_subtitle = xss(section.highlight["sections.title"][0]);
                                     }
 
                                     if (section.highlight["sections.content"]) {
-                                        content = section.highlight["sections.content"];
+                                        var section_contents = section.highlight["sections.content"];
                                         section_content = [];
                                         for (
                                             var k = 0;
-                                            k < content.length && k < MAX_RESULT_PER_SECTION;
-                                             k += 1
+                                            k < section_contents.length && k < MAX_RESULT_PER_SECTION;
+                                            k += 1
                                         ) {
-                                            section_content.push("... " + xss(content[k]) + " ...");
+                                            var is_clean = false;
+                                            var full_content = section._source.content;
+                                            var subsection_content = section_contents[k];
+
+                                            var original_content = subsection_content.replace('<span>', '').replace('</span>', '');
+                                            var start = full_content.indexOf(original_content);
+                                            var end = start + original_content.length - 1;
+
+                                            var hl_start = subsection_content.indexOf('<span>');
+                                            var hl_end = subsection_content.indexOf('</span>');
+                                            var hl_length = hl_end - hl_start - '<span>'.length - 1;
+
+                                            hl_start = start + hl_start;
+                                            hl_end = hl_start + hl_length;
+
+                                            if (start >= 0) {
+                                                for (var b = 0; b < blocks.length; b += 1) {
+                                                    var block = blocks[b];
+                                                    if (
+                                                        hl_start >= block.start && hl_start <= block.end
+                                                        && hl_end >= block.start && hl_end <= block.end
+                                                    ) {
+                                                        start = block.start - start;
+                                                        if (start < 0) {
+                                                            start = 0;
+                                                        }
+                                                        end = start + (block.end - block.start) + '<span></span>'.length;
+                                                        if (end >= subsection_content.length) {
+                                                            end = subsection_content.length - 1;
+                                                        }
+
+                                                        if (block.type === 'codeblock') {
+                                                          var context = xss(block.context);
+                                                          subsection_content =
+                                                            xss(subsection_content.substring(0, start))
+                                                            + '<div class="highlight"><pre>'
+                                                            + xss(subsection_content.substring(start, end + 1))
+                                                            + '</pre></div>'
+                                                            + xss(subsection_content.substring(end + 1));
+                                                        }
+                                                        is_clean = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (end >= subsection_content.trim().length) {
+                                                subsection_content = subsection_content + " ...";
+                                            }
+                                            if (start > 0) {
+                                                subsection_content = "... " + subsection_content;
+                                            }
+                                            if (!is_clean) {
+                                                subsection_content = xss(subsection_content);
+                                            }
+                                            section_content.push(subsection_content);
                                         }
                                     }
                                 }
