@@ -630,13 +630,14 @@ class Project(models.Model):
         It is used for doc serving on projects that have their own URLConf.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
-        from readthedocs.proxito.views.serve import ServeDocs, ServeError404, ServeRobotsTXT, ServeSitemapXML
+        from readthedocs.proxito.views.serve import ServeDocs
         from readthedocs.proxito.views.utils import proxito_404_page_handler
+        from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
             """A URLConf dynamically inserted by Proxito"""
 
-            urlpatterns = [
+            proxied_urls = [
                 re_path(
                     r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
                     include('readthedocs.api.v2.proxied_urls'),
@@ -652,19 +653,15 @@ class Project(models.Model):
                     ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='fake_proxied_downloads'
                 ),
-                re_path(
-                    r'^_proxito_404_(?P<proxito_path>.*)$',
-                    ServeError404.as_view(),
-                    name='proxito_404_handler',
-                ),
-                re_path(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
-                re_path(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+            ]
+            docs_urls = [
                 re_path(
                     '^{real_urlconf}'.format(real_urlconf=self.real_urlconf),
                     ServeDocs.as_view(),
                     name='fake_proxied_serve_docs'
                 ),
             ]
+            urlpatterns = proxied_urls + core_urls + docs_urls
             handler404 = proxito_404_page_handler
             handler500 = defaults.server_error
 
