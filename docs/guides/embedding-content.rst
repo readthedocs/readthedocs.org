@@ -84,7 +84,7 @@ and show a modal when the user clicks in a "Help" link.
 
        .. in your .rst document file
 
-       .. _unbreakable-section-reference
+       .. _unbreakable-section-reference:
 
        Creating an automation rule
        ---------------------------
