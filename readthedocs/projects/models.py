@@ -625,9 +625,9 @@ class Project(models.Model):
     @property
     def proxito_urlconf(self):
         """
-        This is the URLConf that is dynamically inserted via proxito
+        Returns a URLConf class that is dynamically inserted via proxito.
 
-        It is used for doc serving on projects that have their own URLConf.
+        It is used for doc serving on projects that have their own ``urlconf``.
         """
         from readthedocs.projects.views.public import ProjectDownloadMedia
         from readthedocs.proxito.views.serve import ServeDocs
@@ -635,7 +635,8 @@ class Project(models.Model):
         from readthedocs.proxito.urls import core_urls
 
         class ProxitoURLConf:
-            """A URLConf dynamically inserted by Proxito"""
+
+            """A URLConf dynamically inserted by Proxito."""
 
             proxied_urls = [
                 re_path(
