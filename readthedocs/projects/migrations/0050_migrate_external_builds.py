@@ -6,9 +6,10 @@ from django.db import migrations
 def migrate_features(apps, schema_editor):
     # Enable the PR builder for projects with the feature flag
     Feature = apps.get_model('projects', 'Feature')
-    for project in Feature.objects.get(feature_id='external_version_build').projects.all():
-        project.external_builds_enabled = True
-        project.save()
+    if Feature.objects.filter(feature_id='external_version_build').exists():
+        for project in Feature.objects.get(feature_id='external_version_build').projects.all():
+            project.external_builds_enabled = True
+            project.save()
 
 class Migration(migrations.Migration):
 
