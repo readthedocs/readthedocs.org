@@ -209,7 +209,6 @@ class Project(models.Model):
         max_length=255,
         default=None,
         null=True,
-        blank=False,
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
             'An example `$language/$version/$filename`.'
@@ -569,15 +568,14 @@ class Project(models.Model):
         Used for the proxied_api_host in javascript.
 
         This needs to start with a slash at the root of the domain,
-        # and end with the DOC_PATH_PREFIX.
+        and end without a slash
         """
-        default_prefix = getattr(settings, 'DOC_PATH_PREFIX')
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
             url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/' + default_prefix
-        return default_prefix
+            return '/' + url_prefix.strip('/') + '/_'
+        return '/_'
 
     @property
     def proxied_api_url(self):

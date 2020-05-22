@@ -166,7 +166,7 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work
         self.assertEqual(self.pip.proxied_api_url, 'subpath/to/_/')
-        self.assertEqual(self.pip.proxied_api_host, '/subpath/to/_/')
+        self.assertEqual(self.pip.proxied_api_host, '/subpath/to/_')
 
     def test_middleware_urlconf(self):
         resp = self.client.get('/subpath/to/testing/en/foodex.html', HTTP_HOST=self.domain)
