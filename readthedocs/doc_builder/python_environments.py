@@ -361,8 +361,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                # TODO: Set this back after deploy
-                'git+https://github.com/rtfd/readthedocs-sphinx-ext.git@proxied-api-host#egg=readthedocs-sphinx-ext'
+                'readthedocs-sphinx-ext<1.1',
             ])
 
         cmd = copy.copy(pip_install_cmd)
