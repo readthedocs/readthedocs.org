@@ -13,8 +13,8 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.utils import create_user
 
 
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 @pytest.mark.proxito
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
@@ -147,8 +147,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(res.status_code, 400)
 
 
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake_urlconf')
 @pytest.mark.proxito
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake_urlconf')
 class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
