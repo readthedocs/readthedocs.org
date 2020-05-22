@@ -3,6 +3,8 @@
 import sys
 
 import pytest
+from django.conf import settings
+from django.urls.base import set_urlconf
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -148,7 +150,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io', ROOT_URLCONF='fake_urlconf')
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
@@ -162,6 +164,10 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
         sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
+        set_urlconf('fake_urlconf')
+
+    def tearDown(self):
+        set_urlconf(settings.ROOT_URLCONF)
 
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work
