@@ -1,5 +1,5 @@
 # Base packages
-pip==20.0.2
+pip==20.1.1
 appdirs==1.4.3
 virtualenv==20.0.16
 
