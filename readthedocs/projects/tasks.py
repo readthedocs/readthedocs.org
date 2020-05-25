@@ -58,6 +58,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentWarning,
     BuildMaxConcurrencyError,
     BuildTimeoutError,
+    DuplicatedBuildError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -541,6 +542,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.build_force = force
             self.commit = commit
             self.config = None
+
+            if self.build['state'] == BUILD_STATE_FINISHED and self.build['error'] == DuplicatedBuildError.message:
+                log.warning(
+                    'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
+                    self.project.slug,
+                    self.version.slug,
+                    build_pk,
+                    self.commit,
+                )
+                return True
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 response = api_v2.build.running.get(project__slug=self.project.slug)

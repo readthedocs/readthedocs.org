@@ -19,7 +19,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, DuplicatedBuildError
 
 
 log = logging.getLogger(__name__)
@@ -165,8 +165,42 @@ def prepare_build(
         # External builds should be lower priority.
         options['priority'] = CELERY_LOW
 
+    skip_build = False
+    if commit:
+        skip_build = (
+            Build.objects
+            .filter(
+                project=project,
+                version=version,
+                commit=commit,
+            ).exclude(
+                state=BUILD_STATE_FINISHED,
+            ).exists()
+        )
+    else:
+        skip_build = Build.objects.filter(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+        ).count() > 1
+    if skip_build:
+        # TODO: we could mark the old build as duplicated, however we reset our
+        # position in the queue and go back to the end of it --penalization
+        log.warning(
+            'Marking build to be skipped by builder. project=%s version=%s build=%s commit=%s',
+            project.slug,
+            version.slug,
+            build.pk,
+            commit,
+        )
+        build.error = DuplicatedBuildError.message
+        build.success = False
+        build.exit_code = 1
+        build.state = BUILD_STATE_FINISHED
+        build.save()
+
     # Start the build in X minutes and mark it as limited
-    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+    if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
         running_builds = (
             Build.objects
             .filter(project__slug=project.slug)

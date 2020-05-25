@@ -57,6 +57,10 @@ class BuildMaxConcurrencyError(BuildEnvironmentError):
     message = ugettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
 
 
+class DuplicatedBuildError(BuildEnvironmentError):
+    message = ugettext_noop('Duplicated build.')
+
+
 class BuildEnvironmentWarning(BuildEnvironmentException):
     pass
 
