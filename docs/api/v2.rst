@@ -383,10 +383,11 @@ Embed
     :>json object meta: meta data of the requested section.
 
     :query string project: Read the Docs project's slug.
-    :query string version: Read the Docs version's slug.
     :query string doc: document to fetch content from.
-    :query string section: section within the document to fetch.
-    :query string path: full path to the document including extension.
+
+    :query string version: *optional* Read the Docs version's slug (default: ``latest``).
+    :query string section: *optional* section within the document to fetch.
+    :query string path: *optional* full path to the document including extension.
 
     :query string url: full URL of the document (and section) to fetch content from.
 
