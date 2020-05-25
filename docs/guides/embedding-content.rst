@@ -73,6 +73,32 @@ from our own docs and will populate the content of it into the ``#help-container
 You can modify this example to subscribe to ``.onclick`` Javascript event,
 and show a modal when the user clicks in a "Help" link.
 
+.. tip::
+
+    Take into account that if the title changes, your ``section`` argument will break.
+    To avoid that, you can manually define Sphinx references above the sections you don't want to break.
+    For example,
+
+    .. code-block:: rst
+       :emphasize-lines: 3
+
+       .. in your .rst document file
+
+       .. _unbreakable-section-reference:
+
+       Creating an automation rule
+       ---------------------------
+
+       This is the text of the section.
+
+    To link to the section "Creating an automation rule" you can send ``section=unbreakable-section-reference``.
+    If you change the title it won't break the embedded content because the label for that title will still be ``unbreakable-section-reference``.
+
+    Please, take a look at the Sphinx `:ref:` `role documentation`_ for more information about how to create references.
+
+    .. _role documentation: https://www.sphinx-doc.org/en/stable/usage/restructuredtext/roles.html#role-ref
+
+
 Calling the Embed API directly
 ------------------------------
 
