@@ -10,7 +10,7 @@ class DockerBaseSettings(CommunityDevSettings):
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
-    RTD_DOCKER_COMPOSE_VOLUME = 'community_build-user-builds'
+    RTD_DOCKER_COMPOSE_VOLUME = 'community_' + os.environ.get('BUILD_USER_BUILDS_VOLUME')
     RTD_DOCKER_USER = f'{os.geteuid()}:{os.getegid()}'
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True

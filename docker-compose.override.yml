@@ -59,7 +59,7 @@ services:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.celery_docker
       - CELERY_APP_NAME=readthedocs
 
-  build:
+  build-default: &build
     image: community_server:latest
     volumes:
       - ${PWD}:/usr/src/app/checkouts/readthedocs.org
@@ -67,6 +67,9 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=readthedocs.settings.build_docker
       - CELERY_APP_NAME=readthedocs
+
+  build-large:
+    <<: *build
 
   storage:
     # https://github.com/Azure/Azurite
