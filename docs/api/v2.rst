@@ -343,7 +343,7 @@ Embed
 
         {
             "content": [
-                "..."
+                "<div class=\"section\" id=\"read-the-docs-features\">\n<h1>Read the Docs..."
             ],
             "headers": [
                 {
