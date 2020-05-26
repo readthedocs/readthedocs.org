@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.utils import create_user
@@ -206,4 +206,44 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
         self.assertContains(
             resp,
             'Inserted RTD Footer',
+        )
+
+
+@pytest.mark.proxito
+@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
+class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
+
+    def setUp(self):
+        self.owner = create_user(username='owner', password='test')
+        self.domain = 'pip.dev.readthedocs.io'
+        self.pip = get(
+            Project,
+            slug='pip',
+            users=[self.owner],
+            privacy_level='public',
+            urlconf='subpath/$subproject/$version/$language/$filename'  # Flipped
+        )
+        self.subproject = get(
+            Project,
+            slug='subproject',
+            users=[self.owner],
+            privacy_level='public',
+            main_language_project=None,
+        )
+        self.relationship = get(
+            ProjectRelationship,
+            parent=self.pip,
+            child=self.subproject,
+        )
+
+        self.old_urlconf = get_urlconf()
+        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
+        set_urlconf('fake_urlconf')
+
+    def test_middleware_urlconf_subproject(self):
+        resp = self.client.get('/subpath/subproject/testing/en/foodex.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            '/proxito/media/html/subproject/testing/foodex.html',
         )
