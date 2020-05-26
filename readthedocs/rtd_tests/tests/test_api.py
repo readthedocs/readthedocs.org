@@ -790,6 +790,7 @@ class IntegrationsTests(TestCase):
         self.project = get(
             Project,
             build_queue=None,
+            external_builds_enabled=True,
         )
         self.feature_flag = get(
             Feature,
