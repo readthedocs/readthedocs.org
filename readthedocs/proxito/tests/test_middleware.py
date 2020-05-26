@@ -3,10 +3,8 @@
 import sys
 
 import pytest
-from django.conf import settings
 from django.urls.base import set_urlconf, get_urlconf
 from django.test import TestCase
-from django.urls.exceptions import Resolver404
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
@@ -179,7 +177,6 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
     def test_middleware_urlconf(self):
         resp = self.client.get('/subpath/to/testing/en/foodex.html', HTTP_HOST=self.domain)
-        print(resp.resolver_match)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp['X-Accel-Redirect'],
@@ -187,13 +184,12 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
         )
 
     def test_middleware_urlconf_invalid(self):
-        with self.assertRaises(Resolver404):
-            self.client.get('/subpath/to/latest/index.html', HTTP_HOST=self.domain)
+        resp = self.client.get('/subpath/to/latest/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 404)
 
     def test_middleware_urlconf_subpath_downloads(self):
         # These aren't configurable yet
         resp = self.client.get('/subpath/to/_/downloads/en/latest/pdf/', HTTP_HOST=self.domain)
-        print(resp.resolver_match)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp['X-Accel-Redirect'],
@@ -206,7 +202,6 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             '/subpath/to/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index',
             HTTP_HOST=self.domain
         )
-        print(resp.resolver_match)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(
             resp,

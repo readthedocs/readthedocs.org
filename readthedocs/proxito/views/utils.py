@@ -29,7 +29,7 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
     Maze page.
     """
 
-    if request.resolver_match.url_name != 'proxito_404_handler':
+    if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
         return fast_404(request, exception, template_name)
 
     resp = render(request, template_name)
