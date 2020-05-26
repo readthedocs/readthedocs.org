@@ -179,7 +179,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
             # Stop Django from caching URLs
             project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S")
-            url_key = f'rtd.urls.fake.{project.slug}.{project_timestamp}'
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
 
             log.info(
                 'Setting URLConf: project=%s url_key=%s urlconf=%s',
