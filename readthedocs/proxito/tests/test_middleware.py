@@ -4,7 +4,7 @@ import sys
 
 import pytest
 from django.conf import settings
-from django.urls.base import set_urlconf
+from django.urls.base import set_urlconf, get_urlconf
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -163,11 +163,13 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             privacy_level='public',
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
+
+        self.old_urlconf = get_urlconf()
         sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
         set_urlconf('fake_urlconf')
 
     def tearDown(self):
-        set_urlconf(settings.ROOT_URLCONF)
+        set_urlconf(self.old_urlconf)
 
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work

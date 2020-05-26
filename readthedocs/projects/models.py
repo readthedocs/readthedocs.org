@@ -211,8 +211,7 @@ class Project(models.Model):
         null=True,
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
-            'An example `$language/$version/$filename`.'
-            'https://docs.djangoproject.com/en/2.2/topics/http/urls/#path-converters'
+            'An example: `$language/$version/$filename`.'
         ),
     )
 
@@ -587,7 +586,7 @@ class Project(models.Model):
         return self.proxied_api_host.strip('/') + '/'
 
     @property
-    def real_urlconf(self):
+    def regex_urlconf(self):
         """
         Convert User's URLConf into a proper django URLConf.
 
@@ -640,7 +639,7 @@ class Project(models.Model):
                 re_path(
                     r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
                     include('readthedocs.api.v2.proxied_urls'),
-                    name='fake_proxied_api'
+                    name='user_proxied_api'
                 ),
                 re_path(
                     r'{proxied_api_url}downloads/'
@@ -650,14 +649,14 @@ class Project(models.Model):
                         proxied_api_url=self.proxied_api_url,
                         **pattern_opts),
                     ProjectDownloadMedia.as_view(same_domain_url=True),
-                    name='fake_proxied_downloads'
+                    name='user_proxied_downloads'
                 ),
             ]
             docs_urls = [
                 re_path(
-                    '^{real_urlconf}'.format(real_urlconf=self.real_urlconf),
+                    '^{regex_urlconf}'.format(regex_urlconf=self.regex_urlconf),
                     ServeDocs.as_view(),
-                    name='fake_proxied_serve_docs'
+                    name='user_proxied_serve_docs'
                 ),
             ]
             urlpatterns = proxied_urls + core_urls + docs_urls

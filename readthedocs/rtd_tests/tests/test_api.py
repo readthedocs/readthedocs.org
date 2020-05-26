@@ -2254,7 +2254,7 @@ class IntegrationsTests(TestCase):
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
-    maxDiff = None
+    maxDiff = None  # So we get an actual diff when it fails
 
     def test_get_version_by_id(self):
         """
