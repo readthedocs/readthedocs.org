@@ -178,7 +178,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             url_key = f'rtd.urls.fake.{project.slug}.{project_timestamp}'
 
             log.info(
-                'Setting URLConf: project=%s, url_key=%s, urlconf=%s',
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
                 project, url_key, project.urlconf,
             )
             if url_key not in sys.modules:

@@ -615,7 +615,7 @@ class Project(models.Model):
 
         if '$' in to_convert:
             log.warning(
-                'Unconverted variable in a project URLConf: project=%s, to_convert=%s',
+                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
                 self, to_convert
             )
         return to_convert
