@@ -790,6 +790,7 @@ class IntegrationsTests(TestCase):
         self.project = get(
             Project,
             build_queue=None,
+            external_builds_enabled=True,
         )
         self.feature_flag = get(
             Feature,
@@ -2254,6 +2255,7 @@ class IntegrationsTests(TestCase):
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
+    maxDiff = None  # So we get an actual diff when it fails
 
     def test_get_version_by_id(self):
         """
@@ -2314,6 +2316,7 @@ class APIVersionTests(TestCase):
                 'slug': 'pip',
                 'use_system_packages': False,
                 'users': [1],
+                'urlconf': None,
             },
             'privacy_level': 'public',
             'downloads': {},
