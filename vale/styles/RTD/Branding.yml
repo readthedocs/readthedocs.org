@@ -1,0 +1,6 @@
+extends: substitution
+message: Use '%s' instead of '%s'
+level: error
+swap:
+  Read The Docs: Read the Docs
+  RTD: Read the Docs

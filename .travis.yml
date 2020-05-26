@@ -24,6 +24,9 @@ jobs:
       env: TOXENV=eslint NODE_VERSION=10.17.0
     - python: 3.6
       env: TOXENV=migrations
+    - python: 3.6
+      env: TOXENV=vale-lint
+      before_install: curl -sfL https://install.goreleaser.com/github.com/ValeLint/vale.sh | sh -s v2.2.0; export PATH="./bin:$PATH"
 
   allow_failures:
     - env: TOXENV=docs-linkcheck
