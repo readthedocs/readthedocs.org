@@ -1,3 +1,21 @@
+Version 5.1.1
+-------------
+
+:Date: May 26, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: show total_results from last query (`#7101 <https://github.com/readthedocs/readthedocs.org/pull/7101>`__)
+* `@humitos <https://github.com/humitos>`__: Add a tip in EmbedAPI to use Sphinx reference in section (`#7099 <https://github.com/readthedocs/readthedocs.org/pull/7099>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.0 (`#7098 <https://github.com/readthedocs/readthedocs.org/pull/7098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+* `@humitos <https://github.com/humitos>`__: GitLab Integration (`#3327 <https://github.com/readthedocs/readthedocs.org/pull/3327>`__)
+
 Version 5.1.0
 -------------
 
