@@ -167,28 +167,6 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
 
-        try:
-            project = Project.objects.get(slug=request.host_project_slug)
-        except Project.DoesNotExist:
-            log.exception('No host_project_slug set on project')
-            return None
-
-        # This is hacky because Django wants a module for the URLConf,
-        # instead of also accepting string
-        if project.urlconf:
-
-            # Stop Django from caching URLs
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S")
-            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
-
-            log.info(
-                'Setting URLConf: project=%s url_key=%s urlconf=%s',
-                project, url_key, project.urlconf,
-            )
-            if url_key not in sys.modules:
-                sys.modules[url_key] = project.proxito_urlconf
-            request.urlconf = url_key
-
         return None
 
     def process_response(self, request, response):  # noqa
