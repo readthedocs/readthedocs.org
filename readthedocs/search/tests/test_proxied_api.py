@@ -12,7 +12,6 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
     @pytest.fixture(autouse=True)
     def setup_settings(self, settings):
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
-        settings.ROOT_URLCONF = 'readthedocs.proxito.urls'
 
     def get_search(self, api_client, search_params):
         return api_client.get(self.url, search_params, HTTP_HOST=self.host)
