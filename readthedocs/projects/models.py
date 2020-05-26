@@ -605,19 +605,19 @@ class Project(models.Model):
         # We should standardize these names so we can loop over them easier
         to_convert = to_convert.replace(
             '$version',
-            '(?P<version_slug>%s)' % pattern_opts['version_slug']
+            '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
         )
         to_convert = to_convert.replace(
             '$language',
-            '(?P<lang_slug>%s)' % pattern_opts['lang_slug']
+            '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
         )
         to_convert = to_convert.replace(
             '$filename',
-            '(?P<filename>%s)' % pattern_opts['filename_slug']
+            '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
         )
         to_convert = to_convert.replace(
             '$subproject',
-            '(?P<subproject_slug>%s)' % pattern_opts['project_slug']
+            '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
         )
 
         if '$' in to_convert:
