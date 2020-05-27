@@ -6,6 +6,7 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
 
 from django.conf import settings
 from django.shortcuts import render
@@ -56,7 +57,10 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
-            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+            if Domain.objects.filter(project__slug=project_slug).filter(
+                canonical=True,
+                https=True,
+            ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
                 request.canonicalize = 'canonical-cname'
             return project_slug
@@ -162,6 +166,28 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
+
+        try:
+            project = Project.objects.get(slug=request.host_project_slug)
+        except Project.DoesNotExist:
+            log.exception('No host_project_slug set on project')
+            return None
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf:
+
+            # Stop Django from caching URLs
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
+                project, url_key, project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
 
         return None
 

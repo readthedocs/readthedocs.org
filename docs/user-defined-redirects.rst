@@ -8,8 +8,8 @@ Quick Summary
 
 * Log into your readthedocs.org account.
 * From your dashboard, select the project on which you wish to add redirects.
-* From the project's top navigation bar, select the Admin tab.
-* From the left navigation menu, select Redirects.
+* From the project's top navigation bar, select the :guilabel:`Admin` tab.
+* From the left navigation menu, select :guilabel:`Redirects`.
 * In the form box "Redirect Type" select the type of redirect you want. See below for detail.
 * Depending on the redirect type you select, enter FROM and/or TO URL as needed.
 * When finished, click the SUBMIT Button.

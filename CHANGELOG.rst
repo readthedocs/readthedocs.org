@@ -1,3 +1,95 @@
+Version 5.1.1
+-------------
+
+:Date: May 26, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: show total_results from last query (`#7101 <https://github.com/readthedocs/readthedocs.org/pull/7101>`__)
+* `@humitos <https://github.com/humitos>`__: Add a tip in EmbedAPI to use Sphinx reference in section (`#7099 <https://github.com/readthedocs/readthedocs.org/pull/7099>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.0 (`#7098 <https://github.com/readthedocs/readthedocs.org/pull/7098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+* `@humitos <https://github.com/humitos>`__: GitLab Integration (`#3327 <https://github.com/readthedocs/readthedocs.org/pull/3327>`__)
+
+Version 5.1.0
+-------------
+
+:Date: May 19, 2020
+
+This release includes one major new feature which is Pageview Analytics.
+This allows projects to see the pages in their docs that have been viewed in the past 30 days,
+giving them an idea of what pages to focus on when updating them.
+
+This release also has a few small search improvements, doc updates, and other bugfixes as well.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@stsewd <https://github.com/stsewd>`__: Privacy levels: migrate protected versions (`#7092 <https://github.com/readthedocs/readthedocs.org/pull/7092>`__)
+* `@humitos <https://github.com/humitos>`__: Guide for Embed API (`#7089 <https://github.com/readthedocs/readthedocs.org/pull/7089>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document HSTS support (`#7083 <https://github.com/readthedocs/readthedocs.org/pull/7083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: record queries with 0 results (`#7081 <https://github.com/readthedocs/readthedocs.org/pull/7081>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: track total results (`#7080 <https://github.com/readthedocs/readthedocs.org/pull/7080>`__)
+* `@humitos <https://github.com/humitos>`__: Proxy embed URL (`#7079 <https://github.com/readthedocs/readthedocs.org/pull/7079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Little refactor (`#7076 <https://github.com/readthedocs/readthedocs.org/pull/7076>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonical/HTTPS redirect fix (`#7075 <https://github.com/readthedocs/readthedocs.org/pull/7075>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx Search: don't skip indexing if one file fails (`#7071 <https://github.com/readthedocs/readthedocs.org/pull/7071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: generate full link from the server side (`#7070 <https://github.com/readthedocs/readthedocs.org/pull/7070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix PR builds being marked built (`#7069 <https://github.com/readthedocs/readthedocs.org/pull/7069>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a page about choosing between .com/.org (`#7068 <https://github.com/readthedocs/readthedocs.org/pull/7068>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.0.0 (`#7064 <https://github.com/readthedocs/readthedocs.org/pull/7064>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Index more content from sphinx (`#7063 <https://github.com/readthedocs/readthedocs.org/pull/7063>`__)
+* `@santos22 <https://github.com/santos22>`__: Hide unbuilt versions in footer flyout (`#7056 <https://github.com/readthedocs/readthedocs.org/pull/7056>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search Document: remove unused class methods (`#7035 <https://github.com/readthedocs/readthedocs.org/pull/7035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: iterate over valid facets only (`#7034 <https://github.com/readthedocs/readthedocs.org/pull/7034>`__)
+* `@stsewd <https://github.com/stsewd>`__: RTDFacetedSearch: pass filters in one way only (`#7032 <https://github.com/readthedocs/readthedocs.org/pull/7032>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+
+Version 5.0.0
+-------------
+
+:Date: May 12, 2020
+
+This release includes two large changes, one that is breaking and requires a major version upgrade:
+
+* We have removed our deprecated doc serving code that used ``core/views``, ``core/symlinks``, and ``builds/syncers`` (`#6535 <https://github.com/readthedocs/readthedocs.org/pull/6535>`__). All doc serving should now be done via ``proxito``. In production this has been the case for over a month, we have now removed the deprecated code from the codebase.
+* We did a large documentation refactor that should make things nicer to read and highlights more of our existing features. This is the first of a series of new documentation additions we have planned
+  
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the caching of featured projects (`#7054 <https://github.com/readthedocs/readthedocs.org/pull/7054>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Mention using ssh URLs when using private submodules (`#7046 <https://github.com/readthedocs/readthedocs.org/pull/7046>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Show project slug in Version admin (`#7042 <https://github.com/readthedocs/readthedocs.org/pull/7042>`__)
+* `@stsewd <https://github.com/stsewd>`__: List apiv3 first (`#7041 <https://github.com/readthedocs/readthedocs.org/pull/7041>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove CELERY_ROUTER flag (`#7040 <https://github.com/readthedocs/readthedocs.org/pull/7040>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove unused taxonomy field (`#7033 <https://github.com/readthedocs/readthedocs.org/pull/7033>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use a high time limit for celery build task (`#7029 <https://github.com/readthedocs/readthedocs.org/pull/7029>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clean up build admin to make list display match search (`#7028 <https://github.com/readthedocs/readthedocs.org/pull/7028>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task Router: check for None (`#7027 <https://github.com/readthedocs/readthedocs.org/pull/7027>`__)
+* `@stsewd <https://github.com/stsewd>`__: Implement repo_exists for all VCS backends (`#7025 <https://github.com/readthedocs/readthedocs.org/pull/7025>`__)
+* `@stsewd <https://github.com/stsewd>`__: Mkdocs: Index pages without anchors (`#7024 <https://github.com/readthedocs/readthedocs.org/pull/7024>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Move docker limits back to setting (`#7023 <https://github.com/readthedocs/readthedocs.org/pull/7023>`__)
+* `@humitos <https://github.com/humitos>`__: Fix typo (`#7022 <https://github.com/readthedocs/readthedocs.org/pull/7022>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix linter (`#7021 <https://github.com/readthedocs/readthedocs.org/pull/7021>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 4.1.8 (`#7020 <https://github.com/readthedocs/readthedocs.org/pull/7020>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup unresolver logging (`#7019 <https://github.com/readthedocs/readthedocs.org/pull/7019>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document about next when using a secret link (`#7015 <https://github.com/readthedocs/readthedocs.org/pull/7015>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused field project.version_privacy_level (`#7011 <https://github.com/readthedocs/readthedocs.org/pull/7011>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add proxito headers to redirect responses (`#7007 <https://github.com/readthedocs/readthedocs.org/pull/7007>`__)
+* `@stsewd <https://github.com/stsewd>`__: Make hidden field not null (`#6996 <https://github.com/readthedocs/readthedocs.org/pull/6996>`__)
+* `@humitos <https://github.com/humitos>`__: Show a list of packages installed on environment (`#6992 <https://github.com/readthedocs/readthedocs.org/pull/6992>`__)
+* `@eric-wieser <https://github.com/eric-wieser>`__: Ensure invoked Sphinx matches importable one (`#6965 <https://github.com/readthedocs/readthedocs.org/pull/6965>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an unresolver similar to our resolver (`#6944 <https://github.com/readthedocs/readthedocs.org/pull/6944>`__)
+* `@KengoTODA <https://github.com/KengoTODA>`__: Replace "PROJECT" with project object (`#6878 <https://github.com/readthedocs/readthedocs.org/pull/6878>`__)
+* `@humitos <https://github.com/humitos>`__: Remove code replaced by El Proxito and stateless servers (`#6535 <https://github.com/readthedocs/readthedocs.org/pull/6535>`__)
+
 Version 4.1.8
 -------------
 

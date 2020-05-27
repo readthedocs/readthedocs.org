@@ -128,7 +128,13 @@ def prepare_build(
         options['queue'] = project.build_queue
 
     # Set per-task time limit
-    time_limit = DOCKER_LIMITS['time']
+    # TODO remove the use of Docker limits or replace the logic here. This
+    # was pulling the Docker limits that were set on each stack, but we moved
+    # to dynamic setting of the Docker limits. This sets a failsafe higher
+    # limit, but if no builds hit this limit, it should be safe to remove and
+    # rely on Docker to terminate things on time.
+    # time_limit = DOCKER_LIMITS['time']
+    time_limit = 7200
     try:
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)

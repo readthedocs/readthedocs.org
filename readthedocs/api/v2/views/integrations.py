@@ -412,6 +412,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Handle pull request events
         if all([
                 self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
+                self.project.external_builds_enabled,
                 event == GITHUB_PULL_REQUEST,
                 action,
         ]):
@@ -568,6 +569,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
         if (
             self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            self.project.external_builds_enabled and
             event == GITLAB_MERGE_REQUEST and action
         ):
             if (

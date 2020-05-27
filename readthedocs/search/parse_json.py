@@ -2,19 +2,29 @@
 
 import logging
 from urllib.parse import urlparse
-import orjson as json
 
+import orjson as json
 from django.conf import settings
 from django.core.files.storage import get_storage_class
-
 from selectolax.parser import HTMLParser
-
 
 log = logging.getLogger(__name__)
 
 
-def generate_page_sections(body, fjson_storage_path):
-    """Generate section dicts for each section."""
+def generate_page_sections(page_title, body, fjson_storage_path):
+    """
+    Generate section dicts for each section for sphinx.
+
+    In Sphinx sub-sections are nested, so they are children of the outer section,
+    and sections with the same level are neighbors.
+    We index the content under a section till before the next one.
+
+    We can have pages that have content before the first title or that don't have a title,
+    we index that content first under the title of the original page (`page_title`).
+
+    Contents that are likely to be a sphinx domain are deleted,
+    since we already index those in another step.
+    """
 
     # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
     nodes_to_be_removed = []
@@ -38,53 +48,49 @@ def generate_page_sections(body, fjson_storage_path):
     for node in nodes_to_be_removed:
         node.decompose()
 
-    # Capture text inside h1 before the first h2
-    h1_section = body.css('.section > h1')
-    if h1_section:
-        h1_section = h1_section[0]
-        div = h1_section.parent
-        h1_title = h1_section.text().replace('¶', '').strip()
-        h1_id = div.attributes.get('id', '')
-        h1_content = ''
-        next_p = body.css_first('h1').next
-        while next_p:
-            if next_p.tag == 'div' and 'class' in next_p.attributes:
-                if 'section' in next_p.attributes['class']:
-                    break
+    # Index content for pages that don't start with a title.
+    content = _get_content_from_tag(body.body.child)
+    if content:
+        yield {
+            'id': '',
+            'title': page_title,
+            'content': content,
+        }
 
-            text = parse_content(next_p.text(), remove_first_line=False)
+    # Index content from h1 to h6 headers.
+    for head_level in range(1, 7):
+        tags = body.css(f'.section > h{head_level}')
+        for tag in tags:
+            title = tag.text().replace('¶', '').strip()
 
-            if h1_content:
-                if text:
-                    h1_content = f'{h1_content} {text}'
-            else:
-                h1_content = text
+            div = tag.parent
+            section_id = div.attributes.get('id', '')
 
-            next_p = next_p.next
-
-        if h1_content:
-            yield {
-                'id': h1_id,
-                'title': h1_title,
-                'content': h1_content,
-            }
-
-    # Capture text inside h2's
-    section_list = body.css('.section > h2')
-    for tag in section_list:
-        div = tag.parent
-        title = tag.text().replace('¶', '').strip()
-        section_id = div.attributes.get('id', '')
-
-        content = div.text()
-        content = parse_content(content, remove_first_line=True)
-
-        if content:
             yield {
                 'id': section_id,
                 'title': title,
-                'content': content,
+                'content': _get_content_from_tag(tag.next),
             }
+
+
+def _get_content_from_tag(tag):
+    """Gets the content from tag till before a new section."""
+    contents = []
+    next_tag = tag
+    while next_tag and not _is_section(next_tag):
+        content = parse_content(next_tag.text())
+        if content:
+            contents.append(content)
+        next_tag = next_tag.next
+    return ' '.join(contents)
+
+
+def _is_section(tag):
+    """Check if `tag` is a sphinx section (linkeable header)."""
+    return (
+        tag.tag == 'div' and
+        'section' in tag.attributes.get('class', [])
+    )
 
 
 def process_file(fjson_storage_path):
@@ -111,10 +117,20 @@ def process_file(fjson_storage_path):
     else:
         log.info('Unable to index file due to no name %s', fjson_storage_path)
 
+    if 'title' in data:
+        title = data['title']
+        title = HTMLParser(title).text().replace('¶', '').strip()
+    else:
+        log.info('Unable to index title for: %s', fjson_storage_path)
+
     if data.get('body'):
         body = HTMLParser(data['body'])
         body_copy = HTMLParser(data['body'])
-        sections = generate_page_sections(body, fjson_storage_path)
+        sections = generate_page_sections(
+            page_title=title,
+            body=body,
+            fjson_storage_path=fjson_storage_path,
+        )
 
         # pass a copy of `body` so that the removed
         # nodes in the original don't reflect here.
@@ -122,16 +138,10 @@ def process_file(fjson_storage_path):
     else:
         log.info('Unable to index content for: %s', fjson_storage_path)
 
-    if 'title' in data:
-        title = data['title']
-        title = HTMLParser(title).text().replace('¶', '').strip()
-    else:
-        log.info('Unable to index title for: %s', fjson_storage_path)
-
     return {
         'path': path,
         'title': title,
-        'sections': tuple(sections),
+        'sections': list(sections),
         'domain_data': domain_data,
     }
 
@@ -189,14 +199,15 @@ def _get_text_for_domain_data(desc):
 def parse_content(content, remove_first_line=False):
     """Removes new line characters and ¶."""
     content = content.replace('¶', '').strip()
+    content = content.split('\n')
 
     # removing the starting text of each
-    content = content.split('\n')
     if remove_first_line and len(content) > 1:
         content = content[1:]
 
-    # converting newlines to ". "
-    content = ' '.join(text.strip() for text in content if text)
+    # Convert all new lines to " "
+    content = (text.strip() for text in content)
+    content = ' '.join(text for text in content if text)
     return content
 
 
@@ -235,17 +246,21 @@ def process_mkdocs_index_file(json_storage_path, page):
             HTMLParser(section.get('text')).text()
         )
 
+        # If it doesn't have a fragment,
+        # it means is the page itself.
         if not fragment:
             page_data.update({
                 'path': path,
                 'title': title,
                 'domain_data': {},
             })
-        else:
-            page_data.setdefault('sections', []).append({
-                'id': fragment,
-                'title': title,
-                'content': content,
-            })
+        # Content without a fragment need to be indexed as well,
+        # this happens when the page doesn't start with a header,
+        # or if it doesn't contain any headers at all.
+        page_data.setdefault('sections', []).append({
+            'id': fragment,
+            'title': title,
+            'content': content,
+        })
 
     return page_data

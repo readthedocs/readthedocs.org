@@ -43,6 +43,12 @@ Secret Link
 Once the person you send the link to clicks the link,
 they will have access to view your project.
 
+.. note::
+
+   If you want to link to a specific page,
+   you can do this by passing the ``next`` query paramater in the URL.
+   For example ``https://mydocs.readthedocs-hosted.com/_/sharing/xxxxxxxxx?next=/en/latest/page.html``.
+
 Password
 ********
 

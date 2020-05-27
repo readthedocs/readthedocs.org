@@ -783,18 +783,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         epub=bool(outcomes['epub']),
                     )
 
-                    # Finalize build and update web servers
-                    # We upload EXTERNAL version media files to blob storage
-                    # We should have this check here to make sure
-                    # the files don't get re-uploaded on web.
-                    if self.version.type != EXTERNAL:
-                        self.update_app_instances(
-                            html=bool(outcomes['html']),
-                            search=bool(outcomes['search']),
-                            localmedia=bool(outcomes['localmedia']),
-                            pdf=bool(outcomes['pdf']),
-                            epub=bool(outcomes['epub']),
-                        )
+                    # TODO: Remove this function and just update the DB and index search directly
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -1114,9 +1110,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
-        hostname = socket.gethostname()
-
-        delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
         fileify.delay(
@@ -1272,7 +1265,8 @@ def fileify(version_pk, commit, build):
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+    # Don't index external version builds for now
+    if not version or version.type == EXTERNAL:
         return
     project = version.project
 
@@ -1795,7 +1789,12 @@ def finish_inactive_builds():
     These inactive builds will be marked as ``success`` and ``FINISHED`` with an
     ``error`` to be communicated to the user.
     """
-    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # TODO similar to the celery task time limit, we can't infer this from
+    # Docker settings anymore, because Docker settings are determined on the
+    # build servers dynamically.
+    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # Set time as maximum celery task time limit + 5m
+    time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
