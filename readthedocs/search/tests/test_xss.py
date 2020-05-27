@@ -9,7 +9,7 @@ class TestXSS:
 
     def test_facted_page_xss(self, client, project):
         query = 'XSS'
-        page_search = PageSearch(query=query, user='')
+        page_search = PageSearch(query=query)
         results = page_search.execute()
         expected = """
         &lt;h3&gt;<span>XSS</span> exploit&lt;&#x2F;h3&gt;

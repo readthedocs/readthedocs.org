@@ -16,6 +16,7 @@ These guides will help you customize or tune aspects of Read the Docs.
     google-analytics
     hiding-a-version
     searching-with-readthedocs
+    embedding-content
     specifying-dependencies
     technical-docs-seo-guide
     wipe-environment

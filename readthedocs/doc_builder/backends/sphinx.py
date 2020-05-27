@@ -234,6 +234,7 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             '-T',
+            *self.sphinx_parallel_arg(),
         ]
         if self._force:
             build_command.append('-E')
@@ -269,6 +270,11 @@ class BaseSphinx(BaseBuilder):
             'python',
             self.python_env.venv_bin(filename='sphinx-build'),
         )
+
+    def sphinx_parallel_arg(self):
+        if self.project.has_feature(Feature.SPHINX_PARALLEL):
+            return ['-j', 'auto']
+        return []
 
     def venv_sphinx_supports_latexmk(self):
         """
@@ -448,6 +454,7 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             '-b',
             'latex',
+            *self.sphinx_parallel_arg(),
             '-D',
             'language={lang}'.format(lang=self.project.language),
             '-d',
