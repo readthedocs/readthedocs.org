@@ -60,7 +60,14 @@ class SearchPagination(PageNumberPagination):
     max_page_size = 100
 
     def paginate_queryset(self, queryset, request, view=None):
-        """Override to get the paginated result from the ES queryset."""
+        """
+        Override to get the paginated result from the ES queryset.
+
+        This makes use of our custom paginator and slicing support from the ES DSL object,
+        instead of the one used by django's ORM.
+
+        Mostly inspired by https://github.com/encode/django-rest-framework/blob/acbd9d8222e763c7f9c7dc2de23c430c702e06d4/rest_framework/pagination.py#L191  # noqa
+        """
         # Needed for other methods of this class.
         self.request = request
 
