@@ -7,7 +7,8 @@ from readthedocs.search.tests.test_api import BaseTestDocumentSearch
 @pytest.mark.search
 class TestProxiedSearchAPI(BaseTestDocumentSearch):
 
-    host = 'pip.readthedocs.io'
+    # This project slug needs to exist in the ``all_projects`` fixture.
+    host = 'docs.readthedocs.io'
 
     @pytest.fixture(autouse=True)
     def setup_settings(self, settings):
