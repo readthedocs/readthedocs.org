@@ -26,8 +26,8 @@ from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
 from ..utils import (
-    delete_versions_db,
-    sync_versions_db,
+    delete_versions_from_db,
+    sync_versions_to_db,
     run_automation_rules,
     ProjectPagination,
     RemoteOrganizationPagination,
@@ -203,20 +203,20 @@ class ProjectViewSet(UserSelectViewSet):
             data = request.data
             added_versions = set()
             if 'tags' in data:
-                ret_set = sync_versions_db(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['tags'],
                     type=TAG,
                 )
                 added_versions.update(ret_set)
             if 'branches' in data:
-                ret_set = sync_versions_db(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['branches'],
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions = delete_versions_db(project, data)
+            deleted_versions = delete_versions_from_db(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(

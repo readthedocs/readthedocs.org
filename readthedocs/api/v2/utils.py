@@ -20,7 +20,7 @@ from readthedocs.builds.models import Version
 log = logging.getLogger(__name__)
 
 
-def sync_versions_db(project, versions, type):  # pylint: disable=redefined-builtin
+def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
     """
     Update the database with the current versions from the repository.
 
@@ -140,7 +140,7 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     return version, False
 
 
-def delete_versions_db(project, version_data):
+def delete_versions_from_db(project, version_data):
     """Delete all versions not in the current repo."""
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
