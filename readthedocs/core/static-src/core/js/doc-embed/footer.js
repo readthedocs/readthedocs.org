@@ -22,13 +22,6 @@ function injectFooter(data) {
 }
 
 
-function injectExtraData(data) {
-  if (typeof window.READTHEDOCS_DATA !=== 'undefined') {
-      window.READTHEDOCS_DATA.features = data['features'];
-  }
-}
-
-
 function setupBookmarkCSRFToken() {
     function csrfSafeMethod(method) {
         // these HTTP methods do not require CSRF protection
@@ -83,7 +76,6 @@ function init() {
                 versionCompare.init(data.version_compare);
             }
             injectFooter(data);
-            injectExtraData(data);
             setupBookmarkCSRFToken();
         },
         error: function () {
