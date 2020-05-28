@@ -1542,6 +1542,15 @@ def _create_imported_files(version, commit, build):
                 build=build,
             )
 
+    # This signal is used for clearing the CDN,
+    # so send it as soon as we have the list of changed files
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        version=version,
+        files=changed_files,
+    )
+
     return changed_files
 
 
@@ -1582,14 +1591,6 @@ def _sync_imported_files(version, build, changed_files):
         .filter(project=version.project, version=version)
         .exclude(build=build)
         .delete()
-    )
-
-    # Send signal with changed files
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        version=version,
-        files=changed_files,
     )
 
 
