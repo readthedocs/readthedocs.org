@@ -233,13 +233,6 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             privacy_level=PUBLIC,
             urlconf='subpath/$subproject/$version/$language/$filename'  # Flipped
         )
-        self.testing_version = get(
-            Version,
-            slug='testing',
-            project=self.pip,
-            built=True,
-            active=True,
-        )
         self.pip.versions.update(privacy_level=PUBLIC)
         self.subproject = get(
             Project,
@@ -248,6 +241,13 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             users=[self.owner],
             privacy_level=PUBLIC,
             main_language_project=None,
+        )
+        self.testing_version = get(
+            Version,
+            slug='testing',
+            project=self.subproject,
+            built=True,
+            active=True,
         )
         self.subproject.versions.update(privacy_level=PUBLIC)
         self.relationship = get(
