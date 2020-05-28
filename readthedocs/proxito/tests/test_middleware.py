@@ -163,12 +163,11 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
 
-        self.old_urlconf = get_urlconf()
         sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
         set_urlconf('fake_urlconf')
 
     def tearDown(self):
-        set_urlconf(self.old_urlconf)
+        set_urlconf(None)
 
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work
@@ -238,9 +237,11 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             child=self.subproject,
         )
 
-        self.old_urlconf = get_urlconf()
         sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
         set_urlconf('fake_urlconf')
+
+    def tearDown(self):
+        set_urlconf(None)
 
     def test_middleware_urlconf_subproject(self):
         resp = self.client.get('/subpath/subproject/testing/en/foodex.html', HTTP_HOST=self.domain)
