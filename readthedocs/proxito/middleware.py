@@ -10,6 +10,7 @@ import sys
 
 from django.conf import settings
 from django.shortcuts import render
+from django.urls.base import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project
@@ -199,6 +200,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         * For custom domains, check the HSTS values on the Domain object.
           The domain object should be saved already in request.domain.
         """
+        # Reset URLconf for this thread
+        # to the original one.
+        set_urlconf(None)
+
         host = request.get_host().lower().split(':')[0]
         public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
 
