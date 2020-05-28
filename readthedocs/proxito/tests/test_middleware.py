@@ -3,11 +3,13 @@
 import sys
 
 import pytest
-from django.urls.base import set_urlconf, get_urlconf
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls.base import get_urlconf, set_urlconf
 from django_dynamic_fixture import get
 
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
@@ -159,9 +161,17 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             Project,
             slug='pip',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
+        self.testing_version = get(
+            Version,
+            slug='testing',
+            project=self.pip,
+            built=True,
+            active=True,
+        )
+        self.pip.versions.update(privacy_level=PUBLIC)
 
         sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
         set_urlconf('fake_urlconf')
@@ -220,17 +230,26 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             name='pip',
             slug='pip',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             urlconf='subpath/$subproject/$version/$language/$filename'  # Flipped
         )
+        self.testing_version = get(
+            Version,
+            slug='testing',
+            project=self.pip,
+            built=True,
+            active=True,
+        )
+        self.pip.versions.update(privacy_level=PUBLIC)
         self.subproject = get(
             Project,
             name='subproject',
             slug='subproject',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             main_language_project=None,
         )
+        self.subproject.versions.update(privacy_level=PUBLIC)
         self.relationship = get(
             ProjectRelationship,
             parent=self.pip,
