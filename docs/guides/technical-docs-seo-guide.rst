@@ -197,7 +197,7 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on :doc:`sitemaps </guides/sitemaps>`.
+We have a small separate guide on :ref:`sitemaps <hosting:Sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 

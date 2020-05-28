@@ -1,5 +1,5 @@
-Custom Domains
-==============
+Custom Domains and White Labeling
+=================================
 
 Once a project is imported into Read the Docs,
 by default it's hosted under a subdomain on one of our domains.
@@ -98,6 +98,19 @@ You can also host your documentation from your own domain.
          See the `Amazon CAA guide`_ for details.
 
          .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
+
+Strict Transport Security
++++++++++++++++++++++++++
+
+By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
+This is a conscious decision as it can be misconfigured in a not easily reversible way.
+For both |org_brand| and |com_brand|, HSTS for custom domains can be set upon request.
+
+We always return the HSTS header with a max-age of at least one year
+for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
+
+.. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+
 
 Proxy SSL
 ---------

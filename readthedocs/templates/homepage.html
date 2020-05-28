@@ -114,9 +114,9 @@
     {% include "core/widesearchbar.html" %}
   </section>
 
-  {% if featured_list %}
   {% get_current_language as language %}
   {% cache 600 homepage_featured_list language %}
+  {% if featured_list %}
     <!-- BEGIN projects list -->
     <section>
       <h3>{% trans "Featured Projects" %}</h3>
@@ -129,8 +129,8 @@
       </div>
     </section>
     <!-- END projects list -->
-  {% endcache %}
   {% endif %}
+  {% endcache %}
 
   <!-- Funding and Contributing -->
   <section>

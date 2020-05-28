@@ -1,0 +1,31 @@
+{
+  "title": "I Need Secrets (or Environment Variables) in my Build",
+  "path": "guides/environment-variables",
+  "sections": [
+    {
+      "id": "",
+      "title": "I Need Secrets (or Environment Variables) in my Build",
+      "content": "Content at the beginning."
+    },
+    {
+      "id": "i-need-secrets-or-environment-variables-in-my-build",
+      "title": "I Need Secrets (or Environment Variables) in my Build",
+      "content": "It may happen that your documentation depends on an authenticated service to be built properly."
+    },
+    {
+      "content": "This is another H1 title.",
+      "id": "title-one",
+      "title": "Title One"
+    },
+    {
+      "content": "Sub title",
+      "id": "sub-title-one",
+      "title": "Sub-title one"},
+    {
+      "content": "This is a H3 title.",
+      "id": "subsub-title",
+      "title": "Subsub title"
+    }
+  ],
+  "domain_data": {}
+}

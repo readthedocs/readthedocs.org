@@ -73,14 +73,7 @@ function attach_elastic_search_query_sphinx(data) {
                             }
                         }
 
-                        // Creating the result from elements
-                        var suffix = DOCUMENTATION_OPTIONS.FILE_SUFFIX;
-                        // Since sphinx 2.2.1 FILE_SUFFIX is .html for all builders,
-                        // and there is a new BUILDER option.
-                        if ('BUILDER' in DOCUMENTATION_OPTIONS && DOCUMENTATION_OPTIONS.BUILDER === 'readthedocsdirhtml') {
-                          suffix = '';
-                        }
-                        var link = doc.link + suffix + "?highlight=" + $.urlencode(query);
+                        var link = doc.link + "?highlight=" + $.urlencode(query);
 
                         var item = $('<a>', {'href': link});
 

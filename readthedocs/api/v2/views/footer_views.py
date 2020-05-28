@@ -15,11 +15,13 @@ from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
 )
+from readthedocs.analytics.tasks import increase_page_view_count
 
 
 def get_version_compare_data(project, base_version=None):
@@ -147,7 +149,7 @@ class BaseFooterHTML(APIView):
         page_slug = self.request.GET.get('page', '')
         path = ''
         if page_slug and page_slug != 'index':
-            if version.documentation_type == 'sphinx_htmldir':
+            if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
@@ -234,6 +236,15 @@ class BaseFooterHTML(APIView):
             'version_supported': version.supported,
             'features': self._get_features(),
         }
+
+        # increase the page view count for the given page
+        page_slug = request.GET.get('page', '')
+        if page_slug and project.has_feature(Feature.STORE_PAGEVIEWS):
+            increase_page_view_count.delay(
+                project_slug=context['project'].slug,
+                version_slug=context['version'].slug,
+                path=page_slug
+            )
 
         # Allow folks to hook onto the footer response for various information
         # collection, or to modify the resp_data.

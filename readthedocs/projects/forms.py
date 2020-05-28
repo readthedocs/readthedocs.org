@@ -203,6 +203,7 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             'analytics_code',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled'
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -258,6 +259,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        # Enable PR builder option on projects w/ feature flag
+        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
+            self.fields.pop('external_builds_enabled')
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -467,14 +472,6 @@ class WebHookForm(forms.ModelForm):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
-    def clean_url(self):
-        url = self.cleaned_data.get('url')
-        if not url:
-            raise forms.ValidationError(
-                _('This field is required.')
-            )
-        return url
-
     class Meta:
         model = WebHook
         fields = ['url']
@@ -563,8 +560,7 @@ class TranslationBaseForm(forms.Form):
             # bulk update.
             self.translation.main_language_project = self.parent
             self.translation.save()
-            # Run symlinking and other sync logic to make sure we are in a good
-            # state.
+            # Run other sync logic to make sure we are in a good state.
             self.parent.save()
         return self.parent
 
