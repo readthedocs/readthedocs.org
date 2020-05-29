@@ -1595,6 +1595,7 @@ class Feature(models.Model):
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
     STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
+    USE_SPHINX_BUILDERS = 'use_sphinx_builders'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1692,6 +1693,10 @@ class Feature(models.Model):
             SPHINX_PARALLEL,
             _('Use "-j auto" when calling sphinx-build'),
         ),
+        (
+            USE_SPHINX_BUILDERS,
+            _('Use regular sphinx builders instead of custom RTD builders'),
+        )
     )
 
     projects = models.ManyToManyField(
