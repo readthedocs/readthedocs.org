@@ -281,6 +281,10 @@ function attach_elastic_search_query_sphinx(data) {
 }
 
 
+/*
+ * Mkdocs search override for hitting our API instead of the standard Mkdocs search index.
+ * This will fall back to the original search on an API failure.
+ */
 function attach_elastic_search_query_mkdocs(data) {
     var project = data.project;
     var version = data.version;
@@ -290,7 +294,7 @@ function attach_elastic_search_query_mkdocs(data) {
         if (typeof window.doSearchFallback !== 'undefined') {
             window.doSearchFallback();
         } else {
-          console.log('Unable to fallback to original MkDocs search.');
+            console.log('Unable to fallback to original MkDocs search.');
         }
     };
 
@@ -332,14 +336,38 @@ function attach_elastic_search_query_mkdocs(data) {
                             if (section.type === 'sections') {
                                 var section_link = doc.link + '#' + section._source.id;
                                 var section_title = section._source.title;
-                                var section_content = section._source.content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+                                var section_content = section._source.content
+                                if (section_content.length > MAX_SUBSTRING_LIMIT) {
+                                    section_content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+                                }
+                                var section_contents = [section_content];
+
+                                if (section.highlight) {
+                                    if (section.highlight["sections.title"]) {
+                                        section_title = section.highlight["sections.title"][0];
+                                    }
+                                    if (section.highlight["sections.content"]) {
+                                        var contents = section.highlight["sections.content"];
+                                        section_contents = [];
+                                        for (
+                                            var k = 0;
+                                            k < contents.length && k < MAX_RESULT_PER_SECTION;
+                                            k += 1
+                                        ) {
+                                            section_contents.push("... " + contents[k] + " ...");
+                                        }
+                                    }
+                                }
 
                                 result.append(
-                                    $('<h4>').append($('<a>', {'href': section_link, 'text': section_title}))
+                                    $('<h4>')
+                                    .append($('<a>', {'href': section_link}).html(xss(section_title)))
                                 );
-                                result.append(
-                                    $('<p>', {'text': section_content})
-                                );
+                                for (var k = 0; k < section_contents.length; k += 1) {
+                                    result.append(
+                                        $('<p>').html(xss(section_contents[k]))
+                                    );
+                                }
                                 searchResults.append(result);
                             }
                         }
@@ -409,15 +437,15 @@ function attach_elastic_search_query_mkdocs(data) {
 function init() {
     var data = rtddata.get();
     if (data.is_sphinx_builder()) {
-      // Check for disabled server side search for sphinx
-      // happens inside the function, because we still need to call Search.init().
-      attach_elastic_search_query_sphinx(data);
+        // Check to disabled server side search for Sphinx
+        // happens inside the function, because we still need to call Search.init().
+        attach_elastic_search_query_sphinx(data);
     }
     // MkDocs projects should have this flag explicitly for now.
     else if (data.features && !data.features.docsearch_disabled) {
-      attach_elastic_search_query_mkdocs(data);
+        attach_elastic_search_query_mkdocs(data);
     } else {
-      console.log('Server side search is disabled.');
+        console.log('Server side search is disabled.');
     }
 }
 
