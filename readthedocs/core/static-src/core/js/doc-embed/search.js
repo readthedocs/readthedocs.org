@@ -336,9 +336,9 @@ function attach_elastic_search_query_mkdocs(data) {
                             if (section.type === 'sections') {
                                 var section_link = doc.link + '#' + section._source.id;
                                 var section_title = section._source.title;
-                                var section_content = section._source.content
+                                var section_content = section._source.content;
                                 if (section_content.length > MAX_SUBSTRING_LIMIT) {
-                                    section_content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
+                                    section_content = section_content.substr(0, MAX_SUBSTRING_LIMIT) + " ...";
                                 }
                                 var section_contents = [section_content];
 
@@ -363,9 +363,10 @@ function attach_elastic_search_query_mkdocs(data) {
                                     $('<h4>')
                                     .append($('<a>', {'href': section_link}).html(xss(section_title)))
                                 );
-                                for (var k = 0; k < section_contents.length; k += 1) {
+                                for (var m = 0; m < section_contents.length; m += 1) {
+                                    var content = xss(section_contents[m]);
                                     result.append(
-                                        $('<p>').html(xss(section_contents[k]))
+                                        $('<p>').html(section_contents)
                                     );
                                 }
                                 searchResults.append(result);
