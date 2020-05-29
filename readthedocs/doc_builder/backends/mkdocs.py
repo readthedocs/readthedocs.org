@@ -255,8 +255,8 @@ class BaseMkdocs(BaseBuilder):
             'user_analytics_code': analytics_code,
             'features': {
                 'docsearch_disabled': (
-                    self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
-                    and not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
+                    not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
+                    or self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
                 )
             },
         }

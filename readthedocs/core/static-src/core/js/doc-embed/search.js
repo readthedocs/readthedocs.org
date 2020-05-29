@@ -407,13 +407,13 @@ function attach_elastic_search_query_mkdocs(data) {
     var initSearch = function () {
         var search_input = document.getElementById('mkdocs-search-query');
         if (search_input) {
-          search_input.addEventListener('keyup', doSearch);
+            search_input.addEventListener('keyup', doSearch);
         }
 
         var term = window.getSearchTermFromLocation();
         if (term) {
-          search_input.value = term;
-          doSearch();
+            search_input.value = term;
+            doSearch();
         }
     };
 

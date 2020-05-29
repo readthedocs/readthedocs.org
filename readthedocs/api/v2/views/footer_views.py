@@ -16,7 +16,7 @@ from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
