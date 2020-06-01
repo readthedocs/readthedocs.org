@@ -116,8 +116,10 @@ def _parse_code_section(tag):
     Parse a code section to fetch relevant content only.
 
     - Removes line numbers.
-      Sphinx and Mkdocs use a table when the code block includes line numbers.
+      Sphinx and Mkdocs may use a table when the code block includes line numbers.
       This table has a td tag with a ``lineos`` class.
+      Other implementations put the line number within the code,
+      inside span tags with the ``lineno`` class.
     """
     nodes_to_be_removed = itertools.chain(tag.css('lineos'), tag.css('lineno'))
     for node in nodes_to_be_removed:
