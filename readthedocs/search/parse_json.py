@@ -97,6 +97,9 @@ def _is_code_section(tag):
     Sphinx and Mkdocs codeblocks have a class named
     ``highlight`` or ``highlight-{language}``.
     """
+    if not tag.css_first('pre'):
+        return False
+
     for c in tag.attributes.get('class', '').split():
         if c.startswith('highlight'):
             return True
