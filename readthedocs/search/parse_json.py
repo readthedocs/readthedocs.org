@@ -1,5 +1,6 @@
 """Functions related to converting content into dict/JSON structures."""
 
+import itertools
 import logging
 from urllib.parse import urlparse
 
@@ -93,7 +94,8 @@ def _is_code_section(tag):
     """
     Check if `tag` is a code section.
 
-    Sphinx codeblocks have a class named ``highlight-{language}``.
+    Sphinx and Mkdocs codeblocks have a class named
+    ``highlight`` or ``highlight-{language}``.
     """
     for c in tag.attributes.get('class', '').split():
         if c.startswith('highlight'):
@@ -113,23 +115,21 @@ def _parse_code_section(tag):
     """
     Parse a code section to fetch relevant content only.
 
-    Sphinx has ``pre`` tags within a div with a ``highlight`` class.
-    Other ``pre`` tags are used for line numbers (we don't index those).
+    - Removes line numbers.
+      Sphinx and Mkdocs use a table when the code block includes line numbers.
+      This table has a td tag with a ``lineos`` class.
     """
+    nodes_to_be_removed = itertools.chain(tag.css('lineos'), tag.css('lineno'))
+    for node in nodes_to_be_removed:
+        node.decompose()
+
     contents = []
     for node in tag.css('pre'):
-        parent = node.parent
-        is_code_block = (
-            parent and
-            parent.tag == 'div' and
-            parent.attributes.get('class') == 'highlight'
-        )
-        if is_code_block:
-            # XXX: Don't call to `parse_content`
-            # if we decide to show code results more nicely,
-            # so the indentation isn't lost.
-            content = node.text().strip('\n')
-            contents.append(parse_content(content))
+        # XXX: Don't call to `parse_content`
+        # if we decide to show code results more nicely,
+        # so the indentation isn't lost.
+        content = node.text().strip('\n')
+        contents.append(parse_content(content))
     return ' '.join(contents)
 
 
