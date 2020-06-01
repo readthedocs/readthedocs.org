@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def forwards_func(apps, schema_editor):
-    """Make all hidden fields not none."""
+    """Make all external_builds_enabled fields not none."""
     Project = apps.get_model('projects', 'Project')
     (
         Project.objects
