@@ -116,8 +116,8 @@ class PageSearchBase(RTDFacetedSearch):
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
-    def count(self):
-        """Overriding ``count`` method to return the count of the results after post_filter."""
+    def total_count(self):
+        """Returns the total count of results of the current query."""
         s = self.build_search()
 
         # setting size=0 so that no results are returned,

@@ -61,7 +61,7 @@ def generate_page_sections(page_title, body, fjson_storage_path):
     for head_level in range(1, 7):
         tags = body.css(f'.section > h{head_level}')
         for tag in tags:
-            title = tag.text().replace('¶', '').strip()
+            title = _parse_title(tag)
 
             div = tag.parent
             section_id = div.attributes.get('id', '')
@@ -236,19 +236,27 @@ def _get_text_for_domain_data(desc):
     return docstrings
 
 
-def parse_content(content, remove_first_line=False):
+def parse_content(content):
     """Removes new line characters and ¶."""
     content = content.replace('¶', '').strip()
     content = content.split('\n')
-
-    # removing the starting text of each
-    if remove_first_line and len(content) > 1:
-        content = content[1:]
 
     # Convert all new lines to " "
     content = (text.strip() for text in content)
     content = ' '.join(text for text in content if text)
     return content
+
+
+def _parse_title(tag):
+    """
+    Parses a Sphinx title tag.
+
+    - Removes the permalink value
+    """
+    nodes_to_be_removed = tag.css('a.headerlink')
+    for node in nodes_to_be_removed:
+        node.decompose()
+    return tag.text().strip()
 
 
 def process_mkdocs_index_file(json_storage_path, page):

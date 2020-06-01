@@ -203,6 +203,7 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             'analytics_code',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled'
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -258,6 +259,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        # Enable PR builder option on projects w/ feature flag
+        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
+            self.fields.pop('external_builds_enabled')
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()

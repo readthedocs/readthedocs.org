@@ -6,9 +6,11 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
 
 from django.conf import settings
 from django.shortcuts import render
+from django.urls.base import set_urlconf
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.projects.models import Domain, Project
@@ -166,6 +168,28 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
 
+        try:
+            project = Project.objects.get(slug=request.host_project_slug)
+        except Project.DoesNotExist:
+            log.exception('No host_project_slug set on project')
+            return None
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf:
+
+            # Stop Django from caching URLs
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
+                project, url_key, project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
+
         return None
 
     def process_response(self, request, response):  # noqa
@@ -176,6 +200,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         * For custom domains, check the HSTS values on the Domain object.
           The domain object should be saved already in request.domain.
         """
+        # Reset URLconf for this thread
+        # to the original one.
+        set_urlconf(None)
+
         host = request.get_host().lower().split(':')[0]
         public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
 

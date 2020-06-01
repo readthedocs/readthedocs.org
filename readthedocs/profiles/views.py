@@ -84,6 +84,7 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
 
     def get_form(self, data=None, files=None, **kwargs):
         kwargs['instance'] = self.get_object()
+        kwargs['initial'] = {'username': ''}
         return super().get_form(data, files, **kwargs)
 
     def get_success_url(self):
