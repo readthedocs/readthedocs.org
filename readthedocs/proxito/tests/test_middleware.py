@@ -1,11 +1,8 @@
 # Copied from test_middleware.py
 
-import sys
-
 import pytest
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.urls.base import get_urlconf, set_urlconf
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
@@ -152,7 +149,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
-class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
+class MiddlewareURLConfTests(TestCase):
 
     def setUp(self):
         self.owner = create_user(username='owner', password='test')
@@ -172,12 +169,6 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             active=True,
         )
         self.pip.versions.update(privacy_level=PUBLIC)
-
-        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
-        set_urlconf('fake_urlconf')
-
-    def tearDown(self):
-        set_urlconf(None)
 
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work
@@ -249,7 +240,7 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
-class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
+class MiddlewareURLConfSubprojectTests(TestCase):
 
     def setUp(self):
         self.owner = create_user(username='owner', password='test')
@@ -284,12 +275,6 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             parent=self.pip,
             child=self.subproject,
         )
-
-        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
-        set_urlconf('fake_urlconf')
-
-    def tearDown(self):
-        set_urlconf(None)
 
     def test_middleware_urlconf_subproject(self):
         resp = self.client.get('/subpath/subproject/testing/en/foodex.html', HTTP_HOST=self.domain)
