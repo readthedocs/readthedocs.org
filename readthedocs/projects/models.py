@@ -661,23 +661,22 @@ class Project(models.Model):
             ]
             docs_urls = [
                 re_path(
-                    '^{regex_urlconf}'.format(regex_urlconf=self.regex_urlconf),
+                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs'
                 ),
                 # paths for redirects at the root
                 re_path(
-                    '^{proxied_api_url}'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
                     ServeDocs.as_view(),
-                    name='user_proxied_serve_docs'
+                    name='user_proxied_serve_docs_subpath_redirect'
                 ),
                 re_path(
-                    '^$'.format(proxied_api_url=self.proxied_api_url),
+                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
                     ServeDocs.as_view(),
-                    name='user_proxied_serve_docs'
+                    name='user_proxied_serve_docs_root_redirect'
                 ),
             ]
-            log.debug('Docs URLS: %s', docs_urls)
             urlpatterns = proxied_urls + core_urls + docs_urls
             handler404 = proxito_404_page_handler
             handler500 = defaults.server_error
