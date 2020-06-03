@@ -82,10 +82,8 @@ def _get_project_data_from_request(
     ]):
         version_slug = final_project.get_default_version()
 
-    if all([
-        not lang_slug,
-        project.urlconf and '$language' not in project.urlconf
-    ]):
+    # Automatically add the default language if it isn't defined in urlconf
+    if not lang_slug and project.urlconf and '$language' not in project.urlconf:
         lang_slug = final_project.language
 
     # ``final_project`` is now the actual project we want to serve docs on,
