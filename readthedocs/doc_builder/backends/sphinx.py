@@ -316,6 +316,8 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'html'
 
     def move(self, **__):
         super().move()
@@ -346,6 +348,8 @@ class HtmlDirBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'dirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
@@ -354,6 +358,8 @@ class SingleHtmlBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'singlehtml'
 
 
 class LocalMediaBuilder(BaseSphinx):

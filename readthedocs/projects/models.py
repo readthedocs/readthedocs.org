@@ -208,6 +208,7 @@ class Project(models.Model):
         _('Documentation URL Configuration'),
         max_length=255,
         default=None,
+        blank=True,
         null=True,
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
@@ -218,8 +219,6 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        # TODO: Remove this after migrations
-        null=True,
         help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
     )
 
@@ -1607,6 +1606,7 @@ class Feature(models.Model):
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
     STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
+    USE_SPHINX_BUILDERS = 'use_sphinx_builders'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1704,6 +1704,10 @@ class Feature(models.Model):
             SPHINX_PARALLEL,
             _('Use "-j auto" when calling sphinx-build'),
         ),
+        (
+            USE_SPHINX_BUILDERS,
+            _('Use regular sphinx builders instead of custom RTD builders'),
+        )
     )
 
     projects = models.ManyToManyField(

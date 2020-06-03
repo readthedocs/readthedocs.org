@@ -1,13 +1,12 @@
 # Copied from test_middleware.py
 
-import sys
-
 import pytest
-from django.urls.base import set_urlconf, get_urlconf
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
@@ -150,7 +149,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
-class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
+class MiddlewareURLConfTests(TestCase):
 
     def setUp(self):
         self.owner = create_user(username='owner', password='test')
@@ -159,16 +158,17 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
             Project,
             slug='pip',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             urlconf='subpath/to/$version/$language/$filename'  # Flipped
         )
-
-        self.old_urlconf = get_urlconf()
-        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
-        set_urlconf('fake_urlconf')
-
-    def tearDown(self):
-        set_urlconf(self.old_urlconf)
+        self.testing_version = get(
+            Version,
+            slug='testing',
+            project=self.pip,
+            built=True,
+            active=True,
+        )
+        self.pip.versions.update(privacy_level=PUBLIC)
 
     def test_proxied_api_methods(self):
         # This is mostly a unit test, but useful to make sure the below tests work
@@ -227,7 +227,7 @@ class MiddlewareURLConfTests(RequestFactoryTestMixin, TestCase):
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
-class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
+class MiddlewareURLConfSubprojectTests(TestCase):
 
     def setUp(self):
         self.owner = create_user(username='owner', password='test')
@@ -237,29 +237,32 @@ class MiddlewareURLConfSubprojectTests(RequestFactoryTestMixin, TestCase):
             name='pip',
             slug='pip',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             urlconf='subpath/$subproject/$version/$language/$filename'  # Flipped
         )
+        self.pip.versions.update(privacy_level=PUBLIC)
         self.subproject = get(
             Project,
             name='subproject',
             slug='subproject',
             users=[self.owner],
-            privacy_level='public',
+            privacy_level=PUBLIC,
             main_language_project=None,
         )
+        self.testing_version = get(
+            Version,
+            slug='testing',
+            project=self.subproject,
+            built=True,
+            active=True,
+        )
+        self.subproject.versions.update(privacy_level=PUBLIC)
         self.relationship = get(
             ProjectRelationship,
             parent=self.pip,
             child=self.subproject,
         )
 
-        self.old_urlconf = get_urlconf()
-        sys.modules['fake_urlconf'] = self.pip.proxito_urlconf
-        set_urlconf('fake_urlconf')
-
-    # TODO: Figure out why this is failing in travis
-    @pytest.mark.xfail(strict=True)
     def test_middleware_urlconf_subproject(self):
         resp = self.client.get('/subpath/subproject/testing/en/foodex.html', HTTP_HOST=self.domain)
         self.assertEqual(resp.status_code, 200)
