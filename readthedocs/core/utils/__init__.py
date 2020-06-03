@@ -175,6 +175,8 @@ def prepare_build(
                 commit=commit,
             ).exclude(
                 state=BUILD_STATE_FINISHED,
+            ).exclude(
+                pk=build.pk,
             ).exists()
         )
     else:
