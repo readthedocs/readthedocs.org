@@ -59,6 +59,8 @@ class BuildMaxConcurrencyError(BuildEnvironmentError):
 
 class DuplicatedBuildError(BuildEnvironmentError):
     message = ugettext_noop('Duplicated build.')
+    exit_code = 1
+    status_code = 0
 
 
 class BuildEnvironmentWarning(BuildEnvironmentException):

@@ -194,8 +194,9 @@ def prepare_build(
             commit,
         )
         build.error = DuplicatedBuildError.message
+        build.status_code = DuplicatedBuildError.status_code
+        build.exit_code = DuplicatedBuildError.exit_code
         build.success = False
-        build.exit_code = 1
         build.state = BUILD_STATE_FINISHED
         build.save()
 
