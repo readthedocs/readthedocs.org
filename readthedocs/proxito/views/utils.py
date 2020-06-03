@@ -78,11 +78,15 @@ def _get_project_data_from_request(
     # We might have version_slug when we're serving a PR
     if any([
         not version_slug and final_project.single_version,
-        not version_slug and project.urlconf
+        not version_slug and project.urlconf and '$version' in project.urlconf
     ]):
         version_slug = final_project.get_default_version()
 
-    if not lang_slug and project.urlconf:
+    if all([
+        not lang_slug,
+        project.urlconf,
+        '$language' in project.urlconf
+    ]):
         lang_slug = final_project.language
 
     # ``final_project`` is now the actual project we want to serve docs on,
