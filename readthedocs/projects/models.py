@@ -208,6 +208,7 @@ class Project(models.Model):
         _('Documentation URL Configuration'),
         max_length=255,
         default=None,
+        blank=True,
         null=True,
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
