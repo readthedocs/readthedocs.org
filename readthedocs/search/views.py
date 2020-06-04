@@ -111,10 +111,7 @@ def elastic_search(request, project_slug=None):
         if value and value not in (val[0] for val in facets[facet]):
             facets[facet].insert(0, (value, 0, True))
 
-    results = [
-        serializers[user_input.type](result).data
-        for result in results
-    ]
+    results = serializers[user_input.type](results, many=True).data
 
     template_vars = user_input._asdict()
     template_vars.update({

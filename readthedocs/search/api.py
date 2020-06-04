@@ -110,6 +110,15 @@ class SearchPagination(PageNumberPagination):
 
 
 class PageSearchSerializer(serializers.Serializer):
+
+    """
+    Serializer for page search results.
+
+    .. note::
+
+       This serializer is deprecated in favor of `readthedocs.search.serializers.PageSearchSerializer`.
+    """
+
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()

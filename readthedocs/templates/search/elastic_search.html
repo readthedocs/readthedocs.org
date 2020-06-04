@@ -179,14 +179,14 @@
 
                   {% elif result.type == 'page' %}
                     {% with "100" as MAX_SUBSTRING_LIMIT %}
-                      <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}">
+                    <a href="{{ result.link }}?highlight={{ query }}">
                         {{ result.project }} - {% if result.highlight.title %} {{ result.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
                       {% for inner_hit in result.inner_hits %}
                         {% if inner_hit.type == 'domain' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}#{{ inner_hit.id }}">
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ inner_hit.id }}">
                               {% if inner_hit.highlight.name %}
                                 {% with domain_name=inner_hit.highlight.name %}
                                   [{{ inner_hit.role_name }}]: {{ domain_name.0|safe }}
@@ -210,7 +210,7 @@
 
                         {% elif inner_hit.type == 'section' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.path %}?highlight={{ query }}#{{ inner_hit.id }}">
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ inner_hit.id }}">
                               {% if inner_hit.highlight.title %}
                                 {% with section_title=inner_hit.highlight.title %}
                                   {{ section_title.0|safe }}

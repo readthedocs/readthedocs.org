@@ -1,7 +1,19 @@
+"""
+Serializers for the ES's search result object.
+
+.. note::
+   Some fields are re-named to make their meaning more clear.
+   They shoold be renamed in the ES index too.
+"""
+
 import itertools
 from operator import attrgetter
 
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+
+from readthedocs.core.resolver import resolve
+from readthedocs.projects.models import Project
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -17,7 +29,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
-    highlight = ProjectHighlightSerializer(source='meta.highlight')
+    highlight = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
 class PageHighlightSerializer(serializers.Serializer):
@@ -37,7 +49,15 @@ class PageSearchSerializer(serializers.Serializer):
     inner_hits = serializers.SerializerMethodField()
 
     def get_link(self, obj):
-        return 'foo'
+        # TODO: optimize this to not query the db for each result.
+        project = Project.objects.filter(slug=obj.project).first()
+        if project:
+            return resolve(
+                project=project,
+                version_slug=obj.version,
+                filename=obj.full_path,
+            )
+        return None
 
     def get_inner_hits(self, obj):
         serializers = {
@@ -49,6 +69,7 @@ class PageSearchSerializer(serializers.Serializer):
         sections = inner_hits.sections or []
         domains = inner_hits.domains or []
 
+        # Make them identifiable before merging them
         for s in sections:
             s.type = 'section'
         for d in domains:
@@ -66,8 +87,16 @@ class PageSearchSerializer(serializers.Serializer):
         return sorted_results
 
 
-
 class DomainHighlightSerializer(serializers.Serializer):
+
+    """
+    Serializer for domain results.
+
+    .. note::
+
+       We override the `to_representation` method instead of declaring each field
+       becuase serializers don't play nice with keys that include `.`.
+    """
 
     def to_representation(self, instance):
         return {
@@ -83,10 +112,19 @@ class DomainSearchSerializer(serializers.Serializer):
     name = serializers.CharField(source='_source.name')
     id = serializers.CharField(source='_source.anchor')
     docstring = serializers.CharField(source='_source.docstrings')
-    highlight = DomainHighlightSerializer()
+    highlight = DomainHighlightSerializer(default=dict)
 
 
 class SectionHighlightSerializer(serializers.Serializer):
+
+    """
+    Serializer for section results.
+
+    .. note::
+
+       We override the `to_representation` method instead of declaring each field
+       becuase serializers don't play nice with keys that include `.`.
+    """
 
     def to_representation(self, instance):
         return {
@@ -101,4 +139,4 @@ class SectionSearchSerializer(serializers.Serializer):
     id = serializers.CharField(source='_source.id')
     title = serializers.CharField(source='_source.title')
     content = serializers.CharField(source='_source.content')
-    highlight = SectionHighlightSerializer()
+    highlight = SectionHighlightSerializer(default=dict)
