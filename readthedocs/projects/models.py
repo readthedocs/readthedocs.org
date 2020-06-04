@@ -1589,6 +1589,8 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
+    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
@@ -1668,6 +1670,14 @@ class Feature(models.Model):
         (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            DISABLE_SERVER_SIDE_SEARCH,
+            _('Disable server side search'),
+        ),
+        (
+            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
+            _('Enable server side search for MkDocs projects'),
         ),
         (
             FORCE_SPHINX_FROM_VENV,
