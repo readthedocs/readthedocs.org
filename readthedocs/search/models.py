@@ -36,8 +36,6 @@ class SearchQuery(TimeStampedModel):
     total_results = models.IntegerField(
         _('Total results'),
         default=0,
-        # TODO: to avoid downtime, remove later.
-        null=True,
     )
     objects = RelatedProjectQuerySet.as_manager()
 
