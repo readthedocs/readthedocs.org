@@ -116,7 +116,8 @@ class PageSearchSerializer(serializers.Serializer):
 
     .. note::
 
-       This serializer is deprecated in favor of `readthedocs.search.serializers.PageSearchSerializer`.
+       This serializer is deprecated in favor of
+       `readthedocs.search.serializers.PageSearchSerializer`.
     """
 
     project = serializers.CharField()
