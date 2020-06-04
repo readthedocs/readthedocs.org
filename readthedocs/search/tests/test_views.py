@@ -38,9 +38,9 @@ class TestProjectSearch:
         )
 
         assert len(results) == 1
-        assert project.name.encode('utf-8') in results[0].name.encode('utf-8')
+        assert project.name == results[0]['name']
         for proj in all_projects[1:]:
-            assert proj.name.encode('utf-8') not in results[0].name.encode('utf-8')
+            assert proj.name != results[0]['name']
 
     def test_search_project_have_correct_language_facets(self, client, project):
         """Test that searching project should have correct language facets in the results"""
@@ -102,23 +102,22 @@ class TestPageSearch:
 
         return results, facets
 
-    def _get_highlight(self, result, data_type):
+    def _get_highlight(self, result, field, type=None):
         # if query is from page title,
         # highlighted title is present in 'result.meta.highlight.title'
-        if data_type == 'title':
-            highlight = result.meta.highlight.title
+        if not type and field == 'title':
+            highlight = result['highlight']['title']
 
         # if result is not from page title,
         # then results and highlighted results are present inside 'inner_hits'
         else:
-            inner_hits = result.meta.inner_hits
+            inner_hits = result['inner_hits']
             assert len(inner_hits) >= 1
 
             # checking first inner_hit
             inner_hit_0 = inner_hits[0]
-            expected_type = data_type.split('.')[0]  # can be either 'sections' or 'domains'
-            assert inner_hit_0['type'] == expected_type
-            highlight = inner_hit_0['highlight'][data_type]
+            assert inner_hit_0['type'] == type
+            highlight = inner_hit_0['highlight'][field]
 
         return highlight
 
@@ -132,10 +131,17 @@ class TestPageSearch:
     @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_file_search(self, client, project, data_type, page_num):
+        data_type = data_type.split('.')
+        type, field = None, None
+        if len(data_type) < 2:
+            field = data_type[0]
+        else:
+            type, field = data_type
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type=data_type
+            type=type,
+            field=field,
         )
         results, _ = self._get_search_result(
             url=self.url,
@@ -146,7 +152,7 @@ class TestPageSearch:
 
         # checking first result
         result_0 = results[0]
-        highlight = self._get_highlight(result_0, data_type)
+        highlight = self._get_highlight(result_0, field, type)
         assert len(highlight) == 1
 
         highlighted_words = self._get_highlighted_words(highlight[0])
@@ -204,11 +210,11 @@ class TestPageSearch:
         # in `signals` page
         assert len(new_results) == 1
         first_result = new_results[0]  # first result
-        inner_hits = first_result.meta.inner_hits  # inner_hits of first results
+        inner_hits = first_result['inner_hits']  # inner_hits of first results
         assert len(inner_hits) >= 1
         inner_hit_0 = inner_hits[0]  # first inner_hit
-        assert inner_hit_0.type == 'domains'
-        assert inner_hit_0.source.role_name == confval_facet
+        assert inner_hit_0['type'] == 'domain'
+        assert inner_hit_0['role_name'] == confval_facet
 
         for facet in new_role_names_facets:
             if facet[0] == confval_facet:
@@ -224,9 +230,16 @@ class TestPageSearch:
 
         It tests with uppercase, lowercase and camelcase.
         """
+        type, field = None, None
+        data_type = data_type.split('.')
+        if len(data_type) < 2:
+            field = data_type[0]
+        else:
+            type, field = data_type
         query_text = get_search_query_from_project_file(
             project_slug=project.slug,
-            data_type=data_type
+            type=type,
+            field=field,
         )
         cased_query = getattr(query_text, case)
         query = cased_query()
@@ -239,7 +252,7 @@ class TestPageSearch:
         assert len(results) >= 1
 
         first_result = results[0]
-        highlight = self._get_highlight(first_result, data_type)
+        highlight = self._get_highlight(first_result, field, type)
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
         assert len(highlighted_words) >= 1
@@ -267,13 +280,13 @@ class TestPageSearch:
         # because the phrase is present in
         # only one project
         assert len(results) == 1
-        assert results[0].project == 'kuma'
-        assert results[0].path == 'testdocumentation'
+        assert results[0]['project'] == 'kuma'
+        assert results[0]['path'] == 'documentation.html'
 
-        inner_hits = results[0].meta.inner_hits
+        inner_hits = results[0]['inner_hits']
         assert len(inner_hits) == 1
-        assert inner_hits[0].type == 'sections'
-        highlight = self._get_highlight(results[0], 'sections.content')
+        assert inner_hits[0]['type'] == 'section'
+        highlight = self._get_highlight(results[0], 'content', 'section')
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
         assert len(highlighted_words) >= 1
@@ -316,12 +329,12 @@ class TestPageSearch:
             search_params=search_params,
         )
         project_facets = facets['project']
-        resulted_project_facets = [ facet[0] for facet in project_facets ]
+        resulted_project_facets = [facet[0] for facet in project_facets]
 
         # There should be 1 search result as we have filtered
         assert len(results) == 1
         # kuma should should be there only
-        assert 'kuma' == results[0].project
+        assert 'kuma' == results[0]['project']
 
         # But there should be 2 projects in the project facets
         # as the query is present in both projects
