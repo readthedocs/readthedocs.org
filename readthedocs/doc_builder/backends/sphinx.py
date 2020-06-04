@@ -181,6 +181,7 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
+            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
         }
 
         finalize_sphinx_context_data.send(
