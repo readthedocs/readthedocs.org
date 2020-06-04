@@ -3,7 +3,7 @@ Serializers for the ES's search result object.
 
 .. note::
    Some fields are re-named to make their meaning more clear.
-   They shoold be renamed in the ES index too.
+   They should be renamed in the ES index too.
 """
 
 import itertools
