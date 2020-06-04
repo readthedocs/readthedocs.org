@@ -359,14 +359,20 @@ function attach_elastic_search_query_mkdocs(data) {
                                     }
                                 }
 
+                                section_title = xss(section_title)
+                                        .replace(/\<span\>/g, '<mark>')
+                                        .replace(/\<\/span\>/g, '</mark>');
                                 result.append(
                                     $('<h4>')
-                                    .append($('<a>', {'href': section_link}).html(xss(section_title)))
+                                    .append($('<a>', {'href': section_link}).html(section_title))
                                 );
                                 for (var m = 0; m < section_contents.length; m += 1) {
                                     var content = xss(section_contents[m]);
+                                    content = content
+                                        .replace(/\<span\>/g, '<mark>')
+                                        .replace(/\<\/span\>/g, '</mark>');
                                     result.append(
-                                        $('<p>').html(section_contents)
+                                        $('<p>').html(content)
                                     );
                                 }
                                 searchResults.append(result);
