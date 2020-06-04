@@ -60,6 +60,7 @@ class PageSearchSerializer(serializers.Serializer):
         return None
 
     def get_inner_hits(self, obj):
+        """Combine and sort inner results (domains and sections)."""
         serializers = {
             'domain': DomainSearchSerializer,
             'section': SectionSearchSerializer,
