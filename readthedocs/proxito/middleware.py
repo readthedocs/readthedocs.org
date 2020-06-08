@@ -6,6 +6,7 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
 
 from django.conf import settings
 from django.shortcuts import render
@@ -165,6 +166,29 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
+
+        try:
+            project = Project.objects.get(slug=request.host_project_slug)
+        except Project.DoesNotExist:
+            log.exception('No host_project_slug set on project')
+            return None
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf:
+
+            # Stop Django from caching URLs
+            # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
+                project, url_key, project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
 
         return None
 

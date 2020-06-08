@@ -273,9 +273,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, 'get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
-        """If there is a case where `get_all_projects` returns empty, we could be querying all projects."""
+        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
