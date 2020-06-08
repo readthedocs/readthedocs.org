@@ -1597,6 +1597,7 @@ class Feature(models.Model):
     STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
+    DEDUPLICATE_BUILDS = 'deduplicate_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1705,7 +1706,11 @@ class Feature(models.Model):
         (
             USE_SPHINX_BUILDERS,
             _('Use regular sphinx builders instead of custom RTD builders'),
-        )
+        ),
+        (
+            DEDUPLICATE_BUILDS,
+            _('Mark duplicated builds as NOOP to be skipped by builders'),
+        ),
     )
 
     projects = models.ManyToManyField(

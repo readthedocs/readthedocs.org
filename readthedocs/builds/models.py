@@ -615,6 +615,7 @@ class Build(models.Model):
         choices=BUILD_STATE,
         default='finished',
     )
+    status_code = models.BooleanField(_('Status code'), null=True, default=None, blank=True)
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
 
