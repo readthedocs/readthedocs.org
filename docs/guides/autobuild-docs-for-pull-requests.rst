@@ -2,8 +2,11 @@ Autobuild Documentation for Pull Requests
 =========================================
 
 Read the Docs allows autobuilding documentation for pull/merge requests for GitHub or GitLab projects.
-This feature is currently available under a :doc:`Feature Flag </guides/feature-flags>`.
-So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
+This feature is currently enabled for a subset of our projects while being rolled out.
+You can check to see if your project has it enabled by looking at the :guilabel:`Admin > Advanced settings` and look for :guilabel:`Build pull requests for this project`.
+We are rolling this feature out based on the projects age on Read the Docs,
+so older projects will get it first.
+You can also ask for this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
 
 Features
 --------
@@ -42,7 +45,8 @@ you might hit one of these issues:
 
 #. **Build status is not being reported on your Pull/Merge Request**.
    You need to make sure that you have granted access to the Read the Docs
-   `OAuth App`_ to your/organizations GitHub account.
+   `OAuth App`_ to your/organizations GitHub account. If you do not see "Read the Docs"
+   among the `OAuth App`_, you might need to disconnect and reconnect to GitHub service.
    Also make sure your webhook is properly setup
    to handle events. You can setup or ``re-sync`` the webhook from your projects admin dashboard.
    Learn more about setting up webhooks from our :doc:`Webhook Documentation </webhooks>`.

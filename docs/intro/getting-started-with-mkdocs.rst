@@ -51,8 +51,7 @@ Open up http://127.0.0.1:8000/ in your web browser to see your documentation.
 You can make changes to your Markdown files and your docs will automatically rebuild.
 
 .. figure:: ../_static/images/first-steps/mkdocs-hello-world.png
-    :align: right
-    :figwidth: 300px
+    :figwidth: 500px
     :target: ../_static/images/first-steps/mkdocs-hello-world.png
 
     Your MkDocs project is built
@@ -61,6 +60,11 @@ Once you have your documentation in a public repository such as GitHub, Bitbucke
 you can start using Read the Docs by :doc:`importing your docs </intro/import-guide>`.
 
 .. _install MkDocs: https://www.mkdocs.org/#installation
+
+.. warning::
+
+   We strongly recommend to :ref:`pin the MkDocs version <guides/specifying-dependencies:Specifying Dependencies>`
+   used for your project to build the docs to avoid potential future incompatibilities.
 
 
 External resources

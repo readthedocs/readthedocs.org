@@ -18,11 +18,13 @@ from readthedocs.builds.constants import (
     GENERIC_EXTERNAL_VERSION_NAME
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
+from readthedocs.doc_builder.exceptions import DuplicatedBuildError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.models import EnvironmentVariable, Feature, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -68,8 +70,8 @@ class BuildEnvironmentTests(TestCase):
         task.build_docs()
 
         # Get command and check first part of command list is a call to sphinx
-        self.assertEqual(self.mocks.popen.call_count, 3)
-        cmd = self.mocks.popen.call_args_list[2][0]
+        self.assertEqual(self.mocks.popen.call_count, 1)
+        cmd = self.mocks.popen.call_args_list[0][0]
         self.assertRegex(cmd[0][0], r'python')
         self.assertRegex(cmd[0][1], r'sphinx-build')
 
@@ -248,7 +250,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.failed)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -300,7 +302,7 @@ class BuildEnvironmentTests(TestCase):
 
         with build_env:
             task.build_docs()
-        self.assertEqual(self.mocks.popen.call_count, 8)
+        self.assertEqual(self.mocks.popen.call_count, 6)
         self.assertTrue(build_env.successful)
 
     @mock.patch('readthedocs.projects.tasks.api_v2')
@@ -349,6 +351,7 @@ class BuildEnvironmentTests(TestCase):
         task.config = mock.Mock(conda=None)
 
         env = {
+            'NO_COLOR': '1',
             'READTHEDOCS': 'True',
             'READTHEDOCS_VERSION': version.slug,
             'READTHEDOCS_PROJECT': project.slug,
@@ -747,3 +750,112 @@ class BuildModelTests(TestCase):
             sha=build.commit
         )
         self.assertEqual(build.get_commit_url(), expected_url)
+
+
+
+@mock.patch('readthedocs.projects.tasks.update_docs_task')
+class DeDuplicateBuildTests(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
+        self.version = get(
+            Version,
+            project=self.project
+        )
+
+        get(
+            Feature,
+            feature_id=Feature.DEDUPLICATE_BUILDS,
+            projects=[self.project],
+        )
+
+    def test_trigger_duplicated_build_by_commit(self, update_docs_task):
+        """
+        Trigger a build for the same commit twice.
+
+        The second build should be marked as NOOP.
+        """
+        self.assertEqual(Build.objects.count(), 0)
+        trigger_build(self.project, self.version, commit='a1b2c3')
+        self.assertEqual(Build.objects.count(), 1)
+        build = Build.objects.first()
+        self.assertEqual(build.state, 'triggered')
+
+        trigger_build(self.project, self.version, commit='a1b2c3')
+        self.assertEqual(Build.objects.count(), 2)
+        build = Build.objects.first()
+        self.assertEqual(build.error, DuplicatedBuildError.message)
+        self.assertEqual(build.success, False)
+        self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
+        self.assertEqual(build.status_code, DuplicatedBuildError.status_code)
+        self.assertEqual(build.state, 'finished')
+
+    def test_trigger_duplicated_finshed_build_by_commit(self, update_docs_task):
+        """
+        Trigger a build for the same commit twice.
+
+        The second build should not be marked as NOOP if the previous
+        duplicated builds are in 'finished' state.
+        """
+        self.assertEqual(Build.objects.count(), 0)
+        trigger_build(self.project, self.version, commit='a1b2c3')
+        self.assertEqual(Build.objects.count(), 1)
+
+        # Mark the build as finished
+        build = Build.objects.first()
+        build.state = 'finished'
+        build.save()
+        build.refresh_from_db()
+
+        trigger_build(self.project, self.version, commit='a1b2c3')
+        self.assertEqual(Build.objects.count(), 2)
+        build = Build.objects.first()
+        self.assertEqual(build.state, 'triggered')
+        self.assertIsNone(build.status_code)
+
+    def test_trigger_duplicated_build_by_version(self, update_docs_task):
+        """
+        Trigger a build for the same version.
+
+        The second build should be marked as NOOP if there is already a build
+        for the same project and version on 'triggered' state.
+        """
+        self.assertEqual(Build.objects.count(), 0)
+        trigger_build(self.project, self.version, commit=None)
+        self.assertEqual(Build.objects.count(), 1)
+        build = Build.objects.first()
+        self.assertEqual(build.state, 'triggered')
+
+        trigger_build(self.project, self.version, commit=None)
+        self.assertEqual(Build.objects.count(), 2)
+        build = Build.objects.first()
+        self.assertEqual(build.error, DuplicatedBuildError.message)
+        self.assertEqual(build.success, False)
+        self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
+        self.assertEqual(build.status_code, DuplicatedBuildError.status_code)
+        self.assertEqual(build.state, 'finished')
+
+    def test_trigger_duplicated_non_triggered_build_by_version(self, update_docs_task):
+        """
+        Trigger a build for the same version.
+
+        The second build should not be marked as NOOP because the previous build
+        for the same project and version is on 'building' state (any non 'triggered')
+        """
+        self.assertEqual(Build.objects.count(), 0)
+        trigger_build(self.project, self.version, commit=None)
+        self.assertEqual(Build.objects.count(), 1)
+        build = Build.objects.first()
+        self.assertEqual(build.state, 'triggered')
+
+        # Mark the build as building
+        build = Build.objects.first()
+        build.state = 'building'
+        build.save()
+        build.refresh_from_db()
+
+        trigger_build(self.project, self.version, commit=None)
+        self.assertEqual(Build.objects.count(), 2)
+        build = Build.objects.first()
+        self.assertEqual(build.state, 'triggered')
+        self.assertIsNone(build.status_code)

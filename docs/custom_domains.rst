@@ -1,5 +1,5 @@
-Custom Domains
-==============
+Custom Domains and White Labeling
+=================================
 
 Once a project is imported into Read the Docs,
 by default it's hosted under a subdomain on one of our domains.
@@ -20,8 +20,8 @@ You can also host your documentation from your own domain.
 
 .. note::
 
-   We don't currently support pointing subdomains or naked domains to a project using ``A`` records.
-   It's best to point a subdomain, ``docs.example.com`` for example, using a CNAME record.
+   We don't currently support pointing subdomains or root domains to a project using A records.
+   DNS A records require a static IP address and our IPs may change without notice.
 
 .. tabs::
 
@@ -29,7 +29,8 @@ You can also host your documentation from your own domain.
       
       In order to setup your custom domain, follow these steps:
 
-      #. Add a CNAME record in your DNS that points the domain to ``readthedocs.io``
+      #. For a subdomain like ``docs.example.com``, add a CNAME record in your DNS that points the domain to ``readthedocs.io``.
+         For a root domain like ``example.com`` use an ANAME or ALIAS record pointing to ``readthedocs.io``.
       #. Go the :guilabel:`Admin` tab of your project
       #. Click on :guilabel:`Domains`
       #. Enter your domain and click on :guilabel:`Add`
@@ -39,39 +40,36 @@ You can also host your documentation from your own domain.
       The SSL certificate issuance can take about one hour,
       you can see the status of the certificate on the domain page in your project.
 
-      For example, https://pip.pypa.io resolves, but is hosted on our infrastructure.
-      As another example, fabric's dig record looks like this:
+      As an example, fabric's dig record looks like this:
 
       .. prompt:: bash $, auto
 
-         $ dig docs.fabfile.org
-         ...
-         ;; ANSWER SECTION:
-         docs.fabfile.org.   7200    IN  CNAME   readthedocs.io.
+         $ dig +short docs.fabfile.org
+         readthedocs.io.
+         104.17.33.82
+         104.17.32.82
 
-      .. note::
+      .. admonition:: Certificate Authority Authorization (CAA)
 
-         Some older setups configured a CNAME record pointing to ``readthedocs.org`` or another variation.
-         While these continue to resolve,
-         they do not yet allow us to acquire SSL certificates for those domains.
-         Follow the new setup to have a SSL certificate.
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include Cloudflare CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Cloudflare CAA FAQ`_ for details.
+         We need a record that looks like this: ``0 issue "digicert.com"`` in response to ``dig +short CAA <domain>``
 
-      .. warning:: Notes for Cloudflare users
+         .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 
-         - If your domain has configured CAA records, please do not forget to include
-           Cloudflare CAA entries, see their `Certification Authority Authorization (CAA)
-           FAQ <https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ>`__.
+      .. admonition:: Notes for Cloudflare users
 
-         - Due to a limitation,
-           a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-           This results in a "CNAME Cross-User Banned" error.
-           In order to do SSL termination, we must proxy this connection.
-           If you don't want us to do SSL termination for your domain —
-           **which means you are responsible for the SSL certificate** —
-           then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-           For more details, see `this previous issue`_.
+         Due to a limitation,
+         a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
+         This results in a "CNAME Cross-User Banned" error.
+         In order to do SSL termination, we must proxy this connection.
+         If you don't want us to do SSL termination for your domain —
+         **which means you are responsible for the SSL certificate** —
+         then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
+         For more details, see `this previous issue`_.
 
-           .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+         .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
    .. tab:: Read the Docs for Business
 
@@ -92,6 +90,27 @@ You can also host your documentation from your own domain.
 
          Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
          These domains will continue to resolve.
+
+      .. admonition:: Certificate Authority Authorization (CAA)
+
+         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         please do not forget to include AWS Certificate Manager CAA entries to allow them to issue a certificate for your custom domain.
+         See the `Amazon CAA guide`_ for details.
+
+         .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
+
+Strict Transport Security
++++++++++++++++++++++++++
+
+By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
+This is a conscious decision as it can be misconfigured in a not easily reversible way.
+For both |org_brand| and |com_brand|, HSTS for custom domains can be set upon request.
+
+We always return the HSTS header with a max-age of at least one year
+for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
+
+.. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+
 
 Proxy SSL
 ---------

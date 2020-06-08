@@ -6,6 +6,7 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
 
 from django.conf import settings
 from django.shortcuts import render
@@ -56,7 +57,10 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
-            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+            if Domain.objects.filter(project__slug=project_slug).filter(
+                canonical=True,
+                https=True,
+            ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
                 request.canonicalize = 'canonical-cname'
             return project_slug
@@ -88,6 +92,7 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
     if domain:
         project_slug = domain.project.slug
         request.cname = True
+        request.domain = domain
         log.debug('Proxito CNAME: host=%s', host)
 
         if domain.https and not request.is_secure():
@@ -111,6 +116,40 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    # pylint: disable=no-self-use
+    def add_proxito_headers(self, request, response):
+        """Add debugging headers to proxito responses."""
+
+        project_slug = getattr(request, 'host_project_slug', '')
+        version_slug = getattr(request, 'path_version_slug', '')
+        path = getattr(response, 'proxito_path', '')
+
+        response['X-RTD-Domain'] = request.get_host()
+        response['X-RTD-Project'] = project_slug
+
+        if version_slug:
+            response['X-RTD-Version'] = version_slug
+
+        if path:
+            response['X-RTD-Path'] = path
+
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{project_slug}'
+        if version_slug:
+            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
+
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
+
     def process_request(self, request):  # noqa
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
@@ -128,4 +167,68 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
 
+        try:
+            project = Project.objects.get(slug=request.host_project_slug)
+        except Project.DoesNotExist:
+            log.exception('No host_project_slug set on project')
+            return None
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf:
+
+            # Stop Django from caching URLs
+            # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
+                project, url_key, project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
+
         return None
+
+    def process_response(self, request, response):  # noqa
+        """
+        Set the Strict-Transport-Security (HSTS) header for docs sites.
+
+        * For the public domain, set the HSTS header if settings.PUBLIC_DOMAIN_USES_HTTPS
+        * For custom domains, check the HSTS values on the Domain object.
+          The domain object should be saved already in request.domain.
+        """
+        host = request.get_host().lower().split(':')[0]
+        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
+
+        hsts_header_values = []
+
+        self.add_proxito_headers(request, response)
+
+        if not request.is_secure():
+            # Only set the HSTS header if the request is over HTTPS
+            return response
+
+        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+            hsts_header_values = [
+                'max-age=31536000',
+                'includeSubDomains',
+                'preload',
+            ]
+        elif hasattr(request, 'domain'):
+            domain = request.domain
+            if domain.hsts_max_age:
+                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
+                # These other options don't make sense without max_age > 0
+                if domain.hsts_include_subdomains:
+                    hsts_header_values.append('includeSubDomains')
+                if domain.hsts_preload:
+                    hsts_header_values.append('preload')
+
+        if hsts_header_values:
+            # See https://tools.ietf.org/html/rfc6797
+            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+
+        return response
