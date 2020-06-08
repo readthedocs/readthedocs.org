@@ -1,7 +1,5 @@
 """Constants for the builds app."""
 
-from enum import Enum
-
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -129,6 +127,4 @@ PREDEFINED_MATCH_ARGS_VALUES = {
     SEMVER_VERSIONS: SEMVER_VERSIONS_REGEX,
 }
 
-
-class StatusCode(Enum):
-    DUPLICATED_BUILD = 0
+BUILD_STATUS_CODE_DUPLICATED_BUILD = 0
