@@ -24,7 +24,7 @@ from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import DuplicatedBuildError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.models import EnvironmentVariable, Feature, Project
 from readthedocs.projects.tasks import UpdateDocsTaskStep
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
@@ -761,6 +761,12 @@ class DeDuplicateBuildTests(TestCase):
         self.version = get(
             Version,
             project=self.project
+        )
+
+        get(
+            Feature,
+            feature_id=Feature.DEDUPLICATE_BUILDS,
+            projects=[self.project],
         )
 
     def test_trigger_duplicated_build_by_commit(self, update_docs_task):
