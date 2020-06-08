@@ -1276,7 +1276,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 
 # Web tasks
-@app.task(queue='web')
+@app.task(queue='reindex')
 def fileify(version_pk, commit, build):
     """
     Create ImportedFile objects for all of a version's files.
