@@ -562,6 +562,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         settings.RTD_MAX_CONCURRENT_BUILDS,
                     )
                 except Exception:
+                    log.exception(
+                        'Error while hitting/parsing API for concurrent limit checks from builder. '
+                        'project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
                     concurrency_limit_reached = False
                     max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
 
