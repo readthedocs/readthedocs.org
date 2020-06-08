@@ -185,6 +185,11 @@ def prepare_build(
             version=version,
             state=BUILD_STATE_TRIGGERED,
         ).count() > 1
+
+    if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
+        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        skip_build = False
+
     if skip_build:
         # TODO: we could mark the old build as duplicated, however we reset our
         # position in the queue and go back to the end of it --penalization
