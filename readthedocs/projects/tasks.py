@@ -543,7 +543,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.commit = commit
             self.config = None
 
-            if self.build['status_code'] == DuplicatedBuildError.status_code:
+            if self.build.get('status_code') == DuplicatedBuildError.status_code:
                 log.warning(
                     'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
                     self.project.slug,
