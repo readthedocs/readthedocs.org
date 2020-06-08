@@ -12,5 +12,8 @@ datadiff==2.0.0
 ipdb==0.13.2
 pdbpp==0.10.2
 
+# watchdog dependency
+argh==0.26.2
+
 # run tests
 tox==3.15.0
