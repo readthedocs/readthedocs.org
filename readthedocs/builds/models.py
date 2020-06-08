@@ -26,6 +26,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    BUILD_STATUS_CODE_CHOICES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
@@ -615,7 +616,14 @@ class Build(models.Model):
         choices=BUILD_STATE,
         default='finished',
     )
-    status_code = models.BooleanField(_('Status code'), null=True, default=None, blank=True)
+    status_code = models.CharField(
+        _('Status code'),
+        choices=BUILD_STATUS_CODE_CHOICES,
+        max_length=32,
+        null=True,
+        default=None,
+        blank=True,
+    )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
 
