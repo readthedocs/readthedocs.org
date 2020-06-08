@@ -354,7 +354,9 @@ class APIBuildTests(TestCase):
         client = APIClient()
         api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
-        build = get(Build, project_id=1, version_id=1, state='cloning')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, state='cloning')
         resp = client.put(
             '/api/v2/build/{}/'.format(build.pk),
             {
@@ -373,7 +375,9 @@ class APIBuildTests(TestCase):
         Super users should be able to read/write the `builder` property, but we
         don't expose this to end users via the API
         """
-        build = get(Build, project_id=1, version_id=1, builder='foo')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, builder='foo')
         client = APIClient()
 
         api_user = get(User, is_staff=False, password='test')
@@ -423,7 +427,9 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['commands'][0]['description'], 'foo')
 
     def test_get_raw_log_success(self):
-        build = get(Build, project_id=1, version_id=1, builder='foo')
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
+        build = get(Build, project=project, version=version, builder='foo')
         get(
             BuildCommandResult,
             build=build,
@@ -462,8 +468,10 @@ class APIBuildTests(TestCase):
         )
 
     def test_get_raw_log_building(self):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
         build = get(
-            Build, project_id=1, version_id=1,
+            Build, project=project, version=version,
             builder='foo', success=False,
             exit_code=1, state='building',
         )
@@ -506,8 +514,10 @@ class APIBuildTests(TestCase):
         )
 
     def test_get_raw_log_failure(self):
+        project = Project.objects.get(pk=1)
+        version = project.versions.first()
         build = get(
-            Build, project_id=1, version_id=1,
+            Build, project=project, version=version,
             builder='foo', success=False, exit_code=1,
         )
         get(
@@ -562,8 +572,12 @@ class APIBuildTests(TestCase):
         Should return the list of builds according to the
         commit query params
         """
-        get(Build, project_id=1, version_id=1, builder='foo', commit='test')
-        get(Build, project_id=2, version_id=1, builder='foo', commit='other')
+        project1 = Project.objects.get(pk=1)
+        project2 = Project.objects.get(pk=2)
+        version1 = project1.versions.first()
+        version2 = project2.versions.first()
+        get(Build, project=project1, version=version1, builder='foo', commit='test')
+        get(Build, project=project2, version=version2, builder='foo', commit='other')
         client = APIClient()
         api_user = get(User, is_staff=False, password='test')
         client.force_authenticate(user=api_user)
@@ -635,7 +649,7 @@ class APITests(TestCase):
 
     def test_remote_repository_pagination(self):
         account = get(SocialAccount, provider='github')
-        user = get(User, socialaccount_set=[account])
+        user = get(User)
         for _ in range(20):
             get(RemoteRepository, users=[user], account=account)
 
@@ -649,7 +663,7 @@ class APITests(TestCase):
 
     def test_remote_organization_pagination(self):
         account = get(SocialAccount, provider='github')
-        user = get(User, socialaccount_set=[account])
+        user = get(User)
         for _ in range(30):
             get(RemoteOrganization, users=[user], account=account)
 
@@ -705,6 +719,32 @@ class APITests(TestCase):
         self.assertFalse(api_project.show_advertising)
         self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
 
+    def test_concurrent_builds(self):
+        expected = {
+            'limit_reached': False,
+            'concurrent': 2,
+            'max_concurrent': 4,
+        }
+        user = get(User, is_staff=True)
+        project = get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        for state in ('triggered', 'building', 'cloning', 'finished'):
+            get(
+                Build,
+                project=project,
+                state=state,
+            )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get(f'/api/v2/build/concurrent/', data={'project__slug': project.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(expected, resp.data)
+
 
 class APIImportTests(TestCase):
 
@@ -719,9 +759,9 @@ class APIImportTests(TestCase):
         account_a = get(SocialAccount, provider='github')
         account_b = get(SocialAccount, provider='github')
         account_c = get(SocialAccount, provider='github')
-        user_a = get(User, password='test', socialaccount_set=[account_a])
-        user_b = get(User, password='test', socialaccount_set=[account_b])
-        user_c = get(User, password='test', socialaccount_set=[account_c])
+        user_a = get(User, password='test')
+        user_b = get(User, password='test')
+        user_c = get(User, password='test')
         org_a = get(RemoteOrganization, users=[user_a], account=account_a)
         repo_a = get(
             RemoteRepository,
@@ -776,6 +816,7 @@ class IntegrationsTests(TestCase):
         self.project = get(
             Project,
             build_queue=None,
+            external_builds_enabled=True,
         )
         self.feature_flag = get(
             Feature,
@@ -2240,6 +2281,7 @@ class IntegrationsTests(TestCase):
 
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
+    maxDiff = None  # So we get an actual diff when it fails
 
     def test_get_version_by_id(self):
         """
@@ -2300,6 +2342,7 @@ class APIVersionTests(TestCase):
                 'slug': 'pip',
                 'use_system_packages': False,
                 'users': [1],
+                'urlconf': None,
             },
             'privacy_level': 'public',
             'downloads': {},

@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 
-import getpass
 import os
+import subprocess
 
 from celery.schedules import crontab
 
@@ -26,8 +26,6 @@ class CommunityBaseSettings(Settings):
     # Django settings
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
-    SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
-    SINGLE_VERSION_URLCONF = 'readthedocs.core.urls.single_version'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -37,6 +35,7 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
 
     # Domains and URLs
+    RTD_IS_PRODUCTION = False
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
@@ -102,8 +101,6 @@ class CommunityBaseSettings(Settings):
     DONT_HIT_API = False
     DONT_HIT_DB = True
 
-    SYNC_USER = getpass.getuser()
-
     USER_MATURITY_DAYS = 7
 
     # override classes
@@ -160,7 +157,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
 
-
             # allauth
             'allauth',
             'allauth.account',
@@ -172,6 +168,7 @@ class CommunityBaseSettings(Settings):
         ]
         if ext:
             apps.append('django_countries')
+            apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
@@ -191,8 +188,6 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
-        'readthedocs.core.middleware.SubdomainMiddleware',
-        'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
     )
@@ -234,8 +229,6 @@ class CommunityBaseSettings(Settings):
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
     DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
-    UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
-    CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
     LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
     PRODUCTION_ROOT = os.path.join(SITE_ROOT, 'prod_artifacts')
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
@@ -343,12 +336,6 @@ class CommunityBaseSettings(Settings):
 
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
-        # Ran every hour on minute 30
-        'hourly-remove-orphan-symlinks': {
-            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
-            'schedule': crontab(minute=30),
-            'options': {'queue': 'web'},
-        },
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
@@ -363,7 +350,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-day-delete-old-page-views': {
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -440,13 +432,59 @@ class CommunityBaseSettings(Settings):
             },
         },
     }
-
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
         'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
         'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
         'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
+
+    def _get_docker_memory_limit(self):
+        try:
+            total_memory = int(subprocess.check_output(
+                "free -m | awk '/^Mem:/{print $2}'",
+                shell=True,
+            ))
+            return round(total_memory - 750, -2)
+        except ValueError:
+            # On systems without a `free` command it will return a string to
+            # int and raise a ValueError
+            log.exception('Failed to get memory size, using defaults Docker limits.')
+
+    # Coefficient used to determine build time limit, as a percentage of total
+    # memory. Historical values here were 0.225 to 0.3.
+    DOCKER_TIME_LIMIT_COEFF = 0.25
+
+    @property
+    def DOCKER_LIMITS(self):
+        """
+        Set docker limits dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+
+        We substract 750MiB for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
+        # Our normal default
+        limits = {
+            'memory': '1g',
+            'time': 600,
+        }
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            memory_limit = self._get_docker_memory_limit()
+            if memory_limit:
+                limits = {
+                    'memory': f'{memory_limit}m',
+                    'time': max(
+                        limits['time'],
+                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                    )
+                }
+        return limits
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -495,7 +533,6 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
-    SERVE_DOCS = ['public']
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
@@ -578,7 +615,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
         'file_insertion_enabled': False,

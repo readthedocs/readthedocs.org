@@ -181,6 +181,7 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
+            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
         }
 
         finalize_sphinx_context_data.send(
@@ -234,6 +235,7 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             '-T',
+            *self.sphinx_parallel_arg(),
         ]
         if self._force:
             build_command.append('-E')
@@ -269,6 +271,11 @@ class BaseSphinx(BaseBuilder):
             'python',
             self.python_env.venv_bin(filename='sphinx-build'),
         )
+
+    def sphinx_parallel_arg(self):
+        if self.project.has_feature(Feature.SPHINX_PARALLEL):
+            return ['-j', 'auto']
+        return []
 
     def venv_sphinx_supports_latexmk(self):
         """
@@ -310,6 +317,8 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'html'
 
     def move(self, **__):
         super().move()
@@ -340,6 +349,8 @@ class HtmlDirBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'dirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
@@ -348,6 +359,8 @@ class SingleHtmlBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'singlehtml'
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -448,6 +461,7 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             '-b',
             'latex',
+            *self.sphinx_parallel_arg(),
             '-D',
             'language={lang}'.format(lang=self.project.language),
             '-d',

@@ -26,12 +26,13 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
+    TrafficAnalyticsView,
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
     ProjectDelete,
-    ProjectNotications,
-    ProjectNoticationsDelete,
+    ProjectNotifications,
+    ProjectNotificationsDelete,
     ProjectRedirects,
     ProjectRedirectsDelete,
     ProjectTranslationsDelete,
@@ -102,12 +103,12 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/$',
-        ProjectNotications.as_view(),
+        ProjectNotifications.as_view(),
         name='projects_notifications',
     ),
     url(
         r'^(?P<project_slug>[-\w]+)/notifications/delete/$',
-        ProjectNoticationsDelete.as_view(),
+        ProjectNotificationsDelete.as_view(),
         name='projects_notification_delete',
     ),
     url(
@@ -138,6 +139,10 @@ urlpatterns = [
         r'^(?P<project_slug>[-\w]+)/search-analytics/$',
         SearchAnalytics.as_view(),
         name='projects_search_analytics',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/traffic-analytics/$',
+        TrafficAnalyticsView.as_view(), name='projects_traffic_analytics',
     ),
 ]
 

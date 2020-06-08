@@ -16,11 +16,9 @@ for your own :doc:`custom installation </custom_installs/index>`.
    front-end
    design/index
    buildenvironments
-   symlinks
    settings
    install
    i18n
    issue-labels
    design
    RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
-

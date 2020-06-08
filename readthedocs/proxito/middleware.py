@@ -6,6 +6,7 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import logging
+import sys
 
 from django.conf import settings
 from django.shortcuts import render
@@ -56,7 +57,10 @@ def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statem
             project_slug = host_parts[0]
             request.subdomain = True
             log.debug('Proxito Public Domain: host=%s', host)
-            if Domain.objects.filter(project__slug=project_slug).filter(canonical=True).exists():
+            if Domain.objects.filter(project__slug=project_slug).filter(
+                canonical=True,
+                https=True,
+            ).exists():
                 log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
                 request.canonicalize = 'canonical-cname'
             return project_slug
@@ -112,6 +116,40 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
+    # pylint: disable=no-self-use
+    def add_proxito_headers(self, request, response):
+        """Add debugging headers to proxito responses."""
+
+        project_slug = getattr(request, 'host_project_slug', '')
+        version_slug = getattr(request, 'path_version_slug', '')
+        path = getattr(response, 'proxito_path', '')
+
+        response['X-RTD-Domain'] = request.get_host()
+        response['X-RTD-Project'] = project_slug
+
+        if version_slug:
+            response['X-RTD-Version'] = version_slug
+
+        if path:
+            response['X-RTD-Path'] = path
+
+        # Include the project & project-version so we can do larger purges if needed
+        response['Cache-Tag'] = f'{project_slug}'
+        if version_slug:
+            response['Cache-Tag'] += f',{project_slug}-{version_slug}'
+
+        if hasattr(request, 'rtdheader'):
+            response['X-RTD-Project-Method'] = 'rtdheader'
+        elif hasattr(request, 'subdomain'):
+            response['X-RTD-Project-Method'] = 'subdomain'
+        elif hasattr(request, 'cname'):
+            response['X-RTD-Project-Method'] = 'cname'
+
+        if hasattr(request, 'external_domain'):
+            response['X-RTD-Version-Method'] = 'domain'
+        else:
+            response['X-RTD-Version-Method'] = 'path'
+
     def process_request(self, request):  # noqa
         if any([not settings.USE_SUBDOMAIN, 'localhost' in request.get_host(),
                 'testserver' in request.get_host()]):
@@ -129,6 +167,29 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Otherwise set the slug on the request
         request.host_project_slug = request.slug = ret
 
+        try:
+            project = Project.objects.get(slug=request.host_project_slug)
+        except Project.DoesNotExist:
+            log.exception('No host_project_slug set on project')
+            return None
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf:
+
+            # Stop Django from caching URLs
+            # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf: project=%s url_key=%s urlconf=%s',
+                project, url_key, project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
+
         return None
 
     def process_response(self, request, response):  # noqa
@@ -143,6 +204,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
 
         hsts_header_values = []
+
+        self.add_proxito_headers(request, response)
 
         if not request.is_secure():
             # Only set the HSTS header if the request is over HTTPS

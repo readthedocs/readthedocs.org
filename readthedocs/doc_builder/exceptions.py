@@ -3,6 +3,7 @@
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import ugettext_noop
+from readthedocs.builds.constants import BUILD_STATUS_CODE_DUPLICATED_BUILD
 
 
 class BuildEnvironmentException(Exception):
@@ -55,6 +56,12 @@ class BuildTimeoutError(BuildEnvironmentError):
 
 class BuildMaxConcurrencyError(BuildEnvironmentError):
     message = ugettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
+
+
+class DuplicatedBuildError(BuildEnvironmentError):
+    message = ugettext_noop('Duplicated build.')
+    exit_code = 1
+    status_code = BUILD_STATUS_CODE_DUPLICATED_BUILD
 
 
 class BuildEnvironmentWarning(BuildEnvironmentException):

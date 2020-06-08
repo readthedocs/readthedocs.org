@@ -2,11 +2,9 @@ import logging
 
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
-
 from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
-
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -49,19 +47,6 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
         model = Project
         fields = ('name', 'slug', 'description')
         ignore_signals = True
-
-    @classmethod
-    def faceted_search(cls, query, user, language=None):
-        from readthedocs.search.faceted_search import ProjectSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
-
-        if language:
-            kwargs['filters'] = {'language': language}
-
-        return ProjectSearch(**kwargs)
 
 
 @page_index.doc_type
@@ -147,28 +132,6 @@ class PageDocument(RTDDocTypeMixin, DocType):
             ))
 
         return all_domains
-
-    @classmethod
-    def faceted_search(
-            cls, query, user, projects_list=None, versions_list=None,
-            filter_by_user=True
-    ):
-        from readthedocs.search.faceted_search import PageSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-            'filter_by_user': filter_by_user,
-        }
-
-        filters = {}
-        if projects_list is not None:
-            filters['project'] = projects_list
-        if versions_list is not None:
-            filters['version'] = versions_list
-
-        kwargs['filters'] = filters
-
-        return PageSearch(**kwargs)
 
     def get_queryset(self):
         """Overwrite default queryset to filter certain files to index."""
