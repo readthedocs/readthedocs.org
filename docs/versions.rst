@@ -85,12 +85,31 @@ any user with a link to its docs would be able to see it.
 This is useful when:
 
 - You no longer support a version, but you don't want to remove its docs.
-- You have a work in progress version and don't want to publish its docs just yet. 
+- You have a work in progress version and don't want to publish its docs just yet.
 
 .. note::
 
    Active versions that are hidden will be listed as ``Disallow: /path/to/version/``
    in the default `robots.txt file <https://www.robotstxt.org/>`__ created by Read the Docs.
+
+Privacy levels
+--------------
+
+.. note::
+
+   Privacy levels are only supported on :doc:`/commercial/index`.
+
+Public
+~~~~~~
+
+It means that everything is available to be seen by everyone.
+
+Private
+~~~~~~~
+
+Private versions are available only to people who have permissions to see them.
+They will not display on any list view, and will 404 when you link them to others.
+If you want to share your docs temporarily, see :doc:`/commercial/sharing`.
 
 Tags and branches
 -----------------
@@ -111,7 +130,6 @@ Version Control Support Matrix
 +------------+------------+-----------+------------+-----------+
 | Default    |    master  |   default |            |    trunk  |
 +------------+------------+-----------+------------+-----------+
-
 
 Version warning
 ---------------

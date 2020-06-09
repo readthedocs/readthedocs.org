@@ -26,6 +26,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    BUILD_STATUS_CHOICES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
@@ -609,11 +610,28 @@ class Build(models.Model):
         choices=BUILD_TYPES,
         default='html',
     )
+
+    # Describe build state as where in the build process the build is. This
+    # allows us to show progression to the user in the form of a progress bar
+    # or in the build listing
     state = models.CharField(
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+    )
+
+    # Describe status as *why* the build is in a particular state. It is
+    # helpful for communicating more details about state to the user, but it
+    # doesn't help describe progression
+    # https://github.com/readthedocs/readthedocs.org/pull/7123#issuecomment-635065807
+    status = models.CharField(
+        _('Status'),
+        choices=BUILD_STATUS_CHOICES,
+        max_length=32,
+        null=True,
+        default=None,
+        blank=True,
     )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)

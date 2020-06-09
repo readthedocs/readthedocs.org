@@ -20,6 +20,13 @@ class RTDFacetedSearch(FacetedSearch):
 
     operators = []
 
+    _highlight_options = {
+        'encoder': 'html',
+        'number_of_fragments': 1,
+        'pre_tags': ['<span>'],
+        'post_tags': ['</span>'],
+    }
+
     def __init__(self, query=None, filters=None, user=None, **kwargs):
         """
         Pass in a user in order to filter search results by privacy.
@@ -57,7 +64,7 @@ class RTDFacetedSearch(FacetedSearch):
         * Adds SimpleQueryString with `self.operators` instead of default query.
         * Adds HTML encoding of results to avoid XSS issues.
         """
-        search = search.highlight_options(encoder='html', number_of_fragments=3)
+        search = search.highlight_options(**self._highlight_options)
         search = search.source(exclude=['content', 'headers'])
 
         all_queries = []
@@ -104,20 +111,14 @@ class PageSearchBase(RTDFacetedSearch):
         'domains.name^2',
         'domains.docstrings',
     ]
-    _common_highlight_options = {
-        'encoder': 'html',
-        'number_of_fragments': 1,
-        'pre_tags': ['<span>'],
-        'post_tags': ['</span>'],
-    }
     fields = _outer_fields
 
     # need to search for both 'and' and 'or' operations
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
-    def count(self):
-        """Overriding ``count`` method to return the count of the results after post_filter."""
+    def total_count(self):
+        """Returns the total count of results of the current query."""
         s = self.build_search()
 
         # setting size=0 so that no results are returned,
@@ -128,7 +129,7 @@ class PageSearchBase(RTDFacetedSearch):
 
     def query(self, search, query):
         """Manipulates query to support nested query."""
-        search = search.highlight_options(**self._common_highlight_options)
+        search = search.highlight_options(**self._highlight_options)
 
         all_queries = []
 
@@ -149,7 +150,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._section_fields,
             inner_hits={
                 'highlight': dict(
-                    self._common_highlight_options,
+                    self._highlight_options,
                     fields={
                         'sections.title': {},
                         'sections.content': {},
@@ -165,7 +166,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._domain_fields,
             inner_hits={
                 'highlight': dict(
-                    self._common_highlight_options,
+                    self._highlight_options,
                     fields={
                         'domains.name': {},
                         'domains.docstrings': {},

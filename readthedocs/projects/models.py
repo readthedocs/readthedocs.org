@@ -208,6 +208,7 @@ class Project(models.Model):
         _('Documentation URL Configuration'),
         max_length=255,
         default=None,
+        blank=True,
         null=True,
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
@@ -218,8 +219,6 @@ class Project(models.Model):
     external_builds_enabled = models.BooleanField(
         _('Build pull requests for this project'),
         default=False,
-        # TODO: Remove this after migrations
-        null=True,
         help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
     )
 
@@ -662,9 +661,20 @@ class Project(models.Model):
             ]
             docs_urls = [
                 re_path(
-                    '^{regex_urlconf}'.format(regex_urlconf=self.regex_urlconf),
+                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs'
+                ),
+                # paths for redirects at the root
+                re_path(
+                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_subpath_redirect'
+                ),
+                re_path(
+                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_root_redirect'
                 ),
             ]
             urlpatterns = proxied_urls + core_urls + docs_urls
@@ -1590,10 +1600,15 @@ class Feature(models.Model):
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
+    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
     STORE_PAGEVIEWS = 'store_pageviews'
+    SPHINX_PARALLEL = 'sphinx_parallel'
+    USE_SPHINX_BUILDERS = 'use_sphinx_builders'
+    DEDUPLICATE_BUILDS = 'deduplicate_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1669,6 +1684,14 @@ class Feature(models.Model):
             _('Limit the amount of concurrent builds'),
         ),
         (
+            DISABLE_SERVER_SIDE_SEARCH,
+            _('Disable server side search'),
+        ),
+        (
+            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
+            _('Enable server side search for MkDocs projects'),
+        ),
+        (
             FORCE_SPHINX_FROM_VENV,
             _('Force to use Sphinx from the current virtual environment'),
         ),
@@ -1686,6 +1709,18 @@ class Feature(models.Model):
         (
             STORE_PAGEVIEWS,
             _('Store pageviews for this project'),
+        ),
+        (
+            SPHINX_PARALLEL,
+            _('Use "-j auto" when calling sphinx-build'),
+        ),
+        (
+            USE_SPHINX_BUILDERS,
+            _('Use regular sphinx builders instead of custom RTD builders'),
+        ),
+        (
+            DEDUPLICATE_BUILDS,
+            _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
     )
 

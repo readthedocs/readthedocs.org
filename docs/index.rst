@@ -142,7 +142,7 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>` |
+  :doc:`Single version docs <single_version>`
 
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
@@ -170,7 +170,6 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
-   privacy
 
    localization
 

@@ -719,6 +719,32 @@ class APITests(TestCase):
         self.assertFalse(api_project.show_advertising)
         self.assertEqual(api_project.environment_variables, {'TOKEN': 'a1b2c3'})
 
+    def test_concurrent_builds(self):
+        expected = {
+            'limit_reached': False,
+            'concurrent': 2,
+            'max_concurrent': 4,
+        }
+        user = get(User, is_staff=True)
+        project = get(
+            Project,
+            max_concurrent_builds=None,
+            main_language_project=None,
+        )
+        for state in ('triggered', 'building', 'cloning', 'finished'):
+            get(
+                Build,
+                project=project,
+                state=state,
+            )
+
+        client = APIClient()
+        client.force_authenticate(user=user)
+
+        resp = client.get(f'/api/v2/build/concurrent/', data={'project__slug': project.slug})
+        self.assertEqual(resp.status_code, 200)
+        self.assertDictEqual(expected, resp.data)
+
 
 class APIImportTests(TestCase):
 
