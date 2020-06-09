@@ -1,5 +1,6 @@
 """Functions related to converting content into dict/JSON structures."""
 
+import itertools
 import logging
 from urllib.parse import urlparse
 
@@ -61,7 +62,7 @@ def generate_page_sections(page_title, body, fjson_storage_path):
     for head_level in range(1, 7):
         tags = body.css(f'.section > h{head_level}')
         for tag in tags:
-            title = tag.text().replace('¶', '').strip()
+            title = _parse_title(tag)
 
             div = tag.parent
             section_id = div.attributes.get('id', '')
@@ -78,11 +79,31 @@ def _get_content_from_tag(tag):
     contents = []
     next_tag = tag
     while next_tag and not _is_section(next_tag):
-        content = parse_content(next_tag.text())
+        if _is_code_section(next_tag):
+            content = _parse_code_section(next_tag)
+        else:
+            content = parse_content(next_tag.text())
+
         if content:
             contents.append(content)
         next_tag = next_tag.next
     return ' '.join(contents)
+
+
+def _is_code_section(tag):
+    """
+    Check if `tag` is a code section.
+
+    Sphinx and Mkdocs codeblocks have a class named
+    ``highlight`` or ``highlight-{language}``.
+    """
+    if not tag.css_first('pre'):
+        return False
+
+    for c in tag.attributes.get('class', '').split():
+        if c.startswith('highlight'):
+            return True
+    return False
 
 
 def _is_section(tag):
@@ -91,6 +112,30 @@ def _is_section(tag):
         tag.tag == 'div' and
         'section' in tag.attributes.get('class', [])
     )
+
+
+def _parse_code_section(tag):
+    """
+    Parse a code section to fetch relevant content only.
+
+    - Removes line numbers.
+      Sphinx and Mkdocs may use a table when the code block includes line numbers.
+      This table has a td tag with a ``lineos`` class.
+      Other implementations put the line number within the code,
+      inside span tags with the ``lineno`` class.
+    """
+    nodes_to_be_removed = itertools.chain(tag.css('.linenos'), tag.css('.lineno'))
+    for node in nodes_to_be_removed:
+        node.decompose()
+
+    contents = []
+    for node in tag.css('pre'):
+        # XXX: Don't call to `parse_content`
+        # if we decide to show code results more nicely,
+        # so the indentation isn't lost.
+        content = node.text().strip('\n')
+        contents.append(parse_content(content))
+    return ' '.join(contents)
 
 
 def process_file(fjson_storage_path):
@@ -196,19 +241,27 @@ def _get_text_for_domain_data(desc):
     return docstrings
 
 
-def parse_content(content, remove_first_line=False):
+def parse_content(content):
     """Removes new line characters and ¶."""
     content = content.replace('¶', '').strip()
     content = content.split('\n')
-
-    # removing the starting text of each
-    if remove_first_line and len(content) > 1:
-        content = content[1:]
 
     # Convert all new lines to " "
     content = (text.strip() for text in content)
     content = ' '.join(text for text in content if text)
     return content
+
+
+def _parse_title(tag):
+    """
+    Parses a Sphinx title tag.
+
+    - Removes the permalink value
+    """
+    nodes_to_be_removed = tag.css('a.headerlink')
+    for node in nodes_to_be_removed:
+        node.decompose()
+    return tag.text().strip()
 
 
 def process_mkdocs_index_file(json_storage_path, page):

@@ -1,27 +1,112 @@
 import itertools
 import logging
 import re
+from functools import namedtuple
+from math import ceil
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from rest_framework import generics, serializers
-from rest_framework.exceptions import ValidationError
+from django.utils.translation import ugettext as _
+from rest_framework import serializers
+from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Project
 from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
 
 log = logging.getLogger(__name__)
 
 
+class PaginatorPage:
+
+    """
+    Mimics the result from a paginator.
+
+    By using this class, we avoid having to override a lot of methods
+    of `PageNumberPagination` to make it work with the ES DSL object.
+    """
+
+    def __init__(self, page_number, total_pages, count):
+        self.number = page_number
+        Paginator = namedtuple('Paginator', ['num_pages', 'count'])
+        self.paginator = Paginator(total_pages, count)
+
+    def has_next(self):
+        return self.number < self.paginator.num_pages
+
+    def has_previous(self):
+        return self.number > 0
+
+    def next_page_number(self):
+        return self.number + 1
+
+    def previous_page_number(self):
+        return self.number - 1
+
+
 class SearchPagination(PageNumberPagination):
+
+    """Paginator for the results of PageSearch."""
+
     page_size = 50
     page_size_query_param = 'page_size'
     max_page_size = 100
+
+    def paginate_queryset(self, queryset, request, view=None):
+        """
+        Override to get the paginated result from the ES queryset.
+
+        This makes use of our custom paginator and slicing support from the ES DSL object,
+        instead of the one used by django's ORM.
+
+        Mostly inspired by https://github.com/encode/django-rest-framework/blob/acbd9d8222e763c7f9c7dc2de23c430c702e06d4/rest_framework/pagination.py#L191  # noqa
+        """
+        # Needed for other methods of this class.
+        self.request = request
+
+        page_size = self.get_page_size(request)
+
+        total_count = 0
+        total_pages = 1
+        if queryset:
+            total_count = queryset.total_count()
+            hits = max(1, total_count)
+            total_pages = ceil(hits / page_size)
+
+        page_number = request.query_params.get(self.page_query_param, 1)
+        if page_number in self.last_page_strings:
+            page_number = total_pages
+
+        if page_number <= 0:
+            msg = self.invalid_page_message.format(
+                page_number=page_number,
+                message=_("Invalid page"),
+            )
+            raise NotFound(msg)
+
+        if total_pages > 1 and self.template is not None:
+            # The browsable API should display pagination controls.
+            self.display_page_controls = True
+
+        start = (page_number - 1) * page_size
+        end = page_number * page_size
+        result = list(queryset[start:end])
+
+        # Needed for other methods of this class.
+        self.page = PaginatorPage(
+            page_number=page_number,
+            total_pages=total_pages,
+            count=total_count,
+        )
+
+        return result
 
 
 class PageSearchSerializer(serializers.Serializer):
@@ -75,12 +160,13 @@ class PageSearchSerializer(serializers.Serializer):
             return sorted_results
 
 
-class PageSearchAPIView(generics.ListAPIView):
+class PageSearchAPIView(GenericAPIView):
 
     """
     Main entry point to perform a search using Elasticsearch.
 
     Required query params:
+
     - q (search term)
     - project
     - version
@@ -91,6 +177,7 @@ class PageSearchAPIView(generics.ListAPIView):
        are called many times, so a basic cache is implemented.
     """
 
+    http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
     serializer_class = PageSearchSerializer
@@ -121,39 +208,7 @@ class PageSearchAPIView(generics.ListAPIView):
 
         return version
 
-    def get_queryset(self):
-        """
-        Return Elasticsearch DSL Search object instead of Django Queryset.
-
-        Django Queryset and elasticsearch-dsl ``Search`` object is similar pattern.
-        So for searching, its possible to return ``Search`` object instead of queryset.
-        The ``filter_backends`` and ``pagination_class`` is compatible with ``Search``
-        """
-        # Validate all the required params are there
-        self.validate_query_params()
-        query = self.request.query_params.get('q', '')
-        filters = {}
-        filters['project'] = [p.slug for p in self.get_all_projects()]
-        filters['version'] = self._get_version().slug
-
-        # Check to avoid searching all projects in case these filters are empty.
-        if not filters['project']:
-            log.info("Unable to find a project to search")
-            return HTMLFile.objects.none()
-        if not filters['version']:
-            log.info("Unable to find a version to search")
-            return HTMLFile.objects.none()
-
-        queryset = PageSearch(
-            query=query,
-            filters=filters,
-            user=self.request.user,
-            # We use a permission class to control authorization
-            filter_by_user=False,
-        )
-        return queryset
-
-    def validate_query_params(self):
+    def _validate_query_params(self):
         """
         Validate all required query params are passed on the request.
 
@@ -163,24 +218,57 @@ class PageSearchAPIView(generics.ListAPIView):
 
         :raises: ValidationError if one of them is missing.
         """
-        required_query_params = {'q', 'project', 'version'}  # python `set` literal is `{}`
+        errors = {}
+        required_query_params = {'q', 'project', 'version'}
         request_params = set(self.request.query_params.keys())
         missing_params = required_query_params - request_params
-        if missing_params:
-            errors = {}
-            for param in missing_params:
-                errors[param] = ["This query param is required"]
-
+        for param in missing_params:
+            errors[param] = [_("This query param is required")]
+        if errors:
             raise ValidationError(errors)
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['projects_data'] = self.get_all_projects_data()
-        return context
-
-    def get_all_projects(self):
+    def _get_all_projects_data(self):
         """
-        Return a list of the project itself and all its subprojects the user has permissions over.
+        Return a dict containing the project slug and its version URL and version's doctype.
+
+        The dictionary contains the project and its subprojects. Each project's
+        slug is used as a key and a tuple with the documentation URL and doctype
+        from the version. Example:
+
+        {
+            "requests": (
+                "https://requests.readthedocs.io/en/latest/",
+                "sphinx",
+            ),
+            "requests-oauth": (
+                "https://requests-oauth.readthedocs.io/en/latest/",
+                "sphinx_htmldir",
+            ),
+        }
+
+        :rtype: dict
+        """
+        all_projects = self._get_all_projects()
+        version_slug = self._get_version().slug
+        project_urls = {}
+        for project in all_projects:
+            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
+
+        versions_doctype = (
+            Version.objects
+            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
+            .values_list('project__slug', 'documentation_type')
+        )
+
+        projects_data = {
+            project_slug: (project_urls[project_slug], doctype)
+            for project_slug, doctype in versions_doctype
+        }
+        return projects_data
+
+    def _get_all_projects(self):
+        """
+        Returns a list of the project itself and all its subprojects the user has permissions over.
 
         :rtype: list
         """
@@ -203,59 +291,16 @@ class PageSearchAPIView(generics.ListAPIView):
                 all_projects.append(version.project)
         return all_projects
 
-    def get_all_projects_data(self):
-        """
-        Return a dict containing the project slug and its version URL and version's doctype.
-
-        The dictionary contains the project and its subprojects. Each project's
-        slug is used as a key and a tuple with the documentation URL and doctype
-        from the version. Example:
-
-        {
-            "requests": (
-                "https://requests.readthedocs.io/en/latest/",
-                "sphinx",
-            ),
-            "requests-oauth": (
-                "https://requests-oauth.readthedocs.io/en/latest/",
-                "sphinx_htmldir",
-            ),
-        }
-
-        :rtype: dict
-        """
-        all_projects = self.get_all_projects()
-        version_slug = self._get_version().slug
-        project_urls = {}
-        for project in all_projects:
-            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
-
-        versions_doctype = (
-            Version.objects
-            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
-            .values_list('project__slug', 'documentation_type')
-        )
-
-        projects_data = {
-            project_slug: (project_urls[project_slug], doctype)
-            for project_slug, doctype in versions_doctype
-        }
-        return projects_data
-
-    def list(self, request, *args, **kwargs):
-        """Overriding ``list`` method to record query in database."""
-
-        response = super().list(request, *args, **kwargs)
-
+    def _record_query(self, response):
         project_slug = self._get_project().slug
         version_slug = self._get_version().slug
         total_results = response.data.get('count', 0)
         time = timezone.now()
 
-        query = self.request.query_params.get('q', '')
+        query = self.request.query_params['q']
         query = query.lower().strip()
 
-        # record the search query with a celery task
+        # Record the query with a celery task
         tasks.record_search_query.delay(
             project_slug,
             version_slug,
@@ -264,4 +309,54 @@ class PageSearchAPIView(generics.ListAPIView):
             time.isoformat(),
         )
 
-        return response
+    def get_queryset(self):
+        """
+        Returns an Elasticsearch DSL search object or an iterator.
+
+        .. note::
+
+           Calling ``list(search)`` over an DSL search object is the same as
+           calling ``search.execute().hits``. This is why an DSL search object
+           is compatible with DRF's paginator.
+        """
+        filters = {}
+        filters['project'] = [p.slug for p in self._get_all_projects()]
+        filters['version'] = self._get_version().slug
+
+        # Check to avoid searching all projects in case these filters are empty.
+        if not filters['project']:
+            log.info('Unable to find a project to search')
+            return []
+        if not filters['version']:
+            log.info('Unable to find a version to search')
+            return []
+
+        query = self.request.query_params['q']
+        queryset = PageSearch(
+            query=query,
+            filters=filters,
+            user=self.request.user,
+            # We use a permission class to control authorization
+            filter_by_user=False,
+        )
+        return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['projects_data'] = self._get_all_projects_data()
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self._validate_query_params()
+        result = self.list()
+        self._record_query(result)
+        return result
+
+    def list(self):
+        """List the results using pagination."""
+        queryset = self.get_queryset()
+        page = self.paginator.paginate_queryset(
+            queryset, self.request, view=self,
+        )
+        serializer = self.get_serializer(page, many=True)
+        return self.paginator.get_paginated_response(serializer.data)
