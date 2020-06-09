@@ -811,7 +811,7 @@ class DeDuplicateBuildTests(TestCase):
         self.assertEqual(Build.objects.count(), 2)
         build = Build.objects.first()
         self.assertEqual(build.state, 'triggered')
-        self.assertIsNone(build.status_code)
+        self.assertIsNone(build.status)
 
     def test_trigger_duplicated_build_by_version(self, update_docs_task):
         """
@@ -858,4 +858,4 @@ class DeDuplicateBuildTests(TestCase):
         self.assertEqual(Build.objects.count(), 2)
         build = Build.objects.first()
         self.assertEqual(build.state, 'triggered')
-        self.assertIsNone(build.status_code)
+        self.assertIsNone(build.status)
