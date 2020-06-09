@@ -245,14 +245,10 @@ textarea, input, button, .button, select {
     background-color: #fff;
     border: 1px solid #BFBFBF;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
 }
 
 textarea, input, .button {
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
 input[type="text"], input[type="password"] {
@@ -322,8 +318,6 @@ input[type="submit"], input[type="button"], button, .button {
     display: block;
     text-decoration: none;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
     cursor: pointer;
 }
 
@@ -343,16 +337,12 @@ input[type="submit"]:hover, input[type="button"]:hover, button:hover, .button:ho
 
 input[type="submit"]:active, input[type="button"]:active, button:active, .button:active {
     box-shadow: none;
-    -moz-box-shadow: none;
-    -webkit-box-shadow: none;
 }
 
 fieldset {
     border: 1px solid #bfbfbf;
     padding: 15px;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     margin-bottom: 15px;
 }
 
@@ -480,25 +470,19 @@ i {
     height: 25px;
     font-size: 14px;
     float: left;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
     border: none;
 }
 
 .rtfd-header-search input[type="text"] {
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-bottomleft: 3px;
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
     width: 225px;
 }
 
 .rtfd-header-search input[type="submit"] {
     font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
-    -webkit-border-top-right-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top-right-radius: 3px;
     padding: 0 12px;
     background: #e6e6e6 url(../images/gradient.png) repeat-x bottom left;
     font-weight: bold;
@@ -533,18 +517,12 @@ i {
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
     background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
 .rtfd-header-nav ul li a:hover {
     background-color: #8CA1AF;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .rtfd-header-nav ul li.active a, .header-nav ul li.active a:hover {
@@ -617,11 +595,6 @@ div.menu-user div.menu-dropdown {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0.05s, opacity 0.05s;
-    -webkit-transition: visibility 0.05s, opacity 0.05s;
-    -moz-transition: visibility 0.05s, opacity 0.05s;
-    -ms-transition: visibility 0.05s, opacity 0.05s;
-    -o-transition: visibility 0.05s, opacity 0.05s;
-
     font-size: 1.1em;
 }
 
@@ -704,20 +677,14 @@ div.menu-user div.menu-dropdown.menu-dropped {
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
     text-decoration: none;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     margin-bottom: 10px;
     text-align: center;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 
 .home-header-links a.reg:hover {
     background-color: #8CA1AF;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
 
 .home-header-links .login-box {
@@ -773,8 +740,6 @@ a.cta-btn {
     border-radius: 3px;
     text-decoration: none;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
 a.cta-btn:hover, a.cta-btn:active {
@@ -787,8 +752,6 @@ a.cta-btn:hover, a.cta-btn:active {
     width: 100%;
     margin-bottom: 60px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     background: #e6e6e6;
     background: rgba(0, 0, 0, 0.1);
 }
@@ -802,8 +765,6 @@ a.cta-btn:hover, a.cta-btn:active {
     height: 25px;
     padding: 10px;
     border-radius: 0;
-    -moz-border-radius: 0;
-    -webkit-border-radius: 0;
 }
 
 .wide-search-bar .text-input-wrapper {
@@ -814,10 +775,6 @@ a.cta-btn:hover, a.cta-btn:active {
 .wide-search-bar input[type="text"] {
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-bottomleft: 3px;
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
     width: 513px;
 }
 
@@ -829,10 +786,6 @@ a.cta-btn:hover, a.cta-btn:active {
 .wide-search-bar input[type="submit"] {
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
-    -webkit-border-top-right-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
     height: 47px;
     width: 100%;
     text-align: center;
@@ -862,8 +815,6 @@ a.cta-btn:hover, a.cta-btn:active {
     padding: 0 1px;
     margin: 0 1px;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
 }
 
 .filter {
@@ -910,8 +861,6 @@ div.search-sponsored {
     background: #E6E6E6;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 .module-list-wrapper {
@@ -976,19 +925,13 @@ div.search-sponsored {
     color: #fff;
     background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     box-shadow: 0 1px 1px #465158;
-    -moz-box-shadow: 0 1px 1px #465158;
-    -webkit-box-shadow: 0 1px 1px #465158;
 }
 
 .module-item .module-item-menu li a:hover {
     background-color: #697983;
     box-shadow: 0 1px 0 #465158;
-    -moz-box-shadow: 0 1px 0 #465158;
-    -webkit-box-shadow: 0 1px 0 #465158;
 }
 
 li.module-item ul.module-item-menu li input[type="submit"] {
@@ -1070,8 +1013,6 @@ div.module.search-dashboard input {
     padding-left: 40px;
     height: 2.5em;
     box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     background-image: url('../images/search.png');
     background-repeat: no-repeat;
     background-position: 8px center;
@@ -1123,12 +1064,7 @@ div.project-bar div.project-view-docs {
     border: 1px solid #6B9939;
     border-bottom-color: #50732B;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     box-shadow: none;
-    -moz-box-shadow: none;
-    -webkit-box-shadow: none;
-
     font-family: Lato, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-weight: bold;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
@@ -1176,19 +1112,13 @@ div.project-bar div.project-view-docs {
     color: #fff;
     background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x;
     box-shadow: 0 1px 1px #465158;
-    -moz-box-shadow: 0 1px 1px #465158;
-    -webkit-box-shadow: 0 1px 1px #465158;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
 #project_bar .options ul li a:hover {
     background-color: #697983;
     box-shadow: 0 1px 0 #465158;
-    -moz-box-shadow: 0 1px 0 #465158;
-    -webkit-box-shadow: 0 1px 0 #465158;
 }
 
 /* text editor */
@@ -1324,20 +1254,12 @@ p.build-missing {
 #dashboard_bar ul li.first a {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
-    -moz-border-radius-topleft: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    -webkit-border-top-left-radius: 5px;
-    -webkit-border-bottom-left-radius: 5px;
 }
 
 #dashboard_bar ul li.last a {
     border-right: 1px solid #BAC7CF;
     border-bottom-right-radius: 5px;
     border-top-right-radius: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -moz-border-radius-topright: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-    -webkit-border-top-right-radius: 5px;
 }
 
 /* states */
@@ -1361,8 +1283,6 @@ p.build-missing {
     background: #e6e6e6;
     padding: 8px;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 .pagination a, .pagination span {
@@ -1411,8 +1331,6 @@ p.build-missing {
     background: #8CA1AF url(../images/gradient-light.png) bottom left repeat-x;
     border-bottom: 1px solid #465158;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
@@ -1762,8 +1680,6 @@ p.build-missing {
     padding: 0 1px;
     margin: 0 1px;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
 }
 
 .first {
@@ -1791,8 +1707,6 @@ p.build-missing {
     background: #E6E6E6;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     margin-bottom: 60px;
 }
 
@@ -1856,9 +1770,6 @@ div.project-import-remote li.remote-repo a.remote-repo-view {
     background: none;
     color: #443;
     box-shadow: none;
-    -moz-box-shadow: none;
-    -ms-box-shadow: none;
-    -webkit-box-shadow: none;
     text-shadow: none;
 }
 
@@ -1945,8 +1856,6 @@ div.donate-stats {
 
     border: 1px solid #999;
     border-radius: 6px;
-    -moz-border-radius: 6px;
-    -webkit-border-radius: 6px;
     background: #e0e0e0;
 }
 
@@ -2029,25 +1938,16 @@ div.donate-progress {
     border: 1px solid #bbb;
     border-bottom-color: #aaa;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
 
 div.donate-progress-inner {
     height: 24px;
-
     box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-
     background-color: #8ECC4C;
     border: 1px solid #6B9939;
     border-bottom-color: #50732B;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
 }
-
 
 ul.donate-supporters {
     overflow: auto;
@@ -2163,12 +2063,9 @@ span.build-state.build-state-failing {
 
 .when-editing {
     opacity: 0;
-    -webkit-transition: opacity 0.2s ease-in-out;
-    -moz-transition: opacity 0.2s ease-in-out;
-    -ms-transition: opacity 0.2s ease-in-out;
-    -o-transition: opacity 0.2s ease-in-out;
     transition: opacity 0.2s ease-in-out;
     pointer-events: none;
+    user-select: none;
     -webkit-user-select: none;
 }
 
@@ -2178,6 +2075,7 @@ span.build-state.build-state-failing {
 
 .edit {
     cursor: pointer;
+    user-select: none;
     -webkit-user-select: none;
     overflow: hidden;
     position: relative;
@@ -2229,10 +2127,6 @@ body .edit-toggle {
     top: 8px;
     left: -16px;
     opacity: 0.25;
-    -webkit-transition: opacity 0.2s ease-in-out;
-    -moz-transition: opacity 0.2s ease-in-out;
-    -ms-transition: opacity 0.2s ease-in-out;
-    -o-transition: opacity 0.2s ease-in-out;
     transition: opacity 0.2s ease-in-out;
     text-transform: uppercase;
     text-decoration: underline;
@@ -2279,8 +2173,6 @@ select.dropdown {
     display: block;
     text-decoration: none;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
 
@@ -2308,12 +2200,8 @@ select.dropdown {
     color: #fff;
     background: #7C8F99 url(../images/gradient-light.png) bottom left repeat-x;
     border-radius: 3px;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     box-shadow: 0 1px 1px #465158;
-    -moz-box-shadow: 0 1px 1px #465158;
-    -webkit-box-shadow: 0 1px 1px #465158;
 }
 
 .dropdown > span a:first-child:hover {
@@ -2433,11 +2321,7 @@ select.dropdown {
     border: 1px solid #999;
     background: white;
     border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
-    -moz-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
-    -webkit-box-shadow: 0 0 0 3px rgba(0, 0, 0, .1);
 }
 
 .modal > iframe {
