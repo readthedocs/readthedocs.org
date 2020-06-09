@@ -787,7 +787,7 @@ class DeDuplicateBuildTests(TestCase):
         self.assertEqual(build.error, DuplicatedBuildError.message)
         self.assertEqual(build.success, False)
         self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
-        self.assertEqual(build.status_code, DuplicatedBuildError.status_code)
+        self.assertEqual(build.status, DuplicatedBuildError.status)
         self.assertEqual(build.state, 'finished')
 
     def test_trigger_duplicated_finshed_build_by_commit(self, update_docs_task):
@@ -832,7 +832,7 @@ class DeDuplicateBuildTests(TestCase):
         self.assertEqual(build.error, DuplicatedBuildError.message)
         self.assertEqual(build.success, False)
         self.assertEqual(build.exit_code, DuplicatedBuildError.exit_code)
-        self.assertEqual(build.status_code, DuplicatedBuildError.status_code)
+        self.assertEqual(build.status, DuplicatedBuildError.status)
         self.assertEqual(build.state, 'finished')
 
     def test_trigger_duplicated_non_triggered_build_by_version(self, update_docs_task):

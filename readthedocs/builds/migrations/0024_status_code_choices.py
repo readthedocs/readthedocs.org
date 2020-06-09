@@ -10,9 +10,13 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
             model_name='build',
             name='status_code',
-            field=models.CharField(blank=True, choices=[('normal', 'Normal'), ('duplicated', 'Duplicated')], default=None, max_length=32, null=True, verbose_name='Status code'),
+        ),
+        migrations.AddField(
+            model_name='build',
+            name='status',
+            field=models.CharField(blank=True, choices=[('normal', 'Normal'), ('duplicated', 'Duplicated')], default=None, max_length=32, null=True, verbose_name='Status'),
         ),
     ]
