@@ -34,7 +34,6 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
-    BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
@@ -86,7 +85,6 @@ from .signals import (
     domain_verify,
     files_changed,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -1284,8 +1282,12 @@ def fileify(version_pk, commit, build):
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
-    # Don't index external version builds for now
-    if not version or version.type == EXTERNAL:
+    if (
+        not version
+        or not version.active
+        # Don't index external version for now
+        or version.type == EXTERNAL
+    ):
         return
     project = version.project
 
