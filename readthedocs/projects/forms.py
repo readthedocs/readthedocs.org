@@ -223,6 +223,10 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Remove the nullable option from the form
+        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
+        self.fields['analytics_disabled'].empty_value = False
+
         self.helper = FormHelper()
         help_text = render_to_string(
             'projects/project_advanced_settings_helptext.html'

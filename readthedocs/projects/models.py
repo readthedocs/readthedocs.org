@@ -238,6 +238,7 @@ class Project(models.Model):
     analytics_disabled = models.BooleanField(
         _('Disable Analytics'),
         default=False,
+        null=True,
         help_text=_(
             'Disable Google Analytics completely for this project '
             '(requires rebuilding documentation)',
