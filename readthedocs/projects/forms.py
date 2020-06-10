@@ -199,6 +199,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
             'external_builds_enabled'
