@@ -6,6 +6,8 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+
+from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -50,6 +52,13 @@ class GitHubService(Service):
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
+
+        # Delete RemoteRepository where the user doesn't have access anymore
+        # (skip RemoteRepository tied to a Project on this user)
+        full_names = {repo.get('full_name') for repo in repos}
+        self.user.oauth_repositories.exclude(
+            Q(full_name__in=full_names) | Q(project__isnull=False)
+        ).delete()
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
