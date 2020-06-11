@@ -174,6 +174,7 @@ class ProjectExtraForm(ProjectForm):
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
+        max_length=150,
         widget=forms.Textarea,
     )
 
