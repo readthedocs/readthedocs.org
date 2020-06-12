@@ -555,7 +555,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
             if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
                 try:
-                    response = api_v2.build.concurrent_limit.get(project__slug=self.project.slug)
+                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
                     concurrency_limit_reached = response.get('limit_reached', False)
                     max_concurrent_builds = response.get(
                         'max_concurrent',
