@@ -122,10 +122,7 @@ class Project(models.Model):
     description = models.TextField(
         _('Description'),
         blank=True,
-        help_text=_(
-            'The reStructuredText '
-            'description of the project',
-        ),
+        help_text=_('Short description of this project'),
     )
     repo = models.CharField(
         _('Repository URL'),
