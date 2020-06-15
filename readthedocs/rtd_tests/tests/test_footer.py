@@ -27,7 +27,7 @@ class BaseTestFooterHTML:
             privacy_level=PUBLIC,
             main_language_project=None,
         )
-        self.pip.versions.update(privacy_level=PUBLIC)
+        self.pip.versions.update(privacy_level=PUBLIC, built=True)
 
         self.latest = self.pip.versions.get(slug=LATEST)
         self.url = (
@@ -224,6 +224,62 @@ class BaseTestFooterHTML:
         self.assertIn('/en/latest/', response.data['html'])
         self.assertNotIn('/en/2.0/', response.data['html'])
 
+    def test_built_versions(self):
+        built_version = get(
+            Version,
+            slug='2.0',
+            active=True,
+            built=True,
+            privacy_level=PUBLIC,
+            project=self.pip,
+        )
+
+        # The built versions appears on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertIn('/en/2.0/', response.data['html'])
+
+        # We can access the built version, and it appears on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={built_version.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertIn('/en/2.0/', response.data['html'])
+
+    def test_not_built_versions(self):
+        not_built_version = get(
+            Version,
+            slug='2.0',
+            active=True,
+            built=False,
+            privacy_level=PUBLIC,
+            project=self.pip,
+        )
+
+        # The un-built version doesn't appear on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertNotIn('/en/2.0/', response.data['html'])
+
+        # We can access the unbuilt version, but it doesn't appear on the footer
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.pip.slug}&version={not_built_version.slug}&page=index&docroot=/'
+        )
+        response = self.render()
+        self.assertIn('/en/latest/', response.data['html'])
+        self.assertNotIn('/en/2.0/', response.data['html'])
+
 
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
 
@@ -362,7 +418,7 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 13
+    EXPECTED_QUERIES = 14
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
@@ -389,6 +445,7 @@ class TestFooterPerformance(APITestCase):
                 identifier=identifier,
                 type=TAG,
                 active=True,
+                built=True
             )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):

@@ -9,7 +9,6 @@ from django_elasticsearch_dsl.registries import registry
 from readthedocs.projects.models import Project
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
-
 log = logging.getLogger(__name__)
 
 
@@ -32,6 +31,8 @@ def index_project_save(instance, *args, **kwargs):
     # Do not index if autosync is disabled globally
     if DEDConfig.autosync_enabled():
         index_objects_to_es.delay(**kwargs)
+    else:
+        log.info('Skipping indexing')
 
 
 @receiver(pre_delete, sender=Project)
@@ -47,3 +48,5 @@ def remove_project_delete(instance, *args, **kwargs):
     # Don't `delay` this because the objects will be deleted already
     if DEDConfig.autosync_enabled():
         delete_objects_in_es(**kwargs)
+    else:
+        log.info('Skipping indexing')

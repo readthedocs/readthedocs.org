@@ -38,7 +38,7 @@ class GitHubOAuthTests(TestCase):
         self.service = GitHubService(user=self.user, account=None)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
         self.external_build = get(
-            Build, project=self.project, version=self.external_version
+            Build, project=self.project, version=self.external_version, commit='1234',
         )
         self.integration = get(
             GitHubWebhook,
@@ -205,7 +205,7 @@ class GitHubOAuthTests(TestCase):
             self.project,
             self.user,
             404,
-            'https://api.github.com/repos/pypa/pip/statuses/297'
+            'https://api.github.com/repos/pypa/pip/statuses/1234'
         )
 
     @mock.patch('readthedocs.oauth.services.github.log')

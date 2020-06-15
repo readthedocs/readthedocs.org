@@ -3,6 +3,7 @@
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -287,14 +288,16 @@ class BuildViewSetBase(UserSelectViewSet):
         permission_classes=[permissions.IsAdminUser],
         methods=['get'],
     )
-    def running(self, request, **kwargs):
+    def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
-        queryset = (
-            self.get_queryset()
-            .filter(project__slug=project_slug)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        )
-        return Response({'count': queryset.count()})
+        project = get_object_or_404(Project, slug=project_slug)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        data = {
+            'limit_reached': limit_reached,
+            'concurrent': concurrent,
+            'max_concurrent': max_concurrent,
+        }
+        return Response(data)
 
 
 class BuildViewSet(SettingsOverrideObject):

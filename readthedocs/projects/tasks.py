@@ -58,6 +58,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentWarning,
     BuildMaxConcurrencyError,
     BuildTimeoutError,
+    DuplicatedBuildError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -542,20 +543,35 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.commit = commit
             self.config = None
 
-            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-                response = api_v2.build.running.get(project__slug=self.project.slug)
-                builds_running = response.get('count', 0)
-                max_concurrent_builds = (
-                    self.project.max_concurrent_builds or
-                    settings.RTD_MAX_CONCURRENT_BUILDS
-                )
-                log.info(
-                    'Concurrent builds: max=%s running=%s project=%s',
-                    max_concurrent_builds,
-                    builds_running,
+            if self.build.get('status') == DuplicatedBuildError.status:
+                log.warning(
+                    'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
                     self.project.slug,
+                    self.version.slug,
+                    build_pk,
+                    self.commit,
                 )
-                if builds_running >= max_concurrent_builds:
+                return True
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                try:
+                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
+                    concurrency_limit_reached = response.get('limit_reached', False)
+                    max_concurrent_builds = response.get(
+                        'max_concurrent',
+                        settings.RTD_MAX_CONCURRENT_BUILDS,
+                    )
+                except Exception:
+                    log.exception(
+                        'Error while hitting/parsing API for concurrent limit checks from builder. '
+                        'project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+                    concurrency_limit_reached = False
+                    max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
+
+                if concurrency_limit_reached:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,
@@ -783,18 +799,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                         epub=bool(outcomes['epub']),
                     )
 
-                    # Finalize build and update web servers
-                    # We upload EXTERNAL version media files to blob storage
-                    # We should have this check here to make sure
-                    # the files don't get re-uploaded on web.
-                    if self.version.type != EXTERNAL:
-                        self.update_app_instances(
-                            html=bool(outcomes['html']),
-                            search=bool(outcomes['search']),
-                            localmedia=bool(outcomes['localmedia']),
-                            pdf=bool(outcomes['pdf']),
-                            epub=bool(outcomes['epub']),
-                        )
+                    # TODO: Remove this function and just update the DB and index search directly
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -915,6 +927,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
         env = self.get_rtd_env_vars()
+
+        # https://no-color.org/
+        env['NO_COLOR'] = '1'
 
         if self.config.conda is not None:
             env.update({
@@ -1114,9 +1129,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
-        hostname = socket.gethostname()
-
-        delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
         fileify.delay(
@@ -1264,7 +1276,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 
 # Web tasks
-@app.task(queue='web')
+@app.task(queue='reindex')
 def fileify(version_pk, commit, build):
     """
     Create ImportedFile objects for all of a version's files.
@@ -1272,7 +1284,8 @@ def fileify(version_pk, commit, build):
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+    # Don't index external version builds for now
+    if not version or version.type == EXTERNAL:
         return
     project = version.project
 
@@ -1545,6 +1558,15 @@ def _create_imported_files(version, commit, build):
                 build=build,
             )
 
+    # This signal is used for clearing the CDN,
+    # so send it as soon as we have the list of changed files
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        version=version,
+        files=changed_files,
+    )
+
     return changed_files
 
 
@@ -1585,14 +1607,6 @@ def _sync_imported_files(version, build, changed_files):
         .filter(project=version.project, version=version)
         .exclude(build=build)
         .delete()
-    )
-
-    # Send signal with changed files
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        version=version,
-        files=changed_files,
     )
 
 
@@ -1795,7 +1809,12 @@ def finish_inactive_builds():
     These inactive builds will be marked as ``success`` and ``FINISHED`` with an
     ``error`` to be communicated to the user.
     """
-    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # TODO similar to the celery task time limit, we can't infer this from
+    # Docker settings anymore, because Docker settings are determined on the
+    # build servers dynamically.
+    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # Set time as maximum celery task time limit + 5m
+    time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
@@ -1879,7 +1898,7 @@ def send_build_status(build_pk, commit, status):
 
         except RemoteRepository.DoesNotExist:
             log.warning(
-                'Project does not have a RemoteRepository. project= %s',
+                'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
             )
 

@@ -12,10 +12,12 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse, re_path
+from django.conf.urls import include
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from django.views import defaults
 from shlex import quote
 from taggit.managers import TaggableManager
 
@@ -23,6 +25,7 @@ from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
+from readthedocs.constants import pattern_opts
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -44,6 +47,7 @@ from readthedocs.search.parse_json import process_file, process_mkdocs_index_fil
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
+
 from .constants import (
     MEDIA_TYPES,
     MEDIA_TYPE_PDF,
@@ -53,7 +57,6 @@ from .constants import (
 
 
 log = logging.getLogger(__name__)
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
 
 class ProjectRelationship(models.Model):
@@ -119,10 +122,7 @@ class Project(models.Model):
     description = models.TextField(
         _('Description'),
         blank=True,
-        help_text=_(
-            'The reStructuredText '
-            'description of the project',
-        ),
+        help_text=_('Short description of this project'),
     )
     repo = models.CharField(
         _('Repository URL'),
@@ -200,6 +200,23 @@ class Project(models.Model):
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
+    )
+    urlconf = models.CharField(
+        _('Documentation URL Configuration'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            'Supports the following keys: $language, $version, $subproject, $filename. '
+            'An example: `$language/$version/$filename`.'
+        ),
+    )
+
+    external_builds_enabled = models.BooleanField(
+        _('Build pull requests for this project'),
+        default=False,
+        help_text=_('More information in <a href="https://docs.readthedocs.io/en/latest/guides/autobuild-docs-for-pull-requests.html">our docs</a>')  # noqa
     )
 
     # Project features
@@ -541,12 +558,127 @@ class Project(models.Model):
 
         if self.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
-            path = f'//{domain}/{DOC_PATH_PREFIX}downloads/{self.language}/{version_slug}/{type_}/'
+            path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
 
         return path
+
+    @property
+    def proxied_api_host(self):
+        """
+        Used for the proxied_api_host in javascript.
+
+        This needs to start with a slash at the root of the domain,
+        and end without a slash
+        """
+        if self.urlconf:
+            # Add our proxied api host at the first place we have a $variable
+            # This supports both subpaths & normal root hosting
+            url_prefix = self.urlconf.split('$', 1)[0]
+            return '/' + url_prefix.strip('/') + '/_'
+        return '/_'
+
+    @property
+    def proxied_api_url(self):
+        """
+        Like the api_host but for use as a URL prefix.
+
+        It can't start with a /, but has to end with one.
+        """
+        return self.proxied_api_host.strip('/') + '/'
+
+    @property
+    def regex_urlconf(self):
+        """
+        Convert User's URLConf into a proper django URLConf.
+
+        This replaces the user-facing syntax with the regex syntax.
+        """
+        to_convert = self.urlconf
+
+        # We should standardize these names so we can loop over them easier
+        to_convert = to_convert.replace(
+            '$version',
+            '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
+        )
+        to_convert = to_convert.replace(
+            '$language',
+            '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
+        )
+        to_convert = to_convert.replace(
+            '$filename',
+            '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
+        )
+        to_convert = to_convert.replace(
+            '$subproject',
+            '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
+        )
+
+        if '$' in to_convert:
+            log.warning(
+                'Unconverted variable in a project URLConf: project=%s to_convert=%s',
+                self, to_convert
+            )
+        return to_convert
+
+    @property
+    def proxito_urlconf(self):
+        """
+        Returns a URLConf class that is dynamically inserted via proxito.
+
+        It is used for doc serving on projects that have their own ``urlconf``.
+        """
+        from readthedocs.projects.views.public import ProjectDownloadMedia
+        from readthedocs.proxito.views.serve import ServeDocs
+        from readthedocs.proxito.views.utils import proxito_404_page_handler
+        from readthedocs.proxito.urls import core_urls
+
+        class ProxitoURLConf:
+
+            """A URLConf dynamically inserted by Proxito."""
+
+            proxied_urls = [
+                re_path(
+                    r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
+                    include('readthedocs.api.v2.proxied_urls'),
+                    name='user_proxied_api'
+                ),
+                re_path(
+                    r'{proxied_api_url}downloads/'
+                    r'(?P<lang_slug>{lang_slug})/'
+                    r'(?P<version_slug>{version_slug})/'
+                    r'(?P<type_>[-\w]+)/$'.format(
+                        proxied_api_url=self.proxied_api_url,
+                        **pattern_opts),
+                    ProjectDownloadMedia.as_view(same_domain_url=True),
+                    name='user_proxied_downloads'
+                ),
+            ]
+            docs_urls = [
+                re_path(
+                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs'
+                ),
+                # paths for redirects at the root
+                re_path(
+                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_subpath_redirect'
+                ),
+                re_path(
+                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_root_redirect'
+                ),
+            ]
+            urlpatterns = proxied_urls + core_urls + docs_urls
+            handler404 = proxito_404_page_handler
+            handler500 = defaults.server_error
+
+        return ProxitoURLConf
 
     @property
     def is_subproject(self):
@@ -881,6 +1013,7 @@ class Project(models.Model):
             {
                 'project': self,
                 'only_active': True,
+                'only_built': True,
             },
         )
         versions = (
@@ -1242,9 +1375,6 @@ class HTMLFile(ImportedFile):
         Both lead to `foo/index.html`
         https://github.com/rtfd/readthedocs.org/issues/5368
         """
-        file_path = None
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-
         fjson_paths = []
         basename = os.path.splitext(self.path)[0]
         fjson_paths.append(basename + '.fjson')
@@ -1252,22 +1382,23 @@ class HTMLFile(ImportedFile):
             new_basename = re.sub(r'\/index$', '', basename)
             fjson_paths.append(new_basename + '.fjson')
 
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = self.project.get_storage_path(
             type_='json', version_slug=self.version.slug, include_file=False
         )
-        try:
-            for fjson_path in fjson_paths:
-                file_path = storage.join(storage_path, fjson_path)
-                if storage.exists(file_path):
-                    return process_file(file_path)
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
-            )
+        for fjson_path in fjson_paths:
+            try:
+                fjson_storage_path = storage.join(storage_path, fjson_path)
+                if storage.exists(fjson_storage_path):
+                    return process_file(fjson_storage_path)
+            except Exception:
+                log.warning(
+                    'Unhandled exception during search processing file: %s',
+                    fjson_path,
+                )
 
         return {
-            'path': file_path,
+            'path': self.path,
             'title': '',
             'sections': [],
             'domain_data': {},
@@ -1465,11 +1596,16 @@ class Feature(models.Model):
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
     CACHED_ENVIRONMENT = 'cached_environment'
-    CELERY_ROUTER = 'celery_router'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
+    DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
+    ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     FORCE_SPHINX_FROM_VENV = 'force_sphinx_from_venv'
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
+    STORE_PAGEVIEWS = 'store_pageviews'
+    SPHINX_PARALLEL = 'sphinx_parallel'
+    USE_SPHINX_BUILDERS = 'use_sphinx_builders'
+    DEDUPLICATE_BUILDS = 'deduplicate_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1541,12 +1677,16 @@ class Feature(models.Model):
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
         ),
         (
-            CELERY_ROUTER,
-            _('Route tasks using our custom task router'),
-        ),
-        (
             LIMIT_CONCURRENT_BUILDS,
             _('Limit the amount of concurrent builds'),
+        ),
+        (
+            DISABLE_SERVER_SIDE_SEARCH,
+            _('Disable server side search'),
+        ),
+        (
+            ENABLE_MKDOCS_SERVER_SIDE_SEARCH,
+            _('Enable server side search for MkDocs projects'),
         ),
         (
             FORCE_SPHINX_FROM_VENV,
@@ -1562,6 +1702,22 @@ class Feature(models.Model):
         (
             VCS_REMOTE_LISTING,
             _('Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions'),
+        ),
+        (
+            STORE_PAGEVIEWS,
+            _('Store pageviews for this project'),
+        ),
+        (
+            SPHINX_PARALLEL,
+            _('Use "-j auto" when calling sphinx-build'),
+        ),
+        (
+            USE_SPHINX_BUILDERS,
+            _('Use regular sphinx builders instead of custom RTD builders'),
+        ),
+        (
+            DEDUPLICATE_BUILDS,
+            _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
     )
 

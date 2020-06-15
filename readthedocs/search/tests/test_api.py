@@ -6,7 +6,14 @@ from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import (
+    MKDOCS,
+    MKDOCS_HTML,
+    PUBLIC,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
+)
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
@@ -266,9 +273,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, 'get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
-        """If there is a case where `get_all_projects` returns empty, we could be querying all projects."""
+        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
@@ -323,6 +330,114 @@ class BaseTestDocumentSearch:
         assert len(data) == 1
         first_result = data[0]
         assert first_result['project'] == subproject.slug
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_normal_page_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/index.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_subdirectory_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/index.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_normal_page_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/')
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
