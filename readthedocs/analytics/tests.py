@@ -5,10 +5,10 @@ from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 
 from .models import PageView
-from .tasks import increase_page_view_count
+from .signals import increase_page_view_count
 from .utils import (
     anonymize_ip_address,
     anonymize_user_agent,
@@ -104,6 +104,7 @@ class AnalyticsTasksTests(TestCase):
             slug='project-1',
         )
         version = get(Version, slug='1.8', project=project)
+        path = "index"
 
         today = timezone.now()
         tomorrow = timezone.now() + timezone.timedelta(days=1)
@@ -113,64 +114,65 @@ class AnalyticsTasksTests(TestCase):
             PageView.objects.all().count() == 0
         ), 'There\'s no PageView object created yet.'
 
+        context = {
+            "project": project,
+            "version": version,
+            "path": path,
+        }
+
+        # Without the feature flag, no PageView is created
+        increase_page_view_count(None, context=context)
+        assert (
+            PageView.objects.all().count() == 0
+        )
+
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.STORE_PAGEVIEWS,
+        )
+        project.feature_set.add(feature)
+
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = yesterday
 
-            increase_page_view_count(
-                project_slug=project.slug,
-                version_slug=version.slug,
-                path='index',
-            )
+            increase_page_view_count(None, context=context)
 
             assert (
                 PageView.objects.all().count() == 1
-            ), 'PageView object for path \'index\' is created'
+            ), f'PageView object for path \'{path}\' is created'
             assert (
                 PageView.objects.all().first().view_count == 1
             ), '\'index\' has 1 view'
 
-            increase_page_view_count(
-                project_slug=project.slug,
-                version_slug=version.slug,
-                path='index',
-            )
+            increase_page_view_count(None, context=context)
 
             assert (
                 PageView.objects.all().count() == 1
-            ), 'PageView object for path \'index\' is already created'
+            ), f'PageView object for path \'{path}\' is already created'
             assert (
                 PageView.objects.all().first().view_count == 2
-            ), '\'index\' has 2 views now'
+            ), f'\'{path}\' has 2 views now'
 
         # testing for today
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = today
-            increase_page_view_count(
-                project_slug=project.slug,
-                version_slug=version.slug,
-                path='index',
-            )
+            increase_page_view_count(None, context=context)
 
             assert (
                 PageView.objects.all().count() == 2
-            ), 'PageView object for path \'index\' is created for two days (yesterday and today)'
+            ), f'PageView object for path \'{path}\' is created for two days (yesterday and today)'
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), '\'index\' has 1 view today'
+            ), f'\'{path}\' has 1 view today'
 
         # testing for tomorrow
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = tomorrow
-            increase_page_view_count(
-                project_slug=project.slug,
-                version_slug=version.slug,
-                path='index',
-            )
+            increase_page_view_count(None, context=context)
 
             assert (
                 PageView.objects.all().count() == 3
-            ), 'PageView object for path \'index\' is created for three days (yesterday, today & tomorrow)'
+            ), f'PageView object for path \'{path}\' is created for three days (yesterday, today & tomorrow)'
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), '\'index\' has 1 view tomorrow'
+            ), f'\'{path}\' has 1 view tomorrow'

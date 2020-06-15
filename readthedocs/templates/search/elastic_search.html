@@ -161,6 +161,7 @@
         <div class="module-list-wrapper">
           <ul>
 
+            {% with "100" as MAX_SUBSTRING_LIMIT %}
             {% for result in results %}
 
               <li class="module-item search-result-item">
@@ -174,12 +175,15 @@
                         ...{{ fragment|safe }}...
                       </p>
                     {% empty %}
-                      <p><em>No description for project.</em></p>
+                      {% if result.description %}
+                        <p>{{ result.description|slice:MAX_SUBSTRING_LIMIT }}</p>
+                      {% else %}
+                        <p><em>No description for project.</em></p>
+                      {% endif %}
                     {% endfor %}
 
                   {% elif result.type == 'page' %}
-                    {% with "100" as MAX_SUBSTRING_LIMIT %}
-                    <a href="{{ result.link }}?highlight={{ query }}">
+                      <a href="{{ result.link }}?highlight={{ query }}">
                         {{ result.project }} - {% if result.highlight.title %} {{ result.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
@@ -235,13 +239,13 @@
                           {% endif %}
                         {% endif %}
                       {% endfor %}
-                    {% endwith %}
                   {% endif %}
                 </p>
               </li>
             {% empty %}
               <li class="module-item"><span class="quiet">{% trans "No results found." %}</span></li>
             {% endfor %}
+            {% endwith %}
           </ul>
         </div>
       </div>

@@ -122,10 +122,7 @@ class Project(models.Model):
     description = models.TextField(
         _('Description'),
         blank=True,
-        help_text=_(
-            'The reStructuredText '
-            'description of the project',
-        ),
+        help_text=_('Short description of this project'),
     )
     repo = models.CharField(
         _('Repository URL'),
@@ -661,9 +658,20 @@ class Project(models.Model):
             ]
             docs_urls = [
                 re_path(
-                    '^{regex_urlconf}'.format(regex_urlconf=self.regex_urlconf),
+                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs'
+                ),
+                # paths for redirects at the root
+                re_path(
+                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_subpath_redirect'
+                ),
+                re_path(
+                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
+                    ServeDocs.as_view(),
+                    name='user_proxied_serve_docs_root_redirect'
                 ),
             ]
             urlpatterns = proxied_urls + core_urls + docs_urls
@@ -1597,6 +1605,7 @@ class Feature(models.Model):
     STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
+    DEDUPLICATE_BUILDS = 'deduplicate_builds'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1705,7 +1714,11 @@ class Feature(models.Model):
         (
             USE_SPHINX_BUILDERS,
             _('Use regular sphinx builders instead of custom RTD builders'),
-        )
+        ),
+        (
+            DEDUPLICATE_BUILDS,
+            _('Mark duplicated builds as NOOP to be skipped by builders'),
+        ),
     )
 
     projects = models.ManyToManyField(

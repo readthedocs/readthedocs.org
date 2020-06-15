@@ -19,7 +19,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
-from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, DuplicatedBuildError
 
 
 log = logging.getLogger(__name__)
@@ -165,15 +165,52 @@ def prepare_build(
         # External builds should be lower priority.
         options['priority'] = CELERY_LOW
 
-    # Start the build in X minutes and mark it as limited
-    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-        running_builds = (
+    skip_build = False
+    if commit:
+        skip_build = (
             Build.objects
-            .filter(project__slug=project.slug)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
+            .filter(
+                project=project,
+                version=version,
+                commit=commit,
+            ).exclude(
+                state=BUILD_STATE_FINISHED,
+            ).exclude(
+                pk=build.pk,
+            ).exists()
         )
-        max_concurrent_builds = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
-        if running_builds.count() >= max_concurrent_builds:
+    else:
+        skip_build = Build.objects.filter(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+        ).count() > 1
+
+    if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
+        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        skip_build = False
+
+    if skip_build:
+        # TODO: we could mark the old build as duplicated, however we reset our
+        # position in the queue and go back to the end of it --penalization
+        log.warning(
+            'Marking build to be skipped by builder. project=%s version=%s build=%s commit=%s',
+            project.slug,
+            version.slug,
+            build.pk,
+            commit,
+        )
+        build.error = DuplicatedBuildError.message
+        build.status = DuplicatedBuildError.status
+        build.exit_code = DuplicatedBuildError.exit_code
+        build.success = False
+        build.state = BUILD_STATE_FINISHED
+        build.save()
+
+    # Start the build in X minutes and mark it as limited
+    if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+        if limit_reached:
             log.warning(
                 'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
                 project.slug,
