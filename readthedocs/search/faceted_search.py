@@ -55,7 +55,7 @@ class RTDFacetedSearch(FacetedSearch):
         }
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
-    def _get_text_query(self, query, fields, operator):
+    def _get_text_query(self, *, query, fields, operator):
         """
         Returns a text query object according to the query.
 
@@ -94,7 +94,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax
         """
-        tokens = {'+', '|', '-', '"' , '*', '(', ')', '~'}
+        tokens = {'+', '|', '-', '"', '*', '(', ')', '~'}
         query_tokens = set(query)
         return not tokens.isdisjoint(query_tokens)
 
@@ -116,7 +116,9 @@ class RTDFacetedSearch(FacetedSearch):
         # the score of and should be higher as it satisfies both or and and
         for operator in self.operators:
             query_string = self._get_text_query(
-                query, self.fields, operator,
+                query=query,
+                fields=self.fields,
+                operator=operator,
             )
             all_queries.append(query_string)
 
@@ -178,7 +180,9 @@ class PageSearchBase(RTDFacetedSearch):
         # match query for the title (of the page) field.
         for operator in self.operators:
             query_string = self._get_text_query(
-                query, self.fields, operator,
+                query=query,
+                fields=self.fields,
+                operator=operator,
             )
             all_queries.append(query_string)
 
@@ -226,7 +230,9 @@ class PageSearchBase(RTDFacetedSearch):
 
         for operator in self.operators:
             query_string = self._get_text_query(
-                query, fields, operator,
+                query=query,
+                fields=fields,
+                operator=operator,
             )
             queries.append(query_string)
 
