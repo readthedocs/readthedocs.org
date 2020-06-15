@@ -439,6 +439,43 @@ class BaseTestDocumentSearch:
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/guides/')
 
+    def test_search_advanced_query_detection(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        # Query with a typo should return results
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'indx',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) > 0
+
+        # Query with a typo, but we want to match that
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"indx"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 0
+
+        # Exact query still works
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"index"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) > 0
+
 
 class TestDocumentSearch(BaseTestDocumentSearch):
 

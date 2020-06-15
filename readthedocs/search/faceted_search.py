@@ -4,7 +4,7 @@ from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.faceted_search import NestedFacet
-from elasticsearch_dsl.query import Bool, Match, Nested, SimpleQueryString
+from elasticsearch_dsl.query import Bool, MultiMatch, Nested, SimpleQueryString
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
@@ -55,6 +55,49 @@ class RTDFacetedSearch(FacetedSearch):
         }
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
+    def _get_text_query(self, query, fields, operator):
+        """
+        Returns a text query object according to the query.
+
+        - SimpleQueryString: Provides a syntax to let advanced users manipulate
+          the results explicitly.
+        - MultiMatch: Allows us to have more control over the results
+          (like fuzziness) to provide a better experience for simple queries.
+        """
+        if self._is_advanced_query(query):
+            query_string = SimpleQueryString(
+                query=query,
+                fields=fields,
+                default_operator=operator
+            )
+        else:
+            query_string = MultiMatch(
+                query=query,
+                fields=fields,
+                operator=operator,
+                fuzziness="AUTO",
+            )
+        return query_string
+
+    def _is_advanced_query(self, query):
+        """
+        Check if query looks like to be using the syntax from a simple query string.
+
+        .. note::
+
+           We don't check if the syntax is valid.
+           The tokens used aren't very common in a normal query, so checking if
+           the query contains any of them should be enough to determinate if
+           it's an advanced query.
+
+        Simple query syntax:
+
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax
+        """
+        tokens = {'+', '|', '-', '"' , '*', '(', ')', '~'}
+        query_tokens = set(query)
+        return not tokens.isdisjoint(query_tokens)
+
     def query(self, search, query):
         """
         Add query part to ``search`` when needed.
@@ -71,10 +114,9 @@ class RTDFacetedSearch(FacetedSearch):
 
         # need to search for both 'and' and 'or' operations
         # the score of and should be higher as it satisfies both or and and
-
         for operator in self.operators:
-            query_string = SimpleQueryString(
-                query=query, fields=self.fields, default_operator=operator
+            query_string = self._get_text_query(
+                query, self.fields, operator,
             )
             all_queries.append(query_string)
 
@@ -135,13 +177,10 @@ class PageSearchBase(RTDFacetedSearch):
 
         # match query for the title (of the page) field.
         for operator in self.operators:
-            all_queries.append(
-                SimpleQueryString(
-                    query=query,
-                    fields=self.fields,
-                    default_operator=operator
-                )
+            query_string = self._get_text_query(
+                query, self.fields, operator,
             )
+            all_queries.append(query_string)
 
         # nested query for search in sections
         sections_nested_query = self.generate_nested_query(
@@ -186,10 +225,8 @@ class PageSearchBase(RTDFacetedSearch):
         queries = []
 
         for operator in self.operators:
-            query_string = SimpleQueryString(
-                query=query,
-                fields=fields,
-                default_operator=operator
+            query_string = self._get_text_query(
+                query, fields, operator,
             )
             queries.append(query_string)
 
