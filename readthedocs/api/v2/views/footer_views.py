@@ -157,6 +157,7 @@ class BaseFooterHTML(APIView):
             'project': project,
             'version': version,
             'path': path,
+            'page_slug': page_slug,
             'downloads': version.get_downloads(pretty=True),
             'current_version': version.verbose_name,
             'versions': self._get_active_versions_sorted(),

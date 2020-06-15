@@ -98,12 +98,18 @@ class UtilsTests(TestCase):
 
 
 class AnalyticsTasksTests(TestCase):
-    def test_increase_page_view_count(self):
-        project = get(
+    def setUp(self):
+        self.project = get(
             Project,
             slug='project-1',
         )
-        version = get(Version, slug='1.8', project=project)
+        self.version = get(Version, slug='1.8', project=self.project)
+
+        self.feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.STORE_PAGEVIEWS,
+        )
+
+    def test_increase_page_view_count(self):
         path = "index"
 
         today = timezone.now()
@@ -115,9 +121,10 @@ class AnalyticsTasksTests(TestCase):
         ), 'There\'s no PageView object created yet.'
 
         context = {
-            "project": project,
-            "version": version,
+            "project": self.project,
+            "version": self.version,
             "path": path,
+            "page_slug": "index",
         }
 
         # Without the feature flag, no PageView is created
@@ -126,10 +133,7 @@ class AnalyticsTasksTests(TestCase):
             PageView.objects.all().count() == 0
         )
 
-        feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
-        )
-        project.feature_set.add(feature)
+        self.project.feature_set.add(self.feature)
 
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
@@ -176,3 +180,16 @@ class AnalyticsTasksTests(TestCase):
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{path}\' has 1 view tomorrow'
+
+    def test_no_page_views_for_404s(self):
+        self.project.feature_set.add(self.feature)
+        context = {
+            "project": self.project,
+            "version": self.version,
+            "path": '404.html',
+            "page_slug": '404',
+        }
+
+        increase_page_view_count(None, context=context)
+
+        self.assertEqual(PageView.objects.all().count(), 0)

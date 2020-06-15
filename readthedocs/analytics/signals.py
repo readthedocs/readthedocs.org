@@ -19,8 +19,9 @@ def increase_page_view_count(sender, **kwargs):
     version = context['version']
     # footer_response sends an empty path for the index
     path = context['path'] or '/'
+    page_slug = context['page_slug']
 
-    if project.has_feature(Feature.STORE_PAGEVIEWS):
+    if page_slug != "404" and project.has_feature(Feature.STORE_PAGEVIEWS):
         page_view, _ = PageView.objects.get_or_create(
             project=project,
             version=version,
