@@ -452,7 +452,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
-        assert len(resp.data['results']) > 0
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
 
         # Query with a typo, but we want to match that
         search_params = {
@@ -474,7 +476,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
-        assert len(resp.data['results']) > 0
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
