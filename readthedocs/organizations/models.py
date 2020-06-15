@@ -1,6 +1,7 @@
 """Organizations models."""
 
 from autoslug import AutoSlugField
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -93,7 +94,23 @@ class Organization(models.Model):
 
     @property
     def users(self):
-        return (self.members.all() | self.owners.all().distinct()).distinct()
+        sso_users = User.objects.none()
+        # TODO: find another way to check if we are under corporate site
+        if settings.ALLOW_PRIVATE_REPOS:
+            from readthedocsinc.acl.sso.models import SSOIntegration
+            if SSOIntegration.objects.filter(organization=self).exists():
+                # TODO: use RemoteRepository.remote_id instead of full_name
+                full_names = self.projects.values('remote_repository__full_name')
+                sso_users = User.objects.filter(oauth_repositories__full_name__in=full_names).distinct()
+
+        return (
+            # Members
+            self.members.all() |
+            # Owners
+            self.owners.all().distinct() |
+            # SSO Users
+            sso_users
+        ).distinct()
 
     @property
     def members(self):
