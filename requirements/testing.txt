@@ -1,5 +1,5 @@
 -r pip.txt
--r local-docs-build.txt
+-r docs.txt
 
 django-dynamic-fixture==3.1.0
 pytest==5.4.2
