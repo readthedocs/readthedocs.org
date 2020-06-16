@@ -1615,6 +1615,7 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1728,6 +1729,10 @@ class Feature(models.Model):
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        )
     )
 
     projects = models.ManyToManyField(
