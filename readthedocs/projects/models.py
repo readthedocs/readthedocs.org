@@ -122,10 +122,7 @@ class Project(models.Model):
     description = models.TextField(
         _('Description'),
         blank=True,
-        help_text=_(
-            'The reStructuredText '
-            'description of the project',
-        ),
+        help_text=_('Short description of this project'),
     )
     repo = models.CharField(
         _('Repository URL'),
@@ -233,6 +230,15 @@ class Project(models.Model):
             'Google Analytics Tracking ID '
             '(ex. <code>UA-22345342-1</code>). '
             'This may slow down your page loads.',
+        ),
+    )
+    analytics_disabled = models.BooleanField(
+        _('Disable Analytics'),
+        default=False,
+        null=True,
+        help_text=_(
+            'Disable Google Analytics completely for this project '
+            '(requires rebuilding documentation)',
         ),
     )
     container_image = models.CharField(

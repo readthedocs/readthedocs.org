@@ -174,6 +174,7 @@ class ProjectExtraForm(ProjectForm):
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
+        max_length=150,
         widget=forms.Textarea,
     )
 
@@ -199,6 +200,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
             'external_builds_enabled'
@@ -221,6 +223,10 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form
+        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
+        self.fields['analytics_disabled'].empty_value = False
 
         self.helper = FormHelper()
         help_text = render_to_string(
