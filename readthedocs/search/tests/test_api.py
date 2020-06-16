@@ -454,7 +454,7 @@ class BaseTestDocumentSearch:
     def test_search_advanced_query_detection(self, api_client):
         project = Project.objects.get(slug='docs')
         feature, _ = Feature.objects.get_or_create(
-            feature_id=Feature.STORE_PAGEVIEWS,
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
         )
         project.feature_set.add(feature)
         project.save()
