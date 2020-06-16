@@ -3,6 +3,7 @@
 import fnmatch
 import logging
 import os
+import re
 from shlex import quote
 from urllib.parse import urlparse
 
@@ -1531,6 +1532,7 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1644,6 +1646,10 @@ class Feature(models.Model):
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
+        )
     )
 
     projects = models.ManyToManyField(

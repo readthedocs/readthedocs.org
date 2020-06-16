@@ -17,7 +17,7 @@ from rest_framework.utils.urls import remove_query_param, replace_query_param
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
 
@@ -349,6 +349,7 @@ class PageSearchAPIView(GenericAPIView):
             user=self.request.user,
             # We use a permission class to control authorization
             filter_by_user=False,
+            use_advanced_query=not self._get_project().has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
 
