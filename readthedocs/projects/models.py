@@ -43,10 +43,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import (
-    process_file,
-    process_mkdocs_index_file,
-)
+from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
@@ -1372,93 +1369,12 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
-    def get_processed_json_sphinx(self):
-        """
-        Get the parsed JSON for search indexing.
-
-        Check for two paths for each index file
-        This is because HTMLDir can generate a file from two different places:
-
-        * foo.rst
-        * foo/index.rst
-
-        Both lead to `foo/index.html`
-        https://github.com/rtfd/readthedocs.org/issues/5368
-        """
-        fjson_paths = []
-        basename = os.path.splitext(self.path)[0]
-        fjson_paths.append(basename + '.fjson')
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(new_basename + '.fjson')
-
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = self.project.get_storage_path(
-            type_='json', version_slug=self.version.slug, include_file=False
-        )
-        for fjson_path in fjson_paths:
-            try:
-                fjson_storage_path = storage.join(storage_path, fjson_path)
-                if storage.exists(fjson_storage_path):
-                    return process_file(fjson_storage_path)
-            except Exception:
-                log.warning(
-                    'Unhandled exception during search processing file: %s',
-                    fjson_path,
-                )
-
-        return {
-            'path': self.path,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
-    def get_processed_json_mkdocs(self):
-        log.debug('Processing mkdocs index')
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = self.project.get_storage_path(
-            type_='html', version_slug=self.version.slug, include_file=False
-        )
-        try:
-            file_path = storage.join(storage_path, 'search/search_index.json')
-            if storage.exists(file_path):
-                index_data = process_mkdocs_index_file(file_path, page=self.path)
-                if index_data:
-                    return index_data
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
-            )
-        return {
-            'path': self.path,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
     def get_processed_json(self):
-        """
-        Get the parsed JSON for search indexing.
-
-        Returns a dictionary with the following structure.
-        {
-            'path': 'file path',
-            'title': 'Title',
-            'sections': [
-                {
-                    'id': 'section-anchor',
-                    'title': 'Section title',
-                    'content': 'Section content',
-                },
-            ],
-            'domain_data': {},
-        }
-        """
-        if self.version.is_sphinx_type:
-            return self.get_processed_json_sphinx()
-        return self.get_processed_json_mkdocs()
+        parser_class = (
+            SphinxParser if self.version.is_sphinx_type else MkDocsParser
+        )
+        parser = parser_class(self.version)
+        return parser.parse(self.path)
 
     @cached_property
     def processed_json(self):
