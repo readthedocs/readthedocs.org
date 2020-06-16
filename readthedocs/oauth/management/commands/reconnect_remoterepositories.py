@@ -20,7 +20,17 @@ class Command(BaseCommand):
             help='Update database with the changes proposed.',
         )
 
-    def _connect_repositories(self, organization, no_dry_run):
+        # If owners does not have their RemoteRepository synced, it could
+        # happen we don't find a matching Project (see --force-owners-social-resync)
+        parser.add_argument(
+            '--only-owners',
+            action='store_true',
+            default=False,
+            help='Connect repositories only to organization owners.',
+        )
+
+
+    def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []
         # TODO: consider using same login than RemoteRepository.matches method
         # https://github.com/readthedocs/readthedocs.org/blob/49b03f298b6105d755554f7dc7e97a3398f7066f/readthedocs/oauth/models.py#L185-L194
@@ -30,6 +40,10 @@ class Command(BaseCommand):
         )
         for remote in RemoteRepository.objects.filter(remote_query).order_by('pub_date'):
             admin = json.loads(remote.json).get('permissions', {}).get('admin')
+
+            if only_owners and remote.users.first() not in organization.owners.all():
+                # Do not connect a RemoteRepository if the User is not owner of the organization
+                continue
 
             if not admin:
                 # Do not connect a RemoteRepository where the User is not admin of the repository
@@ -63,10 +77,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         no_dry_run = options.get('no_dry_run')
+        only_owners = options.get('only_owners')
 
         for organization in options.get('organization'):
             try:
                 organization = Organization.objects.get(slug=organization)
-                self._connect_repositories(organization, no_dry_run)
+                self._connect_repositories(organization, no_dry_run, only_owners)
             except Organization.DoesNotExist:
                 print(f'Organization does not exist. organization={organization}')
