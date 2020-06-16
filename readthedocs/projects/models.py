@@ -1372,7 +1372,7 @@ class HTMLFile(ImportedFile):
         parser_class = (
             SphinxParser if self.version.is_sphinx_type else MkDocsParser
         )
-        parser = parser_class(self.project, self.version)
+        parser = parser_class(self.version)
         return parser.parse(self.path)
 
     @cached_property

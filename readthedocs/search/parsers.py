@@ -16,9 +16,9 @@ log = logging.getLogger(__name__)
 
 class BaseParser:
 
-    def __init__(self, project, version):
-        self.project = project
+    def __init__(self, version):
         self.version = version
+        self.project = self.version.project
         self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     def _parse_content(self, content):
