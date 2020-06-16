@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0054_urlconf_blank'),
+        ('projects', '0055_change_help_text_description'),
     ]
 
     operations = [
