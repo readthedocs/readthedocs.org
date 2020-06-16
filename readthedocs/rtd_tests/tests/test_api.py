@@ -2311,6 +2311,7 @@ class APIVersionTests(TestCase):
             'active': True,
             'project': {
                 'analytics_code': None,
+                'analytics_disabled': False,
                 'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
                 'cdn_enabled': False,
                 'conf_py_file': '',

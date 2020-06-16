@@ -355,6 +355,7 @@ Project update
             "default_version": "v0.27.0",
             "default_branch": "develop",
             "analytics_code": "UA000000",
+            "analytics_disabled": false,
             "single_version": false,
 
         }

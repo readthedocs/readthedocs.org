@@ -201,6 +201,18 @@ class BaseTestDocumentSearch:
         # There should be only 50 data as the pagination is 50 by default
         assert len(resp.data['results']) == 50
 
+        # Check for page 2
+        search_params['page'] = 2
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # Check the count is 61 (1 existing and 60 new created)
+        assert resp.data['count'] == 61
+        # We don't have more results after this page
+        assert resp.data['next'] is None
+        # There should be only the 11 left
+        assert len(resp.data['results']) == 11
+
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5
         resp = self.get_search(api_client, search_params)
