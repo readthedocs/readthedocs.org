@@ -220,7 +220,9 @@ class TestProject(ProjectMixin, TestCase):
         )
         # None, since the stable version is marked as machine=False and Read
         # the Docs does not have control over it
-        self.assertEqual(self.pip.update_stable_version(), None)
+        with patch('readthedocs.projects.models.determine_stable_version') as m:
+            self.assertEqual(self.pip.update_stable_version(), None)
+            m.assert_not_called()
 
     def test_has_good_build_excludes_external_versions(self):
         # Delete all versions excluding External Versions.
