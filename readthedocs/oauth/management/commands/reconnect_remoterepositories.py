@@ -29,6 +29,21 @@ class Command(BaseCommand):
             help='Connect repositories only to organization owners.',
         )
 
+        parser.add_argument(
+            '--force-owners-social-resync',
+            action='store_true',
+            default=False,
+            help='Force to re-sync RemoteRepository for organization owners.',
+        )
+
+    def _force_owners_social_resync(self, organization):
+        for owner in organization.owners.all():
+            for service_cls in registry:
+                for service in service_cls.for_user(owner):
+                    try:
+                        service.sync()
+                    except SyncServiceError:
+                        print(f'Service {service} failed while syncing. Skipping...')
 
     def _connect_repositories(self, organization, no_dry_run, only_owners):
         connected_projects = []
@@ -78,10 +93,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         no_dry_run = options.get('no_dry_run')
         only_owners = options.get('only_owners')
+        force_owners_social_resync = options.get('force_owners_social_resync')
 
         for organization in options.get('organization'):
             try:
                 organization = Organization.objects.get(slug=organization)
+
+                if force_owners_social_resync:
+                    self._force_owners_social_resync(organization)
+
                 self._connect_repositories(organization, no_dry_run, only_owners)
             except Organization.DoesNotExist:
                 print(f'Organization does not exist. organization={organization}')
