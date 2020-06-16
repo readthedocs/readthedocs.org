@@ -27,9 +27,12 @@ class RTDFacetedSearch(FacetedSearch):
         'post_tags': ['</span>'],
     }
 
-    def __init__(self, query=None, filters=None, user=None, **kwargs):
+    def __init__(self, query=None, filters=None, user=None, use_advanced_query=True, **kwargs):
         """
         Pass in a user in order to filter search results by privacy.
+
+        If `use_advanced_query` is `True`,
+        force to always use `SimpleQueryString` for the text query object.
 
         .. warning::
 
@@ -38,6 +41,7 @@ class RTDFacetedSearch(FacetedSearch):
         """
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', True)
+        self.use_advanced_query = use_advanced_query
 
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
@@ -64,7 +68,7 @@ class RTDFacetedSearch(FacetedSearch):
         - MultiMatch: Allows us to have more control over the results
           (like fuzziness) to provide a better experience for simple queries.
         """
-        if self._is_advanced_query(query):
+        if self.use_advanced_query or self._is_advanced_query(query):
             query_string = SimpleQueryString(
                 query=query,
                 fields=fields,

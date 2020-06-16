@@ -4,28 +4,28 @@ import fnmatch
 import logging
 import os
 import re
+from shlex import quote
 from urllib.parse import urlparse
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
+from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import reverse, re_path
-from django.conf.urls import include
+from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
 from django.views import defaults
-from shlex import quote
+from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.constants import pattern_opts
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.constants import pattern_opts
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -33,9 +33,9 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
+    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
-    HTMLFileQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
@@ -43,18 +43,19 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
+from readthedocs.search.parse_json import (
+    process_file,
+    process_mkdocs_index_file,
+)
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-
 from .constants import (
-    MEDIA_TYPES,
-    MEDIA_TYPE_PDF,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -1606,6 +1607,7 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1719,6 +1721,10 @@ class Feature(models.Model):
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
+        )
     )
 
     projects = models.ManyToManyField(

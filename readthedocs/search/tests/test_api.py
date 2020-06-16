@@ -14,7 +14,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project, Feature
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
@@ -441,6 +441,8 @@ class BaseTestDocumentSearch:
 
     def test_search_advanced_query_detection(self, api_client):
         project = Project.objects.get(slug='docs')
+        project.feature_set.add(Feature.DEFAULT_TO_FUZZY_SEARCH)
+        project.save()
         version = project.versions.all().first()
 
         # Query with a typo should return results
