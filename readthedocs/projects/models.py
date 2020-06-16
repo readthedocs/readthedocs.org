@@ -1026,7 +1026,7 @@ class Project(models.Model):
         # return immediately if the current stable is managed by the user and
         # not automatically by Read the Docs (``machine=False``)
         current_stable = self.get_stable_version()
-        if not current_stable.machine:
+        if current_stable and not current_stable.machine:
             return None
 
         versions = self.versions(manager=INTERNAL).all()
