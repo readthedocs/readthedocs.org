@@ -17,6 +17,7 @@ from readthedocs.builds.constants import (
     LATEST,
     EXTERNAL,
 )
+from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
@@ -182,6 +183,43 @@ class TestProject(ProjectMixin, TestCase):
         # Delete all versions excluding External Versions.
         self.pip.versions.exclude(type=EXTERNAL).delete()
         # Test that External Version is not considered for stable.
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+    def test_update_stable_version_machine_false(self):
+        # Initial stable version from fixture
+        self.assertEqual(self.pip.update_stable_version().slug, '0.8.1')
+
+        # None, when there is no stable to promote
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+        get(
+            Version,
+            identifier='9.0',
+            verbose_name='9.0',
+            slug='9.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # New stable now is the newly created version
+        self.assertEqual(self.pip.update_stable_version().slug, '9.0')
+
+        # Make stable version machine=False
+        stable = self.pip.get_stable_version()
+        stable.machine = False
+        stable.save()
+
+        get(
+            Version,
+            identifier='10.0',
+            verbose_name='10.0',
+            slug='10.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # None, since the stable version is marked as machine=False and Read
+        # the Docs does not have control over it
         self.assertEqual(self.pip.update_stable_version(), None)
 
     def test_has_good_build_excludes_external_versions(self):
