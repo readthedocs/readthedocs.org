@@ -233,6 +233,15 @@ class Project(models.Model):
             'This may slow down your page loads.',
         ),
     )
+    analytics_disabled = models.BooleanField(
+        _('Disable Analytics'),
+        default=False,
+        null=True,
+        help_text=_(
+            'Disable Google Analytics completely for this project '
+            '(requires rebuilding documentation)',
+        ),
+    )
     container_image = models.CharField(
         _('Alternative container image'),
         max_length=64,

@@ -59,6 +59,15 @@ class SearchPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 100
 
+    def _get_page_number(self, number):
+        try:
+            if isinstance(number, float) and not number.is_integer():
+                raise ValueError
+            number = int(number)
+        except (TypeError, ValueError):
+            number = -1
+        return number
+
     def paginate_queryset(self, queryset, request, view=None):
         """
         Override to get the paginated result from the ES queryset.
@@ -84,9 +93,11 @@ class SearchPagination(PageNumberPagination):
         if page_number in self.last_page_strings:
             page_number = total_pages
 
+        original_page_number = page_number
+        page_number = self._get_page_number(page_number)
         if page_number <= 0:
             msg = self.invalid_page_message.format(
-                page_number=page_number,
+                page_number=original_page_number,
                 message=_("Invalid page"),
             )
             raise NotFound(msg)

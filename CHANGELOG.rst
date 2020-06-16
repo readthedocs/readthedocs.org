@@ -1,3 +1,23 @@
+Version 5.1.3
+-------------
+
+:Date: June 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix the project migration conflict (`#7196 <https://github.com/readthedocs/readthedocs.org/pull/7196>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix pagination (`#7195 <https://github.com/readthedocs/readthedocs.org/pull/7195>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document the fact that PR builds are now enabled on .org (`#7187 <https://github.com/readthedocs/readthedocs.org/pull/7187>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: make description shorter (`#7186 <https://github.com/readthedocs/readthedocs.org/pull/7186>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate private versions (`#7181 <https://github.com/readthedocs/readthedocs.org/pull/7181>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update sharing examples (`#7179 <https://github.com/readthedocs/readthedocs.org/pull/7179>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow projects to opt-out of analytics (`#7175 <https://github.com/readthedocs/readthedocs.org/pull/7175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: install readthedocs-sphinx-search from pypi (`#7174 <https://github.com/readthedocs/readthedocs.org/pull/7174>`__)
+* `@humitos <https://github.com/humitos>`__: Rename API endpoint call (`#7173 <https://github.com/readthedocs/readthedocs.org/pull/7173>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Reduce logging in proxito middleware so it isn't in Sentry (`#7172 <https://github.com/readthedocs/readthedocs.org/pull/7172>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.2 (`#7171 <https://github.com/readthedocs/readthedocs.org/pull/7171>`__)
+* `@humitos <https://github.com/humitos>`__: Use `CharField.choices` for `Build.status_code` (`#7166 <https://github.com/readthedocs/readthedocs.org/pull/7166>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Store pageviews via signals, not tasks (`#7106 <https://github.com/readthedocs/readthedocs.org/pull/7106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move organizations models (`#6776 <https://github.com/readthedocs/readthedocs.org/pull/6776>`__)
+
 Version 5.1.2
 -------------
 
