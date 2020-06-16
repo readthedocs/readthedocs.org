@@ -1,9 +1,17 @@
 """Build and Version QuerySet classes."""
+import logging
 
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+
+from .constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
+
+
+log = logging.getLogger(__name__)
 
 
 __all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
@@ -24,7 +32,8 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = user_queryset | queryset
         return queryset
 
-    def public(self, user=None, project=None, only_active=True):
+    def public(self, user=None, project=None, only_active=True,
+               include_hidden=True, only_built=False):
         queryset = self.filter(privacy_level=constants.PUBLIC)
         if user:
             queryset = self._add_user_repos(queryset, user)
@@ -32,6 +41,10 @@ class VersionQuerySetBase(models.QuerySet):
             queryset = queryset.filter(project=project)
         if only_active:
             queryset = queryset.filter(active=True)
+        if only_built:
+            queryset = queryset.filter(built=True)
+        if not include_hidden:
+            queryset = queryset.filter(hidden=False)
         return queryset.distinct()
 
     def protected(self, user=None, project=None, only_active=True):
@@ -112,6 +125,45 @@ class BuildQuerySetBase(models.QuerySet):
         if user:
             queryset = self._add_user_repos(queryset, user)
         return queryset.distinct()
+
+    def concurrent(self, project):
+        """
+        Check if the max build concurrency for this project was reached.
+
+        - regular project: counts concurrent builds
+
+        - translation: concurrent builds of all the translations + builds of main project
+
+        :rtype: tuple
+        :returns: limit_reached, number of concurrent builds, number of max concurrent
+        """
+        limit_reached = False
+        query = Q(project__slug=project.slug)
+
+        if project.main_language_project:
+            # Project is a translation, counts all builds of all the translations
+            query |= Q(project__main_language_project=project.main_language_project)
+            query |= Q(project__slug=project.main_language_project.slug)
+
+        elif project.translations.exists():
+            # The project has translations, counts their builds as well
+            query |= Q(project__in=project.translations.all())
+
+        concurrent = (
+            self.filter(query)
+            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
+        ).count()
+
+        max_concurrent = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
+        log.info(
+            'Concurrent builds. project=%s running=%s max=%s',
+            project.slug,
+            concurrent,
+            max_concurrent,
+        )
+        if concurrent >= max_concurrent:
+            limit_reached = True
+        return (limit_reached, concurrent, max_concurrent)
 
 
 class BuildQuerySet(SettingsOverrideObject):

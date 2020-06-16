@@ -4,10 +4,11 @@ from os.path import exists
 from tempfile import mkdtemp
 
 from allauth.socialaccount.models import SocialAccount
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
@@ -22,7 +23,6 @@ from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects import tasks
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.mocks.mock_api import mock_api
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
@@ -32,7 +32,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-class TestCeleryBuilding(RTDTestCase):
+class TestCeleryBuilding(TestCase):
 
     """
     These tests run the build functions directly.
@@ -79,22 +79,6 @@ class TestCeleryBuilding(RTDTestCase):
         directory = mkdtemp()
         self.assertTrue(exists(directory))
         result = tasks.remove_dirs.delay((directory,))
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-    def test_clear_artifacts(self):
-        version = self.project.versions.all()[0]
-        directory = self.project.get_production_media_path(type_='pdf', version_slug=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
-        self.assertTrue(result.successful())
-        self.assertFalse(exists(directory))
-
-        directory = version.project.rtd_build_path(version=version.slug)
-        os.makedirs(directory)
-        self.assertTrue(exists(directory))
-        result = tasks.remove_dirs.delay(paths=version.get_artifact_paths())
         self.assertTrue(result.successful())
         self.assertFalse(exists(directory))
 
@@ -164,7 +148,7 @@ class TestCeleryBuilding(RTDTestCase):
     @patch('readthedocs.projects.tasks.UpdateDocsTaskStep.setup_vcs')
     def test_no_notification_on_version_locked_error(self, mock_setup_vcs, mock_send_notifications):
         mock_setup_vcs.side_effect = VersionLockedError()
-        
+
         version = self.project.versions.first()
 
         build = get(
@@ -339,18 +323,6 @@ class TestCeleryBuilding(RTDTestCase):
                 'error': 'Something bad happened',
             },
         )
-
-    @patch('readthedocs.builds.managers.log')
-    def test_sync_files_logging_when_wrong_version_pk(self, mock_logger):
-        self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.sync_files(project_pk=None, version_pk=345343, doctype='sphinx')
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
-
-    @patch('readthedocs.builds.managers.log')
-    def test_move_files_logging_when_wrong_version_pk(self, mock_logger):
-        self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.move_files(version_pk=345343, hostname=None, doctype='sphinx')
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):

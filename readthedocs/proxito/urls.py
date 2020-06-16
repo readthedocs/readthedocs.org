@@ -27,26 +27,30 @@ pip.rtfd.io/<lang>/
 * Can't have subprojects (pip.rtfd.io/en/projects/foo/en/latestindex.html)
     * This would stop us from detaching translations from Project modeling
 * Can't be translated (pip.rtfd.io/cz/en/latest/index.html)
+
+## Proxied API
+
+pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import url
+from django.conf.urls import include, url
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views.public import ProjectDownloadMedia
 from readthedocs.proxito.views.serve import (
-    ServePageRedirect,
     ServeDocs,
     ServeError404,
+    ServePageRedirect,
     ServeRobotsTXT,
     ServeSitemapXML,
 )
-from readthedocs.proxito.views.utils import fast_404
+from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
-urlpatterns = [
+proxied_urls = [
     # Serve project downloads
     # /_/downloads/<lang>/<ver>/<type>/
     url(
@@ -77,6 +81,17 @@ urlpatterns = [
         name='project_download_media',
     ),
 
+    # Serve proxied API
+    # /_/api/v2/
+    url(
+        r'^{DOC_PATH_PREFIX}api/v2/'.format(
+            DOC_PATH_PREFIX=DOC_PATH_PREFIX,
+        ),
+        include('readthedocs.api.v2.proxied_urls'),
+    ),
+]
+
+core_urls = [
     # Serve custom 404 pages
     url(
         r'^_proxito_404_(?P<proxito_path>.*)$',
@@ -85,6 +100,9 @@ urlpatterns = [
     ),
     url(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
     url(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+]
+
+docs_urls = [
 
     # # TODO: Support this?
     # (Sub)project `page` redirect
@@ -135,7 +153,9 @@ urlpatterns = [
     # (Sub)project single version
     url(
         (
-            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
+            # subproject_slash variable at the end of this regex is for ``/projects/subproject``
+            # so that it will get captured here and redirect properly.
+            r'^(?:projects/(?P<subproject_slug>{project_slug})(?P<subproject_slash>/?))?'
             r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
         ),
         ServeDocs.as_view(),
@@ -143,6 +163,8 @@ urlpatterns = [
     ),
 ]
 
+urlpatterns = proxied_urls + core_urls + docs_urls
+
 # Use Django default error handlers to make things simpler
-handler404 = fast_404
+handler404 = proxito_404_page_handler
 handler500 = defaults.server_error

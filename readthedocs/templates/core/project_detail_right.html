@@ -97,15 +97,6 @@
     </p>
 {% endblock %}
 
-{% block privacy-level %}
-  <h3>{% trans "Project Privacy Level" %}</h3>
-  <div id="privacy_level">
-    <p>
-      {{ project.get_privacy_level_display }}
-    </p>
-  </div>
-{% endblock %}
-
 {% block short-urls %}
   <h3>{% trans "Short URLs" %}</h3>
   <p>
@@ -128,11 +119,11 @@
 {% endblock %}
 
 {% block subprojects %}
-  {% if project.subprojects.exists %}
+  {% if subprojects_and_urls %}
     <h3>{% trans "Sub Projects" %}</h3>
       <ul>
-      {% for rel in project.subprojects.all %}
-          <li><a href="{{ rel.get_absolute_url }}">{{ rel.child }}</a></li>
+      {% for subproject, absolute_url in subprojects_and_urls %}
+          <li><a href="{{ absolute_url }}">{{ subproject.child }}</a></li>
       {% endfor %}
       </ul>
   {% endif %}

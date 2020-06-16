@@ -26,6 +26,10 @@ from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import LOG_TEMPLATE
 from readthedocs.projects.models import Feature
+from readthedocs.projects.exceptions import (
+    RepositoryError,
+    ProjectConfigurationError,
+)
 
 from .constants import (
     DOCKER_HOSTNAME_MAX_LEN,
@@ -528,15 +532,18 @@ class BuildEnvironment(BaseEnvironment):
                               successful
     """
 
-    # Exceptions considered ERROR from a Build perspective but as a WARNING for
-    # the application itself. These exception are logged as warning and not sent
-    # to Sentry.
+    # These exceptions are considered ERROR from a Build perspective (the build
+    # failed and can continue) but as a WARNING for the application itself (RTD
+    # code didn't failed). These exception are logged as ``WARNING`` and they
+    # are not sent to Sentry.
     WARNING_EXCEPTIONS = (
         VersionLockedError,
         ProjectBuildsSkippedError,
         YAMLParseError,
         BuildTimeoutError,
         MkDocsYAMLParseError,
+        RepositoryError,
+        ProjectConfigurationError,
     )
 
     def __init__(
@@ -548,6 +555,7 @@ class BuildEnvironment(BaseEnvironment):
             record=True,
             environment=None,
             update_on_success=True,
+            start_time=None,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -557,7 +565,7 @@ class BuildEnvironment(BaseEnvironment):
         self.update_on_success = update_on_success
 
         self.failure = None
-        self.start_time = datetime.utcnow()
+        self.start_time = start_time or datetime.utcnow()
 
     def __enter__(self):
         return self
@@ -1054,8 +1062,9 @@ class DockerBuildEnvironment(BuildEnvironment):
         client = self.get_client()
         try:
             log.info(
-                'Creating Docker container: image=%s',
+                'Creating Docker container: image=%s id=%s',
                 self.container_image,
+                self.container_id,
             )
             self.container = client.create_container(
                 image=self.container_image,

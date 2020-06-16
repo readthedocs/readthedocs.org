@@ -2,23 +2,25 @@ import os
 import tempfile
 from collections import namedtuple
 
-import mock
+from unittest import mock
 import py
 import pytest
 import yaml
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
-from mock import patch
+from unittest.mock import patch
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML
-from readthedocs.doc_builder.backends.sphinx import BaseSphinx
+from readthedocs.doc_builder.backends.mkdocs import MkdocsHTML, yaml_load_safely
+from readthedocs.doc_builder.backends.sphinx import BaseSphinx, HtmlBuilder, HtmlDirBuilder, SingleHtmlBuilder
+from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.constants import PRIVATE, PROTECTED, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
+from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 
 class SphinxBuilderTest(TestCase):
@@ -216,6 +218,61 @@ class SphinxBuilderTest(TestCase):
         with pytest.raises(ProjectConfigurationError):
             base_sphinx.append_conf()
 
+    @mock.patch('readthedocs.doc_builder.config.load_config')
+    def test_use_sphinx_builders(self, load_config):
+        feature = get(
+            Feature,
+            feature_id=Feature.USE_SPHINX_BUILDERS,
+        )
+
+        config_data = {'version': 2, 'sphinx': {'configuration': 'docs/conf.py'}}
+        load_config.side_effect = create_load(config_data)
+        config = load_yaml_config(self.version)
+
+        python_env = Virtualenv(
+            version=self.version,
+            build_env=self.build_env,
+            config=config,
+        )
+        builder = HtmlBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'readthedocs')
+
+        builder = HtmlDirBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'readthedocsdirhtml')
+
+        builder = SingleHtmlBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'readthedocssinglehtml')
+
+        # Add the feature to use the regular builders
+        feature.projects.add(self.project)
+
+        builder = HtmlBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'html')
+
+        builder = HtmlDirBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'dirhtml')
+
+        builder = SingleHtmlBuilder(
+            build_env=self.build_env,
+            python_env=python_env,
+        )
+        self.assertEqual(builder.sphinx_builder, 'singlehtml')
+
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
 class MkdocsBuilderTest(TestCase):
@@ -355,7 +412,7 @@ class MkdocsBuilderTest(TestCase):
         # There is a mkdocs.yml file created
         generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
         self.assertTrue(os.path.exists(generated_yaml))
-        config = yaml.safe_load(open(generated_yaml))
+        config = yaml_load_safely(open(generated_yaml))
         self.assertEqual(
             config['docs_dir'],
             os.path.join(tmpdir, 'docs'),
@@ -412,7 +469,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
         self.assertEqual(
             config['docs_dir'],
             'docs',
@@ -502,7 +559,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
         self.assertEqual(
             config['theme_dir'],
             'not-readthedocs',
@@ -606,7 +663,7 @@ class MkdocsBuilderTest(TestCase):
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
-        config = yaml.safe_load(open(yaml_file))
+        config = yaml_load_safely(open(yaml_file))
 
         self.assertEqual(
             config['extra_css'],

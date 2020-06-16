@@ -11,3 +11,6 @@ class AnalyticsAppConfig(AppConfig):
 
     name = 'readthedocs.analytics'
     verbose_name = 'Analytics'
+
+    def ready(self):
+        from . import signals  # noqa

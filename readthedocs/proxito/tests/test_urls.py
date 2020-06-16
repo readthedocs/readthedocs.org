@@ -1,13 +1,13 @@
 # Copied from .com codebase
 
-# -*- coding: utf-8 -*-
 """Test URL config."""
 
-from django.urls import resolve
+import pytest
 from django.test import TestCase, override_settings
+from django.urls import resolve
 
 
-@override_settings(ROOT_URLCONF='readthedocs.proxito.urls')
+@pytest.mark.proxito
 class TestSingleVersionURLs(TestCase):
 
     def test_root(self):
@@ -17,6 +17,7 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(
             match.kwargs, {
                 'subproject_slug': None,
+                'subproject_slash': None,
                 'filename': '',
             },
         )
@@ -80,6 +81,7 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(
             match.kwargs, {
                 'subproject_slug': 'bar',
+                'subproject_slash': '/',
                 'filename': 'index.html',
             },
         )
@@ -91,6 +93,7 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(
             match.kwargs, {
                 'subproject_slug': 'bar',
+                'subproject_slash': '/',
                 'filename': '',
             },
         )
@@ -101,6 +104,7 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
+                'subproject_slash': None,
                 'subproject_slug': None,
                 'filename': 'some/path/index.html',
             },

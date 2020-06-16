@@ -8,6 +8,7 @@ from shutil import rmtree
 
 import regex
 from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -25,6 +26,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_TYPES,
+    BUILD_STATUS_CHOICES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
@@ -63,6 +65,7 @@ from readthedocs.core.utils import broadcast
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
+    DOCTYPE_CHOICES,
     GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
@@ -70,13 +73,14 @@ from readthedocs.projects.constants import (
     GITHUB_URL,
     GITLAB_BRAND,
     GITLAB_COMMIT_URL,
-    DOCUMENTATION_CHOICES,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_URL,
     MEDIA_TYPES,
     PRIVACY_CHOICES,
-    PRIVATE,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
@@ -135,6 +139,11 @@ class Version(models.Model):
         default=settings.DEFAULT_VERSION_PRIVACY_LEVEL,
         help_text=_('Level of privacy for this Version.'),
     )
+    hidden = models.BooleanField(
+        _('Hidden'),
+        default=False,
+        help_text=_('Hide this version from the version (flyout) menu and search results?')
+    )
     machine = models.BooleanField(_('Machine Created'), default=False)
 
     # Whether the latest successful build for this version contains certain media types
@@ -145,8 +154,8 @@ class Version(models.Model):
     documentation_type = models.CharField(
         _('Documentation type'),
         max_length=20,
-        choices=DOCUMENTATION_CHOICES,
-        default='sphinx',
+        choices=DOCTYPE_CHOICES,
+        default=SPHINX,
         help_text=_(
             'Type of documentation the version was built with.'
         ),
@@ -306,45 +315,19 @@ class Version(models.Model):
                     'version_slug': self.slug,
                 },
             )
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
-            private=private,
             external=external,
         )
-
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        """Add permissions to the Version for all owners on save."""
-        from readthedocs.projects import tasks
-        obj = super().save(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[self.project.pk],
-        )
-        return obj
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects import tasks
         log.info('Removing files for version %s', self.slug)
-        broadcast(
-            type='app',
-            task=tasks.remove_dirs,
-            args=[self.get_artifact_paths()],
-        )
-
         # Remove resources if the version is not external
         if self.type != EXTERNAL:
             tasks.clean_project_resources(self.project, self)
-
-        project_pk = self.project.pk
         super().delete(*args, **kwargs)
-        broadcast(
-            type='app',
-            task=tasks.symlink_project,
-            args=[project_pk],
-        )
 
     @property
     def identifier_friendly(self):
@@ -362,13 +345,15 @@ class Version(models.Model):
         """Return True if version is not external."""
         return not self.type == EXTERNAL
 
+    @property
+    def is_sphinx_type(self):
+        return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+
     def get_subdomain_url(self):
-        private = self.privacy_level == PRIVATE
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
             version_slug=self.slug,
             lang_slug=self.project.language,
-            private=private,
             external=external,
         )
 
@@ -410,23 +395,6 @@ class Version(models.Model):
             return path
         return None
 
-    def get_artifact_paths(self):
-        """
-        Return a list of all production artifacts/media path for this version.
-
-        :rtype: list
-        """
-        paths = []
-
-        for type_ in ('pdf', 'epub', 'htmlzip'):
-            paths.append(
-                self.project
-                .get_production_media_path(type_=type_, version_slug=self.slug),
-            )
-        paths.append(self.project.rtd_build_path(version=self.slug))
-
-        return paths
-
     def get_storage_paths(self):
         """
         Return a list of all build artifact storage paths for this version.
@@ -446,6 +414,11 @@ class Version(models.Model):
             )
 
         return paths
+
+    def get_storage_environment_cache_path(self):
+        """Return the path of the cached environment tar file."""
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        return storage.join(self.project.slug, f'{self.slug}.tar')
 
     def clean_build_path(self):
         """
@@ -495,7 +468,6 @@ class Version(models.Model):
         user, repo = get_github_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -536,7 +508,6 @@ class Version(models.Model):
         user, repo = get_gitlab_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -565,7 +536,6 @@ class Version(models.Model):
         user, repo = get_bitbucket_username_repo(repo_url)
         if not user and not repo:
             return ''
-        repo = repo.rstrip('/')
 
         if not filename:
             # If there isn't a filename, we don't need a suffix
@@ -613,7 +583,7 @@ class APIVersion(Version):
                 pass
         super().__init__(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
 
 
@@ -640,11 +610,28 @@ class Build(models.Model):
         choices=BUILD_TYPES,
         default='html',
     )
+
+    # Describe build state as where in the build process the build is. This
+    # allows us to show progression to the user in the form of a progress bar
+    # or in the build listing
     state = models.CharField(
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+    )
+
+    # Describe status as *why* the build is in a particular state. It is
+    # helpful for communicating more details about state to the user, but it
+    # doesn't help describe progression
+    # https://github.com/readthedocs/readthedocs.org/pull/7123#issuecomment-635065807
+    status = models.CharField(
+        _('Status'),
+        choices=BUILD_STATUS_CHOICES,
+        max_length=32,
+        null=True,
+        default=None,
+        blank=True,
     )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
@@ -688,7 +675,10 @@ class Build(models.Model):
     class Meta:
         ordering = ['-date']
         get_latest_by = 'date'
-        index_together = [['version', 'state', 'type']]
+        index_together = [
+            ['version', 'state', 'type'],
+            ['date', 'id'],
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -801,7 +791,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_PULL_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -813,7 +802,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_MERGE_REQUEST_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -827,7 +815,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITHUB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -838,7 +825,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return GITLAB_COMMIT_URL.format(
                     user=user,
                     repo=repo,
@@ -849,7 +835,6 @@ class Build(models.Model):
                 if not user and not repo:
                     return ''
 
-                repo = repo.rstrip('/')
                 return BITBUCKET_COMMIT_URL.format(
                     user=user,
                     repo=repo,

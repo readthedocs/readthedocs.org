@@ -3,6 +3,7 @@
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -10,7 +11,13 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.builds.constants import BRANCH, TAG, INTERNAL
+from readthedocs.builds.constants import (
+    BRANCH,
+    TAG,
+    INTERNAL,
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATE_FINISHED,
+)
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -275,6 +282,22 @@ class BuildViewSetBase(UserSelectViewSet):
     admin_serializer_class = BuildAdminSerializer
     model = Build
     filterset_fields = ('project__slug', 'commit')
+
+    @decorators.action(
+        detail=False,
+        permission_classes=[permissions.IsAdminUser],
+        methods=['get'],
+    )
+    def concurrent(self, request, **kwargs):
+        project_slug = request.GET.get('project__slug')
+        project = get_object_or_404(Project, slug=project_slug)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        data = {
+            'limit_reached': limit_reached,
+            'concurrent': concurrent,
+            'max_concurrent': max_concurrent,
+        }
+        return Response(data)
 
 
 class BuildViewSet(SettingsOverrideObject):

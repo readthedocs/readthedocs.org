@@ -1,6 +1,6 @@
 import logging
 
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -168,30 +168,6 @@ class PrivacyTests(TestCase):
         self.client.login(username='tester', password='test')
         r = self.client.get('/projects/django-kong/')
         self.assertContains(r, 'test-slug')
-
-    def test_private_doc_serving(self):
-        kong = self._create_kong('public', 'private')
-
-        self.client.login(username='eric', password='test')
-        Version.objects.create(
-            project=kong, identifier='test id',
-            verbose_name='test verbose', privacy_level='private', slug='test-slug', active=True,
-        )
-        self.client.post(
-            '/dashboard/django-kong/versions/',
-            {
-                'version-test-slug': 'on',
-                'privacy-test-slug': 'private',
-            },
-        )
-        r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.client.login(username='eric', password='test')
-        self.assertEqual(r.status_code, 404)
-
-        # Make sure it doesn't show up as tester
-        self.client.login(username='tester', password='test')
-        r = self.client.get('/docs/django-kong/en/test-slug/')
-        self.assertEqual(r.status_code, 401)
 
 # Private download tests
 

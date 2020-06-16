@@ -4,38 +4,52 @@ Search
 Read The Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search
 results. Documents are indexed in the Elasticsearch index and the search is made through the API.
 All the Search Code is open source and lives in the `GitHub Repository`_.
-Currently we are using the `Elasticsearch 6.3`_ version.
+Currently we are using `Elasticsearch 6.3`_.
 
 Local Development Configuration
 -------------------------------
 
-Installing and running Elasticsearch
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-You need to install and run Elasticsearch_ version 6.3 on your local development machine.
-You can get the installation instructions
-`here <https://www.elastic.co/guide/en/elasticsearch/reference/6.3/install-elasticsearch.html>`_.
-Otherwise, you can also start an Elasticsearch Docker container by running the following command::
-
-    docker run -p 9200:9200 -p 9300:9300 \
-           -e "discovery.type=single-node" \
-           docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+Elasticsearch is installed and run as part of the :doc:`development setup </development/standards>`.
 
 Indexing into Elasticsearch
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-For using search, you need to index data to the Elasticsearch Index. Run ``reindex_elasticsearch``
-management command::
 
-    ./manage.py reindex_elasticsearch
+For using search, you need to index data to the Elasticsearch Index. Run ``reindex_elasticsearch``
+management command:
+
+.. prompt:: bash
+
+    inv docker.manage reindex_elasticsearch
 
 For performance optimization, we implemented our own version of management command rather than
 the built in management command provided by the `django-elasticsearch-dsl`_ package.
 
 Auto Indexing
 ^^^^^^^^^^^^^
+
 By default, Auto Indexing is turned off in development mode. To turn it on, change the
 ``ELASTICSEARCH_DSL_AUTOSYNC`` settings to `True` in the `readthedocs/settings/dev.py` file.
 After that, whenever a documentation successfully builds, or project gets added,
 the search index will update automatically.
+
+Manual Elasticsearch installation and setup
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Usually you can just rely on the Docker Compose
+:doc:`development setup </development/standards>` which includes Elasticsearch.
+However, if you're developing or testing Read the Docs' search integration, you may need this.
+
+You need to install and run Elasticsearch_ version 6.3 on your local development machine.
+You can get the installation instructions
+`here <https://www.elastic.co/guide/en/elasticsearch/reference/6.3/install-elasticsearch.html>`_.
+Otherwise, you can also start an Elasticsearch Docker container by running the following command:
+
+.. prompt:: bash
+
+    docker run -p 9200:9200 -p 9300:9300 \
+           -e "discovery.type=single-node" \
+           docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+
 
 Architecture
 ------------
@@ -50,9 +64,28 @@ with Django.
 
 Indexing
 ^^^^^^^^
+
 All the Sphinx documents are indexed into Elasticsearch after the build is successful.
 Currently, we do not index MkDocs documents to elasticsearch, but
 `any kind of help is welcome <https://github.com/readthedocs/readthedocs.org/issues/1088>`_.
+
+Troubelshooting
+^^^^^^^^^^^^^^^
+
+If you get an error like::
+
+   RequestError(400, 'search_phase_execution_exception', 'failed to create query: ...
+
+You can fix this by deleting the page index:
+
+.. prompt:: bash
+
+   inv docker.manage 'search_index --delete'
+
+.. note::
+
+   You'll need to :ref:`reindex the projects <development/search:indexing into elasticsearch>` after this.
+
 
 How we index documentations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

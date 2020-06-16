@@ -1,11 +1,21 @@
 import re
+from unittest import mock
 
 import pytest
 from django.urls import reverse
 from django_dynamic_fixture import G
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import (
+    MKDOCS,
+    MKDOCS_HTML,
+    PUBLIC,
+    SPHINX,
+    SPHINX_HTMLDIR,
+    SPHINX_SINGLEHTML,
+)
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
     DOMAIN_FIELDS,
@@ -16,14 +26,17 @@ from readthedocs.search.tests.utils import (
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestDocumentSearch:
+@pytest.mark.usefixtures("all_projects")
+class BaseTestDocumentSearch:
 
-    @classmethod
-    def setup_class(cls):
-        # This reverse needs to be inside the ``setup_class`` method because from
+    def setup_method(self, method):
+        # This reverse needs to be inside the ``setup_method`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        cls.url = reverse('doc_search')
+        self.url = reverse('doc_search')
+
+    def get_search(self, api_client, search_params):
+        return api_client.get(self.url, search_params)
 
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_search_works_with_title_query(self, api_client, project, page_num):
@@ -39,7 +52,7 @@ class TestDocumentSearch:
             'version': version.slug,
             'q': query
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -75,7 +88,7 @@ class TestDocumentSearch:
             'version': version.slug,
             'q': query
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -121,7 +134,7 @@ class TestDocumentSearch:
             'project': 'docs',
             'version': 'latest'
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -136,7 +149,12 @@ class TestDocumentSearch:
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(Version, project=project, active=True)
+        dummy_version = G(
+            Version,
+            project=project,
+            active=True,
+            privacy_level=PUBLIC,
+        )
         # Create HTMLFile same as the latest version
         latest_version_files = HTMLFile.objects.all().filter(version=latest_version)
         for f in latest_version_files:
@@ -151,7 +169,7 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': dummy_version.slug
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -173,7 +191,7 @@ class TestDocumentSearch:
             PageDocument().update(html_file)
 
         search_params = {'q': query, 'project': project.slug, 'version': latest_version.slug}
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         # Check the count is 61 (1 existing and 60 new created)
@@ -183,19 +201,37 @@ class TestDocumentSearch:
         # There should be only 50 data as the pagination is 50 by default
         assert len(resp.data['results']) == 50
 
+        # Check for page 2
+        search_params['page'] = 2
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # Check the count is 61 (1 existing and 60 new created)
+        assert resp.data['count'] == 61
+        # We don't have more results after this page
+        assert resp.data['next'] is None
+        # There should be only the 11 left
+        assert len(resp.data['results']) == 11
+
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         assert len(resp.data['results']) == 5
 
     def test_doc_search_without_parameters(self, api_client, project):
-        """Hitting Document Search endpoint without query parameters should return error"""
-        resp = api_client.get(self.url)
+        """Hitting Document Search endpoint without project and version should return 404."""
+        resp = self.get_search(api_client, {})
+        assert resp.status_code == 404
+
+    def test_doc_search_without_query(self, api_client, project):
+        """Hitting Document Search endpoint without a query should return error."""
+        resp = self.get_search(
+            api_client, {'project': project.slug, 'version': project.versions.first().slug})
         assert resp.status_code == 400
         # Check error message is there
-        assert sorted(['q', 'project', 'version']) == sorted(resp.data.keys())
+        assert 'q' in resp.data.keys()
 
     def test_doc_search_subprojects(self, api_client, all_projects):
         """Test Document search return results from subprojects also"""
@@ -212,7 +248,7 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': version.slug
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
@@ -234,7 +270,7 @@ class TestDocumentSearch:
             'project': project,
             'version': 'latest',
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
     def test_doc_search_unexisting_version(self, api_client, project):
@@ -246,8 +282,176 @@ class TestDocumentSearch:
             'project': project.slug,
             'version': version,
         }
-        resp = api_client.get(self.url, search_params)
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 404
+
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
+    def test_get_all_projects_returns_empty_results(self, api_client, project):
+        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
+
+        # `documentation` word is present both in `kuma` and `docs` files
+        # and not in `pipeline`, so search with this phrase but filter through project
+        search_params = {
+            'q': 'documentation',
+            'project': 'docs',
+            'version': 'latest'
+        }
+        resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
         data = resp.data['results']
         assert len(data) == 0
+
+    def test_doc_search_hidden_versions(self, api_client, all_projects):
+        """Test Document search return results from subprojects also"""
+        project = all_projects[0]
+        subproject = all_projects[1]
+        version = project.versions.all()[0]
+        # Add another project as subproject of the project
+        project.add_subproject(subproject)
+
+        version_subproject = subproject.versions.first()
+        version_subproject.hidden = True
+        version_subproject.save()
+
+        # Now search with subproject content but explicitly filter by the parent project
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': project.slug,
+            'version': version.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # The version from the subproject is hidden, so isn't show on the results.
+        data = resp.data['results']
+        assert len(data) == 0
+
+        # Now search on the subproject with hidden version
+        query = get_search_query_from_project_file(project_slug=subproject.slug)
+        search_params = {
+            'q': query,
+            'project': subproject.slug,
+            'version': version_subproject.slug
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        # We can still search inside the hidden version
+        data = resp.data['results']
+        assert len(data) == 1
+        first_result = data[0]
+        assert first_result['project'] == subproject.slug
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_normal_page_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/index.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
+    def test_search_correct_link_for_index_page_subdirectory_html_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/index.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_normal_page_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Support',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/support.html')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/')
+
+    @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
+    def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(self, api_client, doctype):
+        project = Project.objects.get(slug='docs')
+        project.versions.update(documentation_type=doctype)
+        version = project.versions.all().first()
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'Some content from guides/index',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        result = resp.data['results'][0]
+        assert result['project'] == project.slug
+        assert result['link'].endswith('en/latest/guides/')
+
+
+class TestDocumentSearch(BaseTestDocumentSearch):
+
+    pass

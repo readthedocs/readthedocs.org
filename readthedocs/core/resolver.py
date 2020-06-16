@@ -6,7 +6,6 @@ from urllib.parse import urlunparse
 from django.conf import settings
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.constants import PRIVATE
 from readthedocs.builds.constants import EXTERNAL
 
 log = logging.getLogger(__name__)
@@ -59,16 +58,15 @@ class ResolverBase:
             filename,
             version_slug=None,
             language=None,
-            private=False,
             single_version=None,
             subproject_slug=None,
             subdomain=None,
             cname=None,
+            urlconf=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        # pylint: disable=unused-argument
         if subdomain or cname or (self._use_subdomain()):
             url = '/'
         else:
@@ -81,6 +79,31 @@ class ResolverBase:
             url += '{filename}'
         else:
             url += '{language}/{version_slug}/{filename}'
+
+        # Allow users to override their own URLConf
+        # This logic could be cleaned up with a standard set of variable replacements
+        if urlconf:
+            url = urlconf
+            url = url.replace(
+                '$version',
+                '{version_slug}',
+            )
+            url = url.replace(
+                '$language',
+                '{language}',
+            )
+            url = url.replace(
+                '$filename',
+                '{filename}',
+            )
+            url = url.replace(
+                '$subproject',
+                '{subproject_slug}',
+            )
+            if '$' in url:
+                log.warning(
+                    'Unconverted variable in a resolver URLConf: url=%s', url
+                )
 
         return url.format(
             project_slug=project_slug,
@@ -100,40 +123,21 @@ class ResolverBase:
             single_version=None,
             subdomain=None,
             cname=None,
-            private=None,
+            urlconf=None,
     ):
         """Resolve a URL with a subset of fields defined."""
-        cname = cname or project.get_canonical_custom_domain()
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
-        if private is None:
-            private, _ = self._get_private_and_external(project, version_slug)
-
         filename = self._fix_filename(project, filename)
 
-        current_project = project
-        project_slug = project.slug
-        subproject_slug = None
-        # We currently support more than 2 levels of nesting subprojects and
-        # translations, only loop twice to avoid sticking in the loop
-        for _ in range(0, 2):
-            main_language_project = current_project.main_language_project
-            relation = current_project.get_parent_relationship()
-
-            if main_language_project:
-                current_project = main_language_project
-                project_slug = main_language_project.slug
-                language = project.language
-                subproject_slug = None
-            elif relation:
-                current_project = relation.parent
-                project_slug = relation.parent.slug
-                subproject_slug = relation.alias
-                cname = relation.parent.domains.filter(canonical=True).first()
-            else:
-                break
-
+        main_project, subproject_slug = self._get_canonical_project_data(project)
+        project_slug = main_project.slug
+        cname = (
+            cname
+            or self._use_subdomain()
+            or main_project.get_canonical_custom_domain()
+        )
         single_version = bool(project.single_version or single_version)
 
         return self.base_resolve_path(
@@ -144,12 +148,11 @@ class ResolverBase:
             single_version=single_version,
             subproject_slug=subproject_slug,
             cname=cname,
-            private=private,
             subdomain=subdomain,
+            urlconf=urlconf or project.urlconf,
         )
 
-    def resolve_domain(self, project, private=None):
-        # pylint: disable=unused-argument
+    def resolve_domain(self, project):
         canonical_project = self._get_canonical_project(project)
         domain = canonical_project.get_canonical_custom_domain()
         if domain:
@@ -162,14 +165,14 @@ class ResolverBase:
 
     def resolve(
             self, project, require_https=False, filename='', query_params='',
-            private=None, external=None, **kwargs
+            external=None, **kwargs
     ):
         version_slug = kwargs.get('version_slug')
 
-        if private is None or external is None:
-            if version_slug is None:
-                version_slug = project.get_default_version()
-            private, external = self._get_private_and_external(project, version_slug)
+        if version_slug is None:
+            version_slug = project.get_default_version()
+        if external is None:
+            external = self._is_external(project, version_slug)
 
         canonical_project = self._get_canonical_project(project)
         custom_domain = canonical_project.get_canonical_custom_domain()
@@ -200,9 +203,71 @@ class ResolverBase:
         protocol = 'https' if use_https_protocol else 'http'
 
         path = self.resolve_path(
-            project, filename=filename, private=private, **kwargs
+            project, filename=filename, **kwargs
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
+
+    def _get_canonical_project_data(self, project):
+        """
+        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+
+        We currently support more than 2 levels of nesting subprojects and translations,
+        but we only serve 2 levels to avoid sticking in the loop.
+        This means, we can have the following cases:
+
+        - The project isn't a translation or subproject
+
+          We serve the documentation from the domain of the project itself
+          (main.docs.com/).
+
+        - The project is a translation of a project
+
+          We serve the documentation from the domain of the main translation
+          (main.docs.com/es/).
+
+        - The project is a subproject of a project
+
+          We serve the documentation from the domain of the super project
+          (main.docs.com/projects/subproject/).
+
+        - The project is a translation, and the main translation is a subproject of a project, like:
+
+          - docs
+          - api (subproject of ``docs``)
+          - api-es (translation of ``api``, and current project to be served)
+
+          We serve the documentation from the domain of the super project
+          (docs.docs.com/projects/api/es/).
+
+        - The project is a subproject, and the superproject is a translation of a project, like:
+
+          - docs
+          - docs-es (translation of ``docs``)
+          - api-es (subproject of ``docs-es``, and current project to be served)
+
+          We serve the documentation from the domain of the super project (the translation),
+          this is docs-es.docs.com/projects/api-es/es/.
+          We aren't going to support this case for now.
+
+        In summary: If the project is a subproject,
+        we don't care if the superproject is a translation,
+        we always serve from the domain of the superproject.
+        If the project is a translation,
+        we need to check if the main translation is a subproject.
+        """
+        main_project = project
+        subproject_slug = None
+
+        main_language_project = main_project.main_language_project
+        if main_language_project:
+            main_project = main_language_project
+
+        relation = main_project.get_parent_relationship()
+        if relation:
+            main_project = relation.parent
+            subproject_slug = relation.alias
+
+        return (main_project, subproject_slug)
 
     def _get_canonical_project(self, project, projects=None):
         """
@@ -219,16 +284,18 @@ class ResolverBase:
         # recursion. We can't determine a root project well here, so you get
         # what you get if you have configured your project in a strange manner
         if projects is None:
-            projects = [project]
+            projects = {project}
         else:
-            projects.append(project)
+            projects.add(project)
 
         next_project = None
-        relation = project.get_parent_relationship()
         if project.main_language_project:
             next_project = project.main_language_project
-        elif relation:
-            next_project = relation.parent
+        else:
+            relation = project.get_parent_relationship()
+            if relation:
+                next_project = relation.parent
+
         if next_project and next_project not in projects:
             return self._get_canonical_project(next_project, projects)
         return project
@@ -245,16 +312,14 @@ class ResolverBase:
         subdomain_slug = project.slug.replace('_', '-')
         return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
-    def _get_private_and_external(self, project, version_slug):
-        from readthedocs.builds.models import Version
-        try:
-            version = project.versions.get(slug=version_slug)
-            private = version.privacy_level == PRIVATE
-            external = version.type == EXTERNAL
-        except Version.DoesNotExist:
-            private = settings.DEFAULT_PRIVACY_LEVEL == PRIVATE
-            external = False
-        return private, external
+    def _is_external(self, project, version_slug):
+        type_ = (
+            project.versions
+            .values_list('type', flat=True)
+            .filter(slug=version_slug)
+            .first()
+        )
+        return type_ == EXTERNAL
 
     def _fix_filename(self, project, filename):
         """

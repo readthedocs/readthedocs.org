@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -175,6 +174,7 @@ class ProjectExtraForm(ProjectForm):
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
+        max_length=150,
         widget=forms.Textarea,
     )
 
@@ -190,7 +190,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -199,10 +199,11 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         per_project_settings = (
             'default_version',
             'default_branch',
-            'privacy_level',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled'
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -222,6 +223,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form
+        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
+        self.fields['analytics_disabled'].empty_value = False
 
         self.helper = FormHelper()
         help_text = render_to_string(
@@ -258,6 +263,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        # Enable PR builder option on projects w/ feature flag
+        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
+            self.fields.pop('external_builds_enabled')
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
@@ -467,14 +476,6 @@ class WebHookForm(forms.ModelForm):
         self.project.webhook_notifications.add(self.webhook)
         return self.project
 
-    def clean_url(self):
-        url = self.cleaned_data.get('url')
-        if not url:
-            raise forms.ValidationError(
-                _('This field is required.')
-            )
-        return url
-
     class Meta:
         model = WebHook
         fields = ['url']
@@ -563,8 +564,7 @@ class TranslationBaseForm(forms.Form):
             # bulk update.
             self.translation.main_language_project = self.parent
             self.translation.save()
-            # Run symlinking and other sync logic to make sure we are in a good
-            # state.
+            # Run other sync logic to make sure we are in a good state.
             self.parent.save()
         return self.parent
 
@@ -606,7 +606,15 @@ class DomainBaseForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        exclude = ['machine', 'cname', 'count']  # pylint: disable=modelform-uses-exclude
+        # pylint: disable=modelform-uses-exclude
+        exclude = [
+            'machine',
+            'cname',
+            'count',
+            'hsts_max_age',
+            'hsts_include_subdomains',
+            'hsts_preload',
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)

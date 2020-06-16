@@ -1,18 +1,13 @@
 import logging
 
+from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.faceted_search import NestedFacet
-from elasticsearch_dsl.query import Bool, SimpleQueryString, Nested, Match
-
-from django.conf import settings
+from elasticsearch_dsl.query import Bool, Match, Nested, SimpleQueryString
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.search.documents import (
-    PageDocument,
-    ProjectDocument,
-)
-
+from readthedocs.search.documents import PageDocument, ProjectDocument
 
 log = logging.getLogger(__name__)
 
@@ -21,7 +16,18 @@ ALL_FACETS = ['project', 'version', 'role_name', 'language', 'index']
 
 class RTDFacetedSearch(FacetedSearch):
 
-    def __init__(self, user, **kwargs):
+    """Custom wrapper around FacetedSearch."""
+
+    operators = []
+
+    _highlight_options = {
+        'encoder': 'html',
+        'number_of_fragments': 1,
+        'pre_tags': ['<span>'],
+        'post_tags': ['</span>'],
+    }
+
+    def __init__(self, query=None, filters=None, user=None, **kwargs):
         """
         Pass in a user in order to filter search results by privacy.
 
@@ -33,23 +39,21 @@ class RTDFacetedSearch(FacetedSearch):
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', True)
 
-        # Set filters properly
-        for facet in self.facets:
-            if facet in kwargs:
-                kwargs.setdefault('filters', {})[facet] = kwargs.pop(facet)
-
-        # Don't pass along unnecessary filters
-        for f in ALL_FACETS:
-            if f in kwargs:
-                del kwargs[f]
-
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
         log.info('Hacking Elastic to fix search connection pooling')
         self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
 
-        super().__init__(**kwargs)
+        filters = filters or {}
+
+        # We may recieve invalid filters
+        valid_filters = {
+            k: v
+            for k, v in filters.items()
+            if k in self.facets
+        }
+        super().__init__(query=query, filters=valid_filters, **kwargs)
 
     def query(self, search, query):
         """
@@ -57,10 +61,10 @@ class RTDFacetedSearch(FacetedSearch):
 
         Also:
 
-        * Adds SimpleQueryString instead of default query.
+        * Adds SimpleQueryString with `self.operators` instead of default query.
         * Adds HTML encoding of results to avoid XSS issues.
         """
-        search = search.highlight_options(encoder='html', number_of_fragments=3)
+        search = search.highlight_options(**self._highlight_options)
         search = search.source(exclude=['content', 'headers'])
 
         all_queries = []
@@ -107,20 +111,14 @@ class PageSearchBase(RTDFacetedSearch):
         'domains.name^2',
         'domains.docstrings',
     ]
-    _common_highlight_options = {
-        'encoder': 'html',
-        'number_of_fragments': 1,
-        'pre_tags': ['<span>'],
-        'post_tags': ['</span>'],
-    }
     fields = _outer_fields
 
     # need to search for both 'and' and 'or' operations
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
-    def count(self):
-        """Overriding ``count`` method to return the count of the results after post_filter."""
+    def total_count(self):
+        """Returns the total count of results of the current query."""
         s = self.build_search()
 
         # setting size=0 so that no results are returned,
@@ -131,7 +129,7 @@ class PageSearchBase(RTDFacetedSearch):
 
     def query(self, search, query):
         """Manipulates query to support nested query."""
-        search = search.highlight_options(**self._common_highlight_options)
+        search = search.highlight_options(**self._highlight_options)
 
         all_queries = []
 
@@ -152,7 +150,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._section_fields,
             inner_hits={
                 'highlight': dict(
-                    self._common_highlight_options,
+                    self._highlight_options,
                     fields={
                         'sections.title': {},
                         'sections.content': {},
@@ -168,7 +166,7 @@ class PageSearchBase(RTDFacetedSearch):
             fields=self._domain_fields,
             inner_hits={
                 'highlight': dict(
-                    self._common_highlight_options,
+                    self._highlight_options,
                     fields={
                         'domains.name': {},
                         'domains.docstrings': {},

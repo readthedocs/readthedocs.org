@@ -1,11 +1,11 @@
 import pytest
 
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.faceted_search import PageSearch
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestPageSearch(object):
+class TestPageSearch:
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_search_exact_match(self, client, project, case):
@@ -21,7 +21,7 @@ class TestPageSearch(object):
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        page_search = PageDocument.faceted_search(query=query, user='')
+        page_search = PageSearch(query=query)
         results = page_search.execute()
 
         assert len(results) == 1
@@ -37,7 +37,7 @@ class TestPageSearch(object):
         - Where `Foo` or `Bar` is present
         """
         query = 'Elasticsearch Query'
-        page_search = PageDocument.faceted_search(query=query, user='')
+        page_search = PageSearch(query=query)
         results = page_search.execute()
         assert len(results) == 3
 

@@ -37,48 +37,20 @@ def gravatar(email, size=48):
 
 
 @register.simple_tag(name='doc_url')
-def make_document_url(project, version=None, page=''):
+def make_document_url(project, version=None, page='', path=''):
+    """
+    Create a URL for a Project, Version and page (and/or path).
+
+    :param page: is the name of the document as Sphinx call it (e.g.
+        /config-file/v1) (note that the extension is not present)
+    :param path: is the full path of the page (e.g. /section/configuration.html)
+
+    :returns: URL to the page (e.g. https://docs.domain.com/en/latest/section/configuration.html)
+    """
     if not project:
         return ''
-    return resolve(project=project, version_slug=version, filename=page)
-
-
-@register.filter(is_safe=True)
-def restructuredtext(value, short=False):
-    try:
-        from docutils.core import publish_parts
-        from docutils import ApplicationError
-    except ImportError:
-        if settings.DEBUG:
-            raise template.TemplateSyntaxError(
-                "Error in 'restructuredtext' filter: "
-                "The Python docutils library isn't installed.",
-            )
-        return force_text(value)
-    else:
-        docutils_settings = {
-            'raw_enabled': False,
-            'file_insertion_enabled': False,
-        }
-        docutils_settings.update(
-            settings.RESTRUCTUREDTEXT_FILTER_SETTINGS,
-        )
-        try:
-            parts = publish_parts(
-                source=force_bytes(value),
-                writer_name='html4css1',
-                settings_overrides=docutils_settings,
-            )
-        except ApplicationError:
-            return force_text(value)
-
-        out = force_text(parts['fragment'])
-        try:
-            if short:
-                out = out.split('\n')[0]
-        except IndexError:
-            pass
-        return mark_safe(out)
+    filename = path or page
+    return resolve(project=project, version_slug=version, filename=filename)
 
 
 @register.filter
