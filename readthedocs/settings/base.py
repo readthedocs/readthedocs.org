@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 
+import logging
 import os
 import subprocess
 import socket
@@ -18,6 +19,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
+log = logging.getLogger(__name__)
 
 
 class CommunityBaseSettings(Settings):
