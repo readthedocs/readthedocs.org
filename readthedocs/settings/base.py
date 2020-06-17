@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import socket
 
 from celery.schedules import crontab
 
@@ -445,7 +446,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 750, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
@@ -475,15 +476,21 @@ class CommunityBaseSettings(Settings):
 
         # Only run on our servers
         if self.RTD_IS_PRODUCTION:
-            memory_limit = self._get_docker_memory_limit()
+            total_memory, memory_limit = self._get_docker_memory_limit()
             if memory_limit:
                 limits = {
                     'memory': f'{memory_limit}m',
                     'time': max(
                         limits['time'],
-                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
                     )
                 }
+        log.info(
+            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
+            socket.gethostname(),
+            limits['memory'],
+            limits['time'],
+        )
         return limits
 
     # All auth
