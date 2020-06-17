@@ -281,7 +281,7 @@ class SphinxParser(BaseParser):
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
-                sections = list(self._parse_sections(title=title, body=body))
+                sections = list(self._parse_sections(title=title, body=body.body))
             except Exception as e:
                 log.info('Unable to index sections for: %s', fjson_path)
 
