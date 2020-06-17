@@ -4,6 +4,7 @@ from django.db.models import Q, Subquery
 from django.core.management.base import BaseCommand
 
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
 
