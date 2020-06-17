@@ -1,3 +1,5 @@
+# Requirements for our local docker development
+
 -r pip.txt
 # http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
 psycopg2-binary==2.8.5
