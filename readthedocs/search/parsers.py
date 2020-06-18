@@ -79,7 +79,7 @@ class BaseParser:
            This will mutate the original `body`.
         """
         # Remove all navigation nodes
-        nodes_to_be_removed = body.css('div[role=navigation]')
+        nodes_to_be_removed = body.css('[role=navigation]')
         for node in nodes_to_be_removed:
             node.decompose()
 
