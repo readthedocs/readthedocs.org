@@ -8,16 +8,20 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 from readthedocs.projects.constants import MKDOCS, SPHINX
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project, Feature
 
 data_path = Path(__file__).parent.resolve() / 'data'
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestParseJSON:
+class TestParsers:
 
     def setup_method(self):
+        self.feature = get(
+            Feature,
+            feature_id=Feature.INDEX_FROM_HTML_FILES,
+        )
         self.project = get(
             Project,
             slug='test',
@@ -70,6 +74,129 @@ class TestParseJSON:
             no_title_file.processed_json,
         ]
         expected_json = json.load(open(data_path / 'mkdocs/out/search_index.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_mkdocs_default_theme(self, storage_open, storage_exists):
+        local_path = data_path / 'mkdocs/in/mkdocs-1.1/'
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = MKDOCS
+        self.version.save()
+
+        parsed_json = []
+
+        all_files = [
+            'index.html',
+            '404.html',
+            'configuration.html',
+            'no-title.html',
+            'no-main-header.html',
+        ]
+        for file_name in all_files:
+            file = local_path / file_name
+            storage_open.reset_mock()
+            storage_open.side_effect = self._mock_open(file.open().read())
+            file = get(
+                HTMLFile,
+                project=self.project,
+                version=self.version,
+                path=file_name,
+            )
+            parsed_json.append(file.processed_json)
+
+        expected_json = json.load(open(data_path / 'mkdocs/out/mkdocs-1.1.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_mkdocs_gitbook_theme(self, storage_open, storage_exists):
+        file = data_path / 'mkdocs/in/gitbook/index.html'
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = MKDOCS
+        self.version.save()
+
+        storage_open.side_effect = self._mock_open(file.open().read())
+        file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='index.html',
+        )
+        parsed_json = [file.processed_json]
+        expected_json = json.load(open(data_path / 'mkdocs/out/gitbook.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_mkdocs_material_theme(self, storage_open, storage_exists):
+        file = data_path / 'mkdocs/in/material/index.html'
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = MKDOCS
+        self.version.save()
+
+        storage_open.side_effect = self._mock_open(file.open().read())
+        file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='index.html',
+        )
+        parsed_json = [file.processed_json]
+        expected_json = json.load(open(data_path / 'mkdocs/out/material.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_mkdocs_windmill_theme(self, storage_open, storage_exists):
+        file = data_path / 'mkdocs/in/windmill/index.html'
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = MKDOCS
+        self.version.save()
+
+        storage_open.side_effect = self._mock_open(file.open().read())
+        file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path='index.html',
+        )
+        parsed_json = [file.processed_json]
+        expected_json = json.load(open(data_path / 'mkdocs/out/windmill.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
+    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
+    def test_mkdocs_readthedocs_theme(self, storage_open, storage_exists):
+        self.project.feature_set.add(self.feature)
+        storage_exists.return_value = True
+        self.version.documentation_type = MKDOCS
+        self.version.save()
+
+        local_path = data_path / 'mkdocs/in/readthedocs-1.1/'
+        parsed_json = []
+
+        for file_name in ['index.html', '404.html', 'versions.html']:
+            file = local_path / file_name
+            storage_open.reset_mock()
+            storage_open.side_effect = self._mock_open(file.open().read())
+            file = get(
+                HTMLFile,
+                project=self.project,
+                version=self.version,
+                path=file_name,
+            )
+            parsed_json.append(file.processed_json)
+
+        expected_json = json.load(open(data_path / 'mkdocs/out/readthedocs-1.1.json'))
         assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')

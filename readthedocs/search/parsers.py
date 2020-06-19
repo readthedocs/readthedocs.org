@@ -21,6 +21,68 @@ class BaseParser:
         self.project = self.version.project
         self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
+    def _get_page_content(self, page):
+        """Gets the page content from storage."""
+        content = None
+        try:
+            storage_path = self.project.get_storage_path(
+                type_='html',
+                version_slug=self.version.slug,
+                include_file=False,
+            )
+            file_path = self.storage.join(storage_path, page)
+            with self.storage.open(file_path, mode='r') as f:
+                content = f.read()
+        except Exception:
+            log.warning(
+                'Unhandled exception during search processing file: %s',
+                page,
+            )
+        return content
+
+    def _get_page_title(self, body, html):
+        """
+        Gets the title from the html page.
+
+        The title is the first section in the document,
+        falling back to the ``title`` tag.
+        """
+        first_header = body.css_first('h1')
+        if first_header:
+            title, _ = self._parse_section_title(first_header)
+            return title
+
+        title = html.css_first('title')
+        if title:
+            return self._parse_content(title.text())
+
+        return None
+
+    def _get_main_node(self, html):
+        """
+        Gets the main node from where to start indexing content.
+
+        The main node is tested in the following order:
+
+        - Try with a tag with the ``main`` role.
+          This role is used by several static sites and themes.
+        - Try the first ``h1`` node and return its parent
+          Usually all sections are neighbors,
+          so they are children of the same parent node.
+        """
+        body = html.body
+        main_node = body.css_first('[role=main]')
+        if main_node:
+            return main_node
+
+        # TODO: this could be done in smarter way,
+        # checking for common parents between all h nodes.
+        first_header = body.css_first('h1')
+        if first_header:
+            return first_header.parent
+
+        return None
+
     def _parse_content(self, content):
         """Removes new line characters and strips all whitespaces."""
         content = content.strip().split('\n')
@@ -404,9 +466,55 @@ class SphinxParser(BaseParser):
 
 class MkDocsParser(BaseParser):
 
-    """MkDocs parser, it relies on the json index files."""
+    """
+    MkDocs parser.
+
+    Index from the json index file or directly from the html content.
+    """
 
     def parse(self, page):
+        from readthedocs.projects.models import Feature
+        if self.project.has_feature(Feature.INDEX_FROM_HTML_FILES):
+            return self.parse_from_html(page)
+        return self.parse_from_index_file(page)
+
+    def parse_from_html(self, page):
+        try:
+            content = self._get_page_content(page)
+            if content:
+                return self._process_content(page, content)
+        except Exception as e:
+            log.info('Failed to index page %s, %s', page, str(e))
+        return {
+            'path': page,
+            'title': '',
+            'sections': [],
+            'domain_data': {},
+        }
+
+    def _process_content(self, page, content):
+        """Parses the content into a structured dict."""
+        html = HTMLParser(content)
+        body = self._get_main_node(html)
+        title = ""
+        sections = []
+        if body:
+            title = self._get_page_title(body, html) or page
+            sections = list(self._parse_sections(title, body))
+        else:
+            log.info(
+                'Page doesn\'t look like it has valid content, skipping. '
+                'page=%s',
+                page,
+            )
+        return {
+            'path': page,
+            'title': title,
+            'sections': sections,
+            'domain_data': {},
+        }
+
+    def parse_from_index_file(self, page):
         storage_path = self.project.get_storage_path(
             type_='html',
             version_slug=self.version.slug,
