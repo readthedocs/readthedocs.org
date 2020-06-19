@@ -51,10 +51,11 @@ You can also host your documentation from your own domain.
 
       .. admonition:: Certificate Authority Authorization (CAA)
 
-         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         If your custom domain has configured CAA records,
          please do not forget to include Cloudflare CAA entries to allow them to issue a certificate for your custom domain.
+         CAA records are typically configured at the root domain.
          See the `Cloudflare CAA FAQ`_ for details.
-         We need a record that looks like this: ``0 issue "digicert.com"`` in response to ``dig +short CAA <domain>``
+         We need a record that looks like this: ``0 issue "digicert.com"`` in response to ``dig +short CAA <rootdomain>``
 
          .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
 
@@ -93,8 +94,9 @@ You can also host your documentation from your own domain.
 
       .. admonition:: Certificate Authority Authorization (CAA)
 
-         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
+         If your custom domain has configured CAA records,
          please do not forget to include AWS Certificate Manager CAA entries to allow them to issue a certificate for your custom domain.
+         CAA records are typically configured at the root domain.
          See the `Amazon CAA guide`_ for details.
 
          .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
