@@ -1532,6 +1532,7 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
 
     FEATURES = (
@@ -1647,9 +1648,13 @@ class Feature(models.Model):
             _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
             DEFAULT_TO_FUZZY_SEARCH,
             _('Default to fuzzy search for simple search queries'),
-        )
+        ),
     )
 
     projects = models.ManyToManyField(
