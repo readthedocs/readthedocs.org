@@ -452,6 +452,7 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
 

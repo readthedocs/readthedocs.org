@@ -20,3 +20,15 @@ and sometimes can take up to a day before it starts reporting data.
    For more details, see the
    :ref:`Do Not Track section <privacy-policy:Do Not Track>`
    of our privacy policy.
+
+
+Disabling Google Analytics on your project
+------------------------------------------
+
+Google Analytics can be completely disabled on your own projects.
+To disable Google Analytics:
+
+* Going to :guilabel:`Admin` > :guilabel:`Advanced Settings` in your project.
+* Check the box **Disable Analytics**.
+
+Your documentation will need to be rebuilt for this change to take effect.

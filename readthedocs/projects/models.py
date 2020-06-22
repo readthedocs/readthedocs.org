@@ -4,28 +4,28 @@ import fnmatch
 import logging
 import os
 import re
+from shlex import quote
 from urllib.parse import urlparse
 
 from allauth.socialaccount.providers import registry as allauth_registry
 from django.conf import settings
+from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import reverse, re_path
-from django.conf.urls import include
+from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.models import TimeStampedModel
 from django.views import defaults
-from shlex import quote
+from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
 from readthedocs.api.v2.client import api
-from readthedocs.builds.constants import LATEST, STABLE, INTERNAL, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.constants import pattern_opts
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import broadcast, slugify
-from readthedocs.constants import pattern_opts
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -33,9 +33,9 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
+    HTMLFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
-    HTMLFileQuerySet,
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
@@ -43,18 +43,16 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parse_json import process_file, process_mkdocs_index_file
+from readthedocs.search.parsers import MkDocsParser, SphinxParser
 from readthedocs.vcs_support.backends import backend_cls
 from readthedocs.vcs_support.utils import Lock, NonBlockingLock
 
-
 from .constants import (
-    MEDIA_TYPES,
-    MEDIA_TYPE_PDF,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -230,6 +228,15 @@ class Project(models.Model):
             'Google Analytics Tracking ID '
             '(ex. <code>UA-22345342-1</code>). '
             'This may slow down your page loads.',
+        ),
+    )
+    analytics_disabled = models.BooleanField(
+        _('Disable Analytics'),
+        default=False,
+        null=True,
+        help_text=_(
+            'Disable Google Analytics completely for this project '
+            '(requires rebuilding documentation)',
         ),
     )
     container_image = models.CharField(
@@ -1059,15 +1066,21 @@ class Project(models.Model):
         Return ``None`` if no update was made or if there is no version on the
         project that can be considered stable.
         """
+
+        # return immediately if the current stable is managed by the user and
+        # not automatically by Read the Docs (``machine=False``)
+        current_stable = self.get_stable_version()
+        if current_stable and not current_stable.machine:
+            return None
+
         versions = self.versions(manager=INTERNAL).all()
         new_stable = determine_stable_version(versions)
         if new_stable:
-            current_stable = self.get_stable_version()
             if current_stable:
                 identifier_updated = (
                     new_stable.identifier != current_stable.identifier
                 )
-                if identifier_updated and current_stable.machine:
+                if identifier_updated:
                     log.info(
                         'Update stable version: %(project)s:%(version)s',
                         {
@@ -1362,93 +1375,12 @@ class HTMLFile(ImportedFile):
 
     objects = HTMLFileManager.from_queryset(HTMLFileQuerySet)()
 
-    def get_processed_json_sphinx(self):
-        """
-        Get the parsed JSON for search indexing.
-
-        Check for two paths for each index file
-        This is because HTMLDir can generate a file from two different places:
-
-        * foo.rst
-        * foo/index.rst
-
-        Both lead to `foo/index.html`
-        https://github.com/rtfd/readthedocs.org/issues/5368
-        """
-        fjson_paths = []
-        basename = os.path.splitext(self.path)[0]
-        fjson_paths.append(basename + '.fjson')
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(new_basename + '.fjson')
-
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = self.project.get_storage_path(
-            type_='json', version_slug=self.version.slug, include_file=False
-        )
-        for fjson_path in fjson_paths:
-            try:
-                fjson_storage_path = storage.join(storage_path, fjson_path)
-                if storage.exists(fjson_storage_path):
-                    return process_file(fjson_storage_path)
-            except Exception:
-                log.warning(
-                    'Unhandled exception during search processing file: %s',
-                    fjson_path,
-                )
-
-        return {
-            'path': self.path,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
-    def get_processed_json_mkdocs(self):
-        log.debug('Processing mkdocs index')
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
-        storage_path = self.project.get_storage_path(
-            type_='html', version_slug=self.version.slug, include_file=False
-        )
-        try:
-            file_path = storage.join(storage_path, 'search/search_index.json')
-            if storage.exists(file_path):
-                index_data = process_mkdocs_index_file(file_path, page=self.path)
-                if index_data:
-                    return index_data
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file: %s',
-                file_path,
-            )
-        return {
-            'path': self.path,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
     def get_processed_json(self):
-        """
-        Get the parsed JSON for search indexing.
-
-        Returns a dictionary with the following structure.
-        {
-            'path': 'file path',
-            'title': 'Title',
-            'sections': [
-                {
-                    'id': 'section-anchor',
-                    'title': 'Section title',
-                    'content': 'Section content',
-                },
-            ],
-            'domain_data': {},
-        }
-        """
-        if self.version.is_sphinx_type:
-            return self.get_processed_json_sphinx()
-        return self.get_processed_json_mkdocs()
+        parser_class = (
+            SphinxParser if self.version.is_sphinx_type else MkDocsParser
+        )
+        parser = parser_class(self.version)
+        return parser.parse(self.path)
 
     @cached_property
     def processed_json(self):
@@ -1606,6 +1538,8 @@ class Feature(models.Model):
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
+    USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1718,6 +1652,14 @@ class Feature(models.Model):
         (
             DEDUPLICATE_BUILDS,
             _('Mark duplicated builds as NOOP to be skipped by builders'),
+        ),
+        (
+            USE_SPHINX_RTD_EXT_LATEST,
+            _('Use latest version of the Read the Docs Sphinx extension'),
+        ),
+        (
+            DEFAULT_TO_FUZZY_SEARCH,
+            _('Default to fuzzy search for simple search queries'),
         ),
     )
 
