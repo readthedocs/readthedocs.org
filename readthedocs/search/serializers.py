@@ -49,6 +49,7 @@ class PageSearchSerializer(serializers.Serializer):
 
     def get_link(self, obj):
         # TODO: optimize this to not query the db for each result.
+        # TODO: return an relative URL when this is called from the indoc search.
         project = Project.objects.filter(slug=obj.project).first()
         if project:
             return resolve(
