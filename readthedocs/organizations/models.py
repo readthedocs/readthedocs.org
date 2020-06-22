@@ -97,11 +97,13 @@ class Organization(models.Model):
         sso_users = User.objects.none()
         # TODO: find another way to check if we are under corporate site
         if settings.ALLOW_PRIVATE_REPOS:
-            from readthedocsinc.acl.sso.models import SSOIntegration
+            from readthedocsinc.acl.sso.models import SSOIntegration  # noqa
             if SSOIntegration.objects.filter(organization=self).exists():
                 # TODO: use RemoteRepository.remote_id instead of full_name
                 full_names = self.projects.values('remote_repository__full_name')
-                sso_users = User.objects.filter(oauth_repositories__full_name__in=full_names).distinct()
+                sso_users = User.objects.filter(
+                    oauth_repositories__full_name__in=full_names,
+                ).distinct()
 
         return (
             # Members
