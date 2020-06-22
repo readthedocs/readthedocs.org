@@ -18,4 +18,4 @@ pdbpp==0.10.2
 argh==0.26.2
 
 # run tests
-tox==3.15.0
+tox==3.15.2
