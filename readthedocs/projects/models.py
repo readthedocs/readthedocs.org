@@ -673,7 +673,9 @@ class Project(models.Model):
                 ),
                 # paths for redirects at the root
                 re_path(
-                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    '^{proxied_api_url}$'.format(
+                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
+                    ),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs_subpath_redirect'
                 ),
