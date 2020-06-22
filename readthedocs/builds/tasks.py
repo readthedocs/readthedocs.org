@@ -74,15 +74,6 @@ class TaskRouter:
             )
             return self.BUILD_LARGE_QUEUE
 
-        # Build time average is high
-        length_avg = queryset.filter(pk__in=last_builds).aggregate(Avg('length')).get('length__avg')
-        if length_avg and length_avg > self.TIME_AVERAGE:
-            log.info(
-                'Routing task because project has high time average. queue=%s',
-                self.BUILD_LARGE_QUEUE,
-            )
-            return self.BUILD_LARGE_QUEUE
-
         log.info('No routing task because no conditions were met.')
         return
 
