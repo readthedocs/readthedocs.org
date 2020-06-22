@@ -187,45 +187,45 @@
                         {{ result.project }} - {% if result.highlight.title %} {{ result.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
-                      {% for inner_hit in result.inner_hits %}
-                        {% if inner_hit.type == 'domain' %}
+                      {% for block in result.blocks %}
+                        {% if block.type == 'domain' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ inner_hit.id }}">
-                              {% if inner_hit.highlight.name %}
-                                {% with domain_name=inner_hit.highlight.name %}
-                                  [{{ inner_hit.role_name }}]: {{ domain_name.0|safe }}
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlight.name %}
+                                {% with domain_name=block.highlight.name %}
+                                  [{{ block.role }}]: {{ domain_name.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                [{{ inner_hit.role_name }}]: {{ inner_hit.name }}
+                                [{{ block.role }}]: {{ block.name }}
                               {% endif %}
                             </a>
                           </p>
                           <p class="fragment">
-                            {% if inner_hit.highlight.docstring %}
-                              {% with domain_docstrings=inner_hit.highlight.docstring %}
+                            {% if block.highlight.docstring %}
+                              {% with domain_docstrings=block.highlight.docstring %}
                                 {{ domain_docstrings.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {% if inner_hit.docstring %}
-                                {{ inner_hit.docstring|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% if block.docstring %}
+                                {{ block.docstring|slice:MAX_SUBSTRING_LIMIT }} ...
                               {% endif %}
                             {% endif %}
                           </p>
 
-                        {% elif inner_hit.type == 'section' %}
+                        {% elif block.type == 'section' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ inner_hit.id }}">
-                              {% if inner_hit.highlight.title %}
-                                {% with section_title=inner_hit.highlight.title %}
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlight.title %}
+                                {% with section_title=block.highlight.title %}
                                   {{ section_title.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                {{ inner_hit.title }}
+                                {{ block.title }}
                               {% endif %}
                             </a>
                           </p>
-                          {% if inner_hit.highlight.content %}
-                            {% with section_content=inner_hit.highlight.content %}
+                          {% if block.highlight.content %}
+                            {% with section_content=block.highlight.content %}
                               {% for content in section_content %}
                                 <p class="fragment">
                                   ... {{ content|safe }} ...
@@ -234,7 +234,7 @@
                             {% endwith %}
                           {% else %}
                             <p class="fragment">
-                              {{ inner_hit.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                             </p>
                           {% endif %}
                         {% endif %}

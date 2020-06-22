@@ -43,10 +43,9 @@ class PageSearchSerializer(serializers.Serializer):
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()
-    path = serializers.CharField(source='full_path')
     link = serializers.SerializerMethodField()
     highlight = PageHighlightSerializer(source='meta.highlight', default=dict)
-    inner_hits = serializers.SerializerMethodField()
+    blocks = serializers.SerializerMethodField()
 
     def get_link(self, obj):
         # TODO: optimize this to not query the db for each result.
@@ -59,7 +58,7 @@ class PageSearchSerializer(serializers.Serializer):
             )
         return None
 
-    def get_inner_hits(self, obj):
+    def get_blocks(self, obj):
         """Combine and sort inner results (domains and sections)."""
         serializers = {
             'domain': DomainSearchSerializer,
@@ -96,7 +95,7 @@ class DomainHighlightSerializer(serializers.Serializer):
     .. note::
 
        We override the `to_representation` method instead of declaring each field
-       becuase serializers don't play nice with keys that include `.`.
+       because serializers don't play nice with keys that include `.`.
     """
 
     def to_representation(self, instance):
@@ -109,7 +108,7 @@ class DomainHighlightSerializer(serializers.Serializer):
 class DomainSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='domain', source=None, read_only=True)
-    role_name = serializers.CharField(source='_source.role_name')
+    role = serializers.CharField(source='_source.role_name')
     name = serializers.CharField(source='_source.name')
     id = serializers.CharField(source='_source.anchor')
     docstring = serializers.CharField(source='_source.docstrings')
@@ -124,7 +123,7 @@ class SectionHighlightSerializer(serializers.Serializer):
     .. note::
 
        We override the `to_representation` method instead of declaring each field
-       becuase serializers don't play nice with keys that include `.`.
+       because serializers don't play nice with keys that include `.`.
     """
 
     def to_representation(self, instance):

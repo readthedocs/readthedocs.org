@@ -66,14 +66,6 @@ def elastic_search(request, project_slug=None):
         }
     )
 
-    serializers = collections.defaultdict(
-        lambda: ProjectSearchSerializer,
-        {
-            'project': ProjectSearchSerializer,
-            'file': PageSearchSerializer,
-        }
-    )
-
     results = []
     facets = {}
 
@@ -111,7 +103,12 @@ def elastic_search(request, project_slug=None):
         if value and value not in (val[0] for val in facets[facet]):
             facets[facet].insert(0, (value, 0, True))
 
-    results = serializers[user_input.type](results, many=True).data
+    serializers = {
+        'project': ProjectSearchSerializer,
+        'file': PageSearchSerializer,
+    }
+    serializer = serializers.get(user_input.type, ProjectSearchSerializer)
+    results = serializer(results, many=True).data
 
     template_vars = user_input._asdict()
     template_vars.update({

@@ -109,13 +109,13 @@ class TestPageSearch:
             highlight = result['highlight']['title']
 
         # if result is not from page title,
-        # then results and highlighted results are present inside 'inner_hits'
+        # then results and highlighted results are present inside 'blocks'
         else:
-            inner_hits = result['inner_hits']
-            assert len(inner_hits) >= 1
+            blocks = result['blocks']
+            assert len(blocks) >= 1
 
             # checking first inner_hit
-            inner_hit_0 = inner_hits[0]
+            inner_hit_0 = blocks[0]
             assert inner_hit_0['type'] == type
             highlight = inner_hit_0['highlight'][field]
 
@@ -210,11 +210,11 @@ class TestPageSearch:
         # in `signals` page
         assert len(new_results) == 1
         first_result = new_results[0]  # first result
-        inner_hits = first_result['inner_hits']  # inner_hits of first results
-        assert len(inner_hits) >= 1
-        inner_hit_0 = inner_hits[0]  # first inner_hit
+        blocks = first_result['blocks']  # blocks of first results
+        assert len(blocks) >= 1
+        inner_hit_0 = blocks[0]  # first inner_hit
         assert inner_hit_0['type'] == 'domain'
-        assert inner_hit_0['role_name'] == confval_facet
+        assert inner_hit_0['role'] == confval_facet
 
         for facet in new_role_names_facets:
             if facet[0] == confval_facet:
@@ -281,11 +281,11 @@ class TestPageSearch:
         # only one project
         assert len(results) == 1
         assert results[0]['project'] == 'kuma'
-        assert results[0]['path'] == 'documentation.html'
+        assert results[0]['link'] == 'http://readthedocs.org/docs/kuma/en/latest/documentation.html'
 
-        inner_hits = results[0]['inner_hits']
-        assert len(inner_hits) == 1
-        assert inner_hits[0]['type'] == 'section'
+        blocks = results[0]['blocks']
+        assert len(blocks) == 1
+        assert blocks[0]['type'] == 'section'
         highlight = self._get_highlight(results[0], 'content', 'section')
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
