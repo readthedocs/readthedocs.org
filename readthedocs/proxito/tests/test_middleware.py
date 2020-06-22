@@ -183,6 +183,22 @@ class MiddlewareURLConfTests(TestCase):
             '/proxito/media/html/pip/testing/foodex.html',
         )
 
+    def test_middleware_urlconf_redirects_subpath_root(self):
+        resp = self.client.get('/subpath/to/', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp['Location'],
+            'http://pip.dev.readthedocs.io/subpath/to/latest/en/',
+        )
+
+    def test_middleware_urlconf_redirects_root(self):
+        resp = self.client.get('/', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp['Location'],
+            'http://pip.dev.readthedocs.io/subpath/to/latest/en/',
+        )
+
     def test_middleware_urlconf_invalid(self):
         resp = self.client.get('/subpath/to/latest/index.html', HTTP_HOST=self.domain)
         self.assertEqual(resp.status_code, 404)

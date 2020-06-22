@@ -58,6 +58,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentWarning,
     BuildMaxConcurrencyError,
     BuildTimeoutError,
+    DuplicatedBuildError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -542,20 +543,35 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.commit = commit
             self.config = None
 
-            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-                response = api_v2.build.running.get(project__slug=self.project.slug)
-                builds_running = response.get('count', 0)
-                max_concurrent_builds = (
-                    self.project.max_concurrent_builds or
-                    settings.RTD_MAX_CONCURRENT_BUILDS
-                )
-                log.info(
-                    'Concurrent builds: max=%s running=%s project=%s',
-                    max_concurrent_builds,
-                    builds_running,
+            if self.build.get('status') == DuplicatedBuildError.status:
+                log.warning(
+                    'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
                     self.project.slug,
+                    self.version.slug,
+                    build_pk,
+                    self.commit,
                 )
-                if builds_running >= max_concurrent_builds:
+                return True
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                try:
+                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
+                    concurrency_limit_reached = response.get('limit_reached', False)
+                    max_concurrent_builds = response.get(
+                        'max_concurrent',
+                        settings.RTD_MAX_CONCURRENT_BUILDS,
+                    )
+                except Exception:
+                    log.exception(
+                        'Error while hitting/parsing API for concurrent limit checks from builder. '
+                        'project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+                    concurrency_limit_reached = False
+                    max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
+
+                if concurrency_limit_reached:
                     log.warning(
                         'Delaying tasks due to concurrency limit. project=%s version=%s',
                         self.project.slug,
@@ -1260,7 +1276,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 
 # Web tasks
-@app.task(queue='web')
+@app.task(queue='reindex')
 def fileify(version_pk, commit, build):
     """
     Create ImportedFile objects for all of a version's files.
@@ -1882,7 +1898,7 @@ def send_build_status(build_pk, commit, status):
 
         except RemoteRepository.DoesNotExist:
             log.warning(
-                'Project does not have a RemoteRepository. project= %s',
+                'Project does not have a RemoteRepository. project=%s',
                 build.project.slug,
             )
 
