@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """Objects for User permission checks."""
+from django.contrib.auth.models import User
+from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 
@@ -13,7 +15,7 @@ class AdminPermissionBase:
         from readthedocs.organizations.models import Organization
 
         if isinstance(obj, Project):
-            return project.users.all()
+            return obj.users.all()
 
         if isinstance(obj, Organization):
             return obj.owners.all()
@@ -24,7 +26,7 @@ class AdminPermissionBase:
         from readthedocs.organizations.models import Organization
 
         if isinstance(obj, Project):
-            return project.users.all()
+            return obj.users.all()
 
         if isinstance(obj, Organization):
             return User.objects.filter(
