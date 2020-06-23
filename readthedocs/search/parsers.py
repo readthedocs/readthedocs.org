@@ -473,6 +473,7 @@ class MkDocsParser(BaseParser):
     """
 
     def parse(self, page):
+        # Avoid circular import
         from readthedocs.projects.models import Feature
         if self.project.has_feature(Feature.INDEX_FROM_HTML_FILES):
             return self.parse_from_html(page)
