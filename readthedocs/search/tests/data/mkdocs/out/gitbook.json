@@ -1,0 +1,34 @@
+[
+  {
+    "path": "index.html",
+    "title": "Mkdocs - GitBook Theme",
+    "sections": [
+      {
+        "id": "mkdocs-gitbook-theme",
+        "title": "Mkdocs - GitBook Theme",
+        "content": ""
+      },
+      {
+        "id": "installation",
+        "title": "Installation",
+        "content": "First, install the package via PyPI: pip install mkdocs-gitbook Then include the theme in your mkdocs.yml file: theme: name: gitbook"
+      },
+      {
+        "id": "motivation",
+        "title": "Motivation",
+        "content": "Gitbook was a static-site generator written in JavaScript. Mkdocs is a static-site generator written in Python. Gitbook is no longer a static-site generator, nor does it use git, nor is it free or open source!"
+      },
+      {
+        "id": "screenshot",
+        "title": "Screenshot",
+        "content": ""
+      },
+      {
+        "id": "license",
+        "title": "License",
+        "content": "SPDX-License-Identifier: Apache-2.0"
+      }
+    ],
+    "domain_data": {}
+  }
+]
