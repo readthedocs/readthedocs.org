@@ -9,6 +9,7 @@ from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.utils import slugify
+from readthedocs.core.permissions import AdminPermission
 
 from . import constants
 from .managers import TeamManager, TeamMemberManager
@@ -90,6 +91,14 @@ class Organization(models.Model):
 
     def get_absolute_url(self):
         return reverse('organization_detail', args=(self.slug,))
+
+    @property
+    def users(self):
+        return AdminPermission.members(self)
+
+    @property
+    def members(self):
+        return AdminPermission.members(self)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.slug:
