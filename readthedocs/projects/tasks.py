@@ -234,11 +234,11 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions(version_repo)
+        self.sync_versions_api(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions(self, version_repo):
+    def sync_versions_api(self, version_repo):
         """
         Update tags/branches hitting the API.
 
@@ -431,7 +431,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.project.slug)
-            self.sync_versions(version_repo)
+            self.sync_versions_api(version_repo)
 
 
 @app.task(

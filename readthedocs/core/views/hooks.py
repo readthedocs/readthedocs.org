@@ -64,7 +64,7 @@ def build_branches(project, branch_list):
     return (to_build, not_building)
 
 
-def sync_versions(project):
+def trigger_sync_versions(project):
     """
     Sync the versions of a repo using its latest version.
 
