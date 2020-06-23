@@ -352,16 +352,18 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            # We will assume semver here and only automate up to the next
-            # backward incompatible release: 2.x
             requirements.extend([
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_LATEST,
-                    positive='sphinx<2',
+                    positive='sphinx',
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                'readthedocs-sphinx-ext<1.1',
+                self.project.get_feature_value(
+                    Feature.USE_SPHINX_RTD_EXT_LATEST,
+                    positive='readthedocs-sphinx-ext',
+                    negative='readthedocs-sphinx-ext<1.1',
+                ),
             ])
 
         cmd = copy.copy(pip_install_cmd)

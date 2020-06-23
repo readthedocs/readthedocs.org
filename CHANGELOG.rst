@@ -1,3 +1,22 @@
+Version 5.1.4
+-------------
+
+:Date: June 23, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: index from html files for mkdocs projects (`#7208 <https://github.com/readthedocs/readthedocs.org/pull/7208>`__)
+* `@stsewd <https://github.com/stsewd>`__:  Search: recursively parse sections (`#7207 <https://github.com/readthedocs/readthedocs.org/pull/7207>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: more general parser for html (`#7204 <https://github.com/readthedocs/readthedocs.org/pull/7204>`__)
+* `@humitos <https://github.com/humitos>`__: Use total_memory to calculate "time" Docker limit (`#7203 <https://github.com/readthedocs/readthedocs.org/pull/7203>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Feature flag for using latest Sphinx (`#7201 <https://github.com/readthedocs/readthedocs.org/pull/7201>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention that we don't index search in PR builds (`#7199 <https://github.com/readthedocs/readthedocs.org/pull/7199>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add a feature flag to use latest RTD Sphinx ext (`#7198 <https://github.com/readthedocs/readthedocs.org/pull/7198>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.3 (`#7197 <https://github.com/readthedocs/readthedocs.org/pull/7197>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve results for simple queries (`#7194 <https://github.com/readthedocs/readthedocs.org/pull/7194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor json parser (`#7184 <https://github.com/readthedocs/readthedocs.org/pull/7184>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused dep (`#7147 <https://github.com/readthedocs/readthedocs.org/pull/7147>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use theme release 0.5.0rc1 for docs (`#7037 <https://github.com/readthedocs/readthedocs.org/pull/7037>`__)
+* `@humitos <https://github.com/humitos>`__: Skip promoting new stable if current stable is not `machine=True` (`#6695 <https://github.com/readthedocs/readthedocs.org/pull/6695>`__)
+
 Version 5.1.3
 -------------
 

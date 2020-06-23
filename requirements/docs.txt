@@ -1,6 +1,6 @@
--r pip.txt
+# Packages required to build docs, independent of application dependencies
 
-# Base packages
+Sphinx==3.0.4
 
 # doctuils==0.15 produces this error
 #   File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
@@ -10,17 +10,14 @@
 # AttributeError: 'str' object has no attribute 'rawsource'
 docutils==0.14  # pyup: ignore
 
-sphinx_rtd_theme==0.4.3
+sphinx_rtd_theme==0.5.0rc2
 sphinx-tabs==1.1.13
-# Required to avoid Transifex error with reserved slug
-# https://github.com/sphinx-doc/sphinx-intl/pull/27
-git+https://github.com/agjohnson/sphinx-intl.git@7b5c66bdb30f872b3b1286e371f569c8dcb66de5#egg=sphinx-intl
+sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.0rc1
 
 # Test out hoverxref
 git+https://github.com/readthedocs/sphinx-hoverxref@master
-
 
 Pygments==2.6.1
 
@@ -34,3 +31,6 @@ sphinx-prompt==1.0.0
 sphinx-notfound-page==0.4
 commonmark==0.9.1
 recommonmark==0.6.0
+
+# Linting
+rstcheck==3.3.1
