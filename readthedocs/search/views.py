@@ -15,6 +15,8 @@ from readthedocs.search.faceted_search import (
     ProjectSearch,
 )
 
+from .serializers import PageSearchSerializer, ProjectSearchSerializer
+
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
 
@@ -64,7 +66,7 @@ def elastic_search(request, project_slug=None):
         }
     )
 
-    results = None
+    results = []
     facets = {}
 
     if user_input.query:
@@ -76,7 +78,9 @@ def elastic_search(request, project_slug=None):
                 filters[avail_facet] = value
 
         search = search_facets[user_input.type](
-            query=user_input.query, filters=filters, user=request.user,
+            query=user_input.query,
+            filters=filters,
+            user=request.user,
         )
         results = search[:50].execute()
         facets = results.facets
@@ -99,29 +103,12 @@ def elastic_search(request, project_slug=None):
         if value and value not in (val[0] for val in facets[facet]):
             facets[facet].insert(0, (value, 0, True))
 
-    if results:
-
-        # sorting inner_hits (if present)
-        if user_input.type == 'file':
-
-            try:
-                for result in results:
-                    inner_hits = result.meta.inner_hits
-                    sections = inner_hits.sections or []
-                    domains = inner_hits.domains or []
-                    all_results = itertools.chain(sections, domains)
-
-                    sorted_results = utils._get_sorted_results(
-                        results=all_results,
-                        source_key='source',
-                    )
-
-                    result.meta.inner_hits = sorted_results
-            except Exception:
-                log.exception('Error while sorting the results (inner_hits).')
-
-        log.debug('Search results: %s', results.to_dict())
-        log.debug('Search facets: %s', results.facets.to_dict())
+    serializers = {
+        'project': ProjectSearchSerializer,
+        'file': PageSearchSerializer,
+    }
+    serializer = serializers.get(user_input.type, ProjectSearchSerializer)
+    results = serializer(results, many=True).data
 
     template_vars = user_input._asdict()
     template_vars.update({
