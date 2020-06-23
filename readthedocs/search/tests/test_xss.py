@@ -8,7 +8,7 @@ from readthedocs.search.faceted_search import PageSearch
 class TestXSS:
 
     def test_facted_page_xss(self, client, project):
-        query = 'XSS'
+        query = '"XSS"'
         page_search = PageSearch(query=query)
         results = page_search.execute()
         expected = """
