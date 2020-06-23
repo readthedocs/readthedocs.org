@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.oauth.services import registry
+from readthedocs.oauth.services.base import SyncServiceError
 from readthedocs.projects.models import Project
 from readthedocs.organizations.models import Organization
 
@@ -86,10 +87,13 @@ class Command(BaseCommand):
                     remote.project = project
                     remote.save()
 
-                print(f'{project.slug: <40} {remote.pk: <10} {remote.html_url: <60} {remote.users.first().username: <20} {admin: <5}')
+                print(f'{project.slug: <40} {remote.pk: <10} {remote.html_url: <60} {remote.users.first().username: <20} {admin: <5}')  # noqa
         print('Total:', len(connected_projects))
         if not no_dry_run:
-            print('Changes WERE NOT applied to the database. Run it with --no-dry-run to save the changes.')
+            print(
+                'Changes WERE NOT applied to the database. '
+                'Run it with --no-dry-run to save the changes.'
+            )
 
     def handle(self, *args, **options):
         no_dry_run = options.get('no_dry_run')
