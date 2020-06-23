@@ -67,6 +67,11 @@ class RTDFacetedSearch(FacetedSearch):
           the results explicitly.
         - MultiMatch: Allows us to have more control over the results
           (like fuzziness) to provide a better experience for simple queries.
+
+        For valid options, see:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html  # noqa
         """
         if self.use_advanced_query or self._is_advanced_query(query):
             query_string = SimpleQueryString(
@@ -79,7 +84,8 @@ class RTDFacetedSearch(FacetedSearch):
                 query=query,
                 fields=fields,
                 operator=operator,
-                fuzziness="AUTO",
+                fuzziness="AUTO:4,6",
+                prefix_length=1,
             )
         return query_string
 
@@ -153,7 +159,7 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
 
-    _outer_fields = ['title^4']
+    _outer_fields = ['title^2']
     _section_fields = ['sections.title^3', 'sections.content']
     _domain_fields = [
         'domains.name^2',
