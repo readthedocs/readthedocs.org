@@ -150,7 +150,7 @@ class ProjectMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
-        self.build = get(Build, project=self.pip)
+        self.build = get(Build, project=self.pip, version=self.pip.versions.first())
         self.tag = get(Tag, slug='coolness')
         self.subproject = get(
             Project, slug='sub', language='ja',
@@ -352,7 +352,7 @@ class APIMixin(URLAccessMixin):
 
     def setUp(self):
         super().setUp()
-        self.build = get(Build, project=self.pip)
+        self.build = get(Build, project=self.pip, version=self.pip.versions.first())
         self.build_command_result = get(BuildCommandResult, build=self.build)
         self.domain = get(Domain, domain='docs.foobar.com', project=self.pip)
         self.social_account = get(SocialAccount)
