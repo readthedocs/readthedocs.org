@@ -17,6 +17,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_FINISHED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
+    BUILD_STATUS_RETRIGGERED
 )
 from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, DuplicatedBuildError
@@ -86,7 +87,7 @@ def prepare_build(
     :rtype: tuple
     """
     # Avoid circular import
-    from readthedocs.builds.models import Build, BuildCommandResult
+    from readthedocs.builds.models import Build
     from readthedocs.projects.models import Project, Feature
     from readthedocs.projects.tasks import (
         update_docs_task,
@@ -113,17 +114,12 @@ def prepare_build(
 
     if build:
         build.state = BUILD_STATE_TRIGGERED
+        build.status = BUILD_STATUS_RETRIGGERED
         build.success = True
         build.commit = commit
         build.commands.all().delete()
         build.save()
         kwargs['build_pk'] = build.pk
-
-        # Show a step in the UI that the build is being rebuilt
-        BuildCommandResult.objects.create(
-            build=build, command='Rebuilding build', exit_code=0,
-            start_time=datetime.utcnow(), end_time=datetime.utcnow(),
-        )
 
     if record and not build:
         build = Build.objects.create(
