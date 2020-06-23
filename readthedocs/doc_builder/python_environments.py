@@ -10,6 +10,8 @@ import os
 import shutil
 import yaml
 
+import docker
+
 from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
@@ -106,6 +108,7 @@ class PythonEnvironment:
                 '--upgrade-strategy',
                 'eager',
                 *self._pip_cache_cmd_argument(),
+                *self._pip_index_cmd_argument(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -122,6 +125,38 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def _pip_index_cmd_argument(self):
+        """Return ``--index-url`` to local devpi if using Docker Compose."""
+
+        def _get_devpi_container_ip():
+            client = self.build_env.get_client()
+            info = client.inspect_container(
+                getattr(settings, 'RTD_DOCKER_COMPOSE_DEVPI_CONTAINER', None),
+            )
+            networks = info.get('NetworkSettings').get('Networks')
+            return networks[list(networks.keys())[0]].get('Gateway')
+
+        if all([
+                getattr(settings, 'RTD_DOCKER_COMPOSE', None),
+                getattr(settings, 'RTD_DOCKER_COMPOSE_DEVPI_CONTAINER', None),
+        ]):
+            try:
+                ip = _get_devpi_container_ip()
+                if ip:
+                    return [
+                        '--index-url',
+                        f'http://{ip}:3141/root/pypi/+simple/',
+                        '--trusted-host',
+                        f'{ip}',
+                    ]
+            except docker.errors.NotFound:
+                log.info(
+                    'devpi container not found. container=%s',
+                    getattr(settings, 'RTD_DOCKER_COMPOSE_DEVPI_CONTAINER', None),
+                )
+
+        return []
 
     def _pip_cache_cmd_argument(self):
         """
@@ -323,6 +358,7 @@ class Virtualenv(PythonEnvironment):
             'install',
             '--upgrade',
             *self._pip_cache_cmd_argument(),
+            *self._pip_index_cmd_argument(),
         ]
 
         # Install latest pip first,
@@ -421,6 +457,7 @@ class Virtualenv(PythonEnvironment):
             args += [
                 '--exists-action=w',
                 *self._pip_cache_cmd_argument(),
+                *self._pip_index_cmd_argument(),
                 '-r',
                 requirements_file_path,
             ]
@@ -631,6 +668,7 @@ class Conda(PythonEnvironment):
             'install',
             '-U',
             *self._pip_cache_cmd_argument(),
+            *self._pip_index_cmd_argument(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(
