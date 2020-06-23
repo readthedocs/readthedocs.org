@@ -92,35 +92,6 @@ class Organization(models.Model):
     def get_absolute_url(self):
         return reverse('organization_detail', args=(self.slug,))
 
-    @property
-    def users(self):
-        sso_users = User.objects.none()
-        # TODO: find another way to check if we are under corporate site
-        if settings.ALLOW_PRIVATE_REPOS:
-            from readthedocsinc.acl.sso.models import SSOIntegration  # noqa
-            if SSOIntegration.objects.filter(organization=self).exists():
-                # TODO: use RemoteRepository.remote_id instead of full_name
-                full_names = self.projects.values('remote_repository__full_name')
-                sso_users = User.objects.filter(
-                    oauth_repositories__full_name__in=full_names,
-                ).distinct()
-
-        return (
-            # Members
-            self.members.all() |
-            # Owners
-            self.owners.all().distinct() |
-            # SSO Users
-            sso_users
-        ).distinct()
-
-    @property
-    def members(self):
-        """Return members as an aggregate over all organization teams."""
-        return User.objects.filter(
-            Q(teams__organization=self) | Q(owner_organizations=self),
-        ).distinct()
-
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.slug:
             self.slug = slugify(self.name)
