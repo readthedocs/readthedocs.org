@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -175,6 +174,7 @@ class ProjectExtraForm(ProjectForm):
     description = forms.CharField(
         validators=[ClassifierValidator(raises=ProjectSpamError)],
         required=False,
+        max_length=150,
         widget=forms.Textarea,
     )
 
@@ -190,7 +190,7 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
-class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, ProjectForm):
+class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
 
@@ -199,10 +199,11 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
         per_project_settings = (
             'default_version',
             'default_branch',
-            'privacy_level',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
+            'external_builds_enabled'
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -222,6 +223,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form
+        self.fields['analytics_disabled'].widget = forms.CheckboxInput()
+        self.fields['analytics_disabled'].empty_value = False
 
         self.helper = FormHelper()
         help_text = render_to_string(
@@ -258,6 +263,10 @@ class ProjectAdvancedForm(HideProtectedLevelMixin, ProjectTriggerBuildMixin, Pro
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        # Enable PR builder option on projects w/ feature flag
+        if not self.instance.has_feature(Feature.EXTERNAL_VERSION_BUILD):
+            self.fields.pop('external_builds_enabled')
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()

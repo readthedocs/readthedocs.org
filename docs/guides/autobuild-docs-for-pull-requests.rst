@@ -2,8 +2,26 @@ Autobuild Documentation for Pull Requests
 =========================================
 
 Read the Docs allows autobuilding documentation for pull/merge requests for GitHub or GitLab projects.
-This feature is currently available under a :doc:`Feature Flag </guides/feature-flags>`.
-So, you can enable this feature by sending us an `email <mailto:support@readthedocs.org>`__ including your project URL.
+You can enable it by: 
+
+.. tabs::
+
+   .. tab:: |org_brand|
+
+      You can turn PR builds on and off via an admin setting:
+
+      * Go to :guilabel:`Admin > Advanced settings`
+      * Enable the :guilabel:`Build pull requests for this project` option
+
+   .. tab:: |com_brand|
+
+      This feature is enabled by a feature flag currently in testing.
+      You can reach our support at support@readthedocs.com to ask for it to be enabled.
+
+      Once it is enabled you can turn it off and on by:
+
+      * Go to :guilabel:`Admin > Advanced settings`
+      * Enable the :guilabel:`Build pull requests for this project` option
 
 Features
 --------
@@ -28,6 +46,14 @@ Features
     :target: ../_static/images/guides/github-build-status-reporting.gif
 
     GitHub Build Status Reporting for Pull Requests
+
+Limitations
+-----------
+
+Currently we don't index search for pull request builds.
+Searches will default to the default experience for your tool.
+This is a feature we plan to add,
+but don't want to overwhelm our search indexes used in production.
 
 Troubleshooting
 ---------------

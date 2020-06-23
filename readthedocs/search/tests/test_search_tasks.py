@@ -6,8 +6,6 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from readthedocs.projects.models import Project
-from readthedocs.builds.models import Version
 from readthedocs.search.models import SearchQuery
 from readthedocs.search import tasks
 

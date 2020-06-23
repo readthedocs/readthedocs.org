@@ -1,3 +1,132 @@
+Version 5.1.4
+-------------
+
+:Date: June 23, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: index from html files for mkdocs projects (`#7208 <https://github.com/readthedocs/readthedocs.org/pull/7208>`__)
+* `@stsewd <https://github.com/stsewd>`__:  Search: recursively parse sections (`#7207 <https://github.com/readthedocs/readthedocs.org/pull/7207>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: more general parser for html (`#7204 <https://github.com/readthedocs/readthedocs.org/pull/7204>`__)
+* `@humitos <https://github.com/humitos>`__: Use total_memory to calculate "time" Docker limit (`#7203 <https://github.com/readthedocs/readthedocs.org/pull/7203>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Feature flag for using latest Sphinx (`#7201 <https://github.com/readthedocs/readthedocs.org/pull/7201>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention that we don't index search in PR builds (`#7199 <https://github.com/readthedocs/readthedocs.org/pull/7199>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add a feature flag to use latest RTD Sphinx ext (`#7198 <https://github.com/readthedocs/readthedocs.org/pull/7198>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.3 (`#7197 <https://github.com/readthedocs/readthedocs.org/pull/7197>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve results for simple queries (`#7194 <https://github.com/readthedocs/readthedocs.org/pull/7194>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor json parser (`#7184 <https://github.com/readthedocs/readthedocs.org/pull/7184>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused dep (`#7147 <https://github.com/readthedocs/readthedocs.org/pull/7147>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use theme release 0.5.0rc1 for docs (`#7037 <https://github.com/readthedocs/readthedocs.org/pull/7037>`__)
+* `@humitos <https://github.com/humitos>`__: Skip promoting new stable if current stable is not `machine=True` (`#6695 <https://github.com/readthedocs/readthedocs.org/pull/6695>`__)
+
+Version 5.1.3
+-------------
+
+:Date: June 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix the project migration conflict (`#7196 <https://github.com/readthedocs/readthedocs.org/pull/7196>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix pagination (`#7195 <https://github.com/readthedocs/readthedocs.org/pull/7195>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Document the fact that PR builds are now enabled on .org (`#7187 <https://github.com/readthedocs/readthedocs.org/pull/7187>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: make description shorter (`#7186 <https://github.com/readthedocs/readthedocs.org/pull/7186>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate private versions (`#7181 <https://github.com/readthedocs/readthedocs.org/pull/7181>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update sharing examples (`#7179 <https://github.com/readthedocs/readthedocs.org/pull/7179>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow projects to opt-out of analytics (`#7175 <https://github.com/readthedocs/readthedocs.org/pull/7175>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: install readthedocs-sphinx-search from pypi (`#7174 <https://github.com/readthedocs/readthedocs.org/pull/7174>`__)
+* `@humitos <https://github.com/humitos>`__: Rename API endpoint call (`#7173 <https://github.com/readthedocs/readthedocs.org/pull/7173>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Reduce logging in proxito middleware so it isn't in Sentry (`#7172 <https://github.com/readthedocs/readthedocs.org/pull/7172>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.2 (`#7171 <https://github.com/readthedocs/readthedocs.org/pull/7171>`__)
+* `@humitos <https://github.com/humitos>`__: Use `CharField.choices` for `Build.status_code` (`#7166 <https://github.com/readthedocs/readthedocs.org/pull/7166>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Store pageviews via signals, not tasks (`#7106 <https://github.com/readthedocs/readthedocs.org/pull/7106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Move organizations models (`#6776 <https://github.com/readthedocs/readthedocs.org/pull/6776>`__)
+
+Version 5.1.2
+-------------
+
+:Date: June 09, 2020
+
+* `@humitos <https://github.com/humitos>`__: Use `CharField.choices` for `Build.status_code` (`#7166 <https://github.com/readthedocs/readthedocs.org/pull/7166>`__)
+* `@humitos <https://github.com/humitos>`__: Install `argh` for Docker environment (`#7164 <https://github.com/readthedocs/readthedocs.org/pull/7164>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Reindex search on the `reindex` queue (`#7161 <https://github.com/readthedocs/readthedocs.org/pull/7161>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project search: Show original description when there isn't highlight (`#7160 <https://github.com/readthedocs/readthedocs.org/pull/7160>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: highlight results from projects (`#7158 <https://github.com/readthedocs/readthedocs.org/pull/7158>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix custom URLConf redirects (`#7155 <https://github.com/readthedocs/readthedocs.org/pull/7155>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allow `blank=True` for URLConf (`#7153 <https://github.com/readthedocs/readthedocs.org/pull/7153>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix flaky test (`#7148 <https://github.com/readthedocs/readthedocs.org/pull/7148>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Make total_results not null (`#7145 <https://github.com/readthedocs/readthedocs.org/pull/7145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: make external_builds_enabled not null (`#7144 <https://github.com/readthedocs/readthedocs.org/pull/7144>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Do not Pre-populate username field for account delete (`#7143 <https://github.com/readthedocs/readthedocs.org/pull/7143>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Add feature flag to use the stock Sphinx builders (`#7141 <https://github.com/readthedocs/readthedocs.org/pull/7141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Move changes_files to before search indexing (`#7138 <https://github.com/readthedocs/readthedocs.org/pull/7138>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito middleware: reset to original urlconf after request (`#7137 <https://github.com/readthedocs/readthedocs.org/pull/7137>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't index permalinks (`#7134 <https://github.com/readthedocs/readthedocs.org/pull/7134>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Merge pull request #7101 from readthedocs/show-last-total" (`#7133 <https://github.com/readthedocs/readthedocs.org/pull/7133>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.1 (`#7129 <https://github.com/readthedocs/readthedocs.org/pull/7129>`__)
+* `@humitos <https://github.com/humitos>`__: Use "-j auto" on sphinx-build command to build in parallel (`#7128 <https://github.com/readthedocs/readthedocs.org/pull/7128>`__)
+* `@humitos <https://github.com/humitos>`__: De-duplicate builds (`#7123 <https://github.com/readthedocs/readthedocs.org/pull/7123>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor API to not emulate a Django queryset (`#7114 <https://github.com/readthedocs/readthedocs.org/pull/7114>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Store pageviews via signals, not tasks (`#7106 <https://github.com/readthedocs/readthedocs.org/pull/7106>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: don't index line numbers from code blocks (`#7104 <https://github.com/readthedocs/readthedocs.org/pull/7104>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove usage of project.privacy_level (`#7013 <https://github.com/readthedocs/readthedocs.org/pull/7013>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#7012 <https://github.com/readthedocs/readthedocs.org/pull/7012>`__)
+* `@stsewd <https://github.com/stsewd>`__: Allow to enable server side search for MkDocs (`#6986 <https://github.com/readthedocs/readthedocs.org/pull/6986>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pass the NO_COLOR env var to builder (`#6981 <https://github.com/readthedocs/readthedocs.org/pull/6981>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrency in translations (`#6969 <https://github.com/readthedocs/readthedocs.org/pull/6969>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+
+Version 5.1.1
+-------------
+
+:Date: May 26, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: show total_results from last query (`#7101 <https://github.com/readthedocs/readthedocs.org/pull/7101>`__)
+* `@humitos <https://github.com/humitos>`__: Add a tip in EmbedAPI to use Sphinx reference in section (`#7099 <https://github.com/readthedocs/readthedocs.org/pull/7099>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.1.0 (`#7098 <https://github.com/readthedocs/readthedocs.org/pull/7098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@humitos <https://github.com/humitos>`__: Document Embed APIv2 endpoint (`#7095 <https://github.com/readthedocs/readthedocs.org/pull/7095>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a project-level configuration for PR builds (`#7090 <https://github.com/readthedocs/readthedocs.org/pull/7090>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add ability for users to set their own URLConf (`#6963 <https://github.com/readthedocs/readthedocs.org/pull/6963>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+* `@humitos <https://github.com/humitos>`__: GitLab Integration (`#3327 <https://github.com/readthedocs/readthedocs.org/pull/3327>`__)
+
+Version 5.1.0
+-------------
+
+:Date: May 19, 2020
+
+This release includes one major new feature which is Pageview Analytics.
+This allows projects to see the pages in their docs that have been viewed in the past 30 days,
+giving them an idea of what pages to focus on when updating them.
+
+This release also has a few small search improvements, doc updates, and other bugfixes as well.
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a setting for storing pageviews (`#7097 <https://github.com/readthedocs/readthedocs.org/pull/7097>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: Check for mkdocs doctype too (`#7094 <https://github.com/readthedocs/readthedocs.org/pull/7094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix the unresolver not working properly with root paths (`#7093 <https://github.com/readthedocs/readthedocs.org/pull/7093>`__)
+* `@stsewd <https://github.com/stsewd>`__: Privacy levels: migrate protected versions (`#7092 <https://github.com/readthedocs/readthedocs.org/pull/7092>`__)
+* `@humitos <https://github.com/humitos>`__: Guide for Embed API (`#7089 <https://github.com/readthedocs/readthedocs.org/pull/7089>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Document HSTS support (`#7083 <https://github.com/readthedocs/readthedocs.org/pull/7083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: record queries with 0 results (`#7081 <https://github.com/readthedocs/readthedocs.org/pull/7081>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: track total results (`#7080 <https://github.com/readthedocs/readthedocs.org/pull/7080>`__)
+* `@humitos <https://github.com/humitos>`__: Proxy embed URL (`#7079 <https://github.com/readthedocs/readthedocs.org/pull/7079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Little refactor (`#7076 <https://github.com/readthedocs/readthedocs.org/pull/7076>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Canonical/HTTPS redirect fix (`#7075 <https://github.com/readthedocs/readthedocs.org/pull/7075>`__)
+* `@santos22 <https://github.com/santos22>`__: Fix tests ahead of django-dynamic-fixture update (`#7073 <https://github.com/readthedocs/readthedocs.org/pull/7073>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx Search: don't skip indexing if one file fails (`#7071 <https://github.com/readthedocs/readthedocs.org/pull/7071>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: generate full link from the server side (`#7070 <https://github.com/readthedocs/readthedocs.org/pull/7070>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix PR builds being marked built (`#7069 <https://github.com/readthedocs/readthedocs.org/pull/7069>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a page about choosing between .com/.org (`#7068 <https://github.com/readthedocs/readthedocs.org/pull/7068>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.0.0 (`#7064 <https://github.com/readthedocs/readthedocs.org/pull/7064>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: Index more content from sphinx (`#7063 <https://github.com/readthedocs/readthedocs.org/pull/7063>`__)
+* `@santos22 <https://github.com/santos22>`__: Hide unbuilt versions in footer flyout (`#7056 <https://github.com/readthedocs/readthedocs.org/pull/7056>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor and simplify our docs (`#7052 <https://github.com/readthedocs/readthedocs.org/pull/7052>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search Document: remove unused class methods (`#7035 <https://github.com/readthedocs/readthedocs.org/pull/7035>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: iterate over valid facets only (`#7034 <https://github.com/readthedocs/readthedocs.org/pull/7034>`__)
+* `@stsewd <https://github.com/stsewd>`__: RTDFacetedSearch: pass filters in one way only (`#7032 <https://github.com/readthedocs/readthedocs.org/pull/7032>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Store Pageviews in DB (`#6121 <https://github.com/readthedocs/readthedocs.org/pull/6121>`__)
+
 Version 5.0.0
 -------------
 

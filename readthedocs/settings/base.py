@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring
 
-import getpass
+import logging
 import os
 import subprocess
+import socket
 
 from celery.schedules import crontab
 
@@ -18,6 +19,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
+log = logging.getLogger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -140,6 +142,7 @@ class CommunityBaseSettings(Settings):
 
             # our apps
             'readthedocs.projects',
+            'readthedocs.organizations',
             'readthedocs.builds',
             'readthedocs.core',
             'readthedocs.doc_builder',
@@ -350,7 +353,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-day-delete-old-page-views': {
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -440,7 +448,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 750, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
@@ -470,15 +478,21 @@ class CommunityBaseSettings(Settings):
 
         # Only run on our servers
         if self.RTD_IS_PRODUCTION:
-            memory_limit = self._get_docker_memory_limit()
+            total_memory, memory_limit = self._get_docker_memory_limit()
             if memory_limit:
                 limits = {
                     'memory': f'{memory_limit}m',
                     'time': max(
                         limits['time'],
-                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
                     )
                 }
+        log.info(
+            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
+            socket.gethostname(),
+            limits['memory'],
+            limits['time'],
+        )
         return limits
 
     # All auth

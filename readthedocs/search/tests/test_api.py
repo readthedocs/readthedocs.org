@@ -14,7 +14,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project, Feature
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
@@ -201,6 +201,18 @@ class BaseTestDocumentSearch:
         # There should be only 50 data as the pagination is 50 by default
         assert len(resp.data['results']) == 50
 
+        # Check for page 2
+        search_params['page'] = 2
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # Check the count is 61 (1 existing and 60 new created)
+        assert resp.data['count'] == 61
+        # We don't have more results after this page
+        assert resp.data['next'] is None
+        # There should be only the 11 left
+        assert len(resp.data['results']) == 11
+
         # Add `page_size` parameter and check the data is paginated accordingly
         search_params['page_size'] = 5
         resp = self.get_search(api_client, search_params)
@@ -273,9 +285,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, 'get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
-        """If there is a case where `get_all_projects` returns empty, we could be querying all projects."""
+        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project
@@ -438,6 +450,52 @@ class BaseTestDocumentSearch:
         result = resp.data['results'][0]
         assert result['project'] == project.slug
         assert result['link'].endswith('en/latest/guides/')
+
+    def test_search_advanced_query_detection(self, api_client):
+        project = Project.objects.get(slug='docs')
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
+        )
+        project.feature_set.add(feature)
+        project.save()
+        version = project.versions.all().first()
+
+        # Query with a typo should return results
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'indx',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
+        # Query with a typo, but we want to match that
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"indx"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 0
+
+        # Exact query still works
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"index"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):

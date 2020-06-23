@@ -99,7 +99,7 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, instance):
+    def to_representation(self, instance):  # pylint: disable=arguments-differ
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
         return instance
@@ -452,6 +452,7 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
 

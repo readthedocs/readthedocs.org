@@ -7,7 +7,6 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.builds.tasks import TaskRouter
 from readthedocs.projects.models import Project
 
-
 class TaskRouterTests(TestCase):
 
     def setUp(self):
@@ -67,12 +66,4 @@ class TaskRouterTests(TestCase):
     def test_no_build_pk(self):
         self.assertIsNone(
             self.router.route_for_task(self.task, self.args, {}),
-        )
-
-    def test_build_length_high_average(self):
-        high_length = TaskRouter.TIME_AVERAGE + 50
-        self.version.builds.update(length=high_length)
-        self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-            TaskRouter.BUILD_LARGE_QUEUE,
         )
