@@ -44,8 +44,13 @@ class BaseParser:
         body = self._clean_body(body)
 
         # Index content for pages that don't start with a title.
+        # We check for sections till 2 levels to avoid indexing all the content
+        # in this step.
         try:
-            content = self._parse_section_content(body.child)
+            content, _ = self._parse_section_content(
+                body.child,
+                depth=2,
+            )
             if content:
                 yield {
                     'id': '',
@@ -61,7 +66,7 @@ class BaseParser:
             for tag in tags:
                 try:
                     title, id = self._parse_section_title(tag)
-                    content = self._parse_section_content(tag.next)
+                    content, _ = self._parse_section_content(tag.next)
                     yield {
                         'id': id,
                         'title': title,
@@ -131,20 +136,39 @@ class BaseParser:
 
         return self._parse_content(tag.text()), section_id
 
-    def _parse_section_content(self, tag):
-        """Gets the content from tag till before a new section."""
+    def _parse_section_content(self, tag, *, depth=0):
+        """
+        Gets the content from tag till before a new section.
+
+        if depth > 0, recursively check for sections in all tag's children.
+
+        Returns a tuple with: the parsed content,
+        and a boolean indicating if a section was found.
+        """
         contents = []
+        section_found = False
+
         next_tag = tag
-        while next_tag and not self._is_section(next_tag):
+        while next_tag:
+            if section_found or self._is_section(next_tag):
+                section_found = True
+                break
+
             if self._is_code_section(next_tag):
                 content = self._parse_code_section(next_tag)
-            else:
+            elif depth <= 0 or not next_tag.child:
                 content = self._parse_content(next_tag.text())
+            else:
+                content, section_found = self._parse_section_content(
+                    tag=next_tag.child,
+                    depth=depth - 1
+                )
 
             if content:
                 contents.append(content)
             next_tag = next_tag.next
-        return ' '.join(contents)
+
+        return ' '.join(contents), section_found
 
     def _is_code_section(self, tag):
         """
