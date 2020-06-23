@@ -22,33 +22,114 @@ class BaseParser:
         self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     def _parse_content(self, content):
-        """Removes new line characters and posible anchors."""
-        content = content.replace('¶', '').strip()
-        content = content.split('\n')
+        """Removes new line characters and strips all whitespaces."""
+        content = content.strip().split('\n')
 
         # Convert all new lines to " "
         content = (text.strip() for text in content)
         content = ' '.join(text for text in content if text)
         return content
 
+    def _parse_sections(self, title, body):
+        """
+        Parses each section into a structured dict.
+
+        Sub-sections are nested, so they are children of the outer section,
+        and sections with the same level are neighbors.
+        We index the content under a section till before the next one.
+
+        We can have pages that have content before the first title or that don't have a title,
+        we index that content first under the title of the original page.
+        """
+        body = self._clean_body(body)
+
+        # Index content for pages that don't start with a title.
+        try:
+            content = self._parse_section_content(body.child)
+            if content:
+                yield {
+                    'id': '',
+                    'title': title,
+                    'content': content,
+                }
+        except Exception as e:
+            log.info('Unable to index section: %s', str(e))
+
+        # Index content from h1 to h6 headers.
+        for head_level in range(1, 7):
+            tags = body.css(f'h{head_level}')
+            for tag in tags:
+                try:
+                    title, id = self._parse_section_title(tag)
+                    content = self._parse_section_content(tag.next)
+                    yield {
+                        'id': id,
+                        'title': title,
+                        'content': content,
+                    }
+                except Exception as e:
+                    log.info('Unable to index section: %s', str(e))
+
+    def _clean_body(self, body):
+        """
+        Removes nodes with irrelevant content before parsing its sections.
+
+        .. warning::
+
+           This will mutate the original `body`.
+        """
+        # Remove all navigation nodes
+        nodes_to_be_removed = body.css('[role=navigation]')
+        for node in nodes_to_be_removed:
+            node.decompose()
+
+        return body
+
     def _is_section(self, tag):
-        """Check if `tag` is a section (linkeable header)."""
+        """
+        Check if `tag` is a section (linkeable header).
+
+        The tag is a section if:
+
+        - It's a ``h`` tag.
+        - It's a div with a ``section`` class.
+        """
+        is_header_tag = re.match(r'h\d$', tag.tag)
+        if is_header_tag:
+            return True
+
         is_div_section = (
             tag.tag == 'div' and
             'section' in tag.attributes.get('class', '').split()
         )
-        return is_div_section
+        if is_div_section:
+            return True
+
+        return False
 
     def _parse_section_title(self, tag):
         """
-        Parses a section title tag.
+        Parses a section title tag and gets its id.
 
-        - Removes the permalink value
+        The id (used to link to the section) is tested in the following order:
+
+        - Get the id from the node itself.
+        - Get the id from the parent node.
+
+        Additionally:
+
+        - Removes permalink values
         """
         nodes_to_be_removed = tag.css('a.headerlink')
         for node in nodes_to_be_removed:
             node.decompose()
-        return self._parse_content(tag.text())
+
+        section_id = tag.attributes.get('id', '')
+        if not section_id:
+            parent = tag.parent
+            section_id = parent.attributes.get('id', '')
+
+        return self._parse_content(tag.text()), section_id
 
     def _parse_section_content(self, tag):
         """Gets the content from tag till before a new section."""
@@ -200,11 +281,7 @@ class SphinxParser(BaseParser):
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
-                sections = self._generate_sections(
-                    page_title=title,
-                    body=body,
-                )
-                sections = list(sections)
+                sections = list(self._parse_sections(title=title, body=body.body))
             except Exception as e:
                 log.info('Unable to index sections for: %s', fjson_path)
 
@@ -224,22 +301,16 @@ class SphinxParser(BaseParser):
             'domain_data': domain_data,
         }
 
-    def _generate_sections(self, page_title, body):
+    def _clean_body(self, body):
         """
-        Generates section dicts for each section for Sphinx.
+        Removes sphinx domain nodes.
 
-        In Sphinx sub-sections are nested, so they are children of the outer section,
-        and sections with the same level are neighbors.
-        We index the content under a section till before the next one.
-
-        We can have pages that have content before the first title or that don't have a title,
-        we index that content first under the title of the original page (`page_title`).
-
-        Contents that are likely to be a sphinx domain are deleted,
-        since we already index those in another step.
+        This method is overriden to remove contents that are likely
+        to be a sphinx domain (`dl` tags).
+        We already index those in another step.
         """
+        body = super()._clean_body(body)
 
-        # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
         nodes_to_be_removed = []
 
         # remove all <dl> tags which contains <dt> tags having 'id' attribute
@@ -249,6 +320,7 @@ class SphinxParser(BaseParser):
             if parent.tag == 'dl':
                 nodes_to_be_removed.append(parent)
 
+        # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
 
@@ -256,29 +328,7 @@ class SphinxParser(BaseParser):
         for node in nodes_to_be_removed:
             node.decompose()
 
-        # Index content for pages that don't start with a title.
-        content = self._parse_section_content(body.body.child)
-        if content:
-            yield {
-                'id': '',
-                'title': page_title,
-                'content': content,
-            }
-
-        # Index content from h1 to h6 headers.
-        for head_level in range(1, 7):
-            tags = body.css(f'.section > h{head_level}')
-            for tag in tags:
-                title = self._parse_section_title(tag)
-
-                div = tag.parent
-                section_id = div.attributes.get('id', '')
-
-                yield {
-                    'id': section_id,
-                    'title': title,
-                    'content': self._parse_section_content(tag.next),
-                }
+        return body
 
     def _generate_domains_data(self, body):
         """
