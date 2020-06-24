@@ -1,0 +1,216 @@
+Better Integration with Server Side Search
+==========================================
+
+Read the Docs provides :doc:`server side search (SSS) </server-side-search>`
+in replace of the default search engine of your site.
+To accomplish this, Read the Docs parses the content directly from your HTML pages [*]_.
+
+If you are the author of a theme or a static site generator you can read the next document,
+and follow some conventions in order to improve the integration of SSS with your theme/site.
+
+Indexing
+--------
+
+In general, the indexing process happens in three steps:
+
+1. Identify the main content node.
+2. Remove any irrelevant content from the main node.
+3. Parse all sections inside the main node.
+
+Read the Docs makes use of ARIA_ roles and other heuristics in order to process the content.
+
+.. tip::
+
+   Following the ARIA_ conventions will also improve the accessibility of your site.
+
+.. _ARIA: https://www.w3.org/TR/wai-aria/
+
+Main content node
+~~~~~~~~~~~~~~~~~
+
+The main content node should have a main role, and should only exists one per page.
+This node is the one that contains all the page content. Example:
+
+.. code-block:: html
+   :emphasize-lines: 10-12
+
+   <html>
+      <head>
+         ...
+      <head>
+      <body>
+         <div>
+            ...
+         </div>
+
+         <div role="main">
+            ...
+         </div>
+
+         <footer>
+            ...
+         </footer>
+      </body>
+   </html>
+
+Irrelevant content
+~~~~~~~~~~~~~~~~~~
+
+If you have content inside the main node that isn't relevant to the page
+(like navigation items, menus, or search box),
+make sure to use the correct role for it.
+Read the Docs will ignore nodes with the following roles:
+
+- ``navigation``
+- ``search``
+
+Example:
+
+.. code-block:: html
+   :emphasize-lines: 3-5
+
+   <div role="main">
+      ...
+      <nav role="navigation">
+         ...
+      </nav>
+      ...
+   </div>
+
+Sections
+~~~~~~~~
+
+Sections are ``h`` tags, and sections of the same level should be neighbors.
+Additionally, sections should have an unique id attribute per page (this is used to link to the section).
+All content bellow the section, till the new section will be indexed as part of the section. Example:
+
+.. code-block:: html
+   :emphasize-lines: 2-10
+
+   <div role="main">
+      <h1 id="section-title">
+         Section title
+      </h1>
+      <p>
+         Content to be indexed
+      </p>
+      <ul>
+         <li>This is also part of the section</li>
+      </ul>
+
+      <h2 id="2">
+         This is the start of a new section
+      </h2>
+      <p>
+         ...
+      </p>
+
+      ...
+
+      <h1 id="3">
+         ...
+      </h1>
+      <p>
+         ...
+      </p>
+   </div>
+
+Sections can also be wrapped till two levels, and it's parent can contain the id attribute.
+Note that the section content still needs to be bellow the ``h`` tag. Example:
+
+.. code-block:: html
+   :emphasize-lines: 2-12,14-23
+
+   <div role="main">
+      <div class="section">
+         <h1 id="section-title">
+            Section title
+         </h1>
+         <p>
+            Content to be indexed
+         </p>
+         <ul>
+            <li>This is also part of the section</li>
+         </ul>
+      </div>
+
+      <div class="section">
+         <div id="another-section">
+            <h2>
+               This is the start of a new section
+            </h2>
+            <p>
+               ...
+            </p>
+         </div>
+      </div>
+   </div>
+
+Other special nodes
+~~~~~~~~~~~~~~~~~~~
+
+- **Anchors**: If the title of your section contains an anchor, wrap it in a ``headerlink`` class,
+  so it won't be indexed as part of the title.
+
+.. code-block:: html
+   :emphasize-lines: 3
+
+   <h2>
+      Section title
+      <a class="headerlink" title="Permalink to this headline">¶</a>
+   </h2>
+
+- **Code blocks**: If a code block contains line numbers,
+  wrap them in a ``linenos`` or ``lineno`` class,
+  so they won't be indexed as part of the code.
+
+.. code-block:: html
+   :emphasize-lines: 3-7
+
+   <table class="highlighttable">
+      <tr>
+         <td class="linenos">
+            <div class="linenodiv">
+               <pre>1 2 3</pre>
+            </div>
+         </td>
+
+         <td class="code">
+            <div class="highlight">
+               <pre>First line
+   Second line
+   Third line</pre>
+            </div>
+         </td>
+      </tr>
+   </table>
+
+Overriding the default search
+-----------------------------
+
+Static sites usually have their own static index and search results are retrieved via JavaScript.
+In order for Read the Docs to override the default search as expected,
+themes from the supported generators must follow these conventions.
+
+Sphinx
+~~~~~~
+
+
+MkDocs
+~~~~~~
+
+Supporting more themes and static site generators
+-------------------------------------------------
+
+Currently, Read the Docs supports building documentation from
+:doc:`Sphinx </intro/getting-started-with-sphinx>` and :doc:`MkDocs </intro/getting-started-with-mkdocs>`.
+All themes that follow these conventions should work as expected.
+If you think other generators or other conventions should be supported,
+or content that should be ignored or have an especial treatment,
+or if you found an error with our indexing,
+let us know in `our issue tracker`_.
+
+.. _our issue tracker: https://github.com/readthedocs/readthedocs.org/issues/
+
+.. [*] For Sphinx projects, the main content is obtained from an intermediate step in the build process,
+       but the HTML components from the main content are preserved.
