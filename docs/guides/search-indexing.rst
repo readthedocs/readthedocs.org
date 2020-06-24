@@ -11,7 +11,8 @@ and follow some conventions in order to improve the integration of SSS with your
 Indexing
 --------
 
-In general, the indexing process happens in three steps:
+The content of the page is parsed into sections,
+in general, the indexing process happens in three steps:
 
 1. Identify the main content node.
 2. Remove any irrelevant content from the main node.
@@ -22,6 +23,7 @@ Read the Docs makes use of ARIA_ roles and other heuristics in order to process 
 .. tip::
 
    Following the ARIA_ conventions will also improve the accessibility of your site.
+   See also https://webaim.org/techniques/semanticstructure/
 
 .. _ARIA: https://www.w3.org/TR/wai-aria/
 
@@ -119,7 +121,7 @@ Sections can also be wrapped till two levels, and it's parent can contain the id
 Note that the section content still needs to be bellow the ``h`` tag. Example:
 
 .. code-block:: html
-   :emphasize-lines: 2-12,14-23
+   :emphasize-lines: 3-11,13-22
 
    <div role="main">
       <div class="section">
@@ -132,19 +134,24 @@ Note that the section content still needs to be bellow the ``h`` tag. Example:
          <ul>
             <li>This is also part of the section</li>
          </ul>
-      </div>
 
-      <div class="section">
-         <div id="another-section">
-            <h2>
-               This is the start of a new section
-            </h2>
-            <p>
-               ...
-            </p>
+         <div class="section">
+            <div id="another-section">
+               <h2>
+                  This is the start of a sub-section
+               </h2>
+               <p>
+                  With the h tag within two levels
+               </p>
+            </div>
          </div>
       </div>
    </div>
+
+.. note::
+
+   The title of the first section will be the title of the page,
+   falling back to the ``title`` tag.
 
 Other special nodes
 ~~~~~~~~~~~~~~~~~~~
@@ -188,13 +195,49 @@ Other special nodes
 Overriding the default search
 -----------------------------
 
-Static sites usually have their own static index and search results are retrieved via JavaScript.
+Static sites usually have their own static index,
+and search results are retrieved via JavaScript.
 In order for Read the Docs to override the default search as expected,
 themes from the supported generators must follow these conventions.
+
+.. note::
+
+   Read the Docs will fallback to the original search in case of an error or no results.
 
 Sphinx
 ~~~~~~
 
+Sphinx's basic theme provides the `static/searchtools.js`_ file,
+which initializes search with the ``Search.init()`` method.
+Read the Docs overrides the ``Search.query`` method and makes use of ``Search.output.append`` to add the results.
+A simplified example looks like this:
+
+.. _`static/searchtools.js`: https://github.com/sphinx-doc/sphinx/blob/275d9/sphinx/themes/basic/static/searchtools.js
+
+.. code-block:: js
+
+   var original_search = Search.query;
+
+   function search_override(query) {
+      var results = fetch_resuls(query);
+      if (results) {
+         for (var i = 0; i < results.length; i += 1) {
+            var result = process_result(results[i]);
+            Search.output.append(result);
+         }
+      } else {
+         original_search(query);
+      }
+   }
+
+   Search.query = search_override;
+
+   $(document).ready(function() {
+      Search.init();
+   });
+
+Highlights from results will be in a ``span`` tag with the ``highlighted`` class.
+If your theme works with the search from the basic theme, it will work with Read the Docs' SSS.
 
 MkDocs
 ~~~~~~
