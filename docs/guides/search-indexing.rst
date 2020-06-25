@@ -272,7 +272,15 @@ A simplified example looks like this:
       }
    }
 
+   function init_override = function () {
+      var search_input = document.getElementById('mkdocs-search-query');
+      search_input.addEventListener('keyup', doSearch);
+   };
+
    window.doSearch = search_override;
+   window.initSearch = init_override;
+
+   initSearch();
 
 Highlights from results will be in a ``mark`` tag.
 If your theme works with the search plugin of MkDocs,
