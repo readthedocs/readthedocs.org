@@ -23,14 +23,14 @@ Read the Docs makes use of ARIA_ roles and other heuristics in order to process 
 .. tip::
 
    Following the ARIA_ conventions will also improve the accessibility of your site.
-   See also https://webaim.org/techniques/semanticstructure/
+   See also https://webaim.org/techniques/semanticstructure/.
 
 .. _ARIA: https://www.w3.org/TR/wai-aria/
 
 Main content node
 ~~~~~~~~~~~~~~~~~
 
-The main content node should have a main role, and should only exists one per page.
+The main content node should have a main role (or a ``main`` tag), and should exists only one per page.
 This node is the one that contains all the page content. Example:
 
 .. code-block:: html
@@ -212,8 +212,6 @@ which initializes search with the ``Search.init()`` method.
 Read the Docs overrides the ``Search.query`` method and makes use of ``Search.output.append`` to add the results.
 A simplified example looks like this:
 
-.. _`static/searchtools.js`: https://github.com/sphinx-doc/sphinx/blob/275d9/sphinx/themes/basic/static/searchtools.js
-
 .. code-block:: js
 
    var original_search = Search.query;
@@ -239,8 +237,58 @@ A simplified example looks like this:
 Highlights from results will be in a ``span`` tag with the ``highlighted`` class.
 If your theme works with the search from the basic theme, it will work with Read the Docs' SSS.
 
+.. _`static/searchtools.js`: https://github.com/sphinx-doc/sphinx/blob/275d9/sphinx/themes/basic/static/searchtools.js
+
 MkDocs
 ~~~~~~
+
+Search on MkDocs is provided by the `search plugin`_, which is included (and activated) by default in MkDocs.
+The js part of this plugin is included in the `templates/search/main.js`_ file,
+which subscribes to the ``keyup`` event of the ``#mkdocs-search-query`` element
+to call the ``doSearch`` function (available on MkDocs >= 1.x) on every key press.
+
+Read the Docs overrides the ``initSearch`` and ``doSearch`` functions
+to subscribe to the ``keyup`` event of the ``#mkdocs-search-query`` element,
+and puts the results into the ``#mkdocs-search-results`` element.
+A simplified example looks like this:
+
+.. code-block:: js
+
+   var original_search = doSearch;
+
+   function search_override() {
+      var query = document.getElementById('mkdocs-search-query').value;
+      var search_results = document.getElementById('mkdocs-search-results');
+
+      var results = fetch_resuls(query);
+      if (results) {
+         empty_results(search_results)
+         for (var i = 0; i < results.length; i += 1) {
+            var result = process_result(results[i]);
+            append_result(result, search_results);
+         }
+      } else {
+         original_search();
+      }
+   }
+
+   window.doSearch = search_override;
+
+Highlights from results will be in a ``mark`` tag.
+If your theme works with the search plugin of MkDocs,
+and defines the ``#mkdocs-search-query`` and ``#mkdocs-search-results`` elements,
+it will work with Read the Docs' SSS.
+
+.. note::
+
+   Since the ``templates/search/main.js`` file is included after our custom search,
+   it will subscribe to the ``keyup`` event too, triggering both functions when a key is pressed
+   (but ours should be have more precedence).
+   This can be fixed by not including the ``search`` plugin (you won't be able to fallback to the original search),
+   or by creating a custom plugin to inlude our search at the end (this should be done by Read the Docs).
+
+.. _`search plugin`: https://www.mkdocs.org/user-guide/configuration/#search
+.. _`templates/search/main.js`: https://github.com/mkdocs/mkdocs/blob/ff0b72/mkdocs/contrib/search/templates/search/main.js
 
 Supporting more themes and static site generators
 -------------------------------------------------
@@ -255,5 +303,5 @@ let us know in `our issue tracker`_.
 
 .. _our issue tracker: https://github.com/readthedocs/readthedocs.org/issues/
 
-.. [*] For Sphinx projects, the main content is obtained from an intermediate step in the build process,
-       but the HTML components from the main content are preserved.
+.. [*] For Sphinx projects, the content of the main node is provided by an intermediate step in the build process,
+       but the HTML components from the node are preserved.
