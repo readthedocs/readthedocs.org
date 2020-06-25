@@ -4,7 +4,13 @@ from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.faceted_search import NestedFacet
-from elasticsearch_dsl.query import Bool, MultiMatch, Nested, SimpleQueryString
+from elasticsearch_dsl.query import (
+    Bool,
+    FunctionScore,
+    MultiMatch,
+    Nested,
+    SimpleQueryString,
+)
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
@@ -182,7 +188,11 @@ class PageSearchBase(RTDFacetedSearch):
         return s.hits.total
 
     def query(self, search, query):
-        """Manipulates query to support nested query."""
+        """
+        Manipulates the query to support nested queries and a custom rank for pages.
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-function-score-query.html#function-field-value-factor  # noqa
+        """
         search = search.highlight_options(**self._highlight_options)
 
         all_queries = []
@@ -229,9 +239,15 @@ class PageSearchBase(RTDFacetedSearch):
         )
 
         all_queries.extend([sections_nested_query, domains_nested_query])
-        final_query = Bool(should=all_queries)
-        search = search.query(final_query)
 
+        final_query = FunctionScore(
+            query=Bool(should=all_queries),
+            field_value_factor={
+                'field': 'rank',
+                'missing': 1,
+            },
+        )
+        search = search.query(final_query)
         return search
 
     def generate_nested_query(self, query, path, fields, inner_hits):

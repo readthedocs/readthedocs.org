@@ -2,13 +2,13 @@ import os
 import shutil
 from os.path import exists
 from tempfile import mkdtemp
+from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
 from django_dynamic_fixture import get
 from messages_extends.models import Message
-from unittest.mock import MagicMock, patch
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
@@ -17,6 +17,7 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import Build, Version
+from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import VersionLockedError
 from readthedocs.oauth.models import RemoteRepository
@@ -327,7 +328,8 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None, build=1)
+        config = BuildConfigV2({}, {}, 'readthedocs.yaml')
+        tasks.fileify(version_pk=345343, commit=None, build=1, config=config)
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')

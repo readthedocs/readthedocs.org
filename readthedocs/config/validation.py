@@ -2,12 +2,12 @@
 
 import os
 
-
 INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'
 INVALID_LIST = 'invalid-list'
 INVALID_DICT = 'invalid-dictionary'
 INVALID_PATH = 'invalid-path'
+INVALID_PATH_PATTERN = 'invalid-path-pattern'
 INVALID_STRING = 'invalid-string'
 VALUE_NOT_FOUND = 'value-not-found'
 
@@ -21,6 +21,7 @@ class ValidationError(Exception):
         INVALID_CHOICE: 'expected one of ({choices}), got {value}',
         INVALID_DICT: '{value} is not a dictionary',
         INVALID_PATH: 'path {value} does not exist',
+        INVALID_PATH_PATTERN: '{value} isn\'t a valid path pattern',
         INVALID_STRING: 'expected string',
         INVALID_LIST: 'expected list',
         VALUE_NOT_FOUND: '{value} not found',
@@ -82,6 +83,18 @@ def validate_path(value, base_path):
     full_path = os.path.join(base_path, string_value)
     rel_path = os.path.relpath(full_path, base_path)
     return rel_path
+
+
+def validate_path_pattern(value):
+    path = validate_string(value)
+    path = '/' + path.lstrip('/')
+    path = os.path.normpath(path)
+    if not os.path.isabs(path):
+        raise ValidationError(value, INVALID_PATH_PATTERN)
+    path = path.lstrip('/')
+    if not path:
+        raise ValidationError(value, INVALID_PATH_PATTERN)
+    return path
 
 
 def validate_string(value):

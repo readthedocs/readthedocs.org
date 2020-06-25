@@ -57,6 +57,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     version = fields.KeywordField(attr='version.slug')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
+    rank = fields.FloatField()
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
@@ -91,6 +92,41 @@ class PageDocument(RTDDocTypeMixin, DocType):
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
+
+    def prepare_rank(self, html_file):
+        """
+        Maps the page rank to a value that is expected by ES.
+
+        ES expects a rank to be a number greater than 0,
+        but the user can set this between [-10, +10].
+        We map that range to [0.01, 2] (21 possible values).
+        """
+        ranks = [
+            0.01,
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7,
+            0.8,
+            0.9,
+            1,
+            1.1,
+            1.2,
+            1.3,
+            1.4,
+            1.5,
+            1.6,
+            1.7,
+            1.8,
+            1.9,
+            2,
+        ]
+        if html_file.rank is None or not (-10 <= html_file.rank <= 10):
+            return 1
+        return ranks[html_file.rank + 10]
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""

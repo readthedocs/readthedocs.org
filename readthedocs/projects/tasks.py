@@ -16,6 +16,7 @@ import socket
 import tarfile
 import tempfile
 from collections import Counter, defaultdict
+from fnmatch import fnmatch
 
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
@@ -86,7 +87,6 @@ from .signals import (
     domain_verify,
     files_changed,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -1135,6 +1135,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             version_pk=self.version.pk,
             commit=self.build['commit'],
             build=self.build['id'],
+            config=self.config,
         )
 
     def setup_python_environment(self):
@@ -1277,7 +1278,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build):
+def fileify(version_pk, commit, build, config):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1311,7 +1312,12 @@ def fileify(version_pk, commit, build):
         },
     )
     try:
-        changed_files = _create_imported_files(version, commit, build)
+        changed_files = _create_imported_files(
+            version=version,
+            commit=commit,
+            build=build,
+            config=config,
+        )
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
@@ -1488,7 +1494,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, commit, build):
+def _create_imported_files(*, version, commit, build, config):
     """
     Create imported files for version.
 
@@ -1547,6 +1553,15 @@ def _create_imported_files(version, commit, build):
                         version_slug=version.slug,
                     ),
                 )
+
+            page_rank = 0
+            # Last pattern to match takes precedence
+            reverse_rankings = reversed(list(config.search.ranking.items()))
+            for pattern, rank in reverse_rankings:
+                if fnmatch(relpath, pattern):
+                    page_rank = rank
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1554,6 +1569,7 @@ def _create_imported_files(version, commit, build):
                 path=relpath,
                 name=filename,
                 md5=md5,
+                rank=page_rank,
                 commit=commit,
                 build=build,
             )
