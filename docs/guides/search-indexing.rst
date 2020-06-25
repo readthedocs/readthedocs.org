@@ -122,7 +122,7 @@ and its immediate parent can contain the ``id`` attribute.
 Note that the section content still needs to be bellow the ``h`` tag. Example:
 
 .. code-block:: html
-   :emphasize-lines: 3-11,13-22
+   :emphasize-lines: 3-11,14-21
 
    <div role="main">
       <div class="section">
