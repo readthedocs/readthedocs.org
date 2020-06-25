@@ -14,9 +14,9 @@ Indexing
 The content of the page is parsed into sections,
 in general, the indexing process happens in three steps:
 
-1. Identify the main content node.
-2. Remove any irrelevant content from the main node.
-3. Parse all sections inside the main node.
+#. Identify the main content node.
+#. Remove any irrelevant content from the main node.
+#. Parse all sections inside the main node.
 
 Read the Docs makes use of ARIA_ roles and other heuristics in order to process the content.
 
@@ -42,15 +42,15 @@ This node is the one that contains all the page content. Example:
       </head>
       <body>
          <div>
-            ...
+            This content isn't processed
          </div>
 
          <div role="main">
-            ...
+            All content inside the main node is processed
          </div>
 
          <footer>
-            ...
+            This content isn't processed
          </footer>
       </body>
    </html>
@@ -83,7 +83,7 @@ Sections
 ~~~~~~~~
 
 Sections are ``h`` tags, and sections of the same level should be neighbors.
-Additionally, sections should have an unique id attribute per page (this is used to link to the section).
+Additionally, sections should have an unique ``id`` attribute per page (this is used to link to the section).
 All content bellow the section, till the new section will be indexed as part of the section. Example:
 
 .. code-block:: html
@@ -117,7 +117,8 @@ All content bellow the section, till the new section will be indexed as part of 
       </p>
    </div>
 
-Sections can also be wrapped till two levels, and it's parent can contain the id attribute.
+Sections can also be wrapped till two levels (and have nested sections),
+and its immediate parent can contain the ``id`` attribute.
 Note that the section content still needs to be bellow the ``h`` tag. Example:
 
 .. code-block:: html
@@ -136,7 +137,7 @@ Note that the section content still needs to be bellow the ``h`` tag. Example:
          </ul>
 
          <div class="section">
-            <div id="another-section">
+            <div id="nested-section">
                <h2>
                   This is the start of a sub-section
                </h2>
@@ -234,7 +235,8 @@ A simplified example looks like this:
       Search.init();
    });
 
-Highlights from results will be in a ``span`` tag with the ``highlighted`` class.
+Highlights from results will be in a ``span`` tag with the ``highlighted`` class
+(``This is a <span class="highlighted">result</span>``).
 If your theme works with the search from the basic theme, it will work with Read the Docs' SSS.
 
 .. _`static/searchtools.js`: https://github.com/sphinx-doc/sphinx/blob/275d9/sphinx/themes/basic/static/searchtools.js
@@ -282,7 +284,7 @@ A simplified example looks like this:
 
    initSearch();
 
-Highlights from results will be in a ``mark`` tag.
+Highlights from results will be in a ``mark`` tag (``This is a <mark>result</mark>``).
 If your theme works with the search plugin of MkDocs,
 and defines the ``#mkdocs-search-query`` and ``#mkdocs-search-results`` elements,
 it will work with Read the Docs' SSS.
