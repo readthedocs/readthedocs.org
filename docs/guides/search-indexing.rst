@@ -39,7 +39,7 @@ This node is the one that contains all the page content. Example:
    <html>
       <head>
          ...
-      <head>
+      </head>
       <body>
          <div>
             ...
@@ -97,7 +97,7 @@ All content bellow the section, till the new section will be indexed as part of 
          Content to be indexed
       </p>
       <ul>
-         <li>This is also part of the section</li>
+         <li>This is also part of the section and will be indexed as well</li>
       </ul>
 
       <h2 id="2">
@@ -109,8 +109,8 @@ All content bellow the section, till the new section will be indexed as part of 
 
       ...
 
-      <h1 id="3">
-         ...
+      <h1 id="neigbor-section">
+         This section is neighbor of "section-title"
       </h1>
       <p>
          ...
@@ -291,9 +291,9 @@ it will work with Read the Docs' SSS.
 
    Since the ``templates/search/main.js`` file is included after our custom search,
    it will subscribe to the ``keyup`` event too, triggering both functions when a key is pressed
-   (but ours should be have more precedence).
+   (but ours should have more precedence).
    This can be fixed by not including the ``search`` plugin (you won't be able to fallback to the original search),
-   or by creating a custom plugin to inlude our search at the end (this should be done by Read the Docs).
+   or by creating a custom plugin to include our search at the end (this should be done by Read the Docs).
 
 .. _`search plugin`: https://www.mkdocs.org/user-guide/configuration/#search
 .. _`templates/search/main.js`: https://github.com/mkdocs/mkdocs/blob/ff0b72/mkdocs/contrib/search/templates/search/main.js
