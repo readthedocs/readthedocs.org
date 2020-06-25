@@ -84,7 +84,7 @@ class ImportedFileTests(TestCase):
         self._manage_imported_files(self.version, 'commit01', 1, config)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
-        self.assertEqual(HTMLFile.objects.filter(rank=1).count(), 2)
+        self.assertEqual(HTMLFile.objects.filter(rank=0).count(), 2)
 
     def test_page_custom_rank_glob(self):
         ranking = {
@@ -98,7 +98,7 @@ class ImportedFileTests(TestCase):
         file_api = HTMLFile.objects.get(path='api/index.html')
         file_test = HTMLFile.objects.get(path='test.html')
         self.assertEqual(file_api.rank, 5)
-        self.assertEqual(file_test.rank, 1)
+        self.assertEqual(file_test.rank, 0)
 
     def test_page_custom_rank_several(self):
         ranking = {
