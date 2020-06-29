@@ -50,6 +50,9 @@ Features
 Limitations
 -----------
 
+Auto-builds for pull/merge requests have
+:ref:`the same limitations as regular documentation builds <../builds>`.
+
 Currently we don't index search for pull request builds.
 Searches will default to the default experience for your tool.
 This is a feature we plan to add,
