@@ -109,12 +109,12 @@ class BaseParser:
         body = self._clean_body(body)
 
         # Index content for pages that don't start with a title.
-        # We check for sections till 2 levels to avoid indexing all the content
+        # We check for sections till 3 levels to avoid indexing all the content
         # in this step.
         try:
             content, _ = self._parse_section_content(
                 body.child,
-                depth=2,
+                depth=3,
             )
             if content:
                 yield {
@@ -150,6 +150,7 @@ class BaseParser:
         """
         # Remove all navigation nodes
         nodes_to_be_removed = itertools.chain(
+            body.css('nav'),
             body.css('[role=navigation]'),
             body.css('[role=search]'),
         )
