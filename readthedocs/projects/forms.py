@@ -634,6 +634,19 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.netloc
         else:
             domain_string = parsed.path
+
+        if (
+            settings.PRODUCTION_DOMAIN and
+            settings.PRODUCTION_DOMAIN in domain_string
+        ):
+            raise forms.ValidationError('Enter a valid domain name.')
+
+        if (
+            settings.PUBLIC_DOMAIN and
+            settings.PUBLIC_DOMAIN in domain_string
+        ):
+            raise forms.ValidationError('Enter a valid domain name.')
+
         return domain_string
 
     def clean_canonical(self):
