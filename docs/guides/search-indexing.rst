@@ -274,7 +274,7 @@ A simplified example looks like this:
       }
    }
 
-   function init_override = function () {
+   var init_override = function () {
       var search_input = document.getElementById('mkdocs-search-query');
       search_input.addEventListener('keyup', doSearch);
    };
