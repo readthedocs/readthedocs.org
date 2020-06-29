@@ -11,7 +11,7 @@ pillow==7.1.2
 # local debugging tools
 watchdog==0.10.3
 datadiff==2.0.0
-ipdb==0.13.2
+ipdb==0.13.3
 pdbpp==0.10.2
 
 # watchdog dependency
