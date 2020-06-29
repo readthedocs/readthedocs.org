@@ -60,11 +60,16 @@ Irrelevant content
 
 If you have content inside the main node that isn't relevant to the page
 (like navigation items, menus, or search box),
-make sure to use the correct role for it.
-Read the Docs will ignore nodes with the following roles:
+make sure to use the correct role or tag for it.
+
+Roles to be ignored:
 
 - ``navigation``
 - ``search``
+
+Tags to be ignored:
+
+- ``nav``
 
 Example:
 
