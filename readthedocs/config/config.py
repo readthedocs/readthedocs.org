@@ -1020,6 +1020,13 @@ class BuildConfigV2(BuildConfigBase):
         return submodules
 
     def validate_search(self):
+        """
+        Validates the search key.
+
+        - Ranking is a map of path patterns to a rank.
+        - The path pattern supports basic globs (*, ?, [seq]).
+        - The rank can be a integer number between -10 and 10.
+        """
         raw_search = self._raw_config.get('search', {})
         with self.catch_validation_error('search'):
             validate_dict(raw_search)

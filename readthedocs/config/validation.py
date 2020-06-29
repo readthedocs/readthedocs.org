@@ -86,11 +86,20 @@ def validate_path(value, base_path):
 
 
 def validate_path_pattern(value):
+    """
+    Normalize and validates a path pattern.
+
+    - Normalizes the path stripping multiple ``/``.
+    - Expands relative paths.
+    - Checks the final path is relative to the root of the site ``/``.
+    """
     path = validate_string(value)
+    # Start the path with ``/`` to interprete the path as absolute to ``/``.
     path = '/' + path.lstrip('/')
     path = os.path.normpath(path)
     if not os.path.isabs(path):
         raise ValidationError(value, INVALID_PATH_PATTERN)
+    # Remove ``/`` from the path once is validated.
     path = path.lstrip('/')
     if not path:
         raise ValidationError(value, INVALID_PATH_PATTERN)
