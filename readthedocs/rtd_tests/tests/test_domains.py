@@ -87,7 +87,6 @@ class FormTests(TestCase):
         self.assertFalse(form2.is_valid())
         self.assertEqual(form2.errors['domain'][0], 'Enter a valid domain name.')
 
-
     def test_canonical_change(self):
         """Make sure canonical can be properly changed."""
         form = DomainForm(
