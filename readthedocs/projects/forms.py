@@ -635,21 +635,12 @@ class DomainBaseForm(forms.ModelForm):
         else:
             domain_string = parsed.path
 
-        if (
-            settings.PRODUCTION_DOMAIN and
-            domain_string.endswith(settings.PRODUCTION_DOMAIN)
-        ):
-            raise forms.ValidationError(
-                f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
-            )
-
-        if (
-            settings.PUBLIC_DOMAIN and
-            domain_string.endswith(settings.PUBLIC_DOMAIN)
-        ):
-            raise forms.ValidationError(
-                f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
-            )
+        # Don't allow production or public domain to be set as custom domain
+        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+            if invalid_domain and domain_string.endswith(invalid_domain):
+                raise forms.ValidationError(
+                    f'{invalid_domain} is not a valid domain.'
+                )
 
         return domain_string
 
