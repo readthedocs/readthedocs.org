@@ -507,6 +507,11 @@ Note that 0 means *normal rank*, not *no rank*.
 
    The final rank will be the last pattern to match the page.
 
+.. tip::
+
+   Is better to decrease the rank of pages you want to deprecate,
+   rather than increasing the rank of the other pages.
+
 Schema
 ------
 
