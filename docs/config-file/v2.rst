@@ -464,8 +464,8 @@ Settings for more control over :doc:`/server-side-search`.
 
    search:
       ranking:
-        - 'api/v1/*': -1
-        - 'api/v2/*': 4
+        api/v1/*: -1
+        api/v2/*: 4
 
 search.ranking
 ``````````````
@@ -483,9 +483,10 @@ Patterns can include some special characters:
 - ``?`` matches any single character
 - ``[seq]`` matches any character in ``seq``
 
-The rank can be an integer number between -10 and 10 (inclusive),
-where values closer to -10 have less priority, and values closer to 10 have more priority.
-Note that 0 means *normal priority*, not no priority.
+The rank can be an integer number between -10 and 10 (inclusive).
+Pages with a rank closer to -10 will appear further down the list of results,
+and pages with a rank closer to 10 will appear higher in the list of results.
+Note that 0 means *normal rank*, not *no rank*.
 
 .. code-block:: yaml
 
@@ -494,13 +495,13 @@ Note that 0 means *normal priority*, not no priority.
    search:
       ranking:
         # Match a single file
-        - 'tutorial.hml': 2
+        tutorial.hml: 2
 
         # Match all files under the api/v1 directory
-        - 'api/v1/*': -5
+        api/v1/*: -5
 
         # Match all files that end with tutorial.html
-        - '*/tutorial.html': 3
+        */tutorial.html: 3
 
 .. note::
 
