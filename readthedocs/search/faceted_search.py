@@ -190,11 +190,7 @@ class PageSearchBase(RTDFacetedSearch):
         return s.hits.total
 
     def query(self, search, query):
-        """
-        Manipulates the query to support nested queries and a custom rank for pages.
-
-        See https://www.elastic.co/guide/en/elasticsearch/reference/6.8/query-dsl-function-score-query.html#function-field-value-factor  # noqa
-        """
+        """Manipulates the query to support nested queries and a custom rank for pages."""
         search = search.highlight_options(**self._highlight_options)
 
         all_queries = []
