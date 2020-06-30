@@ -1135,7 +1135,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             version_pk=self.version.pk,
             commit=self.build['commit'],
             build=self.build['id'],
-            config=self.config,
+            search_ranking=self.config.search.ranking,
         )
 
     def setup_python_environment(self):
@@ -1278,7 +1278,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build, config):
+def fileify(version_pk, commit, build, search_ranking):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1316,7 +1316,7 @@ def fileify(version_pk, commit, build, config):
             version=version,
             commit=commit,
             build=build,
-            config=config,
+            search_ranking=search_ranking,
         )
     except Exception:
         changed_files = set()
@@ -1494,7 +1494,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(*, version, commit, build, config):
+def _create_imported_files(*, version, commit, build, search_ranking):
     """
     Create imported files for version.
 
@@ -1556,7 +1556,7 @@ def _create_imported_files(*, version, commit, build, config):
 
             page_rank = 0
             # Last pattern to match takes precedence
-            reverse_rankings = reversed(list(config.search.ranking.items()))
+            reverse_rankings = reversed(list(search_ranking.items()))
             for pattern, rank in reverse_rankings:
                 if fnmatch(relpath, pattern):
                     page_rank = rank
