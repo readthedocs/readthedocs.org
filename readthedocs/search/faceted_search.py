@@ -297,7 +297,7 @@ class PageSearchBase(RTDFacetedSearch):
             return params.ranking[rank + 10] * _score;
         """
         return {
-            "script" : {
+            "script": {
                 "source": source,
                 "params": {"ranking": ranking},
             },
