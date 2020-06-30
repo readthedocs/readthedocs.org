@@ -61,14 +61,20 @@ class FormTests(TestCase):
             project=self.project,
         )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['domain'][0], 'Enter a valid domain name.')
+        self.assertEqual(
+            form.errors['domain'][0],
+            f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
+        )
 
         form2 = DomainForm(
             {'domain': 'test.' + settings.PRODUCTION_DOMAIN},
             project=self.project,
         )
         self.assertFalse(form2.is_valid())
-        self.assertEqual(form2.errors['domain'][0], 'Enter a valid domain name.')
+        self.assertEqual(
+            form2.errors['domain'][0],
+            f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
+        )
 
     @override_settings(PUBLIC_DOMAIN='readthedocs.io')
     def test_public_domain_not_allowed(self):
@@ -78,14 +84,20 @@ class FormTests(TestCase):
             project=self.project,
         )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['domain'][0], 'Enter a valid domain name.')
+        self.assertEqual(
+            form.errors['domain'][0],
+            f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
+        )
 
         form2 = DomainForm(
             {'domain': 'docs.' + settings.PUBLIC_DOMAIN},
             project=self.project,
         )
         self.assertFalse(form2.is_valid())
-        self.assertEqual(form2.errors['domain'][0], 'Enter a valid domain name.')
+        self.assertEqual(
+            form2.errors['domain'][0],
+            f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
+        )
 
     def test_canonical_change(self):
         """Make sure canonical can be properly changed."""

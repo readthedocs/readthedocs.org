@@ -637,15 +637,19 @@ class DomainBaseForm(forms.ModelForm):
 
         if (
             settings.PRODUCTION_DOMAIN and
-            settings.PRODUCTION_DOMAIN in domain_string
+            domain_string.endswith(settings.PRODUCTION_DOMAIN)
         ):
-            raise forms.ValidationError('Enter a valid domain name.')
+            raise forms.ValidationError(
+                f'{settings.PRODUCTION_DOMAIN} is not a valid domain.'
+            )
 
         if (
             settings.PUBLIC_DOMAIN and
-            settings.PUBLIC_DOMAIN in domain_string
+            domain_string.endswith(settings.PUBLIC_DOMAIN)
         ):
-            raise forms.ValidationError('Enter a valid domain name.')
+            raise forms.ValidationError(
+                f'{settings.PUBLIC_DOMAIN} is not a valid domain.'
+            )
 
         return domain_string
 
