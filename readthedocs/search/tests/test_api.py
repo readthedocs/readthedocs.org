@@ -571,6 +571,27 @@ class BaseTestDocumentSearch:
         assert results[0]['full_path'] == 'guides/index.html'
         assert results[1]['full_path'] == 'index.html'
 
+        # Query with a lower rank over index.html
+        page_index.rank = 3
+        page_index.save()
+        page_guides.rank = 6
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
         # Query with a same rank over guides/index.html and index.html
         page_index.rank = -10
         page_index.save()

@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
-from readthedocs.config.config import BuildConfigV2
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks import (
     _create_imported_files,
@@ -29,16 +28,14 @@ class ImportedFileTests(TestCase):
         self.test_dir = os.path.join(base_dir, 'files')
         self._copy_storage_dir()
 
-    def _manage_imported_files(self, version, commit, build, config=None):
+    def _manage_imported_files(self, version, commit, build, search_ranking=None):
         """Helper function for the tests to create and sync ImportedFiles."""
-        if not config:
-            config = BuildConfigV2({}, {}, 'readthedocs.yaml')
-            config.validate()
+        search_ranking = search_ranking or {}
         _create_imported_files(
             version=version,
             commit=commit,
             build=build,
-            config=config,
+            search_ranking=search_ranking,
         )
         _sync_imported_files(version, build, set())
 
@@ -76,23 +73,18 @@ class ImportedFileTests(TestCase):
         self.assertEqual(ImportedFile.objects.first().commit, 'commit02')
 
     def test_page_default_rank(self):
-        ranking = {}
-        config = BuildConfigV2({}, {'search': {'ranking': ranking}}, 'readthedocs.yaml')
-        config.validate()
-
+        search_ranking = {}
         self.assertEqual(HTMLFile.objects.count(), 0)
-        self._manage_imported_files(self.version, 'commit01', 1, config)
+        self._manage_imported_files(self.version, 'commit01', 1, search_ranking)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
         self.assertEqual(HTMLFile.objects.filter(rank=0).count(), 2)
 
     def test_page_custom_rank_glob(self):
-        ranking = {
+        search_ranking = {
             '*index.html': 5,
         }
-        config = BuildConfigV2({}, {'search': {'ranking': ranking}}, 'readthedocs.yaml')
-        config.validate()
-        self._manage_imported_files(self.version, 'commit01', 1, config)
+        self._manage_imported_files(self.version, 'commit01', 1, search_ranking)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
         file_api = HTMLFile.objects.get(path='api/index.html')
@@ -101,13 +93,11 @@ class ImportedFileTests(TestCase):
         self.assertEqual(file_test.rank, 0)
 
     def test_page_custom_rank_several(self):
-        ranking = {
+        search_ranking = {
             'test.html': 5,
             'api/index.html': 2,
         }
-        config = BuildConfigV2({}, {'search': {'ranking': ranking}}, 'readthedocs.yaml')
-        config.validate()
-        self._manage_imported_files(self.version, 'commit01', 1, config)
+        self._manage_imported_files(self.version, 'commit01', 1, search_ranking)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
         file_api = HTMLFile.objects.get(path='api/index.html')
@@ -116,13 +106,11 @@ class ImportedFileTests(TestCase):
         self.assertEqual(file_test.rank, 5)
 
     def test_page_custom_rank_precedence(self):
-        ranking = {
+        search_ranking = {
             '*.html': 5,
             'api/index.html': 2,
         }
-        config = BuildConfigV2({}, {'search': {'ranking': ranking}}, 'readthedocs.yaml')
-        config.validate()
-        self._manage_imported_files(self.version, 'commit01', 1, config)
+        self._manage_imported_files(self.version, 'commit01', 1, search_ranking)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
         file_api = HTMLFile.objects.get(path='api/index.html')
@@ -131,13 +119,11 @@ class ImportedFileTests(TestCase):
         self.assertEqual(file_test.rank, 5)
 
     def test_page_custom_rank_precedence_inverted(self):
-        ranking = {
+        search_ranking = {
             'api/index.html': 2,
             '*.html': 5,
         }
-        config = BuildConfigV2({}, {'search': {'ranking': ranking}}, 'readthedocs.yaml')
-        config.validate()
-        self._manage_imported_files(self.version, 'commit01', 1, config)
+        self._manage_imported_files(self.version, 'commit01', 1, search_ranking)
 
         self.assertEqual(HTMLFile.objects.count(), 2)
         file_api = HTMLFile.objects.get(path='api/index.html')
@@ -204,13 +190,11 @@ class ImportedFileTests(TestCase):
             return_value=test_objects_inv
         ) as mock_fetch_inventory:
 
-            config = BuildConfigV2({}, {}, 'readthedocs.yaml')
-            config.validate()
             _create_imported_files(
                 version=self.version,
                 commit='commit01',
                 build=1,
-                config=config,
+                search_ranking={},
             )
             _create_intersphinx_data(self.version, 'commit01', 1)
 
