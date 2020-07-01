@@ -1,3 +1,14 @@
+Version 5.1.5
+-------------
+
+:Date: July 01, 2020
+
+* `@choldgraf <https://github.com/choldgraf>`__: cross-linking build limitations for pr builds (`#7248 <https://github.com/readthedocs/readthedocs.org/pull/7248>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend Import Project page from corporate (`#7234 <https://github.com/readthedocs/readthedocs.org/pull/7234>`__)
+* `@humitos <https://github.com/humitos>`__: Make RemoteRepository.full_name db_index=True (`#7231 <https://github.com/readthedocs/readthedocs.org/pull/7231>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: tweak fuzziness (`#7225 <https://github.com/readthedocs/readthedocs.org/pull/7225>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Re-add the rst filter that got removed (`#7223 <https://github.com/readthedocs/readthedocs.org/pull/7223>`__)
+
 Version 5.1.4
 -------------
 
