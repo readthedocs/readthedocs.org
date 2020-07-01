@@ -292,6 +292,8 @@ class PageSearchBase(RTDFacetedSearch):
             1.96,
             2,
         ]
+        # Each rank maps to a element in the ranking list.
+        # -10 will map to the first element (-10 + 10 = 0) and so on.
         source = """
             int rank = doc['rank'].size() == 0 ? 0 : (int) doc['rank'].value;
             return params.ranking[rank + 10] * _score;
