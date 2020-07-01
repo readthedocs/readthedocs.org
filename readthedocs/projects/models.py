@@ -603,27 +603,27 @@ class Project(models.Model):
 
         This replaces the user-facing syntax with the regex syntax.
         """
-        to_convert = self.urlconf
+        to_convert = re.escape(self.urlconf)
 
         # We should standardize these names so we can loop over them easier
         to_convert = to_convert.replace(
-            '$version',
+            '\\$version',
             '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
         )
         to_convert = to_convert.replace(
-            '$language',
+            '\\$language',
             '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
         )
         to_convert = to_convert.replace(
-            '$filename',
+            '\\$filename',
             '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
         )
         to_convert = to_convert.replace(
-            '$subproject',
+            '\\$subproject',
             '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
         )
 
-        if '$' in to_convert:
+        if '\\$' in to_convert:
             log.warning(
                 'Unconverted variable in a project URLConf: project=%s to_convert=%s',
                 self, to_convert
@@ -648,7 +648,9 @@ class Project(models.Model):
 
             proxied_urls = [
                 re_path(
-                    r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
+                    r'{proxied_api_url}api/v2/'.format(
+                        proxied_api_url=re.escape(self.proxied_api_url),
+                    ),
                     include('readthedocs.api.v2.proxied_urls'),
                     name='user_proxied_api'
                 ),
@@ -657,7 +659,7 @@ class Project(models.Model):
                     r'(?P<lang_slug>{lang_slug})/'
                     r'(?P<version_slug>{version_slug})/'
                     r'(?P<type_>[-\w]+)/$'.format(
-                        proxied_api_url=self.proxied_api_url,
+                        proxied_api_url=re.escape(self.proxied_api_url),
                         **pattern_opts),
                     ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='user_proxied_downloads'
@@ -671,7 +673,9 @@ class Project(models.Model):
                 ),
                 # paths for redirects at the root
                 re_path(
-                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    '^{proxied_api_url}$'.format(
+                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
+                    ),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs_subpath_redirect'
                 ),

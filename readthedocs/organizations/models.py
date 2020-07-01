@@ -3,12 +3,12 @@
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 
 from readthedocs.core.utils import slugify
+from readthedocs.core.permissions import AdminPermission
 
 from . import constants
 from .managers import TeamManager, TeamMemberManager
@@ -93,14 +93,11 @@ class Organization(models.Model):
 
     @property
     def users(self):
-        return (self.members.all() | self.owners.all().distinct()).distinct()
+        return AdminPermission.members(self)
 
     @property
     def members(self):
-        """Return members as an aggregate over all organization teams."""
-        return User.objects.filter(
-            Q(teams__organization=self) | Q(owner_organizations=self),
-        ).distinct()
+        return AdminPermission.members(self)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         if not self.slug:
