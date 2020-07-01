@@ -1556,6 +1556,8 @@ def _create_imported_files(*, version, commit, build, search_ranking):
 
             page_rank = 0
             # Last pattern to match takes precedence
+            # XXX: see if we can implement another type of precedence,
+            # like the longest pattern.
             reverse_rankings = reversed(list(search_ranking.items()))
             for pattern, rank in reverse_rankings:
                 if fnmatch(relpath, pattern):
