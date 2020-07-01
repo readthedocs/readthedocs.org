@@ -23,6 +23,14 @@ from readthedocs.search.tests.utils import (
     get_search_query_from_project_file,
 )
 
+OLD_TYPES = {
+    'domain': 'domains',
+    'section': 'sections',
+}
+OLD_FIELDS = {
+    'docstring': 'docstrings',
+}
+
 
 @pytest.mark.django_db
 @pytest.mark.search
@@ -43,7 +51,7 @@ class BaseTestDocumentSearch:
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type='title'
+            field='title'
         )
 
         version = project.versions.all().first()
@@ -77,10 +85,12 @@ class BaseTestDocumentSearch:
         page_num,
         data_type
     ):
+        type, field = data_type.split('.')
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type=data_type
+            type=type,
+            field=field,
         )
         version = project.versions.all().first()
         search_params = {
@@ -105,10 +115,11 @@ class BaseTestDocumentSearch:
 
         inner_hit_0 = inner_hits[0]  # first inner_hit
 
-        expected_type = data_type.split('.')[0]  # can be "sections" or "domains"
-        assert inner_hit_0['type'] == expected_type
+        old_type = OLD_TYPES.get(type, type)
+        assert inner_hit_0['type'] == old_type
 
-        highlight = inner_hit_0['highlight'][data_type]
+        old_field = old_type + '.' + OLD_FIELDS.get(field, field)
+        highlight = inner_hit_0['highlight'][old_field]
         assert (
             len(highlight) == 1
         ), 'number_of_fragments is set to 1'

@@ -67,11 +67,3 @@ class TaskRouterTests(TestCase):
         self.assertIsNone(
             self.router.route_for_task(self.task, self.args, {}),
         )
-
-    def test_build_length_high_average(self):
-        high_length = TaskRouter.TIME_AVERAGE + 50
-        self.version.builds.update(length=high_length)
-        self.assertEqual(
-            self.router.route_for_task(self.task, self.args, self.kwargs),
-            TaskRouter.BUILD_LARGE_QUEUE,
-        )
