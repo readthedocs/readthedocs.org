@@ -76,15 +76,16 @@ class PageSearchSerializer(serializers.Serializer):
                 path = new_path.lstrip('/')
 
             return docs_url + path
-        else:
-            # Fallback to build the URL querying the db.
-            project = Project.objects.filter(slug=obj.project).first()
-            if project:
-                docs_url = project.get_docs_url(version_slug=obj.version)
-                # cache the project URL
-                projects_data = self.context.setdefault('projects_data', {})
-                projects_data[obj.project] = (docs_url, '')
-                return docs_url + obj.full_path
+
+        # Fallback to build the URL querying the db.
+        project = Project.objects.filter(slug=obj.project).first()
+        if project:
+            docs_url = project.get_docs_url(version_slug=obj.version)
+            # cache the project URL
+            projects_data = self.context.setdefault('projects_data', {})
+            projects_data[obj.project] = (docs_url, '')
+            return docs_url + obj.full_path
+
         return None
 
     def get_blocks(self, obj):
