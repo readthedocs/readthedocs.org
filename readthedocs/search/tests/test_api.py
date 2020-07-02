@@ -521,8 +521,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['link'].endswith('/en/latest/index.html')
+        assert results[1]['link'].endswith('/en/latest/guides/index.html')
 
         # Query with a higher rank over guides/index.html
         page_guides.rank = 5
@@ -539,8 +539,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['link'].endswith('/en/latest/guides/index.html')
+        assert results[1]['link'].endswith('/en/latest/index.html')
 
         # Query with a lower rank over index.html
         page_index.rank = -2
@@ -560,8 +560,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['link'].endswith('/en/latest/guides/index.html')
+        assert results[1]['link'].endswith('/en/latest/index.html')
 
         # Query with a lower rank over index.html
         page_index.rank = 3
@@ -581,8 +581,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['link'].endswith('/en/latest/guides/index.html')
+        assert results[1]['link'].endswith('/en/latest/index.html')
 
         # Query with a same rank over guides/index.html and index.html
         page_index.rank = -10
@@ -602,8 +602,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['link'].endswith('/en/latest/index.html')
+        assert results[1]['link'].endswith('/en/latest/guides/index.html')
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
