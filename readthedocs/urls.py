@@ -10,14 +10,9 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 
 from readthedocs.core.urls import core_urls
-from readthedocs.core.views import (
-    HomepageView,
-    do_not_track,
-    server_error_500,
-)
-from readthedocs.search import views as search_views
+from readthedocs.core.views import HomepageView, do_not_track, server_error_500
 from readthedocs.search.api import PageSearchAPIView
-
+from readthedocs.search.views import SearchView
 
 admin.autodiscover()
 
@@ -35,7 +30,7 @@ basic_urls = [
 ]
 
 rtd_urls = [
-    url(r'^search/$', search_views.elastic_search, name='search'),
+    url(r'^search/$', SearchView.as_view(), name='search'),
     url(r'^dashboard/', include('readthedocs.projects.urls.private')),
     url(r'^profiles/', include('readthedocs.profiles.urls.public')),
     url(r'^accounts/', include('readthedocs.profiles.urls.private')),

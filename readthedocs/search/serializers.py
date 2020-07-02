@@ -7,12 +7,14 @@ Serializers for the ES's search result object.
 """
 
 import itertools
+import re
 from operator import attrgetter
 
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from readthedocs.core.resolver import resolve
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
 
 
@@ -29,7 +31,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
-    highlight = ProjectHighlightSerializer(source='meta.highlight', default=dict)
+    highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
 class PageHighlightSerializer(serializers.Serializer):
@@ -39,24 +41,50 @@ class PageHighlightSerializer(serializers.Serializer):
 
 class PageSearchSerializer(serializers.Serializer):
 
+    """
+    Page serializer.
+
+    If ``projects_data`` is passed into the context, the serializer
+    will try to use that to generate the link before querying the database.
+    It's a dictionary containing the project slug, and its version URL
+    and version's doctype.
+    """
+
     type = serializers.CharField(default='page', source=None, read_only=True)
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()
     link = serializers.SerializerMethodField()
-    highlight = PageHighlightSerializer(source='meta.highlight', default=dict)
+    highlights = PageHighlightSerializer(source='meta.highlight', default=dict)
     blocks = serializers.SerializerMethodField()
 
     def get_link(self, obj):
-        # TODO: optimize this to not query the db for each result.
-        # TODO: return an relative URL when this is called from the indoc search.
-        project = Project.objects.filter(slug=obj.project).first()
-        if project:
-            return resolve(
-                project=project,
-                version_slug=obj.version,
-                filename=obj.full_path,
-            )
+        # TODO: return a relative URL when this is called from the indoc search.
+
+        # First try to build the URL from the context.
+        project_data = self.context.get('projects_data', {}).get(obj.project)
+        if project_data:
+            docs_url, doctype = project_data
+            path = obj.full_path
+
+            # Generate an appropriate link for the doctypes that use htmldir,
+            # and always end it with / so it goes directly to proxito.
+            if doctype in {SPHINX_HTMLDIR, MKDOCS}:
+                new_path = re.sub('(^|/)index.html$', '/', path)
+                # docs_url already ends with /,
+                # so path doesn't need to start with /.
+                path = new_path.lstrip('/')
+
+            return docs_url + path
+        else:
+            # Fallback to build the URL querying the db.
+            project = Project.objects.filter(slug=obj.project).first()
+            if project:
+                docs_url = project.get_docs_url(version_slug=obj.version)
+                # cache the project URL
+                projects_data = self.context.setdefault('projects_data', {})
+                projects_data[obj.project] = (docs_url, '')
+                return docs_url + obj.full_path
         return None
 
     def get_blocks(self, obj):
@@ -90,20 +118,16 @@ class PageSearchSerializer(serializers.Serializer):
 
 class DomainHighlightSerializer(serializers.Serializer):
 
-    """
-    Serializer for domain results.
+    name = serializers.SerializerMethodField()
+    docstring = serializers.SerializerMethodField()
 
-    .. note::
+    def get_name(self, obj):
+        name = getattr(obj, 'domains.name', [])
+        return list(name)
 
-       We override the `to_representation` method instead of declaring each field
-       because serializers don't play nice with keys that include `.`.
-    """
-
-    def to_representation(self, instance):
-        return {
-            'name': getattr(instance, 'domains.name', []),
-            'docstring': getattr(instance, 'domains.docstrings', []),
-        }
+    def get_docstring(self, obj):
+        docstring = getattr(obj, 'domains.docstrings', [])
+        return list(docstring)
 
 
 class DomainSearchSerializer(serializers.Serializer):
@@ -113,25 +137,21 @@ class DomainSearchSerializer(serializers.Serializer):
     name = serializers.CharField(source='_source.name')
     id = serializers.CharField(source='_source.anchor')
     docstring = serializers.CharField(source='_source.docstrings')
-    highlight = DomainHighlightSerializer(default=dict)
+    highlights = DomainHighlightSerializer(source='highlight', default=dict)
 
 
 class SectionHighlightSerializer(serializers.Serializer):
 
-    """
-    Serializer for section results.
+    title = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
 
-    .. note::
+    def get_title(self, obj):
+        title = getattr(obj, 'sections.title', [])
+        return list(title)
 
-       We override the `to_representation` method instead of declaring each field
-       because serializers don't play nice with keys that include `.`.
-    """
-
-    def to_representation(self, instance):
-        return {
-            'title': getattr(instance, 'sections.title', []),
-            'content': getattr(instance, 'sections.content', []),
-        }
+    def get_content(self, obj):
+        content = getattr(obj, 'sections.content', [])
+        return list(content)
 
 
 class SectionSearchSerializer(serializers.Serializer):
@@ -140,4 +160,4 @@ class SectionSearchSerializer(serializers.Serializer):
     id = serializers.CharField(source='_source.id')
     title = serializers.CharField(source='_source.title')
     content = serializers.CharField(source='_source.content')
-    highlight = SectionHighlightSerializer(default=dict)
+    highlights = SectionHighlightSerializer(source='highlight', default=dict)

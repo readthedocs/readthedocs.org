@@ -21,6 +21,8 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks, utils
 from readthedocs.search.faceted_search import PageSearch
 
+from .serializers import PageSearchSerializer
+
 log = logging.getLogger(__name__)
 
 
@@ -42,7 +44,7 @@ class PaginatorPage:
         return self.number < self.paginator.num_pages
 
     def has_previous(self):
-        return self.number > 0
+        return self.number > 1
 
     def next_page_number(self):
         return self.number + 1
@@ -120,7 +122,7 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class PageSearchSerializer(serializers.Serializer):
+class OldPageSearchSerializer(serializers.Serializer):
 
     """
     Serializer for page search results.
@@ -192,6 +194,12 @@ class PageSearchAPIView(GenericAPIView):
     - project
     - version
 
+    Optional params:
+
+    - new-api (true/false): make use of the new stable API.
+      Defaults to false. Remove after a couple of days/weeks
+      and always use the new API.
+
     .. note::
 
        The methods `_get_project` and `_get_version`
@@ -201,7 +209,6 @@ class PageSearchAPIView(GenericAPIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
-    serializer_class = PageSearchSerializer
 
     def _get_project(self):
         cache_key = '_cached_project'
@@ -362,6 +369,11 @@ class PageSearchAPIView(GenericAPIView):
             use_advanced_query=not self._get_project().has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
+
+    def get_serializer_class(self):
+        if self.request.query_params.get('new-api', 'false') == 'true':
+            return PageSearchSerializer
+        return OldPageSearchSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

@@ -5,6 +5,7 @@ import logging
 from operator import attrgetter
 
 from django.shortcuts import get_object_or_404, render
+from django.views import View
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
@@ -34,7 +35,8 @@ UserInput = collections.namedtuple(
 )
 
 
-def elastic_search(request, project_slug=None):
+class SearchView(View):
+
     """
     Global user search on the dashboard.
 
@@ -43,84 +45,117 @@ def elastic_search(request, project_slug=None):
     :param project_slug: Sent when the view is a project search
     """
 
-    request_type = None
-    if project_slug:
-        queryset = Project.objects.protected(request.user)
-        project_obj = get_object_or_404(queryset, slug=project_slug)
-        request_type = request.GET.get('type', 'file')
+    http_method_names = ['get']
 
-    user_input = UserInput(
-        query=request.GET.get('q'),
-        type=request_type or request.GET.get('type', 'project'),
-        project=project_slug or request.GET.get('project'),
-        version=request.GET.get('version', LATEST),
-        language=request.GET.get('language'),
-        role_name=request.GET.get('role_name'),
-        index=request.GET.get('index'),
-    )
-    search_facets = collections.defaultdict(
-        lambda: ProjectSearch,
-        {
-            'project': ProjectSearch,
-            'file': PageSearch,
-        }
-    )
+    def _get_project(self, project_slug):
+        queryset = Project.objects.protected(self.request.user)
+        project = get_object_or_404(queryset, slug=project_slug)
+        return project
 
-    results = []
-    facets = {}
-
-    if user_input.query:
-        filters = {}
-
-        for avail_facet in ALL_FACETS:
-            value = getattr(user_input, avail_facet, None)
-            if value:
-                filters[avail_facet] = value
-
-        search = search_facets[user_input.type](
-            query=user_input.query,
-            filters=filters,
-            user=request.user,
+    def _get_project_data(self, project, version_slug):
+        version_doctype = (
+            project.versions
+            .values_list('documentation_type', flat=True)
+            .get(slug=version_slug)
         )
-        results = search[:50].execute()
-        facets = results.facets
+        project_data = {
+            project.slug: (
+                project.get_docs_url(version_slug=version_slug),
+                version_doctype,
+            )
+        }
+        return project_data
 
-        log.info(
-            LOG_TEMPLATE,
+    def get_serializer_context(self, project, version_slug):
+        context = {
+            'projects_data': self._get_project_data(project, version_slug),
+        }
+        return context
+
+    def get(self, request, project_slug=None):
+        request_type = None
+        if project_slug:
+            project_obj = self._get_project(project_slug)
+            request_type = request.GET.get('type', 'file')
+
+        version_slug = request.GET.get('version', LATEST)
+
+        user_input = UserInput(
+            query=request.GET.get('q'),
+            type=request_type or request.GET.get('type', 'project'),
+            project=project_slug or request.GET.get('project'),
+            version=version_slug,
+            language=request.GET.get('language'),
+            role_name=request.GET.get('role_name'),
+            index=request.GET.get('index'),
+        )
+        search_facets = collections.defaultdict(
+            lambda: ProjectSearch,
             {
-                'user': request.user,
-                'project': user_input.project or '',
-                'type': user_input.type or '',
-                'version': user_input.version or '',
-                'language': user_input.language or '',
-                'msg': user_input.query or '',
+                'project': ProjectSearch,
+                'file': PageSearch,
             }
         )
 
-    # Make sure our selected facets are displayed even when they return 0 results
-    for facet in facets:
-        value = getattr(user_input, facet, None)
-        if value and value not in (val[0] for val in facets[facet]):
-            facets[facet].insert(0, (value, 0, True))
+        results = []
+        facets = {}
 
-    serializers = {
-        'project': ProjectSearchSerializer,
-        'file': PageSearchSerializer,
-    }
-    serializer = serializers.get(user_input.type, ProjectSearchSerializer)
-    results = serializer(results, many=True).data
+        if user_input.query:
+            filters = {}
 
-    template_vars = user_input._asdict()
-    template_vars.update({
-        'results': results,
-        'facets': facets,
-    })
+            for avail_facet in ALL_FACETS:
+                value = getattr(user_input, avail_facet, None)
+                if value:
+                    filters[avail_facet] = value
 
-    if project_slug:
-        template_vars.update({'project_obj': project_obj})
+            search = search_facets[user_input.type](
+                query=user_input.query,
+                filters=filters,
+                user=request.user,
+            )
+            results = search[:50].execute()
+            facets = results.facets
 
-    return render(
-        request,
-        'search/elastic_search.html',
-        template_vars,
-    )
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'user': request.user,
+                    'project': user_input.project or '',
+                    'type': user_input.type or '',
+                    'version': user_input.version or '',
+                    'language': user_input.language or '',
+                    'msg': user_input.query or '',
+                }
+            )
+
+        # Make sure our selected facets are displayed even when they return 0 results
+        for facet in facets:
+            value = getattr(user_input, facet, None)
+            if value and value not in (val[0] for val in facets[facet]):
+                facets[facet].insert(0, (value, 0, True))
+
+        serializers = {
+            'project': ProjectSearchSerializer,
+            'file': PageSearchSerializer,
+        }
+        serializer = serializers.get(user_input.type, ProjectSearchSerializer)
+        if project_slug:
+            context = self.get_serializer_context(project_obj, version_slug)
+        else:
+            context = {}
+        results = serializer(results, many=True, context=context).data
+
+        template_vars = user_input._asdict()
+        template_vars.update({
+            'results': results,
+            'facets': facets,
+        })
+
+        if project_slug:
+            template_vars.update({'project_obj': project_obj})
+
+        return render(
+            request,
+            'search/elastic_search.html',
+            template_vars,
+        )
