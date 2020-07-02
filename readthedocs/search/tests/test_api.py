@@ -500,6 +500,111 @@ class BaseTestDocumentSearch:
         assert len(results) > 0
         assert 'Index' in results[0]['title']
 
+    def test_search_custom_ranking(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        page_index = HTMLFile.objects.get(path='index.html')
+        page_guides = HTMLFile.objects.get(path='guides/index.html')
+
+        # Query with the default ranking
+        assert page_index.rank == 0
+        assert page_guides.rank == 0
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+        # Query with a higher rank over guides/index.html
+        page_guides.rank = 5
+        page_guides.save()
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a lower rank over index.html
+        page_index.rank = -2
+        page_index.save()
+        page_guides.rank = 4
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a lower rank over index.html
+        page_index.rank = 3
+        page_index.save()
+        page_guides.rank = 6
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a same rank over guides/index.html and index.html
+        page_index.rank = -10
+        page_index.save()
+        page_guides.rank = -10
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
 
 class TestDocumentSearch(BaseTestDocumentSearch):
 
