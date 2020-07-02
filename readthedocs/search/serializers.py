@@ -59,6 +59,14 @@ class PageSearchSerializer(serializers.Serializer):
     blocks = serializers.SerializerMethodField()
 
     def get_link(self, obj):
+        """
+        Get the page link.
+
+        Try to get the link from the ``project_data`` context,
+        and fallback to get it from the database.
+        If the result is fetched from the database,
+        it's cached into ``project_data``.
+        """
         # TODO: return a relative URL when this is called from the indoc search.
 
         # First try to build the URL from the context.
@@ -120,13 +128,13 @@ class PageSearchSerializer(serializers.Serializer):
 class DomainHighlightSerializer(serializers.Serializer):
 
     name = serializers.SerializerMethodField()
-    docstring = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
 
     def get_name(self, obj):
         name = getattr(obj, 'domains.name', [])
         return list(name)
 
-    def get_docstring(self, obj):
+    def get_content(self, obj):
         docstring = getattr(obj, 'domains.docstrings', [])
         return list(docstring)
 
@@ -137,7 +145,7 @@ class DomainSearchSerializer(serializers.Serializer):
     role = serializers.CharField(source='_source.role_name')
     name = serializers.CharField(source='_source.name')
     id = serializers.CharField(source='_source.anchor')
-    docstring = serializers.CharField(source='_source.docstrings')
+    content = serializers.CharField(source='_source.docstrings')
     highlights = DomainHighlightSerializer(source='highlight', default=dict)
 
 

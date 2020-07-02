@@ -201,13 +201,13 @@
                             </a>
                           </p>
                           <p class="fragment">
-                            {% if block.highlights.docstring %}
-                              {% with domain_docstrings=block.highlights.docstring %}
-                                {{ domain_docstrings.0|safe }}
+                            {% if block.highlights.content %}
+                              {% with domain_content=block.highlights.content %}
+                                {{ domain_content.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {% if block.docstring %}
-                                {{ block.docstring|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% if block.content %}
+                                {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                               {% endif %}
                             {% endif %}
                           </p>

@@ -136,10 +136,10 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
                         "role": "http:get",
                         "name": "/_/api/v2/docsearch/",
                         "id": "get--_-api-v2-docsearch-",
-                        "docstring": "Retrieve search results for docs",
+                        "content": "Retrieve search results for docs",
                         "highlights": {
                            "name": [""],
-                           "docstring": ["Retrieve <span>search</span> results for docs"]
+                           "content": ["Retrieve <span>search</span> results for docs"]
                         }
                      }
                   ]
