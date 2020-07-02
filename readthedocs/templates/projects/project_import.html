@@ -17,6 +17,7 @@
    $(document).ready(function() {
      var instance = {},
          config = {
+           {% block project-import-view-extra-config %}{% endblock %}
            'csrf_token': '{{ view_csrf_token }}',
            'urls': {
              'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',

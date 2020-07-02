@@ -2,7 +2,7 @@ Searching with Read the Docs
 ============================
 
 Read the Docs uses :doc:`/server-side-search` to power our search.
-This guide explains how to add a "search as you type" feature to your documentation, 
+This guide explains how to add a "search as you type" feature to your documentation,
 and how to use advanced query syntax to get more accurate results.
 
 You can find information on the search architecture and how we index documents in our
@@ -20,7 +20,7 @@ Enable "search as you type" in your documentation
 documentation more closely with the search implementation of Read the Docs.
 It adds a clean and minimal full-page search UI that supports a **search as you type** feature.
 
-To try this feature, 
+To try this feature,
 you can press :guilabel:`/` (forward slash) and start typing or just visit these URLs:
 
 - https://docs.readthedocs.io/?rtd_search=contributing

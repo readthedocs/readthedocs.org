@@ -121,6 +121,9 @@ function Project(instance, view) {
     self.active = ko.observable(instance.active);
     self.admin = ko.observable(instance.admin);
     self.is_locked = ko.computed(function () {
+        if (view.has_sso_enabled) {
+            return !self.admin();
+        }
         return (self.private() && !self.admin());
     });
     self.avatar_url = ko.observable(
@@ -174,6 +177,7 @@ function ProjectImportView(instance, config) {
     self.config = config || {};
     self.urls = config.urls || {};
     self.csrf_token = config.csrf_token || '';
+    self.has_sso_enabled = config.has_sso_enabled || false;
 
     // For task display
     self.error = ko.observable(null);

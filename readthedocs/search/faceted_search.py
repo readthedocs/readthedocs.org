@@ -4,7 +4,13 @@ from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
 from elasticsearch_dsl.faceted_search import NestedFacet
-from elasticsearch_dsl.query import Bool, MultiMatch, Nested, SimpleQueryString
+from elasticsearch_dsl.query import (
+    Bool,
+    FunctionScore,
+    MultiMatch,
+    Nested,
+    SimpleQueryString,
+)
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
@@ -159,10 +165,12 @@ class PageSearchBase(RTDFacetedSearch):
     doc_types = [PageDocument]
     index = PageDocument._doc_type.index
 
-    _outer_fields = ['title^2']
-    _section_fields = ['sections.title^3', 'sections.content']
+    # boosting for these fields need to be close enough
+    # to be re-boosted by the page rank.
+    _outer_fields = ['title^1.5']
+    _section_fields = ['sections.title^2', 'sections.content']
     _domain_fields = [
-        'domains.name^2',
+        'domains.name^1.5',
         'domains.docstrings',
     ]
     fields = _outer_fields
@@ -182,7 +190,7 @@ class PageSearchBase(RTDFacetedSearch):
         return s.hits.total
 
     def query(self, search, query):
-        """Manipulates query to support nested query."""
+        """Manipulates the query to support nested queries and a custom rank for pages."""
         search = search.highlight_options(**self._highlight_options)
 
         all_queries = []
@@ -229,10 +237,73 @@ class PageSearchBase(RTDFacetedSearch):
         )
 
         all_queries.extend([sections_nested_query, domains_nested_query])
-        final_query = Bool(should=all_queries)
-        search = search.query(final_query)
 
+        final_query = FunctionScore(
+            query=Bool(should=all_queries),
+            script_score=self._get_script_score(),
+        )
+        search = search.query(final_query)
         return search
+
+    def _get_script_score(self):
+        """
+        Gets an ES script to map the page rank to a valid score weight.
+
+        ES expects the rank to be a number greater than 0,
+        but users can set this between [-10, +10].
+        We map that range to [0.01, 2] (21 possible values).
+
+        The first lower rank (0.8) needs to bring the score from the highest boost (sections.title^2)
+        close to the lowest boost (title^1.5), that way exact results take priority:
+
+        - 2.0 * 0.8 = 1.6 (score close to 1.5, but not lower than it)
+        - 1.5 * 0.8 = 1.2 (score lower than 1.5)
+
+        The first higher rank (1.2) needs to bring the score from the lowest boost (title^1.5)
+        close to the highest boost (sections.title^2), that way exact results take priority:
+
+        - 2.0 * 1.3 = 2.6 (score higher thank 2.0)
+        - 1.5 * 1.3 = 1.95 (score close to 2.0, but not higher than it)
+
+        The next lower and higher ranks need to decrease/increase both scores.
+
+        See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-score-query.html#field-value-factor  # noqa
+        """
+        ranking = [
+            0.01,
+            0.05,
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.6,
+            0.7,
+            0.8,
+            1,
+            1.3,
+            1.4,
+            1.5,
+            1.6,
+            1.7,
+            1.8,
+            1.9,
+            1.93,
+            1.96,
+            2,
+        ]
+        # Each rank maps to a element in the ranking list.
+        # -10 will map to the first element (-10 + 10 = 0) and so on.
+        source = """
+            int rank = doc['rank'].size() == 0 ? 0 : (int) doc['rank'].value;
+            return params.ranking[rank + 10] * _score;
+        """
+        return {
+            "script": {
+                "source": source,
+                "params": {"ranking": ranking},
+            },
+        }
 
     def generate_nested_query(self, query, path, fields, inner_hits):
         """Generate a nested query with passed parameters."""

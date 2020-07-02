@@ -12,6 +12,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
@@ -1352,6 +1353,13 @@ class ImportedFile(models.Model):
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    rank = models.IntegerField(
+        _('Page search rank'),
+        default=0,
+        # TODO: remove after migration
+        null=True,
+        validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
 
     def get_absolute_url(self):
         return resolve(
