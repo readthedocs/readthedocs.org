@@ -407,6 +407,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
+            log.info('Triggered sync_versions: project=%s event=%s', self.project, event)
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
@@ -447,6 +448,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
+            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
             return self.sync_versions_response(self.project)
 
         # Trigger a build for all branches in the push
@@ -559,6 +561,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data['after']
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
+                log.info('Triggered sync_versions: project=%s before=%s after=%s',
+                         self.project, before, after)
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
@@ -659,6 +663,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
+                log.info('Triggered sync_versions: project=%s event=%s',
+                         self.project, event)
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
