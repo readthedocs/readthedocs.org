@@ -59,3 +59,107 @@ and then click on :guilabel:`Search Analytics`.
    Search analytics demo
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
+
+API
+---
+
+Search is exposed through our API that's proxied from the domain where your docs are being served.
+This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` project, for example.
+
+.. http:get:: /_/api/v2/docsearch/
+
+   Return a list of search results for a project,
+   including results from its :doc:`/subprojects`.
+   Results are divided into sections with highlights of the matching term.
+
+   **Example request**:
+
+   .. tabs::
+
+      .. code-tab:: bash
+
+         $ curl "https://docs.readthedocs.io/_/api/v2/docsearch/?project=docs&version=latest&q=server%20side%20search"
+
+      .. code-tab:: python
+
+         import requests
+         URL = 'https://docs.readthedocs.io/_/api/v2/docsearch/'
+         params = {
+            'q': 'server side search',
+            'project': 'docs',
+            'version': 'latest',
+         }
+         response = requests.get(URL, params=params)
+         print(response.json())
+
+   :query q: Search query
+   :query project: Project slug
+   :query version: Version slug
+
+   **Example response**:
+
+   .. sourcecode:: json
+
+      {
+          "count": 41,
+          "next": "https://docs.readthedocs.io/api/v2/docsearch/?page=2&project=read-the-docs&q=server+side+search&version=latest",
+          "previous": null,
+          "results": [
+              {
+                  "type": "page",
+                  "project": "docs",
+                  "version": "latest",
+                  "title": "Server Side Search",
+                  "link": "https://docs.readthedocs.io/en/latest/server-side-search.html",
+                  "highlights": {
+                      "title": [
+                          "<span>Server</span> <span>Side</span> <span>Search</span>"
+                      ]
+                  },
+                  "blocks": [
+                     {
+                        "type": "section",
+                        "id": "server-side-search",
+                        "title": "Server Side Search",
+                        "content": "Read the Docs provides full-text search across all of the pages of all projects, this is powered by Elasticsearch.",
+                        "highlights": {
+                           "title": [
+                              "<span>Server</span> <span>Side</span> <span>Search</span>"
+                           ],
+                           "content": [
+                              "You can <span>search</span> all projects at https:&#x2F;&#x2F;readthedocs.org&#x2F;<span>search</span>&#x2F"
+                           ]
+                        }
+                     },
+                     {
+                        "type": "domain",
+                        "role": "http:get",
+                        "name": "/_/api/v2/docsearch/",
+                        "id": "get--_-api-v2-docsearch-",
+                        "docstring": "Retrieve search results for docs",
+                        "highlights": {
+                           "name": [""],
+                           "docstring": ["Retrieve <span>search</span> results for docs"]
+                        }
+                     }
+                  ]
+              },
+          ]
+      }
+
+   Hightlights are a list of substrings containing matching terms.
+   Note that the text is html escaped with the matching terms inside a ``<span>`` tag.
+
+   There are currently two types of blocks:
+
+   - section: A page section with a linkeable anchor (``id`` attribute).
+   - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
+     with a linkeable anchor (``id`` attribute).
+
+Authentication and authorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using :ref:`private versions <versions:privacy levels>`,
+users will only be allowed to search projects they have permissions over.
+Authentication and authorization is done using the current session,
+or any of the valid :doc:`sharing methods </commercial/sharing>`.
