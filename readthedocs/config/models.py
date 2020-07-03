@@ -41,6 +41,11 @@ class PythonInstallRequirements(Base):
     __slots__ = ('requirements',)
 
 
+class PythonInstallRequirementsList(Base):
+
+    __slots__ = ('requirements',)
+
+
 class PythonInstall(Base):
 
     __slots__ = (

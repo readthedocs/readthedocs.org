@@ -5,6 +5,7 @@
 import copy
 import os
 import re
+import shlex
 from contextlib import contextmanager
 
 from django.conf import settings
@@ -833,6 +834,9 @@ class BuildConfigV2(BuildConfigBase):
                     self.base_path,
                 )
                 python_install['requirements'] = requirements
+        elif 'requires' in raw_install:
+            requires_key = key + 'requires'
+            python_install['requires'] = shlex.split(self.pop_config(requires_key))
         elif 'path' in raw_install:
             path_key = key + '.path'
             with self.catch_validation_error(path_key):
@@ -1113,6 +1117,8 @@ class BuildConfigV2(BuildConfigBase):
         for install in python['install']:
             if 'requirements' in install:
                 python_install.append(PythonInstallRequirements(**install),)
+            elif 'requires' in install:
+                python_install.append(PythonInstallRequirementsList(install['requires']))
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(

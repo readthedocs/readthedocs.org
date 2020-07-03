@@ -33,6 +33,7 @@ from readthedocs.config.models import (
     Conda,
     PythonInstall,
     PythonInstallRequirements,
+    PythonInstallRequirementsList,
 )
 from readthedocs.config.validation import (
     INVALID_BOOL,
@@ -1103,6 +1104,23 @@ class TestBuildConfigV2:
         assert len(install) == 1
         assert isinstance(install[0], PythonInstallRequirements)
         assert install[0].requirements == 'requirements.txt'
+
+    def test_python_install_requires_check_valid(self, tmpdir):
+        build = self.get_build_config(
+            {
+                'python': {
+                    'install': [{
+                        'requires': 'package_a "package_b >=3.0.0,<4.0.0"',
+                    }],
+                },
+            },
+            source_file=str(tmpdir.join('readthedocs.yml')),
+        )
+        build.validate()
+        install = build.python.install
+        assert len(install) == 1
+        assert isinstance(install[0], PythonInstallRequirementsList)
+        assert install[0].requirements == ['package_a', 'package_b >=3.0.0,<4.0.0']
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
         build = self.get_build_config(

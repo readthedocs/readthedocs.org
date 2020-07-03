@@ -175,6 +175,27 @@ Example:
   manage the build, this setting will not have any effect. Instead
   add the extra requirements to the ``environment`` file of Conda.
 
+Requirements List
+'''''''''''''''''
+
+Install packages from a list of requirements as a string (similar to how they would be
+listed on the command-line when invoking ``pip install``).
+
+:Key: `requires`
+:Type: ``string``
+:Required: ``true``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+   python:
+      version: 3.7
+      install:
+         - requires: mkdocs-material Pygments
+
 Packages
 ''''''''
 
