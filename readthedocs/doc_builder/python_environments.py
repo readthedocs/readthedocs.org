@@ -14,7 +14,11 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
-from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import (
+    PythonInstall,
+    PythonInstallRequirements,
+    PythonInstallRequirementsList,
+)
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -77,8 +81,8 @@ class PythonEnvironment:
         for install in self.config.python.install:
             if isinstance(install, PythonInstallRequirements):
                 self.install_requirements_file(install)
-            if isinstance(install, PythonInstallRequirementsString):
-                self.install_requirements_string(install)
+            if isinstance(install, PythonInstallRequirementsList):
+                self.install_requirements_list(install)
             if isinstance(install, PythonInstall):
                 self.install_package(install)
 
@@ -432,12 +436,12 @@ class Virtualenv(PythonEnvironment):
                 bin_path=self.venv_bin(),
             )
 
-    def install_requirements_string(self, install):
+    def install_requirements_list(self, install):
         """
         Install requirements from a string specification using pip.
 
         :param install: A instal object from the config module.
-        :type install: readthedocs.config.modules.PythonInstallRequirementsString
+        :type install: readthedocs.config.modules.PythonInstallRequirementsList
         """
 
         args = [
