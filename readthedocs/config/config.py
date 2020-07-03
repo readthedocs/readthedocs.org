@@ -1119,7 +1119,7 @@ class BuildConfigV2(BuildConfigBase):
             if 'requirements' in install:
                 python_install.append(PythonInstallRequirements(**install),)
             elif 'requires' in install:
-                python_install.append(PythonInstallRequirementsList(install['requires']))
+                python_install.append(PythonInstallRequirementsList(install['requires']),)
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(
