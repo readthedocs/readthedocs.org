@@ -20,6 +20,7 @@ from .models import (
     Python,
     PythonInstall,
     PythonInstallRequirements,
+    PythonInstallRequirementsList,
     Search,
     Sphinx,
     Submodules,
