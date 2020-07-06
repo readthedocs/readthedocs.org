@@ -52,7 +52,7 @@ you are giving access to read the documentation of the associated project on Rea
 Grant access to administrate a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By granting **write** to a user under GitHub, Bitbucket or GitLab
+By granting **write** permission to a user under GitHub, Bitbucket or GitLab
 you are giving access to read the documentation *and* to be an administrator
 of the associated project on Read the Docs to that user.
 
