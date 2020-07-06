@@ -7,68 +7,84 @@ Single Sign-On
 
 
 Single Sign-On is supported on |com_brand| for Pro and Enterprise plans.
-:abbr:`SSO (Single Sign-On)` will allow you to manage all the users' permissions directly on GitHub.
+:abbr:`SSO (Single Sign-On)` will allow you to grant permissions to your organization's projects in an easy way.
+
+Currently, we support two different types of Single Sign-On:
+
+* Authentication *and* authorization are managed by the Identity Provider (e.g. GitHub, Bitbucket or GitLab)
+* Authentication is managed by the Identity Provider (e.g. a ``@company.com`` verified email address)
 
 .. note::
 
-   Currently, we only supports GitHub as Identity Provider.
-   We plan to support GitLab and Bitbucket soon as well.
-
-.. note::
-
-   SSO is currently in **Beta**. We are enabling it only to customers that requested it via our support channel.
+   SSO is currently in **Beta** and only GitHub is supported for now.
    If you would like to apply for the Beta, please `contact us <mailto:support@readthedocs.com>`_.
 
-
-Member Types
-------------
-
-Owners
-~~~~~~
-
-Owners are those users who created the Organization when Sign Up,
-or where added by another owner as an organization owner.
-
-They have access to view and edit all the organization's setting.
-
-.. note::
-
-   They are *not granted full access* to all the projects imported under the organization.
-   Project's permission are *completely* managed at GitHub.
-   This is a noticeable difference when the organization does not have SSO enabled.
+.. contents::
+   :local:
+   :depth: 2
 
 
-Members
-~~~~~~~
+SSO with GitHub, Bitbucket or GitLab
+------------------------------------
 
-Members are users that have read/admin access to at least one of the projects imported under the organization.
+Using an Identity Provider that supports authentication and authorization allows you to manage
+"who have access to what projects on Read the Docs" directly from the provider itself.
+In case you want an employee to have access to your documentation project under Read the Docs,
+that employee just needs to be granted permissions in the GitHub, Bitbucket or GitLab repository associated with it.
 
-They will have **read access** to all the projects imported where they have at least "Read" access
-under the GitHub's repository associated to the project imported.
-
-They will have **admin access** to those projects where they have at least "Write" access on GitHub's repositories.
+Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
+account connected in order to make SSO to work.
 
 .. note::
 
-   Users don't have to be invited to the Read the Docs' organization.
-   Just by granting access at GitHub on the repository imported under Read the Docs,
-   the user become part of the organization automatically.
+   You can read more about `granting permissions on GitHub`_.
+
+   .. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
 
 
-Team Types
-----------
+Grant access to read the documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When SSO is enabled in your organization, Teams disappear completely.
-Read and Admin access to the projects are managed at GitHub, as mentioned in the previous section.
+By granting **read** (or more) permissions to a user under GitHub, Bitbucket or GitLab
+you are giving access to read the documentation of the associated project on Read the Docs to that user.
 
 
-How it works
-------------
+Grant access to administrate a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When users hit your documentation page, they will be asked to login before granting access to the documentation.
-Under the login form, they can choose to login with GitHub, which will automatically create them an account under Read the Docs.
-Then, if the user has access to read that repository on GitHub, permissions will be granted and the user will see the documentation.
+By granting **write** to a user under GitHub, Bitbucket or GitLab
+you are giving access to read the documentation *and* to be an administrator
+of the associated project on Read the Docs to that user.
 
-The account created for those users, will also give them access to the Read the Docs' dashboard.
-There they can see all the projects they have access to and, for those projects they have "Write" access on GitHub,
-they will be able to administrate them as well.
+
+Grant access to import a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When SSO with GitHub, Bitbucket or GitLab is enabled in the organization only owners can import projects on the organization.
+Adding users as owners of your organization will give them permissions to import projects.
+
+Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated.
+
+
+SSO with a ``@company.com`` email address
+-----------------------------------------
+
+Using a ``@company.com`` email address allows you to
+"grant **read** access to all the projects under your organization to users with a ``@company.com`` verified email address".
+
+
+Grant access to administrate a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can add a user under an "Admin Team" to grant admin permissions to all the projects under that Team.
+This can be done under :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
+
+
+Grant access to import a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Making the user member of any "Admin Team" under your organization (as mentioned in the previous section),
+they will be granted access to import a project.
+
+Note that to be able to import a project, that user must have at least **read** permissions in the GitHub, Bitbucket or GitLab repository associated,
+and their social account connected with Read the Docs.
