@@ -22,6 +22,11 @@ The best way to think about this relationship is:
 
 *Owners* will create *Teams* to assign permissions to all *Members*.
 
+.. warning::
+
+   Owners, Members and Teams behave differently if you are using
+   :ref:`SSO with GitHub, Bitbucket or GitLab <SSO with GitHub, Bitbucket or GitLab>`.
+
 Team Types
 ~~~~~~~~~~
 
@@ -44,4 +49,3 @@ Roadrunner would set up a *Team* called *Contractors*.
 That team would have *Read Only* access to the *Road Builder* project.
 Then he would add *Wile E. Coyote* to the team.
 This would give him access to just this one project inside the organization.
-
