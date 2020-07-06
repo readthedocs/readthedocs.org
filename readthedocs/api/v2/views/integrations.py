@@ -189,7 +189,7 @@ class WebhookMixin:
                 project,
                 branches,
             )
-        triggered = True if to_build else False
+        triggered = bool(to_build)
         return {
             'build_triggered': triggered,
             'project': project.slug,
