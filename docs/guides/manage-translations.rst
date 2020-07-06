@@ -43,8 +43,8 @@ To generate these ``.pot`` files it's needed to run this command from your ``doc
 
    .. Unfortunately these are custom types and can't yet be used with intersphinx
    .. https://github.com/sphinx-doc/sphinx/issues/5562
-   .. _gettext_uuid: https://www.sphinx-doc.org/en/latest/usage/configuration.html#confval-gettext_uuid
-   .. _gettext_compact: https://www.sphinx-doc.org/en/latest/usage/configuration.html#confval-gettext_compact
+   .. _gettext_uuid: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-gettext_uuid
+   .. _gettext_compact: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-gettext_compact
 
 
 This command will leave the generated files under ``_build/gettext``.
