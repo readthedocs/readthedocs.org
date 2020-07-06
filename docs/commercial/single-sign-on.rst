@@ -29,7 +29,7 @@ SSO with GitHub, Bitbucket or GitLab
 
 Using an Identity Provider that supports authentication and authorization allows you to manage
 "who have access to what projects on Read the Docs" directly from the provider itself.
-In case you want an user to have access to your documentation project under Read the Docs,
+In case you want a user to have access to your documentation project under Read the Docs,
 that user just needs to be granted permissions in the GitHub, Bitbucket or GitLab repository associated with it.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
