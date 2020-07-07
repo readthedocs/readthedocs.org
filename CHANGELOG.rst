@@ -1,3 +1,14 @@
+Version 5.2.0
+-------------
+
+:Date: July 07, 2020
+
+* `@saadmk11 <https://github.com/saadmk11>`__: Version docs Typo fix (`#7266 <https://github.com/readthedocs/readthedocs.org/pull/7266>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: fix linter (`#7261 <https://github.com/readthedocs/readthedocs.org/pull/7261>`__)
+* `@GioviQ <https://github.com/GioviQ>`__: Update manage-translations.rst (`#7260 <https://github.com/readthedocs/readthedocs.org/pull/7260>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add additional logging for sync_repository task (`#7254 <https://github.com/readthedocs/readthedocs.org/pull/7254>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: custom search page ranking (`#7237 <https://github.com/readthedocs/readthedocs.org/pull/7237>`__)
+
 Version 5.1.5
 -------------
 
