@@ -60,7 +60,7 @@ of the associated project on Read the Docs to that user.
 Grant access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When SSO with GitHub, Bitbucket or GitLab is enabled in the organization only owners can import projects on the organization.
+When SSO with GitHub, Bitbucket or GitLab is enabled only owners of the Read the Docs organization can import projects.
 Adding users as owners of your organization will give them permissions to import projects.
 
 Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated.
