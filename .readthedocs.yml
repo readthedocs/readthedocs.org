@@ -14,4 +14,4 @@ search:
     config-file/v1.html: -1
 
     # Internal documentation
-    development/design/*: -1
+    development/design/*: -5
