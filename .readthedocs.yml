@@ -11,7 +11,8 @@ search:
   ranking:
     # Deprecated content
     api/v1.html: -1
+    api/v2.html: -1
     config-file/v1.html: -1
 
     # Internal documentation
-    development/design/*: -1
+    development/design/*: -5
