@@ -516,8 +516,8 @@ class BaseTestDocumentSearch:
         page_guides = HTMLFile.objects.get(path='guides/index.html')
 
         # Query with the default ranking
-        assert page_index.rank == 0
-        assert page_guides.rank == 0
+        assert page_index.rank is None
+        assert page_guides.rank is None
 
         search_params = {
             'project': project.slug,
