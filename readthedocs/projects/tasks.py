@@ -16,6 +16,7 @@ import socket
 import tarfile
 import tempfile
 from collections import Counter, defaultdict
+from fnmatch import fnmatch
 
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
@@ -86,7 +87,6 @@ from .signals import (
     domain_verify,
     files_changed,
 )
-
 
 log = logging.getLogger(__name__)
 
@@ -1135,6 +1135,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             version_pk=self.version.pk,
             commit=self.build['commit'],
             build=self.build['id'],
+            search_ranking=self.config.search.ranking,
         )
 
     def setup_python_environment(self):
@@ -1277,7 +1278,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build):
+def fileify(version_pk, commit, build, search_ranking):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1311,7 +1312,12 @@ def fileify(version_pk, commit, build):
         },
     )
     try:
-        changed_files = _create_imported_files(version, commit, build)
+        changed_files = _create_imported_files(
+            version=version,
+            commit=commit,
+            build=build,
+            search_ranking=search_ranking,
+        )
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
@@ -1405,7 +1411,7 @@ def _create_intersphinx_data(version, commit, build):
                     'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
                     version.project.slug,
                     version.slug,
-                    f'domain->name',
+                    f'{domain}->{name}',
                 )
                 continue
 
@@ -1488,7 +1494,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, commit, build):
+def _create_imported_files(*, version, commit, build, search_ranking):
     """
     Create imported files for version.
 
@@ -1547,6 +1553,17 @@ def _create_imported_files(version, commit, build):
                         version_slug=version.slug,
                     ),
                 )
+
+            page_rank = 0
+            # Last pattern to match takes precedence
+            # XXX: see if we can implement another type of precedence,
+            # like the longest pattern.
+            reverse_rankings = reversed(list(search_ranking.items()))
+            for pattern, rank in reverse_rankings:
+                if fnmatch(relpath, pattern):
+                    page_rank = rank
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1554,6 +1571,7 @@ def _create_imported_files(version, commit, build):
                 path=relpath,
                 name=filename,
                 md5=md5,
+                rank=page_rank,
                 commit=commit,
                 build=build,
             )

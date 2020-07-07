@@ -136,11 +136,11 @@ class GitHubService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.debug(
-                'Not importing %s because mismatched type',
-                fields['name'],
-            )
+
+        log.debug(
+            'Not importing %s because mismatched type',
+            fields['name'],
+        )
 
     def create_organization(self, fields):
         """

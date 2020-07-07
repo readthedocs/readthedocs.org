@@ -68,3 +68,8 @@ class Mkdocs(Base):
 class Submodules(Base):
 
     __slots__ = ('include', 'exclude', 'recursive')
+
+
+class Search(Base):
+
+    __slots__ = ('ranking',)
