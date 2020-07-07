@@ -38,8 +38,8 @@ See :doc:`using environment variables in Read the Docs </guides/environment-vari
 
 .. note::
 
-   You have to use the POSIX format for variable names (only uppercase letters and ``_`` are allowed)
-   including a dollar sign and curly brackets around the name (``${API_TOKEN}``)
+   You have to use the POSIX format for variable names (only uppercase letters and ``_`` are allowed),
+   and including a dollar sign and curly brackets around the name (``${API_TOKEN}``)
    for :ref:`pip to be able to recognize them <pip:using environment variables>`.
 
 Bellow you can find how to get a personal access token from our supported providers.
