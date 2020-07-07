@@ -4,12 +4,10 @@ import logging
 from operator import attrgetter
 
 from django.utils import timezone
-from django.shortcuts import get_object_or_404
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
-from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import HTMLFile
 
 
 log = logging.getLogger(__name__)

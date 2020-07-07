@@ -73,22 +73,22 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
-            else:
-                # Update slug with new identifier
-                Version.objects.filter(
-                    project=project,
-                    verbose_name=version_name,
-                ).update(
-                    identifier=version_id,
-                    type=type,
-                    machine=False,
-                )  # noqa
 
-                log.info(
-                    '(Sync Versions) Updated Version: [%s=%s] ',
-                    version_name,
-                    version_id,
-                )
+            # Update slug with new identifier
+            Version.objects.filter(
+                project=project,
+                verbose_name=version_name,
+            ).update(
+                identifier=version_id,
+                type=type,
+                machine=False,
+            )  # noqa
+
+            log.info(
+                '(Sync Versions) Updated Version: [%s=%s] ',
+                version_name,
+                version_id,
+            )
         else:
             # New Version
             created_version = Version.objects.create(
