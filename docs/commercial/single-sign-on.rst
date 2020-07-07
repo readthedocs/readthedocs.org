@@ -86,5 +86,5 @@ Grant access to import a project
 Making the user member of any "Admin Team" under your organization (as mentioned in the previous section),
 they will be granted access to import a project.
 
-Note that to be able to import a project, that user must have at least **read** permissions in the GitHub, Bitbucket or GitLab repository associated,
+Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated,
 and their social account connected with Read the Docs.
