@@ -36,6 +36,12 @@ Pip will automatically expand environment variables in your URI,
 so you don't have to hard code the token in the URI.
 See :doc:`using environment variables in Read the Docs </guides/environment-variables>` for more information.
 
+.. note::
+
+   You have to use the POSIX format for variable names (only uppercase letters and ``_`` are allowed)
+   including brackets around the name (``${API_TOKEN}``)
+   for :ref:`pip to be able to recognize them <pip:using environment variables>`.
+
 Bellow you can find how to get a personal access token from our supported providers.
 We will be using environment variables for the token.
 
