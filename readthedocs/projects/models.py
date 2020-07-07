@@ -1355,7 +1355,7 @@ class ImportedFile(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
     rank = models.IntegerField(
         _('Page search rank'),
-        default=0,
+        # default=0,
         # TODO: remove after migration
         null=True,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
