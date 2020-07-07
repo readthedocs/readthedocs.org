@@ -51,6 +51,7 @@ When a rule matches a new version, the specified action is performed on that ver
 Currently, the following actions are available:
 
 - **Activate version**: Activates and builds the version.
+- **Hide version**: Hides the version and if the version is not active it activates and builds the version.
 - **Set version as default**: Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
