@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='importedfile',
             name='rank',
-            field=models.IntegerField(default=0, null=True, validators=[django.core.validators.MinValueValidator(-10), django.core.validators.MaxValueValidator(10)], verbose_name='Page search rank'),
+            field=models.IntegerField(null=True, validators=[django.core.validators.MinValueValidator(-10), django.core.validators.MaxValueValidator(10)], verbose_name='Page search rank'),
         ),
     ]
