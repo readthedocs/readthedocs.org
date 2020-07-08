@@ -634,6 +634,14 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.netloc
         else:
             domain_string = parsed.path
+
+        # Don't allow production or public domain to be set as custom domain
+        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+            if invalid_domain and domain_string.endswith(invalid_domain):
+                raise forms.ValidationError(
+                    f'{invalid_domain} is not a valid domain.'
+                )
+
         return domain_string
 
     def clean_canonical(self):
