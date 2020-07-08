@@ -52,7 +52,7 @@ Currently, the following actions are available:
 
 - **Activate version**: Activates and builds the version.
 - **Hide version**: Hides the version. If the version is not active, activates it and builds the version.
-  See more in :ref:`guides/hiding-a-version:Hide a Version and Keep its Docs Online`.
+  See more in :ref:`versions:Version States`.
 - **Set version as default**: Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
