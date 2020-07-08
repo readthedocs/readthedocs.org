@@ -17,7 +17,11 @@ from readthedocs.builds.constants import (
     TAG,
     TAG_TEXT,
 )
-from readthedocs.builds.models import RegexAutomationRule, Version
+from readthedocs.builds.models import (
+    RegexAutomationRule,
+    Version,
+    VersionAutomationRule,
+)
 from readthedocs.core.mixins import HideProtectedLevelMixin
 from readthedocs.core.utils import trigger_build
 
@@ -130,6 +134,19 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (BRANCH, BRANCH_TEXT),
             (TAG, TAG_TEXT),
         ]
+
+        # Only list supported actions
+        if not settings.ALLOW_PRIVATE_REPOS:
+            invalid_actions = {
+                VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
+                VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
+            }
+            action_choices = self.fields['action'].choices
+            self.fields['action'].choices = [
+                action
+                for action in action_choices
+                if action[0] not in invalid_actions
+            ]
 
         if not self.instance.pk:
             self.initial['predefined_match_arg'] = ALL_VERSIONS
