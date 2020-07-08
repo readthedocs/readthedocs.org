@@ -1,9 +1,8 @@
 {% load i18n %}
-{% load privacy_tags %}
 
 <!-- BEGIN onboard first build -->
 
-{% if request.user|is_admin:project %}
+{% if is_project_admin %}
   <div class="onboard onboard-detail">
     {% if not onboard.build %}
       <h2>{% trans "Start building your documentation" %}</h2>
@@ -59,10 +58,10 @@
           </form>
         {% endif %}
       {% else %}
-        
+
         {% url "builds_detail" project_slug=project.slug build_pk=onboard.build.pk as latest_build_url %}
         <a href="{{ latest_build_url }}"><h2>{% trans "Your documentation is building" %}</h2></a>
-        
+
         <p>
         {% blocktrans trimmed %}
           You'll be able to view your documentation in a minute or two,
