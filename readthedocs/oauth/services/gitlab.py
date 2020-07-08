@@ -195,12 +195,12 @@ class GitLabService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.info(
-                'Not importing %s because mismatched type: visibility=%s',
-                fields['name_with_namespace'],
-                fields['visibility'],
-            )
+
+        log.info(
+            'Not importing %s because mismatched type: visibility=%s',
+            fields['name_with_namespace'],
+            fields['visibility'],
+        )
 
     def create_organization(self, fields):
         """

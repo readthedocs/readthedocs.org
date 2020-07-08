@@ -77,7 +77,7 @@ Hidden
 - **Hidden and Active**
 
   - This version isn't listed on the version (flyout) menu on the docs site
-  - This version isn't show in search results from another version on the docs site
+  - This version isn't shown in search results from another version on the docs site
     (like on search results from a superproject)
 
 Hiding a version doesn't make it private,

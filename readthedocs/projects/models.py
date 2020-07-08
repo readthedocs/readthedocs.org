@@ -67,13 +67,13 @@ class ProjectRelationship(models.Model):
     """
 
     parent = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Parent'),
         related_name='subprojects',
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Child'),
         related_name='superprojects',
         on_delete=models.CASCADE,
@@ -1330,7 +1330,7 @@ class ImportedFile(models.Model):
     """
 
     project = models.ForeignKey(
-        'Project',
+        Project,
         verbose_name=_('Project'),
         related_name='imported_files',
         on_delete=models.CASCADE,
@@ -1355,7 +1355,7 @@ class ImportedFile(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
     rank = models.IntegerField(
         _('Page search rank'),
-        default=0,
+        # default=0,
         # TODO: remove after migration
         null=True,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
