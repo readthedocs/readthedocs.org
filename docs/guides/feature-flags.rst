@@ -14,6 +14,8 @@ Available Flags
 
 ``PIP_ALWAYS_UPGRADE``: :featureflags:`PIP_ALWAYS_UPGRADE`
 
+``USE_DOCUTILS_LATEST``: :featureflags:`USE_DOCUTILS_LATEST`
+
 ``UPDATE_CONDA_STARTUP``: :featureflags:`UPDATE_CONDA_STARTUP`
 
 The version of ``conda`` used in the build process could not be the latest one.
