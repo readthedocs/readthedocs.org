@@ -73,15 +73,15 @@ Using your company's email address (e.g. ``employee@company.com``) allows you to
 "grant **read** access to all the projects under your organization to users with a ``@company.com`` verified email address".
 
 
-Grant access to administrate a project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grant access to administer a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can add a user under an "Admin Team" to grant **admin** permissions to all the projects under that Team.
 This can be done under "your organization detail's page" > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
 
 
-Grant access to import a project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Grant access to users to import a project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Making the user member of any "Admin Team" under your organization (as mentioned in the previous section),
 they will be granted access to import a project.
