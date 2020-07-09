@@ -1,6 +1,4 @@
 {% load i18n %}
-{% load core_tags %}
-{% load privacy_tags %}
 {% load gravatar %}
 {% load projects_tags %}
 
@@ -38,7 +36,7 @@
             {{ version.slug }}
           </a>
         {% endif %}
-          {% if request.user|is_admin:project %}
+          {% if is_project_admin %}
             <ul class="module-item-menu">
               <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
             </ul>
@@ -57,7 +55,7 @@
   </div>
 
 {% block build_versions %}
-{% if versions and request.user|is_admin:project %}
+{% if versions and is_project_admin %}
   <div class="build_a_version">
     <h3>{% trans "Build a version" %}</h3>
     <div class="version_right">
