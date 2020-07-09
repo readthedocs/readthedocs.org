@@ -16,7 +16,7 @@ Currently, we support two different types of Single Sign-On:
 
 .. note::
 
-   SSO is currently in **Beta** and only GitHub is supported for now.
+   SSO is currently in **Beta** and only GitHub and Company Email are supported for now.
    If you would like to apply for the Beta, please `contact us <mailto:support@readthedocs.com>`_.
 
 .. contents::
@@ -24,16 +24,16 @@ Currently, we support two different types of Single Sign-On:
    :depth: 2
 
 
-SSO with GitHub, Bitbucket or GitLab
-------------------------------------
+SSO with VCS social provider (GitHub, Bitbucket or GitLab)
+----------------------------------------------------------
 
 Using an Identity Provider that supports authentication and authorization allows you to manage
 "who have access to what projects on Read the Docs" directly from the provider itself.
 In case you want a user to have access to your documentation project under Read the Docs,
-that user just needs to be granted permissions in the GitHub, Bitbucket or GitLab repository associated with it.
+that user just needs to be granted permissions in the VCS repository associated with it.
 
 Note the users created under Read the Docs must have their GitHub, Bitbucket or GitLab
-account connected in order to make SSO to work.
+:doc:`account connected </connected-accounts>` in order to make SSO to work.
 
 .. note::
 
@@ -45,14 +45,14 @@ account connected in order to make SSO to work.
 Grant access to read the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By granting **read** (or more) permissions to a user under GitHub, Bitbucket or GitLab
+By granting **read** (or more) permissions to a user under VCS provider
 you are giving access to read the documentation of the associated project on Read the Docs to that user.
 
 
 Grant access to administrate a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By granting **write** permission to a user under GitHub, Bitbucket or GitLab
+By granting **write** permission to a user under VCS provider
 you are giving access to read the documentation *and* to be an administrator
 of the associated project on Read the Docs to that user.
 
@@ -60,24 +60,24 @@ of the associated project on Read the Docs to that user.
 Grant access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When SSO with GitHub, Bitbucket or GitLab is enabled only owners of the Read the Docs organization can import projects.
+When SSO with VCS social provider is enabled only owners of the Read the Docs organization can import projects.
 Adding users as owners of your organization will give them permissions to import projects.
 
-Note that to be able to import a project, that user must have **admin** permissions in the GitHub, Bitbucket or GitLab repository associated.
+Note that to be able to import a project, that user must have **admin** permissions in the VCS provider repository associated.
 
 
-SSO with a ``@company.com`` email address
------------------------------------------
+SSO with your company email address
+-----------------------------------
 
-Using a ``@company.com`` email address allows you to
+Using your company's email address (e.g. ``employee@company.com``) allows you to
 "grant **read** access to all the projects under your organization to users with a ``@company.com`` verified email address".
 
 
 Grant access to administrate a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can add a user under an "Admin Team" to grant admin permissions to all the projects under that Team.
-This can be done under :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
+You can add a user under an "Admin Team" to grant **admin** permissions to all the projects under that Team.
+This can be done under "your organization detail's page" > :guilabel:`Teams` > :guilabel:`Admins` > :guilabel:`Invite Member`.
 
 
 Grant access to import a project
