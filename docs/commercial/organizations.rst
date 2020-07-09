@@ -25,7 +25,7 @@ The best way to think about this relationship is:
 .. warning::
 
    Owners, Members and Teams behave differently if you are using
-   :ref:`SSO with GitHub, Bitbucket or GitLab <SSO with GitHub, Bitbucket or GitLab>`.
+   :ref:`SSO with VCS social provider (GitHub, Bitbucket or GitLab) <SSO with VCS social provider (GitHub, Bitbucket or GitLab)>`
 
 Team Types
 ~~~~~~~~~~
