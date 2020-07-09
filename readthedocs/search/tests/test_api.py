@@ -23,6 +23,14 @@ from readthedocs.search.tests.utils import (
     get_search_query_from_project_file,
 )
 
+OLD_TYPES = {
+    'domain': 'domains',
+    'section': 'sections',
+}
+OLD_FIELDS = {
+    'docstring': 'docstrings',
+}
+
 
 @pytest.mark.django_db
 @pytest.mark.search
@@ -43,7 +51,7 @@ class BaseTestDocumentSearch:
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type='title'
+            field='title'
         )
 
         version = project.versions.all().first()
@@ -77,10 +85,12 @@ class BaseTestDocumentSearch:
         page_num,
         data_type
     ):
+        type, field = data_type.split('.')
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
-            data_type=data_type
+            type=type,
+            field=field,
         )
         version = project.versions.all().first()
         search_params = {
@@ -105,10 +115,11 @@ class BaseTestDocumentSearch:
 
         inner_hit_0 = inner_hits[0]  # first inner_hit
 
-        expected_type = data_type.split('.')[0]  # can be "sections" or "domains"
-        assert inner_hit_0['type'] == expected_type
+        old_type = OLD_TYPES.get(type, type)
+        assert inner_hit_0['type'] == old_type
 
-        highlight = inner_hit_0['highlight'][data_type]
+        old_field = old_type + '.' + OLD_FIELDS.get(field, field)
+        highlight = inner_hit_0['highlight'][old_field]
         assert (
             len(highlight) == 1
         ), 'number_of_fragments is set to 1'
@@ -496,6 +507,111 @@ class BaseTestDocumentSearch:
         results = resp.data['results']
         assert len(results) > 0
         assert 'Index' in results[0]['title']
+
+    def test_search_custom_ranking(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        page_index = HTMLFile.objects.get(path='index.html')
+        page_guides = HTMLFile.objects.get(path='guides/index.html')
+
+        # Query with the default ranking
+        assert page_index.rank is None
+        assert page_guides.rank is None
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+        # Query with a higher rank over guides/index.html
+        page_guides.rank = 5
+        page_guides.save()
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a lower rank over index.html
+        page_index.rank = -2
+        page_index.save()
+        page_guides.rank = 4
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a lower rank over index.html
+        page_index.rank = 3
+        page_index.save()
+        page_guides.rank = 6
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a same rank over guides/index.html and index.html
+        page_index.rank = -10
+        page_index.save()
+        page_guides.rank = -10
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):

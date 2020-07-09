@@ -943,9 +943,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
+    HIDE_VERSION_ACTION = 'hide-version'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
+
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (HIDE_VERSION_ACTION, _('Hide version')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
@@ -1157,6 +1160,7 @@ class RegexAutomationRule(VersionAutomationRule):
 
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
+        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
     }
 

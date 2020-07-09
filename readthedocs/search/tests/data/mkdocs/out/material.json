@@ -1,0 +1,34 @@
+[
+  {
+    "path": "index.html",
+    "title": "Overview",
+    "sections": [
+      {
+        "id": "",
+        "title": "Overview",
+        "content": "Network-wide ad blocking via your own Linux hardware The Pi-hole® is a DNS sinkhole that protects your devices from unwanted content, without installing any client-side software. Easy-to-install: our versatile installer walks you through the process, and takes less than ten minutes Robust: a command-line interface that is quality assured for interoperability Insightful: a beautiful responsive Web Interface dashboard to view and control your Pi-hole Free: open-source software which helps ensure you are the sole person in control of your privacy"
+      },
+      {
+        "id": "pi-hole-is-free-but-powered-by-your-support",
+        "title": "Pi-hole is free, but powered by your support",
+        "content": "There are many reoccurring costs involved with maintaining free, open-source, and privacy respecting software; expenses which our volunteer developers pitch in to cover out-of-pocket. This is just one example of how strongly we feel about our software, as well as the importance of keeping it maintained. Make no mistake: your support is absolutely vital to help keep us innovating!"
+      },
+      {
+        "id": "donations",
+        "title": "Donations",
+        "content": "Sending a donation using our links below is extremely helpful in offsetting a portion of our monthly expenses: Donate via PayPal or Stripe Bitcoin, Bitcoin Cash, Ethereum, Litecoin"
+      },
+      {
+        "id": "alternative-support",
+        "title": "Alternative support",
+        "content": "If you'd rather not donate (which is okay!), there are other ways you can help support us:"
+      },
+      {
+        "id": "contributing-via-github",
+        "title": "Contributing via GitHub",
+        "content": "We welcome everyone to contribute to issue reports, suggest new features, and create pull requests. If you have something to add - anything from a typo through to a whole new feature, we're happy to check it out! Just make sure to fill out our template when submitting your request; the questions that it asks will help the volunteers quickly understand what you're aiming to achieve. Last update: June 2, 2020"
+      }
+    ],
+    "domain_data": {}
+  }
+]

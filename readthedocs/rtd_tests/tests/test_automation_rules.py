@@ -202,6 +202,29 @@ class TestRegexAutomationRules:
         assert rule.run(version) is True
         assert self.project.get_default_version() == version.slug
 
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_version_hide_action(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=False,
+            hidden=False,
+            type=TAG,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.HIDE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        assert rule.run(version) is True
+        assert version.active is True
+        assert version.hidden is True
+        trigger_build.assert_called_once()
+
 
 @pytest.mark.django_db
 class TestAutomationRuleManager:

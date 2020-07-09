@@ -57,6 +57,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     version = fields.KeywordField(attr='version.slug')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
+    rank = fields.IntegerField()
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
@@ -91,6 +92,12 @@ class PageDocument(RTDDocTypeMixin, DocType):
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
+
+    def prepare_rank(self, html_file):
+        # TODO: remove when the migration is done
+        if html_file.rank is None or not (-10 <= html_file.rank <= 10):
+            return 0
+        return html_file.rank
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""

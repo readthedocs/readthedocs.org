@@ -12,6 +12,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
@@ -66,13 +67,13 @@ class ProjectRelationship(models.Model):
     """
 
     parent = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Parent'),
         related_name='subprojects',
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Child'),
         related_name='superprojects',
         on_delete=models.CASCADE,
@@ -603,27 +604,27 @@ class Project(models.Model):
 
         This replaces the user-facing syntax with the regex syntax.
         """
-        to_convert = self.urlconf
+        to_convert = re.escape(self.urlconf)
 
         # We should standardize these names so we can loop over them easier
         to_convert = to_convert.replace(
-            '$version',
+            '\\$version',
             '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
         )
         to_convert = to_convert.replace(
-            '$language',
+            '\\$language',
             '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
         )
         to_convert = to_convert.replace(
-            '$filename',
+            '\\$filename',
             '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
         )
         to_convert = to_convert.replace(
-            '$subproject',
+            '\\$subproject',
             '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
         )
 
-        if '$' in to_convert:
+        if '\\$' in to_convert:
             log.warning(
                 'Unconverted variable in a project URLConf: project=%s to_convert=%s',
                 self, to_convert
@@ -648,7 +649,9 @@ class Project(models.Model):
 
             proxied_urls = [
                 re_path(
-                    r'{proxied_api_url}api/v2/'.format(proxied_api_url=self.proxied_api_url),
+                    r'{proxied_api_url}api/v2/'.format(
+                        proxied_api_url=re.escape(self.proxied_api_url),
+                    ),
                     include('readthedocs.api.v2.proxied_urls'),
                     name='user_proxied_api'
                 ),
@@ -657,7 +660,7 @@ class Project(models.Model):
                     r'(?P<lang_slug>{lang_slug})/'
                     r'(?P<version_slug>{version_slug})/'
                     r'(?P<type_>[-\w]+)/$'.format(
-                        proxied_api_url=self.proxied_api_url,
+                        proxied_api_url=re.escape(self.proxied_api_url),
                         **pattern_opts),
                     ProjectDownloadMedia.as_view(same_domain_url=True),
                     name='user_proxied_downloads'
@@ -671,7 +674,9 @@ class Project(models.Model):
                 ),
                 # paths for redirects at the root
                 re_path(
-                    '^{proxied_api_url}$'.format(proxied_api_url=self.urlconf.split('$', 1)[0]),
+                    '^{proxied_api_url}$'.format(
+                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
+                    ),
                     ServeDocs.as_view(),
                     name='user_proxied_serve_docs_subpath_redirect'
                 ),
@@ -1325,7 +1330,7 @@ class ImportedFile(models.Model):
     """
 
     project = models.ForeignKey(
-        'Project',
+        Project,
         verbose_name=_('Project'),
         related_name='imported_files',
         on_delete=models.CASCADE,
@@ -1348,6 +1353,13 @@ class ImportedFile(models.Model):
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    rank = models.IntegerField(
+        _('Page search rank'),
+        # default=0,
+        # TODO: remove after migration
+        null=True,
+        validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
 
     def get_absolute_url(self):
         return resolve(
@@ -1540,6 +1552,7 @@ class Feature(models.Model):
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
+    INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1660,6 +1673,10 @@ class Feature(models.Model):
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _('Default to fuzzy search for simple search queries'),
+        ),
+        (
+            INDEX_FROM_HTML_FILES,
+            _('Index content directly from html files instead or relying in other sources'),
         ),
     )
 

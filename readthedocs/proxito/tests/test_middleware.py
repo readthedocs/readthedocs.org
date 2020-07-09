@@ -224,6 +224,35 @@ class MiddlewareURLConfTests(TestCase):
             'Inserted RTD Footer',
         )
 
+    def test_urlconf_is_escaped(self):
+        self.pip.urlconf = '3.6/$version/$language/$filename'
+        self.pip.save()
+
+        self.assertEqual(self.pip.proxied_api_url, '3.6/_/')
+        self.assertEqual(self.pip.proxied_api_host, '/3.6/_')
+
+        resp = self.client.get('/316/latest/en/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get('/3.6/latest/en/index.html', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get('/316/_/downloads/en/latest/pdf/', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get('/3.6/_/downloads/en/latest/pdf/', HTTP_HOST=self.domain)
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get(
+            '/316/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index',
+            HTTP_HOST=self.domain
+        )
+        self.assertEqual(resp.status_code, 404)
+        resp = self.client.get(
+            '/3.6/_/api/v2/footer_html/?project=pip&version=latest&language=en&page=index',
+            HTTP_HOST=self.domain
+        )
+        self.assertEqual(resp.status_code, 200)
+
+
 
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')

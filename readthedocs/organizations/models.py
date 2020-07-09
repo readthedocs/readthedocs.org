@@ -3,11 +3,11 @@
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils.crypto import salted_hmac
 from django.utils.translation import ugettext_lazy as _
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 
 from . import constants
@@ -93,16 +93,13 @@ class Organization(models.Model):
 
     @property
     def users(self):
-        return (self.members.all() | self.owners.all().distinct()).distinct()
+        return AdminPermission.members(self)
 
     @property
     def members(self):
-        """Return members as an aggregate over all organization teams."""
-        return User.objects.filter(
-            Q(teams__organization=self) | Q(owner_organizations=self),
-        ).distinct()
+        return AdminPermission.members(self)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:
             self.slug = slugify(self.name)
 
@@ -207,7 +204,7 @@ class Team(models.Model):
             team=self.name,
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
@@ -248,7 +245,7 @@ class TeamInvite(models.Model):
             team=self.team,
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
         hash_ = salted_hmac(
             # HMAC key per applications
             '.'.join([self.__module__, self.__class__.__name__]),

@@ -92,6 +92,20 @@ class CoreTagsTests(TestCase):
         url = core_tags.make_document_url(proj, LATEST, 'index', 'index.html')
         self.assertEqual(url, self.pip_latest_url_index)
 
+    def test_restructured_text(self):
+        value = '*test*'
+        result = core_tags.restructuredtext(value)
+        self.assertIn('<em>test</em>', result)
+
+    def test_restructured_text_invalid(self):
+        value = (
+            '*******\n'
+            'Test\n'
+            '****\n\n'
+        )
+        result = core_tags.restructuredtext(value)
+        self.assertEqual(result, value)
+
     def test_escapejson(self):
         tests = (
             ({}, '{}'),

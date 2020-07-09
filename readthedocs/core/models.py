@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """Models for the core app."""
 import logging
 
 from annoying.fields import AutoOneToOneField
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy as _
-
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +16,7 @@ class UserProfile(models.Model):
     """Additional information about a User."""
 
     user = AutoOneToOneField(
-        'auth.User',
+        User,
         verbose_name=_('User'),
         related_name='profile',
         on_delete=models.CASCADE,

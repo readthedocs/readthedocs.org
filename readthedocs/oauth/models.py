@@ -117,7 +117,11 @@ class RemoteRepository(models.Model):
         blank=True,
     )
     name = models.CharField(_('Name'), max_length=255)
-    full_name = models.CharField(_('Full Name'), max_length=255)
+    full_name = models.CharField(
+        _('Full Name'),
+        max_length=255,
+        db_index=True,
+    )
     description = models.TextField(
         _('Description'),
         blank=True,

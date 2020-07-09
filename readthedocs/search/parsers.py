@@ -21,49 +21,216 @@ class BaseParser:
         self.project = self.version.project
         self.storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
+    def _get_page_content(self, page):
+        """Gets the page content from storage."""
+        content = None
+        try:
+            storage_path = self.project.get_storage_path(
+                type_='html',
+                version_slug=self.version.slug,
+                include_file=False,
+            )
+            file_path = self.storage.join(storage_path, page)
+            with self.storage.open(file_path, mode='r') as f:
+                content = f.read()
+        except Exception:
+            log.warning(
+                'Unhandled exception during search processing file: %s',
+                page,
+            )
+        return content
+
+    def _get_page_title(self, body, html):
+        """
+        Gets the title from the html page.
+
+        The title is the first section in the document,
+        falling back to the ``title`` tag.
+        """
+        first_header = body.css_first('h1')
+        if first_header:
+            title, _ = self._parse_section_title(first_header)
+            return title
+
+        title = html.css_first('title')
+        if title:
+            return self._parse_content(title.text())
+
+        return None
+
+    def _get_main_node(self, html):
+        """
+        Gets the main node from where to start indexing content.
+
+        The main node is tested in the following order:
+
+        - Try with a tag with the ``main`` role.
+          This role is used by several static sites and themes.
+        - Try the first ``h1`` node and return its parent
+          Usually all sections are neighbors,
+          so they are children of the same parent node.
+        """
+        body = html.body
+        main_node = body.css_first('[role=main]')
+        if main_node:
+            return main_node
+
+        # TODO: this could be done in smarter way,
+        # checking for common parents between all h nodes.
+        first_header = body.css_first('h1')
+        if first_header:
+            return first_header.parent
+
+        return None
+
     def _parse_content(self, content):
-        """Removes new line characters and posible anchors."""
-        content = content.replace('¶', '').strip()
-        content = content.split('\n')
+        """Removes new line characters and strips all whitespaces."""
+        content = content.strip().split('\n')
 
         # Convert all new lines to " "
         content = (text.strip() for text in content)
         content = ' '.join(text for text in content if text)
         return content
 
+    def _parse_sections(self, title, body):
+        """
+        Parses each section into a structured dict.
+
+        Sub-sections are nested, so they are children of the outer section,
+        and sections with the same level are neighbors.
+        We index the content under a section till before the next one.
+
+        We can have pages that have content before the first title or that don't have a title,
+        we index that content first under the title of the original page.
+        """
+        body = self._clean_body(body)
+
+        # Index content for pages that don't start with a title.
+        # We check for sections till 2 levels to avoid indexing all the content
+        # in this step.
+        try:
+            content, _ = self._parse_section_content(
+                body.child,
+                depth=2,
+            )
+            if content:
+                yield {
+                    'id': '',
+                    'title': title,
+                    'content': content,
+                }
+        except Exception as e:
+            log.info('Unable to index section: %s', str(e))
+
+        # Index content from h1 to h6 headers.
+        for head_level in range(1, 7):
+            tags = body.css(f'h{head_level}')
+            for tag in tags:
+                try:
+                    title, id = self._parse_section_title(tag)
+                    content, _ = self._parse_section_content(tag.next)
+                    yield {
+                        'id': id,
+                        'title': title,
+                        'content': content,
+                    }
+                except Exception as e:
+                    log.info('Unable to index section: %s', str(e))
+
+    def _clean_body(self, body):
+        """
+        Removes nodes with irrelevant content before parsing its sections.
+
+        .. warning::
+
+           This will mutate the original `body`.
+        """
+        # Remove all navigation nodes
+        nodes_to_be_removed = body.css('[role=navigation]')
+        for node in nodes_to_be_removed:
+            node.decompose()
+
+        return body
+
     def _is_section(self, tag):
-        """Check if `tag` is a section (linkeable header)."""
+        """
+        Check if `tag` is a section (linkeable header).
+
+        The tag is a section if:
+
+        - It's a ``h`` tag.
+        - It's a div with a ``section`` class.
+        """
+        is_header_tag = re.match(r'h\d$', tag.tag)
+        if is_header_tag:
+            return True
+
         is_div_section = (
             tag.tag == 'div' and
             'section' in tag.attributes.get('class', '').split()
         )
-        return is_div_section
+        if is_div_section:
+            return True
+
+        return False
 
     def _parse_section_title(self, tag):
         """
-        Parses a section title tag.
+        Parses a section title tag and gets its id.
 
-        - Removes the permalink value
+        The id (used to link to the section) is tested in the following order:
+
+        - Get the id from the node itself.
+        - Get the id from the parent node.
+
+        Additionally:
+
+        - Removes permalink values
         """
         nodes_to_be_removed = tag.css('a.headerlink')
         for node in nodes_to_be_removed:
             node.decompose()
-        return self._parse_content(tag.text())
 
-    def _parse_section_content(self, tag):
-        """Gets the content from tag till before a new section."""
+        section_id = tag.attributes.get('id', '')
+        if not section_id:
+            parent = tag.parent
+            section_id = parent.attributes.get('id', '')
+
+        return self._parse_content(tag.text()), section_id
+
+    def _parse_section_content(self, tag, *, depth=0):
+        """
+        Gets the content from tag till before a new section.
+
+        if depth > 0, recursively check for sections in all tag's children.
+
+        Returns a tuple with: the parsed content,
+        and a boolean indicating if a section was found.
+        """
         contents = []
+        section_found = False
+
         next_tag = tag
-        while next_tag and not self._is_section(next_tag):
+        while next_tag:
+            if section_found or self._is_section(next_tag):
+                section_found = True
+                break
+
             if self._is_code_section(next_tag):
                 content = self._parse_code_section(next_tag)
-            else:
+            elif depth <= 0 or not next_tag.child:
                 content = self._parse_content(next_tag.text())
+            else:
+                content, section_found = self._parse_section_content(
+                    tag=next_tag.child,
+                    depth=depth - 1
+                )
 
             if content:
                 contents.append(content)
             next_tag = next_tag.next
-        return ' '.join(contents)
+
+        return ' '.join(contents), section_found
 
     def _is_code_section(self, tag):
         """
@@ -200,11 +367,7 @@ class SphinxParser(BaseParser):
         if 'body' in data:
             try:
                 body = HTMLParser(data['body'])
-                sections = self._generate_sections(
-                    page_title=title,
-                    body=body,
-                )
-                sections = list(sections)
+                sections = list(self._parse_sections(title=title, body=body.body))
             except Exception as e:
                 log.info('Unable to index sections for: %s', fjson_path)
 
@@ -224,22 +387,16 @@ class SphinxParser(BaseParser):
             'domain_data': domain_data,
         }
 
-    def _generate_sections(self, page_title, body):
+    def _clean_body(self, body):
         """
-        Generates section dicts for each section for Sphinx.
+        Removes sphinx domain nodes.
 
-        In Sphinx sub-sections are nested, so they are children of the outer section,
-        and sections with the same level are neighbors.
-        We index the content under a section till before the next one.
-
-        We can have pages that have content before the first title or that don't have a title,
-        we index that content first under the title of the original page (`page_title`).
-
-        Contents that are likely to be a sphinx domain are deleted,
-        since we already index those in another step.
+        This method is overriden to remove contents that are likely
+        to be a sphinx domain (`dl` tags).
+        We already index those in another step.
         """
+        body = super()._clean_body(body)
 
-        # Removing all <dl> tags to prevent duplicate indexing with Sphinx Domains.
         nodes_to_be_removed = []
 
         # remove all <dl> tags which contains <dt> tags having 'id' attribute
@@ -249,6 +406,7 @@ class SphinxParser(BaseParser):
             if parent.tag == 'dl':
                 nodes_to_be_removed.append(parent)
 
+        # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
 
@@ -256,29 +414,7 @@ class SphinxParser(BaseParser):
         for node in nodes_to_be_removed:
             node.decompose()
 
-        # Index content for pages that don't start with a title.
-        content = self._parse_section_content(body.body.child)
-        if content:
-            yield {
-                'id': '',
-                'title': page_title,
-                'content': content,
-            }
-
-        # Index content from h1 to h6 headers.
-        for head_level in range(1, 7):
-            tags = body.css(f'.section > h{head_level}')
-            for tag in tags:
-                title = self._parse_section_title(tag)
-
-                div = tag.parent
-                section_id = div.attributes.get('id', '')
-
-                yield {
-                    'id': section_id,
-                    'title': title,
-                    'content': self._parse_section_content(tag.next),
-                }
+        return body
 
     def _generate_domains_data(self, body):
         """
@@ -330,9 +466,56 @@ class SphinxParser(BaseParser):
 
 class MkDocsParser(BaseParser):
 
-    """MkDocs parser, it relies on the json index files."""
+    """
+    MkDocs parser.
+
+    Index from the json index file or directly from the html content.
+    """
 
     def parse(self, page):
+        # Avoid circular import
+        from readthedocs.projects.models import Feature
+        if self.project.has_feature(Feature.INDEX_FROM_HTML_FILES):
+            return self.parse_from_html(page)
+        return self.parse_from_index_file(page)
+
+    def parse_from_html(self, page):
+        try:
+            content = self._get_page_content(page)
+            if content:
+                return self._process_content(page, content)
+        except Exception as e:
+            log.info('Failed to index page %s, %s', page, str(e))
+        return {
+            'path': page,
+            'title': '',
+            'sections': [],
+            'domain_data': {},
+        }
+
+    def _process_content(self, page, content):
+        """Parses the content into a structured dict."""
+        html = HTMLParser(content)
+        body = self._get_main_node(html)
+        title = ""
+        sections = []
+        if body:
+            title = self._get_page_title(body, html) or page
+            sections = list(self._parse_sections(title, body))
+        else:
+            log.info(
+                'Page doesn\'t look like it has valid content, skipping. '
+                'page=%s',
+                page,
+            )
+        return {
+            'path': page,
+            'title': title,
+            'sections': sections,
+            'domain_data': {},
+        }
+
+    def parse_from_index_file(self, page):
         storage_path = self.project.get_storage_path(
             type_='html',
             version_slug=self.version.slug,

@@ -166,11 +166,11 @@
 
               <li class="module-item search-result-item">
                 <p class="module-item-title">
-                  {% if 'project' in result.meta.index %}
-                    <a href="{{ result.url }}">
+                  {% if result.type == 'project' %}
+                    <a href="{{ result.link }}">
                       {{ result.name }} (<em>{{ result.slug }}</em>)
                     </a>
-                    {% for fragment in result.meta.highlight.description %}
+                    {% for fragment in result.highlight.description %}
                       <p class="fragment">
                         ...{{ fragment|safe }}...
                       </p>
@@ -182,50 +182,50 @@
                       {% endif %}
                     {% endfor %}
 
-                  {% elif 'page' in result.meta.index %}
-                      <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}">
-                        {{ result.project }} - {% if result.meta.highlight.title %} {{ result.meta.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                  {% elif result.type == 'page' %}
+                      <a href="{{ result.link }}?highlight={{ query }}">
+                        {{ result.project }} - {% if result.highlight.title %} {{ result.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
-                      {% for inner_hit in result.meta.inner_hits %}
-                        {% if inner_hit.type == 'domains' %}
+                      {% for block in result.blocks %}
+                        {% if block.type == 'domain' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.anchor }}">
-                              {% if inner_hit.highlight|get_key_or_none:"domains.name" %}
-                                {% with domain_name=inner_hit.highlight|get_key_or_none:"domains.name" %}
-                                  [{{ inner_hit.source.role_name }}]: {{ domain_name.0|safe }}
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlight.name %}
+                                {% with domain_name=block.highlight.name %}
+                                  [{{ block.role }}]: {{ domain_name.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                [{{ inner_hit.source.role_name }}]: {{ inner_hit.source.name }}
+                                [{{ block.role }}]: {{ block.name }}
                               {% endif %}
                             </a>
                           </p>
                           <p class="fragment">
-                            {% if inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
-                              {% with domain_docstrings=inner_hit.highlight|get_key_or_none:"domains.docstrings" %}
+                            {% if block.highlight.docstring %}
+                              {% with domain_docstrings=block.highlight.docstring %}
                                 {{ domain_docstrings.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {% if inner_hit.source.docstrings %}
-                                {{ inner_hit.source.docstrings|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% if block.docstring %}
+                                {{ block.docstring|slice:MAX_SUBSTRING_LIMIT }} ...
                               {% endif %}
                             {% endif %}
                           </p>
 
-                        {% elif inner_hit.type == 'sections' %}
+                        {% elif block.type == 'section' %}
                           <p>
-                            <a href="{% doc_url result.project|get_project result.version result.full_path %}?highlight={{ query }}#{{ inner_hit.source.id }}">
-                              {% if inner_hit.highlight|get_key_or_none:"sections.title" %}
-                                {% with section_title=inner_hit.highlight|get_key_or_none:"sections.title" %}
+                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlight.title %}
+                                {% with section_title=block.highlight.title %}
                                   {{ section_title.0|safe }}
                                 {% endwith %}
                               {% else %}
-                                {{ inner_hit.source.title }}
+                                {{ block.title }}
                               {% endif %}
                             </a>
                           </p>
-                          {% if inner_hit.highlight|get_key_or_none:"sections.content" %}
-                            {% with section_content=inner_hit.highlight|get_key_or_none:"sections.content" %}
+                          {% if block.highlight.content %}
+                            {% with section_content=block.highlight.content %}
                               {% for content in section_content %}
                                 <p class="fragment">
                                   ... {{ content|safe }} ...
@@ -234,7 +234,7 @@
                             {% endwith %}
                           {% else %}
                             <p class="fragment">
-                              {{ inner_hit.source.content|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                             </p>
                           {% endif %}
                         {% endif %}

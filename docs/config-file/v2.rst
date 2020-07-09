@@ -25,7 +25,7 @@ Below is an example YAML file which shows the most common configuration options:
     #  configuration: mkdocs.yml
 
     # Optionally build your docs in additional formats such as PDF
-    formats: 
+    formats:
       - pdf
 
     # Optionally set the version of Python and requirements required to build your docs
@@ -74,10 +74,14 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    # Default
    formats: []
 
 .. code-block:: yaml
+
+   version: 2
 
    # Build PDF & ePub
    formats:
@@ -89,6 +93,8 @@ Example:
    You can use the ``all`` keyword to indicate all formats.
 
    .. code-block:: yaml
+
+      version: 2
 
       # Build all formats
       formats: all
@@ -103,6 +109,8 @@ python
 Configuration of the Python environment to be used.
 
 .. code-block:: yaml
+
+   version: 2
 
    python:
       version: 3.7
@@ -153,6 +161,8 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    python:
       version: 3.7
       install:
@@ -199,6 +209,8 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    python:
       version: 3.7
       install:
@@ -242,6 +254,8 @@ Configuration for Conda support.
 
 .. code-block:: yaml
 
+   version: 2
+
    conda:
      environment: environment.yml
 
@@ -259,6 +273,8 @@ build
 Configuration for the documentation build process.
 
 .. code-block:: yaml
+
+   version: 2
 
    build:
      image: latest
@@ -289,6 +305,8 @@ Configuration for Sphinx documentation
 (this is the default documentation type).
 
 .. code-block:: yaml
+
+   version: 2
 
    sphinx:
      builder: html
@@ -323,7 +341,7 @@ sphinx.fail_on_warning
 ``````````````````````
 
 `Turn warnings into errors <http://www.sphinx-doc.org/en/master/man/sphinx-build.html#id6>`__.
-This means that the build stops at the first warning and exits with exit status 1.
+This means the build fails if there is a warning and exits with exit status 1.
 
 :Type: ``bool``
 :Default: ``false``
@@ -334,6 +352,8 @@ mkdocs
 Configuration for Mkdocs documentation.
 
 .. code-block:: yaml
+
+   version: 2
 
    mkdocs:
      configuration: mkdocs.yml
@@ -374,6 +394,8 @@ VCS submodules configuration.
 
 .. code-block:: yaml
 
+   version: 2
+
    submodules:
      include:
         - one
@@ -394,6 +416,8 @@ List of submodules to be included.
 
    .. code-block:: yaml
 
+      version: 2
+
       submodules:
         include: all
 
@@ -412,6 +436,8 @@ List of submodules to be excluded.
 
    .. code-block:: yaml
 
+      version: 2
+
       submodules:
         exclude: all
 
@@ -426,6 +452,65 @@ Do a recursive clone of the submodules.
 .. note::
 
    This is ignored if there aren't submodules to clone.
+
+search
+~~~~~~
+
+Settings for more control over :doc:`/server-side-search`.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ranking:
+        api/v1/*: -1
+        api/v2/*: 4
+
+search.ranking
+``````````````
+
+Set a custom search rank over pages matching a pattern.
+
+:Type: ``map`` of patterns to ranks
+:Default: ``{}``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+The rank can be an integer number between -10 and 10 (inclusive).
+Pages with a rank closer to -10 will appear further down the list of results,
+and pages with a rank closer to 10 will appear higher in the list of results.
+Note that 0 means *normal rank*, not *no rank*.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ranking:
+        # Match a single file
+        tutorial.hml: 2
+
+        # Match all files under the api/v1 directory
+        api/v1/*: -5
+
+        # Match all files that end with tutorial.html
+        */tutorial.html: 3
+
+.. note::
+
+   The final rank will be the last pattern to match the page.
+
+.. tip::
+
+   Is better to decrease the rank of pages you want to deprecate,
+   rather than increasing the rank of the other pages.
 
 Schema
 ------
@@ -468,6 +553,7 @@ New settings
 - :ref:`config-file/v2:mkdocs`
 - :ref:`config-file/v2:submodules`
 - :ref:`config-file/v2:python.install`
+- :ref:`config-file/v2:search`
 
 Migrating from the web interface
 --------------------------------
