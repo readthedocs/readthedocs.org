@@ -336,8 +336,8 @@ class Virtualenv(PythonEnvironment):
             'Pygments==2.3.1',
             'setuptools==41.0.1',
             self.project.get_feature_value(
-                Feature.USE_DOCUTILS_LATEST,
-                positive='docutils',
+                Feature.DONT_INSTALL_DOCUTILS,
+                positive='',
                 negative='docutils==0.14',
             ),
             'mock==1.0.1',

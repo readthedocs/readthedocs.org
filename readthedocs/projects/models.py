@@ -1523,7 +1523,7 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
-    USE_DOCUTILS_LATEST = 'use_docutils_latest'
+    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
@@ -1557,7 +1557,7 @@ class Feature(models.Model):
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (USE_DOCUTILS_LATEST, _('Use latest version of docutils')),
+        (DONT_INSTALL_DOCUTILS, _('Do not install docutils as requirement for build documentation')),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
