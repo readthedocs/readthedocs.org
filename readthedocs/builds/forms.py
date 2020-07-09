@@ -135,7 +135,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
             (TAG, TAG_TEXT),
         ]
 
-        # Only list supported actions
+        # Remove privacy actions not available in community
         if not settings.ALLOW_PRIVATE_REPOS:
             invalid_actions = {
                 VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
