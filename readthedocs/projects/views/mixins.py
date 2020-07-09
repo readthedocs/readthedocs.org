@@ -69,10 +69,14 @@ class ProjectRelationListMixin:
         subprojects_and_urls = []
 
         project = self.get_project()
+        subprojects = project.subprojects.select_related('child')
+
+        if not subprojects:
+            return subprojects_and_urls
+
         main_domain = resolve(project)
         parsed_main_domain = urlparse(main_domain)
 
-        subprojects = project.subprojects.select_related('child')
         for subproject in subprojects:
             subproject_path = resolve_path(subproject.child)
             parsed_subproject_domain = parsed_main_domain._replace(
