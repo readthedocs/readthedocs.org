@@ -456,7 +456,7 @@ class Virtualenv(PythonEnvironment):
             '--exists-action=w',
             *self._pip_cache_cmd_argument(),
         ]
-        args += install.requirements
+        args += install.packages
         self.build_env.run(
             *args,
             cwd=self.checkout_path,
