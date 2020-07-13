@@ -1085,10 +1085,13 @@ class BuildConfigV2(BuildConfigBase):
         }
 
         Will return `['key', 'name']`.
+
+        Ignores keys that start with ``x-``.
         """
-        if isinstance(value, dict) and value:
-            key_name = next(iter(value))
-            return [key_name] + self._get_extra_key(value[key_name])
+        if isinstance(value, dict):
+            key_name = next((k for k in value if not k.startswith('x-')), None)
+            if key_name is not None:
+                return [key_name] + self._get_extra_key(value[key_name])
         return []
 
     @property

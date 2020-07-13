@@ -1966,6 +1966,7 @@ class TestBuildConfigV2:
             ({'one': {'two': 3}}, ['one', 'two']),
             (OrderedDict([('one', 1), ('two', 2)]), ['one']),
             (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+            ({'one': 1, 'x-two': 2}, ['one']),
         ],
     )
     def test_get_extra_key(self, value, expected):
