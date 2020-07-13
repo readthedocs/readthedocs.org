@@ -1105,7 +1105,7 @@ class TestBuildConfigV2:
         assert isinstance(install[0], PythonInstallRequirements)
         assert install[0].requirements == 'requirements.txt'
 
-    def test_python_install_requires_check_valid(self, tmpdir):
+    def test_python_install_packages_check_valid(self, tmpdir):
         build = self.get_build_config(
             {
                 'python': {
