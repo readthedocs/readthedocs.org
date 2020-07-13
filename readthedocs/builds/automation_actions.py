@@ -36,3 +36,16 @@ def set_default_version(version, match_result, action_arg, *args, **kwargs):
     project = version.project
     project.default_version = version.slug
     project.save()
+
+
+def hide_version(version, match_result, action_arg, *args, **kwargs):
+    """
+    Sets version as hidden.
+
+    It also activates the version and triggers a build.
+    """
+    version.hidden = True
+    version.save()
+
+    if not version.active:
+        activate_version(version, match_result, action_arg)

@@ -262,7 +262,7 @@ For more details about DNT, visit `All About Do Not Track`_.
 .. _W3C's tracking preference expression: https://www.w3.org/TR/tracking-dnt/
 .. _EFF's DNT Policy: https://www.eff.org/issues/do-not-track
 .. _available here: https://readthedocs.org/.well-known/dnt-policy.txt
-.. _All About Do Not Track: http://www.allaboutdnt.com
+.. _All About Do Not Track: https://www.allaboutdnt.com
 
 Cookies
 ~~~~~~~

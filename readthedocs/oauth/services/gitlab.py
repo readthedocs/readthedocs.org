@@ -11,7 +11,6 @@ from requests.exceptions import RequestException
 
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
-    RTD_BUILD_STATUS_API_NAME,
     SELECT_BUILD_STATUS,
 )
 from readthedocs.builds import utils as build_utils
@@ -196,12 +195,12 @@ class GitLabService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.info(
-                'Not importing %s because mismatched type: visibility=%s',
-                fields['name_with_namespace'],
-                fields['visibility'],
-            )
+
+        log.info(
+            'Not importing %s because mismatched type: visibility=%s',
+            fields['name_with_namespace'],
+            fields['visibility'],
+        )
 
     def create_organization(self, fields):
         """
@@ -520,11 +519,13 @@ class GitLabService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': gitlab_build_state,
             'target_url': target_url,
             'description': description,
-            'context': RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
         url = self.adapter.provider_base_url
 

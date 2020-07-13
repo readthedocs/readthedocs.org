@@ -1,0 +1,29 @@
+[
+  {
+    "path": "index.html",
+    "title": "Windmill theme",
+    "sections": [
+      {
+        "id": "windmill-theme",
+        "title": "Windmill theme",
+        "content": ""
+      },
+      {
+        "id": "about",
+        "title": "About",
+        "content": "Windmill theme focuses on clean usable navigation for large documentation projects. It retains the state of the menu of pages and folders across page transitions, by keeping navigation to an iframe. Within pages, it uses the default mkdocs theme, including syntax highlighting."
+      },
+      {
+        "id": "installation",
+        "title": "Installation",
+        "content": "Install the Windmill theme using pip: pip install mkdocs-windmill"
+      },
+      {
+        "id": "usage",
+        "title": "Usage",
+        "content": "To use the Windmill theme installed via pip, add this to your mkdocs.yml: theme: 'windmill' If you cloned Windmill from GitHub: theme: name: null custom_dir: '{INSTALL_DIR}/mkdocs_windmill' # Copy settings from mkdocs_theme.yml, which is ignored by custom_dir themes. static_templates: [404.html] search_index_only: true include_search_page: true Note that it's important for there to exist a homepage, e.g. a top-level root element in mkdocs 1.0+: nav: - Home: index.md"
+      }
+    ],
+    "domain_data": {}
+  }
+]

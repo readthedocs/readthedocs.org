@@ -5,9 +5,10 @@ import logging
 import requests
 from django.conf import settings
 from requests.packages.urllib3.util.retry import Retry  # noqa
-from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
+
+from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
 
 
 log = logging.getLogger(__name__)
@@ -28,9 +29,9 @@ def setup_api():
     session = requests.Session()
     if settings.SLUMBER_API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
-        adapter_class = host_header_ssl.HostHeaderSSLAdapter
+        adapter_class = TimeoutHostHeaderSSLAdapter
     else:
-        adapter_class = requests.adapters.HTTPAdapter
+        adapter_class = TimeoutHTTPAdapter
 
     # Define a retry mechanism trying to attempt to not fail in the first
     # error. Builders hit this issue frequently because the webs are high loaded

@@ -30,6 +30,8 @@ mkdocs: include('mkdocs', required=False)
 # Submodules configuration
 submodules: include('submodules', required=False)
 
+search: include('search', required=False)
+
 # Redirects for the current version to be built
 # Key/value list, represent redirects of type `type`
 # from url -> to url
@@ -96,7 +98,7 @@ python-install-pipfile:
 sphinx:
   # The builder type for the sphinx documentation
   # Default: 'html'
-  builder: enum('html', 'htmldir', 'singlehtml', required=False)
+  builder: enum('html', 'htmldir', 'dirhtml', 'singlehtml', required=False)
 
   # The path to the conf.py file
   # Default: rtd will try to find it | project config
@@ -127,3 +129,8 @@ submodules:
   # Do a recursive clone?
   # Default: false
   recursive: bool(required=False)
+
+search:
+  # Map of patterns to ranks
+  # Default: {}
+  ranking: map(str(), int(min=-10, max=10), required=False)

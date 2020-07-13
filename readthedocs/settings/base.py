@@ -1,11 +1,14 @@
 # pylint: disable=missing-docstring
 
-import getpass
+import logging
 import os
+import subprocess
+import socket
 
 from celery.schedules import crontab
 
 from readthedocs.core.settings import Settings
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -16,6 +19,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
+log = logging.getLogger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -25,8 +29,6 @@ class CommunityBaseSettings(Settings):
     # Django settings
     SITE_ID = 1
     ROOT_URLCONF = 'readthedocs.urls'
-    SUBDOMAIN_URLCONF = 'readthedocs.core.urls.subdomain'
-    SINGLE_VERSION_URLCONF = 'readthedocs.core.urls.single_version'
     LOGIN_REDIRECT_URL = '/dashboard/'
     FORCE_WWW = False
     SECRET_KEY = 'replace-this-please'  # noqa
@@ -36,15 +38,12 @@ class CommunityBaseSettings(Settings):
     DEBUG = True
 
     # Domains and URLs
+    RTD_IS_PRODUCTION = False
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
     USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
-    # Some endpoints from the API can be proxied on other domain
-    # or use the same domain where the docs are being served
-    # (omit the host if that's the case).
-    RTD_PROXIED_API_URL = PUBLIC_API_URL
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
 
     # Doc Builder Backends
@@ -66,6 +65,8 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
     SESSION_SAVE_EVERY_REQUEST = True
+    # This cookie is used in cross-origin API requests from *.readthedocs.io to readthedocs.org
+    SESSION_COOKIE_SAMESITE = None
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
@@ -77,6 +78,18 @@ class CommunityBaseSettings(Settings):
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
 
+    # Content Security Policy
+    # https://django-csp.readthedocs.io/
+    CSP_BLOCK_ALL_MIXED_CONTENT = True
+    CSP_DEFAULT_SRC = None  # This could be improved
+    CSP_FRAME_ANCESTORS = ("'none'",)
+    CSP_OBJECT_SRC = ("'none'",)
+    CSP_REPORT_URI = None
+    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_EXCLUDE_URL_PREFIXES = (
+        "/admin/",
+    )
+
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
     RTD_LATEST = 'latest'
@@ -84,17 +97,19 @@ class CommunityBaseSettings(Settings):
     RTD_STABLE = 'stable'
     RTD_STABLE_VERBOSE_NAME = 'stable'
     RTD_CLEAN_AFTER_BUILD = False
+    RTD_MAX_CONCURRENT_BUILDS = 4
+    RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
 
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
 
-    SYNC_USER = getpass.getuser()
-
     USER_MATURITY_DAYS = 7
 
     # override classes
     CLASS_OVERRIDES = {}
+
+    DOC_PATH_PREFIX = '_/'
 
     # Application classes
     @property
@@ -127,6 +142,7 @@ class CommunityBaseSettings(Settings):
 
             # our apps
             'readthedocs.projects',
+            'readthedocs.organizations',
             'readthedocs.builds',
             'readthedocs.core',
             'readthedocs.doc_builder',
@@ -144,7 +160,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
 
-
             # allauth
             'allauth',
             'allauth.account',
@@ -156,6 +171,7 @@ class CommunityBaseSettings(Settings):
         ]
         if ext:
             apps.append('django_countries')
+            apps.append('readthedocsext.cdn')
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
@@ -166,7 +182,7 @@ class CommunityBaseSettings(Settings):
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
     MIDDLEWARE = (
-        'readthedocs.core.middleware.FooterNoSessionMiddleware',
+        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.security.SecurityMiddleware',
@@ -175,9 +191,8 @@ class CommunityBaseSettings(Settings):
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'dj_pagination.middleware.PaginationMiddleware',
-        'readthedocs.core.middleware.SubdomainMiddleware',
-        'readthedocs.core.middleware.SingleVersionMiddleware',
         'corsheaders.middleware.CorsMiddleware',
+        'csp.middleware.CSPMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -217,8 +232,6 @@ class CommunityBaseSettings(Settings):
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     TEMPLATE_ROOT = os.path.join(SITE_ROOT, 'readthedocs', 'templates')
     DOCROOT = os.path.join(SITE_ROOT, 'user_builds')
-    UPLOAD_ROOT = os.path.join(SITE_ROOT, 'user_uploads')
-    CNAME_ROOT = os.path.join(SITE_ROOT, 'cnames')
     LOGS_ROOT = os.path.join(SITE_ROOT, 'logs')
     PRODUCTION_ROOT = os.path.join(SITE_ROOT, 'prod_artifacts')
     PRODUCTION_MEDIA_ARTIFACTS = os.path.join(PRODUCTION_ROOT, 'media')
@@ -242,6 +255,7 @@ class CommunityBaseSettings(Settings):
     # Django Storage subclass used to write build artifacts to cloud or local storage
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
@@ -310,18 +324,21 @@ class CommunityBaseSettings(Settings):
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
     CELERYD_HIJACK_ROOT_LOGGER = False
+    # This stops us from pre-fetching a task that then sits around on the builder
+    CELERY_ACKS_LATE = True
     # Don't queue a bunch of tasks in the workers
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
+    BROKER_TRANSPORT_OPTIONS = {
+        'queue_order_strategy': 'priority',
+        # We use 0 here because some things still put a task in the queue with no priority
+        # I don't fully understand why, but this seems to solve it.
+        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
+    }
+
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
-        # Ran every hour on minute 30
-        'hourly-remove-orphan-symlinks': {
-            'task': 'readthedocs.projects.tasks.broadcast_remove_orphan_symlinks',
-            'schedule': crontab(minute=30),
-            'options': {'queue': 'web'},
-        },
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
@@ -336,7 +353,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-day-delete-old-page-views': {
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
     }
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -349,7 +371,6 @@ class CommunityBaseSettings(Settings):
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
     # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
     DOCKER_BUILD_IMAGES = None
-    DOCKER_LIMITS = {'memory': '200m', 'time': 600}
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -366,31 +387,113 @@ class CommunityBaseSettings(Settings):
     DOCKER_DEFAULT_VERSION = 'latest'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
-        'readthedocs/build:1.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.4]},
-        },
+        # A large number of users still have this pinned in their config file.
+        # We must have documented it at some point.
         'readthedocs/build:2.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5]},
-        },
-        'readthedocs/build:3.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.3, 3.4, 3.5, 3.6]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.5,
+                },
+            },
         },
         'readthedocs/build:4.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7]},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
         'readthedocs/build:5.0': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5']},
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
-        'readthedocs/build:6.0rc1': {
-            'python': {'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5']},
+        'readthedocs/build:6.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
+        },
+        'readthedocs/build:7.0': {
+            'python': {
+                'supported_versions': [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
+                'default_version': {
+                    2: 2.7,
+                    3: 3.7,
+                },
+            },
         },
     }
-
     # Alias tagged via ``docker tag`` on the build servers
     DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:4.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
+        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
+        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
     })
+
+    def _get_docker_memory_limit(self):
+        try:
+            total_memory = int(subprocess.check_output(
+                "free -m | awk '/^Mem:/{print $2}'",
+                shell=True,
+            ))
+            return total_memory, round(total_memory - 750, -2)
+        except ValueError:
+            # On systems without a `free` command it will return a string to
+            # int and raise a ValueError
+            log.exception('Failed to get memory size, using defaults Docker limits.')
+
+    # Coefficient used to determine build time limit, as a percentage of total
+    # memory. Historical values here were 0.225 to 0.3.
+    DOCKER_TIME_LIMIT_COEFF = 0.25
+
+    @property
+    def DOCKER_LIMITS(self):
+        """
+        Set docker limits dynamically, if in production, based on system memory.
+
+        We do this to avoid having separate build images. This assumes 1 build
+        process per server, which will be allowed to consume all available
+        memory.
+
+        We substract 750MiB for overhead of processes and base system, and set
+        the build time as proportional to the memory limit.
+        """
+        # Our normal default
+        limits = {
+            'memory': '1g',
+            'time': 600,
+        }
+
+        # Only run on our servers
+        if self.RTD_IS_PRODUCTION:
+            total_memory, memory_limit = self._get_docker_memory_limit()
+            if memory_limit:
+                limits = {
+                    'memory': f'{memory_limit}m',
+                    'time': max(
+                        limits['time'],
+                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                    )
+                }
+        log.info(
+            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
+            socket.gethostname(),
+            limits['memory'],
+            limits['time'],
+        )
+        return limits
 
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
@@ -414,6 +517,7 @@ class CommunityBaseSettings(Settings):
                 'read_user',
             ],
         },
+        # Bitbucket scope/permissions are determined by the Oauth consumer setup on bitbucket.org
     }
 
     # CORS
@@ -438,14 +542,13 @@ class CommunityBaseSettings(Settings):
     DEFAULT_PRIVACY_LEVEL = 'public'
     DEFAULT_VERSION_PRIVACY_LEVEL = 'public'
     GROK_API_HOST = 'https://api.grokthedocs.com'
-    SERVE_DOCS = ['public']
     ALLOW_ADMIN = True
 
     # Elasticsearch settings.
-    ES_HOSTS = ['127.0.0.1:9200']
+    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': '127.0.0.1:9200'
+            'hosts': 'search:9200'
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
@@ -510,13 +613,17 @@ class CommunityBaseSettings(Settings):
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
 
+    # Advertising configuration defaults
+    ADSERVER_API_BASE = None
+    ADSERVER_API_KEY = None
+    ADSERVER_API_TIMEOUT = 0.35  # seconds
+
     # Misc application settings
     GLOBAL_ANALYTICS_CODE = None
     DASHBOARD_ANALYTICS_CODE = None  # For the dashboard, not docs
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRICTEDSESSIONS_AUTHED_ONLY = True
     RESTRUCTUREDTEXT_FILTER_SETTINGS = {
         'cloak_email_addresses': True,
         'file_insertion_enabled': False,
@@ -574,7 +681,7 @@ class CommunityBaseSettings(Settings):
             '': {  # root logger
                 'handlers': ['debug', 'console'],
                 # Always send from the root, handlers can filter levels
-                'level': 'DEBUG',
+                'level': 'INFO',
             },
             'readthedocs': {
                 'handlers': ['debug', 'console'],

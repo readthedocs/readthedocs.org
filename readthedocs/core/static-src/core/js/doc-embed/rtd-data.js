@@ -37,6 +37,7 @@ var configMethods = {
     show_promo: function () {
         return (
             this.api_host === 'https://readthedocs.org' ||
+            this.api_host === 'http://community.dev.readthedocs.io' ||
             this.api_host === 'http://127.0.0.1:8000'
         );
     }
@@ -57,6 +58,11 @@ function get() {
     };
 
     $.extend(config, defaults, window.READTHEDOCS_DATA);
+
+    if (!("proxied_api_host" in config)) {
+        // Use direct proxied API host
+        config.proxied_api_host = '/_';
+    }
 
     return config;
 }

@@ -15,6 +15,7 @@ from pathlib import Path
 from django.conf import settings
 from django.template import loader as template_loader
 from django.template.loader import render_to_string
+from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
@@ -28,7 +29,6 @@ from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildEnvironmentError
 from ..signals import finalize_sphinx_context_data
-
 
 log = logging.getLogger(__name__)
 
@@ -111,6 +111,9 @@ class BaseSphinx(BaseBuilder):
         gitlab_version_is_editable = (self.version.type == 'branch')
         display_gitlab = gitlab_user is not None
 
+        versions = []
+        downloads = []
+        subproject_urls = []
         # Avoid hitting database and API if using Docker build environment
         if settings.DONT_HIT_API:
             if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
@@ -120,16 +123,24 @@ class BaseSphinx(BaseBuilder):
                     privacy_level=PUBLIC,
                 )
             downloads = self.version.get_downloads(pretty=True)
+            subproject_urls = self.project.get_subproject_urls()
         else:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+            try:
                 versions = self.project.api_versions()
-            else:
-                versions = [
-                    v
-                    for v in self.project.api_versions()
-                    if v.privacy_level == PUBLIC
-                ]
-            downloads = api.version(self.version.pk).get()['downloads']
+                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                    versions = [
+                        v
+                        for v in versions
+                        if v.privacy_level == PUBLIC
+                    ]
+                downloads = api.version(self.version.pk).get()['downloads']
+                subproject_urls = self.project.get_subproject_urls()
+            except ConnectionError:
+                log.exception(
+                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context. '
+                    'project: %s version: %s',
+                    self.project.slug, self.version.slug,
+                )
 
         data = {
             'html_theme': 'sphinx_rtd_theme',
@@ -140,10 +151,10 @@ class BaseSphinx(BaseBuilder):
             'settings': settings,
             'conf_py_path': conf_py_path,
             'api_host': settings.PUBLIC_API_URL,
-            'proxied_api_host': settings.RTD_PROXIED_API_URL,
             'commit': self.project.vcs_repo(self.version.slug).commit,
             'versions': versions,
             'downloads': downloads,
+            'subproject_urls': subproject_urls,
 
             # GitHub
             'github_user': github_user,
@@ -170,6 +181,7 @@ class BaseSphinx(BaseBuilder):
             'dont_overwrite_sphinx_context': self.project.has_feature(
                 Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
             ),
+            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
         }
 
         finalize_sphinx_context_data.send(
@@ -221,14 +233,14 @@ class BaseSphinx(BaseBuilder):
         self.clean()
         project = self.project
         build_command = [
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            *self.get_sphinx_cmd(),
             '-T',
+            *self.sphinx_parallel_arg(),
         ]
         if self._force:
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
-            build_command.append('-W')
+            build_command.extend(['-W', '--keep-going'])
         doctree_path = f'_build/doctrees-{self.sphinx_builder}'
         if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
             doctree_path = '_build/doctrees'
@@ -247,6 +259,23 @@ class BaseSphinx(BaseBuilder):
             bin_path=self.python_env.venv_bin()
         )
         return cmd_ret.successful
+
+    def get_sphinx_cmd(self):
+        if self.project.has_feature(Feature.FORCE_SPHINX_FROM_VENV):
+            return (
+                self.python_env.venv_bin(filename='python'),
+                '-m',
+                'sphinx',
+            )
+        return (
+            'python',
+            self.python_env.venv_bin(filename='sphinx-build'),
+        )
+
+    def sphinx_parallel_arg(self):
+        if self.project.has_feature(Feature.SPHINX_PARALLEL):
+            return ['-j', 'auto']
+        return []
 
     def venv_sphinx_supports_latexmk(self):
         """
@@ -288,6 +317,8 @@ class HtmlBuilder(BaseSphinx):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocs'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'html'
 
     def move(self, **__):
         super().move()
@@ -318,6 +349,8 @@ class HtmlDirBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocsdirhtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'dirhtml'
 
 
 class SingleHtmlBuilder(HtmlBuilder):
@@ -326,6 +359,8 @@ class SingleHtmlBuilder(HtmlBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sphinx_builder = 'readthedocssinglehtml'
+        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
+            self.sphinx_builder = 'singlehtml'
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -423,10 +458,10 @@ class PdfBuilder(BaseSphinx):
 
         # Default to this so we can return it always.
         self.run(
-            'python',
-            self.python_env.venv_bin(filename='sphinx-build'),
+            *self.get_sphinx_cmd(),
             '-b',
             'latex',
+            *self.sphinx_parallel_arg(),
             '-D',
             'language={lang}'.format(lang=self.project.language),
             '-d',

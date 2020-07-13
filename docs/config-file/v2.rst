@@ -2,9 +2,10 @@ Configuration File V2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-:doc:`The Read the Docs file <index>` must be in the root directory of your project.
+The :doc:`configuration file <index>` must be in the root directory of your project.
+We recommend the filename ``.readthedocs.yml``.
 
-Below is an example YAML file which may require some changes for your project's configuration:
+Below is an example YAML file which shows the most common configuration options:
 
 .. code:: yaml
 
@@ -23,8 +24,9 @@ Below is an example YAML file which may require some changes for your project's 
     #mkdocs:
     #  configuration: mkdocs.yml
 
-    # Optionally build your docs in additional formats such as PDF and ePub
-    formats: all
+    # Optionally build your docs in additional formats such as PDF
+    formats:
+      - pdf
 
     # Optionally set the version of Python and requirements required to build your docs
     python:
@@ -36,10 +38,13 @@ Below is an example YAML file which may require some changes for your project's 
 Supported settings
 ------------------
 
-.. note::
+Read the Docs validates every configuration file.
+Any configuration option that isn't supported will make the build fail.
+This is to avoid typos and provide feedback on invalid configurations.
 
-   The presence of any other key that isn't documented here will make the build to fail.
-   This is to avoid typos and provide feedback on invalid configurations.
+.. contents::
+   :local:
+   :depth: 1
 
 version
 ~~~~~~~
@@ -69,10 +74,14 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    # Default
    formats: []
 
 .. code-block:: yaml
+
+   version: 2
 
    # Build PDF & ePub
    formats:
@@ -85,20 +94,23 @@ Example:
 
    .. code-block:: yaml
 
+      version: 2
+
       # Build all formats
       formats: all
 
-.. note::
+.. warning::
 
-   PDF/epub/htmlzip output is not supported when using MkDocs  
+   ``pdf``, ``epub``, and ``htmlzip`` output is not supported when using MkDocs.
 
 python
 ~~~~~~
 
 Configuration of the Python environment to be used.
-Example:
 
 .. code-block:: yaml
+
+   version: 2
 
    python:
       version: 3.7
@@ -119,6 +131,11 @@ The Python version (this depends on :ref:`config-file/v2:build.image`).
 
 :Type: ``number``
 :Default: ``3``
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment to manage
+  the build, this setting will not have any effect, as the Python version is managed by Conda.
 
 python.install
 ``````````````
@@ -144,11 +161,19 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    python:
       version: 3.7
       install:
          - requirements: docs/requirements.txt
          - requirements: requirements.txt
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment to
+  manage the build, this setting will not have any effect. Instead
+  add the extra requirements to the ``environment`` file of Conda.
 
 Packages
 ''''''''
@@ -184,6 +209,8 @@ Example:
 
 .. code-block:: yaml
 
+   version: 2
+
    python:
       version: 3.7
       install:
@@ -212,15 +239,22 @@ Give the virtual environment access to the global site-packages directory.
 Depending on the :ref:`config-file/v2:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
 That you can access to them by enabling this option.
-See :ref:`builds:The build environment` for more details.
+See :doc:`/builds` for more details.
+
+.. warning::
+
+  If you are using a :ref:`Conda <config-file/v2:conda>` environment
+  to manage the build, this setting will not have any effect, since
+  the virtual environment creation is managed by Conda.
 
 conda
 ~~~~~
 
 Configuration for Conda support.
-Example:
 
 .. code-block:: yaml
+
+   version: 2
 
    conda:
      environment: environment.yml
@@ -237,9 +271,10 @@ build
 ~~~~~
 
 Configuration for the documentation build process.
-Example:
 
 .. code-block:: yaml
+
+   version: 2
 
    build:
      image: latest
@@ -268,9 +303,10 @@ sphinx
 
 Configuration for Sphinx documentation
 (this is the default documentation type).
-Example:
 
 .. code-block:: yaml
+
+   version: 2
 
    sphinx:
      builder: html
@@ -283,8 +319,12 @@ sphinx.builder
 The builder type for the Sphinx documentation.
 
 :Type: ``string``
-:Options: ``html``, ``htmldir``, ``singlehtml``
+:Options: ``html``, ``dirhtml``, ``singlehtml``
 :Default: ``html``
+
+.. note::
+   The ``htmldir`` builder option was renamed to ``dirhtml`` to use the same name as sphinx.
+   Configurations using the old name will continue working.
 
 sphinx.configuration
 ````````````````````
@@ -301,7 +341,7 @@ sphinx.fail_on_warning
 ``````````````````````
 
 `Turn warnings into errors <http://www.sphinx-doc.org/en/master/man/sphinx-build.html#id6>`__.
-This means that the build stops at the first warning and exits with exit status 1.
+This means the build fails if there is a warning and exits with exit status 1.
 
 :Type: ``bool``
 :Default: ``false``
@@ -310,9 +350,10 @@ mkdocs
 ~~~~~~
 
 Configuration for Mkdocs documentation.
-Example:
 
 .. code-block:: yaml
+
+   version: 2
 
    mkdocs:
      configuration: mkdocs.yml
@@ -347,13 +388,13 @@ VCS submodules configuration.
 
    Only Git is supported at the moment.
 
-.. note::
+.. warning::
 
    You can't use ``include`` and ``exclude`` settings for submodules at the same time.
 
-Example:
-
 .. code-block:: yaml
+
+   version: 2
 
    submodules:
      include:
@@ -375,6 +416,8 @@ List of submodules to be included.
 
    .. code-block:: yaml
 
+      version: 2
+
       submodules:
         include: all
 
@@ -393,6 +436,8 @@ List of submodules to be excluded.
 
    .. code-block:: yaml
 
+      version: 2
+
       submodules:
         exclude: all
 
@@ -407,6 +452,65 @@ Do a recursive clone of the submodules.
 .. note::
 
    This is ignored if there aren't submodules to clone.
+
+search
+~~~~~~
+
+Settings for more control over :doc:`/server-side-search`.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ranking:
+        api/v1/*: -1
+        api/v2/*: 4
+
+search.ranking
+``````````````
+
+Set a custom search rank over pages matching a pattern.
+
+:Type: ``map`` of patterns to ranks
+:Default: ``{}``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+The rank can be an integer number between -10 and 10 (inclusive).
+Pages with a rank closer to -10 will appear further down the list of results,
+and pages with a rank closer to 10 will appear higher in the list of results.
+Note that 0 means *normal rank*, not *no rank*.
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ranking:
+        # Match a single file
+        tutorial.hml: 2
+
+        # Match all files under the api/v1 directory
+        api/v1/*: -5
+
+        # Match all files that end with tutorial.html
+        */tutorial.html: 3
+
+.. note::
+
+   The final rank will be the last pattern to match the page.
+
+.. tip::
+
+   Is better to decrease the rank of pages you want to deprecate,
+   rather than increasing the rank of the other pages.
 
 Schema
 ------
@@ -449,6 +553,7 @@ New settings
 - :ref:`config-file/v2:mkdocs`
 - :ref:`config-file/v2:submodules`
 - :ref:`config-file/v2:python.install`
+- :ref:`config-file/v2:search`
 
 Migrating from the web interface
 --------------------------------

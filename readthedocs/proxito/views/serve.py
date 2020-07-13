@@ -2,9 +2,9 @@
 
 import itertools
 import logging
-import os
 from urllib.parse import urlparse
 
+from readthedocs.core.resolver import resolve_path
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -14,46 +14,61 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.cache import cache_page
 
-from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL, INTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-
-from .mixins import ServeDocsMixin, ServeRedirectMixin
+from readthedocs.redirects.exceptions import InfiniteRedirectException
 
 from .decorators import map_project_slug
-from .redirects import redirect_project_slug
+from .mixins import ServeDocsMixin, ServeRedirectMixin
 from .utils import _get_project_data_from_request
-
 
 log = logging.getLogger(__name__)  # noqa
 
 
-class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
+class ServePageRedirect(ServeRedirectMixin, ServeDocsMixin, View):
+    def get(self,
+            request,
+            project_slug=None,
+            subproject_slug=None,
+            version_slug=None,
+            filename='',
+    ):  # noqa
 
-    version_type = INTERNAL
+        version_slug = self.get_version_from_host(request, version_slug)
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=None,
+            version_slug=version_slug,
+            filename=filename,
+        )
+        return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+
+class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self,
             request,
             project_slug=None,
             subproject_slug=None,
+            subproject_slash=None,
             lang_slug=None,
             version_slug=None,
             filename='',
     ):  # noqa
-        """Take the incoming parsed URL's and figure out what file to serve."""
+        """
+        Take the incoming parsed URL's and figure out what file to serve.
 
-        if all([
-                self.version_type == EXTERNAL,
-                request.get_host() != settings.RTD_EXTERNAL_VERSION_DOMAIN,
-        ]):
-            log.warning(
-                'Trying to serve an EXTERNAL version under a not allowed '
-                'domain. url=%s', request.path,
-            )
-            raise Http404()
+        ``subproject_slash`` is used to determine if the subproject URL has a slash,
+        so that we can decide if we need to serve docs or add a /.
+        """
 
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
@@ -68,23 +83,34 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             final_project.slug, subproject_slug, lang_slug, version_slug, filename
         )
 
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        if hasattr(request, 'canonicalize'):
+            try:
+                return self.canonical_redirect(request, final_project, version_slug, filename)
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
+
         # Handle a / redirect when we aren't a single version
         if all([
                 lang_slug is None,
-                version_slug is None,
+                # External versions/builds will always have a version,
+                # because it is taken from the host name
+                version_slug is None or hasattr(request, 'external_domain'),
                 filename == '',
                 not final_project.single_version,
         ]):
-            redirect_to = redirect_project_slug(
-                request,
-                project=final_project,
-                subproject=None,
-            )
-            log.info(
-                'Proxito redirect: from=%s, to=%s, project=%s', filename,
-                redirect_to, final_project.slug
-            )
-            return redirect_to
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
+
+        # Handle `/projects/subproject` URL redirection:
+        # when there _is_ a subproject_slug but not a subproject_slash
+        if all([
+                final_project.single_version,
+                filename == '',
+                subproject_slug,
+                not subproject_slash,
+        ]):
+            return self.system_redirect(request, final_project, lang_slug, version_slug, filename)
 
         if all([
                 (lang_slug is None or version_slug is None),
@@ -117,13 +143,12 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             include_file=False,
             version_type=self.version_type,
-
         )
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
-        # If ``filename`` is ``''`` it leaves a trailing slash
-        path = os.path.join(storage_path, filename)
+        # If ``filename`` is empty, serve from ``/``
+        path = storage.join(storage_path, filename.lstrip('/'))
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
@@ -131,7 +156,9 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
             # Signature and Expire time is calculated per file.
             path += 'index.html'
 
-        storage_url = storage.url(path)  # this will remove the trailing slash
+        # NOTE: calling ``.url`` will remove the trailing slash
+        storage_url = storage.url(path, http_method=request.method)
+
         # URL without scheme and domain to perform an NGINX internal redirect
         parsed_url = urlparse(storage_url)._replace(scheme='', netloc='')
         final_url = parsed_url.geturl()
@@ -139,18 +166,16 @@ class ServeDocsBase(ServeRedirectMixin, ServeDocsMixin, View):
         return self._serve_docs(
             request,
             final_project=final_project,
+            version_slug=version_slug,
             path=final_url,
         )
-
-    def allowed_user(self, *args, **kwargs):
-        return True
 
 
 class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(ServeRedirectMixin, View):
+class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self, request, proxito_path, template_name='404.html'):
         """
@@ -167,42 +192,38 @@ class ServeError404Base(ServeRedirectMixin, View):
         the Docs default page (Maze Found) is rendered by Django and served.
         """
         # pylint: disable=too-many-locals
+        log.info('Executing 404 handler. proxito_path=%s', proxito_path)
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
-            proxito_path, urlconf='readthedocs.proxito.urls'
+            proxito_path,
+            urlconf='readthedocs.proxito.urls',
         )
+
+        version_slug = kwargs.get('version_slug')
+        version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=kwargs.get('project_slug'),
             subproject_slug=kwargs.get('subproject_slug'),
             lang_slug=kwargs.get('lang_slug'),
-            version_slug=kwargs.get('version_slug'),
+            version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
-
-        # Check and perform redirects on 404 handler
-        redirect_path, http_status = self.get_redirect(
-            final_project,
-            lang_slug,
-            version_slug,
-            filename,
-            request.path,
-        )
-        if redirect_path and http_status:
-            return self.get_redirect_response(request, redirect_path, http_status)
 
         storage_root_path = final_project.get_storage_path(
             type_='html',
             version_slug=version_slug,
             include_file=False,
+            version_type=self.version_type,
         )
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
         # First, check for dirhtml with slash
         for tryfile in ('index.html', 'README.html'):
-            storage_filename_path = os.path.join(
-                storage_root_path, filename, tryfile
+            storage_filename_path = storage.join(
+                storage_root_path,
+                f'{filename}/{tryfile}'.lstrip('/'),
             )
             log.debug(
                 'Trying index filename: project=%s version=%s, file=%s',
@@ -212,7 +233,7 @@ class ServeError404Base(ServeRedirectMixin, View):
             )
             if storage.exists(storage_filename_path):
                 log.info(
-                    'Redirecting to index file: project=%s version=%s, url=%s',
+                    'Redirecting to index file: project=%s version=%s, storage_path=%s',
                     final_project.slug,
                     version_slug,
                     storage_filename_path,
@@ -220,26 +241,90 @@ class ServeError404Base(ServeRedirectMixin, View):
                 # Use urlparse so that we maintain GET args in our redirect
                 parts = urlparse(proxito_path)
                 if tryfile == 'README.html':
-                    new_path = os.path.join(parts.path, tryfile)
+                    new_path = parts.path.rstrip('/') + f'/{tryfile}'
                 else:
-                    new_path = parts.path + '/'
-                new_parts = parts._replace(path=new_path)
-                resp = HttpResponseRedirect(new_parts.geturl())
-                return resp
+                    new_path = parts.path.rstrip('/') + '/'
+
+                # `proxito_path` doesn't include query params.`
+                query = urlparse(request.get_full_path()).query
+                new_parts = parts._replace(
+                    path=new_path,
+                    query=query,
+                )
+                redirect_url = new_parts.geturl()
+
+                # TODO: decide if we need to check for infinite redirect here
+                # (from URL == to URL)
+                return HttpResponseRedirect(redirect_url)
+
+        # ``redirect_filename`` is the path without ``/<lang>/<version>`` and
+        # without query, starting with a ``/``. This matches our old logic:
+        # https://github.com/readthedocs/readthedocs.org/blob/4b09c7a0ab45cd894c3373f7f07bad7161e4b223/readthedocs/redirects/utils.py#L60
+        # We parse ``filename`` to remove the query from it
+        schema, netloc, path, params, query, fragments = urlparse(filename)
+        redirect_filename = path
+
+        # we can't check for lang and version here to decide if we need to add
+        # the ``/`` or not because ``/install.html`` is a valid path to use as
+        # redirect and does not include lang and version on it. It should be
+        # fine always adding the ``/`` to the beginning.
+        redirect_filename = '/' + redirect_filename.lstrip('/')
+
+        # Check and perform redirects on 404 handler
+        # NOTE: this redirect check must be done after trying files like
+        # ``index.html`` and ``README.html`` to emulate the behavior we had when
+        # serving directly from NGINX without passing through Python.
+        redirect_path, http_status = self.get_redirect(
+            project=final_project,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=redirect_filename,
+            full_path=proxito_path,
+        )
+        if redirect_path and http_status:
+            try:
+                return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
+            except InfiniteRedirectException:
+                # Continue with our normal 404 handling in this case
+                pass
 
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        for version_slug_404 in [version_slug, final_project.get_default_version()]:
-            for tryfile in ('404.html', '404/index.html'):
-                storage_root_path = final_project.get_storage_path(
-                    type_='html',
-                    version_slug=version_slug_404,
-                    include_file=False,
-                )
-                storage_filename_path = os.path.join(storage_root_path, tryfile)
+        doc_type = (
+            Version.objects.filter(project=final_project, slug=version_slug)
+            .values_list('documentation_type', flat=True)
+            .first()
+        )
+        versions = [(version_slug, doc_type)]
+        default_version_slug = final_project.get_default_version()
+        if default_version_slug != version_slug:
+            default_version_doc_type = (
+                Version.objects.filter(project=final_project, slug=default_version_slug)
+                .values_list('documentation_type', flat=True)
+                .first()
+            )
+            versions.append((default_version_slug, default_version_doc_type))
+
+        for version_slug_404, doc_type_404 in versions:
+            if not self.allowed_user(request, final_project, version_slug_404):
+                continue
+
+            storage_root_path = final_project.get_storage_path(
+                type_='html',
+                version_slug=version_slug_404,
+                include_file=False,
+                version_type=self.version_type,
+            )
+            tryfiles = ['404.html']
+            # SPHINX_HTMLDIR is the only builder
+            # that could output a 404/index.html file.
+            if doc_type_404 == SPHINX_HTMLDIR:
+                tryfiles.append('404/index.html')
+            for tryfile in tryfiles:
+                storage_filename_path = storage.join(storage_root_path, tryfile)
                 if storage.exists(storage_filename_path):
-                    log.debug(
+                    log.info(
                         'Serving custom 404.html page: [project: %s] [version: %s]',
                         final_project.slug,
                         version_slug_404,
@@ -248,10 +333,7 @@ class ServeError404Base(ServeRedirectMixin, View):
                     resp.status_code = 404
                     return resp
 
-        # Finally, return the default 404 page generated by Read the Docs
-        resp = render(request, template_name)
-        resp.status_code = 404
-        return resp
+        raise Http404('No custom 404 page found.')
 
 
 class ServeError404(SettingsOverrideObject):
@@ -261,6 +343,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -268,14 +351,13 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
+
         # Use the ``robots.txt`` file from the default version configured
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
 
         no_serve_robots_txt = any([
-            # If project is private or,
-            project.privacy_level == constants.PRIVATE,
-            # default version is private or,
+            # If the default version is private or,
             version.privacy_level == constants.PRIVATE,
             # default version is not active or,
             not version.active,
@@ -287,12 +369,16 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             # ... we do return a 404
             raise Http404()
 
-        storage_path = project.get_storage_path(
-            type_='html', version_slug=version_slug, include_file=False
-        )
-        path = os.path.join(storage_path, 'robots.txt')
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+
+        storage_path = project.get_storage_path(
+            type_='html',
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
+        )
+        path = storage.join(storage_path, 'robots.txt')
+
         if storage.exists(path):
             url = storage.url(path)
             url = urlparse(url)._replace(scheme='', netloc='').geturl()
@@ -306,10 +392,28 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             scheme='https',
             domain=project.subdomain(),
         )
-        return HttpResponse(
-            'User-agent: *\nAllow: /\nSitemap: {}\n'.format(sitemap_url),
+        context = {
+            'sitemap_url': sitemap_url,
+            'hidden_paths': self._get_hidden_paths(project),
+        }
+        return render(
+            request,
+            'robots.txt',
+            context,
             content_type='text/plain',
         )
+
+    def _get_hidden_paths(self, project):
+        """Get the absolute paths of the public hidden versions of `project`."""
+        hidden_versions = (
+            Version.internal.public(project=project)
+            .filter(hidden=True)
+        )
+        hidden_paths = [
+            resolve_path(project, version_slug=version.slug)
+            for version in hidden_versions
+        ]
+        return hidden_paths
 
 
 class ServeRobotsTXT(SettingsOverrideObject):
@@ -319,7 +423,7 @@ class ServeRobotsTXT(SettingsOverrideObject):
 class ServeSitemapXMLBase(View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 24 * 3))  # 3 days
+    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
     def get(self, request, project):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
@@ -332,9 +436,7 @@ class ServeSitemapXMLBase(View):
         frequency. Starting from 1 and decreasing by 0.1 for priorities and starting
         from daily, weekly to monthly for change frequency.
 
-        If the project is private, the view raises ``Http404``. On the other hand,
-        if the project is public but a version is private, this one is not included
-        in the sitemap.
+        If the project doesn't have any public version, the view raises ``Http404``.
 
         :param request: Django request object
         :param project: Project instance to generate the sitemap
@@ -380,15 +482,14 @@ class ServeSitemapXMLBase(View):
             changefreqs = ['weekly', 'daily']
             yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
-        if project.privacy_level == constants.PRIVATE:
+        public_versions = Version.internal.public(
+            project=project,
+            only_active=True,
+        )
+        if not public_versions.exists():
             raise Http404
 
-        sorted_versions = sort_version_aware(
-            Version.internal.public(
-                project=project,
-                only_active=True,
-            ),
-        )
+        sorted_versions = sort_version_aware(public_versions)
 
         # This is a hack to swap the latest version with
         # stable version to get the stable version first in the sitemap.
@@ -428,7 +529,6 @@ class ServeSitemapXMLBase(View):
                         href = project.get_docs_url(
                             version_slug=version.slug,
                             lang_slug=translation.language,
-                            private=False,
                         )
                         element['languages'].append({
                             'hreflang': hreflang_formatter(translation.language),

@@ -6,7 +6,7 @@
   {% if request.user|is_project_user:project %}
     <a href="{% url "projects_dashboard" %}">{% trans "Projects" %}</a>&nbsp;&gt;
   {% endif %}
-  {% if project.superprojects.count %}
+  {% if project.superprojects.exists %}
     <a href="{% url "projects_detail" project.superprojects.all.0.parent.slug %}">{{ project.superprojects.all.0.parent.name }}</a>&nbsp;&gt;
   {% endif %}
 {% endblock %}

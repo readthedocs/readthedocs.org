@@ -72,8 +72,7 @@ in your documentation output directory (typically ``_build/html/index.html``).
 Open this file in your web browser to see your docs.
 
 .. figure:: ../_static/images/first-steps/sphinx-hello-world.png
-    :align: right
-    :figwidth: 300px
+    :figwidth: 500px
     :target: ../_static/images/first-steps/sphinx-hello-world.png
 
     Your Sphinx project is built
@@ -122,4 +121,4 @@ Here are some external resources to help you learn more about Sphinx.
 
 .. _Sphinx documentation: http://www.sphinx-doc.org/
 .. _RestructuredText primer: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
-.. _An introduction to Sphinx and Read the Docs for technical writers: https://ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/
+.. _An introduction to Sphinx and Read the Docs for technical writers: https://www.ericholscher.com/blog/2016/jul/1/sphinx-and-rtd-for-writers/

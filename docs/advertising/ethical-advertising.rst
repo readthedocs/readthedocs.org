@@ -103,7 +103,7 @@ Additional details
 * We have gone into more detail about our views in our
   `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this topic.
 * Eric Holscher, one of our co-founders
-  `talks a bit more <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
+  `talks a bit more <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
   about funding open source this way on his blog.
 
 .. _advertising FAQ: https://readthedocs.org/sustainability/advertising/faq/
@@ -115,7 +115,7 @@ We're building the advertising model we want to exist.
 We hope that others will join us in this mission:
 
 * **If you're a developer**,
-  `talk to your marketing folks <http://ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
+  `talk to your marketing folks <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
   `Get more information <https://readthedocs.org/sustainability/advertising/>`_ on what we offer.

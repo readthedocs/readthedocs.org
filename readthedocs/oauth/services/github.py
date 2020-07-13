@@ -6,6 +6,8 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+
+from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -15,7 +17,6 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
-    RTD_BUILD_STATUS_API_NAME
 )
 from readthedocs.integrations.models import Integration
 
@@ -36,8 +37,15 @@ class GitHubService(Service):
 
     def sync(self):
         """Sync repositories and organizations."""
-        self.sync_repositories()
-        self.sync_organizations()
+        repos = self.sync_repositories()
+        organization_repos = self.sync_organizations()
+
+        # Delete RemoteRepository where the user doesn't have access anymore
+        # (skip RemoteRepository tied to a Project on this user)
+        full_names = {repo.get('full_name') for repo in repos + organization_repos}
+        self.user.oauth_repositories.exclude(
+            Q(full_name__in=full_names) | Q(project__isnull=False)
+        ).delete()
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
@@ -45,6 +53,7 @@ class GitHubService(Service):
         try:
             for repo in repos:
                 self.create_repository(repo)
+            return repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
@@ -66,6 +75,7 @@ class GitHubService(Service):
                 )
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
+                return org_repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
@@ -126,11 +136,11 @@ class GitHubService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.debug(
-                'Not importing %s because mismatched type',
-                fields['name'],
-            )
+
+        log.debug(
+            'Not importing %s because mismatched type',
+            fields['name'],
+        )
 
     def create_organization(self, fields):
         """
@@ -434,18 +444,21 @@ class GitHubService(Service):
         if state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
+        context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
+
         data = {
             'state': github_build_state,
             'target_url': target_url,
             'description': description,
-            'context': RTD_BUILD_STATUS_API_NAME
+            'context': context,
         }
 
         resp = None
 
         try:
+            statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
             resp = session.post(
-                f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -460,11 +473,20 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitHub project does not exist or user does not have '
-                    'permissions: project=%s',
+                    'permissions: project=%s, user=%s, status=%s, url=%s',
                     project,
+                    self.user,
+                    resp.status_code,
+                    statuses_url,
                 )
                 return False
 
+            log.warning(
+                'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
+                project,
+                self.user,
+                resp.status_code
+            )
             return False
 
         # Catch exceptions with request or deserializing JSON

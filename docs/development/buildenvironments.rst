@@ -1,4 +1,3 @@
-==================
 Build Environments
 ==================
 
@@ -35,7 +34,7 @@ option.
 After this image is downloaded, you can update your settings to use the new
 image -- see `Configuration`_.
 
-.. _`Docker`: http://docker.com
+.. _`Docker`: https://www.docker.com
 .. _`Docker Hub repository`: https://hub.docker.com/r/readthedocs/build/
 .. _`container image repo`: https://github.com/readthedocs/readthedocs-docker-images
 
@@ -108,3 +107,35 @@ DOCKER_USE_DEV_IMAGES
     If set to ``True``, replace the normal Docker image name used in building
     ``readthedocs/build`` with the image name output for these commands,
     ``readthedocs/build-dev``.
+
+Builder responsibility
+----------------------
+
+Builders have a very specific job.
+They take the updated source code and generate the correct artifacts.
+The code lives in ``self.version.project.checkout_path(self.version.slug)``.
+The artifacts should end up in ``self.version.project.artifact_path(version=self.version.slug, type=self.type)``
+Where ``type`` is the name of your builder.
+All files that end up in the artifact directory should be in their final form.
+
+
+Writing your own builder
+------------------------
+
+.. note:: Builds happen on a server using only the RTD Public API. There is no reason that you couldn't build your own independent builder that wrote into the RTD namespace, but that would require work on our side if you can convince us :)
+
+The documentation build system in RTD is made pluggable, so that you can build out your own backend. If you have a documentation format that isn't currently supported, you can add support by contributing a backend.
+
+`The builder backends`_ detail the higher level parts of the API that you need to implement. A basic run goes something like this:
+
+.. sourcecode:: python
+
+    backend = get_backend(project.documentation_type)
+    if force:
+        backend.force(version)
+    backend.clean(version)
+    backend.build(version)
+    if success:
+        backend.move(version)
+
+.. _The builder backends: https://github.com/readthedocs/readthedocs.org/tree/master/readthedocs/doc_builder/backends

@@ -13,10 +13,13 @@ from django.utils.text import slugify as slugify_base
 
 from readthedocs.builds.constants import (
     BUILD_STATE_TRIGGERED,
+    BUILD_STATE_FINISHED,
     BUILD_STATUS_PENDING,
     EXTERNAL,
 )
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
+from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError, DuplicatedBuildError
 
 
 log = logging.getLogger(__name__)
@@ -83,7 +86,7 @@ def prepare_build(
     """
     # Avoid circular import
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Project
+    from readthedocs.projects.models import Project, Feature
     from readthedocs.projects.tasks import (
         update_docs_task,
         send_external_build_status,
@@ -125,7 +128,13 @@ def prepare_build(
         options['queue'] = project.build_queue
 
     # Set per-task time limit
-    time_limit = DOCKER_LIMITS['time']
+    # TODO remove the use of Docker limits or replace the logic here. This
+    # was pulling the Docker limits that were set on each stack, but we moved
+    # to dynamic setting of the Docker limits. This sets a failsafe higher
+    # limit, but if no builds hit this limit, it should be safe to remove and
+    # rely on Docker to terminate things on time.
+    # time_limit = DOCKER_LIMITS['time']
+    time_limit = 7200
     try:
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
@@ -147,6 +156,72 @@ def prepare_build(
     if build and version.type != EXTERNAL:
         # Send Webhook notification for build triggered.
         send_notifications.delay(version.pk, build_pk=build.pk, email=False)
+
+    options['priority'] = CELERY_HIGH
+    if project.main_language_project:
+        # Translations should be medium priority
+        options['priority'] = CELERY_MEDIUM
+    if version.type == EXTERNAL:
+        # External builds should be lower priority.
+        options['priority'] = CELERY_LOW
+
+    skip_build = False
+    if commit:
+        skip_build = (
+            Build.objects
+            .filter(
+                project=project,
+                version=version,
+                commit=commit,
+            ).exclude(
+                state=BUILD_STATE_FINISHED,
+            ).exclude(
+                pk=build.pk,
+            ).exists()
+        )
+    else:
+        skip_build = Build.objects.filter(
+            project=project,
+            version=version,
+            state=BUILD_STATE_TRIGGERED,
+        ).count() > 1
+
+    if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
+        log.debug('Skipping deduplication of builds. Feature not enabled. project=%s', project.slug)
+        skip_build = False
+
+    if skip_build:
+        # TODO: we could mark the old build as duplicated, however we reset our
+        # position in the queue and go back to the end of it --penalization
+        log.warning(
+            'Marking build to be skipped by builder. project=%s version=%s build=%s commit=%s',
+            project.slug,
+            version.slug,
+            build.pk,
+            commit,
+        )
+        build.error = DuplicatedBuildError.message
+        build.status = DuplicatedBuildError.status
+        build.exit_code = DuplicatedBuildError.exit_code
+        build.success = False
+        build.state = BUILD_STATE_FINISHED
+        build.save()
+
+    # Start the build in X minutes and mark it as limited
+    if not skip_build and project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+        if limit_reached:
+            log.warning(
+                'Delaying tasks at trigger step due to concurrency limit. project=%s version=%s',
+                project.slug,
+                version.slug,
+            )
+            options['countdown'] = 5 * 60
+            options['max_retries'] = 25
+            build.error = BuildMaxConcurrencyError.message.format(
+                limit=max_concurrent_builds,
+            )
+            build.save()
 
     return (
         update_docs_task.signature(
@@ -174,6 +249,12 @@ def trigger_build(project, version=None, commit=None, record=True, force=False):
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    log.info(
+        'Triggering build. project=%s version=%s commit=%s',
+        project.slug,
+        version.slug if version else None,
+        commit,
+    )
     update_docs_task, build = prepare_build(
         project,
         version,
@@ -244,20 +325,3 @@ def safe_makedirs(directory_name):
     except OSError as e:
         if e.errno != errno.EEXIST:  # 17, FileExistsError
             raise
-
-
-def safe_unlink(path):
-    """
-    Unlink ``path`` symlink using ``os.unlink``.
-
-    This helper handles the exception ``FileNotFoundError`` to avoid logging in
-    cases where the symlink does not exist already and there is nothing to
-    unlink.
-
-    :param path: symlink path to unlink
-    :type path: str
-    """
-    try:
-        os.unlink(path)
-    except FileNotFoundError:
-        log.warning('Unlink failed. Path %s does not exists', path)

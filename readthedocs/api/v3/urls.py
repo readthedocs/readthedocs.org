@@ -16,6 +16,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# pylint: disable=assignment-from-no-return
 projects = router.register(
     r'projects',
     ProjectsViewSet,

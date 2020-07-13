@@ -148,11 +148,11 @@ There are several components to our bundling scheme:
         don't have a defined directory structure that would make it easy to
         imply the entry point to an application library.
 
-.. _`Bower`: http://bower.io
-.. _`Gulp`: http://gulpjs.com
+.. _`Bower`: https://bower.io
+.. _`Gulp`: https://gulpjs.com
 .. _`Browserify`: http://browserify.org
 .. _`Debowerify`: https://github.com/eugeneware/debowerify
 .. _`LESS`: http://lesscss.org
 
-.. _`jQuery`: http://jquery.com
-.. _`Knockout`: http://knockoutjs.com
+.. _`jQuery`: https://jquery.com
+.. _`Knockout`: https://knockoutjs.com

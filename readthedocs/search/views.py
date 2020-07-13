@@ -1,8 +1,6 @@
 """Search views."""
 import collections
-import itertools
 import logging
-from operator import attrgetter
 
 from django.shortcuts import get_object_or_404, render
 
@@ -13,8 +11,8 @@ from readthedocs.search.faceted_search import (
     PageSearch,
     ProjectSearch,
 )
-from readthedocs.search import utils
 
+from .serializers import PageSearchSerializer, ProjectSearchSerializer
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
@@ -26,7 +24,6 @@ UserInput = collections.namedtuple(
         'type',
         'project',
         'version',
-        'taxonomy',
         'language',
         'role_name',
         'index',
@@ -54,7 +51,6 @@ def elastic_search(request, project_slug=None):
         type=request_type or request.GET.get('type', 'project'),
         project=project_slug or request.GET.get('project'),
         version=request.GET.get('version', LATEST),
-        taxonomy=request.GET.get('taxonomy'),
         language=request.GET.get('language'),
         role_name=request.GET.get('role_name'),
         index=request.GET.get('index'),
@@ -67,19 +63,21 @@ def elastic_search(request, project_slug=None):
         }
     )
 
-    results = None
+    results = []
     facets = {}
 
     if user_input.query:
-        kwargs = {}
+        filters = {}
 
         for avail_facet in ALL_FACETS:
             value = getattr(user_input, avail_facet, None)
             if value:
-                kwargs[avail_facet] = value
+                filters[avail_facet] = value
 
         search = search_facets[user_input.type](
-            query=user_input.query, user=request.user, **kwargs
+            query=user_input.query,
+            filters=filters,
+            user=request.user,
         )
         results = search[:50].execute()
         facets = results.facets
@@ -97,36 +95,17 @@ def elastic_search(request, project_slug=None):
         )
 
     # Make sure our selected facets are displayed even when they return 0 results
-    for avail_facet in ALL_FACETS:
-        value = getattr(user_input, avail_facet, None)
-        if not value or avail_facet not in facets:
-            continue
-        if value not in [val[0] for val in facets[avail_facet]]:
-            facets[avail_facet].insert(0, (value, 0, True))
+    for facet in facets:
+        value = getattr(user_input, facet, None)
+        if value and value not in (val[0] for val in facets[facet]):
+            facets[facet].insert(0, (value, 0, True))
 
-    if results:
-
-        # sorting inner_hits (if present)
-        if user_input.type == 'file':
-
-            try:
-                for result in results:
-                    inner_hits = result.meta.inner_hits
-                    sections = inner_hits.sections or []
-                    domains = inner_hits.domains or []
-                    all_results = itertools.chain(sections, domains)
-
-                    sorted_results = utils._get_sorted_results(
-                        results=all_results,
-                        source_key='source',
-                    )
-
-                    result.meta.inner_hits = sorted_results
-            except Exception:
-                log.exception('Error while sorting the results (inner_hits).')
-
-        log.debug('Search results: %s', results.to_dict())
-        log.debug('Search facets: %s', results.facets.to_dict())
+    serializers = {
+        'project': ProjectSearchSerializer,
+        'file': PageSearchSerializer,
+    }
+    serializer = serializers.get(user_input.type, ProjectSearchSerializer)
+    results = serializer(results, many=True).data
 
     template_vars = user_input._asdict()
     template_vars.update({

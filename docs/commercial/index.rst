@@ -32,7 +32,6 @@ Advertising-free
 .. toctree:: 
    :caption: Additional commercial features
 
-   custom_domains
    organizations
    sharing
    analytics

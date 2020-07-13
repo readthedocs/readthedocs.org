@@ -6,8 +6,8 @@ import logging
 import mimetypes
 import operator
 import os
-from urllib.parse import urlparse
 from collections import OrderedDict
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -16,13 +16,13 @@ from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare
+from django.utils.encoding import force_bytes
 from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
-from django.utils.crypto import constant_time_compare
-from django.utils.encoding import force_bytes
 from taggit.models import Tag
 
 from readthedocs.analytics.tasks import analytics_event
@@ -30,13 +30,16 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.utils import _get_project_data_from_request
 
-from .base import ProjectOnboardMixin
 from ..constants import PRIVATE
-
+from .base import ProjectOnboardMixin
 
 log = logging.getLogger(__name__)
 search_log = logging.getLogger(__name__ + '.search')
@@ -58,7 +61,7 @@ class ProjectTagIndex(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
         context['tag'] = self.tag
         return context
@@ -79,7 +82,12 @@ def project_redirect(request, invalid_project_slug):
     ))
 
 
-class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
+class ProjectDetailViewBase(
+        ProjectRelationListMixin,
+        BuildTriggerMixin,
+        ProjectOnboardMixin,
+        DetailView
+):
 
     """Display project onboard steps."""
 
@@ -89,10 +97,13 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
     def get_queryset(self):
         return Project.objects.protected(self.request.user)
 
+    def get_project(self):
+        return self.get_object()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        project = self.get_object()
+        project = self.get_project()
         context['versions'] = self._get_versions(project)
 
         protocol = 'http'
@@ -111,7 +122,17 @@ class ProjectDetailView(BuildTriggerMixin, ProjectOnboardMixin, DetailView):
             version=version_slug,
         )
 
+        context['is_project_admin'] = AdminPermission.is_admin(
+            self.request.user,
+            project,
+        )
+
         return context
+
+
+class ProjectDetailView(SettingsOverrideObject):
+
+    _default_class = ProjectDetailViewBase
 
 
 class ProjectBadgeView(View):
@@ -267,23 +288,64 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMedia(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(ServeDocsMixin, View):
 
-    def get(self, request, project_slug, type_, version_slug):
+    # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
+    same_domain_url = False
+
+    def get(
+            self,
+            request,
+            project_slug=None,
+            type_=None,
+            version_slug=None,
+            lang_slug=None,
+            subproject_slug=None,
+    ):
         """
         Download a specific piece of media.
 
         Perform an auth check if serving in private mode.
 
+        This view is used to download a file using old-style URLs (download from
+        the dashboard) and new-style URLs (download from the same domain as
+        docs). Basically, the parameters received by the GET view are different
+        (``project_slug`` does not come in the new-style URLs, for example) and
+        we need to take it from the request. Once we get the final ``version``
+        to be served, everything is the same for both paths.
+
         .. warning:: This is linked directly from the HTML pages.
                      It should only care about the Version permissions,
                      not the actual Project permissions.
         """
-        version = get_object_or_404(
-            Version.objects.public(user=request.user),
-            project__slug=project_slug,
-            slug=version_slug,
-        )
+        if self.same_domain_url:
+            # It uses the request to get the ``project``. The rest of arguments come
+            # from the URL.
+            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+                request,
+                project_slug=None,
+                subproject_slug=subproject_slug,
+                lang_slug=lang_slug,
+                version_slug=version_slug,
+            )
+
+            if not self.allowed_user(request, final_project, version_slug):
+                return self.get_unauthed_response(request, final_project)
+
+            # We don't use ``.public`` in this filter because the access
+            # permission was already granted by ``.allowed_user``
+            version = get_object_or_404(
+                final_project.versions,
+                slug=version_slug,
+            )
+
+        else:
+            # All the arguments come from the URL.
+            version = get_object_or_404(
+                Version.objects.public(user=request.user),
+                project__slug=project_slug,
+                slug=version_slug,
+            )
 
         # Send media download to analytics - sensitive data is anonymized
         analytics_event.delay(
@@ -296,7 +358,8 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
 
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         storage_path = version.project.get_storage_path(
-            type_=type_, version_slug=version_slug,
+            type_=type_,
+            version_slug=version_slug,
             version_type=version.type,
         )
 
@@ -313,12 +376,18 @@ class ProjectDownloadMedia(ServeDocsMixin, View):
         )
 
 
+class ProjectDownloadMedia(SettingsOverrideObject):
+    _default_class = ProjectDownloadMediaBase
+
+
 def project_versions(request, project_slug):
     """
     Project version list view.
 
     Shows the available versions and lets the user choose which ones to build.
     """
+    max_inactive_versions = 100
+
     project = get_object_or_404(
         Project.objects.protected(request.user),
         slug=project_slug,
@@ -337,14 +406,15 @@ def project_versions(request, project_slug):
     version_filter = request.GET.get('version_filter', '')
     if version_filter:
         inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
-    inactive_versions = inactive_versions[:100]
+    total_inactive_versions_count = inactive_versions.count()
+    inactive_versions = inactive_versions[:max_inactive_versions]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
     # to fail.  :)
     wiped = request.GET.get('wipe', '')
     wiped_version = versions.filter(slug=wiped)
-    if wiped and wiped_version.count():
+    if wiped and wiped_version.exists():
         messages.success(request, 'Version wiped: ' + wiped)
 
     # Optimize project permission checks
@@ -357,6 +427,9 @@ def project_versions(request, project_slug):
             'inactive_versions': inactive_versions,
             'active_versions': active_versions,
             'project': project,
+            'is_project_admin': AdminPermission.is_admin(request.user, project),
+            'max_inactive_versions': max_inactive_versions,
+            'total_inactive_versions_count': total_inactive_versions_count,
         },
     )
 

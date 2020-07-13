@@ -11,8 +11,12 @@ import json
 import logging
 import os
 import shutil
+import signal
 import socket
+import tarfile
+import tempfile
 from collections import Counter, defaultdict
+from fnmatch import fnmatch
 
 import requests
 from celery.exceptions import SoftTimeLimitExceeded
@@ -31,20 +35,19 @@ from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_INSTALLING,
-    BUILD_STATUS_SUCCESS,
+    BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
+    BUILD_STATUS_SUCCESS,
+    EXTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE_VERBOSE_NAME,
-    EXTERNAL,
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
-from readthedocs.builds.syncers import Syncer
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.core.utils import broadcast, safe_unlink, send_email
+from readthedocs.core.utils import send_email
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_LIMITS
 from readthedocs.doc_builder.environments import (
@@ -54,7 +57,9 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import (
     BuildEnvironmentError,
     BuildEnvironmentWarning,
+    BuildMaxConcurrencyError,
     BuildTimeoutError,
+    DuplicatedBuildError,
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     VersionLockedError,
@@ -72,7 +77,7 @@ from readthedocs.vcs_support import utils as vcs_support_utils
 from readthedocs.worker import app
 
 from .constants import LOG_TEMPLATE
-from .exceptions import ProjectConfigurationError, RepositoryError
+from .exceptions import RepositoryError
 from .models import Domain, HTMLFile, ImportedFile, Project
 from .signals import (
     after_build,
@@ -83,8 +88,91 @@ from .signals import (
     files_changed,
 )
 
-
 log = logging.getLogger(__name__)
+
+
+class CachedEnvironmentMixin:
+
+    """Mixin that pull/push cached environment to storage."""
+
+    def pull_cached_environment(self):
+        if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
+            return
+
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        filename = self.version.get_storage_environment_cache_path()
+
+        msg = 'Checking for cached environment'
+        log.debug(
+            LOG_TEMPLATE,
+            {
+                'project': self.project.slug,
+                'version': self.version.slug,
+                'msg': msg,
+            }
+        )
+        if storage.exists(filename):
+            msg = 'Pulling down cached environment from storage'
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            remote_fd = storage.open(filename, mode='rb')
+            with tarfile.open(fileobj=remote_fd) as tar:
+                tar.extractall(self.project.doc_path)
+
+    def push_cached_environment(self):
+        if not self.project.has_feature(feature_id=Feature.CACHED_ENVIRONMENT):
+            return
+
+        project_path = self.project.doc_path
+        directories = [
+            'checkouts',
+            'envs',
+            'conda',
+        ]
+
+        _, tmp_filename = tempfile.mkstemp(suffix='.tar')
+        # open just with 'w', to not compress and waste CPU cycles
+        with tarfile.open(tmp_filename, 'w') as tar:
+            for directory in directories:
+                path = os.path.join(
+                    project_path,
+                    directory,
+                    self.version.slug,
+                )
+                arcname = os.path.join(directory, self.version.slug)
+                if os.path.exists(path):
+                    tar.add(path, arcname=arcname)
+
+            # Special handling for .cache directory because it's per-project
+            path = os.path.join(project_path, '.cache')
+            if os.path.exists(path):
+                tar.add(path, arcname='.cache')
+
+        storage = get_storage_class(settings.RTD_BUILD_ENVIRONMENT_STORAGE)()
+        with open(tmp_filename, 'rb') as fd:
+            msg = 'Pushing up cached environment to storage'
+            log.info(
+                LOG_TEMPLATE,
+                {
+                    'project': self.project.slug,
+                    'version': self.version.slug,
+                    'msg': msg,
+                }
+            )
+            storage.save(
+                self.version.get_storage_environment_cache_path(),
+                fd,
+            )
+
+        # Cleanup the temporary file
+        if os.path.exists(tmp_filename):
+            os.remove(tmp_filename)
 
 
 class SyncRepositoryMixin:
@@ -124,7 +212,7 @@ class SyncRepositoryMixin:
         if not os.path.exists(self.project.doc_path):
             os.makedirs(self.project.doc_path)
 
-        if not self.project.vcs_repo():
+        if not self.project.vcs_class():
             raise RepositoryError(
                 _('Repository type "{repo_type}" unknown').format(
                     repo_type=self.project.repo_type,
@@ -146,30 +234,49 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions(version_repo)
+        self.sync_versions_api(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions(self, version_repo):
+    def sync_versions_api(self, version_repo):
         """
         Update tags/branches hitting the API.
 
-        It may trigger a new build to the stable version when hittig the
+        It may trigger a new build to the stable version when hitting the
         ``sync_versions`` endpoint.
         """
         version_post_data = {'repo': version_repo.repo_url}
+        tags = None
+        branches = None
+        if (
+            version_repo.supports_lsremote and
+            not version_repo.repo_exists() and
+            self.project.has_feature(Feature.VCS_REMOTE_LISTING)
+        ):
+            # Do not use ``ls-remote`` if the VCS does not support it or if we
+            # have already cloned the repository locally. The latter happens
+            # when triggering a normal build.
+            branches, tags = version_repo.lsremote
 
-        if version_repo.supports_tags:
+        if all([
+            version_repo.supports_tags,
+            not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
+        ]):
+            tags = tags or version_repo.tags
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.tags]
+            } for v in tags]
 
-        if version_repo.supports_branches:
+        if all([
+            version_repo.supports_branches,
+            not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
+        ]):
+            branches = branches or version_repo.branches
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
-            } for v in version_repo.branches]
+            } for v in branches]
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
@@ -203,8 +310,21 @@ class SyncRepositoryMixin:
                     RepositoryError.DUPLICATED_RESERVED_VERSIONS,
                 )
 
+    def get_rtd_env_vars(self):
+        """Get bash environment variables specific to Read the Docs."""
+        env = {
+            'READTHEDOCS': 'True',
+            'READTHEDOCS_VERSION': self.version.slug,
+            'READTHEDOCS_PROJECT': self.project.slug,
+            'READTHEDOCS_LANGUAGE': self.project.language,
+        }
+        return env
 
-@app.task(max_retries=5, default_retry_delay=7 * 60)
+
+@app.task(
+    max_retries=5,
+    default_retry_delay=7 * 60,
+)
 def sync_repository_task(version_pk):
     """Celery task to trigger VCS version sync."""
     try:
@@ -214,7 +334,7 @@ def sync_repository_task(version_pk):
         clean_build(version_pk)
 
 
-class SyncRepositoryTaskStep(SyncRepositoryMixin):
+class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     """
     Entry point to synchronize the VCS documentation.
@@ -240,17 +360,33 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
             self.version = self.get_version(version_pk)
             self.project = self.version.project
 
-            environment = LocalBuildEnvironment(
+            if settings.DOCKER_ENABLE:
+                env_cls = DockerBuildEnvironment
+            else:
+                env_cls = LocalBuildEnvironment
+            environment = env_cls(
                 project=self.project,
                 version=self.version,
-                build=self.build,
                 record=False,
                 update_on_success=False,
+                environment=self.get_rtd_env_vars(),
+            )
+            log.info(
+                'Running sync_repository_task: project=%s version=%s',
+                self.project.slug,
+                self.version.slug,
             )
 
-            before_vcs.send(sender=self.version, environment=environment)
-            with self.project.repo_nonblockinglock(version=self.version):
-                self.sync_repo(environment)
+            with environment:
+                before_vcs.send(sender=self.version, environment=environment)
+                with self.project.repo_nonblockinglock(version=self.version):
+                    # When syncing we are only pulling the cached environment
+                    # (without pushing it after it's updated). We only clone the
+                    # repository in this step, and pushing it back will delete
+                    # all the other cached things (Python packages, Sphinx,
+                    # virtualenv, etc)
+                    self.pull_cached_environment()
+                    self.update_versions_from_repository(environment)
             return True
         except RepositoryError:
             # Do not log as ERROR handled exceptions
@@ -268,8 +404,8 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
                 extra={
                     'stack': True,
                     'tags': {
-                        'project': self.project.slug,
-                        'version': self.version.slug,
+                        'project': self.project.slug if self.project else '',
+                        'version': self.version.slug if self.version else '',
                     },
                 },
             )
@@ -279,28 +415,39 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin):
         # Always return False for any exceptions
         return False
 
+    def update_versions_from_repository(self, environment):
+        """
+        Update Read the Docs versions from VCS repository.
 
-# Exceptions under ``throws`` argument are considered ERROR from a Build
-# perspective (the build failed and can continue) but as a WARNING for the
-# application itself (RTD code didn't failed). These exception are logged as
-# ``INFO`` and they are not sent to Sentry.
+        Depending if the VCS backend supports remote listing, we just list its branches/tags
+        remotely or we do a full clone and local listing of branches/tags.
+        """
+        version_repo = self.get_vcs_repo(environment)
+        if any([
+                not version_repo.supports_lsremote,
+                not self.project.has_feature(Feature.VCS_REMOTE_LISTING),
+        ]):
+            log.info('Syncing repository via full clone. project=%s', self.project.slug)
+            self.sync_repo(environment)
+        else:
+            log.info('Syncing repository via remote listing. project=%s', self.project.slug)
+            self.sync_versions_api(version_repo)
+
+
 @app.task(
     bind=True,
     max_retries=5,
     default_retry_delay=7 * 60,
-    throws=(
-        VersionLockedError,
-        ProjectBuildsSkippedError,
-        YAMLParseError,
-        BuildTimeoutError,
-        BuildEnvironmentWarning,
-        RepositoryError,
-        ProjectConfigurationError,
-        ProjectBuildsSkippedError,
-        MkDocsYAMLParseError,
-    ),
 )
 def update_docs_task(self, version_pk, *args, **kwargs):
+
+    def sigterm_received(*args, **kwargs):
+        log.warning('SIGTERM received. Waiting for build to stop gracefully after it finishes.')
+
+    # Do not send the SIGTERM signal to childs (pip is automatically killed when
+    # receives SIGTERM and make the build to fail one command and stop build)
+    signal.signal(signal.SIGTERM, sigterm_received)
+
     try:
         step = UpdateDocsTaskStep(task=self)
         return step.run(version_pk, *args, **kwargs)
@@ -308,7 +455,7 @@ def update_docs_task(self, version_pk, *args, **kwargs):
         clean_build(version_pk)
 
 
-class UpdateDocsTaskStep(SyncRepositoryMixin):
+class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
     """
     The main entry point for updating documentation.
@@ -353,22 +500,23 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if config is not None:
             self.config = config
         self.task = task
+        self.build_start_time = None
         # TODO: remove this
         self.setup_env = None
 
     # pylint: disable=arguments-differ
     def run(
-            self, version_pk, build_pk=None, commit=None, record=True, docker=None,
+            self, version_pk, build_pk=None, commit=None, record=True,
             force=False, **__
     ):
         """
         Run a documentation sync n' build.
 
         This is fully wrapped in exception handling to account for a number of
-        failure cases. We first run a few commands in a local build environment,
+        failure cases. We first run a few commands in a build environment,
         but do not report on environment success. This avoids a flicker on the
         build output page where the build is marked as finished in between the
-        local environment steps and the docker build steps.
+        checkout steps and the build steps.
 
         If a failure is raised, or the build is not successful, return
         ``False``, otherwise, ``True``.
@@ -381,8 +529,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :param build_pk int: Build id (if None, commands are not recorded)
         :param commit: commit sha of the version required for sending build status reports
         :param record bool: record a build object in the database
-        :param docker bool: use docker to build the project (if ``None``,
-            ``settings.DOCKER_ENABLE`` is used)
         :param force bool: force Sphinx build
 
         :returns: whether build was successful or not
@@ -390,8 +536,6 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         :rtype: bool
         """
         try:
-            if docker is None:
-                docker = settings.DOCKER_ENABLE
             self.version = self.get_version(version_pk)
             self.project = self.version.project
             self.build = self.get_build(build_pk)
@@ -399,11 +543,61 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             self.commit = commit
             self.config = None
 
+            if self.build.get('status') == DuplicatedBuildError.status:
+                log.warning(
+                    'NOOP: build is marked as duplicated. project=%s version=%s build=%s commit=%s',
+                    self.project.slug,
+                    self.version.slug,
+                    build_pk,
+                    self.commit,
+                )
+                return True
+
+            if self.project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
+                try:
+                    response = api_v2.build.concurrent.get(project__slug=self.project.slug)
+                    concurrency_limit_reached = response.get('limit_reached', False)
+                    max_concurrent_builds = response.get(
+                        'max_concurrent',
+                        settings.RTD_MAX_CONCURRENT_BUILDS,
+                    )
+                except Exception:
+                    log.exception(
+                        'Error while hitting/parsing API for concurrent limit checks from builder. '
+                        'project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+                    concurrency_limit_reached = False
+                    max_concurrent_builds = settings.RTD_MAX_CONCURRENT_BUILDS
+
+                if concurrency_limit_reached:
+                    log.warning(
+                        'Delaying tasks due to concurrency limit. project=%s version=%s',
+                        self.project.slug,
+                        self.version.slug,
+                    )
+
+                    # This is done automatically on the environment context, but
+                    # we are executing this code before creating one
+                    api_v2.build(self.build['id']).patch({
+                        'error': BuildMaxConcurrencyError.message.format(
+                            limit=max_concurrent_builds,
+                        ),
+                    })
+                    self.task.retry(
+                        exc=BuildMaxConcurrencyError,
+                        throw=False,
+                        # We want to retry this build more times
+                        max_retries=25,
+                    )
+                    return False
+
             # Build process starts here
             setup_successful = self.run_setup(record=record)
             if not setup_successful:
                 return False
-            self.run_build(docker=docker, record=record)
+            self.run_build(record=record)
             return True
         except Exception:
             log.exception(
@@ -444,17 +638,24 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def run_setup(self, record=True):
         """
-        Run setup in the local environment.
+        Run setup in a build environment.
 
         Return True if successful.
         """
-        environment = LocalBuildEnvironment(
+        if settings.DOCKER_ENABLE:
+            env_cls = DockerBuildEnvironment
+        else:
+            env_cls = LocalBuildEnvironment
+
+        environment = env_cls(
             project=self.project,
             version=self.version,
             build=self.build,
             record=record,
             update_on_success=False,
+            environment=self.get_rtd_env_vars(),
         )
+        self.build_start_time = environment.start_time
 
         # TODO: Remove.
         # There is code that still depends of this attribute
@@ -469,6 +670,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                     raise ProjectBuildsSkippedError
                 try:
                     with self.project.repo_nonblockinglock(version=self.version):
+                        self.pull_cached_environment()
                         self.setup_vcs(environment)
                 except vcs_support_utils.LockTimeout as e:
                     self.task.retry(exc=e, throw=False)
@@ -524,19 +726,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if version_repo.supports_submodules:
             version_repo.update_submodules(self.config)
 
-    def run_build(self, docker, record):
+    def run_build(self, record):
         """
         Build the docs in an environment.
 
-        :param docker: if ``True``, the build uses a ``DockerBuildEnvironment``,
-            otherwise it uses a ``LocalBuildEnvironment`` to run all the
-            commands to build the docs
         :param record: whether or not record all the commands in the ``Build``
             instance
         """
         env_vars = self.get_env_vars()
 
-        if docker:
+        if settings.DOCKER_ENABLE:
             env_cls = DockerBuildEnvironment
         else:
             env_cls = LocalBuildEnvironment
@@ -547,6 +746,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
             build=self.build,
             record=record,
             environment=env_vars,
+
+            # Pass ``start_time`` here to not reset the timer
+            start_time=self.build_start_time,
         )
 
         # Environment used for building code, usually with Docker
@@ -589,6 +791,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 if build_id:
                     # Store build artifacts to storage (local or cloud storage)
                     self.store_build_artifacts(
+                        self.build_env,
                         html=bool(outcomes['html']),
                         search=bool(outcomes['search']),
                         localmedia=bool(outcomes['localmedia']),
@@ -596,18 +799,14 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                         epub=bool(outcomes['epub']),
                     )
 
-                    # Finalize build and update web servers
-                    # We upload EXTERNAL version media files to blob storage
-                    # We should have this check here to make sure
-                    # the files don't get re-uploaded on web.
-                    if self.version.type != EXTERNAL:
-                        self.update_app_instances(
-                            html=bool(outcomes['html']),
-                            search=bool(outcomes['search']),
-                            localmedia=bool(outcomes['localmedia']),
-                            pdf=bool(outcomes['pdf']),
-                            epub=bool(outcomes['epub']),
-                        )
+                    # TODO: Remove this function and just update the DB and index search directly
+                    self.update_app_instances(
+                        html=bool(outcomes['html']),
+                        search=bool(outcomes['search']),
+                        localmedia=bool(outcomes['localmedia']),
+                        pdf=bool(outcomes['pdf']),
+                        epub=bool(outcomes['epub']),
+                    )
                 else:
                     log.warning('No build ID, not syncing files')
 
@@ -625,6 +824,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         elif self.build_env.successful:
             # Send Webhook notification for build success.
             self.send_notifications(self.version.pk, self.build['id'], email=False)
+
+            # Push cached environment on success for next build
+            self.push_cached_environment()
 
             if self.commit:
                 send_external_build_status(
@@ -724,12 +926,10 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def get_env_vars(self):
         """Get bash environment variables used for all builder commands."""
-        env = {
-            'READTHEDOCS': True,
-            'READTHEDOCS_VERSION': self.version.slug,
-            'READTHEDOCS_PROJECT': self.project.slug,
-            'READTHEDOCS_LANGUAGE': self.project.language,
-        }
+        env = self.get_rtd_env_vars()
+
+        # https://no-color.org/
+        env['NO_COLOR'] = '1'
 
         if self.config.conda is not None:
             env.update({
@@ -779,6 +979,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def store_build_artifacts(
             self,
+            environment,
             html=False,
             localmedia=False,
             search=False,
@@ -793,29 +994,12 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
 
-        This looks very similar to `move_files` and is intended to replace it!
-
         :param html: whether to save HTML output
         :param localmedia: whether to save localmedia (htmlzip) output
         :param search: whether to save search artifacts
         :param pdf: whether to save PDF output
         :param epub: whether to save ePub output
         """
-        if not settings.RTD_BUILD_MEDIA_STORAGE:
-            # Note: this check can be removed once corporate build servers use storage
-            log.warning(
-                LOG_TEMPLATE,
-                {
-                    'project': self.version.project.slug,
-                    'version': self.version.slug,
-                    'msg': (
-                        'RTD_BUILD_MEDIA_STORAGE is missing - '
-                        'Not writing build artifacts to media storage'
-                    ),
-                },
-            )
-            return
-
         storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         log.info(
             LOG_TEMPLATE,
@@ -935,6 +1119,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 version = api_v2.version(self.version.pk)
                 version.patch({
                     'built': True,
+                    'documentation_type': self.get_final_doctype(),
                     'has_pdf': pdf,
                     'has_epub': epub,
                     'has_htmlzip': localmedia,
@@ -944,33 +1129,13 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
                 'Updating version failed, skipping file sync: version=%s',
                 self.version,
             )
-        hostname = socket.gethostname()
-
-        delete_unsynced_media = True
 
         # Broadcast finalization steps to web application instances
-        broadcast(
-            type='app',
-            task=sync_files,
-            args=[
-                self.project.pk,
-                self.version.pk,
-                self.config.doctype,
-            ],
-            kwargs=dict(
-                hostname=hostname,
-                html=html,
-                localmedia=localmedia,
-                search=search,
-                pdf=pdf,
-                epub=epub,
-                delete_unsynced_media=delete_unsynced_media,
-            ),
-            callback=sync_callback.s(
-                version_pk=self.version.pk,
-                commit=self.build['commit'],
-                build=self.build['id'],
-            ),
+        fileify.delay(
+            version_pk=self.version.pk,
+            commit=self.build['commit'],
+            build=self.build['id'],
+            search_ranking=self.config.search.ranking,
         )
 
     def setup_python_environment(self):
@@ -995,6 +1160,8 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         self.python_env.save_environment_json()
         self.python_env.install_core_requirements()
         self.python_env.install_requirements()
+        if self.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
+            self.python_env.list_packages_installed()
 
     def build_docs(self):
         """
@@ -1032,33 +1199,24 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
         if success:
             html_builder.move()
 
-        # Gracefully attempt to move files via task on web workers.
-        try:
-            # We upload EXTERNAL version media files to blob storage
-            # We should have this check here to make sure
-            # the files don't get re-uploaded on web.
-            if self.version.type != EXTERNAL:
-                broadcast(
-                    type='app',
-                    task=move_files,
-                    args=[
-                        self.version.pk,
-                        socket.gethostname(), self.config.doctype
-                    ],
-                    kwargs=dict(html=True),
-                )
-        except socket.error:
-            log.exception('move_files task has failed on socket error.')
-
         return success
 
+    def get_final_doctype(self):
+        html_builder = get_builder_class(self.config.doctype)(
+            build_env=self.build_env,
+            python_env=self.python_env,
+        )
+        return html_builder.get_final_doctype()
+
     def build_docs_search(self):
-        """Build search data."""
-        # Search is always run in sphinx using the rtd-sphinx-extension.
-        # Mkdocs has no search currently.
-        if self.is_type_sphinx() and self.version.type != EXTERNAL:
-            return True
-        return False
+        """
+        Build search data.
+
+        .. note::
+           For MkDocs search is indexed from its ``html`` artifacts.
+           And in sphinx is run using the rtd-sphinx-extension.
+        """
+        return self.is_type_sphinx()
 
     def build_docs_localmedia(self):
         """Get local media files with separate build."""
@@ -1108,7 +1266,9 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
     def send_notifications(self, version_pk, build_pk, email=False):
         """Send notifications on build failure."""
-        if self.version.type != EXTERNAL:
+        # Try to infer the version type if we can
+        # before creating a task.
+        if not self.version or self.version.type != EXTERNAL:
             send_notifications.delay(version_pk, build_pk=build_pk, email=email)
 
     def is_type_sphinx(self):
@@ -1117,250 +1277,16 @@ class UpdateDocsTaskStep(SyncRepositoryMixin):
 
 
 # Web tasks
-@app.task(queue='web')
-def sync_files(
-        project_pk,
-        version_pk,
-        doctype,
-        hostname=None,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
-        delete_unsynced_media=False,
-):
-    """
-    Sync build artifacts to application instances.
-
-    This task broadcasts from a build instance on build completion and performs
-    synchronization of build artifacts on each application instance.
-    """
-    # Clean up unused artifacts
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-
-    # Sync files to the web servers
-    move_files(
-        version_pk,
-        hostname,
-        doctype,
-        html=html,
-        localmedia=localmedia,
-        search=search,
-        pdf=pdf,
-        epub=epub,
-        delete_unsynced_media=delete_unsynced_media,
-    )
-
-    # Symlink project
-    symlink_project(project_pk)
-
-    # Update metadata
-    update_static_metadata(project_pk)
-
-
-@app.task(queue='web')
-def move_files(
-        version_pk,
-        hostname,
-        doctype,
-        html=False,
-        localmedia=False,
-        search=False,
-        pdf=False,
-        epub=False,
-        delete_unsynced_media=False,
-):
-    """
-    Task to move built documentation to web servers.
-
-    :param version_pk: Version id to sync files for
-    :param hostname: Hostname to sync to
-    :param html: Sync HTML
-    :type html: bool
-    :param localmedia: Sync local media files
-    :type localmedia: bool
-    :param search: Sync search files
-    :type search: bool
-    :param pdf: Sync PDF files
-    :type pdf: bool
-    :param epub: Sync ePub files
-    :type epub: bool
-    :param delete_unsynced_media: Whether to try and delete files.
-    :type delete_unsynced_media: bool
-    """
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-
-    # This is False if we have already synced media files to blob storage
-    # We set `epub=False` for example so data doesn't get re-uploaded on each
-    # web, so we need this to protect against deleting in those cases
-    if delete_unsynced_media:
-        downloads = {
-            'pdf': pdf,
-            'epub': epub,
-            'htmlzip': localmedia,
-        }
-        unsync_downloads = (k for k, v in downloads.items() if not v)
-        for media_type in unsync_downloads:
-            remove_dirs([
-                version.project.get_production_media_path(
-                    type_=media_type,
-                    version_slug=version.slug,
-                    include_file=False,
-                ),
-            ])
-
-    log.debug(
-        LOG_TEMPLATE,
-        {
-            'project': version.project.slug,
-            'version': version.slug,
-            'msg': 'Moving files',
-        }
-    )
-
-    if html:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_=doctype,
-        )
-        target = version.project.rtd_build_path(version.slug)
-        Syncer.copy(from_path, target, host=hostname)
-
-    if search:
-        from_path = version.project.artifact_path(
-            version=version.slug,
-            type_='sphinx_search',
-        )
-        to_path = version.project.get_production_media_path(
-            type_='json',
-            version_slug=version.slug,
-            include_file=False,
-        )
-        Syncer.copy(from_path, to_path, host=hostname)
-
-    if localmedia:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_localmedia',
-            ),
-            '{}.zip'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='htmlzip',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if pdf:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_pdf',
-            ),
-            '{}.pdf'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='pdf',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-    if epub:
-        from_path = os.path.join(
-            version.project.artifact_path(
-                version=version.slug,
-                type_='sphinx_epub',
-            ),
-            '{}.epub'.format(version.project.slug),
-        )
-        to_path = version.project.get_production_media_path(
-            type_='epub',
-            version_slug=version.slug,
-            include_file=True,
-        )
-        Syncer.copy(from_path, to_path, host=hostname, is_file=True)
-
-
-@app.task(queue='web')
-def symlink_project(project_pk):
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        sym.run()
-
-
-@app.task(queue='web')
-def symlink_domain(project_pk, domain, delete=False):
-    """
-    Symlink domain.
-
-    :param project_pk: project's pk
-    :type project_pk: int
-    :param domain: domain for the symlink
-    :type domain: str
-    """
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        if delete:
-            sym.remove_symlink_cname(domain)
-        else:
-            sym.symlink_cnames(domain)
-
-
-@app.task(queue='web')
-def remove_orphan_symlinks():
-    """
-    Remove orphan symlinks.
-
-    List CNAME_ROOT for Public and Private symlinks, check that all the listed
-    cname exist in the database and if doesn't exist, they are un-linked.
-    """
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        for domain_path in [symlink.PROJECT_CNAME_ROOT, symlink.CNAME_ROOT]:
-            valid_cnames = set(
-                Domain.objects.all().values_list('domain', flat=True),
-            )
-            orphan_cnames = set(os.listdir(domain_path)) - valid_cnames
-            for cname in orphan_cnames:
-                orphan_domain_path = os.path.join(domain_path, cname)
-                log.info('Unlinking orphan CNAME: %s', orphan_domain_path)
-                safe_unlink(orphan_domain_path)
-
-
-@app.task(queue='web')
-def broadcast_remove_orphan_symlinks():
-    """
-    Broadcast the task ``remove_orphan_symlinks`` to all our web servers.
-
-    This task is executed by CELERY BEAT.
-    """
-    broadcast(type='web', task=remove_orphan_symlinks, args=[])
-
-
-@app.task(queue='web')
-def symlink_subproject(project_pk):
-    project = Project.objects.get(pk=project_pk)
-    for symlink in [PublicSymlink, PrivateSymlink]:
-        sym = symlink(project=project)
-        sym.symlink_subprojects()
-
-
-@app.task(queue='web')
-def fileify(version_pk, commit, build):
+@app.task(queue='reindex')
+def fileify(version_pk, commit, build, search_ranking):
     """
     Create ImportedFile objects for all of a version's files.
 
     This is so we have an idea of what files we have in the database.
     """
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+    # Don't index external version builds for now
+    if not version or version.type == EXTERNAL:
         return
     project = version.project
 
@@ -1383,10 +1309,15 @@ def fileify(version_pk, commit, build):
             'project': version.project.slug,
             'version': version.slug,
             'msg': 'Creating ImportedFiles',
-        }
+        },
     )
     try:
-        changed_files = _create_imported_files(version, commit, build)
+        changed_files = _create_imported_files(
+            version=version,
+            commit=commit,
+            build=build,
+            search_ranking=search_ranking,
+        )
     except Exception:
         changed_files = set()
         log.exception('Failed during ImportedFile creation')
@@ -1410,6 +1341,9 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+    if not version.is_sphinx_type:
+        return
+
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 
     html_storage_path = version.project.get_storage_path(
@@ -1457,7 +1391,7 @@ def _create_intersphinx_data(version, commit, build):
 
     invdata = intersphinx.fetch_inventory(MockApp(), '', object_file_url)
     for key, value in sorted(invdata.items() or {}):
-        domain, _type = key.split(':')
+        domain, _type = key.split(':', 1)
         for name, einfo in sorted(value.items()):
             # project, version, url, display_name
             # ('Sphinx', '1.7.9', 'faq.html#epub-faq', 'Epub info')
@@ -1477,7 +1411,7 @@ def _create_intersphinx_data(version, commit, build):
                     'Error while getting sphinx domain information for %s:%s:%s. Skipping.',
                     version.project.slug,
                     version.slug,
-                    f'domain->name',
+                    f'{domain}->{name}',
                 )
                 continue
 
@@ -1547,6 +1481,9 @@ def clean_build(version_pk):
         os.path.join(version.project.doc_path, dir_, version.slug)
         for dir_ in ('checkouts', 'envs', 'conda')
     ]
+    del_dirs.append(
+        os.path.join(version.project.doc_path, '.cache')
+    )
     try:
         with version.project.repo_nonblockinglock(version):
             log.info('Removing: %s', del_dirs)
@@ -1557,7 +1494,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(version, commit, build):
+def _create_imported_files(*, version, commit, build, search_ranking):
     """
     Create imported files for version.
 
@@ -1616,6 +1553,17 @@ def _create_imported_files(version, commit, build):
                         version_slug=version.slug,
                     ),
                 )
+
+            page_rank = 0
+            # Last pattern to match takes precedence
+            # XXX: see if we can implement another type of precedence,
+            # like the longest pattern.
+            reverse_rankings = reversed(list(search_ranking.items()))
+            for pattern, rank in reverse_rankings:
+                if fnmatch(relpath, pattern):
+                    page_rank = rank
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1623,9 +1571,19 @@ def _create_imported_files(version, commit, build):
                 path=relpath,
                 name=filename,
                 md5=md5,
+                rank=page_rank,
                 commit=commit,
                 build=build,
             )
+
+    # This signal is used for clearing the CDN,
+    # so send it as soon as we have the list of changed files
+    files_changed.send(
+        sender=Project,
+        project=version.project,
+        version=version,
+        files=changed_files,
+    )
 
     return changed_files
 
@@ -1669,19 +1627,12 @@ def _sync_imported_files(version, build, changed_files):
         .delete()
     )
 
-    # Send signal with changed files
-    files_changed.send(
-        sender=Project,
-        project=version.project,
-        files=changed_files,
-    )
-
 
 @app.task(queue='web')
 def send_notifications(version_pk, build_pk, email=False):
     version = Version.objects.get_object_or_log(pk=version_pk)
 
-    if not version:
+    if not version or version.type == EXTERNAL:
         return
 
     build = Build.objects.get(pk=build_pk)
@@ -1785,63 +1736,13 @@ def webhook_notification(version, build, hook_url):
         }
     )
     try:
-        requests.post(hook_url, data=data)
+        requests.post(
+            hook_url,
+            data=data,
+            headers={'content-type': 'application/json'}
+        )
     except Exception:
         log.exception('Failed to POST on webhook url: url=%s', hook_url)
-
-
-@app.task(queue='web')
-def update_static_metadata(project_pk, path=None):
-    """
-    Update static metadata JSON file.
-
-    Metadata settings include the following project settings:
-
-    version
-      The default version for the project, default: `latest`
-
-    language
-      The default language for the project, default: `en`
-
-    languages
-      List of languages built by linked translation projects.
-    """
-    project = Project.objects.get(pk=project_pk)
-    if not path:
-        path = project.static_metadata_path()
-
-    log.info(
-        LOG_TEMPLATE,
-        {
-            'project': project.slug,
-            'version': '',
-            'msg': 'Updating static metadata',
-        }
-    )
-    translations = [trans.language for trans in project.translations.all()]
-    languages = set(translations)
-    # Convert to JSON safe types
-    metadata = {
-        'version': project.default_version,
-        'language': project.language,
-        'languages': list(languages),
-        'single_version': project.single_version,
-        'subdomain': project.subdomain(),
-        'canonical_url': project.get_canonical_url(),
-    }
-    try:
-        fh = open(path, 'w+')
-        json.dump(metadata, fh)
-        fh.close()
-    except (AttributeError, IOError) as e:
-        log.debug(
-            LOG_TEMPLATE,
-            {
-                'project': project.slug,
-                'version': '',
-                'msg': 'Cannot write to metadata.json: {}'.format(e),
-            }
-        )
 
 
 # Random Tasks
@@ -1914,19 +1815,6 @@ def clean_project_resources(project, version=None):
     )
 
 
-@app.task(queue='web')
-def sync_callback(_, version_pk, commit, build, *args, **kwargs):
-    """
-    Called once the sync_files tasks are done.
-
-    The first argument is the result from previous tasks, which we discard.
-    """
-    try:
-        fileify(version_pk, commit=commit, build=build)
-    except Exception:
-        log.exception('Post sync tasks failed, not stopping build')
-
-
 @app.task()
 def finish_inactive_builds():
     """
@@ -1939,7 +1827,12 @@ def finish_inactive_builds():
     These inactive builds will be marked as ``success`` and ``FINISHED`` with an
     ``error`` to be communicated to the user.
     """
-    time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # TODO similar to the celery task time limit, we can't infer this from
+    # Docker settings anymore, because Docker settings are determined on the
+    # build servers dynamically.
+    # time_limit = int(DOCKER_LIMITS['time'] * 1.2)
+    # Set time as maximum celery task time limit + 5m
+    time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
     query = (
         ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
@@ -1993,62 +1886,92 @@ def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
+    It tries using these services' account in order:
+
+    1. user's account that imported the project
+    2. each user's account from the project's maintainers
+
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
+    # TODO: Send build status for BitBucket.
+    service = None
+    success = None
     build = Build.objects.get(pk=build_pk)
     provider_name = build.project.git_provider_name
+
+    log.info('Sending build status. build=%s, project=%s', build.pk, build.project.slug)
 
     if provider_name in [GITHUB_BRAND, GITLAB_BRAND]:
         # get the service class for the project e.g: GitHubService.
         service_class = build.project.git_service_class()
+
+        # First, try using user who imported the project's account
         try:
             service = service_class(
                 build.project.remote_repository.users.first(),
                 build.project.remote_repository.account
             )
-            # Send status report using the API.
-            service.send_build_status(build, commit, status)
 
         except RemoteRepository.DoesNotExist:
-            users = build.project.users.all()
-
-            # Try to loop through all project users to get their social accounts
-            for user in users:
-                user_accounts = service_class.for_user(user)
-                # Try to loop through users all social accounts to send a successful request
-                for account in user_accounts:
-                    # Currently we only support GitHub Status API
-                    if account.provider_name == provider_name:
-                        success = account.send_build_status(build, commit, status)
-                        if success:
-                            return True
-
-            for user in users:
-                # Send Site notification about Build status reporting failure
-                # to all the users of the project.
-                notification = GitBuildStatusFailureNotification(
-                    context_object=build.project,
-                    extra_context={'provider_name': provider_name},
-                    user=user,
-                    success=False,
-                )
-                notification.send()
-
-            log.info(
-                'No social account or repository permission available for %s',
-                build.project.slug
+            log.warning(
+                'Project does not have a RemoteRepository. project=%s',
+                build.project.slug,
             )
-            return False
 
-        except Exception:
-            log.exception('Send build status task failed for %s', build.project.slug)
-            return False
+        if service is not None:
+            # Send status report using the API.
+            success = service.send_build_status(build, commit, status)
 
-    return False
+        if success:
+            log.info(
+                'Build status report sent correctly. project=%s build=%s status=%s commit=%s',
+                build.project.slug,
+                build.pk,
+                status,
+                commit,
+            )
+            return True
 
-    # TODO: Send build status for BitBucket.
+        # Try using any of the users' maintainer accounts
+        # Try to loop through all project users to get their social accounts
+        users = build.project.users.all()
+        for user in users:
+            user_accounts = service_class.for_user(user)
+            # Try to loop through users all social accounts to send a successful request
+            for account in user_accounts:
+                # Currently we only support GitHub Status API
+                if account.provider_name == provider_name:
+                    success = account.send_build_status(build, commit, status)
+                    if success:
+                        log.info(
+                            'Build status report sent correctly using an user account. '
+                            'project=%s build=%s status=%s commit=%s user=%s',
+                            build.project.slug,
+                            build.pk,
+                            status,
+                            commit,
+                            user.username,
+                        )
+                        return True
+
+        for user in users:
+            # Send Site notification about Build status reporting failure
+            # to all the users of the project.
+            notification = GitBuildStatusFailureNotification(
+                context_object=build.project,
+                extra_context={'provider_name': provider_name},
+                user=user,
+                success=False,
+            )
+            notification.send()
+
+        log.info(
+            'No social account or repository permission available for %s',
+            build.project.slug
+        )
+        return False
 
 
 def send_external_build_status(version_type, build_pk, commit, status):

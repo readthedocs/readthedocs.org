@@ -3,7 +3,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -12,6 +12,7 @@ from rest_framework import serializers
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
@@ -97,7 +98,7 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, instance):
+    def to_representation(self, instance):  # pylint: disable=arguments-differ
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
         return instance
@@ -218,6 +219,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
+            'hidden',
             'type',
             'downloads',
             'urls',
@@ -235,7 +237,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
         data = {}
 
         for k, v in downloads.items():
-            if k in ('htmlzip', 'pdf', 'epub'):
+            if k in ('html', 'pdf', 'epub'):
+
+                # Keep backward compatibility
+                if k == 'html':
+                    k = 'htmlzip'
+
                 data[k] = ('http:' if settings.DEBUG else 'https:') + v
 
         return data
@@ -414,6 +421,14 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
             'homepage',
         )
 
+    def validate_name(self, value):
+        potential_slug = slugify(value)
+        if Project.objects.filter(slug=potential_slug).exists():
+            raise serializers.ValidationError(
+                _('Project with slug "{0}" already exists.').format(potential_slug),
+            )
+        return value
+
 
 class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
@@ -440,6 +455,7 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
 

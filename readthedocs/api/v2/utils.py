@@ -20,8 +20,20 @@ from readthedocs.builds.models import Version
 log = logging.getLogger(__name__)
 
 
-def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
-    """Update the database with the current versions from the repository."""
+def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+    """
+    Update the database with the current versions from the repository.
+
+    - check if user has a ``stable`` / ``latest`` version and disable ours
+    - update old versions with newer configs (identifier, type, machine)
+    - create new versions that do not exist on DB
+    - it does not delete versions
+
+    :param project: project to update versions
+    :param versions: list of VCSVersion fetched from the respository
+    :param type: internal or external version
+    :returns: set of versions' slug added
+    """
     old_version_values = project.versions.filter(type=type).values_list(
         'verbose_name',
         'identifier',
@@ -37,7 +49,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
         version_name = version['verbose_name']
         if version_name == STABLE_VERBOSE_NAME:
             has_user_stable = True
-            created_version, created = set_or_create_version(
+            created_version, created = _set_or_create_version(
                 project=project,
                 slug=STABLE,
                 version_id=version_id,
@@ -48,7 +60,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
                 added.add(created_version.slug)
         elif version_name == LATEST_VERBOSE_NAME:
             has_user_latest = True
-            created_version, created = set_or_create_version(
+            created_version, created = _set_or_create_version(
                 project=project,
                 slug=LATEST,
                 version_id=version_id,
@@ -61,22 +73,22 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
             if version_id == old_versions[version_name]:
                 # Version is correct
                 continue
-            else:
-                # Update slug with new identifier
-                Version.objects.filter(
-                    project=project,
-                    verbose_name=version_name,
-                ).update(
-                    identifier=version_id,
-                    type=type,
-                    machine=False,
-                )  # noqa
 
-                log.info(
-                    '(Sync Versions) Updated Version: [%s=%s] ',
-                    version_name,
-                    version_id,
-                )
+            # Update slug with new identifier
+            Version.objects.filter(
+                project=project,
+                verbose_name=version_name,
+            ).update(
+                identifier=version_id,
+                type=type,
+                machine=False,
+            )  # noqa
+
+            log.info(
+                '(Sync Versions) Updated Version: [%s=%s] ',
+                version_name,
+                version_id,
+            )
         else:
             # New Version
             created_version = Version.objects.create(
@@ -109,7 +121,7 @@ def sync_versions(project, versions, type):  # pylint: disable=redefined-builtin
     return added
 
 
-def set_or_create_version(project, slug, version_id, verbose_name, type_):
+def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     """Search or create a version and set its machine attribute to false."""
     version = (project.versions.filter(slug=slug).first())
     if version:
@@ -128,7 +140,7 @@ def set_or_create_version(project, slug, version_id, verbose_name, type_):
     return version, False
 
 
-def delete_versions(project, version_data):
+def delete_versions_from_db(project, version_data):
     """Delete all versions not in the current repo."""
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
@@ -153,7 +165,8 @@ def delete_versions(project, version_data):
 
     if to_delete_qs.count():
         ret_val = {obj.slug for obj in to_delete_qs}
-        log.info('(Sync Versions) Deleted Versions: [%s]', ' '.join(ret_val))
+        log.info('(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
+                 project.slug, ' '.join(ret_val))
         to_delete_qs.delete()
         return ret_val
     return set()

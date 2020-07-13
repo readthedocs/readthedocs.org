@@ -84,7 +84,7 @@ context = {
     'downloads': [ {% for key, val in downloads.items %}
     ("{{ key }}", "{{ val }}"),{% endfor %}
     ],
-    'subprojects': [ {% for slug, url in project.get_subproject_urls %}
+    'subprojects': [ {% for slug, url in subproject_urls %}
         ("{{ slug }}", "{{ url }}"),{% endfor %}
     ],
     'slug': '{{ project.slug }}',
@@ -96,8 +96,8 @@ context = {
     'single_version': {{ project.single_version }},
     'conf_py_path': '{{ conf_py_path }}',
     'api_host': '{{ api_host }}',
-    'proxied_api_host': '{{ proxied_api_host }}',
     'github_user': '{{ github_user }}',
+    'proxied_api_host': '{{ project.proxied_api_host }}',
     'github_repo': '{{ github_repo }}',
     'github_version': '{{ github_version }}',
     'display_github': {{ display_github }},
@@ -114,8 +114,9 @@ context = {
     'new_theme': (html_theme == "sphinx_rtd_theme"),
     'source_suffix': SUFFIX,
     'ad_free': {% if project.show_advertising %}False{% else %}True{% endif %},
+    'docsearch_disabled': {{ docsearch_disabled }},
     'user_analytics_code': '{{ project.analytics_code|default_if_none:'' }}',
-    'global_analytics_code': '{{ settings.GLOBAL_ANALYTICS_CODE }}',
+    'global_analytics_code': {% if project.analytics_disabled %}None{% else %}'{{ settings.GLOBAL_ANALYTICS_CODE }}'{% endif %},
     'commit': {% if project.repo_type == 'git' %}'{{ commit|slice:"8" }}'{% else %}'{{ commit }}'{% endif %},
 }
 

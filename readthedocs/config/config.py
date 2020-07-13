@@ -10,7 +10,6 @@ from contextlib import contextmanager
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
-from readthedocs.projects.constants import DOCUMENTATION_CHOICES
 
 from .find import find_one
 from .models import (
@@ -20,6 +19,7 @@ from .models import (
     Python,
     PythonInstall,
     PythonInstallRequirements,
+    Search,
     Sphinx,
     Submodules,
 )
@@ -30,11 +30,11 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_path,
     validate_list,
+    validate_path,
+    validate_path_pattern,
     validate_string,
 )
-
 
 __all__ = (
     'ALL',
@@ -83,7 +83,7 @@ class ConfigFileNotFound(ConfigError):
 
     def __init__(self, directory):
         super().__init__(
-            f"Configuration file not found in: {directory}",
+            f'Configuration file not found in: {directory}',
             CONFIG_FILE_REQUIRED,
         )
 
@@ -156,6 +156,7 @@ class BuildConfigBase:
         'sphinx',
         'mkdocs',
         'submodules',
+        'search',
     ]
 
     default_build_image = settings.DOCKER_DEFAULT_VERSION
@@ -255,11 +256,10 @@ class BuildConfigBase:
     def python_full_version(self):
         ver = self.python.version
         if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                v for v in self.get_valid_python_versions()
-                if not isinstance(v, str) and v < ver + 1
+            # use default Python version if user only set '2', or '3'
+            return self.get_default_python_version_for_image(
+                self.build.image,
+                ver,
             )
         return ver
 
@@ -270,9 +270,9 @@ class BuildConfigBase:
 
         The user can use any of this values in the YAML file. These values are
         the keys of ``DOCKER_IMAGE_SETTINGS`` Django setting (without the
-        ``readthedocs/build`` part) plus ``stable`` and ``latest``.
+        ``readthedocs/build`` part) plus ``stable``, ``latest`` and ``testing``.
         """
-        images = {'stable', 'latest'}
+        images = {'stable', 'latest', 'testing'}
         for k in settings.DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
@@ -295,6 +295,32 @@ class BuildConfigBase:
                 self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+
+    def get_default_python_version_for_image(self, build_image, python_version):
+        """
+        Return the default Python version for Docker image and Py2 or Py3.
+
+        :param build_image: the Docker image complete name, already validated
+            (``readthedocs/build:4.0``, not just ``4.0``)
+        :type build_image: str
+
+        :param python_version: major Python version (``2`` or ``3``) to get its
+            default full version
+        :type python_version: int
+
+        :returns: default version for the ``DOCKER_DEFAULT_VERSION`` if not
+                  ``build_image`` found.
+        """
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                settings.DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
+            )
+        return (
+            # For linting
+            settings.DOCKER_IMAGE_SETTINGS[build_image]['python']
+            ['default_version'][python_version]
+        )
 
     def as_dict(self):
         config = {}
@@ -405,7 +431,9 @@ class BuildConfigV1(BuildConfigBase):
                 )
         # Update docker default settings from image name
         if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(settings.DOCKER_IMAGE_SETTINGS[build['image']])
+            self.env_config.update(
+                settings.DOCKER_IMAGE_SETTINGS[build['image']]
+            )
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -626,6 +654,10 @@ class BuildConfigV1(BuildConfigBase):
             recursive=True,
         )
 
+    @property
+    def search(self):
+        return Search(ranking={})
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -637,9 +669,9 @@ class BuildConfigV2(BuildConfigBase):
     valid_sphinx_builders = {
         'html': 'sphinx',
         'htmldir': 'sphinx_htmldir',
+        'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
-    builders_display = dict(DOCUMENTATION_CHOICES)
 
     def validate(self):
         """
@@ -658,9 +690,8 @@ class BuildConfigV2(BuildConfigBase):
         self.validate_doc_types()
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['sphinx'] = self.validate_sphinx()
-        # TODO: remove later
-        self.validate_final_doc_type()
         self._config['submodules'] = self.validate_submodules()
+        self._config['search'] = self.validate_search()
         self.validate_keys()
 
     def validate_formats(self):
@@ -938,29 +969,6 @@ class BuildConfigV2(BuildConfigBase):
 
         return sphinx
 
-    def validate_final_doc_type(self):
-        """
-        Validates that the doctype is the same as the admin panel.
-
-        This a temporal validation, as the configuration file should support per
-        version doctype, but we need to adapt the rtd code for that.
-        """
-        dashboard_doctype = self.defaults.get('doctype', 'sphinx')
-        if self.doctype != dashboard_doctype:
-            error_msg = (
-                'Your project is configured as "{}" in your admin dashboard,'
-            ).format(self.builders_display[dashboard_doctype])
-
-            if dashboard_doctype == 'mkdocs' or not self.sphinx:
-                error_msg += ' but there is no "{}" key specified.'.format(
-                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx',
-                )
-            else:
-                error_msg += ' but your "sphinx.builder" key does not match.'
-
-            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx.builder'
-            self.error(key, error_msg, code=INVALID_KEYS_COMBINATION)
-
     def validate_submodules(self):
         """
         Validates the submodules key.
@@ -1010,6 +1018,35 @@ class BuildConfigV2(BuildConfigBase):
             submodules['recursive'] = validate_bool(recursive)
 
         return submodules
+
+    def validate_search(self):
+        """
+        Validates the search key.
+
+        - Ranking is a map of path patterns to a rank.
+        - The path pattern supports basic globs (*, ?, [seq]).
+        - The rank can be a integer number between -10 and 10.
+        """
+        raw_search = self._raw_config.get('search', {})
+        with self.catch_validation_error('search'):
+            validate_dict(raw_search)
+
+        search = {}
+        with self.catch_validation_error('search.ranking'):
+            ranking = self.pop_config('search.ranking', {})
+            validate_dict(ranking)
+
+            valid_rank_range = list(range(-10, 10 + 1))
+
+            final_ranking = {}
+            for pattern, rank in ranking.items():
+                pattern = validate_path_pattern(pattern)
+                validate_choice(rank, valid_rank_range)
+                final_ranking[pattern] = rank
+
+            search['ranking'] = final_ranking
+
+        return search
 
     def validate_keys(self):
         """
@@ -1104,6 +1141,10 @@ class BuildConfigV2(BuildConfigBase):
     @property
     def submodules(self):
         return Submodules(**self._config['submodules'])
+
+    @property
+    def search(self):
+        return Search(**self._config['search'])
 
 
 def load(path, env_config):
