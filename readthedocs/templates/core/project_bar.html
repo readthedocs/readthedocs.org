@@ -7,6 +7,8 @@
     <a href="{% url "projects_dashboard" %}">{% trans "Projects" %}</a>&nbsp;&gt;
   {% endif %}
   {% if project.superprojects.exists %}
-    <a href="{% url "projects_detail" project.superprojects.all.0.parent.slug %}">{{ project.superprojects.all.0.parent.name }}</a>&nbsp;&gt;
+    {% with main_project=project.superprojects.all.0.parent %}
+    <a href="{% url "projects_detail" main_project.slug %}">{{ main_project.name }}</a>&nbsp;&gt;
+    {% endwith %}
   {% endif %}
 {% endblock %}
