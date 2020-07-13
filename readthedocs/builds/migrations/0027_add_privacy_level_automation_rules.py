@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='versionautomationrule',
             name='action',
-            field=models.CharField(choices=[('activate-version', 'Activate version'), ('hide-version', 'Hide version'), ('make-version-public', 'Make version public'), ('make-version-public', 'Make version private'), ('set-default-version', 'Set version as default')], help_text='Action to apply to matching versions', max_length=32, verbose_name='Action'),
+            field=models.CharField(choices=[('activate-version', 'Activate version'), ('hide-version', 'Hide version'), ('make-version-public', 'Make version public'), ('make-version-private', 'Make version private'), ('set-default-version', 'Set version as default')], help_text='Action to apply to matching versions', max_length=32, verbose_name='Action'),
         ),
     ]

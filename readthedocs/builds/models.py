@@ -952,7 +952,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
         (HIDE_VERSION_ACTION, _('Hide version')),
         (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version private')),
+        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
