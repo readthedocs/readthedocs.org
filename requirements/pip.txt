@@ -98,7 +98,7 @@ django-taggit==1.3.0
 dj-pagination==2.5.0
 
 # Version comparison stuff
-packaging==20.3
+packaging==20.4
 
 # django-cors-middleware==1.5.0 fails with
 # AttributeError: 'dict' object has no attribute 'has_header'
