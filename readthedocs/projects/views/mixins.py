@@ -71,7 +71,7 @@ class ProjectRelationListMixin:
         project = self.get_project()
         subprojects = project.subprojects.select_related('child')
 
-        if not subprojects:
+        if not subprojects.exists():
             return subprojects_and_urls
 
         main_domain = resolve(project)
