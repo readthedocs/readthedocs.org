@@ -325,16 +325,15 @@ class Virtualenv(PythonEnvironment):
             *self._pip_cache_cmd_argument(),
         ]
 
-        # Install latest pip first,
+        # Install latest pip and setuptools first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        cmd = pip_install_cmd + ['pip', 'setuptools']
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
         requirements = [
             'Pygments==2.3.1',
-            'setuptools==41.0.1',
             'docutils==0.14',
             'mock==1.0.1',
             'pillow==5.4.1',

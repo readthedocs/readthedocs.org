@@ -1193,7 +1193,6 @@ class TestPythonEnvironment(TestCase):
 
         self.base_requirements = [
             'Pygments',
-            'setuptools',
             'docutils',
             'mock',
             'pillow',
