@@ -261,6 +261,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         model = Version
         fields = [
             'active',
+            'hidden',
         ]
 
 
