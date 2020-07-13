@@ -19,6 +19,7 @@ from .models import (
     Python,
     PythonInstall,
     PythonInstallRequirements,
+    PythonInstallPackages,
     Search,
     Sphinx,
     Submodules,
@@ -833,6 +834,16 @@ class BuildConfigV2(BuildConfigBase):
                     self.base_path,
                 )
                 python_install['requirements'] = requirements
+        elif 'packages' in raw_install:
+            packages_key = key + '.packages'
+            packages = self.pop_config(packages_key)
+            if not isinstance(packages, list):
+                self.error(
+                    packages_key,
+                    '"{}" key must be a list'.format(packages_key),
+                    code=PYTHON_INVALID,
+                )
+            python_install['packages'] = packages
         elif 'path' in raw_install:
             path_key = key + '.path'
             with self.catch_validation_error(path_key):
@@ -1112,6 +1123,8 @@ class BuildConfigV2(BuildConfigBase):
         for install in python['install']:
             if 'requirements' in install:
                 python_install.append(PythonInstallRequirements(**install),)
+            elif 'packages' in install:
+                python_install.append(PythonInstallPackages(**install),)
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(

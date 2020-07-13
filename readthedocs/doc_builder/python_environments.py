@@ -14,7 +14,11 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import PIP, SETUPTOOLS, ParseError, parse as parse_yaml
-from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.config.models import (
+    PythonInstall,
+    PythonInstallRequirements,
+    PythonInstallPackages,
+)
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -77,6 +81,8 @@ class PythonEnvironment:
         for install in self.config.python.install:
             if isinstance(install, PythonInstallRequirements):
                 self.install_requirements_file(install)
+            if isinstance(install, PythonInstallPackages):
+                self.install_packages_list(install)
             if isinstance(install, PythonInstall):
                 self.install_package(install)
 
@@ -429,6 +435,33 @@ class Virtualenv(PythonEnvironment):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def install_packages_list(self, install):
+        """
+        Install requirements from a string specification using pip.
+
+        :param install: A instal object from the config module.
+        :type install: readthedocs.config.modules.PythonInstallPackages
+        """
+
+        args = [
+            self.venv_bin(filename='python'),
+            '-m',
+            'pip',
+            'install',
+        ]
+        if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
+            args += ['--upgrade']
+        args += [
+            '--exists-action=w',
+            *self._pip_cache_cmd_argument(),
+        ]
+        args += install.requirements
+        self.build_env.run(
+            *args,
+            cwd=self.checkout_path,
+            bin_path=self.venv_bin(),
+        )
 
     def list_packages_installed(self):
         """List packages installed in pip."""
