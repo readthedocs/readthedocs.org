@@ -192,11 +192,11 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - packages:
-           - mkdocs-material
-           - Pygments
+     version: 3.7
+     install:
+       - packages:
+         - mkdocs-material
+         - Pygments
 
 Packages
 ''''''''
