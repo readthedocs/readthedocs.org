@@ -21,6 +21,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
@@ -75,10 +76,10 @@ class APIv3Settings:
     metadata_class = SimpleMetadata
 
 
-class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                      FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
-                      UpdateMixin, UpdateModelMixin,
-                      ReadOnlyModelViewSet):
+class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
+                          FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
+                          UpdateMixin, UpdateModelMixin,
+                          ReadOnlyModelViewSet):
 
     model = Project
     lookup_field = 'slug'
@@ -163,6 +164,11 @@ class ProjectsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             return Response(data)
         except Exception:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+
+class ProjectsViewSet(SettingsOverrideObject):
+    _default_class = ProjectsViewSetBase
 
 
 class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
