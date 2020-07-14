@@ -45,14 +45,14 @@ Note the users created under Read the Docs must have their GitHub, Bitbucket or 
 Grant access to read the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By granting **read** (or more) permissions to a user under VCS provider
+By granting **read** (or more) permissions to a user in the VCS repository
 you are giving access to read the documentation of the associated project on Read the Docs to that user.
 
 
 Grant access to administrate a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By granting **write** permission to a user under VCS provider
+By granting **write** permission to a user in the VCS repository
 you are giving access to read the documentation *and* to be an administrator
 of the associated project on Read the Docs to that user.
 
