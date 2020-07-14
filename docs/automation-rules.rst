@@ -23,7 +23,7 @@ If the version matches the version type and the pattern in the rule,
 the specified action is performed on that version.
 
 .. note::
-   
+
    Versions can match multiple rules,
    and all matching actions will be performed on the version.
 
@@ -51,13 +51,19 @@ When a rule matches a new version, the specified action is performed on that ver
 Currently, the following actions are available:
 
 - **Activate version**: Activates and builds the version.
+- **Hide version**: Hides the version. If the version is not active, activates it and builds the version.
+  See :ref:`versions:Version States`.
+- **Make version public**: Sets the version's privacy level to public.
+  See :ref:`versions:privacy levels`.
+- **Make version private**: Sets the version's privacy level to private.
+  See :ref:`versions:privacy levels`.
 - **Set version as default**: Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
   It also activates and builds the version.
 
 .. note::
-   
+
    If your versions follow :pep:`440`,
    Read the Docs activates and builds the version if it's greater than the current stable version.
    The stable version is also automatically updated at the same time.
@@ -101,7 +107,7 @@ Set as default new tags that have the ``-stable`` or ``-release`` suffix
 - Action: ``Set version as default``
 
 .. note::
-   
+
    You can also create two rules:
    one to match ``-stable`` and other to match ``-release``.
 
