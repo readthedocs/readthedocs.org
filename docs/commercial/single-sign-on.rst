@@ -24,8 +24,8 @@ Currently, we support two different types of Single Sign-On:
    :depth: 2
 
 
-SSO with VCS social provider (GitHub, Bitbucket or GitLab)
-----------------------------------------------------------
+SSO with VCS provider (GitHub, Bitbucket or GitLab)
+---------------------------------------------------
 
 Using an Identity Provider that supports authentication and authorization allows you to manage
 "who have access to what projects on Read the Docs" directly from the provider itself.
@@ -60,10 +60,10 @@ of the associated project on Read the Docs to that user.
 Grant access to import a project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When SSO with VCS social provider is enabled only owners of the Read the Docs organization can import projects.
+When SSO with VCS provider is enabled only owners of the Read the Docs organization can import projects.
 Adding users as owners of your organization will give them permissions to import projects.
 
-Note that to be able to import a project, that user must have **admin** permissions in the VCS provider repository associated.
+Note that to be able to import a project, that user must have **admin** permissions in the VCS repository associated.
 
 
 SSO with your company email address
