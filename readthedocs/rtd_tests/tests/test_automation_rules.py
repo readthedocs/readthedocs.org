@@ -9,6 +9,7 @@ from readthedocs.builds.constants import (
     SEMVER_VERSIONS,
     TAG,
 )
+from readthedocs.projects.constants import PUBLIC, PRIVATE
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -201,6 +202,75 @@ class TestRegexAutomationRules:
         assert self.project.get_default_version() == LATEST
         assert rule.run(version) is True
         assert self.project.get_default_version() == version.slug
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_version_hide_action(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=False,
+            hidden=False,
+            type=TAG,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.HIDE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        assert rule.run(version) is True
+        assert version.active is True
+        assert version.hidden is True
+        trigger_build.assert_called_once()
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_version_make_public_action(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=False,
+            hidden=False,
+            type=TAG,
+            privacy_level=PRIVATE,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
+            version_type=TAG,
+        )
+        assert rule.run(version) is True
+        assert version.privacy_level == PUBLIC
+        trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_version_make_private_action(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='v2',
+            project=self.project,
+            active=False,
+            hidden=False,
+            type=TAG,
+            privacy_level=PUBLIC,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
+            version_type=TAG,
+        )
+        assert rule.run(version) is True
+        assert version.privacy_level == PRIVATE
+        trigger_build.assert_not_called()
 
 
 @pytest.mark.django_db

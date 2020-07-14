@@ -1,3 +1,22 @@
+Version 5.2.1
+-------------
+
+:Date: July 14, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix a case where "tags" is interpreted as a project slug (`#7284 <https://github.com/readthedocs/readthedocs.org/pull/7284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dashboard: little optimization (`#7281 <https://github.com/readthedocs/readthedocs.org/pull/7281>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: privacy levels (`#7278 <https://github.com/readthedocs/readthedocs.org/pull/7278>`__)
+* `@stsewd <https://github.com/stsewd>`__: Templates: optimize permissions check (`#7277 <https://github.com/readthedocs/readthedocs.org/pull/7277>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix versions (`#7271 <https://github.com/readthedocs/readthedocs.org/pull/7271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tweak priority a little more (`#7270 <https://github.com/readthedocs/readthedocs.org/pull/7270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't default on the migration (`#7269 <https://github.com/readthedocs/readthedocs.org/pull/7269>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Automation rule to make versions hidden added (`#7265 <https://github.com/readthedocs/readthedocs.org/pull/7265>`__)
+* `@humitos <https://github.com/humitos>`__: Add `is_member` template filter (`#7264 <https://github.com/readthedocs/readthedocs.org/pull/7264>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: set ranking for some pages (`#7257 <https://github.com/readthedocs/readthedocs.org/pull/7257>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: add --keep-going when fail_on_warning is true (`#7251 <https://github.com/readthedocs/readthedocs.org/pull/7251>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Don't allow Domain name matching production domain to be created (`#7244 <https://github.com/readthedocs/readthedocs.org/pull/7244>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
 Version 5.2.0
 -------------
 
