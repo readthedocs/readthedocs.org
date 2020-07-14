@@ -13,6 +13,7 @@ from rest_framework import serializers
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
@@ -780,3 +781,72 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
             'project',
             '_links',
         ]
+
+
+class OrganizationLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
+    projects = serializers.SerializerMethodField()
+
+    def get__self(self, obj):
+        path = reverse(
+            'organizations-detail',
+            kwargs={
+                'organization_slug': obj.slug,
+            })
+        return self._absolute_url(path)
+
+    def get_projects(self, obj):
+        path = reverse(
+            'organizations-projects-list',
+            kwargs={
+                'parent_lookup_organizations__slug': obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+
+class TeamSerializer(serializers.Serializer):
+
+    # TODO: add ``projects`` as flex field when we have a
+    # /organizations/<slug>/teams/<slug>/projects endpoint
+
+    created = serializers.DateTimeField(source='pub_date')
+    modified = serializers.DateTimeField(source='modified_date')
+
+    class Meta:
+        model = Team
+        fields = (
+            'name',
+            'slug',
+            'created',
+            'modified',
+            'access',
+        )
+
+
+class OrganizationSerializer(FlexFieldsModelSerializer):
+
+
+    # TODO: add ``projects`` as flex field
+    created = serializers.DateTimeField(source='pub_date')
+    modified = serializers.DateTimeField(source='modified_date')
+    owners = UserSerializer(many=True)
+    teams = TeamSerializer(many=True)
+
+    _links = OrganizationLinksSerializer(source='*')
+
+    class Meta:
+        model = Organization
+        fields = (
+            'name',
+            'description',
+            'url',
+            'slug',
+            'email',
+            'owners',
+            'created',
+            'modified',
+            'disabled',
+            'teams',
+            '_links',
+        )

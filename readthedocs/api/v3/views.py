@@ -22,19 +22,26 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
 
 from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import ProjectQuerySetMixin, UpdateMixin
-from .permissions import CommonPermissions, IsProjectAdmin
+from .mixins import OrganizationQuerySetMixin, ProjectQuerySetMixin, UpdateMixin
+from .permissions import (
+    CommonPermissions,
+    IsProjectAdmin,
+    IsOrganizationAdmin,
+    UserOrganizationsListing,
+)
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
+    OrganizationSerializer,
     ProjectSerializer,
     ProjectCreateSerializer,
     ProjectUpdateSerializer,
@@ -351,3 +358,41 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
             'project': self._get_parent_project(),
         })
         serializer.save()
+
+
+class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
+                           OrganizationQuerySetMixin,
+                           ReadOnlyModelViewSet):
+
+    model = Organization
+    # TODO: use valid permission classes
+    permission_classes = (UserOrganizationsListing, IsOrganizationAdmin)
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'organization_slug'
+    queryset = Organization.objects.all()
+    serializer_class = OrganizationSerializer
+
+    def get_queryset(self):
+        # Allow hitting ``/api/v3/organizations/`` to list their own organizaions
+        if self.basename == 'organizations' and self.action == 'list':
+            # We force returning ``Organization`` objects here because it's
+            # under the ``organizations`` view.
+            return self.admin_organizations(self.request.user)
+
+        return super().get_queryset()
+
+
+class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
+                                   OrganizationQuerySetMixin,
+                                   ReadOnlyModelViewSet):
+
+    model = Project
+    # TODO: use valid permission classes
+    permission_classes = (UserOrganizationsListing, IsOrganizationAdmin)
+    lookup_field = 'slug'
+    lookup_url_kwarg = 'project_slug'
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permit_list_expands = [
+        'organization',
+    ]

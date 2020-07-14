@@ -53,6 +53,25 @@ class IsProjectAdmin(BasePermission):
             return True
 
 
+class IsOrganizationAdmin(BasePermission):
+
+    def has_permission(self, request, view):
+        organization = view._get_parent_organization()
+        if view.has_admin_permission(request.user, organization):
+            return True
+
+
+class UserOrganizationsListing(BasePermission):
+
+    def has_permission(self, request, view):
+        if view.basename == 'organizations' and any([
+                view.action == 'list',
+                view.action is None,  # needed for BrowsableAPIRenderer
+        ]):
+            # hitting ``/organizations/``, allowing
+            return True
+
+
 class CommonPermissionsBase(BasePermission):
 
     """
