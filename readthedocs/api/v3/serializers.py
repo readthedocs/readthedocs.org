@@ -826,8 +826,6 @@ class TeamSerializer(serializers.Serializer):
 
 class OrganizationSerializer(FlexFieldsModelSerializer):
 
-
-    # TODO: add ``projects`` as flex field
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
     owners = UserSerializer(many=True)
