@@ -1,19 +1,16 @@
 from unittest import mock
 
-from django_dynamic_fixture import get
-from django.test import TestCase, RequestFactory
+import pytest
+from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 
 from .models import PageView
 from .signals import increase_page_view_count
-from .utils import (
-    anonymize_ip_address,
-    anonymize_user_agent,
-    get_client_ip,
-)
+from .utils import anonymize_ip_address, anonymize_user_agent, get_client_ip
 
 
 class UtilsTests(TestCase):
@@ -97,14 +94,17 @@ class UtilsTests(TestCase):
         self.assertEqual(client_ip, '203.0.113.195')
 
 
-class AnalyticsTasksTests(TestCase):
+@pytest.mark.proxito
+@override_settings(PUBLIC_DOMAIN='readthedocs.io')
+class AnalyticsPageViewsTests(TestCase):
+
     def test_increase_page_view_count(self):
         project = get(
             Project,
             slug='project-1',
         )
         version = get(Version, slug='1.8', project=project)
-        path = "index"
+        origin = f"https://{project.slug}.readthedocs.io/en/latest/index.html"
 
         today = timezone.now()
         tomorrow = timezone.now() + timezone.timedelta(days=1)
@@ -117,11 +117,10 @@ class AnalyticsTasksTests(TestCase):
         context = {
             "project": project,
             "version": version,
-            "path": path,
         }
 
         # Without the feature flag, no PageView is created
-        increase_page_view_count(None, context=context)
+        increase_page_view_count(None, context=context, origin=origin)
         assert (
             PageView.objects.all().count() == 0
         )
@@ -135,44 +134,47 @@ class AnalyticsTasksTests(TestCase):
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = yesterday
 
-            increase_page_view_count(None, context=context)
+            increase_page_view_count(None, context=context, origin=origin)
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{path}\' is created'
+            ), f'PageView object for path \'{origin}\' is created'
             assert (
                 PageView.objects.all().first().view_count == 1
             ), '\'index\' has 1 view'
 
-            increase_page_view_count(None, context=context)
+            increase_page_view_count(None, context=context, origin=origin)
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{path}\' is already created'
+            ), f'PageView object for path \'{origin}\' is already created'
+            assert PageView.objects.filter(path='index.html').count() == 1
             assert (
                 PageView.objects.all().first().view_count == 2
-            ), f'\'{path}\' has 2 views now'
+            ), f'\'{origin}\' has 2 views now'
 
         # testing for today
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = today
-            increase_page_view_count(None, context=context)
+            increase_page_view_count(None, context=context, origin=origin)
 
             assert (
                 PageView.objects.all().count() == 2
-            ), f'PageView object for path \'{path}\' is created for two days (yesterday and today)'
+            ), f'PageView object for path \'{origin}\' is created for two days (yesterday and today)'
+            assert PageView.objects.filter(path='index.html').count() == 2
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), f'\'{path}\' has 1 view today'
+            ), f'\'{origin}\' has 1 view today'
 
         # testing for tomorrow
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = tomorrow
-            increase_page_view_count(None, context=context)
+            increase_page_view_count(None, context=context, origin=origin)
 
             assert (
                 PageView.objects.all().count() == 3
-            ), f'PageView object for path \'{path}\' is created for three days (yesterday, today & tomorrow)'
+            ), f'PageView object for path \'{origin}\' is created for three days (yesterday, today & tomorrow)'
+            assert PageView.objects.filter(path='index.html').count() == 3
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), f'\'{path}\' has 1 view tomorrow'
+            ), f'\'{origin}\' has 1 view tomorrow'

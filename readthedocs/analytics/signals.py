@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 
 from readthedocs.api.v2.signals import footer_response
+from readthedocs.core.unresolver import unresolve
 from readthedocs.projects.models import Feature
 
 from .models import PageView
@@ -17,16 +18,22 @@ def increase_page_view_count(sender, **kwargs):
 
     project = context['project']
     version = context['version']
-    # footer_response sends an empty path for the index
-    path = context['path'] or '/'
+    origin = kwargs['origin']
 
-    if project.has_feature(Feature.STORE_PAGEVIEWS):
-        page_view, _ = PageView.objects.get_or_create(
-            project=project,
-            version=version,
-            path=path,
-            date=timezone.now().date(),
-        )
-        PageView.objects.filter(pk=page_view.pk).update(
-            view_count=F('view_count') + 1
-        )
+    if not origin or not project.has_feature(Feature.STORE_PAGEVIEWS):
+        return
+
+    unresolved = unresolve(origin)
+    path = unresolved.filename
+    if path.endswith('/'):
+        path += 'index.html'
+
+    page_view, _ = PageView.objects.get_or_create(
+        project=project,
+        version=version,
+        path=path,
+        date=timezone.now().date(),
+    )
+    PageView.objects.filter(pk=page_view.pk).update(
+        view_count=F('view_count') + 1
+    )

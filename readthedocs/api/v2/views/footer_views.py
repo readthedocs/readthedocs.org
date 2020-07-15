@@ -16,7 +16,7 @@ from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -80,6 +80,19 @@ class BaseFooterHTML(APIView):
 
     """
     Render and return footer markup.
+
+    Query parameters:
+
+    - project
+    - version
+    - page: Sphinx's page name, used for path operations,
+      like change between languages (deprecated in favor of ``origin``).
+    - origin: Full path with domain, used for path operations.
+    - theme: Used to decide how to integrate the flyout menu.
+    - docroot: Path where all the source documents are.
+      Used to build the ``edit_on`` URL.
+    - source_suffix: Suffix from the source document.
+      Used to build the ``edit_on`` URL.
 
     .. note::
 
@@ -229,6 +242,7 @@ class BaseFooterHTML(APIView):
             request=request,
             context=context,
             resp_data=resp_data,
+            origin=self.request.GET.get('origin'),
         )
 
         return Response(resp_data)
