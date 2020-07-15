@@ -241,7 +241,7 @@ class BaseFooterHTML(APIView):
             sender=None,
             request=request,
             context=context,
-            resp_data=resp_data,
+            response_data=resp_data,
             origin=self.request.GET.get('origin'),
         )
 
