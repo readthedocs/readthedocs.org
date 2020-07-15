@@ -99,6 +99,10 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         'active_versions.last_build.config',
     ]
 
+    def get_view_name(self):
+        # Avoid "Base" in BrowseableAPI view's title
+        return f'Projects {self.suffix}'
+
     def get_serializer_class(self):
         """
         Return correct serializer depending on the action.
@@ -360,17 +364,18 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
         serializer.save()
 
 
-class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
-                           OrganizationQuerySetMixin,
-                           ReadOnlyModelViewSet):
+class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
+                               OrganizationQuerySetMixin,
+                               ReadOnlyModelViewSet):
 
     model = Organization
-    # TODO: use valid permission classes
-    permission_classes = (UserOrganizationsListing, IsOrganizationAdmin)
     lookup_field = 'slug'
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
+
+    def get_view_name(self):
+        return f'Organizations {self.suffix}'
 
     def get_queryset(self):
         # Allow hitting ``/api/v3/organizations/`` to list their own organizaions
@@ -382,13 +387,15 @@ class OrganizationsViewSet(APIv3Settings, NestedViewSetMixin,
         return super().get_queryset()
 
 
-class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
-                                   OrganizationQuerySetMixin,
-                                   ReadOnlyModelViewSet):
+class OrganizationsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsViewSetBase
+
+
+class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
+                                       OrganizationQuerySetMixin,
+                                       ReadOnlyModelViewSet):
 
     model = Project
-    # TODO: use valid permission classes
-    permission_classes = (UserOrganizationsListing, IsOrganizationAdmin)
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
@@ -396,3 +403,10 @@ class OrganizationsProjectsViewSet(APIv3Settings, NestedViewSetMixin,
     permit_list_expands = [
         'organization',
     ]
+
+    def get_view_name(self):
+        return f'Organizations Projects {self.suffix}'
+
+
+class OrganizationsProjectsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsProjectsViewSetBase
