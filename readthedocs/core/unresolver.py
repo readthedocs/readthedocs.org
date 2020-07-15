@@ -1,14 +1,14 @@
 import logging
-from urllib.parse import urlparse
 from collections import namedtuple
+from urllib.parse import urlparse
 
-from django.urls import resolve as url_resolve
 from django.test.client import RequestFactory
+from django.urls import resolve as url_resolve
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.proxito.middleware import map_host_to_project_slug
-from readthedocs.proxito.views.utils import _get_project_data_from_request
 from readthedocs.proxito.views.mixins import ServeDocsMixin
+from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 log = logging.getLogger(__name__)
 
@@ -32,10 +32,29 @@ class UnresolverBase:
         # TODO: Make this not depend on the request object,
         # but instead move all this logic here working on strings.
         request = RequestFactory().get(path=path, HTTP_HOST=domain)
-        project_slug = request.host_project_slug = map_host_to_project_slug(request)
+        project_slug = map_host_to_project_slug(request)
 
         # Handle returning a response
         if hasattr(project_slug, 'status_code'):
+            return None
+
+        request.host_project_slug = request.slug = project_slug
+        return self.unresolve_from_request(request, path)
+
+    def unresolve_from_request(self, request, path):
+        """
+        Unresolve using a request.
+
+        ``path`` can be a full URL, but the domain will be ignored,
+        since that information is already in the request object.
+
+        None is returned if the request isn't valid.
+        """
+        parsed = urlparse(path)
+        path = parsed.path
+        project_slug = getattr(request, 'slug', None)
+
+        if not project_slug:
             return None
 
         _, __, kwargs = url_resolve(
@@ -46,7 +65,7 @@ class UnresolverBase:
         mixin = ServeDocsMixin()
         version_slug = mixin.get_version_from_host(request, kwargs.get('version_slug'))
 
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
             request,
             project_slug=project_slug,
             subproject_slug=kwargs.get('subproject_slug'),
@@ -63,8 +82,8 @@ class UnresolverBase:
 
         log.info(
             'Unresolver parsed: '
-            'url=%s project=%s lang_slug=%s version_slug=%s filename=%s',
-            url, final_project.slug, lang_slug, version_slug, filename
+            'project=%s lang_slug=%s version_slug=%s filename=%s',
+            final_project.slug, lang_slug, version_slug, filename
         )
         return UnresolvedObject(final_project, lang_slug, version_slug, filename, parsed.fragment)
 
@@ -76,3 +95,4 @@ class Unresolver(SettingsOverrideObject):
 
 unresolver = Unresolver()
 unresolve = unresolver.unresolve
+unresolve_from_request = unresolver.unresolve_from_request
