@@ -11,9 +11,11 @@ from .models import PageView
 
 
 @receiver(footer_response)
-def increase_page_view_count(sender, request, context, response_data, origin, **kwargs):
+def increase_page_view_count(sender, *, request, context, origin, **kwargs):
     """Increase the page view count for the given project."""
-    del sender  # unused
+    # unused
+    del sender
+    del kwargs
 
     project = context['project']
     version = context['version']

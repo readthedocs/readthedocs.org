@@ -27,11 +27,10 @@ class UnresolverBase:
         """
         parsed = urlparse(url)
         domain = parsed.netloc.split(':', 1)[0]
-        path = parsed.path
 
         # TODO: Make this not depend on the request object,
         # but instead move all this logic here working on strings.
-        request = RequestFactory().get(path=path, HTTP_HOST=domain)
+        request = RequestFactory().get(path=parsed.path, HTTP_HOST=domain)
         project_slug = map_host_to_project_slug(request)
 
         # Handle returning a response
@@ -39,7 +38,7 @@ class UnresolverBase:
             return None
 
         request.host_project_slug = request.slug = project_slug
-        return self.unresolve_from_request(request, path)
+        return self.unresolve_from_request(request, url)
 
     def unresolve_from_request(self, request, path):
         """
@@ -65,7 +64,7 @@ class UnresolverBase:
         mixin = ServeDocsMixin()
         version_slug = mixin.get_version_from_host(request, kwargs.get('version_slug'))
 
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(
+        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
             subproject_slug=kwargs.get('subproject_slug'),

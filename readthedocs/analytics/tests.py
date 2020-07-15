@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get
 
@@ -9,7 +10,6 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature, Project
 
 from .models import PageView
-from .signals import increase_page_view_count
 from .utils import anonymize_ip_address, anonymize_user_agent, get_client_ip
 
 
@@ -98,29 +98,31 @@ class UtilsTests(TestCase):
 @override_settings(PUBLIC_DOMAIN='readthedocs.io')
 class AnalyticsPageViewsTests(TestCase):
 
-    def test_increase_page_view_count(self):
-        project = get(
+    def setUp(self):
+        self.project = get(
             Project,
-            slug='project-1',
+            slug='pip',
         )
-        version = get(Version, slug='1.8', project=project)
-        origin = f"https://{project.slug}.readthedocs.io/en/latest/index.html"
+        self.version = get(Version, slug='1.8', project=self.project)
+        self.origin = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
+        self.host = f'{self.project.slug}.readthedocs.io'
+        self.url = (
+            reverse('footer_html') +
+            f'?project={self.project.slug}&version={self.version.slug}&page=index&docroot=/docs/' +
+            f'&origin={self.origin}'
+        )
 
-        today = timezone.now()
-        tomorrow = timezone.now() + timezone.timedelta(days=1)
-        yesterday = timezone.now() - timezone.timedelta(days=1)
+        self.today = timezone.now()
+        self.tomorrow = timezone.now() + timezone.timedelta(days=1)
+        self.yesterday = timezone.now() - timezone.timedelta(days=1)
 
+    def test_increase_page_view_count(self):
         assert (
             PageView.objects.all().count() == 0
         ), 'There\'s no PageView object created yet.'
 
-        context = {
-            "project": project,
-            "version": version,
-        }
-
         # Without the feature flag, no PageView is created
-        increase_page_view_count(None, context=context, origin=origin)
+        self.client.get(self.url, HTTP_HOST=self.host)
         assert (
             PageView.objects.all().count() == 0
         )
@@ -128,13 +130,13 @@ class AnalyticsPageViewsTests(TestCase):
         feature, _ = Feature.objects.get_or_create(
             feature_id=Feature.STORE_PAGEVIEWS,
         )
-        project.feature_set.add(feature)
+        self.project.feature_set.add(feature)
 
         # testing for yesterday
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
-            mocked_timezone.return_value = yesterday
+            mocked_timezone.return_value = self.yesterday
 
-            increase_page_view_count(None, context=context, origin=origin)
+            self.client.get(self.url, HTTP_HOST=self.host)
 
             assert (
                 PageView.objects.all().count() == 1
@@ -143,7 +145,7 @@ class AnalyticsPageViewsTests(TestCase):
                 PageView.objects.all().first().view_count == 1
             ), '\'index\' has 1 view'
 
-            increase_page_view_count(None, context=context, origin=origin)
+            self.client.get(self.url, HTTP_HOST=self.host)
 
             assert (
                 PageView.objects.all().count() == 1
@@ -155,8 +157,9 @@ class AnalyticsPageViewsTests(TestCase):
 
         # testing for today
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
-            mocked_timezone.return_value = today
-            increase_page_view_count(None, context=context, origin=origin)
+            mocked_timezone.return_value = self.today
+
+            self.client.get(self.url, HTTP_HOST=self.host)
 
             assert (
                 PageView.objects.all().count() == 2
@@ -168,8 +171,9 @@ class AnalyticsPageViewsTests(TestCase):
 
         # testing for tomorrow
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
-            mocked_timezone.return_value = tomorrow
-            increase_page_view_count(None, context=context, origin=origin)
+            mocked_timezone.return_value = self.tomorrow
+
+            self.client.get(self.url, HTTP_HOST=self.host)
 
             assert (
                 PageView.objects.all().count() == 3
