@@ -374,6 +374,10 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
+    permit_list_expands = [
+        'projects',
+    ]
+
     def get_view_name(self):
         return f'Organizations {self.suffix}'
 

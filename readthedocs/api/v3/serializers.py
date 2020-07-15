@@ -850,3 +850,7 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
             'teams',
             '_links',
         )
+
+        expandable_fields = {
+            'projects': (ProjectSerializer, {'many': True}),
+        }
