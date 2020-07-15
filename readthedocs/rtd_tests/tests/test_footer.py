@@ -452,7 +452,7 @@ class TestFooterPerformance(TestCase):
             response = self.client.get(self.url, HTTP_HOST=self.host)
             self.assertContains(response, '0.8.1')
 
-        # Seconde time we don't create a new page view,
+        # Second time we don't create a new page view,
         # this shouldn't impact the number of queries.
         with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, HTTP_HOST=self.host)
