@@ -4,6 +4,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 
 
 class UserProjectsListing(BasePermission):
+
     """Allow access to ``/projects`` (user's projects listing)."""
 
     def has_permission(self, request, view):

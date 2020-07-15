@@ -177,7 +177,6 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-
 class ProjectsViewSet(SettingsOverrideObject):
     _default_class = ProjectsViewSetBase
 

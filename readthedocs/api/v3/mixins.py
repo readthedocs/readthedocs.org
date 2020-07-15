@@ -55,17 +55,17 @@ class NestedParentObjectMixin:
         )
 
     def _get_parent_organization(self):
-       slug = self._get_parent_object_lookup(self.ORGANIZATION_LOOKUP_NAMES)
+        slug = self._get_parent_object_lookup(self.ORGANIZATION_LOOKUP_NAMES)
 
-       # when hitting ``/organizations/<slug>/`` we don't have a "parent" organization
-       # because this endpoint is the base one, so we just get the organization from
-       # ``organization_slug`` kwargs
-       slug = slug or self.kwargs.get('organization_slug')
+        # when hitting ``/organizations/<slug>/`` we don't have a "parent" organization
+        # because this endpoint is the base one, so we just get the organization from
+        # ``organization_slug`` kwargs
+        slug = slug or self.kwargs.get('organization_slug')
 
-       return get_object_or_404(
-           Organization,
-           slug=slug,
-       )
+        return get_object_or_404(
+            Organization,
+            slug=slug,
+        )
 
 
 class ProjectQuerySetMixin(NestedParentObjectMixin):
