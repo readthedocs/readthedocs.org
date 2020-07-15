@@ -1,4 +1,5 @@
 from unittest import mock
+
 from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -418,7 +419,7 @@ class TestFooterPerformance(APITestCase):
 
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 14
+    EXPECTED_QUERIES = 13
 
     def setUp(self):
         self.pip = Project.objects.get(slug='pip')
