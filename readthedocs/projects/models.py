@@ -1557,7 +1557,12 @@ class Feature(models.Model):
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
-        (DONT_INSTALL_DOCUTILS, _('Do not install docutils as requirement for build documentation')),
+        (
+            DONT_INSTALL_DOCUTILS,
+            _(
+                'Do not install docutils as requirement for build documentation',
+            ),
+        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
