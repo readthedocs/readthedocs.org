@@ -12,6 +12,7 @@ from elasticsearch_dsl.query import (
     SimpleQueryString,
 )
 
+from readthedocs.analytics.models import PageView
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.search.documents import PageDocument, ProjectDocument
 
@@ -247,7 +248,79 @@ class PageSearchBase(RTDFacetedSearch):
 
     def _get_script_score(self):
         """
-        Gets an ES script to map the page rank to a valid score weight.
+        Gets an ES script that combines the page rank and views into the final score.
+
+        **Page ranking weight calculation**
+
+        Each rank maps to a element in the ranking list.
+        -10 will map to the first element (-10 + 10 = 0) and so on.
+
+        **Page views weight calculation**
+
+        We calculate two values:
+
+        - absolute: this is equal to ``log10(views + 1)``
+          (we add one since logarithms start at 1).
+          A logarithmic function is a good fit due to its growth rate.
+        - relative: this is equal to ``views/max_views``,
+          where ``max_views`` is the max value from al page views from that version.
+
+        Those two values are added and multiplied by a weight (``views_factor``).
+
+        **Final score**
+
+        To generate the final score,
+        all weights are added and multiplied by the original score.
+
+        Docs about the script score query and the painless language at:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-score-query.html#field-value-factor  # noqa
+        - https://www.elastic.co/guide/en/elasticsearch/painless/6.8/painless-api-reference.html
+        """
+        source = """
+            // Page ranking weight.
+            int rank = doc['rank'].size() == 0 ? 0 : (int) doc['rank'].value;
+            double ranking = params.ranking[rank + 10];
+
+            // Page views weight.
+            int views = 0;
+            int max_views = 0;
+            String project = doc['project'].value;
+            String version = doc['version'].value;
+            String path = doc['full_path'].value;
+
+            Map pages = params.top_pages.get(project);
+            if (pages != null) {
+                pages = pages.get(version);
+                if (pages != null) {
+                    views = (int) pages.get("pages").getOrDefault(path, 0);
+                    max_views = (int) pages.get("max");
+                }
+            }
+            double absolute_views = Math.log10(views + 1);
+            double relative_views = 0;
+            if (max_views > 0) {
+                relative_views = views/max_views;
+            }
+            double views_weight = (absolute_views + relative_views) * params.views_factor;
+
+            // Combine all weights into a final score
+            return (ranking + views_weight) * _score;
+        """
+        return {
+            "script": {
+                "source": source,
+                "params": {
+                    "ranking": self._get_ranking(),
+                    "top_pages": self._get_top_pages(),
+                    "views_factor": 1/10,
+                },
+            },
+        }
+
+    def _get_ranking(self):
+        """
+        Get ranking for pages.
 
         ES expects the rank to be a number greater than 0,
         but users can set this between [-10, +10].
@@ -266,8 +339,6 @@ class PageSearchBase(RTDFacetedSearch):
         - 1.5 * 1.3 = 1.95 (score close to 2.0, but not higher than it)
 
         The next lower and higher ranks need to decrease/increase both scores.
-
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-score-query.html#field-value-factor  # noqa
         """
         ranking = [
             0.01,
@@ -292,18 +363,55 @@ class PageSearchBase(RTDFacetedSearch):
             1.96,
             2,
         ]
-        # Each rank maps to a element in the ranking list.
-        # -10 will map to the first element (-10 + 10 = 0) and so on.
-        source = """
-            int rank = doc['rank'].size() == 0 ? 0 : (int) doc['rank'].value;
-            return params.ranking[rank + 10] * _score;
+        return ranking
+
+    def _get_top_pages(self):
         """
-        return {
-            "script": {
-                "source": source,
-                "params": {"ranking": ranking},
-            },
-        }
+        Get the top 100 pages for the versions of the current projects.
+
+        Returns a dictionary with the following structure:
+
+            {
+                'project': {
+                    'version': {
+                        'max': max_views,
+                        'pages': {
+                            'page': views,
+                        },
+                    },
+                },
+            }
+
+        The number of views can be between 0 and 2**31 - 9,
+        this is so we don't overflow when casting the value to an integer
+        inside ES, this also gives us a max value to work on and some space for
+        additional operations.
+        """
+        try:
+            project = self.filter_values['project'][0]
+            version = self.filter_values['version'][0]
+            top_pages_data = PageView.top_viewed_pages(
+                project_slug=project,
+                version_slug=version,
+                top=100,
+            )
+            max_int = 2**31 - 9
+            top_pages = {
+                page: min(views, max_int)
+                for page, views in zip(top_pages_data['pages'], top_pages_data['view_counts'])
+            }
+            top_pages = {
+                project: {version: {'pages': top_pages}}
+            }
+
+            # Calculate the max views from each version.
+            for project_data in top_pages.values():
+                for version_data in project_data.values():
+                    max_ = max(version_data['pages'].values())
+                    version_data['max'] = max_
+            return top_pages
+        except (KeyError, IndexError):
+            return {}
 
     def generate_nested_query(self, query, path, fields, inner_hits):
         """Generate a nested query with passed parameters."""
