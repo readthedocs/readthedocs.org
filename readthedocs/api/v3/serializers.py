@@ -829,7 +829,6 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
     owners = UserSerializer(many=True)
-    teams = TeamSerializer(many=True)
 
     _links = OrganizationLinksSerializer(source='*')
 
@@ -845,10 +844,10 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
             'created',
             'modified',
             'disabled',
-            'teams',
             '_links',
         )
 
         expandable_fields = {
             'projects': (ProjectSerializer, {'many': True}),
+            'teams': (TeamSerializer, {'many': True}),
         }

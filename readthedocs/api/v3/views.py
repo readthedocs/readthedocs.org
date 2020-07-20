@@ -375,6 +375,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
 
     permit_list_expands = [
         'projects',
+        'teams',
     ]
 
     def get_view_name(self):
@@ -405,6 +406,7 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
     serializer_class = ProjectSerializer
     permit_list_expands = [
         'organization',
+        'organization.teams',
     ]
 
     def get_view_name(self):
