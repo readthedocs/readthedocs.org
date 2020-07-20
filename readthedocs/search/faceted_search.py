@@ -400,6 +400,9 @@ class PageSearchBase(RTDFacetedSearch):
                 version_slug=version,
                 top=100,
             )
+            if not top_pages_data['pages'] or not top_pages_data['view_counts']:
+                return {}
+
             max_int = 2**31 - 9
             top_pages = {
                 page: min(views, max_int)
