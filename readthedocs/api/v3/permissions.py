@@ -87,10 +87,10 @@ class CommonPermissionsBase(BasePermission):
         if not IsAuthenticated().has_permission(request, view):
             return False
 
-        return any([
-            UserProjectsListing().has_permission(request, view),
-            PublicDetailPrivateListing().has_permission(request, view),
-        ])
+        return (
+            UserProjectsListing().has_permission(request, view) or
+            PublicDetailPrivateListing().has_permission(request, view)
+        )
 
 
 class CommonPermissions(SettingsOverrideObject):
