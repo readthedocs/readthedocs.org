@@ -1553,6 +1553,7 @@ class Feature(models.Model):
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    USE_PAGE_VIEWS_IN_SEARCH_RESULTS = 'use_page_views_in_search_results'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1677,6 +1678,10 @@ class Feature(models.Model):
         (
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            USE_PAGE_VIEWS_IN_SEARCH_RESULTS,
+            _('Weight the number of page views into search results'),
         ),
     )
 

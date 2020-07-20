@@ -34,12 +34,23 @@ class RTDFacetedSearch(FacetedSearch):
         'post_tags': ['</span>'],
     }
 
-    def __init__(self, query=None, filters=None, user=None, use_advanced_query=True, **kwargs):
+    def __init__(
+            self,
+            query=None,
+            filters=None,
+            user=None,
+            use_advanced_query=True,
+            use_page_views=False,
+            **kwargs
+    ):
         """
         Pass in a user in order to filter search results by privacy.
 
         If `use_advanced_query` is `True`,
         force to always use `SimpleQueryString` for the text query object.
+
+        If `use_page_views` is `True`,
+        weight page views into the search results.
 
         .. warning::
 
@@ -49,6 +60,7 @@ class RTDFacetedSearch(FacetedSearch):
         self.user = user
         self.filter_by_user = kwargs.pop('filter_by_user', True)
         self.use_advanced_query = use_advanced_query
+        self.use_page_views = use_page_views
 
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
@@ -394,6 +406,9 @@ class PageSearchBase(RTDFacetedSearch):
         additional operations.
         """
         try:
+            if not self.use_page_views:
+                return {}
+
             project = self.filter_values['project'][0]
             version = self.filter_values['version'][0]
             top_pages_data = PageView.top_viewed_pages(

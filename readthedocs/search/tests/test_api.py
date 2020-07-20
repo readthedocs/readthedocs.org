@@ -618,6 +618,12 @@ class BaseTestDocumentSearch:
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
 
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.USE_PAGE_VIEWS_IN_SEARCH_RESULTS,
+        )
+        project.feature_set.add(feature)
+        project.save()
+
         index_page = get(
             PageView,
             project=project,
@@ -703,6 +709,12 @@ class BaseTestDocumentSearch:
     def test_search_ranking_and_page_views(self, api_client):
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()
+
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.USE_PAGE_VIEWS_IN_SEARCH_RESULTS,
+        )
+        project.feature_set.add(feature)
+        project.save()
 
         page_index = HTMLFile.objects.get(path='index.html')
         page_guides = HTMLFile.objects.get(path='guides/index.html')
