@@ -3,8 +3,9 @@ from unittest import mock
 
 import pytest
 from django.urls import reverse
-from django_dynamic_fixture import G
+from django_dynamic_fixture import get
 
+from readthedocs.analytics.models import PageView
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     MKDOCS,
@@ -14,7 +15,7 @@ from readthedocs.projects.constants import (
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
 )
-from readthedocs.projects.models import HTMLFile, Project, Feature
+from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.search.api import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
@@ -160,7 +161,7 @@ class BaseTestDocumentSearch:
         query = get_search_query_from_project_file(project_slug=project.slug)
         latest_version = project.versions.all()[0]
         # Create another version
-        dummy_version = G(
+        dummy_version = get(
             Version,
             project=project,
             active=True,
@@ -605,6 +606,213 @@ class BaseTestDocumentSearch:
             'version': version.slug,
             'q': '"content from"',
         }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+    def test_search_page_views(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        index_page = get(
+            PageView,
+            project=project,
+            version=version,
+            path='index.html',
+            view_count=0,
+        )
+        guide_page = get(
+            PageView,
+            project=project,
+            version=version,
+            path='guides/index.html',
+            view_count=0,
+        )
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        # Normal ordering
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+        # Query with same number of page views.
+        # The ordering isn't affected.
+        index_page.view_count = 200
+        index_page.save()
+        guide_page.view_count = 200
+        guide_page.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+        # Query with guides/index.html having more views than index.html.
+        index_page.view_count = 200
+        index_page.save()
+        guide_page.view_count = 8000
+        guide_page.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with guides/index.html having more views than index.html.
+        index_page.view_count = 200
+        index_page.save()
+        guide_page.view_count = 400
+        guide_page.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with index.html having more views than guides/index.html.
+        index_page.view_count = 6000
+        index_page.save()
+        guide_page.view_count = 1200
+        guide_page.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+    def test_search_ranking_and_page_views(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        page_index = HTMLFile.objects.get(path='index.html')
+        page_guides = HTMLFile.objects.get(path='guides/index.html')
+
+        page_view_index = get(
+            PageView,
+            project=project,
+            version=version,
+            path='index.html',
+            view_count=0,
+        )
+        page_view_guides = get(
+            PageView,
+            project=project,
+            version=version,
+            path='guides/index.html',
+            view_count=0,
+        )
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+
+        # Query with the default ranking and 0 page views.
+        assert page_index.rank is None
+        assert page_guides.rank is None
+        assert page_view_index.view_count == 0
+        assert page_view_guides.view_count == 0
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'index.html'
+        assert results[1]['full_path'] == 'guides/index.html'
+
+        # Query with a higher rank over guides/index.html,
+        # and more page views on index.html.
+        # Ranking has more priority than page views.
+        page_guides.rank = 5
+        page_guides.save()
+        PageDocument().update(page_guides)
+
+        page_view_index.view_count = 800
+        page_view_index.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a lower rank over index.html,
+        # and more page views on guides/index.html.
+        # Page views has more priority.
+        page_index.rank = -1
+        page_index.save()
+        page_guides.rank = 0
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        page_view_index.view_count = 200
+        page_view_index.save()
+        page_view_guides.view_count = 800
+        page_view_guides.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a rank of 1 over index.html,
+        # and more page views on guides/index.html.
+        # A relative higher number of page views has more priority over a rank of 1.
+        page_index.rank = 1
+        page_index.save()
+        page_guides.rank = 0
+        page_guides.save()
+        PageDocument().update(page_index)
+        PageDocument().update(page_guides)
+
+        page_view_index.view_count = 200
+        page_view_index.save()
+        page_view_guides.view_count = 60000
+        page_view_guides.save()
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['full_path'] == 'guides/index.html'
+        assert results[1]['full_path'] == 'index.html'
+
+        # Query with a rank of 2 over index.html,
+        # and more page views on guides/index.html.
+        # A relative higher number of page views has less priority over a rank of 2.
+        page_index.rank = 2
+        page_index.save()
+        PageDocument().update(page_index)
+
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
 
