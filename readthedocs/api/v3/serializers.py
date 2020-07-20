@@ -805,7 +805,7 @@ class OrganizationLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class TeamSerializer(serializers.Serializer):
+class TeamSerializer(serializers.ModelSerializer):
 
     # TODO: add ``projects`` as flex field when we have a
     # /organizations/<slug>/teams/<slug>/projects endpoint
