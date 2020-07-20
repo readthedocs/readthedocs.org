@@ -1065,7 +1065,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         project = self.get_project()
 
         # Count of views for top pages over the month
-        top_pages = PageView.top_viewed_pages(project)
+        top_pages = PageView.top_viewed_pages(project.slug)
         top_viewed_pages = zip(
             top_pages['pages'],
             top_pages['view_counts']

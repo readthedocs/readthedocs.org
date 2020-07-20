@@ -262,10 +262,15 @@ class PageSearchBase(RTDFacetedSearch):
         - absolute: this is equal to ``log10(views + 1)``
           (we add one since logarithms start at 1).
           A logarithmic function is a good fit due to its growth rate.
-        - relative: this is equal to ``views/max_views``,
-          where ``max_views`` is the max value from al page views from that version.
+        - relative: this is equal to the ratio between the number of views of the current page
+          and the max number of views of the current version.
 
         Those two values are added and multiplied by a weight (``views_factor``).
+
+        .. note::
+
+           We can also make use of the ratio between the number of views
+           and the average of views of the current version.
 
         **Final score**
 
@@ -304,7 +309,7 @@ class PageSearchBase(RTDFacetedSearch):
             }
             double views_weight = (absolute_views + relative_views) * params.views_factor;
 
-            // Combine all weights into a final score
+            // Combine all weights into a final score.
             return (ranking + views_weight) * _score;
         """
         return {
@@ -407,7 +412,8 @@ class PageSearchBase(RTDFacetedSearch):
             # Calculate the max views from each version.
             for project_data in top_pages.values():
                 for version_data in project_data.values():
-                    max_ = max(version_data['pages'].values())
+                    pages = version_data['pages']
+                    max_ = max(pages.values())
                     version_data['max'] = max_
             return top_pages
         except (KeyError, IndexError):
