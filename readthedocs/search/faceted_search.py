@@ -331,8 +331,9 @@ class PageSearchBase(RTDFacetedSearch):
         but users can set this between [-10, +10].
         We map that range to [0.01, 2] (21 possible values).
 
-        The first lower rank (0.8) needs to bring the score from the highest boost (sections.title^2)
-        close to the lowest boost (title^1.5), that way exact results take priority:
+        The first lower rank (0.8) needs to bring the score from the highest boost
+        (sections.title^2) close to the lowest boost (title^1.5), that way exact
+        results can still take priority:
 
         - 2.0 * 0.8 = 1.6 (score close to 1.5, but not lower than it)
         - 1.5 * 0.8 = 1.2 (score lower than 1.5)
