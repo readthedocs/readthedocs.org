@@ -763,12 +763,6 @@ class DeDuplicateBuildTests(TestCase):
             project=self.project
         )
 
-        get(
-            Feature,
-            feature_id=Feature.DEDUPLICATE_BUILDS,
-            projects=[self.project],
-        )
-
     def test_trigger_duplicated_build_by_commit(self, update_docs_task):
         """
         Trigger a build for the same commit twice.

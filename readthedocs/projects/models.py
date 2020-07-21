@@ -1549,7 +1549,6 @@ class Feature(models.Model):
     STORE_PAGEVIEWS = 'store_pageviews'
     SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
-    DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
@@ -1661,10 +1660,6 @@ class Feature(models.Model):
         (
             USE_SPHINX_BUILDERS,
             _('Use regular sphinx builders instead of custom RTD builders'),
-        ),
-        (
-            DEDUPLICATE_BUILDS,
-            _('Mark duplicated builds as NOOP to be skipped by builders'),
         ),
         (
             USE_SPHINX_RTD_EXT_LATEST,
