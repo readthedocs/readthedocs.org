@@ -1553,6 +1553,7 @@ class Feature(models.Model):
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    DONT_CREATE_INDEX = 'dont_create_index'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1677,6 +1678,10 @@ class Feature(models.Model):
         (
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            DONT_CREATE_INDEX,
+            _('Do not create index.md or README.rst if the project does not have one.'),
         ),
     )
 

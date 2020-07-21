@@ -46,3 +46,11 @@ By default, when Read the Docs runs Sphinx it passes a different output director
 While this is a way to ensure that all the outputs are generated from scratch,
 it may cause your builds to be slow if you have a big set of documentation and builds multiple formats.
 In that case, enabling ``SHARE_SPHINX_DOCTREE`` could help to speed up your builds by sharing the doctree among all the formats.
+
+``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`
+
+When Read the Docs detects that your project doesn't have an ``index.md`` or ``README.rst``,
+it auto-generate one for you with instructions about how to proceed.
+
+In case you are using a static HTML page as index or an generated index from code,
+this behavior could be a problem. With this feature flag you can disable that.
