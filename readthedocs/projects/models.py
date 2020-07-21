@@ -1360,6 +1360,12 @@ class ImportedFile(models.Model):
         null=True,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
     )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
+        # TODO: remove after migration
+        null=True,
+    )
 
     def get_absolute_url(self):
         return resolve(

@@ -28,14 +28,23 @@ class ImportedFileTests(TestCase):
         self.test_dir = os.path.join(base_dir, 'files')
         self._copy_storage_dir()
 
-    def _manage_imported_files(self, version, commit, build, search_ranking=None):
+    def _manage_imported_files(
+        self,
+        version,
+        commit,
+        build,
+        search_ranking=None,
+        search_ignore=None
+    ):
         """Helper function for the tests to create and sync ImportedFiles."""
         search_ranking = search_ranking or {}
+        search_ignore = search_ignore or []
         _create_imported_files(
             version=version,
             commit=commit,
             build=build,
             search_ranking=search_ranking,
+            search_ignore=search_ignore,
         )
         _sync_imported_files(version, build, set())
 
@@ -131,6 +140,23 @@ class ImportedFileTests(TestCase):
         self.assertEqual(file_api.rank, 5)
         self.assertEqual(file_test.rank, 5)
 
+    def test_search_page_ignore(self):
+        search_ignore = [
+            'api/index.html'
+        ]
+        self._manage_imported_files(
+            self.version,
+            'commit01',
+            1,
+            search_ignore=search_ignore,
+        )
+
+        self.assertEqual(HTMLFile.objects.count(), 2)
+        file_api = HTMLFile.objects.get(path='api/index.html')
+        file_test = HTMLFile.objects.get(path='test.html')
+        self.assertTrue(file_api.ignore)
+        self.assertFalse(file_test.ignore)
+
     def test_update_content(self):
         test_dir = os.path.join(base_dir, 'files')
         self.assertEqual(ImportedFile.objects.count(), 0)
@@ -195,6 +221,7 @@ class ImportedFileTests(TestCase):
                 commit='commit01',
                 build=1,
                 search_ranking={},
+                search_ignore=[],
             )
             _create_intersphinx_data(self.version, 'commit01', 1)
 

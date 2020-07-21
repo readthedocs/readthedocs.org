@@ -141,23 +141,16 @@ class PageDocument(RTDDocTypeMixin, DocType):
         return all_domains
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
+        """
+        Ignore certain files from indexing.
+
+        - Files from external versions
+        - Ignored files
+        """
         queryset = super().get_queryset()
-
-        # Do not index files from external versions
-        queryset = queryset.internal().all()
-
-        # TODO: Make this smarter
-        # This was causing issues excluding some valid user documentation pages
-        # excluded_files = [
-        #     'search.html',
-        #     'genindex.html',
-        #     'py-modindex.html',
-        #     'search/index.html',
-        #     'genindex/index.html',
-        #     'py-modindex/index.html',
-        # ]
-        # for ending in excluded_files:
-        #     queryset = queryset.exclude(path=ending)
-
+        queryset = (
+            queryset
+            .internal()
+            .exclude(ignore=True)
+        )
         return queryset

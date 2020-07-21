@@ -466,6 +466,8 @@ Settings for more control over :doc:`/server-side-search`.
       ranking:
         api/v1/*: -1
         api/v2/*: 4
+      ignore:
+        - 404.html
 
 search.ranking
 ``````````````
@@ -488,6 +490,9 @@ Pages with a rank closer to -10 will appear further down the list of results,
 and pages with a rank closer to 10 will appear higher in the list of results.
 Note that 0 means *normal rank*, not *no rank*.
 
+If you are looking to completely ignore a page,
+check :ref:`config-file/v2:search.ignore`.
+
 .. code-block:: yaml
 
    version: 2
@@ -495,7 +500,7 @@ Note that 0 means *normal rank*, not *no rank*.
    search:
       ranking:
         # Match a single file
-        tutorial.hml: 2
+        tutorial.html: 2
 
         # Match all files under the api/v1 directory
         api/v1/*: -5
@@ -511,6 +516,43 @@ Note that 0 means *normal rank*, not *no rank*.
 
    Is better to decrease the rank of pages you want to deprecate,
    rather than increasing the rank of the other pages.
+
+search.ignore
+`````````````
+
+Don't index files matching a pattern.
+This is, you won't see search results from these files.
+
+:Type: ``list`` of patterns
+:Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
+
+Patterns are matched against the final html pages produced by the build
+(you should try to match `index.html`, not `docs/index.rst`).
+Patterns can include some special characters:
+
+- ``*`` matches everything
+- ``?`` matches any single character
+- ``[seq]`` matches any character in ``seq``
+
+.. code-block:: yaml
+
+   version: 2
+
+   search:
+      ignore:
+        # Ignore a single file
+        - 404.html
+
+        # Ignore all files under the search/ directory
+        - search/*
+
+        # Ignore all files that end with ref.html
+        - '*/ref.html'
+
+.. note::
+
+   Since Read the Docs fallbacks to the original search engine when no results are found,
+   you may still see search results from ignored pages.
 
 Schema
 ------
