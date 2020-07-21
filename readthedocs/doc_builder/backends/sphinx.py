@@ -273,9 +273,7 @@ class BaseSphinx(BaseBuilder):
         )
 
     def sphinx_parallel_arg(self):
-        if self.project.has_feature(Feature.SPHINX_PARALLEL):
-            return ['-j', 'auto']
-        return []
+        return ['-j', 'auto']
 
     def venv_sphinx_supports_latexmk(self):
         """

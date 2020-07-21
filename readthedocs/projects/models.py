@@ -1547,7 +1547,6 @@ class Feature(models.Model):
     LIST_PACKAGES_INSTALLED_ENV = 'list_packages_installed_env'
     VCS_REMOTE_LISTING = 'vcs_remote_listing'
     STORE_PAGEVIEWS = 'store_pageviews'
-    SPHINX_PARALLEL = 'sphinx_parallel'
     USE_SPHINX_BUILDERS = 'use_sphinx_builders'
     DEDUPLICATE_BUILDS = 'deduplicate_builds'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
@@ -1653,10 +1652,6 @@ class Feature(models.Model):
         (
             STORE_PAGEVIEWS,
             _('Store pageviews for this project'),
-        ),
-        (
-            SPHINX_PARALLEL,
-            _('Use "-j auto" when calling sphinx-build'),
         ),
         (
             USE_SPHINX_BUILDERS,
