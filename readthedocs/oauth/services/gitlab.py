@@ -71,15 +71,6 @@ class GitLabService(Service):
     def get_paginated_results(self, response):
         return response.json()
 
-    def sync(self):
-        """
-        Sync repositories and organizations from GitLab API.
-
-        See: https://docs.gitlab.com/ce/api/projects.html
-        """
-        self.sync_repositories()
-        self.sync_organizations()
-
     def sync_repositories(self):
         repos = self.paginate(
             '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
@@ -93,6 +84,8 @@ class GitLabService(Service):
         try:
             for repo in repos:
                 self.create_repository(repo)
+
+            return repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab repositories')
             raise SyncServiceError(
@@ -101,6 +94,7 @@ class GitLabService(Service):
             )
 
     def sync_organizations(self):
+        repositories = []
         orgs = self.paginate(
             '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
             per_page=100,
@@ -122,8 +116,14 @@ class GitLabService(Service):
                     order_by='path',
                     sort='asc',
                 )
+
+                # Add organization's repositories to the result
+                repositories.extend(org_repos)
+
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
+
+            return orgs, repositories
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
@@ -234,6 +234,12 @@ class GitLabService(Service):
         organization.json = json.dumps(fields)
         organization.save()
         return organization
+
+    def get_repository_full_names(self, repositories):
+        return {repository.get('name_with_namespace') for repository in repositories}
+
+    def get_organization_names(self, organizations):
+        return {organization.get('name') for organization in organizations}
 
     def get_webhook_data(self, repo_id, project, integration):
         """
