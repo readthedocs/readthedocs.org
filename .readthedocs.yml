@@ -3,5 +3,15 @@ formats: all
 sphinx:
   configuration: docs/conf.py
 python:
-   install:
-      - requirements: requirements/local-docs-build.txt
+  install:
+    - requirements: requirements/pip.txt
+    - requirements: requirements/docs.txt
+
+search:
+  ranking:
+    # Deprecated content
+    api/v1.html: -1
+    config-file/v1.html: -1
+
+    # Internal documentation
+    development/design/*: -5

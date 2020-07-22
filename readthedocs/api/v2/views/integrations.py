@@ -21,7 +21,7 @@ from readthedocs.core.signals import (
 )
 from readthedocs.core.views.hooks import (
     build_branches,
-    sync_versions,
+    trigger_sync_versions,
     get_or_create_external_version,
     delete_external_version,
     build_external_version,
@@ -189,19 +189,27 @@ class WebhookMixin:
                 project,
                 branches,
             )
-        triggered = True if to_build else False
+        triggered = bool(to_build)
         return {
             'build_triggered': triggered,
             'project': project.slug,
             'versions': list(to_build),
         }
 
-    def sync_versions(self, project):
-        version = sync_versions(project)
+    def sync_versions_response(self, project, sync=True):
+        """
+        Trigger a sync and returns a response indicating if the build was triggered or not.
+
+        If `sync` is False, the sync isn't triggered and a response indicating so is returned.
+        """
+        version = None
+        if sync:
+            version = trigger_sync_versions(project)
         return {
             'build_triggered': False,
             'project': project.slug,
-            'versions': [version],
+            'versions': [version] if version else [],
+            'versions_synced': version is not None,
         }
 
     def get_external_version_response(self, project):
@@ -332,7 +340,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload validation for project: %s',
+                'Skipping payload signature validation. project=%s',
                 self.project.slug,
             )
             return True
@@ -357,8 +365,38 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return digest.hexdigest()
 
     def handle_webhook(self):
+        """
+        Handle GitHub webhook events.
+
+        It checks for all the events we support currently:
+
+        - PUSH: Triggered on a push to a repository branch. Branch pushes and repository tag pushes
+          also trigger webhook push events.
+
+          .. note::
+
+            ``created`` and ``deleted`` indicate if the push was a branch/tag created or deleted.
+            This is required for old webhook created at Read the Docs that do not register the
+            ``create`` and ``delete`` events.
+
+            Newer webhooks created on Read the Docs, will trigger a PUSH+created=True **and** a
+            CREATE event. We need to handle this in a specific way to not trigger the sync twice.
+
+        - CREATE: Represents a created branch or tag.
+
+        - DELETE: Represents a deleted branch or tag.
+
+        - PULL_REQUEST: Triggered when a pull request is assigned, unassigned, labeled, unlabeled,
+          opened, edited, closed, reopened, synchronize, ready_for_review, locked, unlocked or when
+          a pull request review is requested or removed (``action`` will contain this data)
+
+        See https://developer.github.com/v3/activity/events/types/
+
+        """
         # Get event and trigger other webhook events
         action = self.data.get('action', None)
+        created = self.data.get('created', False)
+        deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         webhook_github.send(
             Project,
@@ -366,20 +404,19 @@ class GitHubWebhookView(WebhookMixin, APIView):
             data=self.data,
             event=event,
         )
-        # Handle push events and trigger builds
-        if event == GITHUB_PUSH:
-            try:
-                branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches)
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
-        if event in (GITHUB_CREATE, GITHUB_DELETE):
-            return self.sync_versions(self.project)
 
-        if (
-            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
-            event == GITHUB_PULL_REQUEST and action
-        ):
+        # Sync versions when a branch/tag was created/deleted
+        if event in (GITHUB_CREATE, GITHUB_DELETE):
+            log.info('Triggered sync_versions: project=%s event=%s', self.project, event)
+            return self.sync_versions_response(self.project)
+
+        # Handle pull request events
+        if all([
+                self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
+                self.project.external_builds_enabled,
+                event == GITHUB_PULL_REQUEST,
+                action,
+        ]):
             if (
                 action in
                 [
@@ -388,12 +425,39 @@ class GitHubWebhookView(WebhookMixin, APIView):
                     GITHUB_PULL_REQUEST_SYNC
                 ]
             ):
-                # Handle opened, synchronize, reopened pull_request event.
+                # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
-                # Handle closed pull_request event.
+                # Delete external version when PR is closed
                 return self.get_delete_external_version_response(self.project)
+
+        # Sync versions when push event is created/deleted action
+        if all([
+                event == GITHUB_PUSH,
+                (created or deleted),
+        ]):
+            integration = self.get_integration()
+            events = integration.provider_data.get('events', [])
+            if any([
+                    GITHUB_CREATE in events,
+                    GITHUB_DELETE in events,
+            ]):
+                # GitHub will send PUSH **and** CREATE/DELETE events on a creation/deletion in newer
+                # webhooks. If we receive a PUSH event we need to check if the webhook doesn't
+                # already have the CREATE/DELETE events. So we don't trigger the sync twice.
+                return self.sync_versions_response(self.project, sync=False)
+
+            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
+            return self.sync_versions_response(self.project)
+
+        # Trigger a build for all branches in the push
+        if event == GITHUB_PUSH:
+            try:
+                branches = [self._normalize_ref(self.data['ref'])]
+                return self.get_response_push(self.project, branches)
+            except KeyError:
+                raise ParseError('Parameter "ref" is required')
 
         return None
 
@@ -455,7 +519,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         secret = self.get_integration().secret
         if not secret:
             log.info(
-                'Skipping payload validation for project: %s',
+                'Skipping payload signature validation. project=%s',
                 self.project.slug,
             )
             return True
@@ -497,7 +561,9 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data['after']
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
-                return self.sync_versions(self.project)
+                log.info('Triggered sync_versions: project=%s before=%s after=%s',
+                         self.project, before, after)
+                return self.sync_versions_response(self.project)
             # Normal push to master
             try:
                 branches = [self._normalize_ref(data['ref'])]
@@ -507,6 +573,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
         if (
             self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
+            self.project.external_builds_enabled and
             event == GITLAB_MERGE_REQUEST and action
         ):
             if (
@@ -596,7 +663,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # will be triggered with the normal push.
                 if branches:
                     return self.get_response_push(self.project, branches)
-                return self.sync_versions(self.project)
+                log.info('Triggered sync_versions: project=%s event=%s',
+                         self.project, event)
+                return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
         return None

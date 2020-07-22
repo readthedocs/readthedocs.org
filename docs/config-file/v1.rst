@@ -1,7 +1,7 @@
-Configuration File V1
-=====================
+Configuration File V1 (Deprecated)
+==================================
 
-Read the Docs now has support for configuring builds with a YAML file.
+Read the Docs has support for configuring builds with a YAML file.
 :doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
 .. warning::
@@ -107,7 +107,7 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: :djangosetting:`RTD_DOCKER_DEFAULT_VERSION`
+* Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
 * Options: ``stable``, ``latest``
 
 The build image to use for specific builds.
@@ -167,7 +167,7 @@ python.use_system_site_packages
 When true, it gives the virtual environment access to the global site-packages directory.
 Depending on the :ref:`config-file/v1:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
-See :ref:`builds:The build environment` for more details.
+See :doc:`/builds` for more details.
 
 .. code-block:: yaml
 
@@ -285,5 +285,5 @@ Behind the scene the following Pip command will be run:
 
 
 .. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
-.. _extra requirements: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
-.. _package default dependencies: http://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies
+.. _extra requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
+.. _package default dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies

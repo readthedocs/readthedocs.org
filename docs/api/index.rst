@@ -8,6 +8,7 @@ from Read the Docs.
 
 
 .. toctree::
-    :maxdepth: 3
+   :maxdepth: 3
 
-    v2
+   v3
+   v2

@@ -17,6 +17,11 @@ urlpatterns = [
         name='projects_dashboard_redirect',
     ),
     url(
+        r'^tags/(?P<tag>[-\w]+)/$',
+        ProjectTagIndex.as_view(),
+        name='projects_tag_detail',
+    ),
+    url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
         public.project_redirect,
         name='project_redirect',
@@ -31,14 +36,19 @@ urlpatterns = [
         public.project_downloads,
         name='project_downloads',
     ),
+
+    # NOTE: this URL is kept here only for backward compatibility to serve
+    # non-html files from the dashboard. The ``name=`` is removed to avoid
+    # generating an invalid URL by mistake (we should manually generate it
+    # pointing to the right place: "docs.domain.org/_/downloads/")
     url(
         (
             r'^(?P<project_slug>{project_slug})/downloads/(?P<type_>[-\w]+)/'
             r'(?P<version_slug>{version_slug})/$'.format(**pattern_opts)
         ),
-        public.project_download_media,
-        name='project_download_media',
+        public.ProjectDownloadMedia.as_view(),
     ),
+
     url(
         r'^(?P<project_slug>{project_slug})/badge/$'.format(**pattern_opts),
         public.project_badge,
@@ -76,10 +86,5 @@ urlpatterns = [
         r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
         public.project_versions,
         name='project_version_list',
-    ),
-    url(
-        r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectTagIndex.as_view(),
-        name='projects_tag_detail',
     ),
 ]

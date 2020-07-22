@@ -27,6 +27,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'documentation_type',
             'users',
             'canonical_url',
+            'urlconf',
         )
 
 
@@ -57,6 +58,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'enable_pdf_build',
             'conf_py_file',
             'analytics_code',
+            'analytics_disabled',
             'cdn_enabled',
             'container_image',
             'container_mem_limit',
@@ -71,6 +73,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'has_valid_webhook',
             'show_advertising',
             'environment_variables',
+            'max_concurrent_builds',
         )
 
 
@@ -86,10 +89,15 @@ class VersionSerializer(serializers.ModelSerializer):
             'slug',
             'identifier',
             'verbose_name',
+            'privacy_level',
             'active',
             'built',
             'downloads',
             'type',
+            'has_pdf',
+            'has_epub',
+            'has_htmlzip',
+            'documentation_type',
         )
 
 

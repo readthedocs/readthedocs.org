@@ -1,0 +1,21 @@
+# Requirements for our local docker development
+
+-r pip.txt
+# http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
+psycopg2-binary==2.8.5
+django-redis-cache==2.1.1
+
+# For resizing images
+pillow==7.1.2
+
+# local debugging tools
+watchdog==0.10.2
+datadiff==2.0.0
+ipdb==0.13.2
+pdbpp==0.10.2
+
+# watchdog dependency
+argh==0.26.2
+
+# run tests
+tox==3.15.0

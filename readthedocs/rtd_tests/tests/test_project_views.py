@@ -9,13 +9,12 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
+from unittest.mock import patch
 
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects import tasks
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.models import Domain, Project
@@ -403,11 +402,6 @@ class TestPublicViews(MockBuildTestCase):
             type=EXTERNAL
         )
 
-    def test_project_download_media(self):
-        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
-
     def test_project_detail_view_only_shows_internal_versons(self):
         url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)
@@ -455,15 +449,15 @@ class TestPrivateViews(MockBuildTestCase):
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.models.broadcast') as broadcast:
+        # Mocked like this because the function is imported inside a class method
+        # https://stackoverflow.com/a/22201798
+        with patch('readthedocs.projects.tasks.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[(project.doc_path,)],
-            )
+            clean_project_resources.assert_called_once()
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, project.slug)
+
 
     def test_delete_superproject(self):
         super_proj = get(Project, slug='pip', users=[self.user])
@@ -482,22 +476,6 @@ class TestPrivateViews(MockBuildTestCase):
             count=1,
             html=True,
         )
-
-    def test_subproject_create(self):
-        project = get(Project, slug='pip', users=[self.user])
-        subproject = get(Project, users=[self.user])
-
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
-            response = self.client.post(
-                '/dashboard/pip/subprojects/create/',
-                data={'child': subproject.pk},
-            )
-            self.assertEqual(response.status_code, 302)
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.symlink_subproject,
-                args=[project.pk],
-            )
 
     @patch('readthedocs.projects.views.private.attach_webhook')
     def test_integration_create(self, attach_webhook):

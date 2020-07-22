@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('status', models.BooleanField(default=True, choices=[(True, 'Active'), (False, 'Inactive')])),
                 ('create_dt', models.DateTimeField(auto_now_add=True)),
                 ('update_dt', models.DateTimeField(auto_now=True)),
-                ('project', models.ForeignKey(related_name='redirects', verbose_name='Project', to='projects.Project')),
+                ('project', models.ForeignKey(related_name='redirects', verbose_name='Project', to='projects.Project', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-update_dt',),

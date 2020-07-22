@@ -1,7 +1,10 @@
+from unittest import mock
+
 import django_dynamic_fixture as fixture
-import mock
+import pytest
 from django.test import TestCase, override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import (
     Resolver,
     resolve,
@@ -173,6 +176,13 @@ class SmartResolverPathTests(ResolverBase):
             url = resolve_path(project=self.translation, filename='index.html')
             self.assertEqual(url, '/ja/latest/index.html')
 
+    def test_resolver_urlconf(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='$version/$filename')
+        self.assertEqual(url, 'latest/index.html')
+
+    def test_resolver_urlconf_extra(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='foo/bar/$version/$filename')
+        self.assertEqual(url, 'foo/bar/latest/index.html')
 
 class ResolverPathOverrideTests(ResolverBase):
 
@@ -255,32 +265,6 @@ class ResolverPathOverrideTests(ResolverBase):
                 version_slug='foo',
             )
             self.assertEqual(url, '/cz/foo/index.html')
-
-    def test_resolver_no_force_translation(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/docs/pip/ja/latest/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-            )
-            self.assertEqual(url, '/ja/latest/index.html')
-
-    def test_resolver_no_force_translation_with_version(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/docs/pip/ja/foo/index.html')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_path(
-                project=self.translation, filename='index.html', language='cz',
-                version_slug='foo',
-            )
-            self.assertEqual(url, '/ja/foo/index.html')
 
 
 class ResolverCanonicalProject(TestCase):
@@ -462,13 +446,24 @@ class ResolverDomainTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_domain(project=self.translation)
             self.assertEqual(url, 'pip.public.readthedocs.org')
-        # Private overrides domain
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve_domain(project=self.translation, private=True)
-            self.assertEqual(url, 'readthedocs.org')
-        with override_settings(USE_SUBDOMAIN=True):
-            url = resolve_domain(project=self.translation, private=True)
-            self.assertEqual(url, 'pip.public.readthedocs.org')
+
+    @override_settings(
+        PRODUCTION_DOMAIN='readthedocs.org',
+        PUBLIC_DOMAIN='public.readthedocs.org',
+        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+        PUBLIC_DOMAIN_USES_HTTPS=True,
+        USE_SUBDOMAIN=True,
+    )
+    def test_domain_external(self):
+        latest = self.pip.versions.first()
+        latest.type = EXTERNAL
+        latest.save()
+        url = resolve(project=self.pip)
+        self.assertEqual(url, 'https://pip--latest.dev.readthedocs.build/en/latest/')
+        url = resolve(project=self.pip, version_slug=latest.slug)
+        self.assertEqual(url, 'https://pip--latest.dev.readthedocs.build/en/latest/')
+        url = resolve(project=self.pip, version_slug='non-external')
+        self.assertEqual(url, 'https://pip.public.readthedocs.org/en/non-external/')
 
 
 class ResolverTests(ResolverBase):
@@ -536,6 +531,63 @@ class ResolverTests(ResolverBase):
             self.assertEqual(url, 'http://pip.readthedocs.org/ja/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_nested_translation_of_a_subproject(self):
+        """The project is a translation, and the main translation is a subproject of a project."""
+        translation = fixture.get(
+            Project,
+            slug='api-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=self.subproject,
+        )
+
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=translation)
+            self.assertEqual(
+                url, 'http://readthedocs.org/docs/pip/projects/sub/es/latest/',
+            )
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=translation)
+            self.assertEqual(
+                url, 'http://pip.readthedocs.org/projects/sub/es/latest/',
+            )
+
+    @pytest.mark.xfail(reason='We do not support this for now', strict=True)
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+    def test_resolver_nested_subproject_of_a_translation(self):
+        """The project is a subproject, and the superproject is a translation of a project."""
+        project = fixture.get(
+            Project,
+            slug='all-docs',
+            language='en',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        translation = fixture.get(
+            Project,
+            slug='docs-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=project,
+        )
+
+        subproject = fixture.get(
+            Project,
+            slug='api-es',
+            language='es',
+            users=[self.owner],
+            main_language_project=None,
+        )
+        translation.add_subproject(subproject)
+
+        with override_settings(USE_SUBDOMAIN=False):
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://readthedocs.org/docs/docs-es/projects/api-es/es/latest/')
+        with override_settings(USE_SUBDOMAIN=True):
+            url = resolve(project=subproject)
+            self.assertEqual(url, 'http://docs-es.readthedocs.org/projects/api-es/es/latest/')
+
+    @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_single_version(self):
         self.pip.single_version = True
         with override_settings(USE_SUBDOMAIN=False):
@@ -565,25 +617,28 @@ class ResolverTests(ResolverBase):
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_private_project(self):
+        self.pip.privacy_level = PRIVATE
+        self.pip.save()
         with override_settings(USE_SUBDOMAIN=False):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
     def test_resolver_private_project_override(self):
         self.pip.privacy_level = PRIVATE
+        self.pip.save()
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
 
     @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -594,12 +649,12 @@ class ResolverTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.org/en/latest/')
 
     @override_settings(
@@ -608,16 +663,16 @@ class ResolverTests(ResolverBase):
     )
     def test_resolver_public_domain_overrides(self):
         with override_settings(USE_SUBDOMAIN=False):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://readthedocs.org/docs/pip/en/latest/')
         with override_settings(USE_SUBDOMAIN=True):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(
                 url, 'http://pip.public.readthedocs.org/en/latest/',
             )
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(
                 url, 'http://pip.public.readthedocs.org/en/latest/',
             )
@@ -630,14 +685,14 @@ class ResolverTests(ResolverBase):
             canonical=True,
         )
         with override_settings(USE_SUBDOMAIN=True):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
         with override_settings(USE_SUBDOMAIN=False):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://docs.foobar.com/en/latest/')
 
     @override_settings(
@@ -647,14 +702,14 @@ class ResolverTests(ResolverBase):
     )
     def test_resolver_domain_https(self):
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'https://pip.readthedocs.io/en/latest/')
 
-            url = resolve(project=self.pip, private=False)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'https://pip.readthedocs.io/en/latest/')
 
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=False):
-            url = resolve(project=self.pip, private=True)
+            url = resolve(project=self.pip)
             self.assertEqual(url, 'http://pip.readthedocs.io/en/latest/')
 
 
@@ -769,8 +824,8 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://{project.slug}.readthedocs.io/projects/'
                 '{subproject.slug}/en/latest/'
             ).format(
-                 project=self.superproject_en,
-                 subproject=self.subproject_en,
+                project=self.superproject_en,
+                subproject=self.subproject_en,
             ),
         )
 
@@ -781,8 +836,8 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://{project.slug}.readthedocs.io/projects/'
                 '{subproject.slug}/es/latest/'
             ).format(
-                 project=self.superproject_en,
-                 subproject=self.subproject_en,
+                project=self.superproject_en,
+                subproject=self.subproject_en,
             ),
         )
         # yapf: enable
@@ -811,7 +866,7 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://docs.example.com/projects/'
                 '{subproject.slug}/en/latest/'
             ).format(
-                 subproject=self.subproject_en,
+                subproject=self.subproject_en,
             ),
         )
 
@@ -822,7 +877,7 @@ class TestSubprojectsWithTranslations(TestCase):
                 'http://docs.example.com/projects/'
                 '{subproject.slug}/es/latest/'
             ).format(
-                 subproject=self.subproject_en,
+                subproject=self.subproject_en,
             ),
         )
         # yapf: enable

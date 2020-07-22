@@ -5,16 +5,16 @@ from os.path import exists
 from tempfile import mkdtemp
 import textwrap
 
+from django.test import TestCase
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
-from mock import Mock, patch
+from unittest.mock import Mock, patch
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature, Project
-from readthedocs.rtd_tests.base import RTDTestCase
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
     create_git_tag,
@@ -25,7 +25,7 @@ from readthedocs.rtd_tests.utils import (
 )
 
 
-class TestGitBackend(RTDTestCase):
+class TestGitBackend(TestCase):
     def setUp(self):
         git_repo = make_test_git()
         super().setUp()
@@ -43,6 +43,43 @@ class TestGitBackend(RTDTestCase):
         # These are the default values from v1
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
+
+    def test_git_lsremote(self):
+        repo_path = self.project.repo
+        default_branches = [
+            # comes from ``make_test_git`` function
+            'submodule',
+            'invalidsubmodule',
+        ]
+        branches = [
+            'develop',
+            'master',
+            '2.0.X',
+            'release/2.0.0',
+            'release/foo/bar',
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        create_git_tag(repo_path, 'v01')
+        create_git_tag(repo_path, 'v02', annotated=True)
+        create_git_tag(repo_path, 'release-ünîø∂é')
+
+        repo = self.project.vcs_repo()
+        # create the working dir if it not exists. It's required to ``cwd`` to
+        # execute the command
+        repo.check_working_dir()
+        repo_branches, repo_tags = repo.lsremote
+
+        self.assertEqual(
+            set(branches + default_branches),
+            {branch.verbose_name for branch in repo_branches},
+        )
+
+        self.assertEqual(
+            {'v01', 'v02', 'release-ünîø∂é'},
+            {vcs.verbose_name for vcs in repo_tags},
+        )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_git_branches(self, checkout_path):
@@ -277,7 +314,7 @@ class TestGitBackend(RTDTestCase):
         )
 
 
-class TestHgBackend(RTDTestCase):
+class TestHgBackend(TestCase):
 
     def setUp(self):
         hg_repo = make_test_hg()
@@ -306,6 +343,7 @@ class TestHgBackend(RTDTestCase):
 
     def test_update_and_checkout(self):
         repo = self.project.vcs_repo()
+        repo.make_clean_working_dir()
         code, _, _ = repo.update()
         self.assertEqual(code, 0)
         code, _, _ = repo.checkout()

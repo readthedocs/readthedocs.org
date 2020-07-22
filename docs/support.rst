@@ -14,25 +14,21 @@ Good questions for Stack Overflow would be:
 * "How do I structure translations inside of my project for easiest contribution from users?"
 * "How do I use Sphinx to use SVG images in HTML output but PNG in PDF output?"
 
-Community Support
------------------
+User Support
+------------
 
-Read the Docs is supported by community contributions and advertising.
-We hope to bring in enough money
-with our `Gold`_ and `Ethical Ads`_ programs to keep Read the Docs sustainable.
+If you need a specific request for your project or account,
+like more resources, change of the project's slug or username.
+Send an email to support@readthedocs.org.
+We will get to you as soon as possible.
 
-**All people answering your questions are doing it with their own time,
-so please be kind and provide as much information as possible.**
-
-Bugs & Support Issues
-~~~~~~~~~~~~~~~~~~~~~
+Bug Reports
+-----------
 
 You can file bug reports on our `GitHub issue tracker`_,
 and they will be addressed as soon as possible.
-**Support is a volunteer effort**,
-and there is no guaranteed response time.
-If you need answers quickly,
-you can buy commercial support below.
+Please only file issues with our actual codebase there,
+not user support questions
 
 Reporting Issues
 ~~~~~~~~~~~~~~~~
@@ -47,24 +43,13 @@ This includes:
 * Expected result
 * Actual result
 
-Specific Requests
-~~~~~~~~~~~~~~~~~
+Priority Support
+----------------
 
-If you need a specific request for your project or account,
-like more resources, change of the project's slug or username.
-Send an email to support@readthedocs.org.
-
-Commercial Support
-------------------
-
-We offer commercial support with :doc:`Read the Docs for Business </commercial/index>`
+We offer priority support with :doc:`Read the Docs for Business </commercial/index>`
 and we have a dedicated team that responds to support requests during business hours.
 
-For consulting services around documentation systems,
-you can `contact us <mailto:hello@readthedocs.com?subject=Consulting%20Services%20Inquiry>`_
-or read more at https://readthedocs.com/services/#open-source-support.
-
-.. _Stack Overflow: http://stackoverflow.com/questions/tagged/read-the-docs
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/read-the-docs
 .. _Github Issue Tracker: https://github.com/readthedocs/readthedocs.org/issues
 .. _Gold: https://readthedocs.org/accounts/gold/
 .. _Ethical Ads: https://docs.readthedocs.io/en/latest/ethical-advertising.html

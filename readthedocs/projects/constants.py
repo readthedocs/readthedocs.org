@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Project constants.
 
@@ -11,13 +9,20 @@ import re
 
 from django.utils.translation import ugettext_lazy as _
 
-
+SPHINX = 'sphinx'
+MKDOCS = 'mkdocs'
+SPHINX_HTMLDIR = 'sphinx_htmldir'
+SPHINX_SINGLEHTML = 'sphinx_singlehtml'
+# This type is defined by the users in their mkdocs.yml file.
+MKDOCS_HTML = 'mkdocs_html'
 DOCUMENTATION_CHOICES = (
-    ('sphinx', _('Sphinx Html')),
-    ('mkdocs', _('Mkdocs (Markdown)')),
-    ('sphinx_htmldir', _('Sphinx HtmlDir')),
-    ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
+    (SPHINX, _('Sphinx Html')),
+    (MKDOCS, _('Mkdocs (Markdown)')),
+    (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
+    (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + ((MKDOCS_HTML, _('Mkdocs Html Pages')),)
+
 
 MEDIA_TYPE_HTML = 'html'
 MEDIA_TYPE_PDF = 'pdf'
@@ -307,17 +312,23 @@ PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
     re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
     re.compile(r'github.com/(.+)/(.+)'),
     re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
     re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
     re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile(r'bitbucket.org/(.+)/(.+)/?'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'bitbucket.org/(.+)/(.+)/'),
+    re.compile(r'bitbucket.org/(.+)/(.+)'),
     re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
     re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/'),
     re.compile(r'gitlab.com/(.+)/(.+)'),
     re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]
@@ -369,3 +380,9 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 # Git provider names
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
+
+# Set 3 priorities, [low, medium, high] -- default is medium
+# Leave some space on each side of the set to expand if needed
+CELERY_LOW = 3
+CELERY_MEDIUM = 5
+CELERY_HIGH = 7

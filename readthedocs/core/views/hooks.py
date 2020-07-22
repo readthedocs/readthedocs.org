@@ -4,6 +4,7 @@ import logging
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
+from readthedocs.projects.models import Project
 from readthedocs.projects.tasks import sync_repository_task
 
 
@@ -63,7 +64,7 @@ def build_branches(project, branch_list):
     return (to_build, not_building)
 
 
-def sync_versions(project):
+def trigger_sync_versions(project):
     """
     Sync the versions of a repo using its latest version.
 
@@ -73,8 +74,16 @@ def sync_versions(project):
     we always pass the default version.
 
     :returns: The version slug that was used to trigger the clone.
-    :rtype: str
+    :rtype: str or ``None`` if failed
     """
+
+    if not Project.objects.is_active(project):
+        log.warning(
+            'Sync not triggered because Project is not active: project=%s',
+            project.slug,
+        )
+        return None
+
     try:
         version_identifier = project.get_default_branch()
         version = (
@@ -85,7 +94,21 @@ def sync_versions(project):
         if not version:
             log.info('Unable to sync from %s version', version_identifier)
             return None
-        sync_repository_task.delay(version.pk)
+
+        options = {}
+        if project.build_queue:
+            # respect the queue for this project
+            options['queue'] = project.build_queue
+
+        log.info(
+            'Triggering sync repository. project=%s version=%s',
+            version.project.slug,
+            version.slug,
+        )
+        sync_repository_task.apply_async(
+            (version.pk,),
+            **options,
+        )
         return version.slug
     except Exception:
         log.exception('Unknown sync versions exception')

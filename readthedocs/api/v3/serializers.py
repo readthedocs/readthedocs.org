@@ -3,7 +3,7 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import ugettext as _
 
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -11,6 +11,7 @@ from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.utils import slugify
 from readthedocs.projects.constants import (
     LANGUAGES,
     PROGRAMMING_LANGUAGES,
@@ -98,7 +99,7 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, instance):
+    def to_representation(self, instance):  # pylint: disable=arguments-differ
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
         return instance
@@ -159,14 +160,6 @@ class BuildSerializer(FlexFieldsModelSerializer):
         return None
 
 
-class PrivacyLevelSerializer(serializers.Serializer):
-    code = serializers.CharField(source='privacy_level')
-    name = serializers.SerializerMethodField()
-
-    def get_name(self, obj):
-        return obj.privacy_level.title()
-
-
 class VersionLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
@@ -212,7 +205,6 @@ class VersionURLsSerializer(serializers.Serializer):
 
 class VersionSerializer(FlexFieldsModelSerializer):
 
-    privacy_level = PrivacyLevelSerializer(source='*')
     ref = serializers.CharField()
     downloads = serializers.SerializerMethodField()
     urls = VersionURLsSerializer(source='*')
@@ -228,7 +220,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'ref',
             'built',
             'active',
-            'privacy_level',
+            'hidden',
             'type',
             'downloads',
             'urls',
@@ -246,7 +238,12 @@ class VersionSerializer(FlexFieldsModelSerializer):
         data = {}
 
         for k, v in downloads.items():
-            if k in ('htmlzip', 'pdf', 'epub'):
+            if k in ('html', 'pdf', 'epub'):
+
+                # Keep backward compatibility
+                if k == 'html':
+                    k = 'htmlzip'
+
                 data[k] = ('http:' if settings.DEBUG else 'https:') + v
 
         return data
@@ -257,14 +254,13 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It only allows to make the Version active/non-active and private/public.
+    It only allows to make the Version active/non-active.
     """
 
     class Meta:
         model = Version
         fields = [
             'active',
-            'privacy_level',
         ]
 
 
@@ -426,6 +422,14 @@ class ProjectCreateSerializer(FlexFieldsModelSerializer):
             'homepage',
         )
 
+    def validate_name(self, value):
+        potential_slug = slugify(value)
+        if Project.objects.filter(slug=potential_slug).exists():
+            raise serializers.ValidationError(
+                _('Project with slug "{0}" already exists.').format(potential_slug),
+            )
+        return value
+
 
 class ProjectUpdateSerializer(FlexFieldsModelSerializer):
 
@@ -433,11 +437,6 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
 
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url')
-
-    # Exclude ``Protected`` as a possible value for Privacy Level
-    privacy_level_choices = list(PRIVACY_CHOICES)
-    privacy_level_choices.remove((PROTECTED, _('Protected')))
-    privacy_level = serializers.ChoiceField(choices=privacy_level_choices)
 
     class Meta:
         model = Project
@@ -452,8 +451,8 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',
-            'privacy_level',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
 
@@ -468,7 +467,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
     repository = RepositorySerializer(source='*')
-    privacy_level = PrivacyLevelSerializer(source='*')
     urls = ProjectURLsSerializer(source='*')
     subproject_of = serializers.SerializerMethodField()
     translation_of = serializers.SerializerMethodField()
@@ -497,7 +495,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'repository',
             'default_version',
             'default_branch',
-            'privacy_level',
             'subproject_of',
             'translation_of',
             'users',
@@ -545,7 +542,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
     child = serializers.SlugRelatedField(
         slug_field='slug',
-        queryset=Project.objects.all(),
+        queryset=Project.objects.none(),
     )
 
     class Meta:
@@ -564,13 +561,21 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
 
         super().__init__(*args, **kwargs)
 
+        user = self.context['request'].user
+        # TODO: Filter projects using project restrictions for subproject.
+        self.fields['child'].queryset = user.projects.all()
+
     def validate_child(self, value):
         # Check the user is maintainer of the child project
         user = self.context['request'].user
         if user not in value.users.all():
             raise serializers.ValidationError(
-                'You do not have permissions on the child project',
+                _('You do not have permissions on the child project'),
             )
+
+        value.is_valid_as_subproject(
+            self.parent_project, serializers.ValidationError
+        )
         return value
 
     def validate_alias(self, value):
@@ -578,23 +583,15 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
         subproject = self.parent_project.subprojects.filter(alias=value)
         if subproject.exists():
             raise serializers.ValidationError(
-                'A subproject with this alias already exists',
+                _('A subproject with this alias already exists'),
             )
         return value
 
     # pylint: disable=arguments-differ
     def validate(self, data):
-        # Check the parent and child are not the same project
-        if data['child'].slug == self.parent_project.slug:
-            raise serializers.ValidationError(
-                'Project can not be subproject of itself',
-            )
-
-        # Check the parent project is not a subproject already
-        if self.parent_project.superprojects.exists():
-            raise serializers.ValidationError(
-                'Subproject nesting is not supported',
-            )
+        self.parent_project.is_valid_as_superproject(
+            serializers.ValidationError
+        )
         return data
 
 

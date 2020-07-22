@@ -1,5 +1,7 @@
 """Endpoint to generate footer HTML."""
 
+import re
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.template import loader as template_loader
@@ -12,7 +14,9 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v2.signals import footer_response
 from readthedocs.builds.constants import LATEST, TAG
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.version_handling import (
     highest_version,
     parse_version_failsafe,
@@ -26,7 +30,13 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    versions_qs = Version.internal.public(project=project)
+    if not project.show_version_warning:
+        return {'is_highest': False}
+
+    versions_qs = (
+        Version.internal.public(project=project)
+        .filter(built=True, active=True)
+    )
 
     # Take preferences over tags only if the project has at least one tag
     if versions_qs.filter(type=TAG).exists():
@@ -44,6 +54,8 @@ def get_version_compare_data(project, base_version=None):
         'is_highest': True,
     }
     if highest_version_obj:
+        # Never link to the dashboard,
+        # users reading the docs may don't have access to the dashboard.
         ret_val['url'] = highest_version_obj.get_absolute_url()
         ret_val['slug'] = highest_version_obj.slug
     if base_version and base_version.slug != LATEST:
@@ -64,7 +76,7 @@ def get_version_compare_data(project, base_version=None):
     return ret_val
 
 
-class FooterHTML(APIView):
+class BaseFooterHTML(APIView):
 
     """
     Render and return footer markup.
@@ -116,6 +128,7 @@ class FooterHTML(APIView):
         project = self._get_project()
         versions = project.ordered_active_versions(
             user=self.request.user,
+            include_hidden=False,
         )
         return versions
 
@@ -133,13 +146,12 @@ class FooterHTML(APIView):
         version = self._get_version()
 
         page_slug = self.request.GET.get('page', '')
+        path = ''
         if page_slug and page_slug != 'index':
-            if main_project.documentation_type == 'sphinx_htmldir':
-                path = page_slug + '/'
+            if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
+                path = re.sub('/index$', '', page_slug) + '/'
             else:
                 path = page_slug + '.html'
-        else:
-            path = ''
 
         context = {
             'project': project,
@@ -220,3 +232,7 @@ class FooterHTML(APIView):
         )
 
         return Response(resp_data)
+
+
+class FooterHTML(SettingsOverrideObject):
+    _default_class = BaseFooterHTML

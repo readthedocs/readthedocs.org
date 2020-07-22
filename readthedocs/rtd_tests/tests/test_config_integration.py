@@ -1,14 +1,14 @@
 import tempfile
 from os import path
 
-import mock
+from unittest import mock
 import pytest
 import yaml
 from django.test import TestCase
 from django_dynamic_fixture import get
-from mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
-from readthedocs.builds.constants import EXTERNAL, BUILD_STATE_TRIGGERED
+from readthedocs.builds.constants import BUILD_STATE_TRIGGERED, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.config import (
     ALL,
@@ -20,12 +20,12 @@ from readthedocs.config import (
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.config.tests.utils import apply_fs
 from readthedocs.doc_builder.config import load_yaml_config
+from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects import tasks
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_git_submodule, make_git_repo
-from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
 
 
 def create_load(config=None):
@@ -75,6 +75,7 @@ class LoadConfigTests(TestCase):
             Project,
             main_language_project=None,
             install_project=False,
+            container_image=None,
         )
         self.version = get(Version, project=self.project)
 
@@ -116,17 +117,6 @@ class LoadConfigTests(TestCase):
         self.assertEqual(config.python.version, 3)
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
-    def test_python_supported_versions_image_1_0(self, load_config):
-        load_config.side_effect = create_load()
-        self.project.container_image = 'readthedocs/build:1.0'
-        self.project.save()
-        config = load_yaml_config(self.version)
-        self.assertEqual(
-            config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.4],
-        )
-
-    @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_python_supported_versions_image_2_0(self, load_config):
         load_config.side_effect = create_load()
         self.project.container_image = 'readthedocs/build:2.0'
@@ -145,7 +135,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            [2, 2.7, 3, 3.5, 3.6, 3.7, 'pypy3.5'],
+            [2, 2.7, 3, 3.5, 3.6, 3.7, 3.8, 'pypy3.5'],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -492,7 +482,7 @@ class TestLoadConfigV2:
         )
 
         update_docs = self.get_update_docs_task()
-        update_docs.run_build(docker=False, record=False)
+        update_docs.run_build(record=False)
 
         assert update_docs.config.conda.environment == conda_file
         assert isinstance(update_docs.python_env, Conda)
@@ -772,6 +762,7 @@ class TestLoadConfigV2:
         [
             ('html', 'sphinx'),
             ('htmldir', 'sphinx_htmldir'),
+            ('dirhtml', 'sphinx_htmldir'),
             ('singlehtml', 'sphinx_singlehtml'),
         ],
     )
@@ -790,9 +781,6 @@ class TestLoadConfigV2:
 
         get_builder_class.assert_called_with(result)
 
-    @pytest.mark.skip(
-        'This test is not compatible with the new validation around doctype.',
-    )
     @patch('readthedocs.projects.tasks.get_builder_class')
     def test_sphinx_builder_default(
             self, get_builder_class, checkout_path, tmpdir,
@@ -945,6 +933,7 @@ class TestLoadConfigV2:
 
         args, kwargs = run.call_args
         assert '-W' in args
+        assert '--keep-going' in args
         append_conf.assert_called_once()
         move.assert_called_once()
 
@@ -1061,7 +1050,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         args, kwargs = checkout_submodules.call_args
         assert set(args[0]) == set(expected)
@@ -1090,7 +1079,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         args, kwargs = checkout_submodules.call_args
         assert set(args[0]) == {'two', 'three'}
@@ -1119,7 +1108,7 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         checkout_submodules.assert_not_called()
 
@@ -1142,6 +1131,6 @@ class TestLoadConfigV2:
 
         update_docs = self.get_update_docs_task()
         checkout_path.return_value = git_repo
-        update_docs.additional_vcs_operations()
+        update_docs.additional_vcs_operations(update_docs.build_env)
 
         checkout_submodules.assert_not_called()

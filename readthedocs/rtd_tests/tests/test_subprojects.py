@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-import mock
+from unittest import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -150,6 +150,57 @@ class SubprojectFormTests(TestCase):
             [''],
         )
 
+    def test_subproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+    def test_superproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': project.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
     def test_exclude_self_project_as_subproject(self):
         user = fixture.get(User)
         project = fixture.get(Project, users=[user])
@@ -202,52 +253,4 @@ class SubprojectFormTests(TestCase):
         self.assertEqual(
             [proj_id for (proj_id, __) in form.fields['child'].choices],
             ['', relation.child.id],
-        )
-
-
-@override_settings(PUBLIC_DOMAIN='readthedocs.org')
-class ResolverBase(TestCase):
-
-    def setUp(self):
-        with mock.patch('readthedocs.projects.models.broadcast'):
-            self.owner = create_user(username='owner', password='test')
-            self.tester = create_user(username='tester', password='test')
-            self.pip = fixture.get(Project, slug='pip', users=[self.owner], main_language_project=None)
-            self.subproject = fixture.get(
-                Project, slug='sub', language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.translation = fixture.get(
-                Project, slug='trans', language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.pip.add_subproject(self.subproject)
-            self.pip.translations.add(self.translation)
-
-        relation = self.pip.subprojects.first()
-        relation.alias = 'sub_alias'
-        relation.save()
-        fixture.get(Project, slug='sub_alias', language='ya')
-
-    @override_settings(
-            PRODUCTION_DOMAIN='readthedocs.org',
-            USE_SUBDOMAIN=False,
-    )
-    def test_resolver_subproject_alias(self):
-        resp = self.client.get('/docs/pip/projects/sub_alias/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp._headers['location'][1],
-            'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/',
-        )
-
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_resolver_subproject_subdomain_alias(self):
-        resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp._headers['location'][1],
-            'http://pip.readthedocs.org/projects/sub_alias/ja/latest/',
         )

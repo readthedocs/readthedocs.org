@@ -4,8 +4,7 @@ from pathlib import Path
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import safe_join, get_available_overwrite_name
-
+from storages.utils import get_available_overwrite_name, safe_join
 
 log = logging.getLogger(__name__)
 
@@ -88,6 +87,48 @@ class BuildMediaStorageMixin:
                 with filepath.open('rb') as fd:
                     self.save(sub_destination, fd)
 
+    def sync_directory(self, source, destination):
+        """
+        Sync a directory recursively to storage.
+
+        Overwrites files in remote storage with files from ``source`` (no timstamp/hash checking).
+        Removes files and folders in remote storage that are not present in ``source``.
+
+        :param source: the source path on the local disk
+        :param destination: the destination path in storage
+        """
+        if destination in ('', '/'):
+            raise SuspiciousFileOperation('Syncing all storage cannot be right')
+
+        log.debug(
+            'Syncing to media storage. source=%s destination=%s',
+            source, destination,
+        )
+        source = Path(source)
+        copied_files = set()
+        copied_dirs = set()
+        for filepath in source.iterdir():
+            sub_destination = self.join(destination, filepath.name)
+            if filepath.is_dir():
+                # Recursively sync the subdirectory
+                self.sync_directory(filepath, sub_destination)
+                copied_dirs.add(filepath.name)
+            elif filepath.is_file():
+                with filepath.open('rb') as fd:
+                    self.save(sub_destination, fd)
+                copied_files.add(filepath.name)
+
+        # Remove files that are not present in ``source``
+        dest_folders, dest_files = self.listdir(self._dirpath(destination))
+        for folder in dest_folders:
+            if folder not in copied_dirs:
+                self.delete_directory(self.join(destination, folder))
+        for filename in dest_files:
+            if filename not in copied_files:
+                filepath = self.join(destination, filename)
+                log.debug('Deleting file from media storage. file=%s', filepath)
+                self.delete(filepath)
+
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
 
@@ -145,3 +186,16 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         if not self.exists(path):
             return [], []
         return super().listdir(path)
+
+    def url(self, name, *args, **kwargs):  # noqa
+        """
+        Override to accept extra arguments and ignore them all.
+
+        This method helps us to bring compatibility between Azure Blob Storage
+        (which does not use the HTTP method) and Amazon S3 (who requires HTTP
+        method to build the signed URL).
+
+        ``FileSystemStorage`` does not support any other argument than ``name``.
+        https://docs.djangoproject.com/en/2.2/ref/files/storage/#django.core.files.storage.Storage.url
+        """
+        return super().url(name)
