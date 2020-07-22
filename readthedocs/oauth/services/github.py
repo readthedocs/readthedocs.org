@@ -7,7 +7,6 @@ import re
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
-from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException

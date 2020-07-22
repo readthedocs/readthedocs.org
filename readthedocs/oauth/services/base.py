@@ -6,6 +6,7 @@ from datetime import datetime
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
+from django.db.models import Q
 from django.utils import timezone
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
 from requests.exceptions import RequestException
@@ -192,6 +193,8 @@ class Service:
         - deletes old RemoteRepository/Organization that are not present for this user
         """
         repos = self.sync_repositories()
+        organizations, organization_repos = self.sync_organizations()
+
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
         repository_full_names = self.get_repository_full_names(repos + organization_repos)
@@ -199,7 +202,6 @@ class Service:
             Q(full_name__in=repository_full_names) | Q(project__isnull=False)
         ).delete()
 
-        organizations, organization_repos = self.sync_organizations()
         # Delete RemoteOrganization where the user doesn't have access anymore
         organization_names = self.get_organization_names(organizations)
         self.user.oauth_organizations.exclude(name__in=organization_names).delete()
