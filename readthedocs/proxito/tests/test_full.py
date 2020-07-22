@@ -1,11 +1,9 @@
-# Copied from .org
-
 import os
+from textwrap import dedent
 from unittest import mock
 
 import django_dynamic_fixture as fixture
 from django.conf import settings
-from textwrap import dedent
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test.utils import override_settings
@@ -16,13 +14,13 @@ from readthedocs.builds.models import Version
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     MKDOCS,
+    PRIVATE,
+    PUBLIC,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
-    PUBLIC,
-    PRIVATE,
 )
-from readthedocs.projects.models import Project, Domain
+from readthedocs.projects.models import Domain, Project
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 
 from .base import BaseDocServing
@@ -881,6 +879,34 @@ class TestAdditionalDocViews(BaseDocServing):
         self.project.versions.update(active=True, built=True, privacy_level=constants.PRIVATE)
         response = self.client.get(
             reverse('sitemap_xml'),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_serve_static_file(self):
+        response = self.client.get(
+            reverse(
+                'project_static',
+                args=['javascript/readthedocs-doc-embed.js'],
+            ),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.get(
+            reverse(
+                'project_static',
+                args=['javascript/foobar.js'],
+            ),
+            HTTP_HOST='project.readthedocs.io',
+        )
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(
+            reverse(
+                'project_static',
+                args=['../../javascript/readthedocs-doc-embed.js'],
+            ),
             HTTP_HOST='project.readthedocs.io',
         )
         self.assertEqual(response.status_code, 404)

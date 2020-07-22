@@ -573,6 +573,9 @@ class Project(models.Model):
 
         return path
 
+    def get_static_path(self):
+        return self.proxied_api_host + '/static/'
+
     @property
     def proxied_api_host(self):
         """

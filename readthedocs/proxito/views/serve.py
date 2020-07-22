@@ -4,8 +4,8 @@ import itertools
 import logging
 from urllib.parse import urlparse
 
-from readthedocs.core.resolver import resolve_path
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.storage import get_storage_class
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -16,6 +16,7 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
@@ -555,4 +556,38 @@ class ServeSitemapXMLBase(View):
 
 
 class ServeSitemapXML(SettingsOverrideObject):
+
     _default_class = ServeSitemapXMLBase
+
+
+class ServeStaticFiles(ServeDocsMixin, View):
+
+    """
+    Serve static files from the same domain the docs are being served.
+
+    AdBlockers and similar don't like calls from external domains,
+    so features like server side search (SSS) don't work, so we serve these
+    files from the same domain instead.
+
+    .. note::
+
+       This can be done at the nginx level too.
+       Serving the static files from django can allow us to disable
+       some features like SSS without users needing to rebuild their docs.
+    """
+
+    def get(self, request, filename):
+        filename = filename.lstrip('/')
+        allowed_files = {
+            'javascript/readthedocs-doc-embed.js',
+            'javascript/readthedocs-analytics.js',
+            'css/readthedocs-doc-embed.css',
+            'css/sphinx_rtd_theme.css',
+            'css/badge_only.css',
+        }
+        if filename not in allowed_files:
+            raise Http404()
+
+        url = staticfiles_storage.url(filename)
+        path = urlparse(url).path
+        return self._serve_static_file(request, path)

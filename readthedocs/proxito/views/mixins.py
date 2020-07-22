@@ -2,18 +2,19 @@ import copy
 import logging
 import mimetypes
 from urllib.parse import urlparse, urlunparse
-from slugify import slugify as unicode_slugify
 
 from django.conf import settings
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.files.storage import get_storage_class
 from django.http import (
     HttpResponse,
-    HttpResponseRedirect,
     HttpResponsePermanentRedirect,
+    HttpResponseRedirect,
 )
 from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
+from slugify import slugify as unicode_slugify
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
@@ -64,17 +65,24 @@ class ServeDocsMixin:
             download=download,
         )
 
+    def _serve_static_file(self, request, path):
+        if settings.PYTHON_MEDIA:
+            return self._serve_from_python(request, path, staticfiles_storage)
+        return self._serve_from_nginx(request, path)
+
     def _serve_docs_python(self, request, final_project, path):
+        """Serve docs from Python."""
+        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
+        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
+        return self._serve_from_python(request, path, storage)
+
+    def _serve_from_python(self, request, path, storage):
         """
-        Serve docs from Python.
+        Serve files from Python.
 
         .. warning:: Don't do this in production!
         """
-        log.debug('[Django serve] path=%s, project=%s', path, final_project.slug)
-
-        storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
         root_path = storage.path('')
-        # Serve from Python
         return serve(request, path, root_path)
 
     def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
@@ -84,15 +92,37 @@ class ServeDocsMixin:
         Returns a response with ``X-Accel-Redirect``, which will cause nginx to
         serve it directly as an internal redirect.
         """
+        response = self._serve_from_nginx(request, path)
 
+        if download:
+            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
+            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
+            if final_project.is_subproject:
+                alias = final_project.alias
+                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
+            else:
+                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
+            response['Content-Disposition'] = f'filename={filename}'
+
+        return response
+
+    def _serve_from_nginx(self, request, path):
+        """
+        Serves a file from nginx.
+
+        Returns a response with ``X-Accel-Redirect``, which will cause nginx to
+        serve it directly as an internal redirect.
+        """
         original_path = copy.copy(path)
         if not path.startswith('/proxito/'):
             if path[0] == '/':
                 path = path[1:]
             path = f'/proxito/{path}'
 
-        log.debug('[Nginx serve] original_path=%s, proxito_path=%s, project=%s',
-                  original_path, path, final_project.slug)
+        log.debug(
+            '[Nginx serve] original_path=%s, proxito_path=%s',
+            original_path, path,
+        )
 
         content_type, encoding = mimetypes.guess_type(path)
         content_type = content_type or 'application/octet-stream'
@@ -109,16 +139,6 @@ class ServeDocsMixin:
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
         x_accel_redirect = iri_to_uri(path)
         response['X-Accel-Redirect'] = x_accel_redirect
-
-        if download:
-            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
-            if final_project.is_subproject:
-                alias = final_project.alias
-                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
-            else:
-                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
-            response['Content-Disposition'] = f'filename={filename}'
 
         response.proxito_path = urlparse(path).path
         return response

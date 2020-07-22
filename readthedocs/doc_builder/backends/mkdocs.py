@@ -17,23 +17,7 @@ from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
 from readthedocs.projects.models import Feature
 
-
 log = logging.getLogger(__name__)
-
-
-def get_absolute_static_url():
-    """
-    Get the fully qualified static URL from settings.
-
-    Mkdocs needs a full domain because it tries to link to local files.
-    """
-    static_url = settings.STATIC_URL
-
-    if not static_url.startswith('http'):
-        domain = settings.PRODUCTION_DOMAIN
-        static_url = 'http://{}{}'.format(domain, static_url)
-
-    return static_url
 
 
 class BaseMkdocs(BaseBuilder):
@@ -152,7 +136,7 @@ class BaseMkdocs(BaseBuilder):
         user_config['docs_dir'] = docs_dir
 
         # Set mkdocs config values
-        static_url = get_absolute_static_url()
+        static_url = self.project.get_static_path()
 
         for config in ('extra_css', 'extra_javascript'):
             user_value = user_config.get(config, [])
@@ -165,7 +149,7 @@ class BaseMkdocs(BaseBuilder):
 
         extra_javascript_list = [
             'readthedocs-data.js',
-            '%score/js/readthedocs-doc-embed.js' % static_url,
+            '%sjavascript/readthedocs-doc-embed.js' % static_url,
             '%sjavascript/readthedocs-analytics.js' % static_url,
         ]
         extra_css_list = [
