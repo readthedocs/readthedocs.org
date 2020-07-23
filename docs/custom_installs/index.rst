@@ -21,3 +21,4 @@ It has those features and more!
 
     local_rtd_vm
     customization
+    github_pages
