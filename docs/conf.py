@@ -133,6 +133,8 @@ linkcheck_ignore = [
     r'https://github\.com/readthedocs/readthedocs\.org/pull',
     r'https://docs\.readthedocs\.io/\?rtd_search',
     r'https://readthedocs\.org/search',
+    # This page is under login
+    r'https://readthedocs\.org/accounts/gold',
 ]
 
 

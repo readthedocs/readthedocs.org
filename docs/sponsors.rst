@@ -32,7 +32,7 @@ Past sponsors
 .. _Lab305: http://www.lab305.com/
 .. _Rackspace: https://www.rackspace.com/
 .. _Mozilla: https://www.mozilla.org/en-US/
-.. _Twilio: https://twilio.com/
+.. _Twilio: https://www.twilio.com/
 .. _Cloudflare: https://www.cloudflare.com/
 .. _Microsoft Azure: https://azure.microsoft.com/
 
@@ -40,8 +40,8 @@ Past sponsors
 Sponsorship Information
 -----------------------
 
-As part of increasing sustainability, 
-Read the Docs is testing out promoting sponsors on documentation pages. 
+As part of increasing sustainability,
+Read the Docs is testing out promoting sponsors on documentation pages.
 We have more information about this in our `blog post <https://blog.readthedocs.com/ads-on-read-the-docs/>`_ about this effort.
 
 Sponsor Us
