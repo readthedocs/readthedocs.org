@@ -5,6 +5,7 @@ Read the Docs supports configuring your documentation builds with a YAML file.
 The :doc:`configuration file <index>` must be in the root directory of your project.
 We recommend the filename ``.readthedocs.yml``.
 
+All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
 
 .. code:: yaml
