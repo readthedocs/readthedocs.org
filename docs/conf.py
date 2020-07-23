@@ -125,6 +125,7 @@ notfound_context = {
 linkcheck_ignore = [
     r'http://127\.0\.0\.1',
     r'http://localhost',
+    r'http://community\.dev\.readthedocs\.io',
     r'https://yourproject\.readthedocs\.io',
     r'https?://docs\.example\.com',
     r'https://foo\.readthedocs\.io/projects',
