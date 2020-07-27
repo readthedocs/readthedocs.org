@@ -75,7 +75,7 @@ pytz==2020.1
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.49.0
-regex==2020.6.8
+regex==2020.7.14
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
