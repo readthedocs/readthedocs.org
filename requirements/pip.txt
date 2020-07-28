@@ -66,8 +66,8 @@ git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17
 django-elasticsearch-dsl==0.5.1  # pyup: ignore
 selectolax==0.2.1
 
-# Ignoring orjson for now because it makes Travis to fail
-orjson==2.0.7  # pyup: ignore
+# Updated last, see: https://github.com/readthedocs/readthedocs.org/issues/7313
+orjson==3.3.0
 
 # Utils
 django-gravatar2==1.4.4
