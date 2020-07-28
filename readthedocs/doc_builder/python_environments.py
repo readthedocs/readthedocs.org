@@ -295,14 +295,18 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        """Create a virtualenv, invoking python -m virtualenv"""
+        """
+        Create a virtualenv, invoking python -m virtualenv
 
-        # --no-download was removed because of the pip breakage,
-        # it was sometimes installing pip 20.0 which broke everything
-        # https://github.com/readthedocs/readthedocs.org/issues/6585
+        .. note::
 
-        # Important not to add empty string arguments, see:
-        # https://github.com/readthedocs/readthedocs.org/issues/7322
+            ``--no-download`` was removed because of the pip breakage,
+            it was sometimes installing pip 20.0 which broke everything
+            https://github.com/readthedocs/readthedocs.org/issues/6585
+
+            Important not to add empty string arguments, see:
+            https://github.com/readthedocs/readthedocs.org/issues/7322
+        """
         cli_args = [
             '-mvirtualenv',
         ]
