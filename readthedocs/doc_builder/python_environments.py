@@ -296,7 +296,7 @@ class Virtualenv(PythonEnvironment):
 
     def setup_base(self):
         """
-        Create a virtualenv, invoking python -m virtualenv
+        Create a virtualenv, invoking ``python -mvirtualenv``.
 
         .. note::
 
