@@ -69,7 +69,7 @@
     <h3>{% trans "Badge" %}</h3>
       <img src="{{ badge_url }}" />
       <a href="{{ site_url }}" style="text-decoration: none;" onclick="$('#badge_markup').toggle(); return false;">
-        <span class="badge-info" title="Get this badge"></span> 
+        <span class="badge-info" title="Get this badge"></span>
       </a>
       {% include "core/badge_markup.html" with badge_url=badge_url site_url=site_url %}
 {% endblock %}
@@ -85,8 +85,7 @@
         {% endfor %}
     {% else %}
       {% trans "Project has no tags." %}
-      {% if request.user|is_admin:project %}
-
+      {% if is_project_admin %}
         {% url 'projects_edit' project.slug as edit_url %}
           {% blocktrans trimmed %}
           Add some in your <a href="{{ edit_url }}">project settings</a>.

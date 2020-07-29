@@ -1,3 +1,41 @@
+Version 5.2.2
+-------------
+
+:Date: July 29, 2020
+
+* `@agjohnson <https://github.com/agjohnson>`__: Reduce robots.txt cache TTL (`#7334 <https://github.com/readthedocs/readthedocs.org/pull/7334>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use the privacy embed for YouTube (`#7320 <https://github.com/readthedocs/readthedocs.org/pull/7320>`__)
+* `@DougCal <https://github.com/DougCal>`__: re-worded text on top of "Import a Repository" (`#7318 <https://github.com/readthedocs/readthedocs.org/pull/7318>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it clear the config file options are per version (`#7314 <https://github.com/readthedocs/readthedocs.org/pull/7314>`__)
+* `@humitos <https://github.com/humitos>`__: Feature to disable auto-generated index.md/README.rst files (`#7305 <https://github.com/readthedocs/readthedocs.org/pull/7305>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: always exclude the build directory (`#7303 <https://github.com/readthedocs/readthedocs.org/pull/7303>`__)
+* `@humitos <https://github.com/humitos>`__: Enable SessionAuthentication on APIv3 endpoints (`#7295 <https://github.com/readthedocs/readthedocs.org/pull/7295>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend TeamManager (`#7294 <https://github.com/readthedocs/readthedocs.org/pull/7294>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 28 (`#7287 <https://github.com/readthedocs/readthedocs.org/pull/7287>`__)
+* `@humitos <https://github.com/humitos>`__: Make "homepage" optional when updating a project (`#7286 <https://github.com/readthedocs/readthedocs.org/pull/7286>`__)
+* `@humitos <https://github.com/humitos>`__: Allow users to set hidden on versions via APIv3 (`#7285 <https://github.com/readthedocs/readthedocs.org/pull/7285>`__)
+* `@humitos <https://github.com/humitos>`__: DONT_INSTALL_DOCUTILS feature flag (`#7276 <https://github.com/readthedocs/readthedocs.org/pull/7276>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
+Version 5.2.1
+-------------
+
+:Date: July 14, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix a case where "tags" is interpreted as a project slug (`#7284 <https://github.com/readthedocs/readthedocs.org/pull/7284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Dashboard: little optimization (`#7281 <https://github.com/readthedocs/readthedocs.org/pull/7281>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: privacy levels (`#7278 <https://github.com/readthedocs/readthedocs.org/pull/7278>`__)
+* `@stsewd <https://github.com/stsewd>`__: Templates: optimize permissions check (`#7277 <https://github.com/readthedocs/readthedocs.org/pull/7277>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix versions (`#7271 <https://github.com/readthedocs/readthedocs.org/pull/7271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tweak priority a little more (`#7270 <https://github.com/readthedocs/readthedocs.org/pull/7270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Don't default on the migration (`#7269 <https://github.com/readthedocs/readthedocs.org/pull/7269>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Automation rule to make versions hidden added (`#7265 <https://github.com/readthedocs/readthedocs.org/pull/7265>`__)
+* `@humitos <https://github.com/humitos>`__: Add `is_member` template filter (`#7264 <https://github.com/readthedocs/readthedocs.org/pull/7264>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: set ranking for some pages (`#7257 <https://github.com/readthedocs/readthedocs.org/pull/7257>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: add --keep-going when fail_on_warning is true (`#7251 <https://github.com/readthedocs/readthedocs.org/pull/7251>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Don't allow Domain name matching production domain to be created (`#7244 <https://github.com/readthedocs/readthedocs.org/pull/7244>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
 Version 5.2.0
 -------------
 

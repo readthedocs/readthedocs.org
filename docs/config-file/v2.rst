@@ -5,6 +5,7 @@ Read the Docs supports configuring your documentation builds with a YAML file.
 The :doc:`configuration file <index>` must be in the root directory of your project.
 We recommend the filename ``.readthedocs.yml``.
 
+All options are applied to the version containing this file.
 Below is an example YAML file which shows the most common configuration options:
 
 .. code:: yaml
@@ -341,7 +342,7 @@ sphinx.fail_on_warning
 ``````````````````````
 
 `Turn warnings into errors <http://www.sphinx-doc.org/en/master/man/sphinx-build.html#id6>`__.
-This means that the build stops at the first warning and exits with exit status 1.
+This means the build fails if there is a warning and exits with exit status 1.
 
 :Type: ``bool``
 :Default: ``false``

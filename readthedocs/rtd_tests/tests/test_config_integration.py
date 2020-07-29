@@ -933,6 +933,7 @@ class TestLoadConfigV2:
 
         args, kwargs = run.call_args
         assert '-W' in args
+        assert '--keep-going' in args
         append_conf.assert_called_once()
         move.assert_called_once()
 
