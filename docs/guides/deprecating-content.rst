@@ -16,22 +16,16 @@ Deprecating versions
 
 If you have multiple versions of your project,
 it makes sense to have its :doc:`documentation versioned </versions>` as well.
-For example, if you have the following versions and want to deprecate V1.
+For example, if you have the following versions and want to deprecate v1.
 
-- project.readthedocs.io/en/v1/
-- project.readthedocs.io/en/v2/
-- project.readthedocs.io/en/v3/
+- ``https://project.readthedocs.io/en/v1/``
+- ``https://project.readthedocs.io/en/v2/``
+- ``https://project.readthedocs.io/en/v3/``
 
 For cases like this you can *hide* a version.
 Hidden versions won't be listed in the versions menu of your docs,
 and they will be listed in a :ref:`robots.txt file <hosting:custom robots.txt pages>`
-to stop search engines of showing results for that version::
-
-   # project.readthedocs.io/robots.txt
-
-   User-agent: *
-
-   Disallow: /en/v1/ # Hidden version
+to stop search engines of showing results for that version.
 
 Users can still see all versions in the dashboard of your project.
 To hide a version go to your project and click on :guilabel:`Versions` > :guilabel:`Edit`,
@@ -50,10 +44,10 @@ Deprecating content
 -------------------
 
 You may not always want to deprecate a version, but deprecate some pages.
-For example, if you have documentation about two APIs and you want to deprecate V1:
+For example, if you have documentation about two APIs and you want to deprecate v1:
 
-- project.readthedocs.io/en/latest/api/v1.html
-- project.readthedocs.io/en/latest/api/v2.html
+- ``https://project.readthedocs.io/en/latest/api/v1.html``
+- ``https://project.readthedocs.io/en/latest/api/v2.html``
 
 A simple way is just adding a warning at the top of the page,
 this will warn users visiting that page,
@@ -84,6 +78,13 @@ This wont hide results from that page, but it will give priority to results from
 
 .. TODO: mention search.ignore when it's implemented.
 
+
+.. tip::
+
+   If you are using Sphinx with reStructuredText,
+   you can make use of some :doc:`directives <sphinx:usage/restructuredtext/directives>`
+   like ``warning``, ``deprecated``, ``versionchanged`` to warn your users about deprecated content.
+
 Moving and deleting pages
 -------------------------
 
@@ -94,6 +95,6 @@ But be aware that users may have links of that page saved,
 and it will be frustrating and confusing for them to get a 404.
 
 To solve that problem you can create a redirect to a page with a similar feature/content,
-like redirecting to the docs of the V2 of your API when your users visit the deleted docs from V1,
+like redirecting to the docs of the v2 of your API when your users visit the deleted docs from v1,
 this is a :ref:`page redirect <user-defined-redirects:page redirects>` from ``/api/v1.html`` to ``/api/v2.html``.
 See :doc:`/user-defined-redirects`.
