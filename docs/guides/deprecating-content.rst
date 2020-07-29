@@ -22,8 +22,8 @@ For example, if you have the following versions and want to deprecate V1.
 - project.readthedocs.io/en/v2/
 - project.readthedocs.io/en/v3/
 
-For cases like this you can *hide* a version,
-hidden versions won't be listed in the versions menu of your docs,
+For cases like this you can *hide* a version.
+Hidden versions won't be listed in the versions menu of your docs,
 and they will be listed in a :ref:`robots.txt file <hosting:custom robots.txt pages>`
 to stop search engines of showing results for that version::
 
