@@ -12,7 +12,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0057_add_page_rank'),
+        ('projects', '0058_update_timestamp_fields'),
     ]
 
     operations = [
