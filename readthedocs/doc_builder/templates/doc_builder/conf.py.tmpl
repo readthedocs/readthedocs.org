@@ -178,3 +178,7 @@ if chinese:
     latex_elements = latex_elements_user or latex_elements_rtd
 elif japanese:
     latex_engine = latex_engine_user or 'platex'
+
+# Make sure our build directory is always excluded
+exclude_patterns = globals().get('exclude_patterns', [])
+exclude_patterns.extend(['_build'])
