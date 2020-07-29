@@ -1,3 +1,22 @@
+Version 5.2.2
+-------------
+
+:Date: July 29, 2020
+
+* `@agjohnson <https://github.com/agjohnson>`__: Reduce robots.txt cache TTL (`#7334 <https://github.com/readthedocs/readthedocs.org/pull/7334>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Use the privacy embed for YouTube (`#7320 <https://github.com/readthedocs/readthedocs.org/pull/7320>`__)
+* `@DougCal <https://github.com/DougCal>`__: re-worded text on top of "Import a Repository" (`#7318 <https://github.com/readthedocs/readthedocs.org/pull/7318>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it clear the config file options are per version (`#7314 <https://github.com/readthedocs/readthedocs.org/pull/7314>`__)
+* `@humitos <https://github.com/humitos>`__: Feature to disable auto-generated index.md/README.rst files (`#7305 <https://github.com/readthedocs/readthedocs.org/pull/7305>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx: always exclude the build directory (`#7303 <https://github.com/readthedocs/readthedocs.org/pull/7303>`__)
+* `@humitos <https://github.com/humitos>`__: Enable SessionAuthentication on APIv3 endpoints (`#7295 <https://github.com/readthedocs/readthedocs.org/pull/7295>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend TeamManager (`#7294 <https://github.com/readthedocs/readthedocs.org/pull/7294>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 28 (`#7287 <https://github.com/readthedocs/readthedocs.org/pull/7287>`__)
+* `@humitos <https://github.com/humitos>`__: Make "homepage" optional when updating a project (`#7286 <https://github.com/readthedocs/readthedocs.org/pull/7286>`__)
+* `@humitos <https://github.com/humitos>`__: Allow users to set hidden on versions via APIv3 (`#7285 <https://github.com/readthedocs/readthedocs.org/pull/7285>`__)
+* `@humitos <https://github.com/humitos>`__: DONT_INSTALL_DOCUTILS feature flag (`#7276 <https://github.com/readthedocs/readthedocs.org/pull/7276>`__)
+* `@humitos <https://github.com/humitos>`__: Documentation for Sigle Sign-On feature on commercial (`#7212 <https://github.com/readthedocs/readthedocs.org/pull/7212>`__)
+
 Version 5.2.1
 -------------
 
