@@ -6,6 +6,9 @@ import json
 import logging
 import re
 
+from allauth.socialaccount.providers.github.provider import GitHubProvider
+from allauth.socialaccount.models import SocialAccount
+
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -33,6 +36,7 @@ log = logging.getLogger(__name__)
 
 GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
 GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
+GITHUB_MEMBER = 'member'
 GITHUB_PUSH = 'push'
 GITHUB_PULL_REQUEST = 'pull_request'
 GITHUB_PULL_REQUEST_OPENED = 'opened'
@@ -451,6 +455,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_response_push(self.project, branches)
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+
+        # Re-sync repositories for the user if any permission has changed
+        if event == GITHUB_MEMBER:
+            uid = self.data.get('member').get('id')
+            socialaccount = SocialAccount.objects.get(
+                provider=GitHubProvider.id,
+                uid=uid,
+            )
+            service = GitHubService(user=socialaccount.user, account=socialaccount)
+            service.sync()
 
         return None
 

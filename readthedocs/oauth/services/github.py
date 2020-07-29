@@ -218,7 +218,7 @@ class GitHubService(Service):
                 'secret': integration.secret,
                 'content_type': 'json',
             },
-            'events': ['push', 'pull_request', 'create', 'delete'],
+            'events': ['push', 'pull_request', 'create', 'delete', 'member'],
         })
 
     def get_provider_data(self, project, integration):
