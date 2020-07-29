@@ -147,43 +147,29 @@ class GitLabService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['name_with_namespace'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['name_with_namespace'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
-
+            repo, created = RemoteRepository.objects.get_or_create(
+                remote_id=fields['id'],
+                provider=self.adapter.provider_id,
+            )
             if repo.organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs',
-                    fields['name'],
+                    'Not importing %s because mismatched orgs. full_name=%s',
+                    fields['name_with_namespace'],
                 )
                 return None
 
+            repo.full_name = fields['name_with_namespace'],
             repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
             repo.ssh_url = fields['ssh_url_to_repo']
             repo.html_url = fields['web_url']
             repo.private = not repo_is_public
+            repo.vcs = 'git'
             if repo.private:
                 repo.clone_url = repo.ssh_url
             else:
                 repo.clone_url = fields['http_url_to_repo']
-
-            repo.admin = not repo_is_public
-            if not repo.admin and 'owner' in fields:
-                repo.admin = self.is_owned_by(fields['owner']['id'])
-
-            repo.vcs = 'git'
-            repo.account = self.account
 
             owner = fields.get('owner') or {}
             repo.avatar_url = (
@@ -191,13 +177,24 @@ class GitLabService(Service):
             )
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-
-            repo.json = json.dumps(fields)
             repo.save()
+
+            relation, created = RemoteRepositoryRelationship.objects.get_or_create(
+                user=self.user,
+                account=self.account,
+                repository=repo,
+            )
+            relation.account = self.account
+            relation.admin = not repo_is_public
+            if not relation.admin and 'owner' in fields:
+                relation.admin = self.is_owned_by(fields['owner']['id'])
+            relation.json = json.dumps(fields)
+            relation.save()
+
             return repo
 
         log.info(
-            'Not importing %s because mismatched type: visibility=%s',
+            'Not importing because mismatched type. full_name=%s visibility=%s',
             fields['name_with_namespace'],
             fields['visibility'],
         )
@@ -209,21 +206,8 @@ class GitLabService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        try:
-            organization = RemoteOrganization.objects.get(
-                slug=fields.get('path'),
-                users=self.user,
-                account=self.account,
-            )
-        except RemoteOrganization.DoesNotExist:
-            organization = RemoteOrganization.objects.create(
-                slug=fields.get('path'),
-                account=self.account,
-            )
-            organization.users.add(self.user)
-
+        organization, created = RemoteOrganization.objects.get_or_create(slug=fields.get('path'))
         organization.name = fields.get('name')
-        organization.account = self.account
         organization.url = '{url}/{path}'.format(
             url=self.adapter.provider_base_url,
             path=fields.get('path'),
@@ -231,15 +215,18 @@ class GitLabService(Service):
         organization.avatar_url = fields.get('avatar_url')
         if not organization.avatar_url:
             organization.avatar_url = self.default_user_avatar_url
-        organization.json = json.dumps(fields)
         organization.save()
+
+        relation, created = RemoteOrganizationRelationship.objects.get_or_create(
+            user=self.user,
+            account=self.account,
+            organization=organization,
+        )
+        relation.json = json.dumps(fields)
+        relation.account = self.account
+        relation.save()
+
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('name_with_namespace') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('name') for organization in organizations}
 
     def get_webhook_data(self, repo_id, project, integration):
         """

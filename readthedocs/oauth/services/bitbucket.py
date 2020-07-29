@@ -32,6 +32,7 @@ class BitbucketService(Service):
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
+        repos = []
         # Get user repos
         try:
             repos = self.paginate(
@@ -54,18 +55,20 @@ class BitbucketService(Service):
             resp = self.paginate(
                 'https://bitbucket.org/api/2.0/repositories/?role=admin',
             )
-            admin_repos = (
-                RemoteRepository.objects.filter(
-                    users=self.user,
-                    full_name__in=[r['full_name'] for r in resp],
-                    account=self.account,
-                )
-            )
-            for repo in admin_repos:
-                repo.admin = True
-                repo.save()
+            remote_ids = self.get_repository_ids(resp)
+            RemoteRepositoryRelationship.objects
+            .filter(
+                user=self.user,
+                account=self.account,
+                repository__remote_id__in=remote_ids,
+            ).update(admin=True)
         except (TypeError, ValueError):
-            pass
+            log.warning(
+                'Unable to mark RemoteRepositoryRelationship with admin permissions. '
+                'user=%s account=%s',
+                self.user,
+                self.account,
+            )
 
         return repos
 
@@ -114,9 +117,9 @@ class BitbucketService(Service):
                 (privacy == 'private'),
                 (fields['is_private'] is False and privacy == 'public'),
         ]):
-            repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name'],
-                account=self.account,
+            repo, created = RemoteRepository.objects.get_or_create(
+                remote_id=fields['uuid'],
+                provider=self.adapter.provider_id,
             )
             if repo.organization and repo.organization != organization:
                 log.debug(
@@ -125,8 +128,8 @@ class BitbucketService(Service):
                 )
                 return None
 
+            repo.full_name = fields['full_name']
             repo.organization = organization
-            repo.users.add(self.user)
             repo.name = fields['name']
             repo.description = fields['description']
             repo.private = fields['is_private']
@@ -146,20 +149,26 @@ class BitbucketService(Service):
 
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
-            repo.account = self.account
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-
-            repo.json = json.dumps(fields)
             repo.save()
+
+            relation, created = RemoteRepositoryRelationship.objects.get_or_create(
+                user=self.user,
+                account=self.account,
+                repository=repo,
+            )
+            relation.json = json.dumps(fields)
+            relation.save()
+
             return repo
 
         log.debug(
-            'Not importing %s because mismatched type',
-            fields['name'],
+            'Not importing because mismatched type. full_name=%s',
+            fields['full_name'],
         )
 
     def create_organization(self, fields):
@@ -169,9 +178,9 @@ class BitbucketService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        organization, _ = RemoteOrganization.objects.get_or_create(
+        organization, created = RemoteOrganization.objects.get_or_create(
             slug=fields.get('username'),
-            account=self.account,
+            provider=self.adapter.provider_id,
         )
         organization.name = fields.get('display_name')
         organization.email = fields.get('email')
@@ -179,17 +188,25 @@ class BitbucketService(Service):
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
         organization.url = fields['links']['html']['href']
-        organization.json = json.dumps(fields)
-        organization.account = self.account
-        organization.users.add(self.user)
         organization.save()
+
+        relation, created = RemoteOrganizationRelationship.objects.get_or_create(
+            user=self.user,
+            account=self.account,
+            organization=organization,
+        )
+        relation.json = json.dumps(fields)
+        relation.account = self.account
+        relation.save()
+
         return organization
 
-    def get_repository_full_names(self, repositories):
-        return {repository.get('full_name') for repository in repositories}
+    def get_repository_ids(self, repositories):
+        return {repository.get('uid') for repository in repositories}
 
-    def get_organization_names(self, organizations):
-        return {organization.get('display_name') for organization in organizations}
+    def get_organization_ids(self, organizations):
+        # TODO: double check this UID field here
+        return {organization.get('uid') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.json().get('next')

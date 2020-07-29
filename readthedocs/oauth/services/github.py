@@ -7,6 +7,7 @@ import re
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
+from django.db.models import Q
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -33,6 +34,16 @@ class GitHubService(Service):
     adapter = GitHubOAuth2Adapter
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
+
+    # TODO: review this method and migrate to the upper class
+    def sync(self):
+        """Sync repositories and organizations."""
+        repos = self.sync_repositories()
+        organization_repos = self.sync_organizations()
+
+        # Delete RemoteRepository where the user doesn't have access anymore
+        remote_ids = {repo.get('id') for repo in repos + organization_repos}
+        self.user.oauth_repositories.exclude(remote_id__in=remote_ids).delete()
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
@@ -91,25 +102,18 @@ class GitHubService(Service):
                 (privacy == 'private'),
                 (fields['private'] is False and privacy == 'public'),
         ]):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['full_name'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['full_name'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
+            repo, created = RemoteRepository.objects.get_or_create(
+                remote_id=fields['id'],
+                provider=self.adapter.provider_id,
+            )
             if repo.organization and repo.organization != organization:
                 log.debug(
-                    'Not importing %s because mismatched orgs',
-                    fields['name'],
+                    'Not importing %s because mismatched orgs. full_name=%s',
+                    fields['full_name'],
                 )
                 return None
 
+            repo.full_name = fields['full_name'],
             repo.organization = organization
             repo.name = fields['name']
             repo.description = fields['description']
@@ -120,19 +124,26 @@ class GitHubService(Service):
                 repo.clone_url = fields['ssh_url']
             else:
                 repo.clone_url = fields['clone_url']
-            repo.admin = fields.get('permissions', {}).get('admin', False)
             repo.vcs = 'git'
-            repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-            repo.json = json.dumps(fields)
             repo.save()
+
+            relation, created = RemoteRepositoryRelationship.objects.get_or_create(
+                user=self.user,
+                account=self.account,
+                repository=repo,
+            )
+            relation.admin = fields.get('permissions', {}).get('admin', False)
+            relation.json = json.dumps(fields)
+            relation.save()
+
             return repo
 
         log.debug(
-            'Not importing %s because mismatched type',
-            fields['name'],
+            'Not importing because mismatched type. full_name=%s',
+            fields['full_name'],
         )
 
     def create_organization(self, fields):
@@ -142,34 +153,28 @@ class GitHubService(Service):
         :param fields: dictionary response of data from API
         :rtype: RemoteOrganization
         """
-        try:
-            organization = RemoteOrganization.objects.get(
-                slug=fields.get('login'),
-                users=self.user,
-                account=self.account,
-            )
-        except RemoteOrganization.DoesNotExist:
-            organization = RemoteOrganization.objects.create(
-                slug=fields.get('login'),
-                account=self.account,
-            )
-            organization.users.add(self.user)
+        organization, created = RemoteOrganization.objects.get_or_create(
+            slug=fields.get('login'),
+            provider=self.adapter.provider_id,
+        )
         organization.url = fields.get('html_url')
         organization.name = fields.get('name')
         organization.email = fields.get('email')
         organization.avatar_url = fields.get('avatar_url')
         if not organization.avatar_url:
             organization.avatar_url = self.default_org_avatar_url
-        organization.json = json.dumps(fields)
-        organization.account = self.account
         organization.save()
+
+        relation, created = RemoteOrganizationRelationship.objects.get_or_create(
+            user=self.user,
+            account=self.account,
+            organization=organization,
+        )
+        relation.json = json.dumps(fields)
+        relation.account = self.account
+        relation.save()
+
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('full_name') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('name') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')

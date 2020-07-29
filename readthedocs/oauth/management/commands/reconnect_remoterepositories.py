@@ -11,6 +11,9 @@ from readthedocs.organizations.models import Organization
 
 
 class Command(BaseCommand):
+    # TODO: remove this script completely since it's not required anymore.
+    # RemoteRepository are not connected directly to users anymore, but through
+    # a relationship
     help = "Re-connect RemoteRepository to Project"
 
     def add_arguments(self, parser):
