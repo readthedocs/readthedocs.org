@@ -343,7 +343,7 @@ class ServeError404(SettingsOverrideObject):
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
     @method_decorator(map_project_slug)
-    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
+    @method_decorator(cache_page(60 * 60))  # 1 hour
     def get(self, request, project):
         """
         Serve custom user's defined ``/robots.txt``.
