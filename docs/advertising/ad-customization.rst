@@ -38,8 +38,8 @@ In Sphinx, this is typically done by
 adding a new template (under `templates_path`_)
 for inclusion in the `HTML sidebar`_ in your ``conf.py``.
 
-.. _HTML sidebar: http://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_sidebars
-.. _templates_path: http://www.sphinx-doc.org/en/master/usage/configuration.html#confval-templates_path
+.. _HTML sidebar: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_sidebars
+.. _templates_path: https://www.sphinx-doc.org/page/usage/configuration.html#confval-templates_path
 
 .. code-block:: python
 
