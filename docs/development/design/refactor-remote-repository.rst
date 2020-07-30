@@ -12,8 +12,9 @@ Goals
 * De-duplicate data stored in our database.
 * Save only one ``RemoteRepository`` per GitHub repository.
 * Use an intermediate table between ``RemoteRepository`` and ``User`` to store associated remote data for the specific user.
-* Make this model usable from our SSO implementation.
+* Make this model usable from our SSO implementation (adding ``remote_id`` field in ``Remote`` objects).
 * Use Post ``JSONField`` to store associated ``json`` remote data.
+* Make ``Project`` connect directly to ``RemoteRepository`` without being linked to a specific ``User``.
 * Do not disconnect ``Project`` and ``RemoteRepository`` when a user delete/disconnects their account.
 
 
@@ -45,10 +46,18 @@ When a user connect their account to a social account, we create a
 We *don't create* any ``RemoteRepository`` at this point.
 They are created when the user jumps into "Import Project" page and hit the circled arrows.
 It triggers `sync_remote_repostories`_ task in background that updates or creates ``RemoteRepositories``,
-but **it does not delete** them.
+but **it does not delete** them (after `#7183`_ and `#7310`_ got merged, they will be deleted).
 One ``RemoteRepository`` is created per repository the ``User`` has access to.
 
+.. note::
+
+   In corporate, we are automatically syncing ``RemoteRepository`` and ``RemoteOganization``
+   at signup (foreground) and login (background) via a signal. We should eventually move these to community.
+
+
 .. _sync_remote_repositoies: https://github.com/readthedocs/readthedocs.org/blob/56253cb786945c9fe53a034a4433f10672ae8a4f/readthedocs/oauth/tasks.py#L25-L43
+.. _#7183: https://github.com/readthedocs/readthedocs.org/pull/7183
+.. _#7310: https://github.com/readthedocs/readthedocs.org/pull/7310
 
 
 Where ``RemoteRepository`` is used?
@@ -96,6 +105,6 @@ We can get the list of ``Project`` where a user as access:
 
    admin_remote_repositories = RemoteRepository.objects.filter(
        users__contains=request.user,
-       users__remoterelation__json__admin=True,  # False for read-only access
+       users__remoterelation__admin=True,  # False for read-only access
    )
    Project.objects.filter(remote_repository__in=admin_remote_repositories)
