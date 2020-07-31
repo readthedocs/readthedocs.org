@@ -1368,4 +1368,4 @@ Environment Variable delete
 Additional APIs
 ---------------
 
-- :ref:`Serve side search API <server-side-search:api>`.
+- :ref:`Server side search API <server-side-search:api>`.
