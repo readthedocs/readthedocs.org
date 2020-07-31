@@ -194,9 +194,9 @@ class PageSearchAPIView(GenericAPIView):
     - project
     - version
 
-    Optional params:
+    Optional params from the view:
 
-    - new-api (true/false): make use of the new stable API.
+    - new_api (true/false): Make use of the new stable API.
       Defaults to false. Remove after a couple of days/weeks
       and always use the new API.
 
@@ -209,6 +209,7 @@ class PageSearchAPIView(GenericAPIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
+    new_api = False
 
     def _get_project(self):
         cache_key = '_cached_project'
@@ -371,7 +372,7 @@ class PageSearchAPIView(GenericAPIView):
         return queryset
 
     def get_serializer_class(self):
-        if self.request.query_params.get('new-api', 'false') == 'true':
+        if self.new_api:
             return PageSearchSerializer
         return OldPageSearchSerializer
 

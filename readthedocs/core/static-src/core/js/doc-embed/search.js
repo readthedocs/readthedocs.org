@@ -49,9 +49,9 @@ function attach_elastic_search_query_sphinx(data) {
         var search_def = $.Deferred();
         var search_url = document.createElement('a');
 
-        search_url.href = data.proxied_api_host + '/api/v2/docsearch/';
+        search_url.href = data.proxied_api_host + '/api/v2/search/';
         search_url.search = '?q=' + $.urlencode(query) + '&project=' + project +
-                            '&version=' + version + '&language=' + language + '&new-api=true';
+                            '&version=' + version + '&language=' + language;
 
         search_def
             .then(function (data) {
@@ -273,9 +273,9 @@ function attach_elastic_search_query_mkdocs(data) {
         var search_def = $.Deferred();
 
         var search_url = document.createElement('a');
-        search_url.href = data.proxied_api_host + '/api/v2/docsearch/';
+        search_url.href = data.proxied_api_host + '/api/v2/search/';
         search_url.search = '?q=' + encodeURIComponent(query) + '&project=' + project +
-                            '&version=' + version + '&language=' + language + '&new-api=true';
+                            '&version=' + version + '&language=' + language;
 
         search_def
             .then(function (data) {

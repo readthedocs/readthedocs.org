@@ -33,11 +33,9 @@ class BaseTestDocumentSearch:
         # This reverse needs to be inside the ``setup_method`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        self.url = reverse('doc_search')
+        self.url = reverse('search_api')
 
     def get_search(self, api_client, search_params):
-        # TODO: remove once the api is stable
-        search_params['new-api'] = 'true'
         return api_client.get(self.url, search_params)
 
     @pytest.mark.parametrize('page_num', [0, 1])

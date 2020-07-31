@@ -69,13 +69,13 @@ API
 ---
 
 Search is exposed through our API that's proxied from the domain where your docs are being served.
-This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` project, for example.
+This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project, for example.
 
 .. warning::
 
    This API isn't stable yet, some small things may change in the future.
 
-.. http:get:: /_/api/v2/docsearch/
+.. http:get:: /_/api/v2/search/
 
    Return a list of search results for a project,
    including results from its :doc:`/subprojects`.
@@ -112,12 +112,12 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
 
       .. code-tab:: bash
 
-         $ curl "https://docs.readthedocs.io/_/api/v2/docsearch/?project=docs&version=latest&q=server%20side%20search"
+         $ curl "https://docs.readthedocs.io/_/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
 
       .. code-tab:: python
 
          import requests
-         URL = 'https://docs.readthedocs.io/_/api/v2/docsearch/'
+         URL = 'https://docs.readthedocs.io/_/api/v2/search/'
          params = {
             'q': 'server side search',
             'project': 'docs',
@@ -132,7 +132,7 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
 
       {
           "count": 41,
-          "next": "https://docs.readthedocs.io/api/v2/docsearch/?page=2&project=read-the-docs&q=server+side+search&version=latest",
+          "next": "https://docs.readthedocs.io/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
           "previous": null,
           "results": [
               {
@@ -164,8 +164,8 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
                      {
                         "type": "domain",
                         "role": "http:get",
-                        "name": "/_/api/v2/docsearch/",
-                        "id": "get--_-api-v2-docsearch-",
+                        "name": "/_/api/v2/search/",
+                        "id": "get--_-api-v2-search-",
                         "content": "Retrieve search results for docs",
                         "highlights": {
                            "name": [""],
