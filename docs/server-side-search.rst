@@ -157,9 +157,9 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
 
    There are currently two types of blocks:
 
-   - section: A page section with a linkeable anchor (``id`` attribute).
+   - section: A page section with a linkable anchor (``id`` attribute).
    - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
-     with a linkeable anchor (``id`` attribute).
+     with a linkable anchor (``id`` attribute).
 
 Authentication and authorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
