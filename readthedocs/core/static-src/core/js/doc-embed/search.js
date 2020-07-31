@@ -84,11 +84,12 @@ function attach_elastic_search_query_sphinx(data) {
                             list_item.append(extra);
                         }
 
-                        for (var j = 0; j < blocks.length; j += 1) {
+                        for (var block_index = 0; block_index < blocks.length; block_index += 1) {
+                            var current_block = blocks[block_index];
 
                             var contents = $('<div class="context">');
 
-                            var section_template = '' +
+                            var section_template =
                                 '<div>' +
                                     '<a href="<%= section_subtitle_link %>">' +
                                         '<%= section_subtitle %>' +
@@ -100,7 +101,7 @@ function attach_elastic_search_query_sphinx(data) {
                                     '</div>' +
                                 '<% } %>';
 
-                            var domain_template = '' +
+                            var domain_template =
                                 '<div>' +
                                     '<a href="<%= domain_subtitle_link %>">' +
                                         '<%= domain_subtitle %>' +
@@ -111,8 +112,8 @@ function attach_elastic_search_query_sphinx(data) {
                                 '</div>';
 
                             // if the result is page section
-                            if (blocks[j].type === "section") {
-                                var section = blocks[j];
+                            if (current_block.type === "section") {
+                                var section = current_block;
                                 var section_subtitle = section.title;
                                 var section_subtitle_link = link + "#" + section.id;
                                 var section_content = [section.content.substr(0, MAX_SUBSTRING_LIMIT) + " ..."];
@@ -145,8 +146,8 @@ function attach_elastic_search_query_sphinx(data) {
                             }
 
                             // if the result is a sphinx domain object
-                            if (blocks[j].type === "domain") {
-                                var domain = blocks[j];
+                            if (current_block.type === "domain") {
+                                var domain = current_block;
                                 var domain_role_name = domain.role;
                                 var domain_subtitle_link = link + "#" + domain.id;
                                 var domain_name = domain.name;
@@ -182,7 +183,7 @@ function attach_elastic_search_query_sphinx(data) {
 
                             // Create some spacing between the results.
                             // Also, don't add this spacing in the last hit.
-                            if (j < blocks.length - 1) {
+                            if (block_index < blocks.length - 1) {
                                 list_item.append($("<div class='rtd_search_hits_spacing'></div>"));
                             }
                         }
