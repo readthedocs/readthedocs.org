@@ -199,7 +199,7 @@ function attach_elastic_search_query_sphinx(data) {
                 }
             })
             .fail(function (error) {
-                console.log('Read the Docs search failed. Falling back to Sphinx search.');
+                console.debug('Read the Docs search failed. Falling back to Sphinx search.');
                 Search.query_fallback(query);
             })
             .always(function () {
