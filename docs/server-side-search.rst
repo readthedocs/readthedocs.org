@@ -71,11 +71,40 @@ API
 Search is exposed through our API that's proxied from the domain where your docs are being served.
 This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` project, for example.
 
+.. warning::
+
+   This API isn't stable yet, some small things may change in the future.
+
 .. http:get:: /_/api/v2/docsearch/
 
    Return a list of search results for a project,
    including results from its :doc:`/subprojects`.
    Results are divided into sections with highlights of the matching term.
+
+   .. Request
+
+   :query q: Search query
+   :query project: Project slug
+   :query version: Version slug
+
+   .. Response
+
+   :>json string type: The type of the result, currently page is the only type.
+   :>json string project: The project slug
+   :>json string version: The version slug
+   :>json string title: The title of the page
+   :>json string link: An absolute URL to the resulting page
+   :>json object highlights: An object containing a list of substrings with matching terms.
+                             Note that the text is HTML escaped with the matching terms inside a <span> tag.
+   :>json object blocks:
+
+    A list of block objects containing search results from the page.
+    Currently, there are two types of blocks:
+
+    - section: A page section with a linkable anchor (``id`` attribute).
+    - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
+      with a linkable anchor (``id`` attribute).
+
 
    **Example request**:
 
@@ -96,10 +125,6 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
          }
          response = requests.get(URL, params=params)
          print(response.json())
-
-   :query q: Search query
-   :query project: Project slug
-   :query version: Version slug
 
    **Example response**:
 
@@ -151,15 +176,6 @@ This is ``https://docs.readthedocs.io/_/api/v2/docsearch`` for the ``docs`` proj
               },
           ]
       }
-
-   Hightlights are a list of substrings containing matching terms.
-   Note that the text is html escaped with the matching terms inside a ``<span>`` tag.
-
-   There are currently two types of blocks:
-
-   - section: A page section with a linkable anchor (``id`` attribute).
-   - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
-     with a linkable anchor (``id`` attribute).
 
 Authentication and authorization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

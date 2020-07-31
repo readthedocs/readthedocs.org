@@ -13,7 +13,11 @@ from readthedocs.search.faceted_search import (
     ProjectSearch,
 )
 
-from .serializers import PageSearchSerializer, ProjectSearchSerializer
+from .serializers import (
+    PageSearchSerializer,
+    ProjectData,
+    ProjectSearchSerializer,
+)
 
 log = logging.getLogger(__name__)
 LOG_TEMPLATE = '(Elastic Search) [%(user)s:%(type)s] [%(project)s:%(version)s:%(language)s] %(msg)s'
@@ -43,6 +47,7 @@ class SearchView(View):
     """
 
     http_method_names = ['get']
+    max_search_results = 50
 
     def _get_project(self, project_slug):
         queryset = Project.objects.protected(self.request.user)
@@ -55,11 +60,9 @@ class SearchView(View):
             .values_list('documentation_type', flat=True)
             .get(slug=version_slug)
         )
+        docs_url = project.get_docs_url(version_slug=version_slug)
         project_data = {
-            project.slug: (
-                project.get_docs_url(version_slug=version_slug),
-                version_doctype,
-            )
+            project.slug: ProjectData(docs_url, version_doctype)
         }
         return project_data
 
@@ -86,14 +89,6 @@ class SearchView(View):
             role_name=request.GET.get('role_name'),
             index=request.GET.get('index'),
         )
-        search_facets = collections.defaultdict(
-            lambda: ProjectSearch,
-            {
-                'project': ProjectSearch,
-                'file': PageSearch,
-            }
-        )
-
         results = []
         facets = {}
 
@@ -105,12 +100,20 @@ class SearchView(View):
                 if value:
                     filters[avail_facet] = value
 
-            search = search_facets[user_input.type](
+            search_facets = {
+                'project': ProjectSearch,
+                'file': PageSearch,
+            }
+            faceted_search_class = search_facets.get(
+                user_input.type,
+                ProjectSearch,
+            )
+            search = faceted_search_class(
                 query=user_input.query,
                 filters=filters,
                 user=request.user,
             )
-            results = search[:50].execute()
+            results = search[:self.max_search_results].execute()
             facets = results.facets
 
             log.info(

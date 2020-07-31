@@ -8,6 +8,7 @@ Serializers for the ES's search result object.
 
 import itertools
 import re
+from functools import namedtuple
 from operator import attrgetter
 
 from django.shortcuts import get_object_or_404
@@ -16,6 +17,10 @@ from rest_framework import serializers
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Project
+
+
+# Structure used for storing cached data of a project mostly.
+ProjectData = namedtuple('ProjectData', ['docs_url', 'version_doctype'])
 
 
 class ProjectHighlightSerializer(serializers.Serializer):
@@ -46,8 +51,7 @@ class PageSearchSerializer(serializers.Serializer):
 
     If ``projects_data`` is passed into the context, the serializer
     will try to use that to generate the link before querying the database.
-    It's a dictionary containing the project slug, and its version URL
-    and version's doctype.
+    It's a dictionary mapping the project slug to a ProjectData object.
     """
 
     type = serializers.CharField(default='page', source=None, read_only=True)
@@ -78,12 +82,9 @@ class PageSearchSerializer(serializers.Serializer):
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
             if doctype in {SPHINX_HTMLDIR, MKDOCS}:
-                new_path = re.sub('(^|/)index.html$', '/', path)
-                # docs_url already ends with /,
-                # so path doesn't need to start with /.
-                path = new_path.lstrip('/')
+                path = re.sub('(^|/)index.html$', '/', path)
 
-            return docs_url + path
+            return docs_url.rstrip('/') + '/' + path.lstrip('/')
 
         # Fallback to build the URL querying the db.
         project = Project.objects.filter(slug=obj.project).first()
@@ -91,7 +92,7 @@ class PageSearchSerializer(serializers.Serializer):
             docs_url = project.get_docs_url(version_slug=obj.version)
             # cache the project URL
             projects_data = self.context.setdefault('projects_data', {})
-            projects_data[obj.project] = (docs_url, '')
+            projects_data[obj.project] = ProjectData(docs_url, '')
             return docs_url + obj.full_path
 
         return None
