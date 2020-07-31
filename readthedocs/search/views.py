@@ -1,15 +1,12 @@
 """Search views."""
 import collections
-import itertools
 import logging
-from operator import attrgetter
 
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Project
-from readthedocs.search import utils
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
     PageSearch,

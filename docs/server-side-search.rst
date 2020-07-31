@@ -19,7 +19,7 @@ We offer a number of benefits compared to other documentation hosts:
 
 Search across :doc:`subprojects </subprojects>`
    Subprojects allow you to host multiple discrete projects on a single domain.
-   Every project hosted on that same domain is included in results for search.
+   Every subproject hosted on that same domain is included in the search results of the main project.
 
 Search results land on the exact content you were looking for
    We index every heading in the document,

@@ -9,6 +9,7 @@ Each function will receive the following args:
 """
 
 from readthedocs.core.utils import trigger_build
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 
 
 def activate_version(version, match_result, action_arg, *args, **kwargs):
@@ -36,3 +37,28 @@ def set_default_version(version, match_result, action_arg, *args, **kwargs):
     project = version.project
     project.default_version = version.slug
     project.save()
+
+
+def hide_version(version, match_result, action_arg, *args, **kwargs):
+    """
+    Sets version as hidden.
+
+    It also activates the version and triggers a build.
+    """
+    version.hidden = True
+    version.save()
+
+    if not version.active:
+        activate_version(version, match_result, action_arg)
+
+
+def set_public_privacy_level(version, match_result, action_arg, *args, **kwargs):
+    """Sets the privacy_level of the version to public."""
+    version.privacy_level = PUBLIC
+    version.save()
+
+
+def set_private_privacy_level(version, match_result, action_arg, *args, **kwargs):
+    """Sets the privacy_level of the version to private."""
+    version.privacy_level = PRIVATE
+    version.save()

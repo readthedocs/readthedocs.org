@@ -634,6 +634,14 @@ class DomainBaseForm(forms.ModelForm):
             domain_string = parsed.netloc
         else:
             domain_string = parsed.path
+
+        # Don't allow production or public domain to be set as custom domain
+        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+            if invalid_domain and domain_string.endswith(invalid_domain):
+                raise forms.ValidationError(
+                    f'{invalid_domain} is not a valid domain.'
+                )
+
         return domain_string
 
     def clean_canonical(self):
@@ -742,21 +750,21 @@ class EnvironmentVariableForm(forms.ModelForm):
             raise forms.ValidationError(
                 _("Variable name can't start with __ (double underscore)"),
             )
-        elif name.startswith('READTHEDOCS'):
+        if name.startswith('READTHEDOCS'):
             raise forms.ValidationError(
                 _("Variable name can't start with READTHEDOCS"),
             )
-        elif self.project.environmentvariable_set.filter(name=name).exists():
+        if self.project.environmentvariable_set.filter(name=name).exists():
             raise forms.ValidationError(
                 _(
                     'There is already a variable with this name for this project',
                 ),
             )
-        elif ' ' in name:
+        if ' ' in name:
             raise forms.ValidationError(
                 _("Variable name can't contain spaces"),
             )
-        elif not fullmatch('[a-zA-Z0-9_]+', name):
+        if not fullmatch('[a-zA-Z0-9_]+', name):
             raise forms.ValidationError(
                 _('Only letters, numbers and underscore are allowed'),
             )

@@ -16,6 +16,11 @@ urlpatterns = [
         name='projects_dashboard_redirect',
     ),
     url(
+        r'^tags/(?P<tag>[-\w]+)/$',
+        ProjectTagIndex.as_view(),
+        name='projects_tag_detail',
+    ),
+    url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
         public.project_redirect,
         name='project_redirect',
@@ -80,10 +85,5 @@ urlpatterns = [
         r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
         public.project_versions,
         name='project_version_list',
-    ),
-    url(
-        r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectTagIndex.as_view(),
-        name='projects_tag_detail',
     ),
 ]

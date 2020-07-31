@@ -2,6 +2,8 @@
 
 from django.db import models
 
+from readthedocs.core.utils.extend import SettingsOverrideObject
+
 from .constants import ADMIN_ACCESS, READ_ONLY_ACCESS
 
 
@@ -45,7 +47,7 @@ class RelatedOrganizationManager(models.Manager):
         )
 
 
-class TeamManager(models.Manager):
+class TeamManagerBase(models.Manager):
 
     """Manager to control team's access."""
 
@@ -110,6 +112,10 @@ class TeamManager(models.Manager):
             admin=True,
             member=True,
         )
+
+
+class TeamManager(SettingsOverrideObject):
+    _default_class = TeamManagerBase
 
 
 class TeamMemberManager(models.Manager):

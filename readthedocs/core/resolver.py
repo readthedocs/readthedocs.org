@@ -339,7 +339,7 @@ class ResolverBase:
         :param custom_domain: Domain instance or ``None``
         :type custom_domain: readthedocs.projects.models.Domain
         """
-        return True if custom_domain is not None else False
+        return custom_domain is not None
 
     def _use_subdomain(self):
         """Make decision about whether to use a subdomain to serve docs."""
