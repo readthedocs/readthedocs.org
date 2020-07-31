@@ -188,7 +188,7 @@ class ReferrerPolicyMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
-        if not hasattr(settings, 'SECURE_REFERRER_POLICY'):
+        if not settings.SECURE_REFERRER_POLICY:
             log.warning("SECURE_REFERRER_POLICY not set - not setting the referrer policy")
             raise MiddlewareNotUsed()
         if settings.SECURE_REFERRER_POLICY not in self.VALID_REFERRER_POLICIES:
