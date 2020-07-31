@@ -166,7 +166,7 @@ class ReferrerPolicyMiddleware:
 
     The value of the header will be read from the SECURE_REFERRER_POLICY setting.
 
-    IMPORTANT:
+    Important:
         In Django 3.x, this feature is built-in to the SecurityMiddleware.
         After upgrading to Django3, this middleware should be removed.
         https://docs.djangoproject.com/en/3.1/ref/middleware/#referrer-policy
