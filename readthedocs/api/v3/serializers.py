@@ -504,6 +504,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'users',
             'urls',
             'tags',
+            'description',
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
