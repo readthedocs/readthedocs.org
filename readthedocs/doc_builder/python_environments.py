@@ -438,7 +438,7 @@ class Virtualenv(PythonEnvironment):
 
     def install_packages_list(self, install):
         """
-        Install requirements from a string specification using pip.
+        Install requirements from a list of strings using pip.
 
         :param install: A instal object from the config module.
         :type install: readthedocs.config.modules.PythonInstallPackages
