@@ -25,8 +25,8 @@ from readthedocs.builds.constants import (
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
-    BUILD_TYPES,
     BUILD_STATUS_CHOICES,
+    BUILD_TYPES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
@@ -179,6 +179,10 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_external(self):
+        return self.type == EXTERNAL
 
     @property
     def ref(self):

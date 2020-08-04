@@ -295,19 +295,31 @@ class Virtualenv(PythonEnvironment):
         return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
-        site_packages = ''
+        """
+        Create a virtualenv, invoking ``python -mvirtualenv``.
+
+        .. note::
+
+            ``--no-download`` was removed because of the pip breakage,
+            it was sometimes installing pip 20.0 which broke everything
+            https://github.com/readthedocs/readthedocs.org/issues/6585
+
+            Important not to add empty string arguments, see:
+            https://github.com/readthedocs/readthedocs.org/issues/7322
+        """
+        cli_args = [
+            '-mvirtualenv',
+        ]
         if self.config.python.use_system_site_packages:
-            site_packages = '--system-site-packages'
-        env_path = self.venv_path()
+            cli_args.append('--system-site-packages')
+
+        # Append the positional destination argument
+        cli_args.append(
+            self.venv_path(),
+        )
         self.build_env.run(
             self.config.python_interpreter,
-            '-mvirtualenv',
-            site_packages,
-            # This is removed because of the pip breakage,
-            # it was sometimes installing pip 20.0 which broke everything
-            # https://github.com/readthedocs/readthedocs.org/issues/6585
-            # '--no-download',
-            env_path,
+            *cli_args,
             # Don't use virtualenv bin that doesn't exist yet
             bin_path=None,
             # Don't use the project's root, some config files can interfere
