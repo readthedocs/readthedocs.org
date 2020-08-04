@@ -1,8 +1,11 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
+import json
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -13,10 +16,10 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import (
     BRANCH,
-    TAG,
-    INTERNAL,
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    INTERNAL,
+    TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
@@ -26,14 +29,6 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from ..utils import (
-    delete_versions_from_db,
-    sync_versions_to_db,
-    run_automation_rules,
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -53,7 +48,14 @@ from ..serializers import (
     VersionAdminSerializer,
     VersionSerializer,
 )
-
+from ..utils import (
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+    delete_versions_from_db,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -282,7 +284,7 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSetBase(UserSelectViewSet):
+class BuildViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
@@ -306,12 +308,29 @@ class BuildViewSetBase(UserSelectViewSet):
         }
         return Response(data)
 
+    def retrieve(self, *args, **kwargs):
+        """
+        Retrieves command data from storage.
 
-class BuildViewSet(SettingsOverrideObject):
+        This uses files from storage to get the JSON,
+        and replaces the ``commands`` part of the response data.
+        """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(*args, **kwargs)
 
-    """A pluggable class to allow for build cold storage."""
-
-    _default_class = BuildViewSetBase
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        if instance.cold_storage:
+            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+            storage_path = '{date}/{id}.json'.format(
+                date=str(instance.date.date()),
+                id=instance.id,
+            )
+            if storage.exists(storage_path):
+                json_resp = storage.open(storage_path).read()
+                data['commands'] = json.loads(json_resp)
+        return Response(data)
 
 
 class BuildCommandViewSet(UserSelectViewSet):

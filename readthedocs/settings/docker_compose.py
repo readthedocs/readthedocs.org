@@ -84,10 +84,6 @@ class DockerBaseSettings(CommunityDevSettings):
         from django.conf import settings
         return settings.DEBUG
 
-    CLASS_OVERRIDES = {
-        'readthedocs.api.v2.views.model_views.BuildViewSet': 'readthedocsext.restapi.views.ColdStorageBuildViewSet',
-    }
-
     DEBUG_TOOLBAR_CONFIG = {
         'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
     }
@@ -122,6 +118,7 @@ class DockerBaseSettings(CommunityDevSettings):
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildMediaStorage'
     AZURE_STATIC_STORAGE_HOSTNAME = 'assets.community.dev.readthedocs.io:10000'
 
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.storage.azure_storage.AzureBuildStorage'
 
     # Storage backend for build cached environments
