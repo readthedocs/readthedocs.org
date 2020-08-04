@@ -237,7 +237,6 @@ This allows you to declare dependencies in the ``.readthedocs.yml`` file instead
 :Key: `packages`
 :Type: ``list``
 :Default: ``[]``
-:Required: ``true``
 
 Example:
 
