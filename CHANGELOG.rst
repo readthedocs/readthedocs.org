@@ -1,3 +1,17 @@
+Version 5.2.3
+-------------
+
+:Date: August 04, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Add a middleware for referrer policy (`#7346 <https://github.com/readthedocs/readthedocs.org/pull/7346>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer: don't show the version warning for external version (`#7340 <https://github.com/readthedocs/readthedocs.org/pull/7340>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Lower rank for custom install docs. (`#7339 <https://github.com/readthedocs/readthedocs.org/pull/7339>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Argument list for "python -m virtualenv" without empty strings (`#7330 <https://github.com/readthedocs/readthedocs.org/pull/7330>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix some links (`#7317 <https://github.com/readthedocs/readthedocs.org/pull/7317>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: little improvements on getting start docs (`#7316 <https://github.com/readthedocs/readthedocs.org/pull/7316>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: migrate null ranks to zero (`#7274 <https://github.com/readthedocs/readthedocs.org/pull/7274>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: make it more clear search on subprojects (`#7272 <https://github.com/readthedocs/readthedocs.org/pull/7272>`__)
+
 Version 5.2.2
 -------------
 
