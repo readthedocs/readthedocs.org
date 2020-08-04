@@ -175,30 +175,6 @@ Example:
   manage the build, this setting will not have any effect. Instead
   add the extra requirements to the ``environment`` file of Conda.
 
-Packages list
-'''''''''''''
-
-Install packages from a list of requirements.
-This allows you to declare dependencies in the ``.readthedocs.yml`` file instead of creating a separate file.
-
-:Key: `packages`
-:Type: ``list``
-:Default: ``[]``
-:Required: ``true``
-
-Example:
-
-.. code-block:: yaml
-
-   version: 2
-
-   python:
-     version: 3.7
-     install:
-       - packages:
-         - mkdocs-material
-         - Pygments
-
 Packages
 ''''''''
 
@@ -251,6 +227,36 @@ With the previous settings, Read the Docs will execute the next commands:
 
    pip install .[docs]
    python package/setup.py install
+
+Extra dependencies
+''''''''''''''''''
+
+Install packages from a list of requirements.
+This allows you to declare dependencies in the ``.readthedocs.yml`` file instead of creating a separate file.
+
+:Key: `packages`
+:Type: ``list``
+:Default: ``[]``
+:Required: ``true``
+
+Example:
+
+.. code-block:: yaml
+
+   version: 2
+
+   python:
+     version: 3.7
+     install:
+       - packages:
+         - mkdocs-material
+         - Pygments
+
+With the previous settings, Read the Docs will execute the next commands:
+
+.. prompt:: bash $
+
+   pip install mkdocs-material Pygments
 
 python.system_packages
 ``````````````````````
