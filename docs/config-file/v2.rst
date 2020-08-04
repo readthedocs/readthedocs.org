@@ -182,7 +182,8 @@ Install packages from a list of requirements.
 This allows you to declare dependencies in the ``.readthedocs.yml`` file instead of creating a separate file.
 
 :Key: `packages`
-:Type: ``string``
+:Type: ``list``
+:Default: ``[]``
 :Required: ``true``
 
 Example:
