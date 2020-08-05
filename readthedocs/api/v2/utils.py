@@ -16,7 +16,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 
-
 log = logging.getLogger(__name__)
 
 
@@ -141,35 +140,41 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 
 
 def delete_versions_from_db(project, version_data):
-    """Delete all versions not in the current repo."""
+    """Delete all versions that aren't in the current repo."""
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
-    versions_tags = [
-        version['verbose_name'] for version in version_data.get('tags', [])
-    ]
-    versions_branches = [
-        version['identifier'] for version in version_data.get('branches', [])
-    ]
-    to_delete_qs = project.versions.all()
-    to_delete_qs = to_delete_qs.exclude(
-        type=TAG,
-        verbose_name__in=versions_tags,
-    )
-    to_delete_qs = to_delete_qs.exclude(
-        type=BRANCH,
-        identifier__in=versions_branches,
-    )
-    to_delete_qs = to_delete_qs.exclude(uploaded=True)
-    to_delete_qs = to_delete_qs.exclude(active=True)
-    to_delete_qs = to_delete_qs.exclude(slug__in=NON_REPOSITORY_VERSIONS)
+    versions_tags = {
+        version['verbose_name']
+        for version in version_data.get('tags', [])
+    }
+    versions_branches = {
+        version['identifier']
+        for version in version_data.get('branches', [])
+    }
 
-    if to_delete_qs.count():
-        ret_val = {obj.slug for obj in to_delete_qs}
-        log.info('(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
-                 project.slug, ' '.join(ret_val))
-        to_delete_qs.delete()
-        return ret_val
-    return set()
+    versions = (
+        project.versions.all()
+        .exclude(uploaded=True)
+        .exclude(active=True)
+        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
+    )
+
+    deleted_versions = set()
+    for version in versions:
+        if (
+            (version.type == TAG and version.verbose_name not in versions_tags) or
+            (version.type == BRANCH and version.identifier not in versions_branches) or
+            (version.type not in {TAG, BRANCH})
+        ):
+            deleted_versions.add(version.slug)
+
+    if deleted_versions:
+        project.versions.filter(slug__in=deleted_versions).delete()
+        log.info(
+            '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
+            project.slug, ' '.join(deleted_versions),
+        )
+    return deleted_versions
 
 
 def run_automation_rules(project, versions_slug):
