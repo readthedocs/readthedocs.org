@@ -64,3 +64,123 @@ and then click on :guilabel:`Search Analytics`.
    Search analytics demo
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
+
+API
+---
+
+Search is exposed through our API that's proxied from the domain where your docs are being served.
+This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project, for example.
+
+.. warning::
+
+   This API isn't stable yet, some small things may change in the future.
+
+.. http:get:: /_/api/v2/search/
+
+   Return a list of search results for a project,
+   including results from its :doc:`/subprojects`.
+   Results are divided into sections with highlights of the matching term.
+
+   .. Request
+
+   :query q: Search query
+   :query project: Project slug
+   :query version: Version slug
+
+   .. Response
+
+   :>json string type: The type of the result, currently page is the only type.
+   :>json string project: The project slug
+   :>json string version: The version slug
+   :>json string title: The title of the page
+   :>json string link: An absolute URL to the resulting page
+   :>json object highlights: An object containing a list of substrings with matching terms.
+                             Note that the text is HTML escaped with the matching terms inside a <span> tag.
+   :>json object blocks:
+
+    A list of block objects containing search results from the page.
+    Currently, there are two types of blocks:
+
+    - section: A page section with a linkable anchor (``id`` attribute).
+    - domain: A Sphinx :doc:`domain <sphinx:usage/restructuredtext/domains>`
+      with a linkable anchor (``id`` attribute).
+
+
+   **Example request**:
+
+   .. tabs::
+
+      .. code-tab:: bash
+
+         $ curl "https://docs.readthedocs.io/_/api/v2/search/?project=docs&version=latest&q=server%20side%20search"
+
+      .. code-tab:: python
+
+         import requests
+         URL = 'https://docs.readthedocs.io/_/api/v2/search/'
+         params = {
+            'q': 'server side search',
+            'project': 'docs',
+            'version': 'latest',
+         }
+         response = requests.get(URL, params=params)
+         print(response.json())
+
+   **Example response**:
+
+   .. sourcecode:: json
+
+      {
+          "count": 41,
+          "next": "https://docs.readthedocs.io/api/v2/search/?page=2&project=read-the-docs&q=server+side+search&version=latest",
+          "previous": null,
+          "results": [
+              {
+                  "type": "page",
+                  "project": "docs",
+                  "version": "latest",
+                  "title": "Server Side Search",
+                  "link": "https://docs.readthedocs.io/en/latest/server-side-search.html",
+                  "highlights": {
+                      "title": [
+                          "<span>Server</span> <span>Side</span> <span>Search</span>"
+                      ]
+                  },
+                  "blocks": [
+                     {
+                        "type": "section",
+                        "id": "server-side-search",
+                        "title": "Server Side Search",
+                        "content": "Read the Docs provides full-text search across all of the pages of all projects, this is powered by Elasticsearch.",
+                        "highlights": {
+                           "title": [
+                              "<span>Server</span> <span>Side</span> <span>Search</span>"
+                           ],
+                           "content": [
+                              "You can <span>search</span> all projects at https:&#x2F;&#x2F;readthedocs.org&#x2F;<span>search</span>&#x2F"
+                           ]
+                        }
+                     },
+                     {
+                        "type": "domain",
+                        "role": "http:get",
+                        "name": "/_/api/v2/search/",
+                        "id": "get--_-api-v2-search-",
+                        "content": "Retrieve search results for docs",
+                        "highlights": {
+                           "name": [""],
+                           "content": ["Retrieve <span>search</span> results for docs"]
+                        }
+                     }
+                  ]
+              },
+          ]
+      }
+
+Authentication and authorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using :ref:`private versions <versions:privacy levels>`,
+users will only be allowed to search projects they have permissions over.
+Authentication and authorization is done using the current session,
+or any of the valid :doc:`sharing methods </commercial/sharing>`.

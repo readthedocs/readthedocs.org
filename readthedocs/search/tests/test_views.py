@@ -106,7 +106,7 @@ class TestPageSearch:
         # if query is from page title,
         # highlighted title is present in 'result.meta.highlight.title'
         if not type and field == 'title':
-            highlight = result['highlight']['title']
+            highlight = result['highlights']['title']
 
         # if result is not from page title,
         # then results and highlighted results are present inside 'blocks'
@@ -117,7 +117,7 @@ class TestPageSearch:
             # checking first inner_hit
             inner_hit_0 = blocks[0]
             assert inner_hit_0['type'] == type
-            highlight = inner_hit_0['highlight'][field]
+            highlight = inner_hit_0['highlights'][field]
 
         return highlight
 
