@@ -7,14 +7,18 @@ from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
 from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
-from readthedocs.search import views as search_views
-
+from readthedocs.search.views import SearchView
 
 urlpatterns = [
     url(
         r'^$',
         RedirectView.as_view(pattern_name='projects_dashboard', permanent=True),
         name='projects_dashboard_redirect',
+    ),
+    url(
+        r'^tags/(?P<tag>[-\w]+)/$',
+        ProjectTagIndex.as_view(),
+        name='projects_tag_detail',
     ),
     url(
         r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
@@ -60,7 +64,7 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
-        search_views.elastic_search,
+        SearchView.as_view(),
         name='elastic_project_search',
     ),
     url(
@@ -81,10 +85,5 @@ urlpatterns = [
         r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
         public.project_versions,
         name='project_version_list',
-    ),
-    url(
-        r'^tags/(?P<tag>[-\w]+)/$',
-        ProjectTagIndex.as_view(),
-        name='projects_tag_detail',
     ),
 ]

@@ -1,8 +1,6 @@
 {% extends "projects/base_project.html" %}
 {% load i18n %}
 {% load projects_tags %}
-{% load privacy_tags %}
-{% load core_tags %}
 
 {% block title %}
 Versions
@@ -31,11 +29,12 @@ Versions
             <ul>
               {% for version in active_versions|sort_version_aware %}
                 {% block active-versions %}
+                  {% with absolute_url=version.get_absolute_url %}
                   <li class="module-item">
                     {# Link to the docs #}
-                    <a class="module-item-title" href="{{ version.get_absolute_url }}">{{ version.slug }}</a>
+                    <a class="module-item-title" href="{{ absolute_url }}">{{ version.slug }}</a>
 
-                    {% if request.user|is_admin:project %}
+                    {% if is_project_admin %}
                       <span class="right-menu">
                         {{ version.get_privacy_level_display }}
                       </span>
@@ -45,17 +44,18 @@ Versions
                       <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                     {% endif %}
 
-                    {% if request.user|is_admin:project %}
+                    {% if is_project_admin %}
                       <ul class="module-item-menu">
                         <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Edit" %}</a></li>
                       </ul>
                     {% else %}
                       <ul class="module-item-menu">
-                        <li><a href="{{ version.get_absolute_url }}">{% trans "View Docs" %}</a></li>
+                        <li><a href="{{ absolute_url }}">{% trans "View Docs" %}</a></li>
                       </ul>
                     {% endif %}
 
                   </li>
+                  {% endwith %}
                 {% endblock active-versions %}
 
               {% empty %}
@@ -72,7 +72,7 @@ Versions
       </div>
     </div>
 
-    {% if request.user|is_admin:project or request.user.is_staff %}
+    {% if is_project_admin or request.user.is_staff %}
     <div class="module project-versions-inactive">
       <div class="module-wrapper">
 
@@ -107,7 +107,7 @@ Versions
                       <span class="quiet">{{ version.slug }}</span>
 
 
-                      {% if request.user|is_admin:project %}
+                      {% if is_project_admin %}
                         <span class="right-menu">
                           {{ version.get_privacy_level_display }}
                         </span>
@@ -117,7 +117,7 @@ Versions
                         <span class="right-menu quiet version-branch">{{ version.identifier_friendly|truncatechars:24 }}</span>
                       {% endif %}
 
-                      {% if request.user|is_admin:project %}
+                      {% if is_project_admin %}
                         <ul class="module-item-menu">
                           <li><a href="{% url "project_version_detail" project.slug version.slug %}">{% trans "Activate" %}</a></li>
                         </ul>

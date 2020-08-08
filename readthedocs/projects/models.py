@@ -12,6 +12,7 @@ from django.conf import settings
 from django.conf.urls import include
 from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
 from django.urls import re_path, reverse
@@ -66,13 +67,13 @@ class ProjectRelationship(models.Model):
     """
 
     parent = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Parent'),
         related_name='subprojects',
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'Project',
+        'projects.Project',
         verbose_name=_('Child'),
         related_name='superprojects',
         on_delete=models.CASCADE,
@@ -1329,7 +1330,7 @@ class ImportedFile(models.Model):
     """
 
     project = models.ForeignKey(
-        'Project',
+        Project,
         verbose_name=_('Project'),
         related_name='imported_files',
         on_delete=models.CASCADE,
@@ -1352,6 +1353,11 @@ class ImportedFile(models.Model):
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    rank = models.IntegerField(
+        _('Page search rank'),
+        default=0,
+        validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
 
     def get_absolute_url(self):
         return resolve(
@@ -1515,6 +1521,7 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
@@ -1545,9 +1552,16 @@ class Feature(models.Model):
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    DONT_CREATE_INDEX = 'dont_create_index'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DONT_INSTALL_DOCUTILS,
+            _(
+                'Do not install docutils as requirement for build documentation',
+            ),
+        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
@@ -1669,6 +1683,10 @@ class Feature(models.Model):
         (
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            DONT_CREATE_INDEX,
+            _('Do not create index.md or README.rst if the project does not have one.'),
         ),
     )
 
