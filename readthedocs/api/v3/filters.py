@@ -25,6 +25,7 @@ class VersionFilter(filters.FilterSet):
             'active',
             'built',
             'uploaded',
+            'slug',
         ]
 
 
