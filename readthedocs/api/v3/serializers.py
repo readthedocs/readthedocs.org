@@ -123,6 +123,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
+    build_url = serializers.URLField(source='get_full_url')
 
     class Meta:
         model = Build
@@ -138,6 +139,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'error',
             'commit',
             '_links',
+            'build_url',
         ]
 
         expandable_fields = {
