@@ -12,6 +12,12 @@
     height: auto;
 }
 
+.rst-versions.shift-up {
+    max-height: calc(100vh - 50px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .rst-other-versions {
     text-align: left;
 }
