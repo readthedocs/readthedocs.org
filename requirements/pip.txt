@@ -64,7 +64,7 @@ git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17
 #     from elasticsearch_dsl import Document as DSLDocument
 # ImportError: cannot import name 'Document'
 django-elasticsearch-dsl==0.5.1  # pyup: ignore
-selectolax==0.2.1
+selectolax==0.2.6
 
 # Ignoring orjson for now because it makes Travis to fail
 orjson==2.0.7  # pyup: ignore
