@@ -93,7 +93,8 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
    :>json string project: The project slug
    :>json string version: The version slug
    :>json string title: The title of the page
-   :>json string link: An absolute URL to the resulting page
+   :>json string domain: Canonical domain of the resulting page
+   :>json string path: Path to the resulting page
    :>json object highlights: An object containing a list of substrings with matching terms.
                              Note that the text is HTML escaped with the matching terms inside a <span> tag.
    :>json object blocks:
@@ -140,7 +141,8 @@ This is ``https://docs.readthedocs.io/_/api/v2/search`` for the ``docs`` project
                   "project": "docs",
                   "version": "latest",
                   "title": "Server Side Search",
-                  "link": "https://docs.readthedocs.io/en/latest/server-side-search.html",
+                  "domain": "https://docs.readthedocs.io",
+                  "path": "/en/latest/server-side-search.html",
                   "highlights": {
                       "title": [
                           "<span>Server</span> <span>Side</span> <span>Search</span>"

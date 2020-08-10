@@ -281,7 +281,8 @@ class TestPageSearch:
         # only one project
         assert len(results) == 1
         assert results[0]['project'] == 'kuma'
-        assert results[0]['link'] == 'http://readthedocs.org/docs/kuma/en/latest/documentation.html'
+        assert results[0]['domain'] == 'http://readthedocs.org'
+        assert results[0]['path'] == '/docs/kuma/en/latest/documentation.html'
 
         blocks = results[0]['blocks']
         assert len(blocks) == 1
