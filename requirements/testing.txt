@@ -6,7 +6,7 @@ django-dynamic-fixture==3.1.0
 pytest==6.0.1
 pytest-custom-exit-code==0.3.0
 pytest-django==3.9.0
-pytest-xdist==1.33.0
+pytest-xdist==1.34.0
 pytest-cov==2.10.0
 apipkg==1.5
 execnet==1.7.1
