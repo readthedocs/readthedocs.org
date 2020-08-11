@@ -28,6 +28,7 @@ class VersionFilter(filters.FilterSet):
             'built',
             'uploaded',
             'slug',
+            'type',
         ]
 
 
