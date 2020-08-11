@@ -88,6 +88,26 @@ class BuildLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
+class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+    project = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+    build = serializers.URLField(source='get_full_url')
+
+    def get_project(self, obj):
+        path = reverse('projects_detail', kwargs={'project_slug': obj.project.slug})
+        return self._absolute_url(path)
+
+    def get_version(self, obj):
+        path = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+                'version_slug': obj.version.slug
+            }
+        )
+        return self._absolute_url(path)
+
+
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
 
     """
@@ -123,7 +143,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
-    build_url = serializers.URLField(source='get_full_url')
+    urls = BuildURLsSerializer(source='*')
 
     class Meta:
         model = Build
@@ -139,7 +159,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'error',
             'commit',
             '_links',
-            'build_url',
+            'urls',
         ]
 
         expandable_fields = {
