@@ -41,7 +41,7 @@ version
 formats
 ~~~~~~~
 
-* Default: [``htmlzip``, ``pdf``, ``epub``]
+* Default: [``htmlzip``]
 * Options: ``htmlzip``, ``pdf``, ``epub``
 * Type: List
 
