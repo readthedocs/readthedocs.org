@@ -1064,6 +1064,23 @@ class Project(models.Model):
     def get_stable_version(self):
         return self.versions.filter(slug=STABLE).first()
 
+    def get_original_stable_version(self):
+        """
+        Get the original version that stable points to.
+
+        Returns None if the current stable doesn't point to a valid version.
+        """
+        current_stable = self.get_stable_version()
+        if not current_stable or not current_stable.machine:
+            return None
+        # Several tags can point to the same identifier.
+        # Return the stable one.
+        original_stable = determine_stable_version(
+            self.versions(manager=INTERNAL)
+            .filter(identifier=current_stable.identifier)
+        )
+        return original_stable
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.

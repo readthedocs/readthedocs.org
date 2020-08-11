@@ -13,10 +13,10 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import (
     BRANCH,
-    TAG,
-    INTERNAL,
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    INTERNAL,
+    TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
@@ -26,14 +26,6 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from ..utils import (
-    delete_versions_from_db,
-    sync_versions_to_db,
-    run_automation_rules,
-    ProjectPagination,
-    RemoteOrganizationPagination,
-    RemoteProjectPagination,
-)
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -53,7 +45,14 @@ from ..serializers import (
     VersionAdminSerializer,
     VersionSerializer,
 )
-
+from ..utils import (
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+    delete_versions_from_db,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -193,9 +192,9 @@ class ProjectViewSet(UserSelectViewSet):
 
         # If the currently highest non-prerelease version is active, then make
         # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
+        current_stable = project.get_original_stable_version()
+        if current_stable is not None:
+            activate_new_stable = current_stable.active
         else:
             activate_new_stable = False
 
