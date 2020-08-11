@@ -17,7 +17,6 @@ class TaskRouter:
 
     1. the project is using conda
     2. new project with less than N successful builds
-    3. last N successful builds have a high time average
 
     It ignores projects that have already set ``build_queue`` attribute.
 
@@ -78,19 +77,12 @@ class TaskRouter:
         return
 
     def _get_version(self, task, args, kwargs):
-        if task == 'readthedocs.projects.tasks.update_docs_task':
-            build_pk = kwargs.get('build_pk')
-            try:
-                build = Build.objects.get(pk=build_pk)
-                version = build.version
-            except Build.DoesNotExist:
-                log.info(
-                    'Build does not exist. Routing task to default queue. build_pk=%s',
-                    build_pk,
-                )
-                return
-
-        elif task == 'readthedocs.projects.tasks.sync_repository_task':
+        tasks = [
+            'readthedocs.projects.tasks.update_docs_task',
+            'readthedocs.projects.tasks.sync_repository_task',
+        ]
+        version = None
+        if task in tasks:
             version_pk = args[0]
             try:
                 version = Version.objects.get(pk=version_pk)
@@ -99,5 +91,4 @@ class TaskRouter:
                     'Version does not exist. Routing task to default queue. version_pk=%s',
                     version_pk,
                 )
-                return
         return version
