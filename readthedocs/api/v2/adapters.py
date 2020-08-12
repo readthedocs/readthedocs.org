@@ -1,5 +1,5 @@
-from requests_toolbelt.adapters.host_header_ssl import HostHeaderSSLAdapter
 from requests.adapters import HTTPAdapter
+from requests_toolbelt.adapters.host_header_ssl import HostHeaderSSLAdapter
 
 
 class TimeoutAdapter:
@@ -10,8 +10,8 @@ class TimeoutAdapter:
     Allows us to not wait forever when querying our API internally from the
     builders and make the build fail faster if it goes wrong.
 
-    https://2.python-requests.org//en/master/user/advanced/#transport-adapters
-    https://2.python-requests.org//en/master/user/advanced/#timeouts
+    https://2.python-requests.org/page/user/advanced/#transport-adapters
+    https://2.python-requests.org/page/user/advanced/#timeouts
     """
 
     def send(self, *args, **kwargs):
