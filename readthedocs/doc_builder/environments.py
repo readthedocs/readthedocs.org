@@ -838,21 +838,21 @@ class DockerBuildEnvironment(BuildEnvironment):
                     if self.build:
                         self.build['state'] = BUILD_STATE_FINISHED
                     raise exc
-                else:
-                    log.warning(
-                        LOG_TEMPLATE,
-                        {
-                            'project': self.project.slug,
-                            'version': self.version.slug,
-                            'msg': (
-                                'Removing stale container {}'.format(
-                                    self.container_id,
-                                )
-                            ),
-                        }
-                    )
-                    client = self.get_client()
-                    client.remove_container(self.container_id)
+
+                log.warning(
+                    LOG_TEMPLATE,
+                    {
+                        'project': self.project.slug,
+                        'version': self.version.slug,
+                        'msg': (
+                            'Removing stale container {}'.format(
+                                self.container_id,
+                            )
+                        ),
+                    }
+                )
+                client = self.get_client()
+                client.remove_container(self.container_id)
         except (DockerAPIError, ConnectionError):
             # If there is an exception here, we swallow the exception as this
             # was just during a sanity check anyways.

@@ -15,4 +15,6 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
 
     def get_search(self, api_client, search_params):
+        # TODO: remove once the api is stable
+        search_params['new-api'] = 'true'
         return api_client.get(self.url, search_params, HTTP_HOST=self.host)

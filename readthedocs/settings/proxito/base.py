@@ -11,6 +11,7 @@ class CommunityProxitoSettingsMixin:
 
     ROOT_URLCONF = 'readthedocs.proxito.urls'
     USE_SUBDOMAIN = True
+    SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
     @property
     def DATABASES(self):

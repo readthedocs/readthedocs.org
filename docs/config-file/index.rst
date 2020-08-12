@@ -18,7 +18,7 @@ The main advantages of using a configuration file over the web interface are:
 - Some settings are only available using a configuration file
 
 .. tip::
-   
+
    Using a configuration file is the recommended way of using Read the Docs.
 
 .. toctree::
