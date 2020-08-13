@@ -525,8 +525,9 @@ class GitLabService(Service):
         url = self.adapter.provider_base_url
 
         try:
+            statuses_url = f'{url}/api/v4/projects/{repo_id}/statuses/{commit}'
             resp = session.post(
-                f'{url}/api/v4/projects/{repo_id}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -542,8 +543,8 @@ class GitLabService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info(
                     'GitLab project does not exist or user does not have permissions: '
-                    'project=%s user=%s status_code=%s',
-                    project.slug, self.user.username, resp.status_code,
+                    'project=%s, user=%s, status=%s, url=%s',
+                    project.slug, self.user.username, resp.status_code, statuses_url,
                 )
                 return False
 
