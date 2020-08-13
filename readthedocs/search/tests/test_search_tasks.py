@@ -20,7 +20,7 @@ class TestSearchTasks:
         # This reverse needs to be inside the ``setup_class`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        cls.url = reverse('doc_search')
+        cls.url = reverse('search_api')
 
     def test_search_query_recorded_when_results_not_zero(self, api_client):
         """Test if search query is recorded in a database when a search is made."""
