@@ -247,6 +247,8 @@ Project details
             }
         }
 
+    :query string slug: returns versions with matching slug
+    :query string name: returns versions with matching name
     :query string expand: allows to add/expand some extra fields in the response.
                           Allowed values are ``active_versions``, ``active_versions.last_build`` and
                           ``active_versions.last_build.config``. Multiple fields can be passed separated by commas.
