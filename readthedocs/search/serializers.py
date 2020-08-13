@@ -10,6 +10,7 @@ import itertools
 import re
 from functools import namedtuple
 from operator import attrgetter
+from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -58,11 +59,26 @@ class PageSearchSerializer(serializers.Serializer):
     project = serializers.CharField()
     version = serializers.CharField()
     title = serializers.CharField()
-    link = serializers.SerializerMethodField()
+    path = serializers.SerializerMethodField()
+    domain = serializers.SerializerMethodField()
     highlights = PageHighlightSerializer(source='meta.highlight', default=dict)
     blocks = serializers.SerializerMethodField()
 
-    def get_link(self, obj):
+    def get_domain(self, obj):
+        full_path = self._get_full_path(obj)
+        if full_path:
+            parsed = urlparse(full_path)
+            return f'{parsed.scheme}://{parsed.netloc}'
+        return None
+
+    def get_path(self, obj):
+        full_path = self._get_full_path(obj)
+        if full_path:
+            parsed = urlparse(full_path)
+            return parsed.path
+        return None
+
+    def _get_full_path(self, obj):
         """
         Get the page link.
 
@@ -71,8 +87,6 @@ class PageSearchSerializer(serializers.Serializer):
         If the result is fetched from the database,
         it's cached into ``project_data``.
         """
-        # TODO: return a relative URL when this is called from the indoc search.
-
         # First try to build the URL from the context.
         project_data = self.context.get('projects_data', {}).get(obj.project)
         if project_data:
