@@ -328,8 +328,14 @@ class BuildViewSet(UserSelectViewSet):
                 id=instance.id,
             )
             if storage.exists(storage_path):
-                json_resp = storage.open(storage_path).read()
-                data['commands'] = json.loads(json_resp)
+                try:
+                    json_resp = storage.open(storage_path).read()
+                    data['commands'] = json.loads(json_resp)
+                except Exception:
+                    log.exception(
+                        'Failed to read build data from storage. path=%s.',
+                        storage_path,
+                    )
         return Response(data)
 
 
