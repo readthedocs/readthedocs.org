@@ -32,8 +32,11 @@ This page describes some best-practices for cross-referencing with Sphinx.
 
 .. _My target:
 
+Getting started
+---------------
+
 Explicit targets
-----------------
+~~~~~~~~~~~~~~~~
 
 .. note::
 
@@ -55,7 +58,7 @@ For example, one way of creating an explicit target for a section is:
    .. _My target:
 
    Explicit targets
-   ----------------
+   ~~~~~~~~~~~~~~~~
 
 Then we can reference the section using ```My target`_``,
 that will be rendered as `My target`_.
@@ -93,7 +96,7 @@ Then we can reference it using ```in-line targets`_``,
 that will be rendered as: `in-line targets`_.
 
 Implicit targets
-----------------
+~~~~~~~~~~~~~~~~
 
 You may also reference sections by name without explicitly giving them one by
 using *implicit targets*.
