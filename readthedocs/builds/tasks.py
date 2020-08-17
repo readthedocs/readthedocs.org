@@ -46,13 +46,15 @@ class TaskRouter:
             log.info('No Build/Version found. No routing task. task=%s', task)
             return
 
+        project = version.project
+
         # Do not override the queue defined in the project itself
-        if version.project.build_queue:
+        if project.build_queue:
             log.info(
-                'Skipping routing task because project has a custom queue. queue=%s',
-                version.project.build_queue,
+                'Skipping routing task because project has a custom queue. project=%s, queue=%s',
+                project.slug, project.build_queue,
             )
-            return version.project.build_queue
+            return project.build_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
@@ -61,20 +63,21 @@ class TaskRouter:
         for build in last_builds.iterator():
             if build.config.get('conda', None):
                 log.info(
-                    'Routing task because project uses conda. queue=%s',
-                    self.BUILD_LARGE_QUEUE,
+                    'Routing task because project uses conda. project=%s, queue=%s',
+                    project.slug, self.BUILD_LARGE_QUEUE,
                 )
                 return self.BUILD_LARGE_QUEUE
 
         # We do not have enough builds for this version yet
         if queryset.count() < self.N_BUILDS:
             log.info(
-                'Routing task because it does not have enough success builds yet. queue=%s',
-                self.BUILD_LARGE_QUEUE,
+                'Routing task because it does not have enough success builds yet. '
+                'project=%s, queue=%s',
+                project.slug, self.BUILD_LARGE_QUEUE,
             )
             return self.BUILD_LARGE_QUEUE
 
-        log.info('No routing task because no conditions were met.')
+        log.info('No routing task because no conditions were met. project=%s', project.slug)
         return
 
     def _get_version(self, task, args, kwargs):
