@@ -79,18 +79,18 @@ but we can use any text you want. For example:
 ```my custom text <target to paragraph>`_``,
 that will be rendered as: `my custom text <target to paragraph>`_.
 
-We can also create *in-line targets* within an element on your page,
+We can also create _`in-line targets` within an element on your page,
 allowing you to, for example, reference text *within* a paragraph.
 
 For example, an in-line target inside a paragraph:
 
 .. code-block:: rst
 
-   We can also reference to a place *inside* an element,
-   this can be done with an _`inline target`.
+   We can also create _`in-line targets` within an element on your page,
+   allowing you to, for example, reference text *within* a paragraph.
 
-Then we can reference it using ```inline target`_``,
-that will be rendered as: `inline target`_.
+Then we can reference it using ```in-line targets`_``,
+that will be rendered as: `in-line targets`_.
 
 Implicit targets
 ----------------
@@ -132,13 +132,13 @@ The ``ref`` role can be used to reference any explicit target. For example:
 
    - :ref:`my target`.
    - :ref:`Target to paragraph <target to paragraph>`.
-   - :ref:`Target inside a paragraph <inline target>`.
+   - :ref:`Target inside a paragraph <in-line targets>`.
 
 That will be rendered as:
 
 - :ref:`my target`.
 - :ref:`Target to paragraph <target to paragraph>`.
-- :ref:`Target inside a paragraph <inline target>`.
+- :ref:`Target inside a paragraph <in-line targets>`.
 
 The ``ref`` role also allow us to reference code blocks:
 
