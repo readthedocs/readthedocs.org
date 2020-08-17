@@ -5,7 +5,7 @@ Read the Docs provides :doc:`server side search (SSS) </server-side-search>`
 in replace of the default search engine of your site.
 To accomplish this, Read the Docs parses the content directly from your HTML pages [*]_.
 
-If you are the author of a theme or a static site generator you can read the next document,
+If you are the author of a theme or a static site generator you can read this document,
 and follow some conventions in order to improve the integration of SSS with your theme/site.
 
 Indexing
@@ -30,7 +30,7 @@ Read the Docs makes use of ARIA_ roles and other heuristics in order to process 
 Main content node
 ~~~~~~~~~~~~~~~~~
 
-The main content node should have a main role (or a ``main`` tag), and should exists only one per page.
+The main content node should have a main role (or a ``main`` tag), and there should only be one per page.
 This node is the one that contains all the page content. Example:
 
 .. code-block:: html
