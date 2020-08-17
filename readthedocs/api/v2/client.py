@@ -41,7 +41,7 @@ def setup_api():
         status=3,
         backoff_factor=0.5,  # 0.5, 1, 2 seconds
         method_whitelist=('GET', 'PUT', 'PATCH'),
-        status_forcelist=(408, 413, 429, 500, 502, 503, 504),
+        status_forcelist=(408, 413, 429, 500, 502, 503),
     )
 
     session.mount(
