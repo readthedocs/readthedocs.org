@@ -1,5 +1,5 @@
-Better Integration with Server Side Search
-==========================================
+Server Side Search Integration
+==============================
 
 Read the Docs provides :doc:`server side search (SSS) </server-side-search>`
 in replace of the default search engine of your site.
