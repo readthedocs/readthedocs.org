@@ -28,7 +28,7 @@ Markdown==3.2.2
 sphinxemoji==0.1.6
 sphinxcontrib-httpdomain==1.7.0
 sphinx-prompt==1.0.0
-sphinx-notfound-page==0.4
+sphinx-notfound-page==0.5
 commonmark==0.9.1
 recommonmark==0.6.0
 
