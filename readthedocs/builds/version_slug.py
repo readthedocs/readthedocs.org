@@ -70,8 +70,8 @@ class VersionSlugField(models.CharField):
         populate_from = kwargs.pop('populate_from', None)
         if populate_from is None:
             raise ValueError("missing 'populate_from' argument")
-        else:
-            self._populate_from = populate_from
+
+        self._populate_from = populate_from
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):

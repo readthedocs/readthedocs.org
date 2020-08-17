@@ -240,7 +240,7 @@ class BaseSphinx(BaseBuilder):
         if self._force:
             build_command.append('-E')
         if self.config.sphinx.fail_on_warning:
-            build_command.append('-W')
+            build_command.extend(['-W', '--keep-going'])
         doctree_path = f'_build/doctrees-{self.sphinx_builder}'
         if self.project.has_feature(Feature.SHARE_SPHINX_DOCTREE):
             doctree_path = '_build/doctrees'

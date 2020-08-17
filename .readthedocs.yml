@@ -6,3 +6,15 @@ python:
   install:
     - requirements: requirements/pip.txt
     - requirements: requirements/docs.txt
+
+search:
+  ranking:
+    # Deprecated content
+    api/v1.html: -1
+    config-file/v1.html: -1
+
+    # Internal documentation
+    development/design/*: -5
+
+    # Useful content, but not something we want most users finding
+    custom_installs/*: -6

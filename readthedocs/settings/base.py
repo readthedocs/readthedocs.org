@@ -76,6 +76,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = 'DENY'
 
     # Content Security Policy
@@ -193,6 +194,7 @@ class CommunityBaseSettings(Settings):
         'dj_pagination.middleware.PaginationMiddleware',
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
+        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (

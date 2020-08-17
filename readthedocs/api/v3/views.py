@@ -2,7 +2,7 @@ import django_filters.rest_framework as filters
 from django.utils.safestring import mark_safe
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.mixins import (
@@ -61,9 +61,7 @@ class APIv3Settings:
         ``DEFAULT_THROTTLE_RATES`` since it's not possible to define here.
     """
 
-    # Using only ``TokenAuthentication`` for now, so we can give access to
-    # specific carefully selected users only
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (PublicDetailPrivateListing,)
 
     pagination_class = LimitOffsetPagination

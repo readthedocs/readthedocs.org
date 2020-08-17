@@ -3,28 +3,23 @@
 import json
 import logging
 import re
+from urllib.parse import urljoin, urlparse
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
 )
-from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
-
-try:
-    from urlparse import urljoin, urlparse
-except ImportError:
-    from urllib.parse import urljoin, urlparse  # noqa
 
 log = logging.getLogger(__name__)
 
@@ -195,12 +190,12 @@ class GitLabService(Service):
             repo.json = json.dumps(fields)
             repo.save()
             return repo
-        else:
-            log.info(
-                'Not importing %s because mismatched type: visibility=%s',
-                fields['name_with_namespace'],
-                fields['visibility'],
-            )
+
+        log.info(
+            'Not importing %s because mismatched type: visibility=%s',
+            fields['name_with_namespace'],
+            fields['visibility'],
+        )
 
     def create_organization(self, fields):
         """
@@ -530,8 +525,9 @@ class GitLabService(Service):
         url = self.adapter.provider_base_url
 
         try:
+            statuses_url = f'{url}/api/v4/projects/{repo_id}/statuses/{commit}'
             resp = session.post(
-                f'{url}/api/v4/projects/{repo_id}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -539,16 +535,16 @@ class GitLabService(Service):
             if resp.status_code == 201:
                 log.info(
                     "GitLab commit status created for project: %s, commit status: %s",
-                    project,
+                    project.slug,
                     gitlab_build_state,
                 )
                 return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'GitLab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'GitLab project does not exist or user does not have permissions: '
+                    'project=%s, user=%s, status=%s, url=%s',
+                    project.slug, self.user.username, resp.status_code, statuses_url,
                 )
                 return False
 
@@ -558,7 +554,7 @@ class GitLabService(Service):
         except (RequestException, ValueError):
             log.exception(
                 'GitLab commit status creation failed for project: %s',
-                project,
+                project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though
