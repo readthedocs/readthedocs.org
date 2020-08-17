@@ -448,7 +448,10 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
-            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
+            log.info(
+                'Triggered sync_versions: project=%s events=%s created=%s deleted=%s',
+                self.project, events, created, deleted,
+            )
             return self.sync_versions_response(self.project)
 
         # Trigger a build for all branches in the push
