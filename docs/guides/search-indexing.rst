@@ -122,7 +122,7 @@ All content bellow the section, till the new section will be indexed as part of 
       </p>
    </div>
 
-Sections can also be wrapped till two levels (and have nested sections),
+Sections can be inside till two nested tags (and have nested sections),
 and its immediate parent can contain the ``id`` attribute.
 Note that the section content still needs to be bellow the ``h`` tag. Example:
 
