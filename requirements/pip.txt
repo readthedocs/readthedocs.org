@@ -8,7 +8,7 @@ django-extensions==3.0.5
 django_polymorphic==2.1.2
 django-autoslug==1.9.8
 
-djangorestframework==3.11.0
+djangorestframework==3.11.1
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
