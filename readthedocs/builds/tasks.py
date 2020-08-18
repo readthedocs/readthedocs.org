@@ -50,7 +50,7 @@ class TaskRouter:
         # Do not override the queue defined in the project itself
         if project.build_queue:
             log.info(
-                'Skipping routing task because project has a custom queue. project=%s, queue=%s',
+                'Skipping routing task because project has a custom queue. project=%s queue=%s',
                 project.slug, project.build_queue,
             )
             return project.build_queue
@@ -62,7 +62,7 @@ class TaskRouter:
         for build in last_builds.iterator():
             if build.config.get('conda', None):
                 log.info(
-                    'Routing task because project uses conda. project=%s, queue=%s',
+                    'Routing task because project uses conda. project=%s queue=%s',
                     project.slug, self.BUILD_LARGE_QUEUE,
                 )
                 return self.BUILD_LARGE_QUEUE
@@ -71,7 +71,7 @@ class TaskRouter:
         if queryset.count() < self.N_BUILDS:
             log.info(
                 'Routing task because it does not have enough success builds yet. '
-                'project=%s, queue=%s',
+                'project=%s queue=%s',
                 project.slug, self.BUILD_LARGE_QUEUE,
             )
             return self.BUILD_LARGE_QUEUE
