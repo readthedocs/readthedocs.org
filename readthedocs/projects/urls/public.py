@@ -7,8 +7,7 @@ from readthedocs.builds import views as build_views
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
 from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
-from readthedocs.search import views as search_views
-
+from readthedocs.search.views import SearchView
 
 urlpatterns = [
     url(
@@ -65,7 +64,7 @@ urlpatterns = [
     ),
     url(
         r'^(?P<project_slug>{project_slug})/search/$'.format(**pattern_opts),
-        search_views.elastic_search,
+        SearchView.as_view(),
         name='elastic_project_search',
     ),
     url(

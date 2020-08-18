@@ -50,11 +50,12 @@ and starts a development server to browse your documentation.
 Open up http://127.0.0.1:8000/ in your web browser to see your documentation.
 You can make changes to your Markdown files and your docs will automatically rebuild.
 
-.. figure:: ../_static/images/first-steps/mkdocs-hello-world.png
-    :figwidth: 500px
-    :target: ../_static/images/first-steps/mkdocs-hello-world.png
+.. figure:: /_static/images/first-steps/mkdocs-hello-world.png
+   :figwidth: 500px
+   :target: /_static/images/first-steps/mkdocs-hello-world.png
+   :align: center
 
-    Your MkDocs project is built
+   Your MkDocs project is built
 
 Once you have your documentation in a public repository such as GitHub, Bitbucket, or GitLab,
 you can start using Read the Docs by :doc:`importing your docs </intro/import-guide>`.

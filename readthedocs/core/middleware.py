@@ -6,6 +6,7 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.contrib.sessions.backends.base import UpdateError
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.http import Http404, HttpResponseBadRequest
 from django.urls.base import set_urlconf
@@ -155,4 +156,47 @@ class ReadTheDocsSessionMiddleware(SessionMiddleware):
                                 httponly=settings.SESSION_COOKIE_HTTPONLY or None,
                                 samesite=settings.SESSION_COOKIE_SAMESITE,
                             )
+        return response
+
+
+class ReferrerPolicyMiddleware:
+
+    """
+    A middleware implementing the Referrer-Policy header.
+
+    The value of the header will be read from the SECURE_REFERRER_POLICY setting.
+
+    Important:
+        In Django 3.x, this feature is built-in to the SecurityMiddleware.
+        After upgrading to Django3, this middleware should be removed.
+        https://docs.djangoproject.com/en/3.1/ref/middleware/#referrer-policy
+
+    Based heavily on: https://github.com/ubernostrum/django-referrer-policy
+    """
+
+    VALID_REFERRER_POLICIES = [
+        'no-referrer',
+        'no-referrer-when-downgrade',
+        'origin',
+        'origin-when-cross-origin',
+        'same-origin',
+        'strict-origin',
+        'strict-origin-when-cross-origin',
+        'unsafe-url',
+    ]
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+        if not settings.SECURE_REFERRER_POLICY:
+            log.warning("SECURE_REFERRER_POLICY not set - not setting the referrer policy")
+            raise MiddlewareNotUsed()
+        if settings.SECURE_REFERRER_POLICY not in self.VALID_REFERRER_POLICIES:
+            raise ImproperlyConfigured(
+                "settings.SECURE_REFERRER_POLICY has an illegal value."
+            )
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response['Referrer-Policy'] = settings.SECURE_REFERRER_POLICY
         return response
