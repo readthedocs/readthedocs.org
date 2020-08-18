@@ -1538,6 +1538,7 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
+    SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1624,6 +1625,10 @@ class Feature(models.Model):
         (
             SKIP_SYNC_TAGS,
             _('Skip syncing tags'),
+        ),
+        (
+            SKIP_SYNC_VERSIONS,
+            _('Skip sync versions task'),
         ),
         (
             CACHED_ENVIRONMENT,
