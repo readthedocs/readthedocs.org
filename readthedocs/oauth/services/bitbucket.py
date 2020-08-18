@@ -32,6 +32,8 @@ class BitbucketService(Service):
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
+        repos = []
+
         # Get user repos
         try:
             repos = self.paginate(
@@ -71,7 +73,9 @@ class BitbucketService(Service):
 
     def sync_organizations(self):
         """Sync Bitbucket teams (our RemoteOrganization) and team repositories."""
+        teams = []
         repositories = []
+
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member',
@@ -86,13 +90,14 @@ class BitbucketService(Service):
                 for repo in repos:
                     self.create_repository(repo, organization=org)
 
-            return teams, repositories
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
             raise SyncServiceError(
                 'Could not sync your Bitbucket team repositories, '
                 'try reconnecting your account',
             )
+
+        return teams, repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """

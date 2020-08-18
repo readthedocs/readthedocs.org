@@ -72,20 +72,19 @@ class GitLabService(Service):
         return response.json()
 
     def sync_repositories(self):
-        repos = self.paginate(
-            '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            archived=False,
-            order_by='path',
-            sort='asc',
-            membership=True,
-        )
-
+        repos = []
         try:
+            repos = self.paginate(
+                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                archived=False,
+                order_by='path',
+                sort='asc',
+                membership=True,
+            )
+
             for repo in repos:
                 self.create_repository(repo)
-
-            return repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab repositories')
             raise SyncServiceError(
@@ -93,17 +92,20 @@ class GitLabService(Service):
                 'try reconnecting your account'
             )
 
+        return repos
+
     def sync_organizations(self):
+        orgs = []
         repositories = []
-        orgs = self.paginate(
-            '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            all_available=False,
-            order_by='path',
-            sort='asc',
-        )
 
         try:
+            orgs = self.paginate(
+                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                all_available=False,
+                order_by='path',
+                sort='asc',
+            )
             for org in orgs:
                 org_obj = self.create_organization(org)
                 org_repos = self.paginate(
@@ -122,14 +124,14 @@ class GitLabService(Service):
 
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
-
-            return orgs, repositories
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
                 'Could not sync your GitLab organization, '
                 'try reconnecting your account'
             )
+
+        return orgs, repositories
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id

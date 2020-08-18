@@ -36,21 +36,25 @@ class GitHubService(Service):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+        repos = []
+
         try:
+            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
                 self.create_repository(repo)
-            return repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
+        return repos
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
+        orgs = []
         repositories = []
+
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
@@ -68,13 +72,14 @@ class GitHubService(Service):
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
 
-            return orgs, repositories
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
                 'try reconnecting your account'
             )
+
+        return orgs, repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """

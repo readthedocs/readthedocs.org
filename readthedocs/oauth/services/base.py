@@ -182,7 +182,8 @@ class Service:
                 url,
                 debug_data,
             )
-            return []
+
+        return []
 
     def sync(self):
         """
