@@ -1,3 +1,20 @@
+Version 5.3.0
+-------------
+
+:Date: August 18, 2020
+
+* `@humitos <https://github.com/humitos>`__: Remove the comma added in logs that breaks grep parsing (`#7393 <https://github.com/readthedocs/readthedocs.org/pull/7393>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab webhook: don't fail on invalid payload (`#7391 <https://github.com/readthedocs/readthedocs.org/pull/7391>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: improve logging (`#7389 <https://github.com/readthedocs/readthedocs.org/pull/7389>`__)
+* `@stsewd <https://github.com/stsewd>`__: External providers: better logging for GitLab (`#7385 <https://github.com/readthedocs/readthedocs.org/pull/7385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: small changes (`#7379 <https://github.com/readthedocs/readthedocs.org/pull/7379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: return relatives URLS (`#7376 <https://github.com/readthedocs/readthedocs.org/pull/7376>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: little optimization when deleting versions (`#7367 <https://github.com/readthedocs/readthedocs.org/pull/7367>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just skip the sync version task entirely (`#7366 <https://github.com/readthedocs/readthedocs.org/pull/7366>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Convert zip to list for templates (`#7359 <https://github.com/readthedocs/readthedocs.org/pull/7359>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: implement stable API (`#7255 <https://github.com/readthedocs/readthedocs.org/pull/7255>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve parser (`#7233 <https://github.com/readthedocs/readthedocs.org/pull/7233>`__)
+
 Version 5.2.3
 -------------
 
