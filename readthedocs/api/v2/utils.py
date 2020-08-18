@@ -16,7 +16,6 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 
-
 log = logging.getLogger(__name__)
 
 
@@ -150,7 +149,14 @@ def delete_versions_from_db(project, version_data):
     versions_branches = [
         version['identifier'] for version in version_data.get('branches', [])
     ]
-    to_delete_qs = project.versions.all()
+
+    to_delete_qs = (
+        project.versions
+        .exclude(uploaded=True)
+        .exclude(active=True)
+        .exclude(slug__in=NON_REPOSITORY_VERSIONS)
+    )
+
     to_delete_qs = to_delete_qs.exclude(
         type=TAG,
         verbose_name__in=versions_tags,
@@ -159,17 +165,16 @@ def delete_versions_from_db(project, version_data):
         type=BRANCH,
         identifier__in=versions_branches,
     )
-    to_delete_qs = to_delete_qs.exclude(uploaded=True)
-    to_delete_qs = to_delete_qs.exclude(active=True)
-    to_delete_qs = to_delete_qs.exclude(slug__in=NON_REPOSITORY_VERSIONS)
 
-    if to_delete_qs.count():
-        ret_val = {obj.slug for obj in to_delete_qs}
-        log.info('(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
-                 project.slug, ' '.join(ret_val))
+    ret_val = set(to_delete_qs.values_list('slug', flat=True))
+    if ret_val:
+        log.info(
+            '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
+            project.slug, ' '.join(ret_val),
+        )
         to_delete_qs.delete()
-        return ret_val
-    return set()
+
+    return ret_val
 
 
 def run_automation_rules(project, versions_slug):
