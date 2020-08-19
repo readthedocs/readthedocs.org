@@ -133,3 +133,6 @@ BUILD_STATUS_CHOICES = (
     (BUILD_STATUS_NORMAL, 'Normal'),
     (BUILD_STATUS_DUPLICATED, 'Duplicated'),
 )
+
+
+MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
