@@ -14,6 +14,7 @@ from readthedocs.search.proxied_api import ProxiedPageSearchAPIView
 api_footer_urls = [
     url(r'footer_html/', ProxiedFooterHTML.as_view(), name='footer_html'),
     url(r'docsearch/$', ProxiedPageSearchAPIView.as_view(), name='doc_search'),
+    url(r'search/$', ProxiedPageSearchAPIView.as_view(new_api=True), name='search_api'),
 ]
 
 urlpatterns = api_footer_urls

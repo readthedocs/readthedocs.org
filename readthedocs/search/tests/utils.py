@@ -2,8 +2,8 @@ import random
 
 from readthedocs.projects.models import HTMLFile
 
-SECTION_FIELDS = [ 'section.title', 'section.content' ]
-DOMAIN_FIELDS = [ 'domain.name', 'domain.docstring' ]
+SECTION_FIELDS = ['section.title', 'section.content']
+DOMAIN_FIELDS = ['domain.name', 'domain.content']
 DATA_TYPES_VALUES = ['title'] + SECTION_FIELDS + DOMAIN_FIELDS
 
 
@@ -77,12 +77,12 @@ def get_search_query_from_project_file(project_slug, page_num=0, field='title', 
         else:
             query = query_data[0]['name'].split()[0]
 
-    elif type == 'domain' and field == 'docstring':
+    elif type == 'domain' and field == 'content':
 
-        # generates query from domain docstrings
+        # generates query from domain content
         anchor = query_data[0]['anchor']
-        docstrings = file_data['domain_data'][anchor]
-        query_data = docstrings.split()
+        content = file_data['domain_data'][anchor]
+        query_data = content.split()
         start = random.randint(0, 1)
 
         # 5 words to generate query to make sure that
