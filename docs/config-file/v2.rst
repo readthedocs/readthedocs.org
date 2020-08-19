@@ -341,7 +341,8 @@ Read the Docs will try to find a ``conf.py`` file in your project.
 sphinx.fail_on_warning
 ``````````````````````
 
-`Turn warnings into errors <http://www.sphinx-doc.org/en/master/man/sphinx-build.html#id6>`__.
+Turn warnings into errors
+(:option:`-W <sphinx:sphinx-build.-W>` and :option:`--keep-going <sphinx:sphinx-build.--keep-going>` options).
 This means the build fails if there is a warning and exits with exit status 1.
 
 :Type: ``bool``
