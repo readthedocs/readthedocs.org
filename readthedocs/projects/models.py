@@ -1466,6 +1466,17 @@ class Domain(models.Model):
         help_text=_('Number of times this domain has been hit'),
     )
 
+    # This is used in readthedocsext.
+    ssl_status = models.CharField(
+        _('SSL certificate status'),
+        max_length=30,
+        choices=constants.SSL_STATUS_CHOICES,
+        default=constants.SSL_STATUS_UNKNOWN,
+        # Remove after deploy
+        null=True,
+        blank=True,
+    )
+
     # Strict-Transport-Security header options
     # These are not exposed to users because it's easy to misconfigure things
     # and hard to back out changes cleanly
