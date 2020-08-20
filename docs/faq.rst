@@ -261,12 +261,12 @@ environment file.
 
 In ``docs/requirements.txt``::
 
-    # path to the folder containing setup.py relative to the project root
+    # path to the directory containing setup.py relative to the project root
     -e .
 
 In ``conda``'s environment files (``docs/environment.yml``), use::
 
-    # path to the folder containing setup.py relative to the environment file
+    # path to the directory containing setup.py relative to the environment file
     -e ..
 
 
