@@ -251,13 +251,14 @@ using a Read the Docs :doc:`config-file/index`.
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
 
 
-Can I install into a environment with pinned versions?
-------------------------------------------------------
-To ensure proper installation of the python package, the ``pip`` :ref:`install
+I need to install a package in a environment with pinned versions
+-----------------------------------------------------------------
+
+To ensure proper installation of a python package, the ``pip`` :ref:`install
 method <config-file/v2:python.install>` will automatically upgrade every
 dependency to its most recent version. If instead you'd like to pin your
-dependencies to certain versions, you can add a line to your requirements /
-environment file.
+dependencies outside the package, you can add this line to your requirements or
+environment file (if you are using Conda).
 
 In ``docs/requirements.txt``::
 
