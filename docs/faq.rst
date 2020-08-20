@@ -254,11 +254,8 @@ using a Read the Docs :doc:`config-file/index`.
 I need to install a package in a environment with pinned versions
 -----------------------------------------------------------------
 
-To ensure proper installation of a python package, the ``pip`` :ref:`install
-method <config-file/v2:python.install>` will automatically upgrade every
-dependency to its most recent version in case they aren't pinned by the package definition. If instead you'd like to pin your
-dependencies outside the package, you can add this line to your requirements or
-environment file (if you are using Conda).
+To ensure proper installation of a python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
 
 In ``docs/requirements.txt``::
 
