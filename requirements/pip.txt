@@ -105,7 +105,7 @@ packaging==20.4
 django-cors-middleware==1.4.0  # pyup: ignore
 
 # User agent parsing - used for analytics purposes
-user-agents==2.1
+user-agents==2.2.0
 
 # Utilities used to upload build media to cloud storage
 # django-storages is pinned to this particular commit because it
