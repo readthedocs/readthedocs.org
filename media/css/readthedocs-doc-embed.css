@@ -18,6 +18,11 @@
     overscroll-behavior: contain;
 }
 
+.rst-versions.shift-up .rst-current-version {
+    position: sticky;
+    top: 0;
+}
+
 .rst-other-versions {
     text-align: left;
 }
