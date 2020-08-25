@@ -30,10 +30,10 @@ This page describes some best-practices for cross-referencing with Sphinx.
    :backlinks: none
    :depth: 3
 
-.. _My target:
-
 Getting started
 ---------------
+
+.. _My target:
 
 Explicit targets
 ~~~~~~~~~~~~~~~~
@@ -286,7 +286,7 @@ List all targets for built documentation with:
 
    python -m sphinx.ext.intersphinx <link>
 
-Where the ``<link>`` is either a URL or a local path that points to your inventory file
+Where ``<link>`` is either a URL or a local path that points to your inventory file
 (usually in ``_build/html/objects.inv``).
 For example, to see all targets from the Read the Docs documentation:
 
