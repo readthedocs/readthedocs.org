@@ -1,3 +1,16 @@
+Version 5.4.0
+-------------
+
+:Date: August 25, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: ES: match version used in production (`#7407 <https://github.com/readthedocs/readthedocs.org/pull/7407>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Advertising docs tweaks (`#7400 <https://github.com/readthedocs/readthedocs.org/pull/7400>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedocs-sphinx-search (`#7399 <https://github.com/readthedocs/readthedocs.org/pull/7399>`__)
+* `@keewis <https://github.com/keewis>`__: document installing into a environment with pinned dependencies (`#7397 <https://github.com/readthedocs/readthedocs.org/pull/7397>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 32 (`#7377 <https://github.com/readthedocs/readthedocs.org/pull/7377>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: store build commands in storage (`#7356 <https://github.com/readthedocs/readthedocs.org/pull/7356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+
 Version 5.3.0
 -------------
 
