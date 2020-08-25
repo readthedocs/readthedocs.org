@@ -6,9 +6,8 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
-
-from django.db.models import Q
 from django.conf import settings
+from django.db.models import Q
 from django.urls import reverse
 from requests.exceptions import RequestException
 
@@ -22,7 +21,6 @@ from readthedocs.integrations.models import Integration
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
 
 log = logging.getLogger(__name__)
 
@@ -465,7 +463,7 @@ class GitHubService(Service):
             if resp.status_code == 201:
                 log.info(
                     "GitHub commit status created for project: %s, commit status: %s",
-                    project,
+                    project.slug,
                     github_build_state,
                 )
                 return True
@@ -474,8 +472,8 @@ class GitHubService(Service):
                 log.info(
                     'GitHub project does not exist or user does not have '
                     'permissions: project=%s, user=%s, status=%s, url=%s',
-                    project,
-                    self.user,
+                    project.slug,
+                    self.user.username,
                     resp.status_code,
                     statuses_url,
                 )
@@ -483,7 +481,7 @@ class GitHubService(Service):
 
             log.warning(
                 'Unknown GitHub status API response: project=%s, user=%s, status_code=%s',
-                project,
+                project.slug,
                 self.user,
                 resp.status_code
             )
@@ -493,7 +491,7 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.exception(
                 'GitHub commit status creation failed for project: %s',
-                project,
+                project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though

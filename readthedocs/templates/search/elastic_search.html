@@ -170,7 +170,7 @@
                     <a href="{{ result.link }}">
                       {{ result.name }} (<em>{{ result.slug }}</em>)
                     </a>
-                    {% for fragment in result.highlight.description %}
+                    {% for fragment in result.highlights.description %}
                       <p class="fragment">
                         ...{{ fragment|safe }}...
                       </p>
@@ -183,16 +183,16 @@
                     {% endfor %}
 
                   {% elif result.type == 'page' %}
-                      <a href="{{ result.link }}?highlight={{ query }}">
-                        {{ result.project }} - {% if result.highlight.title %} {{ result.highlight.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                      <a href="{{ result.domain }}{{ result.path}}?highlight={{ query }}">
+                        {{ result.project }} - {% if result.highlights.title %} {{ result.highlights.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
                       {% for block in result.blocks %}
                         {% if block.type == 'domain' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
-                              {% if block.highlight.name %}
-                                {% with domain_name=block.highlight.name %}
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlights.name %}
+                                {% with domain_name=block.highlights.name %}
                                   [{{ block.role }}]: {{ domain_name.0|safe }}
                                 {% endwith %}
                               {% else %}
@@ -201,22 +201,22 @@
                             </a>
                           </p>
                           <p class="fragment">
-                            {% if block.highlight.docstring %}
-                              {% with domain_docstrings=block.highlight.docstring %}
-                                {{ domain_docstrings.0|safe }}
+                            {% if block.highlights.content %}
+                              {% with domain_content=block.highlights.content %}
+                                {{ domain_content.0|safe }}
                               {% endwith %}
                             {% else %}
-                              {% if block.docstring %}
-                                {{ block.docstring|slice:MAX_SUBSTRING_LIMIT }} ...
+                              {% if block.content %}
+                                {{ block.content|slice:MAX_SUBSTRING_LIMIT }} ...
                               {% endif %}
                             {% endif %}
                           </p>
 
                         {% elif block.type == 'section' %}
                           <p>
-                            <a href="{{ result.link }}?highlight={{ query }}#{{ block.id }}">
-                              {% if block.highlight.title %}
-                                {% with section_title=block.highlight.title %}
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                              {% if block.highlights.title %}
+                                {% with section_title=block.highlights.title %}
                                   {{ section_title.0|safe }}
                                 {% endwith %}
                               {% else %}
@@ -224,8 +224,8 @@
                               {% endif %}
                             </a>
                           </p>
-                          {% if block.highlight.content %}
-                            {% with section_content=block.highlight.content %}
+                          {% if block.highlights.content %}
+                            {% with section_content=block.highlights.content %}
                               {% for content in section_content %}
                                 <p class="fragment">
                                   ... {{ content|safe }} ...

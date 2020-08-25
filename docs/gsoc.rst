@@ -28,13 +28,13 @@ Incoming students will need the following skills:
 
 We're happy to help you get up to speed,
 but the more you are able to demonstrate ability in advance,
-the more likely we are to choose your application! 
+the more likely we are to choose your application!
 
 Getting Started
 ---------------
 
 The :doc:`/development/install` doc is probably the best place to get going.
-It will walk you through getting a basic environment for Read the Docs setup. 
+It will walk you through getting a basic environment for Read the Docs setup.
 
 Then you can look through our :doc:`/contribute` doc for information on how to get started contributing to RTD.
 
@@ -62,7 +62,7 @@ Project Ideas
 -------------
 
 We have written our some loose ideas for projects to work on here.
-We are also open to any other ideas that students might have. 
+We are also open to any other ideas that students might have.
 
 **These projects are sorted by priority.**
 We will consider the priority on our roadmap as a factor,
@@ -201,4 +201,4 @@ Thanks
 This page was heavily inspired by Mailman's similar `GSOC page`_.
 Thanks for the inspiration.
 
-.. _GSOC page: http://wiki.list.org/display/DEV/Google+Summer+of+Code+2014
+.. _GSOC page: https://wiki.list.org/DEV/Google%20Summer%20of%20Code%202014

@@ -437,7 +437,10 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
     """Serializer used to modify a Project once imported."""
 
     repository = RepositorySerializer(source='*')
-    homepage = serializers.URLField(source='project_url')
+    homepage = serializers.URLField(
+        source='project_url',
+        required=False,
+    )
 
     class Meta:
         model = Project
