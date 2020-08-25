@@ -251,6 +251,23 @@ using a Read the Docs :doc:`config-file/index`.
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
 
 
+I need to install a package in a environment with pinned versions
+-----------------------------------------------------------------
+
+To ensure proper installation of a python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
+
+In your ``requirements.txt`` file::
+
+    # path to the directory containing setup.py relative to the project root
+    -e .
+
+In your Conda environment file (``environment.yml``)::
+
+    # path to the directory containing setup.py relative to the environment file
+    -e ..
+
+
 How can I avoid search results having a deprecated version of my docs?
 ----------------------------------------------------------------------
 

@@ -1,8 +1,17 @@
+import json
 import logging
+from datetime import datetime, timedelta
+from io import BytesIO
 
-from django.db.models import Avg
+from celery import Task
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 
+from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.utils import memcache_lock
+from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
 
@@ -95,3 +104,62 @@ class TaskRouter:
                     version_pk,
                 )
         return version
+
+
+class ArchiveBuilds(Task):
+
+    """Task to archive old builds to cold storage."""
+
+    name = __name__ + '.archive_builds'
+
+    def run(self, *args, **kwargs):
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return
+
+        lock_id = '{0}-lock'.format(self.name)
+        days = kwargs.get('days', 14)
+        limit = kwargs.get('limit', 5000)
+        delete = kwargs.get('delete', True)
+
+        with memcache_lock(lock_id, self.app.oid) as acquired:
+            if acquired:
+                archive_builds_task(days=days, limit=limit, delete=delete)
+            else:
+                log.warning('Archive Builds Task still locked')
+
+
+def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
+    """
+    Find stale builds and remove build paths.
+
+    :arg days: Find builds older than `days` days.
+    :arg include_cold: If True, include builds that are already in cold storage
+    :arg delete: If True, deletes BuildCommand objects after archiving them
+    """
+    max_date = datetime.now() - timedelta(days=days)
+    queryset = Build.objects.exclude(commands__isnull=True)
+    if not include_cold:
+        queryset = queryset.exclude(cold_storage=True)
+    queryset = queryset.filter(date__lt=max_date)[:limit]
+
+    storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+    for build in queryset:
+        data = BuildSerializer(build).data['commands']
+        if data:
+            for cmd in data:
+                if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
+                    cmd['output'] = cmd['output'][:MAX_BUILD_COMMAND_SIZE]
+                    cmd['output'] += "\n\nCommand output too long. Truncated at 1MB."
+                    log.warning('Truncating build command for build %s', build.pk)
+            output = BytesIO()
+            output.write(json.dumps(data).encode('utf8'))
+            output.seek(0)
+            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+            try:
+                storage.save(name=filename, content=output)
+                build.cold_storage = True
+                build.save()
+                if delete:
+                    build.commands.all().delete()
+            except IOError:
+                log.exception('Cold Storage save failure')
