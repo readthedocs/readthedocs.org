@@ -14,7 +14,7 @@ This works, but it has some disadvantages:
 - There is no easy way to link to specific sections like paragraphs, figures, or code blocks.
 - URL links only work for the html version of your documentation.
 
-ReStructuredText has a built-in way to linking to elements,
+reStructuredText has a built-in way to linking to elements,
 and Sphinx extends this to make it even more powerful!
 Some advantages of using reStructuredText's references:
 
@@ -43,13 +43,13 @@ Explicit targets
    If you are not familiar with reStructuredText,
    check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
 
-Cross referencing in Sphinx uses two components, **targets** and **references**.
+Cross referencing in Sphinx uses two components, **references** and **targets**.
 
 - **references** are pointers in your documentation to other parts of your documentation.
-- **targets** are the where references can point.
+- **targets** are where the references can point to.
 
-You can manually create a target in any location of your documentation, allowing
-you to reference it from other pages. These are called **explicit targets**.
+You can manually create a *target* in any location of your documentation, allowing
+you to *reference* it from other pages. These are called **explicit targets**.
 
 For example, one way of creating an explicit target for a section is:
 
@@ -124,7 +124,7 @@ Sphinx provides some roles that allows us to reference any explicit target from 
    all targets must be unique.
 
 You can see the complete list of cross-referencing roles at :ref:`sphinx:xref-syntax`.
-Next we will explore the most common ones.
+Next, we will explore the most common ones.
 
 The ref role
 ~~~~~~~~~~~~
@@ -286,8 +286,8 @@ List all targets for built documentation with:
 
    python -m sphinx.ext.intersphinx <link>
 
-Where the link is either a URL or a local path that points to your inventory file
-(``usually in _build/html/objects.inv``).
+Where the ``<link>`` is either a URL or a local path that points to your inventory file
+(usually in ``_build/html/objects.inv``).
 For example, to see all targets from the Read the Docs documentation:
 
 .. prompt:: bash
