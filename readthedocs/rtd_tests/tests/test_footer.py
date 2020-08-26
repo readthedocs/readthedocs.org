@@ -7,8 +7,11 @@ from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework.test import APIRequestFactory
 
-from readthedocs.api.v2.views.footer_views import get_version_compare_data
-from readthedocs.builds.constants import BRANCH, LATEST, TAG
+from readthedocs.api.v2.views.footer_views import (
+    FooterHTML,
+    get_version_compare_data,
+)
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import PUBLIC
@@ -68,6 +71,16 @@ class BaseTestFooterHTML:
         self.assertTrue(r.data['version_active'])
         self.assertFalse(r.data['version_compare']['is_highest'])
         self.assertTrue(r.data['version_supported'])
+        self.assertFalse(r.data['show_version_warning'])
+        self.assertEqual(r.context['main_project'], self.pip)
+
+    def test_footer_dont_show_version_warning_for_external_versions(self):
+        self.latest.type = EXTERNAL
+        self.latest.save()
+
+        r = self.render()
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(r.data['version_compare']['is_highest'])
         self.assertFalse(r.data['show_version_warning'])
         self.assertEqual(r.context['main_project'], self.pip)
 

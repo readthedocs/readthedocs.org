@@ -73,6 +73,7 @@ class APIEndpointMixin(TestCase):
             verbose_name='v1.0',
             identifier='a1b2c3',
             project=self.project,
+            hidden=False,
             active=True,
             built=True,
             type=TAG,

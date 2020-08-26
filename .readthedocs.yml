@@ -15,3 +15,6 @@ search:
 
     # Internal documentation
     development/design/*: -5
+
+    # Useful content, but not something we want most users finding
+    custom_installs/*: -6

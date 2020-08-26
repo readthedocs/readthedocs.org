@@ -30,7 +30,10 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if not project.show_version_warning:
+    if (
+        not project.show_version_warning or
+        (base_version and base_version.is_external)
+    ):
         return {'is_highest': False}
 
     versions_qs = (
@@ -227,9 +230,14 @@ class BaseFooterHTML(APIView):
             request,
         )
 
+        show_version_warning = (
+            project.show_version_warning and
+            not version.is_external
+        )
+
         resp_data = {
             'html': html,
-            'show_version_warning': project.show_version_warning,
+            'show_version_warning': show_version_warning,
             'version_active': version.active,
             'version_compare': version_compare_data,
             'version_supported': version.supported,

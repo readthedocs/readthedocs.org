@@ -65,7 +65,7 @@ Building your documentation
 ---------------------------
 
 Within a few seconds of completing the import process,
-your code will automatically be fetched from your public repository,
+your code will automatically be fetched from your repository,
 and the documentation will be built.
 Check out our :doc:`/builds` page to learn more about how Read the Docs builds your docs,
 and to troubleshoot any issues that arise.
@@ -75,9 +75,9 @@ such as specifying a certain version of Python or installing additional dependen
 You can configure these settings in a ``readthedocs.yml`` file.
 See our :doc:`/config-file/index` docs for more details.
 
-It is also important to note that the default version of Sphinx is ``v1.8.5``. If
-choosing to build your documentation other than this, it must be specified in a
-``requirements.txt`` file.
+It is also important to note that the default version of Sphinx is ``v1.8.5``.
+If choosing to build your documentation other than this,
+:ref:`it must be specified <guides/specifying-dependencies:Specifying Dependencies>`.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.
