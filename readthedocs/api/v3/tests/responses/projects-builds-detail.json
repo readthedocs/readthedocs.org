@@ -11,7 +11,7 @@
         "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
     },
     "urls": {
-        "_self": "https://readthedocs.org/projects/project/builds/1/",
+        "build": "https://readthedocs.org/projects/project/builds/1/",
         "project": "https://readthedocs.org/projects/project/",
         "version": "https://readthedocs.org/dashboard/project/version/v1.0/"
     },

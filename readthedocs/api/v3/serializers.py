@@ -89,7 +89,7 @@ class BuildLinksSerializer(BaseLinksSerializer):
 
 
 class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
-    _self = serializers.URLField(source='get_full_url')
+    build = serializers.URLField(source='get_full_url')
     project = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
 
