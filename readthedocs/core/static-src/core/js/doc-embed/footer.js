@@ -44,7 +44,7 @@ function init() {
         project: rtd['project'],
         version: rtd['version'],
         page: rtd['page'],
-        origin: window.location.href,
+        absolute_uri: window.location.href,
         theme: rtd.get_theme_name(),
         format: "jsonp",
     };

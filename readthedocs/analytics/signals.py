@@ -11,7 +11,7 @@ from .models import PageView
 
 
 @receiver(footer_response)
-def increase_page_view_count(sender, *, request, context, origin, **kwargs):
+def increase_page_view_count(sender, *, request, context, absolute_uri, **kwargs):
     """Increase the page view count for the given project."""
     # unused
     del sender
@@ -20,10 +20,10 @@ def increase_page_view_count(sender, *, request, context, origin, **kwargs):
     project = context['project']
     version = context['version']
 
-    if not origin or not project.has_feature(Feature.STORE_PAGEVIEWS):
+    if not absolute_uri or not project.has_feature(Feature.STORE_PAGEVIEWS):
         return
 
-    unresolved = unresolve_from_request(request, origin)
+    unresolved = unresolve_from_request(request, absolute_uri)
     if not unresolved:
         return
 

@@ -51,7 +51,7 @@ class UnresolverBase:
         """
         parsed = urlparse(path)
         path = parsed.path
-        project_slug = getattr(request, 'slug', None)
+        project_slug = getattr(request, 'host_project_slug', None)
 
         if not project_slug:
             return None
