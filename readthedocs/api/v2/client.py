@@ -4,12 +4,11 @@ import logging
 
 import requests
 from django.conf import settings
-from requests.packages.urllib3.util.retry import Retry  # noqa
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
+from urllib3.util.retry import Retry
 
 from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
-
 
 log = logging.getLogger(__name__)
 
@@ -41,8 +40,8 @@ def setup_api():
         connect=3,
         status=3,
         backoff_factor=0.5,  # 0.5, 1, 2 seconds
-        method_whitelist=('GET', 'PUT', 'PATCH', 'POST'),
-        status_forcelist=(408, 413, 429, 500, 502, 503, 504),
+        method_whitelist=('GET', 'PUT', 'PATCH'),
+        status_forcelist=(408, 413, 429, 500, 502, 503),
     )
 
     session.mount(
