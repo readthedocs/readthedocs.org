@@ -51,6 +51,9 @@ elasticsearch-dsl==6.4.0  # pyup: <7.0
 django-elasticsearch-dsl==6.4.2  # pyup: <7.0
 selectolax==0.2.7
 
+# NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
+python-dateutil==2.8.1
+
 # Ignoring orjson for now because it makes Travis to fail
 orjson==2.0.7  # pyup: ignore
 
