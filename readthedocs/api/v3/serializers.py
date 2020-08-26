@@ -89,7 +89,28 @@ class BuildLinksSerializer(BaseLinksSerializer):
 
 
 class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
-    build = serializers.URLField(source='get_full_url')
+    _self = serializers.URLField(source='get_full_url')
+    project = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects_detail',
+            kwargs={
+                'project_slug': obj.project.slug
+            }
+        )
+        return self._absolute_url(path)
+
+    def get_version(self, obj):
+        path = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+                'version_slug': obj.version.slug
+            }
+        )
+        return self._absolute_url(path)
 
 
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
