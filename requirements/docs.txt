@@ -1,6 +1,6 @@
 # Packages required to build docs, independent of application dependencies
 
-Sphinx==3.2.0
+Sphinx==3.2.1
 
 # doctuils==0.15 produces this error
 #   File "python3.6/site-packages/docutils/parsers/rst/states.py", line 882, in interpreted
@@ -11,7 +11,7 @@ Sphinx==3.2.0
 docutils==0.14  # pyup: ignore
 
 sphinx_rtd_theme==0.5.0
-sphinx-tabs==1.1.13
+sphinx-tabs==1.2.1
 sphinx-intl==2.0.1
 
 readthedocs-sphinx-search==0.1.0rc2
