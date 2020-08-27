@@ -71,8 +71,6 @@ Instead, we target based solely upon:
     targeting by state or by metro area (DMA specifically).
   * We geolocate a user's IP address to a country when a request is made.
 
-Read the Docs uses GeoLite2 data created by `MaxMind <http://maxmind.com>`_.
-
 
 Where ads are shown
 -------------------
@@ -95,6 +93,14 @@ Do Not Track Policy
 Read the Docs supports Do Not Track (DNT) and respects users' tracking preferences.
 For more details, see the :ref:`Do Not Track section <privacy-policy:Do Not Track>`
 of our privacy policy.
+
+
+Ad serving infrastructure
+-------------------------
+
+Our `entire ad server <https://github.com/readthedocs/ethical-ad-server>`_ is open source,
+so you can inspect how we're doing things.
+We believe strongly in open source, and we practice what we preach.
 
 
 Analytics

@@ -104,12 +104,12 @@ class AnalyticsPageViewsTests(TestCase):
             slug='pip',
         )
         self.version = get(Version, slug='1.8', project=self.project)
-        self.origin = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
+        self.absolute_uri = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
         self.host = f'{self.project.slug}.readthedocs.io'
         self.url = (
             reverse('footer_html') +
             f'?project={self.project.slug}&version={self.version.slug}&page=index&docroot=/docs/' +
-            f'&origin={self.origin}'
+            f'&absolute_uri={self.absolute_uri}'
         )
 
         self.today = timezone.now()
@@ -140,7 +140,7 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{origin}\' is created'
+            ), f'PageView object for path \'{self.absolute_uri}\' is created'
             assert (
                 PageView.objects.all().first().view_count == 1
             ), '\'index\' has 1 view'
@@ -149,11 +149,11 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{origin}\' is already created'
+            ), f'PageView object for path \'{self.absolute_uri}\' is already created'
             assert PageView.objects.filter(path='index.html').count() == 1
             assert (
                 PageView.objects.all().first().view_count == 2
-            ), f'\'{origin}\' has 2 views now'
+            ), f'\'{self.absolute_uri}\' has 2 views now'
 
         # testing for today
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
@@ -163,11 +163,11 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 2
-            ), f'PageView object for path \'{origin}\' is created for two days (yesterday and today)'
+            ), f'PageView object for path \'{self.absolute_uri}\' is created for two days (yesterday and today)'
             assert PageView.objects.filter(path='index.html').count() == 2
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), f'\'{origin}\' has 1 view today'
+            ), f'\'{self.absolute_uri}\' has 1 view today'
 
         # testing for tomorrow
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
@@ -177,8 +177,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 3
-            ), f'PageView object for path \'{origin}\' is created for three days (yesterday, today & tomorrow)'
+            ), f'PageView object for path \'{self.absolute_uri}\' is created for three days (yesterday, today & tomorrow)'
             assert PageView.objects.filter(path='index.html').count() == 3
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
-            ), f'\'{origin}\' has 1 view tomorrow'
+            ), f'\'{self.absolute_uri}\' has 1 view tomorrow'

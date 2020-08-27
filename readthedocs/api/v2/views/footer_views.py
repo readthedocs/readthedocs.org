@@ -30,7 +30,10 @@ def get_version_compare_data(project, base_version=None):
     :param base_version: We assert whether or not the base_version is also the
                          highest version in the resulting "is_highest" value.
     """
-    if not project.show_version_warning:
+    if (
+        not project.show_version_warning or
+        (base_version and base_version.is_external)
+    ):
         return {'is_highest': False}
 
     versions_qs = (
@@ -86,8 +89,8 @@ class BaseFooterHTML(APIView):
     - project
     - version
     - page: Sphinx's page name, used for path operations,
-      like change between languages (deprecated in favor of ``origin``).
-    - origin: Full path with domain, used for path operations.
+      like change between languages (deprecated in favor of ``absolute_uri``).
+    - absolute_uri: Full path with domain, used for path operations.
     - theme: Used to decide how to integrate the flyout menu.
     - docroot: Path where all the source documents are.
       Used to build the ``edit_on`` URL.
@@ -227,9 +230,14 @@ class BaseFooterHTML(APIView):
             request,
         )
 
+        show_version_warning = (
+            project.show_version_warning and
+            not version.is_external
+        )
+
         resp_data = {
             'html': html,
-            'show_version_warning': project.show_version_warning,
+            'show_version_warning': show_version_warning,
             'version_active': version.active,
             'version_compare': version_compare_data,
             'version_supported': version.supported,
@@ -242,7 +250,7 @@ class BaseFooterHTML(APIView):
             request=request,
             context=context,
             response_data=resp_data,
-            origin=self.request.GET.get('origin'),
+            absolute_uri=self.request.GET.get('absolute_uri'),
         )
 
         return Response(resp_data)

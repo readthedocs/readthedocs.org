@@ -24,14 +24,6 @@ from readthedocs.search.tests.utils import (
     get_search_query_from_project_file,
 )
 
-OLD_TYPES = {
-    'domain': 'domains',
-    'section': 'sections',
-}
-OLD_FIELDS = {
-    'docstring': 'docstrings',
-}
-
 
 @pytest.mark.django_db
 @pytest.mark.search
@@ -42,7 +34,12 @@ class BaseTestDocumentSearch:
         # This reverse needs to be inside the ``setup_method`` method because from
         # the Corporate site we don't define this URL if ``-ext`` module is not
         # installed
-        self.url = reverse('doc_search')
+        self.url = reverse('search_api')
+
+    @pytest.fixture(autouse=True)
+    def setup_settings(self, settings):
+        settings.PUBLIC_DOMAIN = 'readthedocs.io'
+        settings.USE_SUBDOMAIN = True
 
     def get_search(self, api_client, search_params):
         return api_client.get(self.url, search_params)
@@ -72,7 +69,7 @@ class BaseTestDocumentSearch:
         assert project_data['project'] == project.slug
 
         # Check highlight return correct object of first result
-        title_highlight = project_data['highlight']['title']
+        title_highlight = project_data['highlights']['title']
 
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()
@@ -109,26 +106,24 @@ class BaseTestDocumentSearch:
         project_data = data[0]
         assert project_data['project'] == project.slug
 
-        inner_hits = project_data['inner_hits']
+        blocks = project_data['blocks']
         # since there was a nested query,
-        # inner_hits should not be empty
-        assert len(inner_hits) >= 1
+        # blocks should not be empty
+        assert len(blocks) >= 1
 
-        inner_hit_0 = inner_hits[0]  # first inner_hit
+        block_0 = blocks[0]
 
-        old_type = OLD_TYPES.get(type, type)
-        assert inner_hit_0['type'] == old_type
+        assert block_0['type'] == type
 
-        old_field = old_type + '.' + OLD_FIELDS.get(field, field)
-        highlight = inner_hit_0['highlight'][old_field]
+        highlights = block_0['highlights'][field]
         assert (
-            len(highlight) == 1
+            len(highlights) == 1
         ), 'number_of_fragments is set to 1'
 
         # checking highlighting of results
         highlighted_words = re.findall(  # this gets all words inside <em> tag
             '<span>(.*?)</span>',
-            highlight[0]
+            highlights[0]
         )
         assert len(highlighted_words) > 0
 
@@ -271,7 +266,8 @@ class BaseTestDocumentSearch:
         assert first_result['project'] == subproject.slug
         # Check the link is the subproject document link
         document_link = subproject.get_docs_url(version_slug=version.slug)
-        assert document_link in first_result['link']
+        link = first_result['domain'] + first_result['path']
+        assert document_link in link
 
     def test_doc_search_unexisting_project(self, api_client):
         project = 'notfound'
@@ -371,7 +367,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/support.html')
+        assert result['path'] == '/en/latest/support.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_html_projects(self, api_client, doctype):
@@ -389,7 +385,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/index.html')
+        assert result['path'] == '/en/latest/index.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX, SPHINX_SINGLEHTML, MKDOCS_HTML])
     def test_search_correct_link_for_index_page_subdirectory_html_projects(self, api_client, doctype):
@@ -407,7 +403,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/guides/index.html')
+        assert result['path'] == '/en/latest/guides/index.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_normal_page_htmldir_projects(self, api_client, doctype):
@@ -425,7 +421,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/support.html')
+        assert result['path'] == '/en/latest/support.html'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_htmldir_projects(self, api_client, doctype):
@@ -443,7 +439,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/')
+        assert result['path'] == '/en/latest/'
 
     @pytest.mark.parametrize('doctype', [SPHINX_HTMLDIR, MKDOCS])
     def test_search_correct_link_for_index_page_subdirectory_htmldir_projects(self, api_client, doctype):
@@ -461,7 +457,7 @@ class BaseTestDocumentSearch:
 
         result = resp.data['results'][0]
         assert result['project'] == project.slug
-        assert result['link'].endswith('en/latest/guides/')
+        assert result['path'] == '/en/latest/guides/'
 
     def test_search_advanced_query_detection(self, api_client):
         project = Project.objects.get(slug='docs')
@@ -517,8 +513,8 @@ class BaseTestDocumentSearch:
         page_guides = HTMLFile.objects.get(path='guides/index.html')
 
         # Query with the default ranking
-        assert page_index.rank is None
-        assert page_guides.rank is None
+        assert page_index.rank == 0
+        assert page_guides.rank == 0
 
         search_params = {
             'project': project.slug,
@@ -530,8 +526,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with a higher rank over guides/index.html
         page_guides.rank = 5
@@ -548,8 +544,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a lower rank over index.html
         page_index.rank = -2
@@ -569,8 +565,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a lower rank over index.html
         page_index.rank = 3
@@ -590,8 +586,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a same rank over guides/index.html and index.html
         page_index.rank = -10
@@ -611,8 +607,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
     def test_search_page_views(self, api_client):
         project = Project.objects.get(slug='docs')

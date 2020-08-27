@@ -1,15 +1,19 @@
 import datetime
 import logging
 
-from celery import chord, chain
+from celery import chain, chord
 from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
 from django.utils import timezone
 from django_elasticsearch_dsl.registries import registry
 
-from ...tasks import (index_objects_to_es, switch_es_index, create_new_es_index,
-                      index_missing_objects)
+from ...tasks import (
+    create_new_es_index,
+    index_missing_objects,
+    index_objects_to_es,
+    switch_es_index,
+)
 
 log = logging.getLogger(__name__)
 
@@ -64,11 +68,11 @@ class Command(BaseCommand):
             app_label = queryset.model._meta.app_label
             model_name = queryset.model.__name__
 
-            index_name = doc._doc_type.index
+            index_name = doc._index._name
             new_index_name = "{}_{}".format(index_name, timestamp)
             # Set index temporarily for indexing,
             # this will only get set during the running of this command
-            doc._doc_type.index = new_index_name
+            doc._index._name = new_index_name
 
             pre_index_task = create_new_es_index.si(app_label=app_label,
                                                     model_name=model_name,
