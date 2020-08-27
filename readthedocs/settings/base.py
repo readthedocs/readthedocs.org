@@ -76,6 +76,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = 'DENY'
 
     # Content Security Policy
@@ -103,6 +104,7 @@ class CommunityBaseSettings(Settings):
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
 
     USER_MATURITY_DAYS = 7
 
@@ -193,6 +195,7 @@ class CommunityBaseSettings(Settings):
         'dj_pagination.middleware.PaginationMiddleware',
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
+        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -256,6 +259,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
@@ -359,7 +363,16 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'hourly-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+            'kwargs': {
+                'days': 1,
+            },
+        },
     }
+
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
@@ -568,16 +581,17 @@ class CommunityBaseSettings(Settings):
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {'number_of_shards': 1,
-                         'number_of_replicas': 1
-                         }
+            'settings': {
+                'number_of_shards': 1,
+                'number_of_replicas': 1
+            },
         },
         'page': {
             'name': 'page_index',
             'settings': {
                 'number_of_shards': 1,
                 'number_of_replicas': 1,
-            }
+            },
         },
     }
 

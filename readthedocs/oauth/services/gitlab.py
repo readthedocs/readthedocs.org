@@ -3,28 +3,23 @@
 import json
 import logging
 import re
+from urllib.parse import urljoin, urlparse
 
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
 from requests.exceptions import RequestException
 
+from readthedocs.builds import utils as build_utils
 from readthedocs.builds.constants import (
     BUILD_STATUS_SUCCESS,
     SELECT_BUILD_STATUS,
 )
-from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 from readthedocs.projects.models import Project
 
 from ..models import RemoteOrganization, RemoteRepository
 from .base import Service, SyncServiceError
-
-
-try:
-    from urlparse import urljoin, urlparse
-except ImportError:
-    from urllib.parse import urljoin, urlparse  # noqa
 
 log = logging.getLogger(__name__)
 
@@ -71,26 +66,18 @@ class GitLabService(Service):
     def get_paginated_results(self, response):
         return response.json()
 
-    def sync(self):
-        """
-        Sync repositories and organizations from GitLab API.
-
-        See: https://docs.gitlab.com/ce/api/projects.html
-        """
-        self.sync_repositories()
-        self.sync_organizations()
-
     def sync_repositories(self):
-        repos = self.paginate(
-            '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            archived=False,
-            order_by='path',
-            sort='asc',
-            membership=True,
-        )
-
+        repos = []
         try:
+            repos = self.paginate(
+                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                archived=False,
+                order_by='path',
+                sort='asc',
+                membership=True,
+            )
+
             for repo in repos:
                 self.create_repository(repo)
         except (TypeError, ValueError):
@@ -100,16 +87,20 @@ class GitLabService(Service):
                 'try reconnecting your account'
             )
 
+        return repos
+
     def sync_organizations(self):
-        orgs = self.paginate(
-            '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            all_available=False,
-            order_by='path',
-            sort='asc',
-        )
+        orgs = []
+        repositories = []
 
         try:
+            orgs = self.paginate(
+                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                all_available=False,
+                order_by='path',
+                sort='asc',
+            )
             for org in orgs:
                 org_obj = self.create_organization(org)
                 org_repos = self.paginate(
@@ -122,6 +113,10 @@ class GitLabService(Service):
                     order_by='path',
                     sort='asc',
                 )
+
+                # Add organization's repositories to the result
+                repositories.extend(org_repos)
+
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
         except (TypeError, ValueError):
@@ -130,6 +125,8 @@ class GitLabService(Service):
                 'Could not sync your GitLab organization, '
                 'try reconnecting your account'
             )
+
+        return orgs, repositories
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id
@@ -234,6 +231,12 @@ class GitLabService(Service):
         organization.json = json.dumps(fields)
         organization.save()
         return organization
+
+    def get_repository_full_names(self, repositories):
+        return {repository.get('name_with_namespace') for repository in repositories}
+
+    def get_organization_names(self, organizations):
+        return {organization.get('name') for organization in organizations}
 
     def get_webhook_data(self, repo_id, project, integration):
         """
@@ -530,8 +533,9 @@ class GitLabService(Service):
         url = self.adapter.provider_base_url
 
         try:
+            statuses_url = f'{url}/api/v4/projects/{repo_id}/statuses/{commit}'
             resp = session.post(
-                f'{url}/api/v4/projects/{repo_id}/statuses/{commit}',
+                statuses_url,
                 data=json.dumps(data),
                 headers={'content-type': 'application/json'},
             )
@@ -539,16 +543,16 @@ class GitLabService(Service):
             if resp.status_code == 201:
                 log.info(
                     "GitLab commit status created for project: %s, commit status: %s",
-                    project,
+                    project.slug,
                     gitlab_build_state,
                 )
                 return True
 
             if resp.status_code in [401, 403, 404]:
                 log.info(
-                    'GitLab project does not exist or user does not have '
-                    'permissions: project=%s',
-                    project,
+                    'GitLab project does not exist or user does not have permissions: '
+                    'project=%s, user=%s, status=%s, url=%s',
+                    project.slug, self.user.username, resp.status_code, statuses_url,
                 )
                 return False
 
@@ -558,7 +562,7 @@ class GitLabService(Service):
         except (RequestException, ValueError):
             log.exception(
                 'GitLab commit status creation failed for project: %s',
-                project,
+                project.slug,
             )
             # Response data should always be JSON, still try to log if not
             # though

@@ -39,8 +39,8 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 WORKDIR /tmp
 
-RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/pip.txt
-RUN curl -O https://raw.githubusercontent.com/readthedocs/readthedocs.org/master/requirements/docker.txt
+COPY requirements/pip.txt pip.txt
+COPY requirements/docker.txt docker.txt
 RUN pip3 install --no-cache-dir -r docker.txt
 
 # Install readthedocs-ext only if GITHUB_TOKEN is provided

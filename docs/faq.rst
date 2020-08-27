@@ -200,9 +200,9 @@ Yes. One criticism of Sphinx is that its annotated docstrings are too
 dense and difficult for humans to read. In response, many projects
 have adopted customized docstring styles that are simultaneously
 informative and legible. The
-`NumPy <https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt>`_
+`NumPy <https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard>`__
 and
-`Google <https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments>`_
+`Google <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`__
 styles are two popular docstring formats.  Fortunately, the default
 Read The Docs theme handles both formats just fine, provided
 your ``conf.py`` specifies an appropriate Sphinx extension that
@@ -249,6 +249,23 @@ using a Read the Docs :doc:`config-file/index`.
 
 .. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
+
+
+I need to install a package in a environment with pinned versions
+-----------------------------------------------------------------
+
+To ensure proper installation of a python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
+
+In your ``requirements.txt`` file::
+
+    # path to the directory containing setup.py relative to the project root
+    -e .
+
+In your Conda environment file (``environment.yml``)::
+
+    # path to the directory containing setup.py relative to the environment file
+    -e ..
 
 
 How can I avoid search results having a deprecated version of my docs?
