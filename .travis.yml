@@ -1,7 +1,7 @@
 language: python
 python:
   - 3.6
-dist: xenial
+dist: focal
 
 addons:
   hosts:

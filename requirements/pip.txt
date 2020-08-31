@@ -50,9 +50,7 @@ elasticsearch==6.8.1  # pyup: <7.0.0
 elasticsearch-dsl==6.4.0  # pyup: <7.0
 django-elasticsearch-dsl==6.4.2  # pyup: <7.0
 selectolax==0.2.7
-
-# Ignoring orjson for now because it makes Travis to fail
-orjson==2.0.7  # pyup: ignore
+orjson==3.3.1
 
 # Utils
 django-gravatar2==1.4.4
