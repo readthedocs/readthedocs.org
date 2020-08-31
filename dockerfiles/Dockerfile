@@ -9,7 +9,6 @@ ENV LC_ALL en_US.UTF-8
 
 RUN apt-get -y update
 RUN apt-get -y install \
-        cargo \
         curl \
         g++ \
         git-core \
