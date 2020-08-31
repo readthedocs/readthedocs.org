@@ -184,6 +184,7 @@ def prepare_build(
             project=project,
             version=version,
             state=BUILD_STATE_TRIGGERED,
+            date__gte=timezone.now() - datetime.timedelta(minutes=5),
         ).count() > 1
 
     if not project.has_feature(Feature.DEDUPLICATE_BUILDS):
