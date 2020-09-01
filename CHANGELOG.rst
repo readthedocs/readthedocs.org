@@ -1,3 +1,26 @@
+Version 5.4.1
+-------------
+
+:Date: September 01, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedcos-sphinx-search ext (`#7427 <https://github.com/readthedocs/readthedocs.org/pull/7427>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 2.2.16 (`#7426 <https://github.com/readthedocs/readthedocs.org/pull/7426>`__)
+* `@bmorrison4 <https://github.com/bmorrison4>`__: Fix typo in docs/guides/adding-custom-css.rst (`#7424 <https://github.com/readthedocs/readthedocs.org/pull/7424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test: set privacy level explicitly (`#7422 <https://github.com/readthedocs/readthedocs.org/pull/7422>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pip: test new resolver (`#7412 <https://github.com/readthedocs/readthedocs.org/pull/7412>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7411 <https://github.com/readthedocs/readthedocs.org/pull/7411>`__)
+* `@stsewd <https://github.com/stsewd>`__: Release 5.4.0 (`#7410 <https://github.com/readthedocs/readthedocs.org/pull/7410>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker: install requirements from local changes (`#7409 <https://github.com/readthedocs/readthedocs.org/pull/7409>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: update dependencies (`#7408 <https://github.com/readthedocs/readthedocs.org/pull/7408>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 34 (`#7406 <https://github.com/readthedocs/readthedocs.org/pull/7406>`__)
+* `@stsewd <https://github.com/stsewd>`__: API client: don't retry on POST (`#7383 <https://github.com/readthedocs/readthedocs.org/pull/7383>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: build_url added to all API v3 build endpoints (`#7373 <https://github.com/readthedocs/readthedocs.org/pull/7373>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: deprecating content (`#7333 <https://github.com/readthedocs/readthedocs.org/pull/7333>`__)
+* `@humitos <https://github.com/humitos>`__: Auto-join email users field for Team model (`#7328 <https://github.com/readthedocs/readthedocs.org/pull/7328>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+* `@humitos <https://github.com/humitos>`__: Sync RemoteRepository and RemoteOrganization in all VCS providers (`#7310 <https://github.com/readthedocs/readthedocs.org/pull/7310>`__)
+* `@stsewd <https://github.com/stsewd>`__: Page views: use origin URL instead of page name (`#7293 <https://github.com/readthedocs/readthedocs.org/pull/7293>`__)
+
 Version 5.4.0
 -------------
 
