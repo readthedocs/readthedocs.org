@@ -14,7 +14,7 @@ sphinx_rtd_theme==0.5.0
 sphinx-tabs==1.2.1
 sphinx-intl==2.0.1
 
-readthedocs-sphinx-search==0.1.0rc2
+readthedocs-sphinx-search==0.1.0rc3
 
 # Test out hoverxref
 git+https://github.com/readthedocs/sphinx-hoverxref@master
