@@ -25,3 +25,5 @@ pytest-mock==3.3.0
 # local debugging tools
 datadiff==2.0.0
 ipdb==0.13.3
+
+requests-mock==1.8.0
