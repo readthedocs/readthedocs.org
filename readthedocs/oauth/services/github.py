@@ -52,7 +52,7 @@ class GitHubService(Service):
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
-        orgs = []
+        orgs_details = []
         repositories = []
 
         try:
@@ -65,6 +65,9 @@ class GitHubService(Service):
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
+
+                # Add organization details to the result
+                orgs_details.extend(org_resp.json())
 
                 # Add all the repositories for this organization to the result
                 repositories.extend(org_repos)
@@ -79,7 +82,7 @@ class GitHubService(Service):
                 'try reconnecting your account'
             )
 
-        return orgs, repositories
+        return orgs_details, repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
