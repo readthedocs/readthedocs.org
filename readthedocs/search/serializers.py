@@ -130,7 +130,7 @@ class PageSearchSerializer(serializers.Serializer):
 
         sorted_results = sorted(
             itertools.chain(sections, domains),
-            key=attrgetter('meta.score'),
+            key=attrgetter('_score'),
             reverse=True,
         )
         sorted_results = [
@@ -157,11 +157,11 @@ class DomainHighlightSerializer(serializers.Serializer):
 class DomainSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='domain', source=None, read_only=True)
-    role = serializers.CharField(source='role_name')
-    name = serializers.CharField()
-    id = serializers.CharField(source='anchor')
-    content = serializers.CharField(source='docstrings')
-    highlights = DomainHighlightSerializer(source='meta.highlight', default=dict)
+    role = serializers.CharField(source='_source.role_name')
+    name = serializers.CharField(source='_source.name')
+    id = serializers.CharField(source='_source.anchor')
+    content = serializers.CharField(source='_source.docstrings')
+    highlights = DomainHighlightSerializer(source='highlight', default=dict)
 
 
 class SectionHighlightSerializer(serializers.Serializer):
@@ -181,7 +181,7 @@ class SectionHighlightSerializer(serializers.Serializer):
 class SectionSearchSerializer(serializers.Serializer):
 
     type = serializers.CharField(default='section', source=None, read_only=True)
-    id = serializers.CharField()
-    title = serializers.CharField()
-    content = serializers.CharField()
-    highlights = SectionHighlightSerializer(source='meta.highlight', default=dict)
+    id = serializers.CharField(source='_source.id')
+    title = serializers.CharField(source='_source.title')
+    content = serializers.CharField(source='_source.content')
+    highlights = SectionHighlightSerializer(source='highlight', default=dict)

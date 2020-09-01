@@ -89,7 +89,7 @@ def _get_index(indices, index_name):
     :return: DED Index
     """
     for index in indices:
-        if index._name == index_name:
+        if str(index) == index_name:
             return index
 
 
@@ -116,10 +116,7 @@ def _indexing_helper(html_objs_qs, wipe=False):
     else, html_objs are indexed.
     """
     from readthedocs.search.documents import PageDocument
-    from readthedocs.search.tasks import (
-        delete_objects_in_es,
-        index_objects_to_es,
-    )
+    from readthedocs.search.tasks import index_objects_to_es, delete_objects_in_es
 
     if html_objs_qs:
         obj_ids = []
@@ -151,7 +148,7 @@ def _get_sorted_results(results, source_key='_source'):
             source_key: hit._source.to_dict(),
             'highlight': hit.highlight.to_dict() if hasattr(hit, 'highlight') else {}
         }
-        for hit in sorted(results, key=attrgetter('meta.score'), reverse=True)
+        for hit in sorted(results, key=attrgetter('_score'), reverse=True)
     ]
 
     return sorted_results
