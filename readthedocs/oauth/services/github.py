@@ -36,41 +36,45 @@ class GitHubService(Service):
 
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = []
+        remote_repositories = []
 
         try:
             repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
-        return repos
+        return remote_repositories
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
-        orgs = []
-        repositories = []
+        remote_organizations = []
+        remote_repositories = []
 
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
-                org_resp = self.get_session().get(org['url'])
-                org_obj = self.create_organization(org_resp.json())
+                org_details = self.get_session().get(org['url']).json()
+                remote_organization = self.create_organization(org_details)
                 # Add repos
                 # TODO ?per_page=100
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
 
-                # Add all the repositories for this organization to the result
-                repositories.extend(org_repos)
+                remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
@@ -79,7 +83,7 @@ class GitHubService(Service):
                 'try reconnecting your account'
             )
 
-        return orgs, repositories
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -169,12 +173,6 @@ class GitHubService(Service):
         organization.account = self.account
         organization.save()
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('full_name') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('name') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
