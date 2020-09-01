@@ -182,6 +182,11 @@ class Team(models.Model):
         default='readonly',
     )
 
+    auto_join_email_users = models.BooleanField(
+        default=False,
+        help_text="Auto join users with an organization's email address to this team.",
+    )
+
     # Manager
     objects = TeamManager()
 

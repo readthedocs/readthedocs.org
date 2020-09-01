@@ -6,6 +6,7 @@ import re
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+
 from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
@@ -33,34 +34,27 @@ class GitHubService(Service):
     # TODO replace this with a less naive check
     url_pattern = re.compile(r'github\.com')
 
-    def sync(self):
-        """Sync repositories and organizations."""
-        repos = self.sync_repositories()
-        organization_repos = self.sync_organizations()
-
-        # Delete RemoteRepository where the user doesn't have access anymore
-        # (skip RemoteRepository tied to a Project on this user)
-        full_names = {repo.get('full_name') for repo in repos + organization_repos}
-        self.user.oauth_repositories.exclude(
-            Q(full_name__in=full_names) | Q(project__isnull=False)
-        ).delete()
-
     def sync_repositories(self):
         """Sync repositories from GitHub API."""
-        repos = self.paginate('https://api.github.com/user/repos?per_page=100')
+        repos = []
+
         try:
+            repos = self.paginate('https://api.github.com/user/repos?per_page=100')
             for repo in repos:
                 self.create_repository(repo)
-            return repos
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
                 'Could not sync your GitHub repositories, '
                 'try reconnecting your account'
             )
+        return repos
 
     def sync_organizations(self):
         """Sync organizations from GitHub API."""
+        orgs = []
+        repositories = []
+
         try:
             orgs = self.paginate('https://api.github.com/user/orgs')
             for org in orgs:
@@ -71,15 +65,21 @@ class GitHubService(Service):
                 org_repos = self.paginate(
                     '{org_url}/repos'.format(org_url=org['url']),
                 )
+
+                # Add all the repositories for this organization to the result
+                repositories.extend(org_repos)
+
                 for repo in org_repos:
                     self.create_repository(repo, organization=org_obj)
-                return org_repos
+
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
                 'Could not sync your GitHub organizations, '
                 'try reconnecting your account'
             )
+
+        return orgs, repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -169,6 +169,12 @@ class GitHubService(Service):
         organization.account = self.account
         organization.save()
         return organization
+
+    def get_repository_full_names(self, repositories):
+        return {repository.get('full_name') for repository in repositories}
+
+    def get_organization_names(self, organizations):
+        return {organization.get('name') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.links.get('next', {}).get('url')
