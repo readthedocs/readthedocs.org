@@ -581,17 +581,16 @@ class CommunityBaseSettings(Settings):
     ES_INDEXES = {
         'project': {
             'name': 'project_index',
-            'settings': {
-                'number_of_shards': 1,
-                'number_of_replicas': 1
-            },
+            'settings': {'number_of_shards': 1,
+                         'number_of_replicas': 1
+                         }
         },
         'page': {
             'name': 'page_index',
             'settings': {
                 'number_of_shards': 1,
                 'number_of_replicas': 1,
-            },
+            }
         },
     }
 
