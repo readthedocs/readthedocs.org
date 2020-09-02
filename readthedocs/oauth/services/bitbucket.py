@@ -32,7 +32,7 @@ class BitbucketService(Service):
 
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
-        repos = []
+        remote_repositories = []
 
         # Get user repos
         try:
@@ -40,7 +40,8 @@ class BitbucketService(Service):
                 'https://bitbucket.org/api/2.0/repositories/?role=member',
             )
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
 
         except (TypeError, ValueError):
             log.warning('Error syncing Bitbucket repositories')
@@ -69,26 +70,26 @@ class BitbucketService(Service):
         except (TypeError, ValueError):
             pass
 
-        return repos
+        return remote_repositories
 
     def sync_organizations(self):
         """Sync Bitbucket teams (our RemoteOrganization) and team repositories."""
-        teams = []
-        repositories = []
+        remote_organizations = []
+        remote_repositories = []
 
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member',
             )
             for team in teams:
-                org = self.create_organization(team)
+                remote_organization = self.create_organization(team)
                 repos = self.paginate(team['links']['repositories']['href'])
 
-                # Add organization's repositories to the result
-                repositories.extend(repos)
+                remote_organizations.append(remote_organization)
 
                 for repo in repos:
-                    self.create_repository(repo, organization=org)
+                    remote_repository = self.create_repository(repo, organization=remote_organization)
+                    remote_repositories.append(remote_repository)
 
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
@@ -97,7 +98,7 @@ class BitbucketService(Service):
                 'try reconnecting your account',
             )
 
-        return teams, repositories
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
@@ -189,12 +190,6 @@ class BitbucketService(Service):
         organization.users.add(self.user)
         organization.save()
         return organization
-
-    def get_repository_full_names(self, repositories):
-        return {repository.get('full_name') for repository in repositories}
-
-    def get_organization_names(self, organizations):
-        return {organization.get('display_name') for organization in organizations}
 
     def get_next_url_to_paginate(self, response):
         return response.json().get('next')
