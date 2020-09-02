@@ -7,6 +7,7 @@ from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Feature, Project
 
 from .models import PageView
@@ -104,6 +105,7 @@ class AnalyticsPageViewsTests(TestCase):
             slug='pip',
         )
         self.version = get(Version, slug='1.8', project=self.project)
+        self.project.versions.all().update(privacy_level=PUBLIC)
         self.absolute_uri = f'https://{self.project.slug}.readthedocs.io/en/latest/index.html'
         self.host = f'{self.project.slug}.readthedocs.io'
         self.url = (
