@@ -88,7 +88,10 @@ class BitbucketService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in repos:
-                    remote_repository = self.create_repository(repo, organization=remote_organization)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
                     remote_repositories.append(remote_repository)
 
         except ValueError:

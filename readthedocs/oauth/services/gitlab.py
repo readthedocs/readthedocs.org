@@ -118,7 +118,10 @@ class GitLabService(Service):
                 remote_organizations.append(remote_organization)
 
                 for repo in org_repos:
-                    remote_repository = self.create_repository(repo, organization=remote_organization)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
                     remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
