@@ -198,13 +198,14 @@ class Service:
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        repository_full_names = [r.full_name for r in remote_repositories + remote_repositories_organizations]
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
         self.user.oauth_repositories.exclude(
             Q(full_name__in=repository_full_names) | Q(project__isnull=False)
         ).delete()
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_names = [o.name for o in remote_organizations]
+        organization_names = [o.name for o in remote_organizations if o is not None]
         self.user.oauth_organizations.exclude(name__in=organization_names).delete()
 
     def create_repository(self, fields, privacy=None, organization=None):
