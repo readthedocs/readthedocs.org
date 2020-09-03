@@ -32,16 +32,17 @@ def setup_api():
     else:
         adapter_class = TimeoutHTTPAdapter
 
-    # Define a retry mechanism trying to attempt to not fail in the first
-    # error. Builders hit this issue frequently because the webs are high loaded
+    # Define a retry mechanism trying to attempt to not fail in the first error.
+    # Builders hit this issue frequently because the webs are high loaded
+    # (even on non-idempotent methods, sadly).
     retry = Retry(
         total=3,
         read=3,
         connect=3,
         status=3,
         backoff_factor=0.5,  # 0.5, 1, 2 seconds
-        method_whitelist=('GET', 'PUT', 'PATCH'),
-        status_forcelist=(408, 413, 429, 500, 502, 503),
+        method_whitelist=('GET', 'PUT', 'PATCH', 'POST'),
+        status_forcelist=(408, 413, 429, 500, 502, 503, 504),
     )
 
     session.mount(
