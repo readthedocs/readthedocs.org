@@ -19,10 +19,13 @@ as our way of saying thanks to the open source community.
 We talk a bit below about :ref:`our worldview on advertising <advertising/ethical-advertising:Our Worldview>`,
 if you want to know more.
 
-.. important::
+.. admonition:: Are you a marketer?
 
-   **Are you a marketer?**
-   `Learn more <https://readthedocs.org/sustainability/advertising/>`_ about how you can connect with the millions of developers who Read the Docs each month.
+    We built a `whole business <https://www.ethicalads.io/?utm_source=rtd-docs&utm_medium=referral&utm_campaign=ethical-advertising>`_
+    around privacy-focused advertising.
+    If you're trying to reach developers, we have a network of hand-approved sites (including Read the Docs)
+    where your ads are shown.
+
 
 Feedback
 --------
@@ -107,9 +110,10 @@ Additional details
   `talks a bit more <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_
   about funding open source this way on his blog.
 * After proving our ad model as a way to fund open source and building our ad serving infrastructure,
-  we launched the `EthicalAds network <https://www.ethicalads.io>`_ to help other projects be sustainable.
+  we launched the `EthicalAds network <https://www.ethicalads.io?utm_source=rtd-docs&utm_medium=referral&utm_campaign=ethical-advertising>`_
+  to help other projects be sustainable.
 
-.. _advertising FAQ: https://readthedocs.org/sustainability/advertising/faq/
+.. _advertising FAQ: https://www.ethicalads.io/advertisers/faq/?utm_source=rtd-docs&utm_medium=referral&utm_campaign=ethical-advertising
 
 Join us
 -------
@@ -121,7 +125,7 @@ We hope that others will join us in this mission:
   `talk to your marketing folks <https://www.ericholscher.com/blog/2016/aug/31/funding-oss-marketing-money/>`_ about using advertising that respects your privacy.
 * **If you're a marketer**,
   vote with your dollars and support us in building the ad model we want to exist.
-  `Get more information <https://readthedocs.org/sustainability/advertising/>`_ on what we offer.
+  `Get more information <https://www.ethicalads.io/advertisers/?utm_source=rtd-docs&utm_medium=referral&utm_campaign=ethical-advertising>`_ on what we offer.
 
 
 Community Ads
