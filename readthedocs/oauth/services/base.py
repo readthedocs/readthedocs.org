@@ -191,7 +191,8 @@ class Service:
 
         - creates a new RemoteRepository/Organization per new repository
         - updates fields for existing RemoteRepository/Organization
-        - deletes old RemoteRepository/Organization that are not present for this user
+        - deletes old RemoteRepository/Organization that are not present
+          for this user in the current provider
         """
         repos = self.sync_repositories()
         organizations, organization_repos = self.sync_organizations()
@@ -199,13 +200,23 @@ class Service:
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
         repository_full_names = self.get_repository_full_names(repos + organization_repos)
-        self.user.oauth_repositories.exclude(
-            Q(full_name__in=repository_full_names) | Q(project__isnull=False)
-        ).delete()
+        (
+            self.user.oauth_repositories
+            .exclude(
+                Q(full_name__in=repository_full_names) | Q(project__isnull=False)
+            )
+            .filter(account=self.account)
+            .delete()
+        )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
         organization_names = self.get_organization_names(organizations)
-        self.user.oauth_organizations.exclude(name__in=organization_names).delete()
+        (
+            self.user.oauth_organizations
+            .exclude(name__in=organization_names)
+            .filter(account=self.account)
+            .delete()
+        )
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
