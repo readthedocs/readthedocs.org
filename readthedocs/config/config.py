@@ -843,6 +843,12 @@ class BuildConfigV2(BuildConfigBase):
                     '"{}" key must be a list'.format(packages_key),
                     code=PYTHON_INVALID,
                 )
+            if not packages:
+                self.error(
+                    packages_key,
+                    '"{}" cannot be empty'.format(packages_key),
+                    code=PYTHON_INVALID,
+                )
             python_install['packages'] = packages
         elif 'path' in raw_install:
             path_key = key + '.path'
