@@ -114,16 +114,16 @@ Configuration of the Python environment to be used.
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - method: pip
-           path: .
-           extra_requirements:
-               - docs
-         - method: setuptools
-           path: another/package
-      system_packages: true
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: another/package
+     system_packages: true
 
 python.version
 ``````````````
@@ -165,10 +165,10 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - requirements: docs/requirements.txt
-         - requirements: requirements.txt
+     version: 3.7
+     install:
+       - requirements: docs/requirements.txt
+       - requirements: requirements.txt
 
 .. warning::
 
@@ -213,14 +213,14 @@ Example:
    version: 2
 
    python:
-      version: 3.7
-      install:
-         - method: pip
-           path: .
-           extra_requirements:
-              - docs
-         - method: setuptools
-           path: package
+     version: 3.7
+     install:
+       - method: pip
+         path: .
+         extra_requirements:
+           - docs
+       - method: setuptools
+         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
@@ -400,8 +400,8 @@ VCS submodules configuration.
 
    submodules:
      include:
-        - one
-        - two
+       - one
+       - two
      recursive: true
 
 submodules.include
@@ -465,9 +465,9 @@ Settings for more control over :doc:`/server-side-search`.
    version: 2
 
    search:
-      ranking:
-        api/v1/*: -1
-        api/v2/*: 4
+     ranking:
+       api/v1/*: -1
+       api/v2/*: 4
 
 search.ranking
 ``````````````
@@ -495,15 +495,15 @@ Note that 0 means *normal rank*, not *no rank*.
    version: 2
 
    search:
-      ranking:
+     ranking:
         # Match a single file
-        tutorial.hml: 2
+       tutorial.hml: 2
 
         # Match all files under the api/v1 directory
-        api/v1/*: -5
+       api/v1/*: -5
 
         # Match all files that end with tutorial.html
-        */tutorial.html: 3
+       '*/tutorial.html': 3
 
 .. note::
 
