@@ -41,6 +41,10 @@ kombu==4.3.0  # pyup: ignore
 # when ALWAYS_EAGER = True
 celery==4.1.1  # pyup: ignore
 
+# There are ImportErrors in Celery tasks because of an unbounded transient dependency on Vine, which breaks at vine>=5.
+# https://stackoverflow.com/a/63774459
+vine==1.3.0
+
 django-allauth==0.42.0
 
 GitPython==3.1.8
