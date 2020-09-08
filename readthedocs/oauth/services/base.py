@@ -205,8 +205,8 @@ class Service:
         ).delete()
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_names = [o.name for o in remote_organizations if o is not None]
-        self.user.oauth_organizations.exclude(name__in=organization_names).delete()
+        organization_slugs = [o.slug for o in remote_organizations if o is not None]
+        self.user.oauth_organizations.exclude(slug__in=organization_slugs).delete()
 
     def create_repository(self, fields, privacy=None, organization=None):
         """
