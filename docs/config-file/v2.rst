@@ -503,7 +503,7 @@ Note that 0 means *normal rank*, not *no rank*.
         api/v1/*: -5
 
         # Match all files that end with tutorial.html
-        */tutorial.html: 3
+        '*/tutorial.html': 3
 
 .. note::
 
