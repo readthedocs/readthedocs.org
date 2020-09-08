@@ -646,8 +646,8 @@ class BaseTestDocumentSearch:
         # Normal ordering
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with same number of page views.
         # The ordering isn't affected.
@@ -660,8 +660,8 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with guides/index.html having more views than index.html.
         index_page.view_count = 200
@@ -673,8 +673,8 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with guides/index.html having more views than index.html.
         index_page.view_count = 200
@@ -686,8 +686,8 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with index.html having more views than guides/index.html.
         index_page.view_count = 6000
@@ -699,8 +699,8 @@ class BaseTestDocumentSearch:
         assert resp.status_code == 200
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
     def test_search_ranking_and_page_views(self, api_client):
         project = Project.objects.get(slug='docs')
@@ -737,8 +737,8 @@ class BaseTestDocumentSearch:
         }
 
         # Query with the default ranking and 0 page views.
-        assert page_index.rank is None
-        assert page_guides.rank is None
+        assert page_index.rank == 0
+        assert page_guides.rank == 0
         assert page_view_index.view_count == 0
         assert page_view_guides.view_count == 0
 
@@ -747,8 +747,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with a higher rank over guides/index.html,
         # and more page views on index.html.
@@ -765,8 +765,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a lower rank over index.html,
         # and more page views on guides/index.html.
@@ -788,8 +788,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a rank of 1 over index.html,
         # and more page views on guides/index.html.
@@ -811,8 +811,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'guides/index.html'
-        assert results[1]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/guides/index.html'
+        assert results[1]['path'] == '/en/latest/index.html'
 
         # Query with a rank of 2 over index.html,
         # and more page views on guides/index.html.
@@ -826,8 +826,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):

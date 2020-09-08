@@ -368,7 +368,9 @@ class PageSearchAPIView(GenericAPIView):
             # We use a permission class to control authorization
             filter_by_user=False,
             use_advanced_query=not self._get_project().has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
-            use_page_views=self._get_project().has_feature(Feature.USE_PAGE_VIEWS_IN_SEARCH_RESULTS),
+            use_page_views=self._get_project().has_feature(
+                Feature.USE_PAGE_VIEWS_IN_SEARCH_RESULTS,
+            ),
         )
         return queryset
 
