@@ -161,7 +161,7 @@ class RTDFacetedSearch(FacetedSearch):
 class ProjectSearchBase(RTDFacetedSearch):
     facets = {'language': TermsFacet(field='language')}
     doc_types = [ProjectDocument]
-    index = ProjectDocument._index._name
+    index = ProjectDocument._doc_type.index
     fields = ('name^10', 'slug^5', 'description')
     operators = ['and', 'or']
 
@@ -176,7 +176,7 @@ class PageSearchBase(RTDFacetedSearch):
         ),
     }
     doc_types = [PageDocument]
-    index = PageDocument._index._name
+    index = PageDocument._doc_type.index
 
     # boosting for these fields need to be close enough
     # to be re-boosted by the page rank.
