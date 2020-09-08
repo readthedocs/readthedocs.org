@@ -144,7 +144,7 @@ class OrganizationOwnerForm(forms.ModelForm):
         return owner
 
 
-class OrganizationTeamBasicForm(forms.ModelForm):
+class OrganizationTeamBasicFormBase(forms.ModelForm):
 
     """Form to manage teams."""
 
@@ -166,6 +166,11 @@ class OrganizationTeamBasicForm(forms.ModelForm):
     def clean_organization(self):
         """Hard code organization return on form."""
         return self.organization
+
+
+class OrganizationTeamBasicForm(SettingsOverrideObject):
+
+    _default_class = OrganizationTeamBasicFormBase
 
 
 class OrganizationTeamProjectForm(forms.ModelForm):
