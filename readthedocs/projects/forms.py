@@ -606,15 +606,7 @@ class DomainBaseForm(forms.ModelForm):
 
     class Meta:
         model = Domain
-        # pylint: disable=modelform-uses-exclude
-        exclude = [
-            'machine',
-            'cname',
-            'count',
-            'hsts_max_age',
-            'hsts_include_subdomains',
-            'hsts_preload',
-        ]
+        fields = ['project', 'domain', 'canonical', 'https']
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
