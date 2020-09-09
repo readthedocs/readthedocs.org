@@ -72,7 +72,6 @@ class PageView(models.Model):
 
         queryset = (
             queryset
-            .values_list('path')
             .annotate(total_views=Sum('view_count'))
             .values_list('path', 'total_views')
             .order_by('-total_views')[:top]
