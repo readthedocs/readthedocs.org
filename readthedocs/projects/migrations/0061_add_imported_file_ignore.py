@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0057_add_page_rank'),
+        ('projects', '0060_make_rank_not_null'),
     ]
 
     operations = [
