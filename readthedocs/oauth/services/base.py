@@ -211,10 +211,10 @@ class Service:
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_names = [o.name for o in remote_organizations if o is not None]
+        organization_slugs = [o.slug for o in remote_organizations if o is not None]
         (
             self.user.oauth_organizations
-            .exclude(name__in=organization_names)
+            .exclude(slug__in=organization_slugs)
             .filter(account=self.account)
             .delete()
         )
