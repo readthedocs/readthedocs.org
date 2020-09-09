@@ -1950,7 +1950,6 @@ def send_build_status(build_pk, commit, status):
             user_accounts = service_class.for_user(user)
             # Try to loop through users all social accounts to send a successful request
             for account in user_accounts:
-                # Currently we only support GitHub Status API
                 if account.provider_name == provider_name:
                     success = account.send_build_status(build, commit, status)
                     if success:

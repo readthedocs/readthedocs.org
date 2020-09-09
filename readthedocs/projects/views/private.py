@@ -1066,10 +1066,10 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
         # Count of views for top pages over the month
         top_pages = PageView.top_viewed_pages(project)
-        top_viewed_pages = zip(
+        top_viewed_pages = list(zip(
             top_pages['pages'],
             top_pages['view_counts']
-        )
+        ))
 
         # Aggregate pageviews grouped by day
         page_data = PageView.page_views_by_date(

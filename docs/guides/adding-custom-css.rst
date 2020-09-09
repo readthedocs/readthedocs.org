@@ -42,7 +42,7 @@ A similar approach can be used to add JavaScript files::
 .. note::
 
     The Sphinx HTML options ``html_css_files`` and ``html_js_files``
-    where added in Sphinx 1.8.
+    were added in Sphinx 1.8.
     Unless you have a good reason to use an older version,
     you are strongly encouraged to upgrade.
     Sphinx is almost entirely backwards compatible.

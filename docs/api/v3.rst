@@ -1364,3 +1364,8 @@ Environment Variable delete
     :requestheader Authorization: token to authenticate.
 
     :statuscode 204: Environment variable deleted successfully
+
+Additional APIs
+---------------
+
+- :ref:`Server side search API <server-side-search:api>`.

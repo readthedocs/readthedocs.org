@@ -94,8 +94,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
         ignore_signals = True
 
     def prepare_rank(self, html_file):
-        # TODO: remove when the migration is done
-        if html_file.rank is None or not (-10 <= html_file.rank <= 10):
+        if not (-10 <= html_file.rank <= 10):
             return 0
         return html_file.rank
 
