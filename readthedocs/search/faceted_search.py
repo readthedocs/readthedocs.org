@@ -41,7 +41,7 @@ class RTDFacetedSearch(FacetedSearch):
             user=None,
             use_advanced_query=True,
             use_page_views=False,
-            **kwargs
+            **kwargs,
     ):
         """
         Pass in a user in order to filter search results by privacy.
@@ -264,7 +264,7 @@ class PageSearchBase(RTDFacetedSearch):
 
         **Page ranking weight calculation**
 
-        Each rank maps to a element in the ranking list.
+        Each rank maps to an element in the ranking list.
         -10 will map to the first element (-10 + 10 = 0) and so on.
 
         **Page views weight calculation**
@@ -420,12 +420,12 @@ class PageSearchBase(RTDFacetedSearch):
                 return {}
 
             max_int = 2**31 - 9
-            top_pages = {
+            top_pages_for_version = {
                 page: min(views, max_int)
                 for page, views in zip(top_pages_data['pages'], top_pages_data['view_counts'])
             }
             top_pages = {
-                project: {version: {'pages': top_pages}}
+                project: {version: {'pages': top_pages_for_version}}
             }
 
             # Calculate the max views from each version.
