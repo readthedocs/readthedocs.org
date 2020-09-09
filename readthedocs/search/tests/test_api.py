@@ -23,6 +23,7 @@ from readthedocs.search.tests.utils import (
     SECTION_FIELDS,
     get_search_query_from_project_file,
 )
+from readthedocs.search.utils import index_new_files, remove_indexed_files
 
 
 @pytest.mark.django_db
@@ -828,6 +829,58 @@ class BaseTestDocumentSearch:
         assert len(results) == 2
         assert results[0]['path'] == '/en/latest/index.html'
         assert results[1]['path'] == '/en/latest/guides/index.html'
+
+    def test_search_ignore(self, api_client):
+        project = Project.objects.get(slug='docs')
+        version = project.versions.all().first()
+
+        page_index = HTMLFile.objects.get(path='index.html')
+        page_guides = HTMLFile.objects.get(path='guides/index.html')
+
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"content from"',
+        }
+
+        # Query with files not ignored.
+        assert page_index.ignore is None
+        assert page_guides.ignore is None
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 2
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
+
+        # Query with guides/index.html ignored.
+        page_guides.ignore = True
+        page_guides.save()
+
+        remove_indexed_files(HTMLFile, project.slug, version.slug)
+        index_new_files(HTMLFile, version, page_index.build)
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 1
+        assert results[0]['path'] == '/en/latest/index.html'
+
+        # Query with index.html and guides/index.html ignored.
+        page_index.ignore = True
+        page_index.save()
+
+        remove_indexed_files(HTMLFile, project.slug, version.slug)
+        index_new_files(HTMLFile, version, page_index.build)
+
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) == 0
 
 
 class TestDocumentSearch(BaseTestDocumentSearch):
