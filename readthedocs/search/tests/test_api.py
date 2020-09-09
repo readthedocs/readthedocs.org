@@ -632,8 +632,8 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 2
-        assert results[0]['full_path'] == 'index.html'
-        assert results[1]['full_path'] == 'guides/index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
+        assert results[1]['path'] == '/en/latest/guides/index.html'
 
         # Query with guides/index.html ignored.
         page_guides.ignore = True
@@ -647,7 +647,7 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) == 1
-        assert results[0]['full_path'] == 'index.html'
+        assert results[0]['path'] == '/en/latest/index.html'
 
         # Query with index.html and guides/index.html ignored.
         page_index.ignore = True
