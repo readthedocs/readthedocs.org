@@ -30,20 +30,19 @@ class BitbucketService(Service):
     url_pattern = re.compile(r'bitbucket.org')
     https_url_pattern = re.compile(r'^https:\/\/[^@]+@bitbucket.org/')
 
-    def sync(self):
-        """Sync repositories and teams from Bitbucket API."""
-        self.sync_repositories()
-        self.sync_teams()
-
     def sync_repositories(self):
         """Sync repositories from Bitbucket API."""
+        remote_repositories = []
+
         # Get user repos
         try:
             repos = self.paginate(
                 'https://bitbucket.org/api/2.0/repositories/?role=member',
             )
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
+
         except (TypeError, ValueError):
             log.warning('Error syncing Bitbucket repositories')
             raise SyncServiceError(
@@ -58,36 +57,51 @@ class BitbucketService(Service):
             resp = self.paginate(
                 'https://bitbucket.org/api/2.0/repositories/?role=admin',
             )
-            repos = (
+            admin_repos = (
                 RemoteRepository.objects.filter(
                     users=self.user,
                     full_name__in=[r['full_name'] for r in resp],
                     account=self.account,
                 )
             )
-            for repo in repos:
+            for repo in admin_repos:
                 repo.admin = True
                 repo.save()
         except (TypeError, ValueError):
             pass
 
-    def sync_teams(self):
-        """Sync Bitbucket teams and team repositories."""
+        return remote_repositories
+
+    def sync_organizations(self):
+        """Sync Bitbucket teams (our RemoteOrganization) and team repositories."""
+        remote_organizations = []
+        remote_repositories = []
+
         try:
             teams = self.paginate(
                 'https://api.bitbucket.org/2.0/teams/?role=member',
             )
             for team in teams:
-                org = self.create_organization(team)
+                remote_organization = self.create_organization(team)
                 repos = self.paginate(team['links']['repositories']['href'])
+
+                remote_organizations.append(remote_organization)
+
                 for repo in repos:
-                    self.create_repository(repo, organization=org)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
+
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
             raise SyncServiceError(
                 'Could not sync your Bitbucket team repositories, '
                 'try reconnecting your account',
             )
+
+        return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
         """

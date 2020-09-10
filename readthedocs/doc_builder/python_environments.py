@@ -106,6 +106,7 @@ class PythonEnvironment:
                 '--upgrade-strategy',
                 'eager',
                 *self._pip_cache_cmd_argument(),
+                *self._pip_extra_args(),
                 '{path}{extra_requirements}'.format(
                     path=local_path,
                     extra_requirements=extra_req_param,
@@ -122,6 +123,12 @@ class PythonEnvironment:
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
+
+    def _pip_extra_args(self):
+        extra_args = []
+        if self.project.has_feature(Feature.USE_NEW_PIP_RESOLVER):
+            extra_args.extend(['--use-feature', '2020-resolver'])
+        return extra_args
 
     def _pip_cache_cmd_argument(self):
         """
@@ -383,6 +390,7 @@ class Virtualenv(PythonEnvironment):
             ])
 
         cmd = copy.copy(pip_install_cmd)
+        cmd.extend(self._pip_extra_args())
         if self.config.python.use_system_site_packages:
             # Other code expects sphinx-build to be installed inside the
             # virtualenv.  Using the -I option makes sure it gets installed
@@ -431,6 +439,7 @@ class Virtualenv(PythonEnvironment):
                 '-m',
                 'pip',
                 'install',
+                *self._pip_extra_args(),
             ]
             if self.project.has_feature(Feature.PIP_ALWAYS_UPGRADE):
                 args += ['--upgrade']
@@ -647,6 +656,7 @@ class Conda(PythonEnvironment):
             'install',
             '-U',
             *self._pip_cache_cmd_argument(),
+            *self._pip_extra_args(),
         ]
         pip_cmd.extend(pip_requirements)
         self.build_env.run(

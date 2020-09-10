@@ -1358,6 +1358,12 @@ class ImportedFile(models.Model):
         default=0,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
     )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
+        # TODO: remove after migration
+        null=True,
+    )
 
     def get_absolute_url(self):
         return resolve(
@@ -1554,6 +1560,7 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1692,6 +1699,10 @@ class Feature(models.Model):
         (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_NEW_PIP_RESOLVER,
+            _('Use new pip resolver'),
         ),
     )
 

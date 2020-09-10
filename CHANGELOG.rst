@@ -1,3 +1,76 @@
+Version 5.4.2
+-------------
+
+:Date: September 09, 2020
+
+* `@humitos <https://github.com/humitos>`__: Show "Connected Services" form errors to the user (`#7469 <https://github.com/readthedocs/readthedocs.org/pull/7469>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend OrganizationTeamBasicForm from -corporate (`#7467 <https://github.com/readthedocs/readthedocs.org/pull/7467>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#7465 <https://github.com/readthedocs/readthedocs.org/pull/7465>`__)
+* `@AvdN <https://github.com/AvdN>`__: correct invalid YAML (`#7458 <https://github.com/readthedocs/readthedocs.org/pull/7458>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: filter by account before deleting (`#7454 <https://github.com/readthedocs/readthedocs.org/pull/7454>`__)
+* `@humitos <https://github.com/humitos>`__: Truncate the beggining of the commands' output (`#7449 <https://github.com/readthedocs/readthedocs.org/pull/7449>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Update links to advertising (`#7443 <https://github.com/readthedocs/readthedocs.org/pull/7443>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Don't retry on POST" (`#7442 <https://github.com/readthedocs/readthedocs.org/pull/7442>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move signals (`#7441 <https://github.com/readthedocs/readthedocs.org/pull/7441>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move forms (`#7438 <https://github.com/readthedocs/readthedocs.org/pull/7438>`__)
+* `@humitos <https://github.com/humitos>`__: Grab the correct name of RemoteOrganization to use in the query (`#7430 <https://github.com/readthedocs/readthedocs.org/pull/7430>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "ES: update dependencies" (`#7429 <https://github.com/readthedocs/readthedocs.org/pull/7429>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#7423 <https://github.com/readthedocs/readthedocs.org/pull/7423>`__)
+* `@humitos <https://github.com/humitos>`__: Mark a build as DUPLICATED (same version) only it's close in time (`#7420 <https://github.com/readthedocs/readthedocs.org/pull/7420>`__)
+
+Version 5.4.1
+-------------
+
+:Date: September 01, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedcos-sphinx-search ext (`#7427 <https://github.com/readthedocs/readthedocs.org/pull/7427>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade Django to 2.2.16 (`#7426 <https://github.com/readthedocs/readthedocs.org/pull/7426>`__)
+* `@bmorrison4 <https://github.com/bmorrison4>`__: Fix typo in docs/guides/adding-custom-css.rst (`#7424 <https://github.com/readthedocs/readthedocs.org/pull/7424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test: set privacy level explicitly (`#7422 <https://github.com/readthedocs/readthedocs.org/pull/7422>`__)
+* `@stsewd <https://github.com/stsewd>`__: Pip: test new resolver (`#7412 <https://github.com/readthedocs/readthedocs.org/pull/7412>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#7411 <https://github.com/readthedocs/readthedocs.org/pull/7411>`__)
+* `@stsewd <https://github.com/stsewd>`__: Release 5.4.0 (`#7410 <https://github.com/readthedocs/readthedocs.org/pull/7410>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker: install requirements from local changes (`#7409 <https://github.com/readthedocs/readthedocs.org/pull/7409>`__)
+* `@stsewd <https://github.com/stsewd>`__: ES: update dependencies (`#7408 <https://github.com/readthedocs/readthedocs.org/pull/7408>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 34 (`#7406 <https://github.com/readthedocs/readthedocs.org/pull/7406>`__)
+* `@stsewd <https://github.com/stsewd>`__: API client: don't retry on POST (`#7383 <https://github.com/readthedocs/readthedocs.org/pull/7383>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: build_url added to all API v3 build endpoints (`#7373 <https://github.com/readthedocs/readthedocs.org/pull/7373>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: deprecating content (`#7333 <https://github.com/readthedocs/readthedocs.org/pull/7333>`__)
+* `@humitos <https://github.com/humitos>`__: Auto-join email users field for Team model (`#7328 <https://github.com/readthedocs/readthedocs.org/pull/7328>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+* `@humitos <https://github.com/humitos>`__: Sync RemoteRepository and RemoteOrganization in all VCS providers (`#7310 <https://github.com/readthedocs/readthedocs.org/pull/7310>`__)
+* `@stsewd <https://github.com/stsewd>`__: Page views: use origin URL instead of page name (`#7293 <https://github.com/readthedocs/readthedocs.org/pull/7293>`__)
+
+Version 5.4.0
+-------------
+
+:Date: August 25, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: ES: match version used in production (`#7407 <https://github.com/readthedocs/readthedocs.org/pull/7407>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Advertising docs tweaks (`#7400 <https://github.com/readthedocs/readthedocs.org/pull/7400>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update readthedocs-sphinx-search (`#7399 <https://github.com/readthedocs/readthedocs.org/pull/7399>`__)
+* `@keewis <https://github.com/keewis>`__: document installing into a environment with pinned dependencies (`#7397 <https://github.com/readthedocs/readthedocs.org/pull/7397>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 32 (`#7377 <https://github.com/readthedocs/readthedocs.org/pull/7377>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: store build commands in storage (`#7356 <https://github.com/readthedocs/readthedocs.org/pull/7356>`__)
+* `@stsewd <https://github.com/stsewd>`__: Guide: Cross-referencing with Sphinx (`#7326 <https://github.com/readthedocs/readthedocs.org/pull/7326>`__)
+
+Version 5.3.0
+-------------
+
+:Date: August 18, 2020
+
+* `@humitos <https://github.com/humitos>`__: Remove the comma added in logs that breaks grep parsing (`#7393 <https://github.com/readthedocs/readthedocs.org/pull/7393>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitLab webhook: don't fail on invalid payload (`#7391 <https://github.com/readthedocs/readthedocs.org/pull/7391>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: improve logging (`#7389 <https://github.com/readthedocs/readthedocs.org/pull/7389>`__)
+* `@stsewd <https://github.com/stsewd>`__: External providers: better logging for GitLab (`#7385 <https://github.com/readthedocs/readthedocs.org/pull/7385>`__)
+* `@stsewd <https://github.com/stsewd>`__: Task router: small changes (`#7379 <https://github.com/readthedocs/readthedocs.org/pull/7379>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: return relatives URLS (`#7376 <https://github.com/readthedocs/readthedocs.org/pull/7376>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: little optimization when deleting versions (`#7367 <https://github.com/readthedocs/readthedocs.org/pull/7367>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add feature flag to just skip the sync version task entirely (`#7366 <https://github.com/readthedocs/readthedocs.org/pull/7366>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Convert zip to list for templates (`#7359 <https://github.com/readthedocs/readthedocs.org/pull/7359>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: implement stable API (`#7255 <https://github.com/readthedocs/readthedocs.org/pull/7255>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: improve parser (`#7233 <https://github.com/readthedocs/readthedocs.org/pull/7233>`__)
+
 Version 5.2.3
 -------------
 

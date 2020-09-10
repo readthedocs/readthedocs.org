@@ -1,14 +1,14 @@
 # Base packages
 
-pip==20.1.1
-virtualenv==20.0.26
+pip==20.2.2
+virtualenv==20.0.31
 
-django==2.2.14  # pyup: <2.3
-django-extensions==3.0.2
-django_polymorphic==2.1.2
-django-autoslug==1.9.7
+django==2.2.16  # pyup: <2.3
+django-extensions==3.0.8
+django_polymorphic==3.0.0
+django-autoslug==1.9.8
 
-djangorestframework==3.11.0
+djangorestframework==3.11.1
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -43,7 +43,7 @@ celery==4.1.1  # pyup: ignore
 
 django-allauth==0.42.0
 
-GitPython==3.1.7
+GitPython==3.1.8
 
 # Search
 elasticsearch==6.8.1  # pyup: <7.0.0
@@ -64,7 +64,10 @@ git+https://github.com/elastic/elasticsearch-dsl-py@97e3f756a8cacd1c863d3ced3d17
 #     from elasticsearch_dsl import Document as DSLDocument
 # ImportError: cannot import name 'Document'
 django-elasticsearch-dsl==0.5.1  # pyup: ignore
-selectolax==0.2.1
+selectolax==0.2.7
+
+# NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
+python-dateutil==2.8.1
 
 # Ignoring orjson for now because it makes Travis to fail
 orjson==2.0.7  # pyup: ignore
@@ -74,8 +77,8 @@ django-gravatar2==1.4.4
 pytz==2020.1
 Unipath==1.1
 django-kombu==0.9.4
-stripe==2.48.0
-regex==2020.6.8
+stripe==2.51.0
+regex==2020.7.14
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
@@ -83,7 +86,7 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 django-formtools==2.2
 django-crispy-forms==1.9.2
 
-docker==4.2.2
+docker==4.3.1
 
 django-textclassifier==1.0
 # django-textclassifier doesn't have pinned versions
@@ -105,7 +108,7 @@ packaging==20.4
 django-cors-middleware==1.4.0  # pyup: ignore
 
 # User agent parsing - used for analytics purposes
-user-agents==2.1
+user-agents==2.2.0
 
 # Utilities used to upload build media to cloud storage
 # django-storages is pinned to this particular commit because it
@@ -117,4 +120,4 @@ git+https://github.com/jschneier/django-storages@d0f027c98a877f75615cfc42b4d51c0
 django-debug-toolbar==2.2
 
 # For enabling content-security-policy
-django-csp==3.6
+django-csp==3.7
