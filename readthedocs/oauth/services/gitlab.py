@@ -66,28 +66,21 @@ class GitLabService(Service):
     def get_paginated_results(self, response):
         return response.json()
 
-    def sync(self):
-        """
-        Sync repositories and organizations from GitLab API.
-
-        See: https://docs.gitlab.com/ce/api/projects.html
-        """
-        self.sync_repositories()
-        self.sync_organizations()
-
     def sync_repositories(self):
-        repos = self.paginate(
-            '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            archived=False,
-            order_by='path',
-            sort='asc',
-            membership=True,
-        )
-
+        remote_repositories = []
         try:
+            repos = self.paginate(
+                '{url}/api/v4/projects'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                archived=False,
+                order_by='path',
+                sort='asc',
+                membership=True,
+            )
+
             for repo in repos:
-                self.create_repository(repo)
+                remote_repository = self.create_repository(repo)
+                remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab repositories')
             raise SyncServiceError(
@@ -95,18 +88,22 @@ class GitLabService(Service):
                 'try reconnecting your account'
             )
 
+        return remote_repositories
+
     def sync_organizations(self):
-        orgs = self.paginate(
-            '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
-            per_page=100,
-            all_available=False,
-            order_by='path',
-            sort='asc',
-        )
+        remote_organizations = []
+        remote_repositories = []
 
         try:
+            orgs = self.paginate(
+                '{url}/api/v4/groups'.format(url=self.adapter.provider_base_url),
+                per_page=100,
+                all_available=False,
+                order_by='path',
+                sort='asc',
+            )
             for org in orgs:
-                org_obj = self.create_organization(org)
+                remote_organization = self.create_organization(org)
                 org_repos = self.paginate(
                     '{url}/api/v4/groups/{id}/projects'.format(
                         url=self.adapter.provider_base_url,
@@ -117,14 +114,23 @@ class GitLabService(Service):
                     order_by='path',
                     sort='asc',
                 )
+
+                remote_organizations.append(remote_organization)
+
                 for repo in org_repos:
-                    self.create_repository(repo, organization=org_obj)
+                    remote_repository = self.create_repository(
+                        repo,
+                        organization=remote_organization,
+                    )
+                    remote_repositories.append(remote_repository)
         except (TypeError, ValueError):
             log.warning('Error syncing GitLab organizations')
             raise SyncServiceError(
                 'Could not sync your GitLab organization, '
                 'try reconnecting your account'
             )
+
+        return remote_organizations, remote_repositories
 
     def is_owned_by(self, owner_id):
         return self.account.extra_data['id'] == owner_id

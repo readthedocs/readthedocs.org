@@ -327,7 +327,13 @@ class TestCeleryBuilding(TestCase):
     @patch('readthedocs.builds.managers.log')
     def test_fileify_logging_when_wrong_version_pk(self, mock_logger):
         self.assertFalse(Version.objects.filter(pk=345343).exists())
-        tasks.fileify(version_pk=345343, commit=None, build=1, search_ranking={})
+        tasks.fileify(
+            version_pk=345343,
+            commit=None,
+            build=1,
+            search_ranking={},
+            search_ignore=[],
+        )
         mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')

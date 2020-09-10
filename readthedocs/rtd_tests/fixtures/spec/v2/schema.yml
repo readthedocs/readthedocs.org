@@ -134,3 +134,7 @@ search:
   # Map of patterns to ranks
   # Default: {}
   ranking: map(str(), int(min=-10, max=10), required=False)
+
+  # List of patterns
+  # Default: ['search.html', 'search/index.html', '404.html', '404/index.html']
+  ignore: list(str(), required=False)
