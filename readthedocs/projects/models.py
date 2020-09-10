@@ -19,6 +19,7 @@ from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
+from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -1432,9 +1433,17 @@ class WebHook(Notification):
         return self.url
 
 
-class Domain(models.Model):
+class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
