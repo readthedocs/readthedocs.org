@@ -1,3 +1,23 @@
+Version 5.4.2
+-------------
+
+:Date: September 09, 2020
+
+* `@humitos <https://github.com/humitos>`__: Show "Connected Services" form errors to the user (`#7469 <https://github.com/readthedocs/readthedocs.org/pull/7469>`__)
+* `@humitos <https://github.com/humitos>`__: Allow to extend OrganizationTeamBasicForm from -corporate (`#7467 <https://github.com/readthedocs/readthedocs.org/pull/7467>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 36 (`#7465 <https://github.com/readthedocs/readthedocs.org/pull/7465>`__)
+* `@AvdN <https://github.com/AvdN>`__: correct invalid YAML (`#7458 <https://github.com/readthedocs/readthedocs.org/pull/7458>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remote repository: filter by account before deleting (`#7454 <https://github.com/readthedocs/readthedocs.org/pull/7454>`__)
+* `@humitos <https://github.com/humitos>`__: Truncate the beggining of the commands' output (`#7449 <https://github.com/readthedocs/readthedocs.org/pull/7449>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Update links to advertising (`#7443 <https://github.com/readthedocs/readthedocs.org/pull/7443>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Don't retry on POST" (`#7442 <https://github.com/readthedocs/readthedocs.org/pull/7442>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move signals (`#7441 <https://github.com/readthedocs/readthedocs.org/pull/7441>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: move forms (`#7438 <https://github.com/readthedocs/readthedocs.org/pull/7438>`__)
+* `@humitos <https://github.com/humitos>`__: Grab the correct name of RemoteOrganization to use in the query (`#7430 <https://github.com/readthedocs/readthedocs.org/pull/7430>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "ES: update dependencies" (`#7429 <https://github.com/readthedocs/readthedocs.org/pull/7429>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 35 (`#7423 <https://github.com/readthedocs/readthedocs.org/pull/7423>`__)
+* `@humitos <https://github.com/humitos>`__: Mark a build as DUPLICATED (same version) only it's close in time (`#7420 <https://github.com/readthedocs/readthedocs.org/pull/7420>`__)
+
 Version 5.4.1
 -------------
 
