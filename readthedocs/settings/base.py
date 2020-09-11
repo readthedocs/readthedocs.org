@@ -101,6 +101,16 @@ class CommunityBaseSettings(Settings):
     RTD_MAX_CONCURRENT_BUILDS = 4
     RTD_BUILD_STATUS_API_NAME = 'docs/readthedocs'
 
+    # String contents to store in each virtualenv/pip.conf, useful to set a
+    # custom index-url.
+    RTD_PIP_CONF = ""
+    # String contents to store in each current-working-dir (CWD), useful to set
+    # a custom index_url.
+    # This setting is necessary to supplement a custom pip.conf with until
+    # the legacy setup_requires option is removed from Python packages.
+    # https://pip.pypa.io/en/latest/reference/pip_install/#controlling-setup-requires
+    RTD_DISTUTILS_CFG = ""
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True

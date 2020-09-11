@@ -332,6 +332,13 @@ class Virtualenv(PythonEnvironment):
             # Don't use the project's root, some config files can interfere
             cwd='$HOME',
         )
+        if getattr(settings, "RTD_PIP_CONF", ""):
+            with open(os.path.join(self.venv_path(), "pip.conf"), "w") as f:
+                f.write(settings.RTD_PIP_CONF)
+
+        if getattr(settings, "RTD_DISTUTILS_CFG", ""):
+            with open(os.path.join(self.checkout_path, ".pydistutils.cfg"), "w") as f:
+                f.write(settings.RTD_DISTUTILS_CFG)
 
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the virtualenv."""
