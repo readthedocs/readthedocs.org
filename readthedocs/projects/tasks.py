@@ -1877,20 +1877,6 @@ def finish_inactive_builds():
 
 
 @app.task(queue='web')
-def retry_domain_verification(domain_pk):
-    """
-    Trigger domain verification on a domain.
-
-    :param domain_pk: a `Domain` pk to verify
-    """
-    domain = Domain.objects.get(pk=domain_pk)
-    domain_verify.send(
-        sender=domain.__class__,
-        domain=domain,
-    )
-
-
-@app.task(queue='web')
 def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
