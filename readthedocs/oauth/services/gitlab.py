@@ -132,9 +132,6 @@ class GitLabService(Service):
 
         return remote_organizations, remote_repositories
 
-    def is_owned_by(self, owner_id):
-        return self.account.extra_data['id'] == owner_id
-
     def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from GitLab API response.
@@ -179,9 +176,16 @@ class GitLabService(Service):
             else:
                 repo.clone_url = fields['http_url_to_repo']
 
-            repo.admin = not repo_is_public
-            if not repo.admin and 'owner' in fields:
-                repo.admin = self.is_owned_by(fields['owner']['id'])
+            # 0: No access
+            # 40: Maintainer
+            # 50: Owner
+            # https://docs.gitlab.com/ee/api/access_requests.html
+            # https://gitlab.com/help/user/permissions
+            project_access = fields.get('permissions', {}).get('project_access', {})
+            project_access_level = project_access.get('access_level', 0) if project_access else 0
+            group_access = fields.get('permissions', {}).get('group_access', {})
+            group_access_level = group_access.get('access_level', 0) if group_access else 0
+            repo.admin = project_access_level in (40, 50) or group_access_level in (40, 50)
 
             repo.vcs = 'git'
             repo.account = self.account
