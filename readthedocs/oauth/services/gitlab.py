@@ -137,7 +137,8 @@ class GitLabService(Service):
         return remote_organizations, remote_repositories
 
     def create_repository(self, fields, privacy=None, organization=None):
-        """Update or create a repository from GitLab API response.
+        """
+        Update or create a repository from GitLab API response.
 
         ``admin`` field is computed using the ``permissions`` fields from the
         repository response. The permission from GitLab is given by an integer:
