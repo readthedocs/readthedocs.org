@@ -1,0 +1,122 @@
+[
+  {
+    "path": "index.html",
+    "title": "MkDocs",
+    "sections": [
+      {
+        "id": "mkdocs",
+        "title": "MkDocs",
+        "content": "Project documentation with Markdown."
+      },
+      {
+        "id": "overview",
+        "title": "Overview",
+        "content": "MkDocs is a fast, simple and downright gorgeous static site generator that's geared towards building project documentation."
+      },
+      {
+        "id": "installation",
+        "title": "Installation",
+        "content": ""
+      },
+      {
+        "id": "host-anywhere",
+        "title": "Host anywhere",
+        "content": "MkDocs builds completely static HTML sites that you can host on GitHub pages, Amazon S3, or anywhere else you choose."
+      },
+      {
+        "id": "great-themes-available",
+        "title": "Great themes available",
+        "content": "There's a stack of good looking themes available for MkDocs."
+      },
+      {
+        "id": "install-with-a-package-manager",
+        "title": "Install with a Package Manager",
+        "content": "If your package manager does not have a recent \"MkDocs\" package, you can still use your package manager to install \"Python\" and \"pip\". $ python --version Python 3.8.2 $ pip --version pip 20.0.2 from /usr/local/lib/python3.8/site-packages/pip (python 3.8) Note If you would like manpages installed for MkDocs, the click-man tool can generate and install them for you. Simply run the following two commands: pip install click-man click-man --target path/to/man/pages mkdocs"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "404.html",
+    "title": "404",
+    "sections": [
+      {
+        "id": "404-page-not-found",
+        "title": "404",
+        "content": "Page not found"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "configuration.html",
+    "title": "Configuration",
+    "sections": [
+      {
+        "id": "configuration",
+        "title": "Configuration",
+        "content": "Guide to all available configuration settings."
+      },
+      {
+        "id": "introduction",
+        "title": "Introduction",
+        "content": "Project settings are always configured by using a YAML configuration file in the project directory named mkdocs.yml. As a minimum this configuration file must contain the site_name setting. All other settings are optional."
+      },
+      {
+        "id": "preview-controls",
+        "title": "Preview controls",
+        "content": ""
+      },
+      {
+        "id": "site_description",
+        "title": "site_description",
+        "content": "Set the site description. This will add a meta tag to the generated HTML header. default: null"
+      },
+      {
+        "id": "site_author",
+        "title": "site_author",
+        "content": "Set the name of the author. This will add a meta tag to the generated HTML header."
+      },
+      {
+        "id": "use_directory_urls",
+        "title": "use_directory_urls",
+        "content": "This setting controls the style used for linking to pages within the documentation. Source file use_directory_urls: true use_directory_urls: false index.md / /index.html api-guide.md /api-guide/ /api-guide.html about/license.md /about/license/ /about/license.html"
+      },
+      {
+        "id": "lang",
+        "title": "lang",
+        "content": "A list of languages to use when building the search index as identified by their ISO 639-1 language codes. ar: Arabic da: Danish nl: Dutch en: English fi: Finnish fr: French de: German hu: Hungarian it: Italian ja: Japanese no: Norwegian pt: Portuguese ro: Romanian ru: Russian es: Spanish sv: Swedish th: Thai tr: Turkish vi: Vietnamese"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "no-title.html",
+    "title": "No title - Read the Docs MkDocs Test",
+    "sections": [
+      {
+        "id": "",
+        "title": "No title - Read the Docs MkDocs Test",
+        "content": "This file doesn't have a header, but it does have a content. 1 2 3 Another paragraph"
+      }
+    ],
+    "domain_data": {}
+  },
+  {
+    "path": "no-main-header.html",
+    "title": "I'm the header",
+    "sections": [
+      {
+        "id": "",
+        "title": "I'm the header",
+        "content": "I don't start with a header."
+      },
+      {
+        "id": "im-the-header",
+        "title": "I'm the header",
+        "content": "I'm more content."
+      }
+    ],
+    "domain_data": {}
+  }
+]

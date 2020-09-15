@@ -17,6 +17,7 @@
    $(document).ready(function() {
      var instance = {},
          config = {
+           {% block project-import-view-extra-config %}{% endblock %}
            'csrf_token': '{{ view_csrf_token }}',
            'urls': {
              'api_sync_remote_repositories': '{% url 'api_sync_remote_repositories' %}',
@@ -76,7 +77,7 @@
           <div class="import-repo">
             <p>
             {% blocktrans trimmed %}
-                We're only showing public repositories. For private projects and many of features,
+                We're only showing public repositories. For private projects and other features,
                 please use <a href="https://readthedocs.com/">Read the Docs for Business</a>.
             {% endblocktrans %}
             </p>

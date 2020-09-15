@@ -342,10 +342,17 @@ class ImportedFileAdmin(admin.ModelAdmin):
 
 
 class DomainAdmin(admin.ModelAdmin):
-    list_display = ('domain', 'project', 'canonical', 'https', 'count')
+    list_display = (
+        'domain',
+        'project',
+        'canonical',
+        'https',
+        'count',
+        'ssl_status',
+    )
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
-    list_filter = ('canonical', 'https')
+    list_filter = ('canonical', 'https', 'ssl_status')
     model = Domain
 
 

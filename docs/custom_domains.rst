@@ -1,5 +1,5 @@
-Custom Domains
-==============
+Custom Domains and White Labeling
+=================================
 
 Once a project is imported into Read the Docs,
 by default it's hosted under a subdomain on one of our domains.
@@ -40,36 +40,12 @@ You can also host your documentation from your own domain.
       The SSL certificate issuance can take about one hour,
       you can see the status of the certificate on the domain page in your project.
 
-      As an example, fabric's dig record looks like this:
+      As an example, fabric's DNS record looks like this:
 
       .. prompt:: bash $, auto
 
-         $ dig +short docs.fabfile.org
+         $ dig CNAME +short docs.fabfile.org
          readthedocs.io.
-         104.17.33.82
-         104.17.32.82
-
-      .. admonition:: Certificate Authority Authorization (CAA)
-
-         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
-         please do not forget to include Cloudflare CAA entries to allow them to issue a certificate for your custom domain.
-         See the `Cloudflare CAA FAQ`_ for details.
-         We need a record that looks like this: ``0 issue "digicert.com"`` in response to ``dig +short CAA <domain>``
-
-         .. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
-
-      .. admonition:: Notes for Cloudflare users
-
-         Due to a limitation,
-         a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
-         This results in a "CNAME Cross-User Banned" error.
-         In order to do SSL termination, we must proxy this connection.
-         If you don't want us to do SSL termination for your domain —
-         **which means you are responsible for the SSL certificate** —
-         then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
-         For more details, see `this previous issue`_.
-
-         .. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
 
    .. tab:: Read the Docs for Business
 
@@ -91,13 +67,81 @@ You can also host your documentation from your own domain.
          Some older setups configured a CNAME record pointing to ``<organization-slug>.users.readthedocs.com``.
          These domains will continue to resolve.
 
-      .. admonition:: Certificate Authority Authorization (CAA)
 
-         If your custom domain — either the subdomain you're using or the root domain — has configured CAA records,
-         please do not forget to include AWS Certificate Manager CAA entries to allow them to issue a certificate for your custom domain.
-         See the `Amazon CAA guide`_ for details.
+Strict Transport Security
++++++++++++++++++++++++++
 
-         .. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
+By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
+This is a conscious decision as it can be misconfigured in a not easily reversible way.
+For both |org_brand| and |com_brand|, HSTS for custom domains can be set upon request.
+
+We always return the HSTS header with a max-age of at least one year
+for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
+
+.. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+
+
+Troubleshooting
++++++++++++++++
+
+SSL certificate issue delays
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The status of your domain validation and certificate can always be seen on the details page for your domain
+under :guilabel:`Admin` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
+
+* For |org_brand|, domains are usually validated and a certificate issued within minutes.
+  However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes
+  and then update DNS hours or days later,
+  this can cause a delay in validating because there is an exponential back-off in validation.
+  Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
+* For |com_brand|, domains can take up to a couple days to validate and issue a certificate.
+  To avoid any downtime in moving a domain from somewhere else to Read the Docs,
+  it is possible to validate the domain and provision the certificate before pointing your domain to Read the Docs.
+
+Certificate authority authorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Certificate authority authorization (CAA) is a security feature that allows domain owners to limit
+which certificate authorities (CAs) can issue certificates for a domain.
+This is done by setting CAA DNS records for your domain.
+CAA records are typically on the root domain, not subdomains
+since you can't have a CNAME and CAA record for the same subdomain.
+Here's an example for palletsprojects.com:
+
+.. prompt:: bash $, auto
+
+    $ dig CAA +short palletsprojects.com
+    0 issue "digicert.com"
+    0 issue "comodoca.com"
+    0 issue "letsencrypt.org"
+
+If there are CAA records for your domain that do not allow the certificate authorities that Read the Docs uses,
+you may see an error message like ``pending_validation: caa_error: YOURDOMAIN.TLD``
+in the Read the Docs dashboard for your domain.
+You will need to update your CAA records to allow us to issue the certificate.
+
+* For |org_brand|, we use Cloudflare which uses Digicert as a CA. See the `Cloudflare CAA FAQ`_ for details.
+* For |com_brand|, we use AWS Certificate Manager as a CA. See the `Amazon CAA guide`_ for details.
+
+.. _Cloudflare CAA FAQ: https://support.cloudflare.com/hc/en-us/articles/115000310832-Certification-Authority-Authorization-CAA-FAQ
+.. _Amazon CAA guide: https://docs.aws.amazon.com/acm/latest/userguide/setup-caa.html
+
+Notes for Cloudflare DNS users
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Due to a limitation between |org_brand| and Cloudflare,
+a domain cannot be proxied on Cloudflare to another Cloudflare account that also proxies.
+You will see a "CNAME Cross-User Banned" error in your Cloudflare dashboard
+and a ``requested hostname resolves to a Cloudflare zone that is not owned by you`` error in the Read the Docs dashboard.
+In order to do SSL termination, we must proxy this connection.
+If you don't want us to do SSL termination for your domain —
+**which means you are responsible for the SSL certificate** —
+then set your CNAME to ``cloudflare-to-cloudflare.readthedocs.io`` instead of ``readthedocs.io``.
+For more details, see `this previous issue`_.
+
+.. _this previous issue: https://github.com/readthedocs/readthedocs.org/issues/4395
+
 
 Proxy SSL
 ---------

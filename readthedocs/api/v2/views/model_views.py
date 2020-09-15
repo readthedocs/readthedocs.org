@@ -1,8 +1,12 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
+import json
 import logging
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
+from django.core.files.storage import get_storage_class
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -12,10 +16,10 @@ from rest_framework.response import Response
 
 from readthedocs.builds.constants import (
     BRANCH,
-    TAG,
-    INTERNAL,
-    BUILD_STATE_TRIGGERED,
     BUILD_STATE_FINISHED,
+    BUILD_STATE_TRIGGERED,
+    INTERNAL,
+    TAG,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.utils import trigger_build
@@ -25,7 +29,6 @@ from readthedocs.oauth.services import GitHubService, registry
 from readthedocs.projects.models import Domain, EmailHook, Project
 from readthedocs.projects.version_handling import determine_stable_version
 
-from .. import utils as api_utils
 from ..permissions import (
     APIPermission,
     APIRestrictedPermission,
@@ -45,7 +48,14 @@ from ..serializers import (
     VersionAdminSerializer,
     VersionSerializer,
 )
-
+from ..utils import (
+    ProjectPagination,
+    RemoteOrganizationPagination,
+    RemoteProjectPagination,
+    delete_versions_from_db,
+    run_automation_rules,
+    sync_versions_to_db,
+)
 
 log = logging.getLogger(__name__)
 
@@ -108,7 +118,7 @@ class ProjectViewSet(UserSelectViewSet):
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
     model = Project
-    pagination_class = api_utils.ProjectPagination
+    pagination_class = ProjectPagination
     filterset_fields = ('slug',)
 
     @decorators.action(detail=True)
@@ -196,20 +206,20 @@ class ProjectViewSet(UserSelectViewSet):
             data = request.data
             added_versions = set()
             if 'tags' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['tags'],
                     type=TAG,
                 )
                 added_versions.update(ret_set)
             if 'branches' in data:
-                ret_set = api_utils.sync_versions(
+                ret_set = sync_versions_to_db(
                     project=project,
                     versions=data['branches'],
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions = api_utils.delete_versions(project, data)
+            deleted_versions = delete_versions_from_db(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -223,7 +233,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            api_utils.run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.
@@ -274,7 +284,7 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSetBase(UserSelectViewSet):
+class BuildViewSet(UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     serializer_class = BuildSerializer
@@ -287,21 +297,46 @@ class BuildViewSetBase(UserSelectViewSet):
         permission_classes=[permissions.IsAdminUser],
         methods=['get'],
     )
-    def running(self, request, **kwargs):
+    def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
-        queryset = (
-            self.get_queryset()
-            .filter(project__slug=project_slug)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        )
-        return Response({'count': queryset.count()})
+        project = get_object_or_404(Project, slug=project_slug)
+        limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
+        data = {
+            'limit_reached': limit_reached,
+            'concurrent': concurrent,
+            'max_concurrent': max_concurrent,
+        }
+        return Response(data)
 
+    def retrieve(self, *args, **kwargs):
+        """
+        Retrieves command data from storage.
 
-class BuildViewSet(SettingsOverrideObject):
+        This uses files from storage to get the JSON,
+        and replaces the ``commands`` part of the response data.
+        """
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return super().retrieve(*args, **kwargs)
 
-    """A pluggable class to allow for build cold storage."""
-
-    _default_class = BuildViewSetBase
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        if instance.cold_storage:
+            storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+            storage_path = '{date}/{id}.json'.format(
+                date=str(instance.date.date()),
+                id=instance.id,
+            )
+            if storage.exists(storage_path):
+                try:
+                    json_resp = storage.open(storage_path).read()
+                    data['commands'] = json.loads(json_resp)
+                except Exception:
+                    log.exception(
+                        'Failed to read build data from storage. path=%s.',
+                        storage_path,
+                    )
+        return Response(data)
 
 
 class BuildCommandViewSet(UserSelectViewSet):
@@ -324,7 +359,7 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteOrganizationSerializer
     model = RemoteOrganization
-    pagination_class = api_utils.RemoteOrganizationPagination
+    pagination_class = RemoteOrganizationPagination
 
     def get_queryset(self):
         return (
@@ -341,7 +376,7 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
     renderer_classes = (JSONRenderer,)
     serializer_class = RemoteRepositorySerializer
     model = RemoteRepository
-    pagination_class = api_utils.RemoteProjectPagination
+    pagination_class = RemoteProjectPagination
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)

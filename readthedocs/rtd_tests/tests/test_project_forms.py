@@ -1,4 +1,5 @@
 from unittest import mock
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -6,11 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 from django_dynamic_fixture import get
 from textclassifier.validators import ClassifierValidator
 
-from readthedocs.builds.constants import LATEST, STABLE, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
-    PRIVACY_CHOICES,
     PROTECTED,
     PUBLIC,
     REPO_TYPE_GIT,
@@ -273,28 +273,6 @@ class TestProjectAdvancedForm(TestCase):
         form = ProjectAdvancedForm(instance=project_1)
         self.assertTrue(form.fields['default_version'].widget.attrs['readonly'])
         self.assertEqual(form.fields['default_version'].initial, 'latest')
-
-    def test_hide_protected_privacy_level_new_objects(self):
-        """
-        Test PROTECTED is only allowed in old objects.
-
-        New projects are not allowed to set the privacy level as protected.
-        """
-        # New default object
-        project = get(Project)
-        form = ProjectAdvancedForm(instance=project)
-
-        privacy_choices = list(PRIVACY_CHOICES)
-        privacy_choices.remove((PROTECTED, _('Protected')))
-        self.assertEqual(form.fields['privacy_level'].choices, privacy_choices)
-
-        # "Old" object with privacy_level previously set as protected
-        project = get(
-            Project,
-            privacy_level=PROTECTED,
-        )
-        form = ProjectAdvancedForm(instance=project)
-        self.assertEqual(form.fields['privacy_level'].choices, list(PRIVACY_CHOICES))
 
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
@@ -820,8 +798,8 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 1)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'MYTOKEN')
-        self.assertEqual(EnvironmentVariable.objects.first().value, "'string here'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'MYTOKEN')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, "'string here'")
 
         data = {
             'name': 'ESCAPED',
@@ -831,5 +809,5 @@ class TestProjectEnvironmentVariablesForm(TestCase):
         form.save()
 
         self.assertEqual(EnvironmentVariable.objects.count(), 2)
-        self.assertEqual(EnvironmentVariable.objects.first().name, 'ESCAPED')
-        self.assertEqual(EnvironmentVariable.objects.first().value, r"'string escaped here: #$\1[]{}\|'")
+        self.assertEqual(EnvironmentVariable.objects.latest().name, 'ESCAPED')
+        self.assertEqual(EnvironmentVariable.objects.latest().value, r"'string escaped here: #$\1[]{}\|'")

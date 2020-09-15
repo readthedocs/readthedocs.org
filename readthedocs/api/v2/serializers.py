@@ -27,6 +27,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'documentation_type',
             'users',
             'canonical_url',
+            'urlconf',
         )
 
 
@@ -57,6 +58,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'enable_pdf_build',
             'conf_py_file',
             'analytics_code',
+            'analytics_disabled',
             'cdn_enabled',
             'container_image',
             'container_mem_limit',

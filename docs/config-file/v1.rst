@@ -1,7 +1,7 @@
-Configuration File V1
-=====================
+Configuration File V1 (Deprecated)
+==================================
 
-Read the Docs now has support for configuring builds with a YAML file.
+Read the Docs has support for configuring builds with a YAML file.
 :doc:`The Read the Docs file <index>` must be in the root directory of your project.
 
 .. warning::
@@ -19,7 +19,7 @@ Here is an example of what this file looks like:
 
    build:
      image: latest
-   
+
    python:
      version: 3.6
      setup_py_install: true
@@ -34,7 +34,7 @@ version
 * Default: 1
 
 .. code-block:: yaml
-   
+
    version: 1
 
 
@@ -49,7 +49,7 @@ The formats of your documentation you want to be built.
 Set as an empty list ``[]`` to build none of the formats.
 
 .. note:: We will always build an HTML & JSON version of your documentation.
-		  These are used for web serving & search indexing, respectively.
+          These are used for web serving & search indexing, respectively.
 
 .. code-block:: yaml
 
@@ -146,7 +146,7 @@ This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,
 the highest supported minor version will be selected.
 
-.. warning:: 
+.. warning::
 
     The supported Python versions depends on the version of the build image your
     project is using. The default build image that is used to build
@@ -167,7 +167,7 @@ python.use_system_site_packages
 When true, it gives the virtual environment access to the global site-packages directory.
 Depending on the :ref:`config-file/v1:build.image`,
 Read the Docs includes some libraries like scipy, numpy, etc.
-See :ref:`builds:The build environment` for more details.
+See :doc:`/builds` for more details.
 
 .. code-block:: yaml
 
@@ -186,8 +186,8 @@ When true, install your project into the Virtualenv with
 
 .. code-block:: yaml
 
-	python:
-	   setup_py_install: true
+        python:
+           setup_py_install: true
 
 
 python.pip_install
@@ -203,37 +203,6 @@ documentation.
 
     python:
        pip_install: true
-
-
-.. TODO not yet implemented. We should move these to another doc.
-.. ==============================================================
-.. 
-.. type
-.. ~~~~
-.. 
-.. * Default: ``sphinx``
-.. * Options: ``sphinx``, ``mkdocs``
-.. 
-.. The ``type`` block allows you to configure the build tool used for building
-.. your documentation.
-.. 
-.. .. code-block:: yaml
-.. 
-..     type: sphinx
-.. 
-.. conf_file
-.. ~~~~~~~~~
-.. 
-.. * Default: `None`
-.. * Type: Path (specified from the root of the project)
-.. 
-.. The path to a specific Sphinx ``conf.py`` file. If none is found, we will
-.. choose one.
-.. 
-.. .. code-block:: yaml
-.. 
-..     conf_file: project2/docs/conf.py
-
 
 python.extra_requirements
 `````````````````````````
@@ -284,6 +253,6 @@ Behind the scene the following Pip command will be run:
     pip install .[tests,docs]
 
 
-.. _environment file: http://conda.pydata.org/docs/using/envs.html#share-an-environment
+.. _environment file: https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-from-an-environment-yml-file
 .. _extra requirements: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-extras-optional-features-with-their-own-dependencies
 .. _package default dependencies: https://setuptools.readthedocs.io/en/latest/setuptools.html#declaring-dependencies

@@ -18,6 +18,11 @@ def is_admin(user, project):
     return AdminPermission.is_admin(user, project)
 
 
+@register.filter
+def is_member(user, project):
+    return AdminPermission.is_member(user, project)
+
+
 @register.simple_tag(takes_context=True)
 def get_public_projects(context, user):
     # 'Exists()' checks if the project has any good builds.

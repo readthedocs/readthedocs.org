@@ -2,11 +2,9 @@ import logging
 
 from django.conf import settings
 from django_elasticsearch_dsl import DocType, Index, fields
-
 from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
-
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -50,19 +48,6 @@ class ProjectDocument(RTDDocTypeMixin, DocType):
         fields = ('name', 'slug', 'description')
         ignore_signals = True
 
-    @classmethod
-    def faceted_search(cls, query, user, language=None):
-        from readthedocs.search.faceted_search import ProjectSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
-
-        if language:
-            kwargs['filters'] = {'language': language}
-
-        return ProjectSearch(**kwargs)
-
 
 @page_index.doc_type
 class PageDocument(RTDDocTypeMixin, DocType):
@@ -72,6 +57,7 @@ class PageDocument(RTDDocTypeMixin, DocType):
     version = fields.KeywordField(attr='version.slug')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
+    rank = fields.IntegerField()
 
     # Searchable content
     title = fields.TextField(attr='processed_json.title')
@@ -106,6 +92,11 @@ class PageDocument(RTDDocTypeMixin, DocType):
         model = HTMLFile
         fields = ('commit', 'build')
         ignore_signals = True
+
+    def prepare_rank(self, html_file):
+        if not (-10 <= html_file.rank <= 10):
+            return 0
+        return html_file.rank
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
@@ -148,46 +139,17 @@ class PageDocument(RTDDocTypeMixin, DocType):
 
         return all_domains
 
-    @classmethod
-    def faceted_search(
-            cls, query, user, projects_list=None, versions_list=None,
-            filter_by_user=True
-    ):
-        from readthedocs.search.faceted_search import PageSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-            'filter_by_user': filter_by_user,
-        }
-
-        filters = {}
-        if projects_list is not None:
-            filters['project'] = projects_list
-        if versions_list is not None:
-            filters['version'] = versions_list
-
-        kwargs['filters'] = filters
-
-        return PageSearch(**kwargs)
-
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
+        """
+        Ignore certain files from indexing.
+
+        - Files from external versions
+        - Ignored files
+        """
         queryset = super().get_queryset()
-
-        # Do not index files from external versions
-        queryset = queryset.internal().all()
-
-        # TODO: Make this smarter
-        # This was causing issues excluding some valid user documentation pages
-        # excluded_files = [
-        #     'search.html',
-        #     'genindex.html',
-        #     'py-modindex.html',
-        #     'search/index.html',
-        #     'genindex/index.html',
-        #     'py-modindex/index.html',
-        # ]
-        # for ending in excluded_files:
-        #     queryset = queryset.exclude(path=ending)
-
+        queryset = (
+            queryset
+            .internal()
+            .exclude(ignore=True)
+        )
         return queryset

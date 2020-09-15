@@ -10,7 +10,7 @@ Follow the instructions just up to the point of activating the virtual environme
 
 Next, install the documentation dependencies using ``pip`` (make sure you are inside of the virtual environment)::
 
-    pip install -r requirements/local-docs-build.txt
+    pip install -r requirements/docs.txt
 
 This installs ``Sphinx``, amongst other things.
 

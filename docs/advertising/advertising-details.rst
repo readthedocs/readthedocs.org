@@ -71,8 +71,6 @@ Instead, we target based solely upon:
     targeting by state or by metro area (DMA specifically).
   * We geolocate a user's IP address to a country when a request is made.
 
-Read the Docs uses GeoLite2 data created by `MaxMind <http://maxmind.com>`_.
-
 
 Where ads are shown
 -------------------
@@ -97,6 +95,14 @@ For more details, see the :ref:`Do Not Track section <privacy-policy:Do Not Trac
 of our privacy policy.
 
 
+Ad serving infrastructure
+-------------------------
+
+Our `entire ad server <https://github.com/readthedocs/ethical-ad-server>`_ is open source,
+so you can inspect how we're doing things.
+We believe strongly in open source, and we practice what we preach.
+
+
 Analytics
 ---------
 
@@ -118,6 +124,9 @@ These steps apply both to analytics collected by Read the Docs and when
 * Users can opt-out of analytics by using the Do Not Track feature of their browser.
 * Read the Docs instructs Google to anonymize IP addresses sent to them.
 * The cookies set by GA expire in 30 days rather than the default 2 years.
+* Project maintainers can completely disable analytics on their own projects.
+  Follow the steps in :ref:`guides/google-analytics:Disabling Google Analytics on your project`.
+
 
 Why we use analytics
 ~~~~~~~~~~~~~~~~~~~~

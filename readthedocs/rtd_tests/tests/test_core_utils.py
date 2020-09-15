@@ -173,7 +173,6 @@ class CoreUtilTests(TestCase):
             'commit': None
         }
         options = {
-            'queue': mock.ANY,
             'time_limit': 3,
             'soft_time_limit': 3,
             'priority': CELERY_HIGH,
@@ -240,7 +239,6 @@ class CoreUtilTests(TestCase):
             'commit': None
         }
         options = {
-            'queue': mock.ANY,
             'time_limit': mock.ANY,
             'soft_time_limit': mock.ANY,
             'priority': CELERY_LOW,
@@ -264,7 +262,6 @@ class CoreUtilTests(TestCase):
             'commit': None
         }
         options = {
-            'queue': mock.ANY,
             'time_limit': mock.ANY,
             'soft_time_limit': mock.ANY,
             'priority': CELERY_MEDIUM,

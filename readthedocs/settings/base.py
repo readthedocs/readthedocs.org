@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring
 
-import getpass
+import logging
 import os
 import subprocess
+import socket
 
 from celery.schedules import crontab
 
@@ -18,6 +19,7 @@ except ImportError:
 
 
 _ = gettext = lambda s: s
+log = logging.getLogger(__name__)
 
 
 class CommunityBaseSettings(Settings):
@@ -74,6 +76,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = 'DENY'
 
     # Content Security Policy
@@ -101,6 +104,7 @@ class CommunityBaseSettings(Settings):
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
+    RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
 
     USER_MATURITY_DAYS = 7
 
@@ -140,6 +144,7 @@ class CommunityBaseSettings(Settings):
 
             # our apps
             'readthedocs.projects',
+            'readthedocs.organizations',
             'readthedocs.builds',
             'readthedocs.core',
             'readthedocs.doc_builder',
@@ -190,6 +195,7 @@ class CommunityBaseSettings(Settings):
         'dj_pagination.middleware.PaginationMiddleware',
         'corsheaders.middleware.CorsMiddleware',
         'csp.middleware.CSPMiddleware',
+        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
     )
 
     AUTHENTICATION_BACKENDS = (
@@ -253,6 +259,7 @@ class CommunityBaseSettings(Settings):
     # https://docs.readthedocs.io/page/development/settings.html#rtd-build-media-storage
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
     TEMPLATES = [
         {
@@ -350,8 +357,22 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-day-delete-old-page-views': {
+            'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
+            'schedule': crontab(minute=0, hour=1),
+            'options': {'queue': 'web'},
+        },
+        'hourly-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds',
+            'schedule': crontab(minute=30),
+            'options': {'queue': 'web'},
+            'kwargs': {
+                'days': 1,
+            },
+        },
     }
+
     MULTIPLE_APP_SERVERS = [CELERY_DEFAULT_QUEUE]
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
@@ -440,7 +461,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 750, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
@@ -470,15 +491,21 @@ class CommunityBaseSettings(Settings):
 
         # Only run on our servers
         if self.RTD_IS_PRODUCTION:
-            memory_limit = self._get_docker_memory_limit()
+            total_memory, memory_limit = self._get_docker_memory_limit()
             if memory_limit:
                 limits = {
                     'memory': f'{memory_limit}m',
                     'time': max(
                         limits['time'],
-                        round(memory_limit * self.DOCKER_TIME_LIMIT_COEFF, -2),
+                        round(total_memory * self.DOCKER_TIME_LIMIT_COEFF, -2),
                     )
                 }
+        log.info(
+            'Using dynamic docker limits. hostname=%s memory=%s time=%s',
+            socket.gethostname(),
+            limits['memory'],
+            limits['time'],
+        )
         return limits
 
     # All auth

@@ -25,6 +25,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
@@ -139,8 +140,6 @@ class Version(models.Model):
     )
     hidden = models.BooleanField(
         _('Hidden'),
-        # To avoid downtime during deploy, remove later.
-        null=True,
         default=False,
         help_text=_('Hide this version from the version (flyout) menu and search results?')
     )
@@ -179,6 +178,10 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_external(self):
+        return self.type == EXTERNAL
 
     @property
     def ref(self):
@@ -610,11 +613,28 @@ class Build(models.Model):
         choices=BUILD_TYPES,
         default='html',
     )
+
+    # Describe build state as where in the build process the build is. This
+    # allows us to show progression to the user in the form of a progress bar
+    # or in the build listing
     state = models.CharField(
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
         default='finished',
+    )
+
+    # Describe status as *why* the build is in a particular state. It is
+    # helpful for communicating more details about state to the user, but it
+    # doesn't help describe progression
+    # https://github.com/readthedocs/readthedocs.org/pull/7123#issuecomment-635065807
+    status = models.CharField(
+        _('Status'),
+        choices=BUILD_STATUS_CHOICES,
+        max_length=32,
+        null=True,
+        default=None,
+        blank=True,
     )
     date = models.DateTimeField(_('Date'), auto_now_add=True)
     success = models.BooleanField(_('Success'), default=True)
@@ -926,9 +946,16 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     """Versions automation rules for projects."""
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
+    HIDE_VERSION_ACTION = 'hide-version'
+    MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
+    MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
+
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
+        (HIDE_VERSION_ACTION, _('Hide version')),
+        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
+        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
@@ -1140,6 +1167,9 @@ class RegexAutomationRule(VersionAutomationRule):
 
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
+        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
     }
 

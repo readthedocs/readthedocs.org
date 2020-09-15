@@ -88,6 +88,31 @@ class BuildLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
+class BuildURLsSerializer(BaseLinksSerializer, serializers.Serializer):
+    build = serializers.URLField(source='get_full_url')
+    project = serializers.SerializerMethodField()
+    version = serializers.SerializerMethodField()
+
+    def get_project(self, obj):
+        path = reverse(
+            'projects_detail',
+            kwargs={
+                'project_slug': obj.project.slug
+            }
+        )
+        return self._absolute_url(path)
+
+    def get_version(self, obj):
+        path = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+                'version_slug': obj.version.slug
+            }
+        )
+        return self._absolute_url(path)
+
+
 class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
 
     """
@@ -99,7 +124,7 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, instance):
+    def to_representation(self, instance):  # pylint: disable=arguments-differ
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
         return instance
@@ -123,6 +148,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
     duration = serializers.IntegerField(source='length')
     state = BuildStateSerializer(source='*')
     _links = BuildLinksSerializer(source='*')
+    urls = BuildURLsSerializer(source='*')
 
     class Meta:
         model = Build
@@ -138,6 +164,7 @@ class BuildSerializer(FlexFieldsModelSerializer):
             'error',
             'commit',
             '_links',
+            'urls',
         ]
 
         expandable_fields = {
@@ -261,6 +288,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         model = Version
         fields = [
             'active',
+            'hidden',
         ]
 
 
@@ -436,7 +464,10 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
     """Serializer used to modify a Project once imported."""
 
     repository = RepositorySerializer(source='*')
-    homepage = serializers.URLField(source='project_url')
+    homepage = serializers.URLField(
+        source='project_url',
+        required=False,
+    )
 
     class Meta:
         model = Project
@@ -452,6 +483,7 @@ class ProjectUpdateSerializer(FlexFieldsModelSerializer):
             'default_version',
             'default_branch',
             'analytics_code',
+            'analytics_disabled',
             'show_version_warning',
             'single_version',
 

@@ -1,8 +1,17 @@
+import json
 import logging
+from datetime import datetime, timedelta
+from io import BytesIO
 
-from django.db.models import Avg
+from celery import Task
+from django.conf import settings
+from django.core.files.storage import get_storage_class
 
+from readthedocs.api.v2.serializers import BuildSerializer
+from readthedocs.builds.constants import MAX_BUILD_COMMAND_SIZE
 from readthedocs.builds.models import Build, Version
+from readthedocs.builds.utils import memcache_lock
+from readthedocs.worker import app
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +26,6 @@ class TaskRouter:
 
     1. the project is using conda
     2. new project with less than N successful builds
-    3. last N successful builds have a high time average
 
     It ignores projects that have already set ``build_queue`` attribute.
 
@@ -46,13 +54,15 @@ class TaskRouter:
             log.info('No Build/Version found. No routing task. task=%s', task)
             return
 
+        project = version.project
+
         # Do not override the queue defined in the project itself
-        if version.project.build_queue:
+        if project.build_queue:
             log.info(
-                'Skipping routing task because project has a custom queue. queue=%s',
-                version.project.build_queue,
+                'Skipping routing task because project has a custom queue. project=%s queue=%s',
+                project.slug, project.build_queue,
             )
-            return version.project.build_queue
+            return project.build_queue
 
         queryset = version.builds.filter(success=True).order_by('-date')
         last_builds = queryset[:self.N_LAST_BUILDS]
@@ -61,45 +71,30 @@ class TaskRouter:
         for build in last_builds.iterator():
             if build.config.get('conda', None):
                 log.info(
-                    'Routing task because project uses conda. queue=%s',
-                    self.BUILD_LARGE_QUEUE,
+                    'Routing task because project uses conda. project=%s queue=%s',
+                    project.slug, self.BUILD_LARGE_QUEUE,
                 )
                 return self.BUILD_LARGE_QUEUE
 
         # We do not have enough builds for this version yet
         if queryset.count() < self.N_BUILDS:
             log.info(
-                'Routing task because it does not have enough success builds yet. queue=%s',
-                self.BUILD_LARGE_QUEUE,
+                'Routing task because it does not have enough success builds yet. '
+                'project=%s queue=%s',
+                project.slug, self.BUILD_LARGE_QUEUE,
             )
             return self.BUILD_LARGE_QUEUE
 
-        # Build time average is high
-        length_avg = queryset.filter(pk__in=last_builds).aggregate(Avg('length')).get('length__avg')
-        if length_avg and length_avg > self.TIME_AVERAGE:
-            log.info(
-                'Routing task because project has high time average. queue=%s',
-                self.BUILD_LARGE_QUEUE,
-            )
-            return self.BUILD_LARGE_QUEUE
-
-        log.info('No routing task because no conditions were met.')
+        log.info('No routing task because no conditions were met. project=%s', project.slug)
         return
 
     def _get_version(self, task, args, kwargs):
-        if task == 'readthedocs.projects.tasks.update_docs_task':
-            build_pk = kwargs.get('build_pk')
-            try:
-                build = Build.objects.get(pk=build_pk)
-                version = build.version
-            except Build.DoesNotExist:
-                log.info(
-                    'Build does not exist. Routing task to default queue. build_pk=%s',
-                    build_pk,
-                )
-                return
-
-        elif task == 'readthedocs.projects.tasks.sync_repository_task':
+        tasks = [
+            'readthedocs.projects.tasks.update_docs_task',
+            'readthedocs.projects.tasks.sync_repository_task',
+        ]
+        version = None
+        if task in tasks:
             version_pk = args[0]
             try:
                 version = Version.objects.get(pk=version_pk)
@@ -108,5 +103,63 @@ class TaskRouter:
                     'Version does not exist. Routing task to default queue. version_pk=%s',
                     version_pk,
                 )
-                return
         return version
+
+
+class ArchiveBuilds(Task):
+
+    """Task to archive old builds to cold storage."""
+
+    name = __name__ + '.archive_builds'
+
+    def run(self, *args, **kwargs):
+        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+            return
+
+        lock_id = '{0}-lock'.format(self.name)
+        days = kwargs.get('days', 14)
+        limit = kwargs.get('limit', 5000)
+        delete = kwargs.get('delete', True)
+
+        with memcache_lock(lock_id, self.app.oid) as acquired:
+            if acquired:
+                archive_builds_task(days=days, limit=limit, delete=delete)
+            else:
+                log.warning('Archive Builds Task still locked')
+
+
+def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
+    """
+    Find stale builds and remove build paths.
+
+    :arg days: Find builds older than `days` days.
+    :arg include_cold: If True, include builds that are already in cold storage
+    :arg delete: If True, deletes BuildCommand objects after archiving them
+    """
+    max_date = datetime.now() - timedelta(days=days)
+    queryset = Build.objects.exclude(commands__isnull=True)
+    if not include_cold:
+        queryset = queryset.exclude(cold_storage=True)
+    queryset = queryset.filter(date__lt=max_date)[:limit]
+
+    storage = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
+    for build in queryset:
+        data = BuildSerializer(build).data['commands']
+        if data:
+            for cmd in data:
+                if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
+                    cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
+                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
+                    log.warning('Truncating build command for build. build=%s', build.pk)
+            output = BytesIO()
+            output.write(json.dumps(data).encode('utf8'))
+            output.seek(0)
+            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+            try:
+                storage.save(name=filename, content=output)
+                build.cold_storage = True
+                build.save()
+                if delete:
+                    build.commands.all().delete()
+            except IOError:
+                log.exception('Cold Storage save failure')

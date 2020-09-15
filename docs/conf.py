@@ -36,6 +36,7 @@ extensions = [
     'notfound.extension',
     'hoverxref.extension',
     'sphinx_search.extension',
+    'sphinxemoji.sphinxemoji',
 ]
 
 templates_path = ['_templates']
@@ -101,9 +102,15 @@ hoverxref_role_types = {
     'confval': 'tooltip',  # for custom object
 }
 
+rst_epilog = """
+.. |org_brand| replace:: Read the Docs Community
+.. |com_brand| replace:: Read the Docs for Business
+"""
 
 # Activate autosectionlabel plugin
 autosectionlabel_prefix_document = True
+
+numfig = True
 
 # sphinx-notfound-page
 # https://github.com/readthedocs/sphinx-notfound-page
@@ -120,6 +127,7 @@ notfound_context = {
 linkcheck_ignore = [
     r'http://127\.0\.0\.1',
     r'http://localhost',
+    r'http://community\.dev\.readthedocs\.io',
     r'https://yourproject\.readthedocs\.io',
     r'https?://docs\.example\.com',
     r'https://foo\.readthedocs\.io/projects',
@@ -128,8 +136,10 @@ linkcheck_ignore = [
     r'https://github\.com/readthedocs/readthedocs\.org/pull',
     r'https://docs\.readthedocs\.io/\?rtd_search',
     r'https://readthedocs\.org/search',
+    # This page is under login
+    r'https://readthedocs\.org/accounts/gold',
 ]
 
 
 def setup(app):
-    app.add_stylesheet('css/sphinx_prompt_css.css')
+    app.add_css_file('css/sphinx_prompt_css.css')

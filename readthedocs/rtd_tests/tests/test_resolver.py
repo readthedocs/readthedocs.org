@@ -175,6 +175,13 @@ class SmartResolverPathTests(ResolverBase):
             url = resolve_path(project=self.translation, filename='index.html')
             self.assertEqual(url, '/ja/latest/index.html')
 
+    def test_resolver_urlconf(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='$version/$filename')
+        self.assertEqual(url, 'latest/index.html')
+
+    def test_resolver_urlconf_extra(self):
+        url = resolve_path(project=self.translation, filename='index.html', urlconf='foo/bar/$version/$filename')
+        self.assertEqual(url, 'foo/bar/latest/index.html')
 
 class ResolverPathOverrideTests(ResolverBase):
 

@@ -3,13 +3,11 @@
 import logging
 from operator import attrgetter
 
-from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
-from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.search.documents import PageDocument
+from readthedocs.projects.models import HTMLFile
 
 
 log = logging.getLogger(__name__)
@@ -117,6 +115,7 @@ def _indexing_helper(html_objs_qs, wipe=False):
     If ``wipe`` is set to False, html_objs are deleted from the ES index,
     else, html_objs are indexed.
     """
+    from readthedocs.search.documents import PageDocument
     from readthedocs.search.tasks import index_objects_to_es, delete_objects_in_es
 
     if html_objs_qs:
@@ -153,3 +152,20 @@ def _get_sorted_results(results, source_key='_source'):
     ]
 
     return sorted_results
+
+
+def _last_30_days_iter():
+    """Returns iterator for previous 30 days (including today)."""
+    thirty_days_ago = timezone.now().date() - timezone.timedelta(days=30)
+
+    # this includes the current day, len() = 31
+    return (thirty_days_ago + timezone.timedelta(days=n) for n in range(31))
+
+
+def _get_last_30_days_str(date_format='%Y-%m-%d'):
+    """Returns the list of dates in string format for previous 30 days (including today)."""
+    last_30_days_str = [
+        timezone.datetime.strftime(date, date_format)
+        for date in _last_30_days_iter()
+    ]
+    return last_30_days_str
