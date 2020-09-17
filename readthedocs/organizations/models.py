@@ -69,6 +69,11 @@ class Organization(models.Model):
         help_text='Docs and builds are disabled for this organization',
         default=False,
     )
+    max_concurrent_builds = models.IntegerField(
+        _('Maximum concurrent builds allowed for this organization'),
+        null=True,
+        blank=True,
+    )
 
     stripe_id = models.CharField(
         _('Stripe customer ID'),

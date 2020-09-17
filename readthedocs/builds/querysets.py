@@ -134,6 +134,11 @@ class BuildQuerySetBase(models.QuerySet):
 
         - translation: concurrent builds of all the translations + builds of main project
 
+        .. note::
+
+          If the project/translation belongs to an organization, we count all concurrent
+          builds for all the projects from the organization.
+
         :rtype: tuple
         :returns: limit_reached, number of concurrent builds, number of max concurrent
         """
@@ -149,12 +154,22 @@ class BuildQuerySetBase(models.QuerySet):
             # The project has translations, counts their builds as well
             query |= Q(project__in=project.translations.all())
 
+        # If the project belongs to an organization, count all the projects
+        # from this organization as well
+        organization = project.organizations.first()
+        if organization:
+            query |= Q(project__in=organization.projects.all())
+
         concurrent = (
             self.filter(query)
             .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        ).count()
+        ).distinct().count()
 
-        max_concurrent = project.max_concurrent_builds or settings.RTD_MAX_CONCURRENT_BUILDS
+        max_concurrent = (
+            project.max_concurrent_builds or
+            (organization.max_concurrent_builds if organization else 0) or
+            settings.RTD_MAX_CONCURRENT_BUILDS
+        )
         log.info(
             'Concurrent builds. project=%s running=%s max=%s',
             project.slug,
