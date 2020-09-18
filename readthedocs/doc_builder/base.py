@@ -117,7 +117,6 @@ class BaseBuilder:
                 return 'README'
 
             if not self.project.has_feature(Feature.DONT_CREATE_INDEX):
-                index_file = open(index_filename, 'w+')
                 index_text = """
 
 Welcome to Read the Docs
