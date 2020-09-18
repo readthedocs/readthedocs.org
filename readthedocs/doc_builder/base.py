@@ -134,8 +134,9 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+                with open(index_filename, 'w+') as index_file:
+                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+
         return 'index'
 
     def run(self, *args, **kwargs):
