@@ -6,7 +6,11 @@ import json
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.core.validators import URLValidator
+from django.core.validators import (
+    _lazy_re_compile,
+    URLValidator,
+    RegexValidator,
+)
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -134,11 +138,19 @@ class RemoteRepository(models.Model):
         blank=True,
     )
 
-    ssh_url = models.URLField(
+    ssh_url = models.CharField(
         _('SSH URL'),
         max_length=512,
         blank=True,
-        validators=[URLValidator(schemes=['ssh'])],
+        validators=[
+            RegexValidator(
+                _lazy_re_compile(
+                    r'^(git@([\w\.]+):)([\w,\-,\_\.]+)\/([\w,\-,\_\.]+)(.git)$'
+                ),
+                message=_('Enter a valid URL.'),
+                code='invalid',
+            ),
+        ],
     )
     clone_url = models.URLField(
         _('Repository clone URL'),
