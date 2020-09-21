@@ -103,7 +103,6 @@ class ProjectQuerySetBase(models.QuerySet):
             settings.RTD_MAX_CONCURRENT_BUILDS
         )
 
-
     def prefetch_latest_build(self):
         """
         Prefetch "latest build" for each project.
