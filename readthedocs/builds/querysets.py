@@ -1,12 +1,12 @@
 """Build and Version QuerySet classes."""
 import logging
 
-from django.conf import settings
 from django.db import models
 from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.projects.models import Project
 
 from .constants import BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED
 
@@ -165,11 +165,7 @@ class BuildQuerySetBase(models.QuerySet):
             .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
         ).distinct().count()
 
-        max_concurrent = (
-            project.max_concurrent_builds or
-            (organization.max_concurrent_builds if organization else 0) or
-            settings.RTD_MAX_CONCURRENT_BUILDS
-        )
+        max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
             'Concurrent builds. project=%s running=%s max=%s',
             project.slug,
