@@ -45,7 +45,7 @@ class BaseSphinx(BaseBuilder):
                 self.config_file = self.project.conf_file(self.version.slug)
             else:
                 self.config_file = os.path.join(
-                    self.project.checkout_path(self.version.slug),
+                    self.cwd,
                     self.config_file,
                 )
             self.old_artifact_path = os.path.join(
@@ -86,7 +86,7 @@ class BaseSphinx(BaseBuilder):
             os.path.dirname(
                 os.path.relpath(
                     self.config_file,
-                    self.project.checkout_path(self.version.slug),
+                    self.cwd,
                 ),
             ),
             '',
@@ -192,7 +192,7 @@ class BaseSphinx(BaseBuilder):
 
         return data
 
-    def append_conf(self, **__):
+    def append_conf(self):
         """
         Find or create a ``conf.py`` and appends default content.
 
@@ -224,9 +224,9 @@ class BaseSphinx(BaseBuilder):
             'cat',
             os.path.relpath(
                 self.config_file,
-                self.project.checkout_path(self.version.slug),
+                self.cwd,
             ),
-            cwd=self.project.checkout_path(self.version.slug),
+            cwd=self.cwd,
         )
 
     def build(self):
@@ -255,8 +255,9 @@ class BaseSphinx(BaseBuilder):
             self.sphinx_build_dir,
         ])
         cmd_ret = self.run(
-            *build_command, cwd=os.path.dirname(self.config_file),
-            bin_path=self.python_env.venv_bin()
+            *build_command,
+            cwd=os.path.dirname(self.config_file),
+            bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
 
@@ -302,7 +303,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *command,
             bin_path=self.python_env.venv_bin(),
-            cwd=self.project.checkout_path(self.version.slug),
+            cwd=self.cwd,
             escape_command=False,  # used on DockerBuildCommand
             shell=True,  # used on BuildCommand
             record=False,
@@ -397,6 +398,7 @@ class LocalMediaBuilder(BaseSphinx):
 
 
 class EpubBuilder(BaseSphinx):
+
     type = 'sphinx_epub'
     sphinx_builder = 'epub'
     sphinx_build_dir = '_build/epub'
@@ -416,7 +418,7 @@ class EpubBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.project.checkout_path(self.version.slug),
+                cwd=self.cwd,
             )
 
 
@@ -636,5 +638,5 @@ class PdfBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.project.checkout_path(self.version.slug),
+                cwd=self.cwd,
             )

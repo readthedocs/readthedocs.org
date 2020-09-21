@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for Builders."""
 
 import logging
@@ -38,8 +36,7 @@ class BaseBuilder:
     _force = False
 
     ignore_patterns = []
-
-    # old_artifact_path = ..
+    old_artifact_path = None
 
     def __init__(self, build_env, python_env, force=False):
         self.build_env = build_env
@@ -48,6 +45,7 @@ class BaseBuilder:
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self._force = force
+        self.cwd = self.project.checkout_path(self.version.slug)
         self.target = self.project.artifact_path(
             version=self.version.slug,
             type_=self.type,
@@ -61,6 +59,10 @@ class BaseBuilder:
         """An optional step to force a build even when nothing has changed."""
         log.info('Forcing a build')
         self._force = True
+
+    def append_conf(self):
+        """Set custom configurations for this builder."""
+        pass
 
     def build(self):
         """Do the actual building of the documentation."""
@@ -89,16 +91,12 @@ class BaseBuilder:
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        checkout_path = self.project.checkout_path(self.version.slug)
         if not docs_dir:
             for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
-                possible_path = os.path.join(checkout_path, doc_dir_name)
+                possible_path = os.path.join(self.cwd, doc_dir_name)
                 if os.path.exists(possible_path):
-                    docs_dir = possible_path
-                    break
-        if not docs_dir:
-            docs_dir = checkout_path
-        return docs_dir
+                    return possible_path
+        return docs_dir or self.cwd
 
     def create_index(self, extension='md', **__):
         """Create an index file if it needs it."""
