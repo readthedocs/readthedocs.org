@@ -621,11 +621,19 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
-        parsed = urlparse(self.cleaned_data['domain'])
-        if parsed.scheme or parsed.netloc:
-            domain_string = parsed.netloc
-        else:
-            domain_string = parsed.path
+        domain = self.cleaned_data['domain']
+        parsed = urlparse(domain)
+
+        # Force the scheme to have a valid netloc.
+        if not parsed.scheme:
+            parsed = urlparse(f'https://{domain}')
+
+        if not parsed.netloc:
+            raise forms.ValidationError(
+                f'{domain} is not a valid domain.'
+            )
+
+        domain_string = parsed.netloc
 
         # Don't allow production or public domain to be set as custom domain
         for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
@@ -638,8 +646,14 @@ class DomainBaseForm(forms.ModelForm):
 
     def clean_canonical(self):
         canonical = self.cleaned_data['canonical']
-        _id = self.initial.get('id')
-        if canonical and Domain.objects.filter(project=self.project, canonical=True).exclude(pk=_id).exists():  # yapf: disabled  # noqa
+        pk = self.instance.pk
+        has_canonical_domain = (
+            Domain.objects
+            .filter(project=self.project, canonical=True)
+            .exclude(pk=pk)
+            .exists()
+        )
+        if canonical and has_canonical_domain:
             raise forms.ValidationError(
                 _('Only 1 Domain can be canonical at a time.'),
             )
