@@ -655,7 +655,7 @@ class DomainBaseForm(forms.ModelForm):
         )
         if canonical and has_canonical_domain:
             raise forms.ValidationError(
-                _('Only 1 Domain can be canonical at a time.'),
+                _('Only one domain can be canonical at a time.'),
             )
         return canonical
 
