@@ -45,7 +45,7 @@ class BaseBuilder:
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self._force = force
-        self.cwd = self.project.checkout_path(self.version.slug)
+        self.project_path = self.project.checkout_path(self.version.slug)
         self.target = self.project.artifact_path(
             version=self.version.slug,
             type_=self.type,
@@ -91,12 +91,15 @@ class BaseBuilder:
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        if not docs_dir:
-            for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
-                possible_path = os.path.join(self.cwd, doc_dir_name)
-                if os.path.exists(possible_path):
-                    return possible_path
-        return docs_dir or self.cwd
+        if docs_dir:
+            return docs_dir
+
+        for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+            possible_path = os.path.join(self.project_path, doc_dir_name)
+            if os.path.exists(possible_path):
+                return possible_path
+
+        return self.project_path
 
     def create_index(self, extension='md', **__):
         """Create an index file if it needs it."""

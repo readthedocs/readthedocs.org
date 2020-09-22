@@ -45,7 +45,7 @@ class BaseSphinx(BaseBuilder):
                 self.config_file = self.project.conf_file(self.version.slug)
             else:
                 self.config_file = os.path.join(
-                    self.cwd,
+                    self.project_path,
                     self.config_file,
                 )
             self.old_artifact_path = os.path.join(
@@ -86,7 +86,7 @@ class BaseSphinx(BaseBuilder):
             os.path.dirname(
                 os.path.relpath(
                     self.config_file,
-                    self.cwd,
+                    self.project_path,
                 ),
             ),
             '',
@@ -224,9 +224,9 @@ class BaseSphinx(BaseBuilder):
             'cat',
             os.path.relpath(
                 self.config_file,
-                self.cwd,
+                self.project_path,
             ),
-            cwd=self.cwd,
+            cwd=self.project_path,
         )
 
     def build(self):
@@ -303,7 +303,7 @@ class BaseSphinx(BaseBuilder):
         cmd_ret = self.run(
             *command,
             bin_path=self.python_env.venv_bin(),
-            cwd=self.cwd,
+            cwd=self.project_path,
             escape_command=False,  # used on DockerBuildCommand
             shell=True,  # used on BuildCommand
             record=False,
@@ -418,7 +418,7 @@ class EpubBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.cwd,
+                cwd=self.project_path,
             )
 
 
@@ -638,5 +638,5 @@ class PdfBuilder(BaseSphinx):
                 '-f',
                 from_file,
                 to_file,
-                cwd=self.cwd,
+                cwd=self.project_path,
             )

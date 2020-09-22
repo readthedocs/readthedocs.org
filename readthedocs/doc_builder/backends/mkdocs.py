@@ -84,7 +84,7 @@ class BaseMkdocs(BaseBuilder):
         if not mkdocs_path:
             mkdocs_path = 'mkdocs.yml'
         return os.path.join(
-            self.cwd,
+            self.project_path,
             mkdocs_path,
         )
 
@@ -197,7 +197,7 @@ class BaseMkdocs(BaseBuilder):
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=os.path.relpath(docs_path, self.cwd),
+            docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
         with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
@@ -223,8 +223,8 @@ class BaseMkdocs(BaseBuilder):
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            os.path.relpath(self.yaml_file, self.cwd),
-            cwd=self.cwd,
+            os.path.relpath(self.yaml_file, self.project_path),
+            cwd=self.project_path,
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -282,13 +282,13 @@ class BaseMkdocs(BaseBuilder):
             '--site-dir',
             self.build_dir,
             '--config-file',
-            os.path.relpath(self.yaml_file, self.cwd),
+            os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')
         cmd_ret = self.run(
             *build_command,
-            cwd=self.cwd,
+            cwd=self.project_path,
             bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
