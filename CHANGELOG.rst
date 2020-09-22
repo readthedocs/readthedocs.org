@@ -1,3 +1,13 @@
+Version 5.5.0
+-------------
+
+:Date: September 22, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Don't install pygments (`#7490 <https://github.com/readthedocs/readthedocs.org/pull/7490>`__)
+* `@humitos <https://github.com/humitos>`__: Limit concurrency per-organization (`#7489 <https://github.com/readthedocs/readthedocs.org/pull/7489>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 37 (`#7482 <https://github.com/readthedocs/readthedocs.org/pull/7482>`__)
+* `@humitos <https://github.com/humitos>`__: Use `permissions` (project and group) for `RemoteRepository.admin` on GitLab (`#7479 <https://github.com/readthedocs/readthedocs.org/pull/7479>`__)
+
 Version 5.4.3
 -------------
 
