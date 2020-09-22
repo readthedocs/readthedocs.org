@@ -41,6 +41,10 @@ class GitLabService(Service):
         re.escape(urlparse(adapter.provider_base_url).netloc),
     )
 
+    PERMISSION_NO_ACCESS = 0
+    PERMISSION_MAINTAINER = 40
+    PERMISSION_OWNER = 50
+
     def _get_repo_id(self, project):
         # The ID or URL-encoded path of the project
         # https://docs.gitlab.com/ce/api/README.html#namespaced-path-encoding
@@ -132,12 +136,19 @@ class GitLabService(Service):
 
         return remote_organizations, remote_repositories
 
-    def is_owned_by(self, owner_id):
-        return self.account.extra_data['id'] == owner_id
-
     def create_repository(self, fields, privacy=None, organization=None):
         """
         Update or create a repository from GitLab API response.
+
+        ``admin`` field is computed using the ``permissions`` fields from the
+        repository response. The permission from GitLab is given by an integer:
+          * 0: No access
+          * (... others ...)
+          * 40: Maintainer
+          * 50: Owner
+
+        https://docs.gitlab.com/ee/api/access_requests.html
+        https://gitlab.com/help/user/permissions
 
         :param fields: dictionary of response data from API
         :param privacy: privacy level to support
@@ -179,9 +190,17 @@ class GitLabService(Service):
             else:
                 repo.clone_url = fields['http_url_to_repo']
 
-            repo.admin = not repo_is_public
-            if not repo.admin and 'owner' in fields:
-                repo.admin = self.is_owned_by(fields['owner']['id'])
+            project_access_level = group_access_level = self.PERMISSION_NO_ACCESS
+            project_access = fields.get('permissions', {}).get('project_access', {})
+            if project_access:
+                project_access_level = project_access.get('access_level', self.PERMISSION_NO_ACCESS)
+            group_access = fields.get('permissions', {}).get('group_access', {})
+            if group_access:
+                group_access_level = group_access.get('access_level', self.PERMISSION_NO_ACCESS)
+            repo.admin = any([
+                project_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+                group_access_level in (self.PERMISSION_MAINTAINER, self.PERMISSION_OWNER),
+            ])
 
             repo.vcs = 'git'
             repo.account = self.account

@@ -1,6 +1,6 @@
 # Base packages
 
-pip==20.2.2
+pip==20.2.3
 virtualenv==20.0.31
 
 django==2.2.16  # pyup: <2.3
@@ -18,17 +18,17 @@ Sphinx==1.8.5  # pyup: <2.0.0
 # Filtering for the REST API
 django-filter==2.3.0
 
-drf-flex-fields==0.8.5
+drf-flex-fields==0.8.6
 drf-extensions==0.6.0
 
-django-vanilla-views==1.1.0
+django-vanilla-views==2.0.0
 jsonfield==3.1.0
 
 requests==2.24.0
 requests-toolbelt==0.9.1
 slumber==0.7.1
 pyyaml==5.3.1
-Pygments==2.6.1
+Pygments==2.7.0
 
 # Basic tools
 # Redis 3.x has an incompatible change and fails
