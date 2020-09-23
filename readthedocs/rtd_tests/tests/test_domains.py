@@ -109,7 +109,7 @@ class FormTests(TestCase):
     def test_invalid_domains(self):
         invalid = [
             'python..org',
-            # '****.foo.com', current validator says this is valid :shrug:
+            # FIXME: '****.foo.com', current validator says this is valid :shrug:
             'invalid-.com'
         ]
         for domain in invalid:
