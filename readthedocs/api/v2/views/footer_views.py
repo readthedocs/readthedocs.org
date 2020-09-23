@@ -216,6 +216,20 @@ class BaseFooterHTML(APIView):
         }
         return context
 
+    def is_ad_free_user(self, user):
+        if not settings.USE_PROMOS:
+            return True
+        if user.is_authenticated and hasattr(user, 'gold') and hasattr(user, 'goldonce') and (user.gold.exists() or user.goldonce.exists()):
+            return True
+        return False
+
+    def is_ad_free_project(self, project):
+        if not settings.USE_PROMOS:
+            return True
+        if project and hasattr(project, 'gold_owners') and (project.gold_owners.exists() or project.ad_free):
+            return True
+        return False
+
     def get(self, request, format=None):
         project = self._get_project()
         version = self._get_version()
@@ -236,6 +250,8 @@ class BaseFooterHTML(APIView):
         )
 
         resp_data = {
+            'ad_free_user': self.is_ad_free_user(request.user),
+            'ad_free_project': self.is_ad_free_project(project),
             'html': html,
             'show_version_warning': show_version_warning,
             'version_active': version.active,
