@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 
 from django.conf import settings
@@ -108,6 +106,19 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'domain.com')
 
+    def test_invalid_domains(self):
+        invalid = [
+            'python..org',
+            # '****.foo.com', current validator says this is valid :shrug:
+            'invalid-.com'
+        ]
+        for domain in invalid:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertFalse(form.is_valid(), domain)
+
     def test_canonical_change(self):
         """Make sure canonical can be properly changed."""
         form = DomainForm(
@@ -127,7 +138,7 @@ class FormTests(TestCase):
             project=self.project,
         )
         self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors['canonical'][0], 'Only 1 Domain can be canonical at a time.')
+        self.assertEqual(form.errors['canonical'][0], 'Only one domain can be canonical at a time.')
 
         form = DomainForm(
             {'canonical': False},
