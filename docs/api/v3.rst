@@ -1624,6 +1624,73 @@ Organization projects list
        }
 
 
+
+Remote Repositories
+~~~~~~~~~~~~~~~~~~~
+
+Remote Repositories are the importable repositories connected via
+``GitHub``, ``GitLab`` and ``BitBucket``.
+
+
+Remote Repositories listing
++++++++++++++++++++++++++++
+
+
+.. http:get:: /api/v3/remoterepositories/
+
+    Retrieve a list of all Remote Repositories for the authenticated user.
+
+    **Example request**:
+
+    .. tabs::
+
+        .. code-tab:: bash
+
+            $ curl -H "Authorization: Token <token>" https://readthedocs.org/api/v3/remoterepositories/
+
+        .. code-tab:: python
+
+            import requests
+            URL = 'https://readthedocs.org/api/v3/remoterepositories/'
+            TOKEN = '<token>'
+            HEADERS = {'Authorization': f'token {TOKEN}'}
+            response = requests.get(URL, headers=HEADERS)
+            print(response.json())
+
+    **Example response**:
+
+    .. sourcecode:: json
+
+        {
+            "count": 20,
+            "next": "api/v3/remoterepositories/?limit=10&offset=10",
+            "previous": null,
+            "results": [
+                {
+                    "avatar_url": "https://avatars3.githubusercontent.com/u/test-rtd?v=4",
+                    "clone_url": "https://github.com/rtd/project.git",
+                    "created": "2019-04-29T10:00:00Z",
+                    "description": "This is a test project.",
+                    "full_name": "rtd/project",
+                    "html_url": "https://github.com/rtd/project",
+                    "modified": "2019-04-29T12:00:00Z",
+                    "name": "project",
+                    "pk": 1,
+                    "ssh_url": "git@github.com:rtd/project.git",
+                    "vcs": "git"
+                }
+            ]
+        }
+
+
+    The ``results`` in response is an array of remote repositories data.
+
+    :query string name: return remote repositories with matching name
+    :query string vcs: return remote repositories with specific vcs (``git``, ``svn``, ``hg`` or ``bzr``)
+
+    :requestheader Authorization: token to authenticate.
+
+
 Additional APIs
 ---------------
 
