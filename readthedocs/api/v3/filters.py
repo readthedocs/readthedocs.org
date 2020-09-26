@@ -2,6 +2,7 @@ import django_filters.rest_framework as filters
 
 from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Project
 
 
@@ -47,3 +48,14 @@ class BuildFilter(filters.FilterSet):
             return queryset.exclude(state=BUILD_STATE_FINISHED)
 
         return queryset.filter(state=BUILD_STATE_FINISHED)
+
+
+class RemoteRepositoryFilter(filters.FilterSet):
+    name = filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'name',
+            'vcs',
+        ]

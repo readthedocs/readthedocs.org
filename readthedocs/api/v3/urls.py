@@ -5,6 +5,7 @@ from .views import (
     EnvironmentVariablesViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
+    RemoteRepositoryViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
     VersionsViewSet,
@@ -85,6 +86,13 @@ projects.register(
     EnvironmentVariablesViewSet,
     basename='projects-environmentvariables',
     parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/remoterepositories/
+remoterepositories = router.register(
+    r'remoterepositories',
+    RemoteRepositoryViewSet,
+    basename='remoterepositories',
 )
 
 urlpatterns = []

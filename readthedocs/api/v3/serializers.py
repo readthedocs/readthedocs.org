@@ -13,6 +13,7 @@ from rest_framework import serializers
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
     LANGUAGES,
@@ -891,3 +892,25 @@ class OrganizationSerializer(FlexFieldsModelSerializer):
             'projects': (ProjectSerializer, {'many': True}),
             'teams': (TeamSerializer, {'many': True}),
         }
+
+
+class RemoteRepositorySerializer(serializers.ModelSerializer):
+    created = serializers.DateTimeField(source='pub_date', read_only=True)
+    modified = serializers.DateTimeField(source='modified_date', read_only=True)
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'pk',
+            'name',
+            'full_name',
+            'description',
+            'avatar_url',
+            'ssh_url',
+            'clone_url',
+            'html_url',
+            'vcs',
+            'created',
+            'modified',
+        ]
+        read_only_fields = fields

@@ -1,0 +1,20 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "avatar_url": "https://avatars3.githubusercontent.com/u/test-rtd?v=4",
+      "clone_url": "https://github.com/rtd/project.git",
+      "created": "2019-04-29T10:00:00Z",
+      "description": "This is a test project.",
+      "full_name": "rtd/project",
+      "html_url": "https://github.com/rtd/project",
+      "modified": "2019-04-29T12:00:00Z",
+      "name": "project",
+      "pk": 1,
+      "ssh_url": "git@github.com:rtd/project.git",
+      "vcs": "git"
+    }
+  ]
+}
