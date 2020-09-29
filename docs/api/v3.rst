@@ -412,6 +412,10 @@ Versions listing
 
     :query boolean active: return only active versions
     :query boolean built: return only built versions
+    :query string privacy_level: return versions with specific privacy level (``public`` or ``private``)
+    :query string slug: return versions with matching slug
+    :query string type: return versions with specific type (``branch`` or ``tag``)
+    :query string verbose_name: return versions with matching version name
 
 
 Version detail
