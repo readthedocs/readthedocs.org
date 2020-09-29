@@ -38,7 +38,7 @@ class Backend(BaseVCS):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.token = kwargs.get('token', None)
+        self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
 
     def _get_clone_url(self):
