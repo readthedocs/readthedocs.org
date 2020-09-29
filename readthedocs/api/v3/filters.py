@@ -16,6 +16,8 @@ class ProjectFilter(filters.FilterSet):
 
 
 class VersionFilter(filters.FilterSet):
+    slug = filters.CharFilter(lookup_expr='icontains')
+    verbose_name = filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Version
@@ -25,6 +27,8 @@ class VersionFilter(filters.FilterSet):
             'active',
             'built',
             'uploaded',
+            'slug',
+            'type',
         ]
 
 
