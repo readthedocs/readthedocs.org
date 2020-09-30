@@ -346,7 +346,13 @@ class Virtualenv(PythonEnvironment):
 
         # Install latest pip first,
         # so it is used when installing the other requirements.
-        cmd = pip_install_cmd + ['pip']
+        pip_version = self.project.get_feature_value(
+            Feature.DONT_INSTALL_LATEST_PIP,
+            # 20.3 uses the new resolver by default.
+            positive='pip<20.3',
+            negative='pip',
+        )
+        cmd = pip_install_cmd + [pip_version]
         self.build_env.run(
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
