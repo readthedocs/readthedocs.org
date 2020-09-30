@@ -951,12 +951,10 @@ class GitLabOAuthTests(TestCase):
         return data
 
     def test_make_project_pass(self):
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(
-                self.repo_response_data, organization=self.org,
-                privacy=self.privacy,
-            )
+        repo = self.service.create_repository(
+            self.repo_response_data, organization=self.org,
+            privacy=self.privacy,
+        )
         self.assertIsInstance(repo, RemoteRepository)
         self.assertEqual(repo.name, 'testrepo')
         self.assertEqual(repo.full_name, 'testorga / testrepo')
@@ -1009,9 +1007,7 @@ class GitLabOAuthTests(TestCase):
         """
         data = self.repo_response_data.copy()
         data['visibility'] = 'public'
-        with mock.patch('readthedocs.oauth.services.gitlab.GitLabService.is_owned_by') as m:  # yapf: disable
-            m.return_value = True
-            repo = self.service.create_repository(data, organization=self.org)
+        repo = self.service.create_repository(data, organization=self.org)
         self.assertIsNotNone(repo)
 
     @mock.patch('readthedocs.oauth.services.gitlab.log')

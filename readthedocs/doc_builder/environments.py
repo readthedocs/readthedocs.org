@@ -242,9 +242,11 @@ class BuildCommand(BuildCommandResultMixin):
                 self.build_env.build.get('id'),
                 self.get_command(),
             )
-            sanitized = sanitized[:allowed_length]
-            sanitized += '\n\n\nOutput is too big. Chunked at {} bytes'.format(
-                allowed_length,
+            truncated_output = sanitized[-allowed_length:]
+            sanitized = (
+                '.. (truncated) ...\n'
+                f'Output is too big. Truncated at {allowed_length} bytes.\n\n\n'
+                f'{truncated_output}'
             )
 
         return sanitized
