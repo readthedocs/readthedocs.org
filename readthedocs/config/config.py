@@ -656,7 +656,7 @@ class BuildConfigV1(BuildConfigBase):
 
     @property
     def search(self):
-        return Search(ranking={})
+        return Search(ranking={}, ignore=[])
 
 
 class BuildConfigV2(BuildConfigBase):
@@ -1023,7 +1023,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         Validates the search key.
 
-        - Ranking is a map of path patterns to a rank.
+        - ``ranking`` is a map of path patterns to a rank.
+        - ``ignore`` is a list of patterns.
         - The path pattern supports basic globs (*, ?, [seq]).
         - The rank can be a integer number between -10 and 10.
         """
@@ -1045,6 +1046,22 @@ class BuildConfigV2(BuildConfigBase):
                 final_ranking[pattern] = rank
 
             search['ranking'] = final_ranking
+
+        with self.catch_validation_error('search.ignore'):
+            ignore_default = [
+                'search.html',
+                'search/index.html',
+                '404.html',
+                '404/index.html',
+            ]
+            search_ignore = self.pop_config('search.ignore', ignore_default)
+            validate_list(search_ignore)
+
+            final_ignore = [
+                validate_path_pattern(pattern)
+                for pattern in search_ignore
+            ]
+            search['ignore'] = final_ignore
 
         return search
 

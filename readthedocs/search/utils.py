@@ -87,7 +87,7 @@ def _get_index(indices, index_name):
     :return: DED Index
     """
     for index in indices:
-        if index._name == index_name:
+        if str(index) == index_name:
             return index
 
 

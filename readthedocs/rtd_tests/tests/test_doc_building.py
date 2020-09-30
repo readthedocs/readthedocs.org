@@ -1192,7 +1192,6 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'Pygments',
             'setuptools',
             'docutils',
             'mock',

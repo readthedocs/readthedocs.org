@@ -352,7 +352,6 @@ class Virtualenv(PythonEnvironment):
         )
 
         requirements = [
-            'Pygments==2.3.1',
             'setuptools==41.0.1',
             self.project.get_feature_value(
                 Feature.DONT_INSTALL_DOCUTILS,
