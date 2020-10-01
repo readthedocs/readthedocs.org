@@ -1742,8 +1742,12 @@ class Feature(models.Model):
         _('Date feature was added'),
         auto_now_add=True,
     )
-    default_true = models.BooleanField(
-        _('Historical default is True'),
+    past_default_true = models.BooleanField(
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 

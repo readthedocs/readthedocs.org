@@ -612,8 +612,8 @@ class APITests(TestCase):
         project = get(Project, main_language_project=None)
         # One explicit, one implicit feature
         feature1 = get(Feature, projects=[project])
-        feature2 = get(Feature, projects=[], default_true=True)
-        feature3 = get(Feature, projects=[], default_true=False)  # noqa
+        feature2 = get(Feature, projects=[], past_default_true=True)
+        feature3 = get(Feature, projects=[], past_default_true=False)  # noqa
         client = APIClient()
 
         client.force_authenticate(user=user)
@@ -629,7 +629,7 @@ class APITests(TestCase):
         user = get(User, is_staff=True)
         project1 = get(Project, main_language_project=None)
         project2 = get(Project, main_language_project=None)
-        feature = get(Feature, projects=[project1, project2], default_true=True)
+        feature = get(Feature, projects=[project1, project2], past_default_true=True)
         client = APIClient()
 
         client.force_authenticate(user=user)

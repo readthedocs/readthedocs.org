@@ -239,7 +239,8 @@ class FeatureQuerySet(models.QuerySet):
     def for_project(self, project):
         return self.filter(
             Q(projects=project) |
-            Q(default_true=True, add_date__gt=project.pub_date),
+            Q(past_default_true=True, add_date__gt=project.pub_date),
+            Q(future_default_true=True, add_date__lt=project.pub_date),
         ).distinct()
 
 
