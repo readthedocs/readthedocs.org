@@ -14,18 +14,19 @@ class Migration(migrations.Migration):
             name='environmentvariable',
             options={'get_latest_by': 'modified', 'ordering': ('-modified', '-created')},
         ),
-        migrations.RemoveField(
+        migrations.AlterField(
             model_name='feature',
             name='default_true',
+            field=models.BooleanField(default=False, verbose_name='Default all past projects to True'),
+        ),
+        migrations.RenameField(
+            model_name='feature',
+            old_name='default_true',
+            new_name='past_default_true',
         ),
         migrations.AddField(
             model_name='feature',
             name='future_default_true',
             field=models.BooleanField(default=False, verbose_name='Default all future projects to True'),
-        ),
-        migrations.AddField(
-            model_name='feature',
-            name='past_default_true',
-            field=models.BooleanField(default=False, verbose_name='Default all past projects to True'),
         ),
     ]
