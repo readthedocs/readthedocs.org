@@ -4,7 +4,7 @@
 # http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
 psycopg2==2.8.3 --no-binary psycopg2
 gunicorn==20.0.4
-django-redis-cache==2.1.1
+django-redis-cache==2.1.3
 
 #For resizing images
 pillow==7.2.0
