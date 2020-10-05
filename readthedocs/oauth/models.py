@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from jsonfield import JSONField
 
 from allauth.socialaccount.models import SocialAccount
 from django_extensions.db.models import TimeStampedModel
@@ -102,6 +103,7 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
         on_delete=models.CASCADE,
+        through='RemoteRelation'
     )
     organization = models.ForeignKey(
         RemoteOrganization,
@@ -111,8 +113,6 @@ class RemoteRepository(models.Model):
         blank=True,
         on_delete=models.CASCADE,
     )
-    active = models.BooleanField(_('Active'), default=False)
-
     project = models.OneToOneField(
         Project,
         on_delete=models.SET_NULL,
@@ -155,7 +155,6 @@ class RemoteRepository(models.Model):
     html_url = models.URLField(_('HTML URL'), null=True, blank=True)
 
     private = models.BooleanField(_('Private repository'), default=False)
-    admin = models.BooleanField(_('Has admin privilege'), default=False)
     vcs = models.CharField(
         _('vcs'),
         max_length=200,
@@ -168,8 +167,6 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
     )
-
-    json = models.TextField(_('Serialized API response'))
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
