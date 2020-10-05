@@ -47,7 +47,7 @@ class AzureBuildStorage(AzureStorage):
 
     """An Azure Storage backend for build cold storage."""
 
-    azure_container = getattr(settings, 'AZURE_BUILD_STORAGE_CONTAINER', None) or 'builds'
+    azure_container = getattr(settings, 'AZURE_BUILD_COMMANDS_STORAGE_CONTAINER', None) or 'builds'
 
 
 class AzureBuildEnvironmentStorage(BuildMediaStorageMixin, AzureStorage):

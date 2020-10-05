@@ -25,8 +25,8 @@ from readthedocs.builds.constants import (
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
-    BUILD_TYPES,
     BUILD_STATUS_CHOICES,
+    BUILD_TYPES,
     EXTERNAL,
     GENERIC_EXTERNAL_VERSION_NAME,
     GITHUB_EXTERNAL_VERSION_NAME,
@@ -179,6 +179,10 @@ class Version(models.Model):
                 pk=self.pk,
             ),
         )
+
+    @property
+    def is_external(self):
+        return self.type == EXTERNAL
 
     @property
     def ref(self):
@@ -343,7 +347,7 @@ class Version(models.Model):
     @property
     def supports_wipe(self):
         """Return True if version is not external."""
-        return not self.type == EXTERNAL
+        return self.type != EXTERNAL
 
     @property
     def is_sphinx_type(self):
@@ -944,11 +948,15 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
     ACTIVATE_VERSION_ACTION = 'activate-version'
     HIDE_VERSION_ACTION = 'hide-version'
+    MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
+    MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
         (HIDE_VERSION_ACTION, _('Hide version')),
+        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
+        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
     )
 
@@ -1161,6 +1169,8 @@ class RegexAutomationRule(VersionAutomationRule):
     allowed_actions = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
         VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
         VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
     }
 

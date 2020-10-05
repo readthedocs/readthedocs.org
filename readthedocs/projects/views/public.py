@@ -234,11 +234,16 @@ class ProjectBadgeView(View):
         )
 
         # Append a token for private versions
-        version = Version.objects.filter(
-            project__slug=project_slug,
-            slug=version_slug,
-        ).first()
-        if version and version.privacy_level == PRIVATE:
+        privacy_level = (
+            Version.objects
+            .filter(
+                project__slug=project_slug,
+                slug=version_slug,
+            )
+            .values_list('privacy_level', flat=True)
+            .first()
+        )
+        if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
             url += f'&token={token}'
 

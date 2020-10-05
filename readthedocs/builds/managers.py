@@ -83,7 +83,7 @@ class VersionManagerBase(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs. %s' % kwargs)
+            log.warning('Version not found for given kwargs. %s', kwargs)
 
 
 class InternalVersionManagerBase(VersionManagerBase):

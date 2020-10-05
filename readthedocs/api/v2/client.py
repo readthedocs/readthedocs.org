@@ -4,12 +4,11 @@ import logging
 
 import requests
 from django.conf import settings
-from requests.packages.urllib3.util.retry import Retry  # noqa
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
+from urllib3.util.retry import Retry
 
 from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
-
 
 log = logging.getLogger(__name__)
 
@@ -33,8 +32,9 @@ def setup_api():
     else:
         adapter_class = TimeoutHTTPAdapter
 
-    # Define a retry mechanism trying to attempt to not fail in the first
-    # error. Builders hit this issue frequently because the webs are high loaded
+    # Define a retry mechanism trying to attempt to not fail in the first error.
+    # Builders hit this issue frequently because the webs are high loaded
+    # (even on non-idempotent methods, sadly).
     retry = Retry(
         total=3,
         read=3,

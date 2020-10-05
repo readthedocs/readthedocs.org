@@ -19,6 +19,7 @@ from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
+from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -1355,10 +1356,14 @@ class ImportedFile(models.Model):
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
     rank = models.IntegerField(
         _('Page search rank'),
-        # default=0,
+        default=0,
+        validators=[MinValueValidator(-10), MaxValueValidator(10)],
+    )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
         # TODO: remove after migration
         null=True,
-        validators=[MinValueValidator(-10), MaxValueValidator(10)],
     )
 
     def get_absolute_url(self):
@@ -1428,9 +1433,17 @@ class WebHook(Notification):
         return self.url
 
 
-class Domain(models.Model):
+class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -1466,6 +1479,17 @@ class Domain(models.Model):
     count = models.IntegerField(
         default=0,
         help_text=_('Number of times this domain has been hit'),
+    )
+
+    # This is used in readthedocsext.
+    ssl_status = models.CharField(
+        _('SSL certificate status'),
+        max_length=30,
+        choices=constants.SSL_STATUS_CHOICES,
+        default=constants.SSL_STATUS_UNKNOWN,
+        # Remove after deploy
+        null=True,
+        blank=True,
     )
 
     # Strict-Transport-Security header options
@@ -1523,6 +1547,7 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     USE_SPHINX_LATEST = 'use_sphinx_latest'
+    DONT_INSTALL_DOCUTILS = 'dont_install_docutils'
     ALLOW_DEPRECATED_WEBHOOKS = 'allow_deprecated_webhooks'
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     DONT_OVERWRITE_SPHINX_CONTEXT = 'dont_overwrite_sphinx_context'
@@ -1539,6 +1564,7 @@ class Feature(models.Model):
     ALL_VERSIONS_IN_HTML_CONTEXT = 'all_versions_in_html_context'
     SKIP_SYNC_TAGS = 'skip_sync_tags'
     SKIP_SYNC_BRANCHES = 'skip_sync_branches'
+    SKIP_SYNC_VERSIONS = 'skip_sync_versions'
     CACHED_ENVIRONMENT = 'cached_environment'
     LIMIT_CONCURRENT_BUILDS = 'limit_concurrent_builds'
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1553,9 +1579,17 @@ class Feature(models.Model):
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
+    DONT_CREATE_INDEX = 'dont_create_index'
+    USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
+        (
+            DONT_INSTALL_DOCUTILS,
+            _(
+                'Do not install docutils as requirement for build documentation',
+            ),
+        ),
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
         (PIP_ALWAYS_UPGRADE, _('Always run pip install --upgrade')),
         (
@@ -1620,6 +1654,10 @@ class Feature(models.Model):
             _('Skip syncing tags'),
         ),
         (
+            SKIP_SYNC_VERSIONS,
+            _('Skip sync versions task'),
+        ),
+        (
             CACHED_ENVIRONMENT,
             _('Cache the environment (virtualenv, conda, pip cache, repository) in storage'),
         ),
@@ -1677,6 +1715,14 @@ class Feature(models.Model):
         (
             INDEX_FROM_HTML_FILES,
             _('Index content directly from html files instead or relying in other sources'),
+        ),
+        (
+            DONT_CREATE_INDEX,
+            _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_NEW_PIP_RESOLVER,
+            _('Use new pip resolver'),
         ),
     )
 

@@ -1136,6 +1136,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             commit=self.build['commit'],
             build=self.build['id'],
             search_ranking=self.config.search.ranking,
+            search_ignore=self.config.search.ignore,
         )
 
     def setup_python_environment(self):
@@ -1278,7 +1279,7 @@ class UpdateDocsTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
 
 # Web tasks
 @app.task(queue='reindex')
-def fileify(version_pk, commit, build, search_ranking):
+def fileify(version_pk, commit, build, search_ranking, search_ignore):
     """
     Create ImportedFile objects for all of a version's files.
 
@@ -1317,6 +1318,7 @@ def fileify(version_pk, commit, build, search_ranking):
             commit=commit,
             build=build,
             search_ranking=search_ranking,
+            search_ignore=search_ignore,
         )
     except Exception:
         changed_files = set()
@@ -1431,12 +1433,13 @@ def _create_intersphinx_data(version, commit, build):
             ).first()
 
             if not html_file:
-                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                log.debug(
+                    '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
                     version.project,
                     version,
                     build,
-                    doc_name,
-                ))
+                    doc_name
+                )
 
                 # Don't create Sphinx Domain objects
                 # if the HTMLFile object is not found.
@@ -1494,7 +1497,7 @@ def clean_build(version_pk):
         return True
 
 
-def _create_imported_files(*, version, commit, build, search_ranking):
+def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
     """
     Create imported files for version.
 
@@ -1564,6 +1567,12 @@ def _create_imported_files(*, version, commit, build, search_ranking):
                     page_rank = rank
                     break
 
+            ignore = False
+            for pattern in search_ignore:
+                if fnmatch(relpath, pattern):
+                    ignore = True
+                    break
+
             # Create imported files from new build
             model_class.objects.create(
                 project=version.project,
@@ -1574,6 +1583,7 @@ def _create_imported_files(*, version, commit, build, search_ranking):
                 rank=page_rank,
                 commit=commit,
                 build=build,
+                ignore=ignore,
             )
 
     # This signal is used for clearing the CDN,
@@ -1941,7 +1951,6 @@ def send_build_status(build_pk, commit, status):
             user_accounts = service_class.for_user(user)
             # Try to loop through users all social accounts to send a successful request
             for account in user_accounts:
-                # Currently we only support GitHub Status API
                 if account.provider_name == provider_name:
                     success = account.send_build_status(build, commit, status)
                     if success:

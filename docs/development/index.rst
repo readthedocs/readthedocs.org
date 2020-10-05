@@ -8,17 +8,18 @@ for your own :doc:`custom installation </custom_installs/index>`.
 .. toctree::
    :maxdepth: 1
 
-   standards
-   search
    architecture
-   tests
+   buildenvironments
+   design
+   design/index
    docs
    front-end
-   design/index
-   buildenvironments
-   settings
-   install
    i18n
+   install
    issue-labels
-   design
    RTD Theme <https://sphinx-rtd-theme.readthedocs.io/en/latest/>
+   search
+   search-integration
+   settings
+   standards
+   tests

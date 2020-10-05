@@ -4,7 +4,7 @@ import logging
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Project, Feature
 from readthedocs.projects.tasks import sync_repository_task
 
 
@@ -93,6 +93,10 @@ def trigger_sync_versions(project):
         )
         if not version:
             log.info('Unable to sync from %s version', version_identifier)
+            return None
+
+        if project.has_feature(Feature.SKIP_SYNC_VERSIONS):
+            log.info('Skipping sync versions for project: project=%s', project.slug)
             return None
 
         options = {}
