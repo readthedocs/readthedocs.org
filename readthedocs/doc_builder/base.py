@@ -118,7 +118,6 @@ class BaseBuilder:
                 return 'README'
 
             if not self.project.has_feature(Feature.DONT_CREATE_INDEX):
-                index_file = open(index_filename, 'w+')
                 index_text = """
 
 Welcome to Read the Docs
@@ -135,8 +134,9 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                index_file.write(index_text.format(dir=docs_dir, ext=extension))
-                index_file.close()
+                with open(index_filename, 'w+') as index_file:
+                    index_file.write(index_text.format(dir=docs_dir, ext=extension))
+
         return 'index'
 
     def run(self, *args, **kwargs):

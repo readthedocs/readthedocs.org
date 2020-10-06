@@ -14,7 +14,7 @@ var EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
  * Create an explicit placement if the project has specified one
  */
 function create_explicit_placement() {
-    var element_id = 'rtd-explicit'
+    var element_id = 'rtd-explicit';
     var display_type = constants.PROMO_TYPES.LEFTNAV;
     var class_name;         // Used for theme specific CSS customizations
 
@@ -126,7 +126,7 @@ function create_footer_placement() {
  *  Returns the ID of the div or none if a fixed footer ad shouldn't be used
  */
 function create_fixed_footer_placement() {
-    var element_id = 'rtd-fixed-footer'
+    var element_id = 'rtd-fixed-footer';
     var display_type = constants.PROMO_TYPES.FIXED_FOOTER;
     var priority = constants.DEFAULT_PROMO_PRIORITY;
 

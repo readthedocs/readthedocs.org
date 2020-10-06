@@ -334,7 +334,10 @@ class TestCeleryBuilding(TestCase):
             search_ranking={},
             search_ignore=[],
         )
-        mock_logger.warning.assert_called_with("Version not found for given kwargs. {'pk': 345343}")
+        mock_logger.warning.assert_called_with(
+            'Version not found for given kwargs. %s',
+            {'pk': 345343},
+        )
 
     @patch('readthedocs.oauth.services.github.GitHubService.send_build_status')
     def test_send_build_status_with_remote_repo_github(self, send_build_status):
