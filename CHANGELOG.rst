@@ -6,11 +6,7 @@ Version 5.5.2
 * `@stsewd <https://github.com/stsewd>`__: Domain: show created/modified date in admin (`#7517 <https://github.com/readthedocs/readthedocs.org/pull/7517>`__)
 * `@stsewd <https://github.com/stsewd>`__: Tests: fix eslint (`#7516 <https://github.com/readthedocs/readthedocs.org/pull/7516>`__)
 * `@ericholscher <https://github.com/ericholscher>`__: Revert "New docker image for builders: 8.0" (`#7514 <https://github.com/readthedocs/readthedocs.org/pull/7514>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Release 5.5.1 (`#7513 <https://github.com/readthedocs/readthedocs.org/pull/7513>`__)
-* `@stsewd <https://github.com/stsewd>`__: Domain: fix form (`#7502 <https://github.com/readthedocs/readthedocs.org/pull/7502>`__)
 * `@srijan-deepsource <https://github.com/srijan-deepsource>`__: Fix some code quality issues (`#7494 <https://github.com/readthedocs/readthedocs.org/pull/7494>`__)
-* `@ericholscher <https://github.com/ericholscher>`__: Add proper div names on our ad placements (`#7493 <https://github.com/readthedocs/readthedocs.org/pull/7493>`__)
-* `@humitos <https://github.com/humitos>`__: Use "-j auto" on sphinx-build command to build in parallel (`#7128 <https://github.com/readthedocs/readthedocs.org/pull/7128>`__)
 
 Version 5.5.1
 -------------
