@@ -46,7 +46,7 @@ class DockerBaseSettings(CommunityDevSettings):
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
     # Enable auto syncing elasticsearch documents
-    ELASTICSEARCH_DSL_AUTOSYNC = True if 'SEARCH' in os.environ else False
+    ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
 
     RTD_CLEAN_AFTER_BUILD = True
 
