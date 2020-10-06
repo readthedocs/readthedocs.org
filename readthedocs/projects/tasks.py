@@ -1433,12 +1433,13 @@ def _create_intersphinx_data(version, commit, build):
             ).first()
 
             if not html_file:
-                log.debug('[%s] [%s] [Build: %s] HTMLFile object not found. File: %s' % (
+                log.debug(
+                    '[%s] [%s] [Build: %s] HTMLFile object not found. File: %s',
                     version.project,
                     version,
                     build,
-                    doc_name,
-                ))
+                    doc_name
+                )
 
                 # Don't create Sphinx Domain objects
                 # if the HTMLFile object is not found.

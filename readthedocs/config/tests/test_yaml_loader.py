@@ -24,10 +24,10 @@ def test_yaml_load_safely():
     data = yaml_load_safely(content)
 
     assert data == expected
-    assert type(data['int']) == int
-    assert type(data['float']) == float
-    assert type(data['function']) == ProxyPythonName
-    assert type(data['other_function']) == ProxyPythonName
+    assert type(data['int']) is int
+    assert type(data['float']) is float
+    assert type(data['function']) is ProxyPythonName
+    assert type(data['other_function']) is ProxyPythonName
     assert data['function'].value == 'python_function'
     assert data['other_function'].value == 'module.other.function'
 
@@ -35,3 +35,4 @@ def test_yaml_load_safely():
 def test_yaml_dump_safely():
     data = yaml_load_safely(content)
     assert yaml_load_safely(yaml_dump_safely(data)) == data
+

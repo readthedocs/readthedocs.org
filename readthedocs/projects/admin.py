@@ -354,6 +354,8 @@ class DomainAdmin(admin.ModelAdmin):
         'https',
         'count',
         'ssl_status',
+        'created',
+        'modified',
     )
     search_fields = ('domain', 'project__slug')
     raw_id_fields = ('project',)
