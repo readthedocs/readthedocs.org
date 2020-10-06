@@ -381,11 +381,7 @@ class Virtualenv(PythonEnvironment):
                     negative='sphinx<2',
                 ),
                 'sphinx-rtd-theme<0.5',
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_RTD_EXT_LATEST,
-                    positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<1.1',
-                ),
+                'readthedocs-sphinx-ext',
             ])
 
         cmd = copy.copy(pip_install_cmd)
