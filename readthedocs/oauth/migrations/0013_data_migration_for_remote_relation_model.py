@@ -9,9 +9,9 @@ from django.db import migrations
 def move_data_to_remote_relations(apps, schema_editor):
     RemoteRelation = apps.get_model('oauth', 'RemoteRelation')
 
-    def remote_relations_generator(relations):
-        for relation in relations:
-            relation.account = relation.remoterepository.account
+    def remote_relations_generator(relations, batch_size):
+        for relation in relations.iterator(chunk_size=batch_size):
+            relation.account_id = relation.remoterepository.account_id
             relation.active = relation.remoterepository.active
             relation.admin = relation.remoterepository.admin
             relation.pub_date = relation.remoterepository.pub_date
@@ -22,9 +22,9 @@ def move_data_to_remote_relations(apps, schema_editor):
 
             yield relation
 
-    relations_queryset = RemoteRelation.objects.all().select_related('remoterepository')
-    remote_relations = remote_relations_generator(relations_queryset)
     batch_size = 5000
+    relations_queryset = RemoteRelation.objects.all().select_related('remoterepository')
+    remote_relations = remote_relations_generator(relations_queryset, batch_size)
 
     while True:
         batch = list(islice(remote_relations, batch_size))
@@ -33,7 +33,7 @@ def move_data_to_remote_relations(apps, schema_editor):
             break
         RemoteRelation.objects.bulk_update(
             batch,
-            ['account', 'active', 'admin', 'pub_date', 'json'],
+            ['account_id', 'active', 'admin', 'pub_date', 'json'],
             batch_size
         )
 
