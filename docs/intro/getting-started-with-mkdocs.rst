@@ -22,6 +22,8 @@ It has many great features including:
 Quick start
 -----------
 
+.. seealso:: If you already have a Mkdocs project, check out our :doc:`import-guide` guide.
+
 Assuming you have Python already, `install MkDocs`_:
 
 .. prompt:: bash $

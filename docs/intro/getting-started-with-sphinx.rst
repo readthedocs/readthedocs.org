@@ -32,6 +32,8 @@ This screencast will help you get started or you can
 Quick start
 -----------
 
+.. seealso:: If you already have a Sphinx project, check out our :doc:`import-guide` guide.
+
 Assuming you have Python already, :doc:`install Sphinx <sphinx:usage/installation>`:
 
 .. prompt:: bash $
