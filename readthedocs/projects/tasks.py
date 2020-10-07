@@ -45,6 +45,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import APIVersion, Build, Version
 from readthedocs.builds.signals import build_complete
+from readthedocs.builds import tasks as build_tasks
 from readthedocs.config import ConfigError
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils import send_email
@@ -234,13 +235,13 @@ class SyncRepositoryMixin:
         )
         version_repo = self.get_vcs_repo(environment)
         version_repo.update()
-        self.sync_versions_api(version_repo)
+        self.sync_versions_task(version_repo)
         identifier = getattr(self, 'commit', None) or self.version.identifier
         version_repo.checkout(identifier)
 
-    def sync_versions_api(self, version_repo):
+    def sync_versions_task(self, version_repo):
         """
-        Update tags/branches hitting the API.
+        Update tags/branches via a Celery task.
 
         It may trigger a new build to the stable version when hitting the
         ``sync_versions`` endpoint.
@@ -250,19 +251,21 @@ class SyncRepositoryMixin:
         branches = None
         if (
             version_repo.supports_lsremote and
-            not version_repo.repo_exists() and
             self.project.has_feature(Feature.VCS_REMOTE_LISTING)
         ):
             # Do not use ``ls-remote`` if the VCS does not support it or if we
             # have already cloned the repository locally. The latter happens
             # when triggering a normal build.
             branches, tags = version_repo.lsremote
+            log.info('Remote versions: branches=%s tags=%s', branches, tags)
 
         if all([
             version_repo.supports_tags,
             not self.project.has_feature(Feature.SKIP_SYNC_TAGS)
         ]):
-            tags = tags or version_repo.tags
+            # Will be an empty list if we called lsremote and had no tags returned
+            if tags is None:
+                tags = version_repo.tags
             version_post_data['tags'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
@@ -272,7 +275,9 @@ class SyncRepositoryMixin:
             version_repo.supports_branches,
             not self.project.has_feature(Feature.SKIP_SYNC_BRANCHES)
         ]):
-            branches = branches or version_repo.branches
+            # Will be an empty list if we called lsremote and had no tags returned
+            if branches is None:
+                branches = version_repo.branches
             version_post_data['branches'] = [{
                 'identifier': v.identifier,
                 'verbose_name': v.verbose_name,
@@ -280,14 +285,7 @@ class SyncRepositoryMixin:
 
         self.validate_duplicate_reserved_versions(version_post_data)
 
-        try:
-            api_v2.project(self.project.pk).sync_versions.post(
-                version_post_data,
-            )
-        except HttpClientError:
-            log.exception('Sync Versions Exception')
-        except Exception:
-            log.exception('Unknown Sync Versions Exception')
+        build_tasks.sync_versions_task.delay(self.project.pk, version_post_data)
 
     def validate_duplicate_reserved_versions(self, data):
         """
@@ -431,7 +429,7 @@ class SyncRepositoryTaskStep(SyncRepositoryMixin, CachedEnvironmentMixin):
             self.sync_repo(environment)
         else:
             log.info('Syncing repository via remote listing. project=%s', self.project.slug)
-            self.sync_versions_api(version_repo)
+            self.sync_versions_task(version_repo)
 
 
 @app.task(
