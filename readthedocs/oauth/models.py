@@ -4,13 +4,15 @@
 
 import json
 
-from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from allauth.socialaccount.models import SocialAccount
+from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 
 from readthedocs.projects.constants import REPO_CHOICES
@@ -197,7 +199,7 @@ class RemoteRepository(models.Model):
         } for project in projects]
 
 
-class RemoteRelation(models.Model):
+class RemoteRelation(TimeStampedModel):
     remoterepository = models.ForeignKey(
         RemoteRepository,
         related_name='remote_relations',
@@ -220,10 +222,5 @@ class RemoteRelation(models.Model):
     admin = models.BooleanField(_('Has admin privilege'), default=False)
     json = JSONField(_('Serialized API response'))
 
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
-
     class Meta:
-        # Use the existing auto generated table for ManyToMany relations
-        db_table = 'oauth_remoterepository_users'
         unique_together = (('remoterepository', 'user'),)
