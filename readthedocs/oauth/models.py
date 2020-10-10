@@ -10,6 +10,9 @@ from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from allauth.socialaccount.models import SocialAccount
+from django_extensions.db.models import TimeStampedModel
 from jsonfield import JSONField
 
 from allauth.socialaccount.models import SocialAccount

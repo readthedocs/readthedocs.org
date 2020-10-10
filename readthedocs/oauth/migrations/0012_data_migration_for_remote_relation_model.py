@@ -7,6 +7,7 @@ import logging
 from django.db import migrations
 from django.utils import timezone
 
+
 log = logging.getLogger(__name__)
 
 
