@@ -106,13 +106,34 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'domain.com')
 
-    def test_invalid_domains(self):
-        invalid = [
-            'python..org',
-            # FIXME: '****.foo.com', current validator says this is valid :shrug:
-            'invalid-.com'
+    def test_valid_domains(self):
+        domains = [
+            'python.org',
+            'a.io',
+            'a.e.i.o.org',
+            'my.domain.com.edu',
+            'my-domain.fav',
         ]
-        for domain in invalid:
+        for domain in domains:
+            form = DomainForm(
+                {'domain': domain},
+                project=self.project,
+            )
+            self.assertTrue(form.is_valid(), domain)
+
+    def test_invalid_domains(self):
+        domains = [
+            'python..org',
+            '****.foo.com',
+            'domain',
+            'domain.com.',
+            'My domain.org',
+            'i.o',
+            '[special].com',
+            'some_thing.org',
+            'invalid-.com',
+        ]
+        for domain in domains:
             form = DomainForm(
                 {'domain': domain},
                 project=self.project,

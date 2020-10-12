@@ -621,7 +621,7 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
-        domain = self.cleaned_data['domain']
+        domain = self.cleaned_data['domain'].lower()
         parsed = urlparse(domain)
 
         # Force the scheme to have a valid netloc.
