@@ -9,7 +9,8 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 from readthedocs.search.models import SearchQuery
 from readthedocs.worker import app
-from .utils import _get_index, _get_document
+
+from .utils import _get_document, _get_index
 
 log = logging.getLogger(__name__)
 
@@ -44,17 +45,19 @@ def index_objects_to_es(
 
     if index_name:
         # Hack the index name temporarily for reindexing tasks
-        old_index_name = document._doc_type.index
-        document._doc_type.index = index_name
+        old_index_name = document._index._name
+        document._index._name = index_name
         log.info('Replacing index name %s with %s', old_index_name, index_name)
 
     log.info("Indexing model: %s, '%s' objects", model.__name__, queryset.count())
     doc_obj.update(queryset.iterator())
 
     if index_name:
-        log.info('Undoing index replacement, settings %s with %s',
-                 document._doc_type.index, old_index_name)
-        document._doc_type.index = old_index_name
+        log.info(
+            'Undoing index replacement, settings %s with %s',
+            document._index._name, old_index_name,
+        )
+        document._index._name = old_index_name
 
 
 @app.task(queue='web')
