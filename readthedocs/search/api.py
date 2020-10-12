@@ -1,24 +1,18 @@
-import itertools
 import logging
-import re
 from functools import namedtuple
 from math import ceil
 
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
 from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import GenericAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.utils.urls import remove_query_param, replace_query_param
 
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import MKDOCS, SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature, Project
-from readthedocs.search import tasks, utils
+from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 
 from .serializers import PageSearchSerializer
@@ -122,67 +116,6 @@ class SearchPagination(PageNumberPagination):
         return result
 
 
-class OldPageSearchSerializer(serializers.Serializer):
-
-    """
-    Serializer for page search results.
-
-    .. note::
-
-       This serializer is deprecated in favor of
-       `readthedocs.search.serializers.PageSearchSerializer`.
-    """
-
-    project = serializers.CharField()
-    version = serializers.CharField()
-    title = serializers.CharField()
-    path = serializers.CharField()
-    full_path = serializers.CharField()
-    link = serializers.SerializerMethodField()
-    highlight = serializers.SerializerMethodField()
-    inner_hits = serializers.SerializerMethodField()
-
-    def get_link(self, obj):
-        project_data = self.context['projects_data'].get(obj.project)
-        if not project_data:
-            return None
-
-        docs_url, doctype = project_data
-        path = obj.full_path
-
-        # Generate an appropriate link for the doctypes that use htmldir,
-        # and always end it with / so it goes directly to proxito.
-        if doctype in {SPHINX_HTMLDIR, MKDOCS}:
-            new_path = re.sub('(^|/)index.html$', '/', path)
-            # docs_url already ends with /,
-            # so path doesn't need to start with /.
-            path = new_path.lstrip('/')
-
-        return docs_url + path
-
-    def get_highlight(self, obj):
-        highlight = getattr(obj.meta, 'highlight', None)
-        if highlight:
-            ret = highlight.to_dict()
-            log.debug('API Search highlight [Page title]: %s', ret)
-            return ret
-
-    def get_inner_hits(self, obj):
-        inner_hits = getattr(obj.meta, 'inner_hits', None)
-        if inner_hits:
-            sections = inner_hits.sections or []
-            domains = inner_hits.domains or []
-            all_results = itertools.chain(sections, domains)
-
-            sorted_results = utils._get_sorted_results(
-                results=all_results,
-                source_key='_source',
-            )
-
-            log.debug('[API] Sorted Results: %s', sorted_results)
-            return sorted_results
-
-
 class PageSearchAPIView(GenericAPIView):
 
     """
@@ -194,12 +127,6 @@ class PageSearchAPIView(GenericAPIView):
     - project
     - version
 
-    Optional params from the view:
-
-    - new_api (true/false): Make use of the new stable API.
-      Defaults to false. Remove after a couple of days/weeks
-      and always use the new API.
-
     .. note::
 
        The methods `_get_project` and `_get_version`
@@ -209,7 +136,7 @@ class PageSearchAPIView(GenericAPIView):
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
     pagination_class = SearchPagination
-    new_api = False
+    serializer_class = PageSearchSerializer
 
     def _get_project(self):
         cache_key = '_cached_project'
@@ -370,11 +297,6 @@ class PageSearchAPIView(GenericAPIView):
             use_advanced_query=not self._get_project().has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
-
-    def get_serializer_class(self):
-        if self.new_api:
-            return PageSearchSerializer
-        return OldPageSearchSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

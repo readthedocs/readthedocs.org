@@ -1,14 +1,12 @@
 """Utilities related to reading and generating indexable search content."""
 
 import logging
-from operator import attrgetter
 
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import HTMLFile
-
 
 log = logging.getLogger(__name__)
 
@@ -141,20 +139,6 @@ def _indexing_helper(html_objs_qs, wipe=False):
                 index_objects_to_es.delay(**kwargs)
             else:
                 delete_objects_in_es.delay(**kwargs)
-
-
-def _get_sorted_results(results, source_key='_source'):
-    """Sort results according to their score and returns results as list."""
-    sorted_results = [
-        {
-            'type': hit._nested.field,
-            source_key: hit._source.to_dict(),
-            'highlight': hit.highlight.to_dict() if hasattr(hit, 'highlight') else {}
-        }
-        for hit in sorted(results, key=attrgetter('meta.score'), reverse=True)
-    ]
-
-    return sorted_results
 
 
 def _last_30_days_iter():
