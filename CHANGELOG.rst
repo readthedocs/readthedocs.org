@@ -1,3 +1,15 @@
+Version 5.5.3
+-------------
+
+:Date: October 13, 2020
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add a reference to the Import guide at the start of Getting started (`#7547 <https://github.com/readthedocs/readthedocs.org/pull/7547>`__)
+* `@kuzmoyev <https://github.com/kuzmoyev>`__: Include month-ago day to traffic data (`#7545 <https://github.com/readthedocs/readthedocs.org/pull/7545>`__)
+* `@stsewd <https://github.com/stsewd>`__: Downloads: fix translation of a subproject (`#7541 <https://github.com/readthedocs/readthedocs.org/pull/7541>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: more robust form (`#7523 <https://github.com/readthedocs/readthedocs.org/pull/7523>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Revert ES: update dependencies" (`#7439 <https://github.com/readthedocs/readthedocs.org/pull/7439>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove old endpoint (`#7414 <https://github.com/readthedocs/readthedocs.org/pull/7414>`__)
+
 Version 5.5.2
 -------------
 
