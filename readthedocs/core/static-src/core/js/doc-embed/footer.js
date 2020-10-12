@@ -1,6 +1,5 @@
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
-var sponsorship = require('./sponsorship');
 
 
 function injectFooter(data) {
@@ -79,10 +78,6 @@ function init() {
             }
             injectFooter(data);
             setupBookmarkCSRFToken();
-
-            if (!data.ad_free_user && !data.ad_free_project) {
-                sponsorship.init();
-            }
         },
         error: function () {
             console.error('Error loading Read the Docs footer');

@@ -26,25 +26,25 @@ function inject_ads_client() {
 function create_ad_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
-    var container;
 
     if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
-        class_name = 'dark raised';
+        class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side > div.wy-side-scroll';
-        class_name = 'dark raised';
+        class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_alabaster_like_theme()) {
         selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
-        class_name = 'raised';
+        class_name = 'ethical-alabaster';
     }
 
     if (selector) {
-        container = $('<div />').attr('style', 'text-align:center').appendTo(selector);
-        $('<div />')
-            .attr('data-ea-publisher', "readthedocs")
-            .attr('data-ea-type', "image")
-            .addClass(class_name).appendTo(container);
+        return $('<div />')
+            .attr("id", "rtd-sidebar")
+            .attr("data-ea-publisher", "readthedocs")
+            .attr("data-ea-type", "readthedocs-sidebar")
+            .attr("data-ea-manual", "true")
+            .addClass(class_name).appendTo(selector);
     }
 
     return null;
@@ -87,15 +87,59 @@ function adblock_admonition() {
 }
 
 function init() {
+    var placement;
+
     rtd = rtddata.get();
+    placement = create_ad_placement();
 
     // Inject ads
-    create_ad_placement();
     inject_ads_client();
 
-    if (detect_adblock()) {
-        adblock_admonition();
-    }
+    $.ajax({
+        url: rtd.api_host + "/api/v2/sustainability/data/",
+        crossDomain: true,
+        xhrFields: {
+            withCredentials: true,
+        },
+        dataType: "jsonp",
+        data: {
+            format: "jsonp",
+            project: rtd.project,
+        },
+        success: function (data) {
+            if (!placement || data.ad_free) {
+                // No valid placement or project/user is ad free
+                return;
+            }
+
+            // Set the keyword and campaign data
+            if (data.keywords) {
+                placement.attr("data-ea-keywords", data.keywords.join("|"));
+            }
+            if (data.campaign_types) {
+                placement.attr("data-ea-campaign-types", data.campaign_types.join("|"));
+            }
+
+            if (typeof ethicalads !== "undefined") {
+                // Trigger ad request
+                ethicalads.load();
+            } else {
+                // Ad client prevented from loading - check ad blockers
+                if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+                    adblock_admonition();
+                    adblock_nag();
+                }
+            }
+        },
+        error: function () {
+            console.error('Error loading Read the Docs user and project information');
+
+            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+                adblock_admonition();
+                adblock_nag();
+            }
+        },
+    });
 }
 
 module.exports = {
