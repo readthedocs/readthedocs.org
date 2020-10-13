@@ -138,6 +138,9 @@ div.ethical-footer {
 /* Sidebar promotions */
 .ethical-sidebar {
     text-align: center;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Footer promotions */
@@ -213,7 +216,7 @@ div.ethical-footer {
 /* RTD Theme specific customizations */
 .wy-nav-side .ethical-rtd {
     /* RTD theme doesn't correctly set the sidebar width */
-    width: 300px;
+    max-width: 300px;
     padding: 0 1em;
 }
 .ethical-rtd .ethical-sidebar {

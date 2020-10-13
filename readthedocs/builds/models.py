@@ -347,7 +347,7 @@ class Version(models.Model):
     @property
     def supports_wipe(self):
         """Return True if version is not external."""
-        return not self.type == EXTERNAL
+        return self.type != EXTERNAL
 
     @property
     def is_sphinx_type(self):

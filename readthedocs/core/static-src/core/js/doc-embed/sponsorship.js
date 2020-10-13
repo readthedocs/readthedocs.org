@@ -5,8 +5,10 @@ var rtddata = require('./rtd-data');
 
 var rtd;
 
-// Old
-var EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
+var EXPLICIT_PLACEMENT_SELECTOR = "[data-ea-publisher]";
+
+// Old way to control the exact placement of an ad
+var OLD_EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
 
 
 /*
@@ -21,13 +23,23 @@ function inject_ads_client() {
 }
 
 /*
- *  Creates a sidebar div where an ad could go
+ *  Creates a div where the ad could go
  */
 function create_ad_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
+    var element, offset;
 
-    if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
+    if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        return $(EXPLICIT_PLACEMENT_SELECTOR);
+    } else if ($(OLD_EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        selector = OLD_EXPLICIT_PLACEMENT_SELECTOR;
+        if (rtd.is_rtd_like_theme()) {
+            class_name = 'ethical-rtd ethical-dark-theme';
+        } else {
+            class_name = 'ethical-alabaster';
+        }
+    } else if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
@@ -39,6 +51,22 @@ function create_ad_placement() {
     }
 
     if (selector) {
+        // Determine if this element would be above the fold
+        // If this is off screen, instead create an ad in the footer
+        element = $("<div />").appendTo(selector);
+        offset = element.offset();
+        if (!offset || offset.top > $(window).height()) {
+            if (rtd.is_rtd_like_theme()) {
+                selector = $('<div />').insertAfter('footer hr');
+                class_name = 'ethical-rtd';
+            } else if (rtd.is_alabaster_like_theme()) {
+                selector = 'div.bodywrapper .body';
+                class_name = 'ethical-alabaster';
+            }
+        }
+        element.remove();
+
+        // Add the element where the ad will go
         return $('<div />')
             .attr("id", "rtd-sidebar")
             .attr("data-ea-publisher", "readthedocs")
@@ -109,6 +137,7 @@ function init() {
         success: function (data) {
             if (!placement || data.ad_free) {
                 // No valid placement or project/user is ad free
+                console.log("Project/user is ad free")
                 return;
             }
 
@@ -122,6 +151,7 @@ function init() {
 
             if (typeof ethicalads !== "undefined") {
                 // Trigger ad request
+                console.log("Loading ad manually...")
                 ethicalads.load();
             } else {
                 // Ad client prevented from loading - check ad blockers
