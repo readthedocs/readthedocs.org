@@ -137,7 +137,6 @@ function init() {
         success: function (data) {
             if (!placement || data.ad_free) {
                 // No valid placement or project/user is ad free
-                console.log("Project/user is ad free")
                 return;
             }
 
@@ -151,7 +150,6 @@ function init() {
 
             if (typeof ethicalads !== "undefined") {
                 // Trigger ad request
-                console.log("Loading ad manually...")
                 ethicalads.load();
             } else {
                 // Ad client prevented from loading - check ad blockers
