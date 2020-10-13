@@ -114,6 +114,21 @@ function adblock_admonition() {
     console.log('--------------------------------------------------------------------------------------');
 }
 
+function adblock_nag(placement) {
+    // Place an ad block nag into the sidebar
+    var unblock_url = 'https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html#allowing-ethical-ads';
+    var ad_free_url = 'https://readthedocs.org/sustainability/';
+    var container = null;
+
+    if (placement) {
+        container = placement.attr('class', 'keep-us-sustainable');
+
+        $('<p />').text('Support Read the Docs!').appendTo(container);
+        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
+        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
+    }
+}
+
 function init() {
     var placement;
 
@@ -153,9 +168,9 @@ function init() {
                 ethicalads.load();
             } else {
                 // Ad client prevented from loading - check ad blockers
-                if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+                if (!rtd.ad_free && detect_adblock()) {
                     adblock_admonition();
-                    adblock_nag();
+                    adblock_nag(placement);
                 }
             }
         },
@@ -164,7 +179,7 @@ function init() {
 
             if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
                 adblock_admonition();
-                adblock_nag();
+                adblock_nag(placement);
             }
         },
     });
