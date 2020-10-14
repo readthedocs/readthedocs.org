@@ -28,7 +28,8 @@ function inject_ads_client() {
 function create_ad_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
-    var element, offset;
+    var element;
+    var offset;
 
     if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
         return $(EXPLICIT_PLACEMENT_SELECTOR);
@@ -72,7 +73,8 @@ function create_ad_placement() {
             .attr("data-ea-publisher", "readthedocs")
             .attr("data-ea-type", "readthedocs-sidebar")
             .attr("data-ea-manual", "true")
-            .addClass(class_name).appendTo(selector);
+            .addClass(class_name)
+            .appendTo(selector);
     }
 
     return null;
@@ -166,12 +168,10 @@ function init() {
             if (typeof ethicalads !== "undefined") {
                 // Trigger ad request
                 ethicalads.load();
-            } else {
+            } else if (!rtd.ad_free && detect_adblock()) {
                 // Ad client prevented from loading - check ad blockers
-                if (!rtd.ad_free && detect_adblock()) {
-                    adblock_admonition();
-                    adblock_nag(placement);
-                }
+                adblock_admonition();
+                adblock_nag(placement);
             }
         },
         error: function () {
