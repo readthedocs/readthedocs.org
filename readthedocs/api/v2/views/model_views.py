@@ -188,87 +188,95 @@ class ProjectViewSet(UserSelectViewSet):
 
         :returns: the identifiers for the versions that have been deleted.
         """
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
 
-        # If the currently highest non-prerelease version is active, then make
-        # the new latest version active as well.
-        old_highest_version = determine_stable_version(project.versions.all())
-        if old_highest_version is not None:
-            activate_new_stable = old_highest_version.active
-        else:
-            activate_new_stable = False
+        # TODO: Delete this code. It has been moved to ``readthedocs.builds.tasks.sync_versions_task``.
+        # This is here just to migrate our existing code
 
-        try:
-            # Update All Versions
-            data = request.data
-            added_versions = set()
-            if 'tags' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['tags'],
-                    type=TAG,
-                )
-                added_versions.update(ret_set)
-            if 'branches' in data:
-                ret_set = sync_versions_to_db(
-                    project=project,
-                    versions=data['branches'],
-                    type=BRANCH,
-                )
-                added_versions.update(ret_set)
-            deleted_versions = delete_versions_from_db(project, data)
-        except Exception as e:
-            log.exception('Sync Versions Error')
-            return Response(
-                {
-                    'error': str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        #################
+        # WARNING: Do not edit or update this code
+        #################
 
-        try:
-            # The order of added_versions isn't deterministic.
-            # We don't track the commit time or any other metadata.
-            # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions)
-        except Exception:
-            # Don't interrupt the request if something goes wrong
-            # in the automation rules.
-            log.exception(
-                'Failed to execute automation rules for [%s]: %s',
-                project.slug, added_versions
-            )
+        # project = get_object_or_404(
+        #     Project.objects.api(request.user),
+        #     pk=kwargs['pk'],
+        # )
 
-        # TODO: move this to an automation rule
-        promoted_version = project.update_stable_version()
-        new_stable = project.get_stable_version()
-        if promoted_version and new_stable and new_stable.active:
-            log.info(
-                'Triggering new stable build: %(project)s:%(version)s',
-                {
-                    'project': project.slug,
-                    'version': new_stable.identifier,
-                }
-            )
-            trigger_build(project=project, version=new_stable)
+        # # If the currently highest non-prerelease version is active, then make
+        # # the new latest version active as well.
+        # old_highest_version = determine_stable_version(project.versions.all())
+        # if old_highest_version is not None:
+        #     activate_new_stable = old_highest_version.active
+        # else:
+        #     activate_new_stable = False
 
-            # Marking the tag that is considered the new stable version as
-            # active and building it if it was just added.
-            if (
-                activate_new_stable and
-                promoted_version.slug in added_versions
-            ):
-                promoted_version.active = True
-                promoted_version.save()
-                trigger_build(project=project, version=promoted_version)
+        # try:
+        #     # Update All Versions
+        #     data = request.data
+        #     added_versions = set()
+        #     if 'tags' in data:
+        #         ret_set = sync_versions_to_db(
+        #             project=project,
+        #             versions=data['tags'],
+        #             type=TAG,
+        #         )
+        #         added_versions.update(ret_set)
+        #     if 'branches' in data:
+        #         ret_set = sync_versions_to_db(
+        #             project=project,
+        #             versions=data['branches'],
+        #             type=BRANCH,
+        #         )
+        #         added_versions.update(ret_set)
+        #     deleted_versions = delete_versions_from_db(project, data)
+        # except Exception as e:
+        #     log.exception('Sync Versions Error')
+        #     return Response(
+        #         {
+        #             'error': str(e),
+        #         },
+        #         status=status.HTTP_400_BAD_REQUEST,
+        #     )
 
-        return Response({
-            'added_versions': added_versions,
-            'deleted_versions': deleted_versions,
-        })
+        # try:
+        #     # The order of added_versions isn't deterministic.
+        #     # We don't track the commit time or any other metadata.
+        #     # We usually have one version added per webhook.
+        #     run_automation_rules(project, added_versions)
+        # except Exception:
+        #     # Don't interrupt the request if something goes wrong
+        #     # in the automation rules.
+        #     log.exception(
+        #         'Failed to execute automation rules for [%s]: %s',
+        #         project.slug, added_versions
+        #     )
+
+        # # TODO: move this to an automation rule
+        # promoted_version = project.update_stable_version()
+        # new_stable = project.get_stable_version()
+        # if promoted_version and new_stable and new_stable.active:
+        #     log.info(
+        #         'Triggering new stable build: %(project)s:%(version)s',
+        #         {
+        #             'project': project.slug,
+        #             'version': new_stable.identifier,
+        #         }
+        #     )
+        #     trigger_build(project=project, version=new_stable)
+
+        #     # Marking the tag that is considered the new stable version as
+        #     # active and building it if it was just added.
+        #     if (
+        #         activate_new_stable and
+        #         promoted_version.slug in added_versions
+        #     ):
+        #         promoted_version.active = True
+        #         promoted_version.save()
+        #         trigger_build(project=project, version=promoted_version)
+
+        # return Response({
+        #     'added_versions': added_versions,
+        #     'deleted_versions': deleted_versions,
+        # })
 
 
 class VersionViewSet(UserSelectViewSet):
