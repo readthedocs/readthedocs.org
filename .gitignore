@@ -39,6 +39,7 @@ media/pdf
 media/static
 /static
 node_modules
+nodeenv
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
