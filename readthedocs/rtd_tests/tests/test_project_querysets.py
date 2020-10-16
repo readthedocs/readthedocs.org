@@ -286,7 +286,7 @@ class FeatureQuerySetTests(TestCase):
         )
         self.assertQuerysetEqual(
             Feature.objects.for_project(project),
-            [repr(feature1), repr(feature2)],
+            [repr(feature1), repr(feature4)],
             ordered=False,
         )
 
