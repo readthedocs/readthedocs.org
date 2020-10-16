@@ -237,21 +237,21 @@ class FeatureQuerySetTests(TestCase):
             Feature,
             projects=[],
             add_date=project.pub_date + timedelta(days=1),
-            past_default_true=False,
+            default_true=False,
         )
         # True implicit feature before add date
         feature3 = fixture.get(
             Feature,
             projects=[],
             add_date=project.pub_date + timedelta(days=1),
-            past_default_true=True,
+            default_true=True,
         )
         # True implicit feature after add date
         feature4 = fixture.get(
             Feature,
             projects=[],
             add_date=project.pub_date - timedelta(days=1),
-            past_default_true=True,
+            default_true=True,
         )
         self.assertQuerysetEqual(
             Feature.objects.for_project(project),
