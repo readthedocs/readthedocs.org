@@ -46,9 +46,9 @@ django-allauth==0.42.0
 GitPython==3.1.9
 
 # Search
-elasticsearch==6.8.1  # pyup: <7.0.0
-elasticsearch-dsl==6.4.0  # pyup: <7.0
-django-elasticsearch-dsl==6.4.2  # pyup: <7.0
+elasticsearch==7.9.1  # pyup: <8.0.0
+elasticsearch-dsl==7.3.0  # pyup: <8.0
+django-elasticsearch-dsl==7.1.4  # pyup: <8.0
 selectolax==0.2.7
 
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
