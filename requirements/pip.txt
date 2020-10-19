@@ -1,7 +1,7 @@
 # Base packages
 
 pip==20.2.4
-virtualenv==20.0.33
+virtualenv==20.0.35
 
 django==2.2.16  # pyup: <2.3
 django-extensions==3.0.9
