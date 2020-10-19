@@ -1742,6 +1742,8 @@ class Feature(models.Model):
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
         _('Default all past projects to True'),
         default=False,
