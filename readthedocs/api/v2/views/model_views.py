@@ -380,6 +380,9 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = self.model.objects.api(self.request.user)
+        full_name = self.request.query_params.get('full_name', None)
+        if full_name is not None:
+            query = query.filter(full_name__icontains=full_name)
         org = self.request.query_params.get('org', None)
         if org is not None:
             query = query.filter(organization__pk=org)
