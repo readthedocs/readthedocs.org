@@ -8,13 +8,19 @@ Any dependencies required for building a documentation project can be specified 
 Specifying a requirements file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The requirements file option is useful for specifying dependencies required for building the documentation. Additional uses specific to Read the Docs are mentioned at the end of this guide.
+The requirements file option is useful for specifying dependencies required for building the documentation.
+Additional uses specific to Read the Docs are mentioned at the end of this guide.
 
 For details about the purpose of pip requirements file and how to create one, check out `pip user guide`_.
 
-To use the requirements file, create and place the requirements file in the root directory of your documentation directory. For example::
+To use the requirements file, create and place the requirements file in the root directory of your documentation directory.
+For example:
 
-    docs/requirements.txt
+.. code-block:: text
+   
+   # docs/requirements.txt
+   sphinx==3.2.1
+   sphinx_rtd_theme==0.5.0
 
 Using a configuration file
 --------------------------
