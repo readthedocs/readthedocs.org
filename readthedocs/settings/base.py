@@ -197,13 +197,13 @@ class CommunityBaseSettings(Settings):
     def CRISPY_TEMPLATE_PACK(self):
         if self.RTD_EXT_THEME_ENABLED:
             return 'semantic-ui'
-        return None
+        return 'bootstrap'
 
     @property
     def CRISPY_ALLOWED_TEMPLATE_PACKS(self):
         if self.RTD_EXT_THEME_ENABLED:
             return ('semantic-ui',)
-        return None
+        return ("bootstrap", "uni_form", "bootstrap3", "bootstrap4")
 
     @property
     def USE_PROMOS(self):  # noqa
