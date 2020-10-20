@@ -1,3 +1,16 @@
+Version 5.6.0
+-------------
+
+:Date: October 19, 2020
+
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude chagelog from results (`#7570 <https://github.com/readthedocs/readthedocs.org/pull/7570>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: show example of a requirements.txt file (`#7563 <https://github.com/readthedocs/readthedocs.org/pull/7563>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update ES to 6.8.12 (`#7559 <https://github.com/readthedocs/readthedocs.org/pull/7559>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 40 (`#7537 <https://github.com/readthedocs/readthedocs.org/pull/7537>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add future default true to Feature flags (`#7524 <https://github.com/readthedocs/readthedocs.org/pull/7524>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: No longer proxy RTD ads through RTD servers (`#7506 <https://github.com/readthedocs/readthedocs.org/pull/7506>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Allow projects to opt-out of analytics (`#7175 <https://github.com/readthedocs/readthedocs.org/pull/7175>`__)
+
 Version 5.5.3
 -------------
 
