@@ -17,6 +17,12 @@ try:
 except ImportError:
     ext = False
 
+try:
+    import readthedocsext.theme  # noqa
+    ext_theme = True
+except ImportError:
+    ext_theme = False
+
 
 _ = gettext = lambda s: s
 log = logging.getLogger(__name__)
@@ -113,6 +119,12 @@ class CommunityBaseSettings(Settings):
 
     DOC_PATH_PREFIX = '_/'
 
+    @property
+    def RTD_EXT_THEME_ENABLED(self):
+        return ext_theme and 'RTD_EXT_THEME_ENABLED' in os.environ
+
+    RTD_EXT_THEME_DEV_SERVER = None
+
     # Application classes
     @property
     def INSTALLED_APPS(self):  # noqa
@@ -177,7 +189,21 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.donate')
             apps.append('readthedocsext.embed')
             apps.append('readthedocsext.spamfighting')
+        if self.RTD_EXT_THEME_ENABLED:
+            apps.append('readthedocsext.theme')
         return apps
+
+    @property
+    def CRISPY_TEMPLATE_PACK(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return 'semantic-ui'
+        return 'bootstrap'
+
+    @property
+    def CRISPY_ALLOWED_TEMPLATE_PACKS(self):
+        if self.RTD_EXT_THEME_ENABLED:
+            return ('semantic-ui',)
+        return ("bootstrap", "uni_form", "bootstrap3", "bootstrap4")
 
     @property
     def USE_PROMOS(self):  # noqa
@@ -261,29 +287,37 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
 
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [TEMPLATE_ROOT],
-            'OPTIONS': {
-                'debug': DEBUG,
-                'context_processors': [
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.i18n',
-                    'django.template.context_processors.media',
-                    'django.template.context_processors.request',
-                    # Read the Docs processor
-                    'readthedocs.core.context_processors.readthedocs_processor',
-                ],
-                'loaders': [
-                    'django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                ],
+    @property
+    def TEMPLATES(self):
+        dirs = [self.TEMPLATE_ROOT]
+        if self.RTD_EXT_THEME_ENABLED:
+            dirs.insert(0, os.path.join(
+                os.path.dirname(readthedocsext.theme.__file__),
+                'templates',
+            ))
+        return [
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': dirs,
+                'OPTIONS': {
+                    'debug': self.DEBUG,
+                    'context_processors': [
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                        'django.template.context_processors.debug',
+                        'django.template.context_processors.i18n',
+                        'django.template.context_processors.media',
+                        'django.template.context_processors.request',
+                        # Read the Docs processor
+                        'readthedocs.core.context_processors.readthedocs_processor',
+                    ],
+                    'loaders': [
+                        'django.template.loaders.filesystem.Loader',
+                        'django.template.loaders.app_directories.Loader',
+                    ],
+                },
             },
-        },
-    ]
+        ]
 
     # Cache
     CACHES = {
