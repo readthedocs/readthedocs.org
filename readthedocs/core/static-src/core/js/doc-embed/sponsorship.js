@@ -135,6 +135,11 @@ function init() {
     var placement;
 
     rtd = rtddata.get();
+
+    if (!rtd.show_promo()) {
+        return;
+    }
+
     placement = create_ad_placement();
 
     // Inject ads
@@ -157,12 +162,15 @@ function init() {
                 return;
             }
 
-            // Set the keyword and campaign data
+            // Set the keyword, campaign data, and publisher
             if (data.keywords) {
                 placement.attr("data-ea-keywords", data.keywords.join("|"));
             }
             if (data.campaign_types) {
                 placement.attr("data-ea-campaign-types", data.campaign_types.join("|"));
+            }
+            if (data.publisher) {
+                placement.attr("data-ea-publisher", data.publisher);
             }
 
             if (typeof ethicalads !== "undefined") {
@@ -177,7 +185,7 @@ function init() {
         error: function () {
             console.error('Error loading Read the Docs user and project information');
 
-            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+            if (!rtd.ad_free && detect_adblock()) {
                 adblock_admonition();
                 adblock_nag(placement);
             }
