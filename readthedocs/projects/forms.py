@@ -375,17 +375,26 @@ class ProjectRelationshipBaseForm(forms.ModelForm):
         return self.project
 
     def clean_child(self):
-        child = self.cleaned_data['child']
+        """
+        Validate child is a valid subproject.
 
-        child.is_valid_as_subproject(
-            self.project, forms.ValidationError
-        )
+        Validation is done on creation only,
+        when editing users can't change the child.
+        """
+        child = self.cleaned_data['child']
+        if self.instance.pk is None:
+            child.is_valid_as_subproject(
+                self.project, forms.ValidationError
+            )
         return child
 
     def clean_alias(self):
         alias = self.cleaned_data['alias']
-        subproject = self.project.subprojects.filter(
-            alias=alias).exclude(id=self.instance.pk)
+        subproject = (
+            self.project.subprojects
+            .filter(alias=alias)
+            .exclude(id=self.instance.pk)
+        )
 
         if subproject.exists():
             raise forms.ValidationError(
