@@ -384,7 +384,7 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.USE_SPHINX_RTD_EXT_LATEST,
                     positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<1.1',
+                    negative='readthedocs-sphinx-ext<2.2',
                 ),
             ])
 
