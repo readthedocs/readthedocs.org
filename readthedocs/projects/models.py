@@ -1462,6 +1462,13 @@ class Domain(TimeStampedModel, models.Model):
         blank=True,
     )
 
+    active = models.BooleanField(
+        _('Active'),
+        # TODO: remove after deploy
+        null=True,
+        default=True,
+        help_text=_('Is this domain active?'),
+    )
     project = models.ForeignKey(
         Project,
         related_name='domains',
