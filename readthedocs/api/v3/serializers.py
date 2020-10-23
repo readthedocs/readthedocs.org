@@ -222,12 +222,22 @@ class VersionLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class VersionURLsSerializer(serializers.Serializer):
+class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     documentation = serializers.SerializerMethodField()
+    edit = serializers.SerializerMethodField()
     vcs = serializers.URLField(source='vcs_url')
 
     def get_documentation(self, obj):
         return obj.project.get_docs_url(version_slug=obj.slug,)
+
+    def get_edit(self, obj):
+        path = reverse(
+            'project_version_detail',
+            kwargs={
+                'project_slug': obj.project.slug,
+                'version_slug': obj.slug,
+            })
+        return self._absolute_url(path)
 
 
 class VersionSerializer(FlexFieldsModelSerializer):
