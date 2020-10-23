@@ -464,6 +464,7 @@ Version detail
             },
             "urls": {
                 "documentation": "https://pip.pypa.io/en/stable/",
+                "edit": "https://readthedocs.org/dashboard/pip/version/stable/edit/",
                 "vcs": "https://github.com/pypa/pip/tree/19.0.2"
             },
             "_links": {
