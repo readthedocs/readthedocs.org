@@ -41,6 +41,7 @@ from readthedocs.projects.views.private import (
     ProjectUsersCreateList,
     ProjectUsersDelete,
     ProjectVersionDeleteHTML,
+    ProjectVersionCreate,
     ProjectVersionDetail,
     RegexAutomationRuleCreate,
     RegexAutomationRuleUpdate,
@@ -82,7 +83,12 @@ urlpatterns = [
         name='project_version_delete_html',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/$',
+        r'^(?P<project_slug>[-\w]+)/version/create/$',
+        ProjectVersionCreate.as_view(),
+        name='project_version_create',
+    ),
+    url(
+        r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$',
         ProjectVersionDetail.as_view(),
         name='project_version_detail',
     ),
