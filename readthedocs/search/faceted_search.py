@@ -11,6 +11,7 @@ from elasticsearch_dsl.query import (
     MultiMatch,
     Nested,
     SimpleQueryString,
+    Wildcard,
 )
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -67,7 +68,28 @@ class RTDFacetedSearch(FacetedSearch):
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
     def _get_queries(self, *, query, fields):
-        return self._get_text_queries(
+        """
+        Get a list of query objects according to the query.
+
+        If the query is a *single term* (a single word)
+        we try to match partial words and substrings
+        (available only with the DEFAULT_TO_FUZZY_SEARCH feature flag).
+
+        If the query is a phrase or contains the syntax from a simple query string,
+        we use the SimpleQueryString query.
+        """
+        is_single_term = (
+            not self.use_advanced_query and
+            query and len(query.split()) <= 1 and
+            not self._is_advanced_query(query)
+        )
+        get_queries_function = (
+            self._get_single_term_queries
+            if is_single_term
+            else self._get_text_queries
+        )
+
+        return get_queries_function(
             query=query,
             fields=fields,
         )
@@ -76,17 +98,14 @@ class RTDFacetedSearch(FacetedSearch):
         """
         Returns a list of query objects according to the query.
 
-        - SimpleQueryString: Provides a syntax to let advanced users manipulate
-          the results explicitly.
-        - MultiMatch: Allows us to have more control over the results
-          (like fuzziness) to provide a better experience for simple queries.
+        SimpleQueryString provides a syntax to let advanced users manipulate
+        the results explicitly.
 
         We need to search for both "and" and "or" operators.
         The score of "and" should be higher as it satisfies both "or" and "and".
 
         For valid options, see:
 
-        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
         - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html  # noqa
         """
         queries = []
@@ -107,7 +126,44 @@ class RTDFacetedSearch(FacetedSearch):
             queries.append(query_string)
         return queries
 
+    def _get_single_term_queries(self, query, fields):
+        """
+        Returns a list of query objects for fuzzy and partial results.
+
+        We need to search for both "and" and "or" operators.
+        The score of "and" should be higher as it satisfies both "or" and "and".
+
+        We use the Wildcard query with the query surrounded by ``*`` to match substrings.
+
+        For valid options, see:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html
+        """
+        queries = []
+        for operator in self.operators:
+            query_string = self._get_fuzzy_query(
+                query=query,
+                fields=fields,
+                operator=operator,
+            )
+            queries.append(query_string)
+        for field in fields:
+            # Remove boosting from the field
+            field = re.sub(r'\^.*$', '', field)
+            kwargs = {
+                field: {'value': f'*{query}*'},
+            }
+            queries.append(Wildcard(**kwargs))
+        return queries
+
     def _get_fuzzy_query(self, *, query, fields, operator):
+        """
+        Returns a query object used for fuzzy results.
+
+        For valid options, see:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
+        """
         return MultiMatch(
             query=query,
             fields=fields,
