@@ -365,7 +365,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=settings.DEFAULT_PRIVACY_LEVEL,
         help_text=_(
-            'Level of privacy that you want on the repository.',
+            'Should the project dashboard be public?',
         ),
     )
 
