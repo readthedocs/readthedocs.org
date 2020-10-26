@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0063_extend_domain_from_timestamp_model'),
+        ('projects', '0064_add_feature_future_default_true'),
     ]
 
     operations = [
