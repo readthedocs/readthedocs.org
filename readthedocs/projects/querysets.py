@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.db.models import OuterRef, Prefetch, Q, Subquery
+from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -74,6 +75,33 @@ class ProjectQuerySetBase(models.QuerySet):
             return False
 
         return True
+
+    def max_concurrent_builds(self, project):
+        """
+        Return the max concurrent builds allowed for the project.
+
+        Max concurrency build priority:
+
+          - project
+          - organization
+          - default setting
+
+        :param project: project to be checked
+        :type project: readthedocs.projects.models.Project
+
+        :returns: number of max concurrent builds for the project
+        :rtype: int
+        """
+        max_concurrent_organization = None
+        organization = project.organizations.first()
+        if organization:
+            max_concurrent_organization = organization.max_concurrent_builds
+
+        return (
+            project.max_concurrent_builds or
+            max_concurrent_organization or
+            settings.RTD_MAX_CONCURRENT_BUILDS
+        )
 
     def prefetch_latest_build(self):
         """
@@ -211,7 +239,8 @@ class FeatureQuerySet(models.QuerySet):
     def for_project(self, project):
         return self.filter(
             Q(projects=project) |
-            Q(default_true=True, add_date__gt=project.pub_date),
+            Q(default_true=True, add_date__gt=project.pub_date) |
+            Q(future_default_true=True, add_date__lt=project.pub_date)
         ).distinct()
 
 

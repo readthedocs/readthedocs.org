@@ -386,3 +386,16 @@ GITLAB_BRAND = 'GitLab'
 CELERY_LOW = 3
 CELERY_MEDIUM = 5
 CELERY_HIGH = 7
+
+
+# SSL statuses
+SSL_STATUS_VALID = 'valid'
+SSL_STATUS_INVALID = 'invalid'
+SSL_STATUS_PENDING = 'pending'
+SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_CHOICES = (
+    (SSL_STATUS_VALID, _('Valid and active')),
+    (SSL_STATUS_INVALID, _('Invalid')),
+    (SSL_STATUS_PENDING, _('Pending')),
+    (SSL_STATUS_UNKNOWN, _('Unknown')),
+)

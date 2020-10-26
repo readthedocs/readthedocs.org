@@ -19,6 +19,7 @@ from django.urls import re_path, reverse
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django.views import defaults
+from django_extensions.db.fields import CreationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
@@ -564,9 +565,10 @@ class Project(models.Model):
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
 
-        if self.is_subproject:
+        main_project = self.main_language_project or self
+        if main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
@@ -1358,6 +1360,12 @@ class ImportedFile(models.Model):
         default=0,
         validators=[MinValueValidator(-10), MaxValueValidator(10)],
     )
+    ignore = models.BooleanField(
+        _('Ignore this file from operations like indexing'),
+        # default=False,
+        # TODO: remove after migration
+        null=True,
+    )
 
     def get_absolute_url(self):
         return resolve(
@@ -1426,9 +1434,17 @@ class WebHook(Notification):
         return self.url
 
 
-class Domain(models.Model):
+class Domain(TimeStampedModel, models.Model):
 
     """A custom domain name for a project."""
+
+    # TODO: Overridden from TimeStampedModel just to allow null values,
+    # remove after deploy.
+    created = CreationDateTimeField(
+        _('created'),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
@@ -1464,6 +1480,17 @@ class Domain(models.Model):
     count = models.IntegerField(
         default=0,
         help_text=_('Number of times this domain has been hit'),
+    )
+
+    # This is used in readthedocsext.
+    ssl_status = models.CharField(
+        _('SSL certificate status'),
+        max_length=30,
+        choices=constants.SSL_STATUS_CHOICES,
+        default=constants.SSL_STATUS_UNKNOWN,
+        # Remove after deploy
+        null=True,
+        blank=True,
     )
 
     # Strict-Transport-Security header options
@@ -1715,8 +1742,14 @@ class Feature(models.Model):
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
-        _('Historical default is True'),
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 

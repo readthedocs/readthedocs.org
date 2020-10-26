@@ -188,7 +188,7 @@ class StripeModelForm(forms.ModelForm):
                 'exp_month': 'cc_expiry',
                 'exp_year': 'cc_expiry',
             }
-            error_field = field_lookup.get(e.param, None)
+            error_field = field_lookup.get(e.param)
             self.add_error(
                 error_field,
                 forms.ValidationError(str(e)),

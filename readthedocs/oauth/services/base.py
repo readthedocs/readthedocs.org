@@ -194,12 +194,13 @@ class Service:
         - deletes old RemoteRepository/Organization that are not present
           for this user in the current provider
         """
-        repos = self.sync_repositories()
-        organizations, organization_repos = self.sync_organizations()
+        remote_repositories = self.sync_repositories()
+        remote_organizations, remote_repositories_organizations = self.sync_organizations()
 
         # Delete RemoteRepository where the user doesn't have access anymore
         # (skip RemoteRepository tied to a Project on this user)
-        repository_full_names = self.get_repository_full_names(repos + organization_repos)
+        all_remote_repositories = remote_repositories + remote_repositories_organizations
+        repository_full_names = [r.full_name for r in all_remote_repositories if r is not None]
         (
             self.user.oauth_repositories
             .exclude(
@@ -210,10 +211,10 @@ class Service:
         )
 
         # Delete RemoteOrganization where the user doesn't have access anymore
-        organization_names = self.get_organization_names(organizations)
+        organization_slugs = [o.slug for o in remote_organizations if o is not None]
         (
             self.user.oauth_organizations
-            .exclude(name__in=organization_names)
+            .exclude(slug__in=organization_slugs)
             .filter(account=self.account)
             .delete()
         )

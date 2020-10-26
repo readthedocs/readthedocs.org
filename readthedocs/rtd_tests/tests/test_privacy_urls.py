@@ -96,7 +96,7 @@ class URLAccessMixin:
         for key in list(response.context.keys()):
             obj = response.context[key]
             for not_obj in self.context_data:
-                if isinstance(obj, list) or isinstance(obj, set) or isinstance(obj, tuple):
+                if isinstance(obj, (list, set, tuple)):
                     self.assertNotIn(not_obj, obj)
                     print('{} not in {}'.format(not_obj, obj))
                 else:
