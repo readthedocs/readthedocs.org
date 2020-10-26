@@ -137,7 +137,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         For valid options, see:
 
-        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html  # noqa
         """
         queries = []
         for operator in self.operators:
