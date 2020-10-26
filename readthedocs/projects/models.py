@@ -565,9 +565,10 @@ class Project(models.Model):
         # because this URL only exists in El Proxito and this method is
         # accessed from Web instance
 
-        if self.is_subproject:
+        main_project = self.main_language_project or self
+        if main_project.is_subproject:
             # docs.example.com/_/downloads/<alias>/<lang>/<ver>/pdf/
-            path = f'//{domain}/{self.proxied_api_url}downloads/{self.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
+            path = f'//{domain}/{self.proxied_api_url}downloads/{main_project.alias}/{self.language}/{version_slug}/{type_}/'  # noqa
         else:
             # docs.example.com/_/downloads/<lang>/<ver>/pdf/
             path = f'//{domain}/{self.proxied_api_url}downloads/{self.language}/{version_slug}/{type_}/'  # noqa
@@ -1581,6 +1582,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1724,6 +1726,10 @@ class Feature(models.Model):
             USE_NEW_PIP_RESOLVER,
             _('Use new pip resolver'),
         ),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
+        ),
     )
 
     projects = models.ManyToManyField(
@@ -1741,8 +1747,14 @@ class Feature(models.Model):
         _('Date feature was added'),
         auto_now_add=True,
     )
+    # TODO: rename this field to `past_default_true` and follow this steps when deploying
+    # https://github.com/readthedocs/readthedocs.org/pull/7524#issuecomment-703663724
     default_true = models.BooleanField(
-        _('Historical default is True'),
+        _('Default all past projects to True'),
+        default=False,
+    )
+    future_default_true = models.BooleanField(
+        _('Default all future projects to True'),
         default=False,
     )
 
