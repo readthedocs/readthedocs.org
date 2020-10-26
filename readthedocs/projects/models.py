@@ -1582,6 +1582,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
     DONT_CREATE_INDEX = 'dont_create_index'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
+    DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
 
     FEATURES = (
         (USE_SPHINX_LATEST, _('Use latest version of Sphinx')),
@@ -1724,6 +1725,10 @@ class Feature(models.Model):
         (
             USE_NEW_PIP_RESOLVER,
             _('Use new pip resolver'),
+        ),
+        (
+            DONT_INSTALL_LATEST_PIP,
+            _('Don\'t install the latest version of pip'),
         ),
     )
 
