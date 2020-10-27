@@ -843,6 +843,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     created = serializers.DateTimeField(source='pub_date')
     modified = serializers.DateTimeField(source='modified_date')
+    members = UserSerializer(many=True)
 
     class Meta:
         model = Team
@@ -852,6 +853,7 @@ class TeamSerializer(serializers.ModelSerializer):
             'created',
             'modified',
             'access',
+            'members',
         )
 
 
