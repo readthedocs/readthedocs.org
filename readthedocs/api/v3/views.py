@@ -374,6 +374,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
     permit_list_expands = [
         'projects',
         'teams',
+        'teams.members',
     ]
 
     def get_view_name(self):
