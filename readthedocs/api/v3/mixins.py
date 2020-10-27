@@ -143,10 +143,7 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
         return queryset.none()
 
     def has_admin_permission(self, user, organization):
-        # Use .only for small optimization
-        admin_organizations = self.admin_organizations(user).only('id')
-
-        if organization in admin_organizations:
+        if self.admin_organizations(user).filter(pk=organization.pk).exists():
             return True
 
         return False
