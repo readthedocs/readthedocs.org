@@ -67,6 +67,18 @@ class NotificationTests(TestCase):
                 'foo': build,
                 'production_uri': 'https://readthedocs.org',
                 'request': req,
+
+                # readthedocs_processor context
+                'DASHBOARD_ANALYTICS_CODE': None,
+                'DO_NOT_TRACK_ENABLED': False,
+                'GLOBAL_ANALYTICS_CODE': None,
+                'PRODUCTION_DOMAIN': 'readthedocs.org',
+                'PUBLIC_DOMAIN': None,
+                'SITE_ROOT': mock.ANY,
+                'SUPPORT_EMAIL': None,
+                'TEMPLATE_ROOT': mock.ANY,
+                'USE_PROMOS': False,
+                'USE_SUBDOMAIN': False,
             },
         )
 
@@ -220,6 +232,18 @@ class SiteNotificationTests(TestCase):
             'request': None,
             'production_uri': 'https://readthedocs.org',
             'other': {'name': 'other name'},
+
+            # readthedocs_processor context
+            'DASHBOARD_ANALYTICS_CODE': None,
+            'DO_NOT_TRACK_ENABLED': False,
+            'GLOBAL_ANALYTICS_CODE': None,
+            'PRODUCTION_DOMAIN': 'readthedocs.org',
+            'PUBLIC_DOMAIN': None,
+            'SITE_ROOT': mock.ANY,
+            'SUPPORT_EMAIL': None,
+            'TEMPLATE_ROOT': mock.ANY,
+            'USE_PROMOS': False,
+            'USE_SUBDOMAIN': False,
         }
         self.assertEqual(self.n.get_context_data(), context)
 

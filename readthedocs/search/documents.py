@@ -52,6 +52,17 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 @page_index.document
 class PageDocument(RTDDocTypeMixin, Document):
 
+    """
+    Document representation of a Page.
+
+    Some text fields use the simple analyzer instead of the default (standard).
+    Simple analyzer will break the text in non-letter characters,
+    so a text like ``python.submodule`` will be broken like [python, submodule]
+    instead of [python.submodule].
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html
+    """
+
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')

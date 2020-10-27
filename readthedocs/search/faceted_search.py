@@ -1,4 +1,5 @@
 import logging
+import re
 
 from django.conf import settings
 from elasticsearch import Elasticsearch
@@ -10,6 +11,7 @@ from elasticsearch_dsl.query import (
     MultiMatch,
     Nested,
     SimpleQueryString,
+    Wildcard,
 )
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -65,35 +67,110 @@ class RTDFacetedSearch(FacetedSearch):
         }
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
-    def _get_text_query(self, *, query, fields, operator):
+    def _get_queries(self, *, query, fields):
         """
-        Returns a text query object according to the query.
+        Get a list of query objects according to the query.
 
-        - SimpleQueryString: Provides a syntax to let advanced users manipulate
-          the results explicitly.
-        - MultiMatch: Allows us to have more control over the results
-          (like fuzziness) to provide a better experience for simple queries.
+        If the query is a *single term* (a single word)
+        we try to match partial words and substrings
+        (available only with the DEFAULT_TO_FUZZY_SEARCH feature flag).
+
+        If the query is a phrase or contains the syntax from a simple query string,
+        we use the SimpleQueryString query.
+        """
+        is_single_term = (
+            not self.use_advanced_query and
+            query and len(query.split()) <= 1 and
+            not self._is_advanced_query(query)
+        )
+        get_queries_function = (
+            self._get_single_term_queries
+            if is_single_term
+            else self._get_text_queries
+        )
+
+        return get_queries_function(
+            query=query,
+            fields=fields,
+        )
+
+    def _get_text_queries(self, *, query, fields):
+        """
+        Returns a list of query objects according to the query.
+
+        SimpleQueryString provides a syntax to let advanced users manipulate
+        the results explicitly.
+
+        We need to search for both "and" and "or" operators.
+        The score of "and" should be higher as it satisfies both "or" and "and".
+
+        For valid options, see:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html  # noqa
+        """
+        queries = []
+        is_advanced_query = self.use_advanced_query or self._is_advanced_query(query)
+        for operator in self.operators:
+            if is_advanced_query:
+                query_string = SimpleQueryString(
+                    query=query,
+                    fields=fields,
+                    default_operator=operator,
+                )
+            else:
+                query_string = self._get_fuzzy_query(
+                    query=query,
+                    fields=fields,
+                    operator=operator,
+                )
+            queries.append(query_string)
+        return queries
+
+    def _get_single_term_queries(self, query, fields):
+        """
+        Returns a list of query objects for fuzzy and partial results.
+
+        We need to search for both "and" and "or" operators.
+        The score of "and" should be higher as it satisfies both "or" and "and".
+
+        We use the Wildcard query with the query surrounded by ``*`` to match substrings.
+
+        For valid options, see:
+
+        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-wildcard-query.html  # noqa
+        """
+        queries = []
+        for operator in self.operators:
+            query_string = self._get_fuzzy_query(
+                query=query,
+                fields=fields,
+                operator=operator,
+            )
+            queries.append(query_string)
+        for field in fields:
+            # Remove boosting from the field
+            field = re.sub(r'\^.*$', '', field)
+            kwargs = {
+                field: {'value': f'*{query}*'},
+            }
+            queries.append(Wildcard(**kwargs))
+        return queries
+
+    def _get_fuzzy_query(self, *, query, fields, operator):
+        """
+        Returns a query object used for fuzzy results.
 
         For valid options, see:
 
         - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-match-query.html
-        - https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html  # noqa
         """
-        if self.use_advanced_query or self._is_advanced_query(query):
-            query_string = SimpleQueryString(
-                query=query,
-                fields=fields,
-                default_operator=operator
-            )
-        else:
-            query_string = MultiMatch(
-                query=query,
-                fields=fields,
-                operator=operator,
-                fuzziness="AUTO:4,6",
-                prefix_length=1,
-            )
-        return query_string
+        return MultiMatch(
+            query=query,
+            fields=fields,
+            operator=operator,
+            fuzziness="AUTO:4,6",
+            prefix_length=1,
+        )
 
     def _is_advanced_query(self, query):
         """
@@ -126,21 +203,13 @@ class RTDFacetedSearch(FacetedSearch):
         search = search.highlight_options(**self._highlight_options)
         search = search.source(exclude=['content', 'headers'])
 
-        all_queries = []
-
-        # need to search for both 'and' and 'or' operations
-        # the score of and should be higher as it satisfies both or and and
-        for operator in self.operators:
-            query_string = self._get_text_query(
-                query=query,
-                fields=self.fields,
-                operator=operator,
-            )
-            all_queries.append(query_string)
+        queries = self._get_queries(
+            query=query,
+            fields=self.fields,
+        )
 
         # run bool query with should, so it returns result where either of the query matches
-        bool_query = Bool(should=all_queries)
-
+        bool_query = Bool(should=queries)
         search = search.query(bool_query)
         return search
 
@@ -193,57 +262,57 @@ class PageSearchBase(RTDFacetedSearch):
         """Manipulates the query to support nested queries and a custom rank for pages."""
         search = search.highlight_options(**self._highlight_options)
 
-        all_queries = []
+        queries = self._get_queries(
+            query=query,
+            fields=self.fields,
+        )
 
-        # match query for the title (of the page) field.
-        for operator in self.operators:
-            query_string = self._get_text_query(
-                query=query,
-                fields=self.fields,
-                operator=operator,
-            )
-            all_queries.append(query_string)
-
-        # nested query for search in sections
-        sections_nested_query = self.generate_nested_query(
+        sections_nested_query = self._get_nested_query(
             query=query,
             path='sections',
             fields=self._section_fields,
-            inner_hits={
-                'highlight': dict(
-                    self._highlight_options,
-                    fields={
-                        'sections.title': {},
-                        'sections.content': {},
-                    }
-                )
-            }
         )
 
-        # nested query for search in domains
-        domains_nested_query = self.generate_nested_query(
+        domains_nested_query = self._get_nested_query(
             query=query,
             path='domains',
             fields=self._domain_fields,
-            inner_hits={
-                'highlight': dict(
-                    self._highlight_options,
-                    fields={
-                        'domains.name': {},
-                        'domains.docstrings': {},
-                    }
-                )
-            }
         )
 
-        all_queries.extend([sections_nested_query, domains_nested_query])
-
+        queries.extend([sections_nested_query, domains_nested_query])
         final_query = FunctionScore(
-            query=Bool(should=all_queries),
+            query=Bool(should=queries),
             script_score=self._get_script_score(),
         )
         search = search.query(final_query)
         return search
+
+    def _get_nested_query(self, *, query, path, fields):
+        """Generate a nested query with passed parameters."""
+        queries = self._get_queries(
+            query=query,
+            fields=fields,
+        )
+
+        raw_fields = (
+            # Remove boosting from the field
+            re.sub(r'\^.*$', '', field)
+            for field in fields
+        )
+
+        highlight = dict(
+            self._highlight_options,
+            fields={
+                field: {}
+                for field in raw_fields
+            },
+        )
+
+        return Nested(
+            path=path,
+            inner_hits={'highlight': highlight},
+            query=Bool(should=queries),
+        )
 
     def _get_script_score(self):
         """
@@ -304,27 +373,6 @@ class PageSearchBase(RTDFacetedSearch):
                 "params": {"ranking": ranking},
             },
         }
-
-    def generate_nested_query(self, query, path, fields, inner_hits):
-        """Generate a nested query with passed parameters."""
-        queries = []
-
-        for operator in self.operators:
-            query_string = self._get_text_query(
-                query=query,
-                fields=fields,
-                operator=operator,
-            )
-            queries.append(query_string)
-
-        bool_query = Bool(should=queries)
-
-        nested_query = Nested(
-            path=path,
-            inner_hits=inner_hits,
-            query=bool_query
-        )
-        return nested_query
 
 
 class PageSearch(SettingsOverrideObject):
