@@ -3,51 +3,44 @@
 var constants = require('./constants');
 var rtddata = require('./rtd-data');
 
-var bowser = require('bowser');
-
 var rtd;
 
-var EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
+var EXPLICIT_PLACEMENT_SELECTOR = "[data-ea-publisher]";
+
+// Old way to control the exact placement of an ad
+var OLD_EXPLICIT_PLACEMENT_SELECTOR = '#ethical-ad-placement';
 
 
 /*
- * Create an explicit placement if the project has specified one
+ * Inject the EthicalAds ad client
  */
-function create_explicit_placement() {
-    var element_id = 'rtd-explicit';
-    var display_type = constants.PROMO_TYPES.LEFTNAV;
-    var class_name;         // Used for theme specific CSS customizations
-
-    if(rtd.is_rtd_like_theme()) {
-        class_name = 'ethical-rtd ethical-dark-theme';
-    } else {
-        class_name = 'ethical-alabaster';
-    }
-
-    if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
-        $('<div />').attr('id', element_id)
-            .addClass(class_name).appendTo(EXPLICIT_PLACEMENT_SELECTOR);
-
-        return {
-            'div_id': element_id,
-            'display_type': display_type,
-        };
-    }
-    return null;
+function inject_ads_client() {
+    var script = document.createElement("script");
+    script.src = "https://media.ethicalads.io/media/client/beta/ethicalads.min.js";
+    script.type = "text/javascript";
+    script.async = true;
+    document.getElementsByTagName("head")[0].appendChild(script);
 }
 
 /*
- *  Creates a sidebar div where an ad could go
+ *  Creates a div where the ad could go
  */
-function create_sidebar_placement() {
-    var element_id = 'rtd-sidebar';
-    var display_type = constants.PROMO_TYPES.LEFTNAV;
-    var priority = constants.DEFAULT_PROMO_PRIORITY;
+function create_ad_placement() {
     var selector = null;
     var class_name;         // Used for theme specific CSS customizations
+    var element;
     var offset;
 
-    if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
+    if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        return $(EXPLICIT_PLACEMENT_SELECTOR);
+    } else if ($(OLD_EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        selector = OLD_EXPLICIT_PLACEMENT_SELECTOR;
+        if (rtd.is_rtd_like_theme()) {
+            class_name = 'ethical-rtd ethical-dark-theme';
+        } else {
+            class_name = 'ethical-alabaster';
+        }
+    } else if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
         selector = 'nav.wy-nav-side';
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
@@ -59,167 +52,33 @@ function create_sidebar_placement() {
     }
 
     if (selector) {
-        $('<div />').attr('id', element_id)
-            .addClass(class_name).appendTo(selector);
-
-        // Determine if this element is above the fold
-        offset = $('#' + element_id).offset();
+        // Determine if this element would be above the fold
+        // If this is off screen, instead create an ad in the footer
+        element = $("<div />").appendTo(selector);
+        offset = element.offset();
         if (!offset || offset.top > $(window).height()) {
-            // If this is off screen, lower the priority
-            priority = constants.LOW_PROMO_PRIORITY;
+            if (rtd.is_rtd_like_theme()) {
+                selector = $('<div />').insertAfter('footer hr');
+                class_name = 'ethical-rtd';
+            } else if (rtd.is_alabaster_like_theme()) {
+                selector = 'div.bodywrapper .body';
+                class_name = 'ethical-alabaster';
+            }
         }
+        element.remove();
 
-        return {
-            'div_id': element_id,
-            'display_type': display_type,
-            'priority': priority,
-        };
+        // Add the element where the ad will go
+        return $('<div />')
+            .attr("id", "rtd-sidebar")
+            .attr("data-ea-publisher", "readthedocs")
+            .attr("data-ea-type", "readthedocs-sidebar")
+            .attr("data-ea-manual", "true")
+            .addClass(class_name)
+            .appendTo(selector);
     }
 
     return null;
 }
-
-/*
- *  Creates a sidebar div where an ad could go
- *  Returns the ID of the div or none if no footer ad is possible
- */
-function create_footer_placement() {
-    var element_id = 'rtd-footer';
-    var display_type = constants.PROMO_TYPES.FOOTER;
-    var priority = constants.DEFAULT_PROMO_PRIORITY;
-    var selector = null;
-    var class_name;
-    var offset;
-
-    if (rtd.is_rtd_like_theme()) {
-        selector = $('<div />').insertAfter('footer hr');
-        class_name = 'ethical-rtd';
-    } else if (rtd.is_alabaster_like_theme()) {
-        selector = 'div.bodywrapper .body';
-        class_name = 'ethical-alabaster';
-    }
-
-    if (selector) {
-        $('<div />').attr('id', element_id)
-            .addClass(class_name).appendTo(selector);
-
-        // Determine if this element is above the fold
-        offset = $('#' + element_id).offset();
-        if (!offset || offset.top < $(window).height()) {
-            // If the screen is short, lower the priority
-            // We don't want the ad to take up too much of the screen
-            priority = constants.LOW_PROMO_PRIORITY;
-        }
-
-        return {
-            'div_id': element_id,
-            'display_type': display_type,
-            'priority': priority,
-        };
-    }
-
-    return null;
-}
-
-/*
- *  Creates a fixed footer placmenet
- *  Returns the ID of the div or none if a fixed footer ad shouldn't be used
- */
-function create_fixed_footer_placement() {
-    var element_id = 'rtd-fixed-footer';
-    var display_type = constants.PROMO_TYPES.FIXED_FOOTER;
-    var priority = constants.DEFAULT_PROMO_PRIORITY;
-
-    if (bowser && bowser.mobile) {
-        // If this is mobile, then prioritize fixed footer
-        priority = constants.MAXIMUM_PROMO_PRIORITY;
-    }
-
-    $('<div />').attr('id', element_id).appendTo('body');
-    return {
-        'div_id': element_id,
-        'display_type': display_type,
-
-        // Prioritize mobile ads when on mobile
-        'priority': priority,
-    };
-}
-
-function Promo(data) {
-    this.id = data.id;                              // analytics id
-    this.div_id = data.div_id || '';
-    this.html = data.html || '';
-    this.display_type = data.display_type || '';
-    this.view_tracking_url = data.view_url;
-
-    // Handler when a promo receives a click
-    this.click_handler = function () {
-        // This needs to handle both old style legacy analytics for previously built docs
-        // as well as the newer universal analytics
-        if (typeof ga !== 'undefined') {
-            ga('rtfd.send', 'event', 'Promo', 'Click', data.id);
-        } else if (typeof _gaq !== 'undefined') {
-            _gaq.push(
-                ['rtfd._setAccount', 'UA-17997319-1'],
-                ['rtfd._trackEvent', 'Promo', 'Click', data.id]
-            );
-        }
-    };
-}
-
-/*
- *  Position and inject the promo
- */
-Promo.prototype.display = function () {
-    var ad_selector = '#' + this.div_id;
-    var view_tracking_url = this.view_tracking_url;
-
-    $(ad_selector).html(this.html);
-    $(ad_selector).find('a[href*="/sustainability/click/"]')
-        .on('click', this.click_handler);
-
-    var handler = function () {
-        // A fudge factor of ~3 is needed for the case where the ad
-        // is hidden off the left side of the screen by a sliding sidebar
-        // (eg. the right side of the ad is at x=0)
-        if ($.inViewport($(ad_selector), -3)) {
-            // This ad was seen!
-            $('<img />')
-                .attr('src', view_tracking_url)
-                .css('display', 'none')
-                .appendTo(ad_selector);
-
-            // Unbind view event
-            $(window).off('.rtdinview');
-            $('.wy-side-scroll').off('.rtdinview');
-        }
-    };
-
-    // Check whether the ad is actually viewed
-    $(window).on('DOMContentLoaded.rtdinview load.rtdinview scroll.rtdinview resize.rtdinview', handler);
-    $('.wy-side-scroll').on('scroll.rtdinview', handler);
-
-    // Add a handler to close the ad on mobile
-    $('.ethical-close').on('click', function () { $(ad_selector).hide(); return false; });
-
-    this.post_promo_display();
-};
-
-Promo.prototype.disable = function () {
-    $('#' + this.div_id).hide();
-};
-
-/*
- * Perform any additional tweaks after the ad is successfully injected
- */
-Promo.prototype.post_promo_display = function () {
-    if (this.display_type === constants.PROMO_TYPES.FOOTER) {
-        $('<hr />').insertAfter('#' + this.div_id);
-
-        // Alabaster only
-        $('<hr />').insertBefore('#' + this.div_id + '.ethical-alabaster .ethical-footer');
-    }
-};
 
 function detect_adblock() {
     // Status codes are not correctly reported on JSONP requests
@@ -257,15 +116,14 @@ function adblock_admonition() {
     console.log('--------------------------------------------------------------------------------------');
 }
 
-function adblock_nag() {
+function adblock_nag(placement) {
     // Place an ad block nag into the sidebar
-    var placement = create_sidebar_placement();
     var unblock_url = 'https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html#allowing-ethical-ads';
     var ad_free_url = 'https://readthedocs.org/sustainability/';
     var container = null;
 
-    if (placement && placement.div_id) {
-        container = $('#' + placement.div_id).attr('class', 'keep-us-sustainable');
+    if (placement) {
+        container = placement.attr('class', 'keep-us-sustainable');
 
         $('<p />').text('Support Read the Docs!').appendTo(container);
         $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
@@ -274,93 +132,67 @@ function adblock_nag() {
 }
 
 function init() {
-    var request_data = {format: "jsonp"};
-    var div_ids = [];
-    var display_types = [];
-    var priorities = [];
-    var placement_funcs = [
-        create_footer_placement,
-        create_sidebar_placement,
-        create_fixed_footer_placement,
-    ];
-    var params;
     var placement;
-    var explicit_placement = false;
 
     rtd = rtddata.get();
 
-    // Check if these docs have specified an explicit ad placement for us
-    placement = create_explicit_placement();
-
-    if (placement) {
-        // Explicit placement
-        div_ids.push(placement.div_id);
-        display_types.push(placement.display_type);
-        priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
-        explicit_placement = true;
-    } else {
-        // Standard placements
-        if (!rtd.show_promo()) {
-            return;
-        }
-
-        for (var i = 0; i < placement_funcs.length; i += 1) {
-            placement = placement_funcs[i]();
-            if (placement) {
-                div_ids.push(placement.div_id);
-                display_types.push(placement.display_type);
-                priorities.push(placement.priority || constants.DEFAULT_PROMO_PRIORITY);
-            }
-        }
+    if (!rtd.show_promo()) {
+        return;
     }
 
-    request_data.div_ids = div_ids.join('|');
-    request_data.display_types = display_types.join('|');
-    request_data.priorities = priorities.join('|');
-    request_data.project = rtd.project;
-    request_data.theme = rtd.get_theme_name();
+    placement = create_ad_placement();
 
-    if (typeof URL !== 'undefined' && typeof URLSearchParams !== 'undefined') {
-        // Force a specific promo to be displayed
-        params = new URL(window.location).searchParams;
-        if (params.get('force_promo')) {
-            request_data.force_promo = params.get('force_promo');
-        }
+    // Inject ads
+    inject_ads_client();
 
-        // Force a promo from a specific campaign
-        if (params.get('force_campaign')) {
-            request_data.force_campaign = params.get('force_campaign');
-        }
-    }
-
-    // Request a promo to inject onto the page
     $.ajax({
-        url: rtd.api_host + "/api/v2/sustainability/",
+        url: rtd.api_host + "/api/v2/sustainability/data/",
         crossDomain: true,
         xhrFields: {
             withCredentials: true,
         },
         dataType: "jsonp",
-        data: request_data,
+        data: {
+            format: "jsonp",
+            project: rtd.project,
+        },
         success: function (data) {
-            var promo;
-            if (data && data.div_id && data.html) {
-                promo = new Promo(data);
-                promo.display();
+            if (!placement || data.ad_free) {
+                // No valid placement or project/user is ad free
+                return;
+            }
+
+            // Set the keyword, campaign data, and publisher
+            if (data.keywords) {
+                placement.attr("data-ea-keywords", data.keywords.join("|"));
+            }
+            if (data.campaign_types) {
+                placement.attr("data-ea-campaign-types", data.campaign_types.join("|"));
+            }
+            if (data.publisher) {
+                placement.attr("data-ea-publisher", data.publisher);
+            }
+
+            if (typeof ethicalads !== "undefined") {
+                // Trigger ad request
+                ethicalads.load();
+            } else if (!rtd.ad_free && detect_adblock()) {
+                // Ad client prevented from loading - check ad blockers
+                adblock_admonition();
+                adblock_nag(placement);
             }
         },
         error: function () {
-            console.error('Error loading Read the Docs promo');
+            console.error('Error loading Read the Docs user and project information');
 
-            if (!rtd.ad_free && rtd.api_host === 'https://readthedocs.org' && detect_adblock()) {
+            if (!rtd.ad_free && detect_adblock()) {
                 adblock_admonition();
-                adblock_nag();
+                adblock_nag(placement);
             }
         },
     });
 }
 
 module.exports = {
-    Promo: Promo,
     init: init,
 };

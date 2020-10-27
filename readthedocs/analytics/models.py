@@ -104,7 +104,7 @@ class PageView(models.Model):
 
         queryset = cls.objects.filter(
             project__slug=project_slug,
-            date__gt=since,
+            date__gte=since,
         ).values('date').annotate(total_views=Sum('view_count')).order_by('date')
 
         count_dict = dict(
