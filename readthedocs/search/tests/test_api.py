@@ -526,7 +526,12 @@ class BaseTestDocumentSearch:
 
         results = resp.data['results']
         assert len(results) > 0
-        assert 'Index' in results[0]['title']
+        assert 'Support' in results[0]['title']
+        # find is more closer than index, so is listed first.
+        highlights = results[0]['blocks'][0]['highlights']
+        assert '<span>find</span>' in highlights['content'][0]
+
+        assert 'Index' in results[1]['title']
 
         # Query with a partial word, but we want to match that
         search_params = {
