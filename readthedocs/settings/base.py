@@ -495,7 +495,7 @@ class CommunityBaseSettings(Settings):
                 "free -m | awk '/^Mem:/{print $2}'",
                 shell=True,
             ))
-            return total_memory, round(total_memory - 750, -2)
+            return total_memory, round(total_memory - 1000, -2)
         except ValueError:
             # On systems without a `free` command it will return a string to
             # int and raise a ValueError
