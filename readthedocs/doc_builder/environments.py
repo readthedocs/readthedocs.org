@@ -16,7 +16,7 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from slumber.exceptions import HttpClientError
 
@@ -906,7 +906,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
             # Catch direct failures from Docker API or with an HTTP request.
             # These errors should not surface to the user.
-            except (DockerAPIError, ConnectionError):
+            except (DockerAPIError, ConnectionError, ReadTimeout):
                 log.exception(
                     LOG_TEMPLATE,
                     {
