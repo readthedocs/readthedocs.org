@@ -3,7 +3,10 @@
 -r pip.txt
 # http://initd.org/psycopg/docs/install.html#binary-install-from-pypi
 psycopg2-binary==2.8.6
-django-redis-cache==3.0.0
+
+# Version 3.0.0 drops support for Django < 3.0
+# https://github.com/sebleier/django-redis-cache/#300
+django-redis-cache==2.1.2  # pyup: ignore
 
 # For resizing images
 pillow==8.0.1
