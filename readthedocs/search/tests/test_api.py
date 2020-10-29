@@ -505,6 +505,53 @@ class BaseTestDocumentSearch:
         assert len(results) > 0
         assert 'Index' in results[0]['title']
 
+    def test_search_single_query(self, api_client):
+        """A single query matches substrings."""
+        project = Project.objects.get(slug='docs')
+        feature, _ = Feature.objects.get_or_create(
+            feature_id=Feature.DEFAULT_TO_FUZZY_SEARCH,
+        )
+        project.feature_set.add(feature)
+        project.save()
+        version = project.versions.all().first()
+
+        # Query with a partial word should return results
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': 'ind',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
+        # Query with a partial word, but we want to match that
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"ind"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        assert len(resp.data['results']) == 0
+
+        # Exact query still works
+        search_params = {
+            'project': project.slug,
+            'version': version.slug,
+            'q': '"index"',
+        }
+        resp = self.get_search(api_client, search_params)
+        assert resp.status_code == 200
+
+        results = resp.data['results']
+        assert len(results) > 0
+        assert 'Index' in results[0]['title']
+
     def test_search_custom_ranking(self, api_client):
         project = Project.objects.get(slug='docs')
         version = project.versions.all().first()

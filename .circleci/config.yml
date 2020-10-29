@@ -1,0 +1,45 @@
+version: 2.1
+
+jobs:
+  tests:
+    docker:
+      - image: 'cimg/python:3.6'
+        environment:
+          TOX_POSARGS: ''
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:6.8.12'
+        name: search
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user tox
+      - run: tox -e py36,codecov
+
+  checks:
+    docker:
+      - image: 'cimg/python:3.6'
+        environment:
+          NODE_VERSION: 10.17.0
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user tox
+      - run: scripts/circle/install_node.sh
+      - run:
+          name: Add node to the path
+          command: |
+            echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+      - run: tox -e migrations
+      - run: tox -e lint
+      - run: tox -e docs-lint
+      - run: tox -e docs
+      - run: tox -e eslint
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - checks
+      - tests

@@ -1,3 +1,28 @@
+Version 5.6.1
+-------------
+
+:Date: October 26, 2020
+
+* `@agjohnson <https://github.com/agjohnson>`__: Bump common to include docker task changes (`#7597 <https://github.com/readthedocs/readthedocs.org/pull/7597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Default to sphinx theme 0.5.0 when defaulting to latest sphinx (`#7596 <https://github.com/readthedocs/readthedocs.org/pull/7596>`__)
+* `@humitos <https://github.com/humitos>`__: Use correct Cache-Tag (CDN) and X-RTD-Project header on subprojects (`#7593 <https://github.com/readthedocs/readthedocs.org/pull/7593>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Ads JS hotfix (`#7586 <https://github.com/readthedocs/readthedocs.org/pull/7586>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add remoterepo query param (`#7580 <https://github.com/readthedocs/readthedocs.org/pull/7580>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Undeprecate APIv2 in docs (`#7579 <https://github.com/readthedocs/readthedocs.org/pull/7579>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add settings and docker configuration for working with new theme (`#7578 <https://github.com/readthedocs/readthedocs.org/pull/7578>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude chagelog from results (`#7570 <https://github.com/readthedocs/readthedocs.org/pull/7570>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: better results for single terms (`#7569 <https://github.com/readthedocs/readthedocs.org/pull/7569>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor query objects (`#7568 <https://github.com/readthedocs/readthedocs.org/pull/7568>`__)
+* `@humitos <https://github.com/humitos>`__: Add our `readthedocs_processor` data to our notifications (`#7565 <https://github.com/readthedocs/readthedocs.org/pull/7565>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update ES to 6.8.12 (`#7559 <https://github.com/readthedocs/readthedocs.org/pull/7559>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: always install latest version of our sphinx extension (`#7542 <https://github.com/readthedocs/readthedocs.org/pull/7542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Bring back project privacy level (`#7525 <https://github.com/readthedocs/readthedocs.org/pull/7525>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add future default true to Feature flags (`#7524 <https://github.com/readthedocs/readthedocs.org/pull/7524>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add feature flag to not install the latest version of pip (`#7522 <https://github.com/readthedocs/readthedocs.org/pull/7522>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: No longer proxy RTD ads through RTD servers (`#7506 <https://github.com/readthedocs/readthedocs.org/pull/7506>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subprojects: fix form (`#7491 <https://github.com/readthedocs/readthedocs.org/pull/7491>`__)
+* `@AvdN <https://github.com/AvdN>`__: correct inconsistent indentation of YAML (`#7459 <https://github.com/readthedocs/readthedocs.org/pull/7459>`__)
+
 Version 5.6.0
 -------------
 
