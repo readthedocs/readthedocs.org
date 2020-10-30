@@ -1,5 +1,4 @@
 /* CSS for sphinx-prompt */
-
 pre.highlight {
   border: 1px solid #e1e4e5;
   overflow-x: auto;
@@ -11,4 +10,9 @@ pre.highlight {
 pre.highlight span[class^="prompt"] {
   font-size: 12px;
   line-height: 1.4;
+}
+
+.rtd-sponsorship {
+  /* 72 is the height of a text-only ad assuming it fits on one line */
+  min-height: 72px;
 }
