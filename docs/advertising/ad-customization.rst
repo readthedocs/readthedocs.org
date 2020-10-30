@@ -28,11 +28,7 @@ The ad will be inserted into this container wherever this element is in the docu
 
 .. code-block:: html
 
-    <div data-ea-publisher="readthedocs"></div>
-
-For additional options, see the `EthicalAds client documentation`_.
-
-.. _EthicalAds client documentation: https://ethical-ad-client.readthedocs.io/
+    <div id="ethical-ad-placement"></div>
 
 
 In Sphinx
@@ -64,4 +60,4 @@ for inclusion in the `HTML sidebar`_ in your ``conf.py``.
 .. code-block:: html
 
     <!-- In _templates/ethicalads.html -->
-    <div data-ea-publisher="readthedocs"></div>
+    <div id="ethical-ad-placement"></div>
