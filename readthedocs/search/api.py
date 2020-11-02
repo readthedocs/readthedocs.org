@@ -15,7 +15,7 @@ from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.faceted_search import PageSearch
 
-from .serializers import PageSearchSerializer
+from .serializers import PageSearchSerializer, VersionData
 
 log = logging.getLogger(__name__)
 
@@ -185,67 +185,82 @@ class PageSearchAPIView(GenericAPIView):
 
     def _get_all_projects_data(self):
         """
-        Return a dict containing the project slug and its version URL and version's doctype.
+        Return a dictionary of the project itself and all its subprojects.
 
-        The dictionary contains the project and its subprojects. Each project's
-        slug is used as a key and a tuple with the documentation URL and doctype
-        from the version. Example:
+        Example:
 
-        {
-            "requests": (
-                "https://requests.readthedocs.io/en/latest/",
-                "sphinx",
-            ),
-            "requests-oauth": (
-                "https://requests-oauth.readthedocs.io/en/latest/",
-                "sphinx_htmldir",
-            ),
-        }
+        .. code::
 
-        :rtype: dict
+           {
+               "requests": VersionData(
+                   "latest",
+                   "sphinx",
+                   "https://requests.readthedocs.io/en/latest/",
+               ),
+               "requests-oauth": VersionData(
+                   "latest",
+                   "sphinx_htmldir",
+                   "https://requests-oauth.readthedocs.io/en/latest/",
+               ),
+           }
+
+        .. note:: The response is cached into the instance.
+
+        :rtype: A dictionary of project slugs mapped to a `VersionData` object.
         """
-        all_projects = self._get_all_projects()
-        version_slug = self._get_version().slug
-        project_urls = {}
-        for project in all_projects:
-            project_urls[project.slug] = project.get_docs_url(version_slug=version_slug)
+        cache_key = '__cached_projects_data'
+        projects_data = getattr(self, cache_key, None)
+        if projects_data is not None:
+            return projects_data
 
-        versions_doctype = (
-            Version.objects
-            .filter(project__slug__in=project_urls.keys(), slug=version_slug)
-            .values_list('project__slug', 'documentation_type')
-        )
-
-        projects_data = {
-            project_slug: (project_urls[project_slug], doctype)
-            for project_slug, doctype in versions_doctype
-        }
-        return projects_data
-
-    def _get_all_projects(self):
-        """
-        Returns a list of the project itself and all its subprojects the user has permissions over.
-
-        :rtype: list
-        """
         main_version = self._get_version()
         main_project = self._get_project()
 
-        all_projects = [main_project]
+        projects_data = {
+            main_project.slug: VersionData(
+                slug=main_version.slug,
+                doctype=main_version.documentation_type,
+                docs_url=main_project.get_docs_url(version_slug=main_version.slug),
+            )
+        }
 
         subprojects = Project.objects.filter(
             superprojects__parent_id=main_project.id,
         )
         for project in subprojects:
-            version = (
-                Version.internal
-                .public(user=self.request.user, project=project, include_hidden=False)
-                .filter(slug=main_version.slug)
-                .first()
+            version = self._get_subproject_version(
+                version_slug=main_version,
+                subproject=project,
             )
-            if version:
-                all_projects.append(version.project)
-        return all_projects
+            if version and self._has_permission(self.request.user, version):
+                url = project.get_docs_url(version_slug=version.slug)
+                projects_data[project.slug] = VersionData(
+                    slug=version.slug,
+                    doctype=version.documentation_type,
+                    docs_url=url,
+                )
+
+        setattr(self, cache_key, projects_data)
+        return projects_data
+
+    def _get_subproject_version(self, version_slug, subproject):
+        """Get a version from the subproject."""
+        return (
+            Version.internal
+            .public(user=self.request.user, project=subproject, include_hidden=False)
+            .filter(slug=version_slug)
+            .first()
+        )
+
+    def _has_permission(self, user, version):
+        """
+        Check if `user` is authorized to access `version`.
+
+        The queryset from `_get_subproject_version` already filters public
+        projects. This is mainly to be overriden in .com to make use of
+        the auth backends in the proxied API.
+        """
+        return True
 
     def _record_query(self, response):
         project_slug = self._get_project().slug
@@ -276,7 +291,7 @@ class PageSearchAPIView(GenericAPIView):
            is compatible with DRF's paginator.
         """
         filters = {}
-        filters['project'] = [p.slug for p in self._get_all_projects()]
+        filters['project'] = list(self._get_all_projects_data().keys())
         filters['version'] = self._get_version().slug
 
         # Check to avoid searching all projects in case these filters are empty.

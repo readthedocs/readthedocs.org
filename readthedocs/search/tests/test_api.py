@@ -293,7 +293,7 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, '_get_all_projects', list)
+    @mock.patch.object(PageSearchAPIView, '_get_all_projects_data', dict)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
         """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
 
