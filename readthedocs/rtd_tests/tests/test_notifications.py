@@ -203,7 +203,10 @@ class NotificationBackendTests(TestCase):
         self.assertNotContains(response, 'Test success message')
 
 
-@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+@override_settings(
+    PRODUCTION_DOMAIN='readthedocs.org',
+    SUPPORT_EMAIL='support@readthedocs.org',
+)
 class SiteNotificationTests(TestCase):
 
     class TestSiteNotification(SiteNotification):
@@ -235,16 +238,16 @@ class SiteNotificationTests(TestCase):
             'other': {'name': 'other name'},
 
             # readthedocs_processor context
-            'DASHBOARD_ANALYTICS_CODE': None,
-            'DO_NOT_TRACK_ENABLED': False,
-            'GLOBAL_ANALYTICS_CODE': None,
+            'DASHBOARD_ANALYTICS_CODE': mock.ANY,
+            'DO_NOT_TRACK_ENABLED': mock.ANY,
+            'GLOBAL_ANALYTICS_CODE': mock.ANY,
             'PRODUCTION_DOMAIN': 'readthedocs.org',
-            'PUBLIC_DOMAIN': None,
+            'PUBLIC_DOMAIN': mock.ANY,
             'SITE_ROOT': mock.ANY,
-            'SUPPORT_EMAIL': None,
+            'SUPPORT_EMAIL': 'support@readthedocs.org',
             'TEMPLATE_ROOT': mock.ANY,
-            'USE_PROMOS': False,
-            'USE_SUBDOMAIN': False,
+            'USE_PROMOS': mock.ANY,
+            'USE_SUBDOMAIN': mock.ANY,
         }
         self.assertEqual(self.n.get_context_data(), context)
 
