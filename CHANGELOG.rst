@@ -1,3 +1,20 @@
+Version 5.6.2
+-------------
+
+:Date: November 03, 2020
+
+* `@humitos <https://github.com/humitos>`__: Check only for override settings (part 2) (`#7630 <https://github.com/readthedocs/readthedocs.org/pull/7630>`__)
+* `@humitos <https://github.com/humitos>`__: Check only override settings (`#7628 <https://github.com/readthedocs/readthedocs.org/pull/7628>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Display sidebar ad when scrolled (`#7621 <https://github.com/readthedocs/readthedocs.org/pull/7621>`__)
+* `@humitos <https://github.com/humitos>`__: Reserve 1Gb for Application Memory (`#7618 <https://github.com/readthedocs/readthedocs.org/pull/7618>`__)
+* `@humitos <https://github.com/humitos>`__: Catch `requests.exceptions.ReadTimeout` when removing container (`#7617 <https://github.com/readthedocs/readthedocs.org/pull/7617>`__)
+* `@humitos <https://github.com/humitos>`__: Allow search and filter in Django Admin for Message model (`#7615 <https://github.com/readthedocs/readthedocs.org/pull/7615>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use badge from circleci (`#7614 <https://github.com/readthedocs/readthedocs.org/pull/7614>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect feature flag in dashboard search (`#7611 <https://github.com/readthedocs/readthedocs.org/pull/7611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7604 <https://github.com/readthedocs/readthedocs.org/pull/7604>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circleci (`#7603 <https://github.com/readthedocs/readthedocs.org/pull/7603>`__)
+
+
 Version 5.6.1
 -------------
 
