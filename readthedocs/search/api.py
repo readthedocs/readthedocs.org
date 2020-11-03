@@ -232,8 +232,13 @@ class PageSearchAPIView(GenericAPIView):
                 version_slug=main_version.slug,
                 subproject=project,
             )
+
             # Fallback to the default version of the subproject.
-            if not version and project.default_version:
+            if (
+                not version
+                and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
+                and project.default_version
+            ):
                 version = self._get_subproject_version(
                     version_slug=project.default_version,
                     subproject=project,
@@ -297,24 +302,40 @@ class PageSearchAPIView(GenericAPIView):
            calling ``search.execute().hits``. This is why an DSL search object
            is compatible with DRF's paginator.
         """
-        projects = {
-            project: version.slug
-            for project, version in self._get_all_projects_data().items()
-        }
+        main_project = self._get_project()
+        main_version = self._get_version()
+        projects = {}
+        filters = {}
 
-        # Check to avoid searching all projects in case it's empty.
-        if not projects:
-            log.info('Unable to find a version to search')
-            return []
+        if main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION):
+            projects = {
+                project: version.slug
+                for project, version in self._get_all_projects_data().items()
+            }
+            # Check to avoid searching all projects in case it's empty.
+            if not projects:
+                log.info('Unable to find a version to search')
+                return []
+        else:
+            filters['project'] = list(self._get_all_projects_data().keys())
+            filters['version'] = main_version.slug
+            # Check to avoid searching all projects in case these filters are empty.
+            if not filters['project']:
+                log.info('Unable to find a project to search')
+                return []
+            if not filters['version']:
+                log.info('Unable to find a version to search')
+                return []
 
         query = self.request.query_params['q']
         queryset = PageSearch(
             query=query,
             projects=projects,
+            filters=filters,
             user=self.request.user,
             # We use a permission class to control authorization
             filter_by_user=False,
-            use_advanced_query=not self._get_project().has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
+            use_advanced_query=not main_project.has_feature(Feature.DEFAULT_TO_FUZZY_SEARCH),
         )
         return queryset
 
