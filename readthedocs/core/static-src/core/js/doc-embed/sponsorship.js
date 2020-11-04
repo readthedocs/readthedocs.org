@@ -56,7 +56,7 @@ function create_ad_placement() {
         // If this is off screen, instead create an ad in the footer
         element = $("<div />").appendTo(selector);
         offset = element.offset();
-        if (!offset || offset.top > $(window).height()) {
+        if (!offset || (offset.top - $(window).scrollTop()) > $(window).height()) {
             if (rtd.is_rtd_like_theme()) {
                 selector = $('<div />').insertAfter('footer hr');
                 class_name = 'ethical-rtd';
