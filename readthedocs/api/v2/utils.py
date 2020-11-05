@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     STABLE_VERBOSE_NAME,
     TAG,
 )
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import RegexAutomationRule, Version
 
 log = logging.getLogger(__name__)
 
@@ -140,7 +140,12 @@ def _set_or_create_version(project, slug, version_id, verbose_name, type_):
 
 
 def delete_versions_from_db(project, version_data):
-    """Delete all versions not in the current repo."""
+    """
+    Delete all versions not in the current repo.
+
+    :returns: The slug of the deleted versions from the database,
+    and the slug of active versions that where deleted from the repository.
+    """
     # We use verbose_name for tags
     # because several tags can point to the same identifier.
     versions_tags = [
@@ -153,7 +158,6 @@ def delete_versions_from_db(project, version_data):
     to_delete_qs = (
         project.versions
         .exclude(uploaded=True)
-        .exclude(active=True)
         .exclude(slug__in=NON_REPOSITORY_VERSIONS)
     )
 
@@ -166,18 +170,23 @@ def delete_versions_from_db(project, version_data):
         identifier__in=versions_branches,
     )
 
-    ret_val = set(to_delete_qs.values_list('slug', flat=True))
-    if ret_val:
+    deleted_active_versions = set(
+        to_delete_qs.filter(active=True).values_list('slug', flat=True)
+    )
+
+    to_delete_qs = to_delete_qs.exclude(active=True)
+    deleted_versions = set(to_delete_qs.values_list('slug', flat=True))
+    if deleted_versions:
         log.info(
             '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
-            project.slug, ' '.join(ret_val),
+            project.slug, ' '.join(deleted_versions),
         )
         to_delete_qs.delete()
 
-    return ret_val
+    return deleted_versions, deleted_active_versions
 
 
-def run_automation_rules(project, versions_slug):
+def run_automation_rules(project, added_versions, deleted_active_versions):
     """
     Runs the automation rules on each version.
 
@@ -188,10 +197,16 @@ def run_automation_rules(project, versions_slug):
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    versions = project.versions.filter(slug__in=versions_slug)
-    rules = project.automation_rules.all()
-    for version, rule in itertools.product(versions, rules):
-        rule.run(version)
+    class_ = RegexAutomationRule
+    actions = [
+        (added_versions, class_.allowed_actions_on_create),
+        (deleted_active_versions, class_.allowed_actions_on_delete),
+    ]
+    for versions_slug, allowed_actions in actions:
+        versions = project.versions.filter(slug__in=versions_slug)
+        rules = project.automation_rules.filter(action__in=allowed_actions)
+        for version, rule in itertools.product(versions, rules):
+            rule.run(version)
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

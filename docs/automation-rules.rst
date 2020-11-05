@@ -61,6 +61,9 @@ Currently, the following actions are available:
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
   It also activates and builds the version.
+- **Delete version**: When a branch or tag is deleted from your repository,
+  Read the Docs will delete it *only if isn't active*.
+  This action allows you to delete *active* versions when a branch or tag is deleted from your repository.
 
 .. note::
 
@@ -68,6 +71,12 @@ Currently, the following actions are available:
    Read the Docs activates and builds the version if it's greater than the current stable version.
    The stable version is also automatically updated at the same time.
    See more in :doc:`versions`.
+
+.. note::
+
+   Default versions aren't deleted even if they match a rule.
+   You can use the ``Set version as default`` action to change the default version
+   before deleting the current one.
 
 Order
 -----
@@ -98,6 +107,13 @@ Activate only new branches that belong to the ``1.x`` release
 - Custom match: ``^1\.\d+$``
 - Version type: ``Branch``
 - Action: ``Activate version``
+
+Automatically delete an active version of a deleted branch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Match: ``Any version``
+- Version type: ``Branch``
+- Action: ``Delete version``
 
 Set as default new tags that have the ``-stable`` or ``-release`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

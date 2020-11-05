@@ -219,7 +219,7 @@ class ProjectViewSet(UserSelectViewSet):
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions = delete_versions_from_db(project, data)
+            deleted_versions, deleted_active_versions = delete_versions_from_db(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(
@@ -233,7 +233,7 @@ class ProjectViewSet(UserSelectViewSet):
             # The order of added_versions isn't deterministic.
             # We don't track the commit time or any other metadata.
             # We usually have one version added per webhook.
-            run_automation_rules(project, added_versions)
+            run_automation_rules(project, added_versions, deleted_active_versions)
         except Exception:
             # Don't interrupt the request if something goes wrong
             # in the automation rules.

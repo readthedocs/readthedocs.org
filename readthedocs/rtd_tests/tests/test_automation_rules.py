@@ -1,4 +1,5 @@
 from unittest import mock
+
 import pytest
 from django_dynamic_fixture import get
 
@@ -9,12 +10,12 @@ from readthedocs.builds.constants import (
     SEMVER_VERSIONS,
     TAG,
 )
-from readthedocs.projects.constants import PUBLIC, PRIVATE
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
 )
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -182,6 +183,53 @@ class TestRegexAutomationRules:
         assert rule.run(version) is True
         assert version.active is True
         trigger_build.assert_called_once()
+
+    @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    def test_action_delete_version(self, version_type):
+        slug = 'delete-me'
+        version = get(
+            Version,
+            slug=slug,
+            verbose_name=slug,
+            project=self.project,
+            active=True,
+            type=version_type,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=version_type,
+        )
+        assert rule.run(version) is True
+        assert not self.project.versions.filter(slug=slug).exists()
+
+    @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    def test_action_delete_version_on_default_version(self, version_type):
+        slug = 'delete-me'
+        version = get(
+            Version,
+            slug=slug,
+            verbose_name=slug,
+            project=self.project,
+            active=True,
+            type=version_type,
+        )
+        self.project.default_version = slug
+        self.project.save()
+
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=version_type,
+        )
+        assert rule.run(version) is True
+        assert self.project.versions.filter(slug=slug).exists()
 
     def test_action_set_default_version(self):
         version = get(
