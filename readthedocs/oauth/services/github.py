@@ -131,6 +131,7 @@ class GitHubService(Service):
                 repo.clone_url = fields['clone_url']
             repo.admin = fields.get('permissions', {}).get('admin', False)
             repo.vcs = 'git'
+            repo.default_branch = fields.get('default_branch')
             repo.account = self.account
             repo.avatar_url = fields.get('owner', {}).get('avatar_url')
             if not repo.avatar_url:
