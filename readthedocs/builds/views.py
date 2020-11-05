@@ -4,24 +4,22 @@ import logging
 import textwrap
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import (
-    HttpResponseForbidden,
-    HttpResponseRedirect,
-)
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
+from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.doc_builder.exceptions import BuildEnvironmentError
 from readthedocs.projects.models import Project
-
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +95,13 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
         context['project'] = self.project
         context['active_builds'] = active_builds
         context['versions'] = self._get_versions(self.project)
-        context['build_qs'] = self.get_queryset()
+
+        builds = self.get_queryset()
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = BuildListFilter(self.request.GET, queryset=builds)
+            context['filter'] = filter
+            builds = filter.qs
+        context['build_qs'] = builds
 
         return context
 
