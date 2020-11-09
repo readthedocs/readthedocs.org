@@ -34,6 +34,7 @@ Live feedback of versions that match a rule
 
 When creating/editing a rule, it would be useful to know what versions are going to match.
 We could list the current versions that match and/or allow the user to enter a custom input.
+A new enpoint in api v2/v3 should be added.
 
 Easy way to invert a match
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,18 +47,28 @@ see https://github.com/readthedocs/readthedocs.org/issues/6354.
 New features
 ------------
 
-Pull requests
-~~~~~~~~~~~~~
+Change the privacy level of external versions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use automation rules to make builds from pull requests public.
+In Read the Docs for business all versions are private by default.
+Some users may want to change the privacy level of external versions.
 See https://github.com/readthedocs/readthedocs-corporate/issues/1063.
+
 If automation rules are going to be used, users will need to be able to edit those versions.
 This means having a place to list all external versions and allow to edit some properties,
 privacy level is the only option that makes sense maybe also allow to de-activate it so docs aren't accessible.
 
+Decide what PRs should be built
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Use automation rules to decide which pull requests should be built,
 this is for example only built branches that are going to be merged against an specific branch.
 Or branch names that match a pattern, like (``^docs/.*``).
+
+.. note::
+
+   Here we don't need a separate UI element yet,
+   as users can still trigger a new build by pushing to that branch if they got the pattern wrong.
 
 Change the slug a version served from
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
