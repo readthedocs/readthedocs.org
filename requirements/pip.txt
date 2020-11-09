@@ -55,7 +55,7 @@ GitPython==3.1.11
 elasticsearch==6.8.1  # pyup: <7.0.0
 elasticsearch-dsl==6.4.0  # pyup: <7.0
 django-elasticsearch-dsl==6.4.2  # pyup: <7.0
-selectolax==0.2.7
+selectolax==0.2.9
 
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.1
