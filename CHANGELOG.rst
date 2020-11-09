@@ -1,3 +1,10 @@
+Version 5.6.3
+-------------
+
+:Date: November 10, 2020
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 43 (`#7602 <https://github.com/readthedocs/readthedocs.org/pull/7602>`__)
+
 Version 5.6.2
 -------------
 
