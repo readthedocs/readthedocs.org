@@ -965,6 +965,13 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         related_name='automation_rules',
         on_delete=models.CASCADE,
     )
+    on_match = models.BooleanField(
+        _('Perform action on match?'),
+        # TODO: remove after migration.
+        null=True,
+        default=True,
+        help_text=_('Perform this action when the pattern matches or when it doesn\'t match?'),
+    )
     priority = models.IntegerField(
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
@@ -1034,7 +1041,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         """
         if version.type == self.version_type:
             match, result = self.match(version, self.get_match_arg())
-            if match:
+            # TODO: remove the is None check after migration.
+            if bool(match) is (self.on_match is None or self.on_match):
                 self.apply_action(version, result)
                 return True
         return False

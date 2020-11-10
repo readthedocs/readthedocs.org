@@ -82,6 +82,12 @@ You can change the order using the up and down arrow buttons.
 
    New rules are added at the end (lower priority).
 
+Perform action on match
+-----------------------
+
+If this attribute is un-check, the rule will be inverted.
+This means the action will be performed over versions that don't match the pattern.
+
 Examples
 --------
 
@@ -127,9 +133,7 @@ Activate all new tags and branches that start with ``v`` or ``V``
 Activate all new tags that don't contain the ``-nightly`` suffix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. TODO: update example if https://github.com/readthedocs/readthedocs.org/issues/6354 is approved.
-
-
-- Custom match: ``.*(?<!-nightly)$``
+- Perform action on match: ``False``
+- Custom match: ``-nightly$``
 - Version type: ``Tag``
 - Action: ``Activate version``

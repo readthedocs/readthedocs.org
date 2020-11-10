@@ -110,6 +110,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
         model = RegexAutomationRule
         fields = [
             'description',
+            'on_match',
             'predefined_match_arg',
             'match_arg',
             'version_type',
@@ -127,6 +128,11 @@ class RegexAutomationRuleForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields['on_match'].widget = forms.CheckboxInput()
+        self.fields['on_match'].empty_value = False
 
         # Only list supported types
         self.fields['version_type'].choices = [
@@ -181,6 +187,7 @@ class RegexAutomationRuleForm(forms.ModelForm):
             rule = RegexAutomationRule.objects.add_rule(
                 project=self.project,
                 description=self.cleaned_data['description'],
+                on_match=self.cleaned_data['on_match'],
                 match_arg=self.cleaned_data['match_arg'],
                 predefined_match_arg=self.cleaned_data['predefined_match_arg'],
                 version_type=self.cleaned_data['version_type'],
