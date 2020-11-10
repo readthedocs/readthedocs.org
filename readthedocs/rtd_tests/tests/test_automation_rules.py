@@ -72,8 +72,9 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_match(
-            self, version_name, regex, result, version_type):
+            self, trigger_build, version_name, regex, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -91,6 +92,7 @@ class TestRegexAutomationRules:
             version_type=version_type,
         )
         assert rule.run(version) is result
+        assert rule.matches.all().count() == (1 if result else 0)
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -107,7 +109,8 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_predefined_match_all_versions(self, version_name, result, version_type):
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_predefined_match_all_versions(self, trigger_build, version_name, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -143,7 +146,8 @@ class TestRegexAutomationRules:
         ]
     )
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
-    def test_predefined_match_semver_versions(self, version_name, result, version_type):
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_predefined_match_semver_versions(self, trigger_build, version_name, result, version_type):
         version = get(
             Version,
             verbose_name=version_name,
@@ -183,7 +187,8 @@ class TestRegexAutomationRules:
         assert version.active is True
         trigger_build.assert_called_once()
 
-    def test_action_set_default_version(self):
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_action_set_default_version(self, trigger_build):
         version = get(
             Version,
             verbose_name='v2',
@@ -271,6 +276,54 @@ class TestRegexAutomationRules:
         assert rule.run(version) is True
         assert version.privacy_level == PRIVATE
         trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_matches_history(self, trigger_build):
+        version = get(
+            Version,
+            verbose_name='test',
+            project=self.project,
+            active=False,
+            type=TAG,
+            built=False,
+        )
+
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='^test',
+            action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
+            version_type=TAG,
+        )
+
+        assert rule.run(version) is True
+        assert rule.matches.all().count() == 1
+
+        match = rule.matches.first()
+        assert match.version_name == 'test'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
+
+        for i in range(1, 31):
+            version.verbose_name = f'test {i}'
+            version.save()
+            assert rule.run(version) is True
+
+        assert rule.matches.all().count() == 15
+
+        match = rule.matches.first()
+        assert match.version_name == 'test 30'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
+
+        match = rule.matches.last()
+        assert match.version_name == 'test 16'
+        assert match.version_type == TAG
+        assert match.action == VersionAutomationRule.ACTIVATE_VERSION_ACTION
+        assert match.match_arg == '^test'
 
 
 @pytest.mark.django_db

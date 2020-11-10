@@ -35,6 +35,7 @@ from vanilla import (
 from readthedocs.analytics.models import PageView
 from readthedocs.builds.forms import RegexAutomationRuleForm, VersionForm
 from readthedocs.builds.models import (
+    AutomationRuleMatch,
     RegexAutomationRule,
     Version,
     VersionAutomationRule,
@@ -938,7 +939,14 @@ class AutomationRuleMixin(ProjectAdminMixin, PrivateViewMixin):
 
 
 class AutomationRuleList(AutomationRuleMixin, ListView):
-    pass
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['matches'] = (
+            AutomationRuleMatch.objects
+            .filter(rule__project=self.get_project())
+        )
+        return context
 
 
 class AutomationRuleMove(AutomationRuleMixin, GenericModelView):

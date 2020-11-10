@@ -80,4 +80,34 @@
       </ul>
     </div>
   </div>
+
+  <p>
+    <h3>{% trans "Recent Activity" %}</h3>
+  </p>
+  <div class="module-list-wrapper">
+    <ul>
+      {% for match in matches %}
+        <li class="module-item">
+          {% blocktrans trimmed with version=match.version_name pattern=match.match_arg type=match.get_version_type_display action=match.get_action_display %}
+            {{ type }} "{{ version }}"
+            matched the pattern <span>"{{ pattern }}"</span>,
+            and the action <span>"{{ action }}"</span> was performed
+          {% endblocktrans %}
+          <a href="{{ match.rule.get_edit_url }}">
+            {% blocktrans trimmed with date=match.created|timesince %}
+              {{ date }} ago
+            {% endblocktrans %}
+          </a>
+          .
+        </li>
+      {% empty %}
+        <li class="module-item">
+          <span class="quiet">
+            {% trans 'There is no recent activity' %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
 {% endblock %}
