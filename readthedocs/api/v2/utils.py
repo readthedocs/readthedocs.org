@@ -172,13 +172,11 @@ def delete_versions_from_db(project, version_data):
 
     :returns: The slug of the deleted versions from the database.
     """
-    to_delete_qs = _get_deleted_versions_qs(project, version_data)
-    
-    deleted_versions = set(
-        to_delete_qs
+    to_delete_qs = (
+        _get_deleted_versions_qs(project, version_data)
         .exclude(active=True)
-        .values_list('slug', flat=True)
     )
+    deleted_versions = set(to_delete_qs.values_list('slug', flat=True))
     if deleted_versions:
         log.info(
             '(Sync Versions) Deleted Versions: project=%s, versions=[%s]',
@@ -191,14 +189,11 @@ def delete_versions_from_db(project, version_data):
 
 def get_deleted_active_versions(project, version_data):
     """Return the slug of active versions that were deleted from the repository."""
-
-    to_delete_qs = _get_deleted_versions_qs(project, version_data)
-    deleted_active_versions = set(
-        to_delete_qs.
-        filter(active=True)
-        .values_list('slug', flat=True)
+    to_delete_qs = (
+        _get_deleted_versions_qs(project, version_data)
+        .filter(active=True)
     )
-    return deleted_active_versions
+    return set(to_delete_qs.values_list('slug', flat=True))
 
 
 def run_automation_rules(project, added_versions, deleted_active_versions):
