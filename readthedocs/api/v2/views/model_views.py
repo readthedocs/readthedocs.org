@@ -53,6 +53,7 @@ from ..utils import (
     RemoteOrganizationPagination,
     RemoteProjectPagination,
     delete_versions_from_db,
+    get_deleted_active_versions,
     run_automation_rules,
     sync_versions_to_db,
 )
@@ -219,7 +220,8 @@ class ProjectViewSet(UserSelectViewSet):
                     type=BRANCH,
                 )
                 added_versions.update(ret_set)
-            deleted_versions, deleted_active_versions = delete_versions_from_db(project, data)
+            deleted_versions = delete_versions_from_db(project, data)
+            deleted_active_versions = get_deleted_active_versions(project, data)
         except Exception as e:
             log.exception('Sync Versions Error')
             return Response(

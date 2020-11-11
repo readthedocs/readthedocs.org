@@ -65,18 +65,19 @@ Currently, the following actions are available:
   Read the Docs will delete it *only if isn't active*.
   This action allows you to delete *active* versions when a branch or tag is deleted from your repository.
 
+  .. note::
+
+     The default version isn't deleted even if it matches a rule.
+     You can use the ``Set version as default`` action to change the default version
+     before deleting the current one.
+
+
 .. note::
 
    If your versions follow :pep:`440`,
    Read the Docs activates and builds the version if it's greater than the current stable version.
    The stable version is also automatically updated at the same time.
    See more in :doc:`versions`.
-
-.. note::
-
-   Default versions aren't deleted even if they match a rule.
-   You can use the ``Set version as default`` action to change the default version
-   before deleting the current one.
 
 Order
 -----
@@ -108,8 +109,8 @@ Activate only new branches that belong to the ``1.x`` release
 - Version type: ``Branch``
 - Action: ``Activate version``
 
-Automatically delete an active version of a deleted branch
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Delete an active version when a branch is deleted
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Match: ``Any version``
 - Version type: ``Branch``
