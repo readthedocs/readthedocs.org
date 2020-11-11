@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified')),
                 ('version_name', models.CharField(max_length=255)),
                 ('match_arg', models.CharField(max_length=255)),
-                ('action', models.CharField(choices=[('activate-version', 'Activate version'), ('hide-version', 'Hide version'), ('make-version-public', 'Make version public'), ('make-version-private', 'Make version private'), ('set-default-version', 'Set version as default')], max_length=255)),
+                ('action', models.CharField(choices=[('activate-version', 'Activate version'), ('hide-version', 'Hide version'), ('make-version-public', 'Make version public'), ('make-version-private', 'Make version private'), ('set-default-version', 'Set version as default'), ('delete-version', 'Delete version (on branch/tag deletion)')], max_length=255)),
                 ('version_type', models.CharField(choices=[('branch', 'Branch'), ('tag', 'Tag'), ('external', 'External'), ('unknown', 'Unknown')], max_length=32)),
                 ('rule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='matches', to='builds.VersionAutomationRule', verbose_name='Matched rule')),
             ],
