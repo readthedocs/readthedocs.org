@@ -85,8 +85,8 @@ You can change the order using the up and down arrow buttons.
 Perform action on match
 -----------------------
 
-If this attribute is un-check, the rule will be inverted.
-This means the action will be performed over versions that don't match the pattern.
+If this attribute is un-check,
+the action will be performed over versions that don't match the pattern.
 
 Examples
 --------
