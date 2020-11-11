@@ -13,6 +13,7 @@ from readthedocs.builds.models import (
 from readthedocs.projects.models import Project
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -902,6 +903,7 @@ class TestSyncVersions(TestCase):
         )
         self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
@@ -1396,6 +1398,7 @@ class TestStableVersion(TestCase):
         self.assertFalse(other_stable.exists())
 
 
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
