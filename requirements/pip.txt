@@ -3,12 +3,12 @@
 pip==20.2.4
 virtualenv==20.1.0
 
-django==2.2.16  # pyup: <2.3
+django==2.2.17  # pyup: <2.3
 django-extensions==3.0.9
 django_polymorphic==3.0.0
 django-autoslug==1.9.8
 
-djangorestframework==3.12.1
+djangorestframework==3.12.2
 
 # For intersphinx during builds
 # Use <2.x until we fix some issues in our theme.
@@ -55,7 +55,7 @@ GitPython==3.1.11
 elasticsearch==6.8.1  # pyup: <7.0.0
 elasticsearch-dsl==6.4.0  # pyup: <7.0
 django-elasticsearch-dsl==6.4.2  # pyup: <7.0
-selectolax==0.2.7
+selectolax==0.2.9
 
 # NOTE: this dep can be removed in python 3.7 in favor of ``date.fromisoformat``
 python-dateutil==2.8.1
@@ -65,11 +65,11 @@ orjson==2.0.7  # pyup: ignore
 
 # Utils
 django-gravatar2==1.4.4
-pytz==2020.1
+pytz==2020.4
 Unipath==1.1
 django-kombu==0.9.4
 stripe==2.55.0
-regex==2020.10.23
+regex==2020.10.28
 
 # unicode-slugify==0.1.5 is not released on PyPI yet
 git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.5
