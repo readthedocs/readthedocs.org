@@ -71,6 +71,9 @@ def set_private_privacy_level(version, match_result, action_arg, *args, **kwargs
 def delete_version(version, match_result, action_arg, *args, **kwargs):
     """Delete a version if isn't marked as the default version."""
     if version.project.default_version == version.slug:
-        log.info("Skipping deleting default version. project=%s version=%s", version.project.slug, version.slug)
+        log.info(
+            "Skipping deleting default version. project=%s version=%s",
+            version.project.slug, version.slug,
+        )
         return
     version.delete()
