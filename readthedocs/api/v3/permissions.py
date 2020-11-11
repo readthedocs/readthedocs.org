@@ -8,11 +8,11 @@ class UserProjectsListing(BasePermission):
     """Allow access to ``/projects`` (user's projects listing)."""
 
     def has_permission(self, request, view):
-        if view.basename == 'projects' and any([
-                view.action == 'list',
-                view.action == 'create',  # used to create Form in BrowsableAPIRenderer
-                view.action is None,  # needed for BrowsableAPIRenderer
-        ]):
+        if view.basename == 'projects' and view.action in (
+                'list',
+                'create',  # used to create Form in BrowsableAPIRenderer
+                None,  # needed for BrowsableAPIRenderer
+        ):
             # hitting ``/projects/``, allowing
             return True
 
@@ -65,10 +65,10 @@ class IsOrganizationAdmin(BasePermission):
 class UserOrganizationsListing(BasePermission):
 
     def has_permission(self, request, view):
-        if view.basename == 'organizations' and any([
-                view.action == 'list',
-                view.action is None,  # needed for BrowsableAPIRenderer
-        ]):
+        if view.basename == 'organizations' and view.action in (
+                'list',
+                None,  # needed for BrowsableAPIRenderer
+        ):
             # hitting ``/organizations/``, allowing
             return True
 
