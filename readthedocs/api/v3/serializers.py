@@ -858,6 +858,7 @@ class TeamSerializer(FlexFieldsModelSerializer):
             'members': (UserSerializer, {'many': True}),
         }
 
+
 class OrganizationSerializer(FlexFieldsModelSerializer):
 
     created = serializers.DateTimeField(source='pub_date')
