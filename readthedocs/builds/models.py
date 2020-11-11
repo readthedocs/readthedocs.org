@@ -1031,12 +1031,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, register=True, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
-        :param register: If ``True`` a register of the match is created
         :returns: True if the action was performed
         """
         if version.type != self.version_type:
@@ -1045,12 +1044,10 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         match, result = self.match(version, self.get_match_arg())
         if match:
             self.apply_action(version, result)
-
-            if register:
-                AutomationRuleMatch.objects.register_match(
-                    rule=self,
-                    version=version,
-                )
+            AutomationRuleMatch.objects.register_match(
+                rule=self,
+                version=version,
+            )
             return True
         return False
 
@@ -1239,7 +1236,7 @@ class RegexAutomationRule(VersionAutomationRule):
 class AutomationRuleMatch(TimeStampedModel):
     rule = models.ForeignKey(
         VersionAutomationRule,
-        verbose_name=_('Automation rule match'),
+        verbose_name=_('Matched rule'),
         related_name='matches',
         on_delete=models.CASCADE,
     )

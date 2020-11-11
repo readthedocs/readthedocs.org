@@ -8,7 +8,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0027_add_privacy_level_automation_rules'),
+        ('builds', '0028_add_delete_version_action'),
     ]
 
     operations = [
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('match_arg', models.CharField(max_length=255)),
                 ('action', models.CharField(choices=[('activate-version', 'Activate version'), ('hide-version', 'Hide version'), ('make-version-public', 'Make version public'), ('make-version-private', 'Make version private'), ('set-default-version', 'Set version as default')], max_length=255)),
                 ('version_type', models.CharField(choices=[('branch', 'Branch'), ('tag', 'Tag'), ('external', 'External'), ('unknown', 'Unknown')], max_length=32)),
-                ('rule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='matches', to='builds.VersionAutomationRule', verbose_name='Automation rule match')),
+                ('rule', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='matches', to='builds.VersionAutomationRule', verbose_name='Matched rule')),
             ],
             options={
                 'ordering': ('-modified', '-created'),
