@@ -6,7 +6,6 @@ import os.path
 import re
 from shutil import rmtree
 
-import regex
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.db import models
@@ -58,6 +57,7 @@ from readthedocs.builds.utils import (
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
+    match_regex,
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
@@ -952,6 +952,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     MAKE_VERSION_PUBLIC_ACTION = 'make-version-public'
     MAKE_VERSION_PRIVATE_ACTION = 'make-version-private'
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
+    BUILD_EXTERNAL_VERSION = 'build-external-version'
 
     ACTIONS = (
         (ACTIVATE_VERSION_ACTION, _('Activate version')),
@@ -960,10 +961,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
         (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (BUILD_EXTERNAL_VERSION, _('Build version')),
     )
 
-    allowed_actions_on_create = {}
-    allowed_actions_on_delete = {}
+    allowed_actions_on_create = {
+        ACTIVATE_VERSION_ACTION: actions.activate_version,
+        HIDE_VERSION_ACTION: actions.hide_version,
+        MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
+        MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
+        SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
+    }
+
+    allowed_actions_on_delete = {
+        DELETE_VERSION_ACTION: actions.delete_version,
+    }
+
+    allowed_actions_on_external_versions = {
+        BUILD_EXTERNAL_VERSION: actions.build_external_version,
+    }
 
     project = models.ForeignKey(
         Project,
@@ -1030,32 +1045,35 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         )
         return match_arg or self.match_arg
 
-    def run(self, version, *args, **kwargs):
+    def run(self, version, **kwargs):
         """
         Run an action if `version` matches the rule.
 
         :type version: readthedocs.builds.models.Version
-        :returns: True if the action was performed
+        :param kwargs: All extra keywords will be passed to the match and action functions.
+        :returns: A tuple of (boolean, ANY), where the first element
+        indicates if the action was performed, and the second is the result
+        returned by the action.
         """
         if version.type == self.version_type:
-            match, result = self.match(version, self.get_match_arg())
+            match, result = self.match(version, self.get_match_arg(), **kwargs)
             if match:
-                self.apply_action(version, result)
-                return True
-        return False
+                action_result = self.apply_action(version, result, **kwargs)
+                return True, action_result
+        return False, None
 
-    def match(self, version, match_arg):
+    def match(self, version, match_arg, **kwargs):
         """
         Returns True and the match result if the version matches the rule.
 
         :type version: readthedocs.builds.models.Version
         :param str match_arg: Additional argument to perform the match
-        :returns: A tuple of (boolean, match_resul).
+        :returns: A tuple of (boolean, match_result).
                   The result will be passed to `apply_action`.
         """
         return False, None
 
-    def apply_action(self, version, match_result):
+    def apply_action(self, version, match_result, **kwargs):
         """
         Apply the action from allowed_actions_on_*.
 
@@ -1067,10 +1085,16 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         action = (
             self.allowed_actions_on_create.get(self.action)
             or self.allowed_actions_on_delete.get(self.action)
+            or self.allowed_actions_on_external_versions.get(self.action)
         )
         if action is None:
             raise NotImplementedError
-        action(version, match_result, self.action_arg)
+        return action(
+            version=version,
+            match_result=match_result,
+            action_arg=self.action_arg,
+            **kwargs,
+        )
 
     def move(self, steps):
         """
@@ -1172,52 +1196,16 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
 class RegexAutomationRule(VersionAutomationRule):
 
-    TIMEOUT = 1  # timeout in seconds
-
-    allowed_actions_on_create = {
-        VersionAutomationRule.ACTIVATE_VERSION_ACTION: actions.activate_version,
-        VersionAutomationRule.HIDE_VERSION_ACTION: actions.hide_version,
-        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: actions.set_public_privacy_level,
-        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: actions.set_private_privacy_level,
-        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: actions.set_default_version,
-    }
-
-    allowed_actions_on_delete = {
-        VersionAutomationRule.DELETE_VERSION_ACTION: actions.delete_version,
-    }
-
     class Meta:
         proxy = True
 
-    def match(self, version, match_arg):
-        """
-        Find a match using regex.search.
-
-        .. note::
-
-           We use the regex module with the timeout
-           arg to avoid ReDoS.
-
-           We could use a finite state machine type of regex too,
-           but there isn't a stable library at the time of writting this code.
-        """
-        try:
-            match = regex.search(
-                match_arg,
-                version.verbose_name,
-                # Compatible with the re module
-                flags=regex.VERSION0,
-                timeout=self.TIMEOUT,
-            )
-            return bool(match), match
-        except TimeoutError:
-            log.warning(
-                'Timeout while parsing regex. pattern=%s, input=%s',
-                match_arg, version.verbose_name,
-            )
-        except Exception as e:
-            log.info('Error parsing regex: %s', e)
-        return False, None
+    def match(self, version, match_arg, **kwargs):
+        version_name = version.verbose_name
+        if version.is_external:
+            version_data = kwargs['version_data']
+            version_name = version_data.source_branch
+        result = match_regex(match_arg, version_name)
+        return bool(result), result
 
     def get_edit_url(self):
         return reverse(

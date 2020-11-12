@@ -39,6 +39,11 @@ Features
   and after the build has finished we send success notification if the build succeeded without any error
   or failure notification if the build failed.
 
+- **Build based on the source and base branch**: By default we build all pull requests,
+  but you can setup rules to build only from a given base branch,
+  or from pull requests where the source branch matches a pattern.
+  See :doc:`/automation-rules`.
+
 .. figure:: ../_static/images/guides/github-build-status-reporting.gif
     :align: center
     :alt: GitHub Build Status Reporting for Pull Requests.

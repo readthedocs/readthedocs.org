@@ -3,9 +3,11 @@ from unittest import mock
 import pytest
 from django_dynamic_fixture import get
 
+from readthedocs.api.v2.views.integrations import ExternalVersionData
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
     BRANCH,
+    EXTERNAL,
     LATEST,
     SEMVER_VERSIONS,
     TAG,
@@ -91,7 +93,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version)[0] is result
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -125,7 +127,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version)[0] is result
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -161,7 +163,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version)[0] is result
 
     @mock.patch('readthedocs.builds.automation_actions.trigger_build')
     def test_action_activation(self, trigger_build):
@@ -180,7 +182,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert version.active is True
         trigger_build.assert_called_once()
 
@@ -203,7 +205,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.DELETE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert not self.project.versions.filter(slug=slug).exists()
 
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
@@ -228,7 +230,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.DELETE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert self.project.versions.filter(slug=slug).exists()
 
     def test_action_set_default_version(self):
@@ -248,7 +250,7 @@ class TestRegexAutomationRules:
             version_type=TAG,
         )
         assert self.project.get_default_version() == LATEST
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert self.project.get_default_version() == version.slug
 
     @mock.patch('readthedocs.builds.automation_actions.trigger_build')
@@ -269,7 +271,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.HIDE_VERSION_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert version.active is True
         assert version.hidden is True
         trigger_build.assert_called_once()
@@ -293,7 +295,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert version.privacy_level == PUBLIC
         trigger_build.assert_not_called()
 
@@ -316,9 +318,43 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version)[0] is True
         assert version.privacy_level == PRIVATE
         trigger_build.assert_not_called()
+
+    @mock.patch('readthedocs.builds.automation_actions.trigger_build')
+    def test_external_version_build(self, trigger_build):
+        commit = 'abcd1234'
+        version = get(
+            Version,
+            verbose_name='50',
+            project=self.project,
+            active=True,
+            hidden=False,
+            type=EXTERNAL,
+            identifier=commit,
+        )
+        version_data = ExternalVersionData(
+            id='50',
+            source_branch='new-feature',
+            base_branch='main',
+            commit=commit,
+        )
+        rule = get(
+            RegexAutomationRule,
+            project=self.project,
+            priority=0,
+            match_arg='.*',
+            action=VersionAutomationRule.BUILD_EXTERNAL_VERSION,
+            action_arg='^main$',
+            version_type=EXTERNAL,
+        )
+        assert rule.run(version, version_data=version_data) == (True, True)
+        trigger_build.assert_called_once_with(
+            project=self.project,
+            version=version,
+            commit=commit,
+        )
 
 
 @pytest.mark.django_db

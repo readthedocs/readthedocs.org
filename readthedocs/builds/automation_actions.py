@@ -10,6 +10,7 @@ Each function will receive the following args:
 
 import logging
 
+from readthedocs.builds.utils import match_regex
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 
@@ -29,6 +30,29 @@ def activate_version(version, match_result, action_arg, *args, **kwargs):
             project=version.project,
             version=version
         )
+
+
+def build_external_version(version, match_result, action_arg, version_data, **kwargs):
+    """
+    Build an external version if matches the given base branch.
+
+    :param action_arg: A pattern to match the base branch.
+    :param version_data: `ExternalVersionData` instance.
+    :returns: A boolean indicating if the build was triggered.
+    """
+    base_branch_regex = action_arg
+    result = match_regex(
+        base_branch_regex,
+        version_data.base_branch,
+    )
+    if result:
+        trigger_build(
+            project=version.project,
+            version=version,
+            commit=version.identifier,
+        )
+        return True
+    return False
 
 
 def set_default_version(version, match_result, action_arg, *args, **kwargs):
