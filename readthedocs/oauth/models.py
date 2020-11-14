@@ -108,6 +108,14 @@ class RemoteRepository(models.Model):
         on_delete=models.CASCADE,
         through='RemoteRelation'
     )
+    account = models.ForeignKey(
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_repositories',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     organization = models.ForeignKey(
         RemoteOrganization,
         verbose_name=_('Organization'),
