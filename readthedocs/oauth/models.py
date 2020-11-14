@@ -116,6 +116,8 @@ class RemoteRepository(models.Model):
         blank=True,
         on_delete=models.CASCADE,
     )
+    active = models.BooleanField(_('Active'), default=False)
+
     project = models.OneToOneField(
         Project,
         on_delete=models.SET_NULL,
@@ -158,6 +160,7 @@ class RemoteRepository(models.Model):
     html_url = models.URLField(_('HTML URL'), null=True, blank=True)
 
     private = models.BooleanField(_('Private repository'), default=False)
+    admin = models.BooleanField(_('Has admin privilege'), default=False)
     vcs = models.CharField(
         _('vcs'),
         max_length=200,
@@ -170,6 +173,8 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
     )
+
+    json = models.TextField(_('Serialized API response'))
 
     objects = RemoteRepositoryQuerySet.as_manager()
 
