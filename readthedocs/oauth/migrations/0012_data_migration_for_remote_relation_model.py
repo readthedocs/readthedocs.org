@@ -5,7 +5,7 @@ import json
 import logging
 
 from django.db import migrations
-
+from django.utils import timezone
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,9 @@ def move_data_to_remote_relations(apps, schema_editor):
 
             yield relation
 
-    relations_queryset = RemoteRelation.objects.all().select_related(
+    relations_queryset = RemoteRelation.objects.filter(
+        user__last_login__gte=timezone.now() - timezone.timedelta(days=30)
+    ).select_related(
         'remoterepository'
     ).only(
         'account_id', 'active', 'admin', 'created',
@@ -41,7 +43,7 @@ def move_data_to_remote_relations(apps, schema_editor):
         'remoterepository__modified_date'
     )
 
-    batch_size = 5000
+    batch_size = 1000
     remote_relations = remote_relations_generator(
         relations_queryset, batch_size
     )
