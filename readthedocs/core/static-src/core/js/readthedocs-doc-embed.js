@@ -19,10 +19,10 @@ var search = require('./doc-embed/search');
         }
     }
 
-    domReady(function() {
+    domReady(function () {
         footer.init();
         sphinx.init();
         search.init();
         sponsorship.init();
     });
-}())
+}());
