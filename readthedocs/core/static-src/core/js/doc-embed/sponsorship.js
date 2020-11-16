@@ -32,6 +32,11 @@ function create_ad_placement() {
     var offset;
 
     if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
+        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-publisher", "readthedocs");
+        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-manual", "true");
+        if ($(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "image" && $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "text") {
+            $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type", "readthedocs-sidebar");
+        }
         return $(EXPLICIT_PLACEMENT_SELECTOR);
     } else if ($(OLD_EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
         selector = OLD_EXPLICIT_PLACEMENT_SELECTOR;
