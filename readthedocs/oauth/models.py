@@ -106,7 +106,7 @@ class RemoteRepository(models.Model):
         null=True,
         blank=True,
         on_delete=models.CASCADE,
-        through='RemoteRelation'
+        through='RemoteRepositoryRelation'
     )
     account = models.ForeignKey(
         SocialAccount,
