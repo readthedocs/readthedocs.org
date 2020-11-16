@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 def move_data_to_remote_relations(apps, schema_editor):
-    RemoteRelation = apps.get_model('oauth', 'RemoteRelation')
+    RemoteRepositoryRelation = apps.get_model('oauth', 'RemoteRepositoryRelation')
 
     def remote_relations_generator(relations, batch_size):
         for relation in relations.iterator(chunk_size=batch_size):
@@ -30,7 +30,7 @@ def move_data_to_remote_relations(apps, schema_editor):
 
             yield relation
 
-    relations_queryset = RemoteRelation.objects.filter(
+    relations_queryset = RemoteRepositoryRelation.objects.filter(
         user__last_login__gte=timezone.now() - timezone.timedelta(days=30)
     ).select_related(
         'remoterepository'
@@ -54,7 +54,7 @@ def move_data_to_remote_relations(apps, schema_editor):
         if not batch:
             break
 
-        RemoteRelation.objects.bulk_update(
+        RemoteRepositoryRelation.objects.bulk_update(
             batch,
             [
                 'account_id',
