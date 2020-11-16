@@ -84,14 +84,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='remoterelation',
-            name='active',
-            field=models.BooleanField(
-                default=False,
-                verbose_name='Active'
-            ),
-        ),
-        migrations.AddField(
-            model_name='remoterelation',
             name='admin',
             field=models.BooleanField(
                 default=False,

@@ -16,7 +16,6 @@ def move_data_to_remote_relations(apps, schema_editor):
     def remote_relations_generator(relations, batch_size):
         for relation in relations.iterator(chunk_size=batch_size):
             relation.account_id = relation.remoterepository.account_id
-            relation.active = relation.remoterepository.active
             relation.admin = relation.remoterepository.admin
             relation.created = relation.remoterepository.pub_date
             relation.modified = relation.remoterepository.modified_date
@@ -36,11 +35,10 @@ def move_data_to_remote_relations(apps, schema_editor):
     ).select_related(
         'remoterepository'
     ).only(
-        'account_id', 'active', 'admin', 'created',
+        'account_id', 'admin', 'created',
         'modified', 'json', 'remoterepository__account_id',
-        'remoterepository__active', 'remoterepository__admin',
-        'remoterepository__pub_date', 'remoterepository__json',
-        'remoterepository__modified_date'
+        'remoterepository__admin', 'remoterepository__pub_date',
+        'remoterepository__json', 'remoterepository__modified_date'
     )
 
     batch_size = 1000
@@ -59,7 +57,7 @@ def move_data_to_remote_relations(apps, schema_editor):
         RemoteRelation.objects.bulk_update(
             batch,
             [
-                'account_id', 'active',
+                'account_id',
                 'admin', 'json',
                 'created', 'modified',
             ],
