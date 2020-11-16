@@ -4,13 +4,16 @@
 
 import json
 
-from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.core.validators import URLValidator
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from allauth.socialaccount.models import SocialAccount
+from django_extensions.db.models import TimeStampedModel
+from jsonfield import JSONField
 
 from readthedocs.projects.constants import REPO_CHOICES
 from readthedocs.projects.models import Project
@@ -90,6 +93,7 @@ class RemoteRepository(models.Model):
         User,
         verbose_name=_('Users'),
         related_name='oauth_repositories',
+        through='RemoteRepositoryRelation'
     )
     account = models.ForeignKey(
         SocialAccount,
@@ -206,3 +210,29 @@ class RemoteRepository(models.Model):
                 },
             ),
         } for project in projects]
+
+
+class RemoteRepositoryRelation(TimeStampedModel):
+    remoterepository = models.ForeignKey(
+        RemoteRepository,
+        related_name='remote_relations',
+        on_delete=models.CASCADE
+    )
+    user = models.ForeignKey(
+        User,
+        related_name='remote_relations',
+        on_delete=models.CASCADE
+    )
+    account = models.ForeignKey(
+        SocialAccount,
+        verbose_name=_('Connected account'),
+        related_name='remote_relations',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    admin = models.BooleanField(_('Has admin privilege'), default=False)
+    json = JSONField(_('Serialized API response'))
+
+    class Meta:
+        unique_together = (('remoterepository', 'user'),)
