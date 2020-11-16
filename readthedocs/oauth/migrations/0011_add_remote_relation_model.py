@@ -19,13 +19,13 @@ class Migration(migrations.Migration):
         migrations.SeparateDatabaseAndState(
             database_operations=[
                 migrations.RunSQL(
-                    sql='ALTER TABLE oauth_remoterepository_users RENAME TO oauth_remoterelation',
-                    reverse_sql='ALTER TABLE oauth_remoterelation RENAME TO oauth_remoterepository_users',
+                    sql='ALTER TABLE oauth_remoterepository_users RENAME TO oauth_remoterepositoryrelation',
+                    reverse_sql='ALTER TABLE oauth_remoterepositoryrelation RENAME TO oauth_remoterepository_users',
                 ),
             ],
             state_operations=[
                 migrations.CreateModel(
-                    name='RemoteRelation',
+                    name='RemoteRepositoryRelation',
                     fields=[
                         (
                             'id',
@@ -59,19 +59,19 @@ class Migration(migrations.Migration):
                     name='users',
                     field=models.ManyToManyField(
                         related_name='oauth_repositories',
-                        through='oauth.RemoteRelation',
+                        through='oauth.RemoteRepositoryRelation',
                         to=settings.AUTH_USER_MODEL,
                         verbose_name='Users'
                     ),
                 ),
                 migrations.AlterUniqueTogether(
-                    name='remoterelation',
+                    name='remoterepositoryrelation',
                     unique_together={('remoterepository', 'user')},
                 ),
             ],
         ),
         migrations.AddField(
-            model_name='remoterelation',
+            model_name='remoterepositoryrelation',
             name='account',
             field=models.ForeignKey(
                 blank=True,
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name='remoterelation',
+            model_name='remoterepositoryrelation',
             name='admin',
             field=models.BooleanField(
                 default=False,
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name='remoterelation',
+            model_name='remoterepositoryrelation',
             name='json',
             field=jsonfield.fields.JSONField(
                 default=dict,
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='remoterelation',
+            model_name='remoterepositoryrelation',
             name='created',
             field=django_extensions.db.fields.CreationDateTimeField(
                 auto_now_add=True,
@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='remoterelation',
+            model_name='remoterepositoryrelation',
             name='modified',
             field=django_extensions.db.fields.ModificationDateTimeField(
                 auto_now=True,

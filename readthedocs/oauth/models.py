@@ -93,7 +93,7 @@ class RemoteRepository(models.Model):
         User,
         verbose_name=_('Users'),
         related_name='oauth_repositories',
-        through='RemoteRelation'
+        through='RemoteRepositoryRelation'
     )
     account = models.ForeignKey(
         SocialAccount,
@@ -218,7 +218,7 @@ class RemoteRepository(models.Model):
         } for project in projects]
 
 
-class RemoteRelation(TimeStampedModel):
+class RemoteRepositoryRelation(TimeStampedModel):
     remoterepository = models.ForeignKey(
         RemoteRepository,
         related_name='remote_relations',
