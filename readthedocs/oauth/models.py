@@ -231,7 +231,6 @@ class RemoteRelation(TimeStampedModel):
         blank=True,
         on_delete=models.SET_NULL,
     )
-    active = models.BooleanField(_('Active'), default=False)
     admin = models.BooleanField(_('Has admin privilege'), default=False)
     json = JSONField(_('Serialized API response'))
 
