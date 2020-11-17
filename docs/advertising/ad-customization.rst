@@ -28,21 +28,17 @@ The ad will be inserted into this container wherever this element is in the docu
 
 .. code-block:: html
 
-    <div id="ethical-ad-placement"></div>
+    <div data-ea-publisher="readthedocs"></div>
 
+For a complete list of options, see the `ad client documentation <https://ethical-ad-client.readthedocs.io/>`_.
 
-In Sphinx
-~~~~~~~~~
+With Sphinx in the sidebar
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In Sphinx, this is typically done by
 adding a new template (under `templates_path`_)
 for inclusion in the `HTML sidebar`_ in your ``conf.py``.
 
-.. _HTML sidebar: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_sidebars
-.. _templates_path: https://www.sphinx-doc.org/page/usage/configuration.html#confval-templates_path
-
-
-.. Note: this does not work on the RTD sphinx theme because it doesn't use ``html_sidebars``.
 .. code-block:: python
 
     ## In conf.py
@@ -60,4 +56,37 @@ for inclusion in the `HTML sidebar`_ in your ``conf.py``.
 .. code-block:: html
 
     <!-- In _templates/ethicalads.html -->
-    <div id="ethical-ad-placement"></div>
+    <div data-ea-publisher="readthedocs"></div>
+
+
+.. note::
+
+    The above example does not work in the Read the Docs Sphinx theme which doesn't use ``html_sidebars``.
+    Instead, you can override one of the templates used by the theme to position the ad.
+
+
+With Sphinx in the body
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To put an ad in the body, you will need to override one of the templates (in your `templates_path`_)
+and override a block in that template.
+Due to overriding templates, this will probably need to be customized lightly per theme.
+
+.. code-block:: html
+
+    <!-- In _templates/layout.html -->
+    {% extends "sphinx_rtd_theme/layout.html" %}
+    {% block document %}
+      {% include "ethicalads.html" %}
+
+      {{ super() }}
+    {% endblock document %}
+
+
+    <!-- In _templates/ethicalads.html -->
+    <div data-ea-publisher="readthedocs"></div>
+
+
+
+.. _HTML sidebar: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_sidebars
+.. _templates_path: https://www.sphinx-doc.org/page/usage/configuration.html#confval-templates_path
