@@ -37,6 +37,7 @@ class ProjectSearchSerializer(serializers.Serializer):
     name = serializers.CharField()
     slug = serializers.CharField()
     link = serializers.CharField(source='url')
+    description = serializers.CharField()
     highlights = ProjectHighlightSerializer(source='meta.highlight', default=dict)
 
 
