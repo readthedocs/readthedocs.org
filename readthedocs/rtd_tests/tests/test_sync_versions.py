@@ -1,8 +1,11 @@
 import json
 from unittest import mock
 
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
@@ -10,6 +13,8 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
+from readthedocs.organizations.models import Organization, OrganizationOwner
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 
 
@@ -18,8 +23,22 @@ class TestSyncVersions(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',
@@ -908,8 +927,22 @@ class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
 
     def test_stable_versions(self):
         version_post_data = {
@@ -1403,8 +1436,22 @@ class TestLatestVersion(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.user = User.objects.get(username='eric')
+        self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
+
+        # Run tests for .com
+        if settings.ALLOW_PRIVATE_REPOS:
+            self.org = get(
+                Organization,
+                name='testorg',
+            )
+            OrganizationOwner.objects.create(
+                owner=self.user,
+                organization=self.org,
+            )
+            self.org.projects.add(self.pip)
+
         Version.objects.create(
             project=self.pip,
             identifier='origin/master',
