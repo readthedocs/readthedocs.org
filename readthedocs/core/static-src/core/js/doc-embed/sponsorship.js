@@ -19,6 +19,7 @@ function inject_ads_client() {
     script.src = "https://media.ethicalads.io/media/client/beta/ethicalads.min.js";
     script.type = "text/javascript";
     script.async = true;
+    script.id = "ethicaladsjs";
     document.getElementsByTagName("head")[0].appendChild(script);
 }
 
@@ -185,6 +186,14 @@ function init() {
                 // Ad client prevented from loading - check ad blockers
                 adblock_admonition();
                 adblock_nag(placement);
+            } else {
+                // The ad client hasn't loaded yet which could happen due to a variety of issues
+                // Add an event listener for it to load
+                $("#ethicaladsjs").on("load", function () {
+                    if (typeof ethicalads !== "undefined") {
+                        ethicalads.load();
+                    }
+                });
             }
         },
         error: function () {
