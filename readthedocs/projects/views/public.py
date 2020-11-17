@@ -55,6 +55,11 @@ class ProjectTagIndex(ListView):
     def get_queryset(self):
         queryset = Project.objects.public(self.request.user)
 
+        # Filters out projects from banned users
+        # This is disabled for performance reasons
+        # https://github.com/readthedocs/readthedocs.org/pull/7671
+        # queryset = queryset.exclude(users__profile__banned=True)
+
         self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
 
