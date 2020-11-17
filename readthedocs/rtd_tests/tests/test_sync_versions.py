@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import json
 from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
 
-from readthedocs.builds.constants import BRANCH, STABLE, TAG, LATEST
+from readthedocs.builds.constants import BRANCH, LATEST, STABLE, TAG
 from readthedocs.builds.models import (
     RegexAutomationRule,
     Version,
@@ -774,7 +772,9 @@ class TestSyncVersions(TestCase):
             content_type='application/json',
         )
         run_automation_rules.assert_called_with(
-            self.pip, {'new_branch', 'new_tag'}
+            self.pip,
+            {'new_branch', 'new_tag'},
+            {'0.8', '0.8.1'},
         )
 
     def test_automation_rule_activate_version(self):
@@ -837,6 +837,70 @@ class TestSyncVersions(TestCase):
         self.pip.refresh_from_db()
         self.assertEqual(self.pip.get_default_version(), 'new_tag')
 
+    def test_automation_rule_delete_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        version_slug = '0.8'
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^0\.8$',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
+
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertFalse(self.pip.versions.filter(slug=version_slug).exists())
+
+    def test_automation_rule_dont_delete_default_version(self):
+        version_post_data = {
+            'tags': [
+                {
+                    'identifier': 'new_tag',
+                    'verbose_name': 'new_tag',
+                },
+                {
+                    'identifier': '0.8.3',
+                    'verbose_name': '0.8.3',
+                },
+            ],
+        }
+        version_slug = '0.8'
+        RegexAutomationRule.objects.create(
+            project=self.pip,
+            priority=0,
+            match_arg=r'^0\.8$',
+            action=VersionAutomationRule.DELETE_VERSION_ACTION,
+            version_type=TAG,
+        )
+        version = self.pip.versions.get(slug=version_slug)
+        self.assertTrue(version.active)
+
+        self.pip.default_version = version_slug
+        self.pip.save()
+
+        self.client.post(
+            reverse('project-sync-versions', args=[self.pip.pk]),
+            data=json.dumps(version_post_data),
+            content_type='application/json',
+        )
+        self.assertTrue(self.pip.versions.filter(slug=version_slug).exists())
 
 class TestStableVersion(TestCase):
     fixtures = ['eric', 'test_data']
