@@ -508,7 +508,7 @@ class GitLabService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, state, link_to_build=False):
         """
         Create GitLab commit status for project.
 
@@ -518,6 +518,7 @@ class GitLabService(Service):
         :type state: str
         :param commit: commit sha of the pull request
         :type commit: str
+        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -536,7 +537,7 @@ class GitLabService(Service):
 
         target_url = build.get_full_url()
 
-        if state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and state == BUILD_STATUS_SUCCESS:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
