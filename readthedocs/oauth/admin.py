@@ -4,7 +4,11 @@
 
 from django.contrib import admin
 
-from .models import RemoteOrganization, RemoteRepository
+from .models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 
 
 class RemoteRepositoryAdmin(admin.ModelAdmin):
@@ -22,4 +26,5 @@ class RemoteOrganizationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(RemoteRepository, RemoteRepositoryAdmin)
+admin.site.register(RemoteRepositoryRelation)
 admin.site.register(RemoteOrganization, RemoteOrganizationAdmin)

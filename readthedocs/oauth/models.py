@@ -174,15 +174,6 @@ class RemoteRepository(models.Model):
     def __str__(self):
         return 'Remote repository: {}'.format(self.html_url)
 
-    def get_serialized(self, key=None, default=None):
-        try:
-            data = json.loads(self.json)
-            if key is not None:
-                return data.get(key, default)
-            return data
-        except ValueError:
-            pass
-
     @property
     def clone_fuzzy_url(self):
         """Try to match against several permutations of project URL."""
@@ -236,3 +227,12 @@ class RemoteRepositoryRelation(TimeStampedModel):
 
     class Meta:
         unique_together = (('remoterepository', 'user'),)
+
+    def get_serialized(self, key=None, default=None):
+        try:
+            data = self.json
+            if key is not None:
+                return data.get(key, default)
+            return data
+        except ValueError:
+            pass

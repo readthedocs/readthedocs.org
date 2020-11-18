@@ -14,7 +14,11 @@ from requests.exceptions import RequestException
 from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
-from ..models import RemoteOrganization, RemoteRepository
+from ..models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from .base import Service, SyncServiceError
 
 
@@ -57,16 +61,18 @@ class BitbucketService(Service):
             resp = self.paginate(
                 'https://bitbucket.org/api/2.0/repositories/?role=admin',
             )
-            admin_repos = (
-                RemoteRepository.objects.filter(
-                    users=self.user,
-                    full_name__in=[r['full_name'] for r in resp],
+            admin_repo_relations = (
+                RemoteRepositoryRelation.objects.filter(
+                    user=self.user,
                     account=self.account,
+                    remoterepository__full_name__in=[
+                        r['full_name'] for r in resp
+                    ]
                 )
             )
-            for repo in admin_repos:
-                repo.admin = True
-                repo.save()
+            for remote_relation in admin_repo_relations:
+                remote_relation.admin = True
+                remote_relation.save()
         except (TypeError, ValueError):
             pass
 
@@ -120,13 +126,18 @@ class BitbucketService(Service):
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
-                (privacy == 'private'),
-                (fields['is_private'] is False and privacy == 'public'),
+            (privacy == 'private'),
+            (fields['is_private'] is False and privacy == 'public'),
         ]):
-            repo, _ = RemoteRepository.objects.get_or_create(
-                full_name=fields['full_name'],
-                account=self.account,
+            repo, _  = RemoteRepository.objects.get_or_create(
+                full_name=fields['full_name']
             )
+            remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
+                remoterepository=repo,
+                user=self.user,
+                account=self.account
+            )
+
             if repo.organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
@@ -135,7 +146,6 @@ class BitbucketService(Service):
                 return None
 
             repo.organization = organization
-            repo.users.add(self.user)
             repo.name = fields['name']
             repo.description = fields['description']
             repo.private = fields['is_private']
@@ -155,15 +165,18 @@ class BitbucketService(Service):
 
             repo.html_url = fields['links']['html']['href']
             repo.vcs = fields['scm']
-            repo.account = self.account
 
             avatar_url = fields['links']['avatar']['href'] or ''
             repo.avatar_url = re.sub(r'\/16\/$', r'/32/', avatar_url)
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
 
-            repo.json = json.dumps(fields)
             repo.save()
+
+            remote_relation.account = self.account
+            remote_relation.json = fields
+            remote_relation.save()
+
             return repo
 
         log.debug(

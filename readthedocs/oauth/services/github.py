@@ -8,7 +8,6 @@ from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 
 from django.conf import settings
-from django.db.models import Q
 from django.urls import reverse
 from requests.exceptions import RequestException
 
@@ -20,7 +19,11 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.integrations.models import Integration
 
-from ..models import RemoteOrganization, RemoteRepository
+from ..models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from .base import Service, SyncServiceError
 
 log = logging.getLogger(__name__)
@@ -97,21 +100,19 @@ class GitHubService(Service):
         """
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         if any([
-                (privacy == 'private'),
-                (fields['private'] is False and privacy == 'public'),
+            (privacy == 'private'),
+            (fields['private'] is False and privacy == 'public'),
         ]):
-            try:
-                repo = RemoteRepository.objects.get(
-                    full_name=fields['full_name'],
-                    users=self.user,
-                    account=self.account,
-                )
-            except RemoteRepository.DoesNotExist:
-                repo = RemoteRepository.objects.create(
-                    full_name=fields['full_name'],
-                    account=self.account,
-                )
-                repo.users.add(self.user)
+
+            repo, _  = RemoteRepository.objects.get_or_create(
+                full_name=fields['full_name']
+            )
+            remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
+                remoterepository=repo,
+                user=self.user,
+                account=self.account
+            )
+
             if repo.organization and repo.organization != organization:
                 log.debug(
                     'Not importing %s because mismatched orgs',
@@ -125,19 +126,25 @@ class GitHubService(Service):
             repo.ssh_url = fields['ssh_url']
             repo.html_url = fields['html_url']
             repo.private = fields['private']
+            repo.vcs = 'git'
+            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+
             if repo.private:
                 repo.clone_url = fields['ssh_url']
             else:
                 repo.clone_url = fields['clone_url']
-            repo.admin = fields.get('permissions', {}).get('admin', False)
-            repo.vcs = 'git'
-            repo.account = self.account
-            repo.avatar_url = fields.get('owner', {}).get('avatar_url')
+
             if not repo.avatar_url:
                 repo.avatar_url = self.default_user_avatar_url
-            repo.json = json.dumps(fields)
+
             repo.save()
+
+            remote_relation.json = fields
+            remote_relation.admin = fields.get('permissions', {}).get('admin', False)
+            remote_relation.save()
+
             return repo
+
 
         log.debug(
             'Not importing %s because mismatched type',
