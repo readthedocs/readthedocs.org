@@ -191,7 +191,7 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RemoteRepository
-        exclude = ('json', 'users')
+        exclude = ('users',)
 
     def get_matches(self, obj):
         request = self.context['request']
