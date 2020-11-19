@@ -26,7 +26,6 @@ from readthedocs.api.v2.views.integrations import (
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
-    GITLAB_MERGE_REQUEST_OPEN,
     GITLAB_MERGE_REQUEST_REOPEN,
     GITLAB_MERGE_REQUEST_UPDATE,
     GITLAB_NULL_HASH,
@@ -40,7 +39,11 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
-from readthedocs.oauth.models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.projects.models import (
     APIProject,
     EnvironmentVariable,
