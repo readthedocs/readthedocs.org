@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0060_make_rank_not_null'),
+        ('projects', '0065_add_feature_future_default_true'),
     ]
 
     operations = [
