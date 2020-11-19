@@ -206,7 +206,7 @@ class Service:
             .exclude(
                 Q(full_name__in=repository_full_names) | Q(project__isnull=False)
             )
-            .filter(account=self.account)
+            .filter(remote_relations__account=self.account)
             .delete()
         )
 
