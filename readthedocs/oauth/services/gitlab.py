@@ -163,7 +163,7 @@ class GitLabService(Service):
         privacy = privacy or settings.DEFAULT_PRIVACY_LEVEL
         repo_is_public = fields['visibility'] == 'public'
         if privacy == 'private' or (repo_is_public and privacy == 'public'):
-            repo, _  = RemoteRepository.objects.get_or_create(
+            repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['name_with_namespace']
             )
             remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(

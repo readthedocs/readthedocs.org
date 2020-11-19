@@ -104,7 +104,7 @@ class GitHubService(Service):
             (fields['private'] is False and privacy == 'public'),
         ]):
 
-            repo, _  = RemoteRepository.objects.get_or_create(
+            repo, _ = RemoteRepository.objects.get_or_create(
                 full_name=fields['full_name']
             )
             remote_relation, _ = RemoteRepositoryRelation.objects.get_or_create(
@@ -144,7 +144,6 @@ class GitHubService(Service):
             remote_relation.save()
 
             return repo
-
 
         log.debug(
             'Not importing %s because mismatched type',
