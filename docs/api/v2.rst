@@ -1,19 +1,24 @@
-API v2 (deprecated)
-===================
+API v2
+======
 
 The Read the Docs API uses :abbr:`REST (Representational State Transfer)`.
 JSON is returned by all API responses including errors
 and HTTP response status codes are to designate success and failure.
 
-.. note::
+.. warning::
 
-    A newer and better API v3 is ready to use.
-    Some improvements coming in v3 are:
+    API v2 is planned to be deprecated soon, though we have not yet set a time
+    frame for deprecation yet. We will alert users with our plans when we do.
 
-    * Simpler URLs which use slugs
+    For now, API v2 is still used by some legacy application operations still,
+    but we highly recommend Read the Docs users use :doc:`API v3 </api/v3>`
+    instead.
+
+    Some improvements in :doc:`API v3 </api/v3>` are:
+
     * Token based authentication
-    * Import a new project
-    * Activate a version
+    * Easier to use URLs which no longer use numerical ids
+    * More common user actions are exposed through the API
     * Improved error reporting
 
     See its full documentation at :doc:`/api/v3`.

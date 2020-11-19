@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, render
 from django.views import View
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 from readthedocs.search.faceted_search import (
     ALL_FACETS,
     PageSearch,
@@ -75,8 +75,12 @@ class SearchView(View):
 
     def get(self, request, project_slug=None):
         request_type = None
+        use_advanced_query = True
         if project_slug:
             project_obj = self._get_project(project_slug)
+            use_advanced_query = not project_obj.has_feature(
+                Feature.DEFAULT_TO_FUZZY_SEARCH,
+            )
             request_type = request.GET.get('type', 'file')
 
         version_slug = request.GET.get('version', LATEST)
@@ -113,6 +117,7 @@ class SearchView(View):
                 query=user_input.query,
                 filters=filters,
                 user=request.user,
+                use_advanced_query=use_advanced_query,
             )
             results = search[:self.max_search_results].execute()
             facets = results.facets

@@ -84,6 +84,19 @@ class BaseFooterHTML(APIView):
     """
     Render and return footer markup.
 
+    Query parameters:
+
+    - project
+    - version
+    - page: Sphinx's page name, used for path operations,
+      like change between languages (deprecated in favor of ``absolute_uri``).
+    - absolute_uri: Full path with domain, used for path operations.
+    - theme: Used to decide how to integrate the flyout menu.
+    - docroot: Path where all the source documents are.
+      Used to build the ``edit_on`` URL.
+    - source_suffix: Suffix from the source document.
+      Used to build the ``edit_on`` URL.
+
     .. note::
 
        The methods `_get_project` and `_get_version`
@@ -236,7 +249,8 @@ class BaseFooterHTML(APIView):
             sender=None,
             request=request,
             context=context,
-            resp_data=resp_data,
+            response_data=resp_data,
+            absolute_uri=self.request.GET.get('absolute_uri'),
         )
 
         return Response(resp_data)

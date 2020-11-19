@@ -18,7 +18,7 @@ class CommunityProxitoSettingsMixin:
         # This keeps connections to the DB alive,
         # which reduces latency with connecting to postgres
         dbs = getattr(super(), 'DATABASES', {})
-        for db in dbs.keys():
+        for db in dbs:
             dbs[db]['CONN_MAX_AGE'] = 86400
         return dbs
 

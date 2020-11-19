@@ -47,6 +47,7 @@ def all_projects(es_index, mock_processed_json, db, settings):
                 version=version,
                 name=file_name,
                 path=file_name,
+                build=1,
             )
 
             # creating sphinx domain test objects

@@ -69,6 +69,11 @@ class Organization(models.Model):
         help_text='Docs and builds are disabled for this organization',
         default=False,
     )
+    max_concurrent_builds = models.IntegerField(
+        _('Maximum concurrent builds allowed for this organization'),
+        null=True,
+        blank=True,
+    )
 
     stripe_id = models.CharField(
         _('Stripe customer ID'),
@@ -180,6 +185,11 @@ class Team(models.Model):
         max_length=100,
         choices=constants.ACCESS_LEVELS,
         default='readonly',
+    )
+
+    auto_join_email_users = models.BooleanField(
+        default=False,
+        help_text="Auto join users with an organization's email address to this team.",
     )
 
     # Manager
