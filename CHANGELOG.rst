@@ -1,3 +1,41 @@
+Version 5.6.4
+-------------
+
+:Date: November 16, 2020
+
+* `@davidfischer <https://github.com/davidfischer>`__: Fix for out of order script loading (`#7670 <https://github.com/readthedocs/readthedocs.org/pull/7670>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Set ad configuration values if using explicit placement (`#7669 <https://github.com/readthedocs/readthedocs.org/pull/7669>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 46 (`#7668 <https://github.com/readthedocs/readthedocs.org/pull/7668>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 45 (`#7655 <https://github.com/readthedocs/readthedocs.org/pull/7655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: add delete version action (`#7644 <https://github.com/readthedocs/readthedocs.org/pull/7644>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: exclude some fields from source results (`#7640 <https://github.com/readthedocs/readthedocs.org/pull/7640>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Add Initial Modeling with Through Model and Data Migration for RemoteRepository Model (`#7536 <https://github.com/readthedocs/readthedocs.org/pull/7536>`__)
+* `@humitos <https://github.com/humitos>`__: Changes required for APIv3 in corporate (`#6489 <https://github.com/readthedocs/readthedocs.org/pull/6489>`__)
+
+Version 5.6.3
+-------------
+
+:Date: November 10, 2020
+
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 43 (`#7602 <https://github.com/readthedocs/readthedocs.org/pull/7602>`__)
+
+Version 5.6.2
+-------------
+
+:Date: November 03, 2020
+
+* `@humitos <https://github.com/humitos>`__: Check only for override settings (part 2) (`#7630 <https://github.com/readthedocs/readthedocs.org/pull/7630>`__)
+* `@humitos <https://github.com/humitos>`__: Check only override settings (`#7628 <https://github.com/readthedocs/readthedocs.org/pull/7628>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Display sidebar ad when scrolled (`#7621 <https://github.com/readthedocs/readthedocs.org/pull/7621>`__)
+* `@humitos <https://github.com/humitos>`__: Reserve 1Gb for Application Memory (`#7618 <https://github.com/readthedocs/readthedocs.org/pull/7618>`__)
+* `@humitos <https://github.com/humitos>`__: Catch `requests.exceptions.ReadTimeout` when removing container (`#7617 <https://github.com/readthedocs/readthedocs.org/pull/7617>`__)
+* `@humitos <https://github.com/humitos>`__: Allow search and filter in Django Admin for Message model (`#7615 <https://github.com/readthedocs/readthedocs.org/pull/7615>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use badge from circleci (`#7614 <https://github.com/readthedocs/readthedocs.org/pull/7614>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: respect feature flag in dashboard search (`#7611 <https://github.com/readthedocs/readthedocs.org/pull/7611>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 5.6.1 (`#7604 <https://github.com/readthedocs/readthedocs.org/pull/7604>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circleci (`#7603 <https://github.com/readthedocs/readthedocs.org/pull/7603>`__)
+
+
 Version 5.6.1
 -------------
 

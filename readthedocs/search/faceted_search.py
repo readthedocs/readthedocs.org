@@ -29,6 +29,9 @@ class RTDFacetedSearch(FacetedSearch):
 
     operators = []
 
+    # Sources to be excluded from results.
+    excludes = []
+
     _highlight_options = {
         'encoder': 'html',
         'number_of_fragments': 1,
@@ -214,7 +217,7 @@ class RTDFacetedSearch(FacetedSearch):
         * Adds HTML encoding of results to avoid XSS issues.
         """
         search = search.highlight_options(**self._highlight_options)
-        search = search.source(exclude=['content', 'headers'])
+        search = search.source(excludes=self.excludes)
 
         queries = self._get_queries(
             query=query,
@@ -233,6 +236,7 @@ class ProjectSearchBase(RTDFacetedSearch):
     index = ProjectDocument._index._name
     fields = ('name^10', 'slug^5', 'description')
     operators = ['and', 'or']
+    excludes = ['users', 'language']
 
 
 class PageSearchBase(RTDFacetedSearch):
@@ -261,6 +265,8 @@ class PageSearchBase(RTDFacetedSearch):
     # the score of and should be higher as it satisfies both or and and
     operators = ['and', 'or']
 
+    excludes = ['rank', 'sections', 'domains', 'commit', 'build']
+
     def total_count(self):
         """Returns the total count of results of the current query."""
         s = self.build_search()
@@ -279,6 +285,7 @@ class PageSearchBase(RTDFacetedSearch):
         match the same project and version.
         """
         search = search.highlight_options(**self._highlight_options)
+        search = search.source(excludes=self.excludes)
 
         queries = self._get_queries(
             query=query,

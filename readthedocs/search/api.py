@@ -227,26 +227,26 @@ class PageSearchAPIView(GenericAPIView):
         subprojects = Project.objects.filter(
             superprojects__parent_id=main_project.id,
         )
-        for project in subprojects:
+        for subproject in subprojects:
             version = self._get_subproject_version(
                 version_slug=main_version.slug,
-                subproject=project,
+                subproject=subproject,
             )
 
             # Fallback to the default version of the subproject.
             if (
                 not version
                 and main_project.has_feature(Feature.SEARCH_SUBPROJECTS_ON_DEFAULT_VERSION)
-                and project.default_version
+                and subproject.default_version
             ):
                 version = self._get_subproject_version(
-                    version_slug=project.default_version,
-                    subproject=project,
+                    version_slug=subproject.default_version,
+                    subproject=subproject,
                 )
 
             if version and self._has_permission(self.request.user, version):
-                url = project.get_docs_url(version_slug=version.slug)
-                projects_data[project.slug] = VersionData(
+                url = subproject.get_docs_url(version_slug=version.slug)
+                projects_data[subproject.slug] = VersionData(
                     slug=version.slug,
                     doctype=version.documentation_type,
                     docs_url=url,
