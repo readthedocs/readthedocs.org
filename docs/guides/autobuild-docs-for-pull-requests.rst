@@ -58,7 +58,7 @@ Searches will default to the default experience for your tool.
 This is a feature we plan to add,
 but don't want to overwhelm our search indexes used in production.
 
-The documentation will be keep only for 90 days after the pull/merge request has been closed or merged.
+The built documentation is kept for 90 days after the pull/merge request has been closed or merged.
 
 Troubleshooting
 ---------------
