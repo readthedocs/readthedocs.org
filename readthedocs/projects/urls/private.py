@@ -1,5 +1,6 @@
 """Project URLs for authenticated users."""
 
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import RedirectView
@@ -83,11 +84,6 @@ urlpatterns = [
         name='project_version_delete_html',
     ),
     url(
-        r'^(?P<project_slug>[-\w]+)/version/create/$',
-        ProjectVersionCreate.as_view(),
-        name='project_version_create',
-    ),
-    url(
         r'^(?P<project_slug>[-\w]+)/version/(?P<version_slug>[^/]+)/edit/$',
         ProjectVersionDetail.as_view(),
         name='project_version_detail',
@@ -151,6 +147,18 @@ urlpatterns = [
         TrafficAnalyticsView.as_view(), name='projects_traffic_analytics',
     ),
 ]
+
+# TODO move this up to the list above when it's not a conditional URL.
+# Currently, this is only used by the new theme, we don't allow for "create" in
+# our current templates.
+if settings.RTD_EXT_THEME_ENABLED:
+    urlpatterns.append(
+        url(
+            r'^(?P<project_slug>[-\w]+)/version/create/$',
+            ProjectVersionCreate.as_view(),
+            name='project_version_create',
+        ),
+    )
 
 domain_urls = [
     url(
