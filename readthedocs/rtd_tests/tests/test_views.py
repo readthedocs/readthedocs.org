@@ -99,7 +99,7 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_version_detail(self):
-        response = self.client.get('/dashboard/pip/version/0.8.1/')
+        response = self.client.get('/dashboard/pip/version/0.8.1/edit/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):
