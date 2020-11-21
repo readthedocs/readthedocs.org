@@ -33,7 +33,7 @@ def update_webhook(project, integration, request=None):
     try:
         remote_relations = project.remote_repository.remote_relations.filter(
             account__isnull=False
-        )
+        ).select_related('account')
 
         for relation in remote_relations:
             service = service_cls(request.user, relation.account)
