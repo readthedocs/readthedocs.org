@@ -5,6 +5,7 @@ import hmac
 import json
 import logging
 import re
+from functools import namedtuple
 
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
@@ -21,14 +22,13 @@ from readthedocs.core.signals import (
 )
 from readthedocs.core.views.hooks import (
     build_branches,
-    trigger_sync_versions,
-    get_or_create_external_version,
-    delete_external_version,
     build_external_version,
+    delete_external_version,
+    get_or_create_external_version,
+    trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Project, Feature
-
+from readthedocs.projects.models import Feature, Project
 
 log = logging.getLogger(__name__)
 
@@ -54,6 +54,12 @@ GITLAB_NULL_HASH = '0' * 40
 GITLAB_TAG_PUSH = 'tag_push'
 BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
 BITBUCKET_PUSH = 'repo:push'
+
+
+ExternalVersionData = namedtuple(
+    'ExternalVersionData',
+    ['id', 'source_branch', 'base_branch', 'commit'],
+)
 
 
 class WebhookMixin:
@@ -227,20 +233,23 @@ class WebhookMixin:
         :param project: Project instance
         :type project: readthedocs.projects.models.Project
         """
-        identifier, verbose_name = self.get_external_version_data()
+        version_data = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(
-            project, identifier, verbose_name
+            project=project,
+            version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
         to_build = build_external_version(
-            project=project, version=external_version, commit=identifier
+            project=project,
+            version=external_version,
+            version_data=version_data,
         )
 
         return {
-            'build_triggered': True,
+            'build_triggered': bool(to_build),
             'project': project.slug,
-            'versions': [to_build],
+            'versions': [to_build] if to_build else [],
         }
 
     def get_delete_external_version_response(self, project):
@@ -258,10 +267,10 @@ class WebhookMixin:
         :param project: Project instance
         :type project: Project
         """
-        identifier, verbose_name = self.get_external_version_data()
-        # Delete external version
+        version_data = self.get_external_version_data()
         deleted_version = delete_external_version(
-            project, identifier, verbose_name
+            project=project,
+            version_data=version_data,
         )
         return {
             'version_deleted': deleted_version is not None,
@@ -320,13 +329,15 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload."""
         try:
-            identifier = self.data['pull_request']['head']['sha']
-            verbose_name = str(self.data['number'])
-
-            return identifier, verbose_name
-
+            data = ExternalVersionData(
+                id=str(self.data['number']),
+                commit=self.data['pull_request']['head']['sha'],
+                source_branch=self.data['pull_request']['head']['ref'],
+                base_branch=self.data['pull_request']['base']['ref'],
+            )
+            return data
         except KeyError:
-            raise ParseError('Parameters "sha" and "number" are required')
+            raise ParseError('Invalid payload')
 
     def is_payload_valid(self):
         """
@@ -530,13 +541,15 @@ class GitLabWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get commit SHA and merge request number from payload."""
         try:
-            identifier = self.data['object_attributes']['last_commit']['id']
-            verbose_name = str(self.data['object_attributes']['iid'])
-
-            return identifier, verbose_name
-
+            data = ExternalVersionData(
+                id=str(self.data['object_attributes']['iid']),
+                commit=self.data['object_attributes']['last_commit']['id'],
+                source_branch=self.data['object_attributes']['source_branch'],
+                base_branch=self.data['object_attributes']['target_branch'],
+            )
+            return data
         except KeyError:
-            raise ParseError('Parameters "id" and "iid" are required')
+            raise ParseError('Invalid payload')
 
     def handle_webhook(self):
         """

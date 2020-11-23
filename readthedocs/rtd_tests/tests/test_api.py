@@ -1,8 +1,8 @@
 import base64
 import datetime
 import json
-
 from unittest import mock
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
@@ -16,13 +16,13 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
-    GITHUB_PUSH,
-    GITHUB_SIGNATURE_HEADER,
     GITHUB_PULL_REQUEST,
+    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
     GITHUB_PULL_REQUEST_REOPENED,
-    GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_SYNC,
+    GITHUB_PUSH,
+    GITHUB_SIGNATURE_HEADER,
     GITLAB_MERGE_REQUEST,
     GITLAB_MERGE_REQUEST_CLOSE,
     GITLAB_MERGE_REQUEST_MERGE,
@@ -37,7 +37,7 @@ from readthedocs.api.v2.views.integrations import (
     GitLabWebhookView,
 )
 from readthedocs.api.v2.views.task_views import get_status_data
-from readthedocs.builds.constants import LATEST, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -47,7 +47,6 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
-
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -840,9 +839,13 @@ class IntegrationsTests(TestCase):
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": self.commit
-                }
-            }
+                    "sha": self.commit,
+                    "ref": 'source_branch',
+                },
+                "base": {
+                    "ref": "master",
+                },
+            },
         }
         self.gitlab_merge_request_payload = {
             "object_kind": GITLAB_MERGE_REQUEST,
@@ -851,7 +854,9 @@ class IntegrationsTests(TestCase):
                 "last_commit": {
                     "id": self.commit
                 },
-                "action": "open"
+                "action": "open",
+                "source_branch": "source_branch",
+                "target_branch": "master",
             },
         }
         self.gitlab_payload = {

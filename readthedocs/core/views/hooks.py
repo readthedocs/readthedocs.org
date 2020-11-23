@@ -4,9 +4,8 @@ import logging
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils import trigger_build
-from readthedocs.projects.models import Project, Feature
+from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks import sync_repository_task
-
 
 log = logging.getLogger(__name__)
 
@@ -119,22 +118,22 @@ def trigger_sync_versions(project):
     return None
 
 
-def get_or_create_external_version(project, identifier, verbose_name):
+def get_or_create_external_version(project, version_data):
     """
-    Get or create external versions using `identifier` and `verbose_name`.
+    Get or create version using the ``commit`` as identifier, and PR id as ``verbose_name``.
 
     if external version does not exist create an external version
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns:  External version.
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+    instance.
+    :returns: External version.
     :rtype: Version
     """
     external_version, created = project.versions.get_or_create(
-        verbose_name=verbose_name,
+        verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={'identifier': identifier, 'active': True},
+        defaults={'identifier': version_data.commit, 'active': True},
     )
 
     if created:
@@ -144,32 +143,37 @@ def get_or_create_external_version(project, identifier, verbose_name):
         )
     else:
         # identifier will change if there is a new commit to the Pull/Merge Request
-        if external_version.identifier != identifier:
-            external_version.identifier = identifier
+        if external_version.identifier != version_data.commit:
+            external_version.identifier = version_data.commit
             external_version.save()
 
             log.info(
-                '(Update External Version) Updated Version: [%s] ',
-                external_version.slug
+                'Commit from external version updated. project=%s version=%s',
+                project.slug, external_version.slug,
             )
     return external_version
 
 
-def delete_external_version(project, identifier, verbose_name):
+def delete_external_version(project, version_data):
     """
-    Delete external versions using `identifier` and `verbose_name`.
+    Delete external versions using the id and latest commit.
 
     if external version does not exist then returns `None`.
 
     :param project: Project instance
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns:  verbose_name (pull/merge request number).
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+    instance.
+    :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
-    external_version = project.versions(manager=EXTERNAL).filter(
-        verbose_name=verbose_name, identifier=identifier
-    ).first()
+    external_version = (
+        project.versions(manager=EXTERNAL)
+        .filter(
+            verbose_name=version_data.id,
+            identifier=version_data.commit,
+        )
+        .first()
+    )
 
     if external_version:
         # Delete External Version
@@ -183,11 +187,14 @@ def delete_external_version(project, identifier, verbose_name):
     return None
 
 
-def build_external_version(project, version, commit):
+def build_external_version(project, version, version_data):
     """
     Where we actually trigger builds for external versions.
 
     All pull/merge request webhook logic should route here to call ``trigger_build``.
+
+    :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
+    instance.
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True
@@ -199,6 +206,6 @@ def build_external_version(project, version, commit):
         project.slug,
         version.slug,
     )
-    trigger_build(project=project, version=version, commit=commit, force=True)
+    trigger_build(project=project, version=version, commit=version.identifier, force=True)
 
     return version.verbose_name
