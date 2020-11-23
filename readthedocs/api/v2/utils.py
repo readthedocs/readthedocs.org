@@ -14,7 +14,7 @@ from readthedocs.builds.constants import (
     STABLE_VERBOSE_NAME,
     TAG,
 )
-from readthedocs.builds.models import RegexAutomationRule, Version
+from readthedocs.builds.models import Version, VersionAutomationRule
 
 log = logging.getLogger(__name__)
 
@@ -210,7 +210,7 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
        Currently the versions aren't sorted in any way,
        the same order is keeped.
     """
-    class_ = RegexAutomationRule
+    class_ = VersionAutomationRule
     actions = [
         (added_versions, class_.allowed_actions_on_create),
         (deleted_active_versions, class_.allowed_actions_on_delete),

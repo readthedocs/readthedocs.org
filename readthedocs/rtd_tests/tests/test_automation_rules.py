@@ -93,7 +93,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version) == (result, None)
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -127,7 +127,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version) == (result, None)
 
     @pytest.mark.parametrize(
         'version_name,result',
@@ -163,7 +163,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is result
+        assert rule.run(version) == (result, None)
 
     def test_action_activation(self, trigger_build):
         version = get(
@@ -181,7 +181,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert version.active is True
         trigger_build.assert_called_once()
 
@@ -204,7 +204,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.DELETE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert not self.project.versions.filter(slug=slug).exists()
 
     @pytest.mark.parametrize('version_type', [BRANCH, TAG])
@@ -229,7 +229,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.DELETE_VERSION_ACTION,
             version_type=version_type,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert self.project.versions.filter(slug=slug).exists()
 
     def test_action_set_default_version(self, trigger_build):
@@ -249,7 +249,7 @@ class TestRegexAutomationRules:
             version_type=TAG,
         )
         assert self.project.get_default_version() == LATEST
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert self.project.get_default_version() == version.slug
 
     def test_version_hide_action(self, trigger_build):
@@ -269,7 +269,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.HIDE_VERSION_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert version.active is True
         assert version.hidden is True
         trigger_build.assert_called_once()
@@ -292,7 +292,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert version.privacy_level == PUBLIC
         trigger_build.assert_not_called()
 
@@ -314,7 +314,7 @@ class TestRegexAutomationRules:
             action=VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION,
             version_type=TAG,
         )
-        assert rule.run(version) is True
+        assert rule.run(version) == (True, None)
         assert version.privacy_level == PRIVATE
         trigger_build.assert_not_called()
 
